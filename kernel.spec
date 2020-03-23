@@ -24,7 +24,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0036
+Release: %{hulkrelease}.0037
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -61,7 +61,7 @@ BuildRequires: gcc >= 3.4.2, binutils >= 2.12
 BuildRequires: hostname, net-tools, bc
 BuildRequires: xmlto, asciidoc
 BuildRequires: openssl-devel
-BuildRequires: hmaccalc
+BuildRequires: hmaccalc gdb
 BuildRequires: ncurses-devel
 #BuildRequires: pesign >= 0.109-4
 BuildRequires: elfutils-libelf-devel
@@ -789,6 +789,9 @@ fi
 %endif
 
 %changelog
+* Mon Mar 23 2020 Yu Xiangyang <yuxiangyang4@huawei.com> - 4.19.90-2003.4.0.0037
+- add BuildRequires:gdb to fix src.rpm build error
+
 * Sat Mar 21 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.90-2003.4.0.0036
 - x86/config: enable CONFIG_CFQ_GROUP_IOSCHED
 - x86/openeuler_config: disable CONFIG_EFI_VARS
