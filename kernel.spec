@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2003.4.0
+%global hulkrelease 2005.2.0
 
 %define with_patch 0
 
@@ -24,7 +24,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0036
+Release: %{hulkrelease}.0040
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -789,6 +789,165 @@ fi
 %endif
 
 %changelog
+* Wed Jun 3 2020 Xie XiuQi <xiexiuqi@huawei.com> - 4.19.90-2005.2.0.0040
+- update req_distinguished_name for x509.genkey
+
+* Fri May 22 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.90-2005.2.0.0039
+- signal: fix kabi changes in struct task_struct
+- signal: Extend exec_id to 64bits
+- livepatch/core: Fix compile error when CONFIG_JUMP_LABEL closed
+- net/hinic: Adjust AEQ interrupt retransmission settings
+- net/hinic: Number of VF queues cleared during initialization
+- net/hinic: Reduce VF EQ queue depth in SDI mode
+- net/hinic: Disable the CSUM offload capability of TUNNEL in SDI mode
+- net/hinic: VF does not display firmware statistics
+- net/hinic: SDI bare metal VF supports dynamic queue
+- net/hinic: Support doorbell BAR size of 256K in SDI mode
+- net/hinic: Supports variable SDI master host ppf_id
+- net/hinic: Optimize SDI interrupt aggregation parameters
+- netlabel: cope with NULL catmap
+- netprio_cgroup: Fix unlimited memory leak of v2 cgroups
+- net: hns3: update hns3 version to 1.9.38.0
+- net: hns3: solve the unlock 2 times when rocee init fault
+- scsi: sg: add sg_remove_request in sg_write
+- KVM: SVM: Fix potential memory leak in svm_cpu_init()
+- ptp: free ptp device pin descriptors properly
+- spi: spi-dw: Add lock protect dw_spi rx/tx to prevent concurrent calls
+- drivers sfc: Fix cross page write error
+- drivers sysctl: add read and write interface of pmbus
+- net/hinic: Fix TX timeout under ipip tunnel packet
+- xsk: Add missing check on user supplied headroom size
+- fs/namespace.c: fix mountpoint reference counter race
+- USB: core: Fix free-while-in-use bug in the USB S-Glibrary
+- block, bfq: fix use-after-free in bfq_idle_slice_timer_body
+- mwifiex: Fix possible buffer overflows in mwifiex_cmd_append_vsie_tlv()
+- mwifiex: Fix possible buffer overflows in mwifiex_ret_wmm_get_status()
+- scsi: mptfusion: Fix double fetch bug in ioctl
+- mt76: fix array overflow on receiving too many fragments for a packet
+- net: hns3: change the order of reinitializing RoCE and VF during reset
+- net: hns3: update hns3 version to 1.9.37.9
+- Revert "scsi: fix failing unload of a LLDD module"
+- s390/mm: fix page table upgrade vs 2ndary address mode accesses
+- pcie_cae support getting chipnums of this system
+- net: hns3: remove the unnecessary ccflags
+
+* Wed May 6 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.90-2005.1.0.0038
+- perf: Make perf able to build with latest libbfd
+- nbd: use blk_mq_queue_tag_inflight_iter()
+- blk-mq: use blk_mq_queue_tag_inflight_iter() in debugfs
+
+* Tue Apr 28 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.90-2004.1.0.0037
+- net: hns3: update hns3 version to 1.9.37.8
+- net: hns3: optimize FD tuple inspect
+- net: hns3: fix unsupported config for RSS
+- net: hns3: disable auto-negotiation off with 1000M setting in ethtool
+- net: hns3: update VF mac list configuration as PF
+- net: hns3: modify magic number in hclge_dbg_dump_ncl_config
+- net: hns3: do mac configuration instead of rollback when malloc mac node fail
+- net: hns3: update the device mac address asynchronously
+- net: hns3: add one parameter for function hns3_nic_maybe_stop_tx()
+- net: hns3: delete unnecessary logs after kzalloc fails
+- net: hns3: fix some coding style found by codereview
+- net: hns3: use uniform format "failed to xxx" to print fail message
+- net: hns3: add debug information for flow table when failed
+- net: hns3: modify hclge_restore_fd_entries()'s return type to void
+- net: hns3: splice two "if" logic as one
+- net: hns3: clean up some coding style issue
+- net: hns3: modify definition location of struct hclge_mac_ethertype_idx_rd_cmd
+- net: hns3: modify comment of macro HNAE3_MIN_VECTOR_NUM
+- net: hns3: modify one macro into unsigned type
+- net: hns3: delete unused macro HCLGEVF_MPF_ENBALE
+- net: hns3: modify definition location of struct hclge_vf_vlan_cfg
+- net: hns3: remove unnecessary 'ret' variable in hclge_misc_err_recovery()
+- net: hns3: remove unnecessary register info in hclge_reset_err_handle()
+- net: hns3: misc cleanup for VF reset
+- net: hns3: merge mac state HCLGE_MAC_TO_DEL and HCLGE_MAC_DEL_FAIL
+- net: hns3: update hns3 version to 1.9.37.7
+- scsi: hisi_sas: do not reset the timer to wait for phyup when phy already up
+- net: hns3: add suspend/resume function for hns3 driver
+- btrfs: tree-checker: Enhance chunk checker to validate chunk profile
+- net/hinic: fix the problem that out-of-bounds access
+- scsi: sg: fix memory leak in sg_build_indirect
+- scsi: sg: add sg_remove_request in sg_common_write
+- btrfs: Don't submit any btree write bio if the fs has errors
+- btrfs: extent_io: Handle errors better in extent_write_full_page()
+- net/hinic: Delete useless header files
+- powerpc/powernv/idle: Restore AMR/UAMOR/AMOR after idle
+- media: xirlink_cit: add missing descriptor sanity checks
+- Input: add safety guards to input_set_keycode()
+- f2fs: fix to avoid memory leakage in f2fs_listxattr
+- media: stv06xx: add missing descriptor sanity checks
+- media: ov519: add missing endpoint sanity checks
+- btrfs: tree-checker: Verify inode item
+- btrfs: delayed-inode: Kill the BUG_ON() in btrfs_delete_delayed_dir_index()
+- net: hns3: update hns3 version to 1.9.37.6
+- net: hns3: ignore the send mailbox failure by VF is unalive
+- net: hns3: update hns3 version to 1.9.37.5
+- net: hns3: fix "tc qdisc del" failed issue
+- net: hns3: rename two functions from periodical to periodic
+- net: hns3: modify some print messages for cleanup and keep style consistent
+- net: hns3: add some blank lines for cleanup
+- net: hns3: sync some code from linux mainline
+- net: hns3: fix mailbox send to VF failed issue
+- net: hns3: disable phy loopback setting in hclge_mac_start_phy
+- net: hns3: delete some useless code
+- net: hns3: remove the limitation of MAC address duplicate configuration
+- net: hns3: delete the unused struct hns3_link_mode_mapping
+- net: hns3: rename one parameter in hclge_add_fd_entry_by_arfs()
+- net: hns3: modify the location of macro HCLGE_LINK_STATUS_MS definition
+- net: hns3: modify some unsuitable parameter type of RSS
+- net: hns3: move some definition location
+- net: hns3: add judgement for hclgevf_update_port_base_vlan_info()
+- net: hns3: check null pointer in function hclge_fd_config_rule()
+- net: hns3: optimize deletion of the flow direction table
+- net: hns3: fix a ipv6 address copy problem in hclge_fd_get_flow_tuples()
+- net: hns3: fix VF bandwidth does not take effect in some case
+- net: hns3: synchronize some print relating to reset issue
+- net: hns3: delete unnecessary 5s delay judgement in hclgevf_reset_event()
+- net: hns3: delete unnecessary reset handling judgement in hclgevf_reset_tqp()
+- net: hns3: delete unnecessary judgement in hns3_get_regs()
+- net: hns3: delete one variable in hclge_get_sset_count() for optimization
+- net: hns3: optimize return process for phy loop back
+- net: hns3: fix "mac exist" problem
+- net: hns3: add one printing information in hnae3_unregister_client() function
+- slcan: Don't transmit uninitialized stack data in padding
+- mm: mempolicy: require at least one nodeid for MPOL_PREFERRED
+- livepatch/core: fix kabi for klp_rel_state
+- livepatch/core: support jump_label
+- arm64: entry: SP Alignment Fault doesn't write to FAR_EL1
+- arm64: mark (__)cpus_have_const_cap as __always_inline
+- arm64/module: revert to unsigned interpretation of ABS16/32 relocations
+- arm64/module: deal with ambiguity in PRELxx relocation ranges
+- i2c: designware: Add ACPI HID for Hisilicon Hip08-Lite I2C controller
+- ACPI / APD: Add clock frequency for Hisilicon Hip08-Lite I2C controller
+- qm: fix packet loss for acc
+- net/hinic: Solve the problem that 1822 NIC reports 5d0 error
+- net: hns3: Rectification of driver code review
+- net: hns3: update hns3 version to 1.9.37.4
+- net: hns3: additional fix for fraglist handling
+- net: hns3: fix for fraglist skb headlen not handling correctly
+- net: hns3: update hns3 version to 1.9.37.3
+- sec: modify driver to adapt dm-crypt
+- qm: reinforce reset failure scene
+- zip: fix decompress a empty file
+- hpre: dfx for IO operation and delay
+- RDMA/hns: optimize mtr management and fix mtr addressing bug
+- RDMA/hns: fix bug of accessing null pointer
+- sec: Overall optimization of sec code
+- qm: optimize the maximum number of VF and delete invalid addr
+- qm: optimize set hw_reset flag logic for user
+- qm: fixup the problem of wrong judgement of used parameter
+- qm: Move all the same logic functions of hisilicon crypto to qm
+- drivers : localbus cleancode
+- drivers : sysctl cleancode
+- drivers : sfc cleancode
+- kretprobe: check re-registration of the same kretprobe earlier
+- vhost: Check docket sk_family instead of call getname
+- btrfs: tree-checker: Add EXTENT_ITEM and METADATA_ITEM check
+- block: fix possible memory leak in 'blk_prepare_release_queue'
+- Revert "dm-crypt: Add IV generation templates"
+- Revert "dm-crypt: modify dm-crypt to rely on IV generation templates"
+
 * Sat Mar 21 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.90-2003.4.0.0036
 - x86/config: enable CONFIG_CFQ_GROUP_IOSCHED
 - x86/openeuler_config: disable CONFIG_EFI_VARS
@@ -819,7 +978,7 @@ fi
 * Mon Mar 16 2020 Luo Chunsheng <luochunsheng@huawei.com> - 4.19.90-2003.1.1.0033
 - fix kernel-devel upgrade running scriptlet failed
 
-* Thu Mar 14 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.90-2003.1.1.0032
+* Sat Mar 14 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.90-2003.1.1.0032
 - openeuler/config: enable CONFIG_FCOE
 - openeuler/config: disable unused debug config
 - net: hns3: update the number of version
@@ -1022,7 +1181,6 @@ fi
 - net/sched: act_mirred: Pull mac prior redir to non mac_header_xmit device
 - kernfs: fix potential null pointer dereference
 - arm64: fix calling nmi_enter() repeatedly when IPI_CPU_CRASH_STOP
-- Linux 4.19.95
 - usb: missing parentheses in USE_NEW_SCHEME
 - USB: serial: option: add Telit ME910G1 0x110a composition
 - USB: core: fix check for duplicate endpoints
@@ -1106,7 +1264,6 @@ fi
 - USB: dummy-hcd: increase max number of devices to 32
 - USB: dummy-hcd: use usb_urb_dir_in instead of usb_pipein
 - block: fix use-after-free on cached last_lookup partition
-- Linux 4.19.94
 - perf/x86/intel/bts: Fix the use of page_private()
 - xen/blkback: Avoid unmapping unmapped grant pages
 - s390/smp: fix physical to logical CPU map for SMT
@@ -1217,7 +1374,6 @@ fi
 - drm/amdgpu: add check before enabling/disabling broadcast mode
 - nvme-fc: fix double-free scenarios on hw queues
 - nvme_fc: add module to ops template to allow module references
-- Linux 4.19.93
 - spi: fsl: use platform_get_irq() instead of of_irq_to_resource()
 - pinctrl: baytrail: Really serialize all register accesses
 - tty/serial: atmel: fix out of range clock divider handling
@@ -1326,7 +1482,6 @@ fi
 - scsi: lpfc: Fix locking on mailbox command completion
 - scsi: mpt3sas: Fix clear pending bit in ioctl status
 - scsi: lpfc: Fix discovery failures when target device connectivity bounces
-- Linux 4.19.92
 - perf probe: Fix to show function entry line as probe-able
 - mmc: sdhci: Add a quirk for broken command queuing
 - mmc: sdhci: Workaround broken command queuing on Intel GLK
@@ -1542,7 +1697,6 @@ fi
 - svm: Fix unpin_memory calculate nr_pages error
 - vrf: Do not attempt to create IPv6 mcast rule if IPv6 is disabled
 - iommu: Add missing new line for dma type
-- Linux 4.19.91
 - xhci: fix USB3 device initiated resume race with roothub autosuspend
 - drm/radeon: fix r1xx/r2xx register checker for POT textures
 - scsi: iscsi: Fix a potential deadlock in the timeout handler
