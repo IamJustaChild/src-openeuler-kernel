@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2008.2.0
+%global hulkrelease 2008.3.0
 
 %define with_patch 0
 
@@ -24,7 +24,7 @@
 
 Name:	 kernel
 Version: 4.19.140
-Release: %{hulkrelease}.0040
+Release: %{hulkrelease}.0041
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -789,6 +789,33 @@ fi
 %endif
 
 %changelog
+* Sat Aug 29 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.140-2008.3.0.0041
+- kvm: fix compile error when including linux/kvm.h
+- ilp32: revert ilp32 support
+- net: hns3: update hns3 version to 1.9.38.6
+- net: hns3: add support for dumping MAC umv counter in debugfs
+- net: hns3: fix bug when PF set the duplicate MAC address for VFs
+- timekeeping: Prevent 32bit truncation in scale64_check_overflow()
+- blktrace: ensure our debugfs dir exists
+- blktrace: fix debugfs use after free
+- Revert "block: rename 'q->debugfs_dir' and 'q->blk_trace->dir' in blk_unregister_queue()"
+- arm64: cpufeature: Rework ptr auth hwcaps using multi_entry_cap_matches
+- arm64: cpufeature: Reduce number of pointer auth CPU caps from 6 to 4
+- tools headers uapi: Sync prctl.h with the kernel sources
+- tools beauty: Make the prctl option table generator catch all PR_ options
+- arm64: add ptrace regsets for ptrauth key management
+- arm64: docs: document pointer authentication
+- arm64: ptr auth: Move per-thread keys from thread_info to thread_struct
+- arm64: enable pointer authentication
+- arm64: add prctl control for resetting ptrauth keys
+- arm64: perf: strip PAC when unwinding userspace
+- arm64: expose user PAC bit positions via ptrace
+- arm64: add basic pointer authentication support
+- arm64/cpufeature: detect pointer authentication
+- arm64/kvm: hide ptrauth from guests
+- arm64: add pointer authentication register bits
+- arm64: add comments about EC exception levels
+
 * Tue Aug 25 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.140-2008.2.0.0040
 - can: j1939: add rxtimer for multipacket broadcast session
 - can: j1939: abort multipacket broadcast session when timeout occurs
