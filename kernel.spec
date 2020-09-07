@@ -24,7 +24,7 @@
 
 Name:	 kernel
 Version: 4.19.140
-Release: %{hulkrelease}.0041
+Release: %{hulkrelease}.0042
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -36,6 +36,7 @@ Source0: linux-%{version}.tar.gz#/kernel.tar.gz
 Source10: sign-modules
 Source11: x509.genkey
 Source12: extra_certificates
+Source13: pubring.gpg
 
 %if 0%{?with_kabichk}
 Source18: check-kabi
@@ -220,6 +221,8 @@ cp -rl linux-%{version} linux-%{KernelVer}
 %endif
 
 cd linux-%{KernelVer}
+
+cp %{SOURCE13} certs
 
 %if 0%{?with_patch}
 cp %{SOURCE9000} .
@@ -789,6 +792,9 @@ fi
 %endif
 
 %changelog
+* Wed Sep 02 2020 Roberto Sassu <roberto.sassu@huawei.com> - 4.19.140-2008.3.0.0042
+- Add OBS PGP key
+
 * Sat Aug 29 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.140-2008.3.0.0041
 - kvm: fix compile error when including linux/kvm.h
 - ilp32: revert ilp32 support
