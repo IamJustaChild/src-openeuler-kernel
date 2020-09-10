@@ -859,6 +859,9 @@ fi
 - arm64: capabilities: Optimize this_cpu_has_cap
 - arm64: capabilities: Speed up capability lookup
 
+* Wed Sep 02 2020 Roberto Sassu <roberto.sassu@huawei.com> - 4.19.140-2008.3.0.0042
+- Add OBS PGP key
+
 * Sat Aug 29 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.140-2008.3.0.0041
 - kvm: fix compile error when including linux/kvm.h
 - ilp32: revert ilp32 support
