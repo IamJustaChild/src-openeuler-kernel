@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2008.3.0
+%global hulkrelease 2009.1.0
 
 %define with_patch 0
 
@@ -36,7 +36,6 @@ Source0: linux-%{version}.tar.gz#/kernel.tar.gz
 Source10: sign-modules
 Source11: x509.genkey
 Source12: extra_certificates
-Source13: pubring.gpg
 
 %if 0%{?with_kabichk}
 Source18: check-kabi
@@ -221,8 +220,6 @@ cp -rl linux-%{version} linux-%{KernelVer}
 %endif
 
 cd linux-%{KernelVer}
-
-cp %{SOURCE13} certs
 
 %if 0%{?with_patch}
 cp %{SOURCE9000} .
@@ -792,8 +789,72 @@ fi
 %endif
 
 %changelog
-* Wed Sep 02 2020 Roberto Sassu <roberto.sassu@huawei.com> - 4.19.140-2008.3.0.0042
-- Add OBS PGP key
+* Thu Sep 10 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.140-2009.1.0.0042
+- arm64: cpufeature: Export matrix and other features to userspace
+- arm64: cpufeature: Effectively expose FRINT capability to userspace
+- arm64: Expose FRINT capabilities to userspace
+- arm64: Expose ARMv8.5 CondM capability to userspace
+- arm64: cpufeature: Treat ID_AA64ZFR0_EL1 as RAZ when SVE is not enabled
+- arm64: cpufeature: Fix missing ZFR0 in __read_sysreg_by_encoding()
+- arm64: Expose SVE2 features for userspace
+- config: arm64: update defconfig
+- arm64: use a common .arch preamble for inline assembly
+- arm64: tlb: Use the TLBI RANGE feature in arm64
+- arm64: enable tlbi range instructions
+- arm64: tlb: Detect the ARMv8.4 TLBI RANGE feature
+- arm64/cpufeature: Add remaining feature bits in ID_AA64ISAR0 register
+- arm64: Advertise ARM64_HAS_DCPODP cpu feature
+- arm64: add CVADP support to the cache maintenance helper
+- arm64: Expose DC CVADP to userspace
+- arm64: Handle trapped DC CVADP
+- arm64: HWCAP: encapsulate elf_hwcap
+- arm64: HWCAP: add support for AT_HWCAP2
+- config openeuler_defconfig arm64 TCG_TIS=m
+- arm64: perf: Add support for ARMv8.5-PMU 64-bit counters
+- KVM: arm64: limit PMU version to PMUv3 for ARMv8.1
+- arm64: cpufeature: Extract capped perfmon fields
+- arm64: perf: Clean up enable/disable calls
+- arm64: tlb: don't set the ttl value in flush_tlb_page_nosync
+- arm64: Shift the __tlbi_level() indentation left
+- arm64: tlb: Set the TTL field in flush_*_tlb_range
+- arm64: tlb: Set the TTL field in flush_tlb_range
+- tlb: mmu_gather: add tlb_flush_*_range APIs
+- arm64: Add tlbi_user_level TLB invalidation helper
+- arm64: Add level-hinted TLB invalidation helper
+- arm64: Detect the ARMv8.4 TTL feature
+- config: arm64: set defalut value of config CNP
+- arm64: Introduce command line parameter to disable CNP
+- arm64: KVM: Enable Common Not Private translations
+- arm64: mm: Support Common Not Private translations
+- defconfig: update the defconfigs to support NVDIMM
+- config: enable ARM64 pointer authentication configs by default
+- arm64: Drop unnecessary include from asm/smp.h
+- arm64: simplify ptrauth initialization
+- arm64: remove ptrauth_keys_install_kernel sync arg
+- arm64: Kconfig: ptrauth: Add binutils version check to fix mismatch
+- arm64: Kconfig: verify binutils support for ARM64_PTR_AUTH
+- lkdtm: arm64: test kernel pointer authentication
+- arm64: compile the kernel with ptrauth return address signing
+- kconfig: Add support for 'as-option'
+- kbuild: Add support for 'as-instr' to be used in Kconfig files
+- arm64: suspend: restore the kernel ptrauth keys
+- arm64: __show_regs: strip PAC from lr in printk
+- arm64: unwind: strip PAC from kernel addresses
+- arm64: mask PAC bits of __builtin_return_address
+- arm64: initialize ptrauth keys for kernel booting task
+- arm64: initialize and switch ptrauth kernel keys
+- arm64: enable ptrauth earlier
+- arm64: cpufeature: handle conflicts based on capability
+- arm64: cpufeature: Move cpu capability helpers inside C file
+- arm64: ptrauth: Add bootup/runtime flags for __cpu_setup
+- arm64: install user ptrauth keys at kernel exit time
+- arm64: rename ptrauth key structures to be user-specific
+- arm64: cpufeature: add pointer auth meta-capabilities
+- arm64: cpufeature: Fix meta-capability cpufeature check
+- arm64: capabilities: Batch cpu_enable callbacks
+- arm64: capabilities: Use linear array for detection and verification
+- arm64: capabilities: Optimize this_cpu_has_cap
+- arm64: capabilities: Speed up capability lookup
 
 * Sat Aug 29 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.140-2008.3.0.0041
 - kvm: fix compile error when including linux/kvm.h
