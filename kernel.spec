@@ -24,7 +24,7 @@
 
 Name:	 kernel
 Version: 4.19.140
-Release: %{hulkrelease}.0042
+Release: %{hulkrelease}.0043
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -792,7 +792,7 @@ fi
 %endif
 
 %changelog
-* Thu Sep 10 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.140-2009.1.0.0042
+* Thu Sep 10 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.140-2009.1.0.0043
 - arm64: cpufeature: Export matrix and other features to userspace
 - arm64: cpufeature: Effectively expose FRINT capability to userspace
 - arm64: Expose FRINT capabilities to userspace
