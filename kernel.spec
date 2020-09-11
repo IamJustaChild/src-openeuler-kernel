@@ -24,7 +24,7 @@
 
 Name:	 kernel
 Version: 4.19.140
-Release: %{hulkrelease}.0043
+Release: %{hulkrelease}.0044
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -558,8 +558,6 @@ popd
 %{perf_make} %{perf_python2} DESTDIR=%{buildroot} lib=%{_lib} install-bin install-traceevent-plugins
 # remove the 'trace' symlink.
 rm -f %{buildroot}%{_bindir}/trace
-# remove the perf-tips
-rm -rf %{buildroot}%{_docdir}/perf-tip
 
 # remove examples
 rm -rf %{buildroot}/usr/lib/perf/examples
@@ -729,6 +727,8 @@ fi
 %{_mandir}/man[1-8]/perf*
 %{_sysconfdir}/bash_completion.d/perf
 %doc linux-%{KernelVer}/tools/perf/Documentation/examples.txt
+%dir %{_datadir}/doc/perf-tip
+%{_datadir}/doc/perf-tip/*
 %license linux-%{KernelVer}/COPYING
 
 %files -n python2-perf
@@ -792,6 +792,9 @@ fi
 %endif
 
 %changelog
+* Thu Sep 10 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.140-2009.1.0.0044
+- add perf-tip fix connot load tip.txt warning
+
 * Thu Sep 10 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.140-2009.1.0.0043
 - arm64: cpufeature: Export matrix and other features to userspace
 - arm64: cpufeature: Effectively expose FRINT capability to userspace
