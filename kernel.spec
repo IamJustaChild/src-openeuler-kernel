@@ -793,6 +793,8 @@ fi
 
 %changelog
 * Tue Sep 15 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.140-2009.2.0.0045
+- arm64: update hulk_defconfig and openeuler_defconfig
+- arm64: watchdog: add switch to select sdei_watchdog/pmu_watchdog
 - arm64: configs: enable CONFIG_NUMA_AWARE_SPINLOCKS
 - config: set default value of CONFIG_ARCH_RANDOM
 - arm64: kaslr: Use standard early random function
