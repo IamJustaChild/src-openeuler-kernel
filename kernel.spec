@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2009.1.0
+%global hulkrelease 2009.2.0
 
 %define with_patch 0
 
@@ -24,7 +24,7 @@
 
 Name:	 kernel
 Version: 4.19.140
-Release: %{hulkrelease}.0044
+Release: %{hulkrelease}.0045
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -792,6 +792,19 @@ fi
 %endif
 
 %changelog
+* Tue Sep 15 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.140-2009.2.0.0045
+- arm64: configs: enable CONFIG_NUMA_AWARE_SPINLOCKS
+- config: set default value of CONFIG_ARCH_RANDOM
+- arm64: kaslr: Use standard early random function
+- random: add arch_get_random_*long_early()
+- random: random.h should include archrandom.h, not the other way around
+- arm64: add credited/trusted RNG support
+- arm64: Fix CONFIG_ARCH_RANDOM=n build
+- arm64: Use v8.5-RNG entropy for KASLR seed
+- arm64: Implement archrandom.h for ARMv8.5-RNG
+- arm64: kaslr: Check command line before looking for a seed
+- arm64: kaslr: Announce KASLR status on boot
+
 * Thu Sep 10 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.140-2009.1.0.0044
 - add perf-tip fix connot load tip.txt warning
 
