@@ -10,9 +10,9 @@
 
 %global upstream_version     5.9
 %global upstream_sublevel    0
-%global hulkrelease 	     1
+%global oeck_release 	     1
 %global maintenance_release  .0.0
-%global buildid		     .0002
+%global buildid		     .0003
 
 %define with_patch 0
 
@@ -25,7 +25,7 @@
 
 Name:	 kernel
 Version: %{upstream_version}.%{upstream_sublevel}
-Release: %{hulkrelease}%{?maintenance_release}%{?buildid}
+Release: %{oeck_release}%{?maintenance_release}%{?buildid}
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -200,7 +200,6 @@ package or when debugging this package.\
 %files -n perf-debuginfo -f perf-debugfiles.list
 %{expand:%%global _find_debuginfo_opts %{?_find_debuginfo_opts} -p '.*%{_bindir}/perf.*(\.debug)?|.*%{_libexecdir}/perf-core/.*|.*%{_libdir}/traceevent/.*|XXX' -o perf-debugfiles.list}
 
-
 %if 0%{?with_python2}
 %debuginfo_template -n python2-perf
 %files -n python2-perf-debuginfo -f python2-perf-debugfiles.list
@@ -275,8 +274,8 @@ pathfix.py -pni "/usr/bin/python" tools/power/pm-graph/sleepgraph.py tools/power
 
 %if 0%{?with_source}
 # Copy directory backup for kernel-source
-cp -a ../linux-%{KernelVer} ../linux-%{KernelVer}-Source
-find ../linux-%{KernelVer}-Source -type f -name "\.*" -exec rm -rf {} \; >/dev/null
+cp -a ../linux-%{KernelVer} ../linux-%{KernelVer}-source
+find ../linux-%{KernelVer}-source -type f -name "\.*" -exec rm -rf {} \; >/dev/null
 %endif
 
 cp -a tools/perf tools/python3-perf
@@ -380,7 +379,6 @@ pushd tools/kvm/kvm_stat/
 make %{?_smp_mflags} man
 popd
 
-
 %install
 %if 0%{?with_source}
     %define _python_bytecompile_errors_terminate_build 0
@@ -414,7 +412,7 @@ install -m 644 System.map $RPM_BUILD_ROOT/boot/System.map-%{KernelVer}
 %endif
 
 mkdir -p $RPM_BUILD_ROOT%{_sbindir}
-install -m 755 %{SOURCE200} $RPM_BUILD_ROOT%{_sbindir}/mkgrub-menu-%{hulkrelease}.sh
+install -m 755 %{SOURCE200} $RPM_BUILD_ROOT%{_sbindir}/mkgrub-menu-%{oeck_release}.sh
 
 
 %if 0%{?with_debuginfo}
@@ -662,7 +660,7 @@ popd
 %preun
 if [ `uname -i` == "aarch64" ] &&
         [ -f /boot/EFI/grub2/grub.cfg ]; then
-    /usr/bin/sh  %{_sbindir}/mkgrub-menu-%{hulkrelease}.sh %{version}-%{hulkrelease}.aarch64  /boot/EFI/grub2/grub.cfg  remove
+    /usr/bin/sh  %{_sbindir}/mkgrub-menu-%{oeck_release}.sh %{version}-%{oeck_release}.aarch64  /boot/EFI/grub2/grub.cfg  remove
 fi
 
 %postun
@@ -680,7 +678,7 @@ fi
 %{_sbindir}/new-kernel-pkg --package kernel --rpmposttrans %{KernelVer} || exit $?
 if [ `uname -i` == "aarch64" ] &&
         [ -f /boot/EFI/grub2/grub.cfg ]; then
-	/usr/bin/sh %{_sbindir}/mkgrub-menu-%{hulkrelease}.sh %{version}-%{hulkrelease}.aarch64  /boot/EFI/grub2/grub.cfg  update  
+	/usr/bin/sh %{_sbindir}/mkgrub-menu-%{oeck_release}.sh %{version}-%{oeck_release}.aarch64  /boot/EFI/grub2/grub.cfg  update  
 fi
 if [ -x %{_sbindir}/weak-modules ]
 then
