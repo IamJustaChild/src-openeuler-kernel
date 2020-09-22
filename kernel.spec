@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2009.2.0
+%global hulkrelease 2009.3.0
 
 %define with_patch 0
 
@@ -26,7 +26,7 @@
 
 Name:	 kernel
 Version: 4.19.140
-Release: %{hulkrelease}.0046
+Release: %{hulkrelease}.0047
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -819,6 +819,10 @@ fi
 %endif
 
 %changelog
+* Tue Sep 22 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.140-2009.3.0.0047
+- config: add digest list options for arm64
+- acpi/arm64: check the returned logical CPU number of 'acpi_map_cpuid()'
+
 * Wed Sep 16 2020 Zhipeng Xie<xiezhipeng1@huawei.com> - 4.19.140-2009.2.0.0046
 - delete python2 dependency
 
