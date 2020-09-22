@@ -819,7 +819,8 @@ fi
 %endif
 
 %changelog
-* Wed Sep 22 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.140-2009.3.0.0047
+* Tue Sep 22 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.140-2009.3.0.0047
+- config: add digest list options for arm64
 - acpi/arm64: check the returned logical CPU number of 'acpi_map_cpuid()'
 
 * Wed Sep 16 2020 Zhipeng Xie<xiezhipeng1@huawei.com> - 4.19.140-2009.2.0.0046
