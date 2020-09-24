@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2009.3.0
+%global hulkrelease 2009.4.0
 
 %define with_patch 0
 
@@ -26,7 +26,7 @@
 
 Name:	 kernel
 Version: 4.19.140
-Release: %{hulkrelease}.0047
+Release: %{hulkrelease}.0048
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -819,6 +819,17 @@ fi
 %endif
 
 %changelog
+* Thu Sep 24 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.140-2009.4.0.0048
+- ext4: fix potential negative array index in do_split()
+- fbcon: remove now unusued 'softback_lines' cursor() argument
+- fbcon: remove soft scrollback code
+- mm/hugetlb: fix a race between hugetlb sysctl handlers
+- rbd: require global CAP_SYS_ADMIN for mapping and unmapping
+- nfs: Fix getxattr kernel panic and memory overflow
+- net/packet: fix overflow in tpacket_rcv
+- net/packet: make tp_drops atomic
+- xfs: fix boundary test in xfs_attr_shortform_verify
+
 * Tue Sep 22 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.140-2009.3.0.0047
 - config: add digest list options for arm64
 - acpi/arm64: check the returned logical CPU number of 'acpi_map_cpuid()'
