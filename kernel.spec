@@ -23,7 +23,7 @@
 %define with_source 1
 
 Name:	 kernel
-Version: 5.9-rc8
+Version: 5.9.0
 Release: %{hulkrelease}.0001
 Summary: Linux Kernel
 License: GPLv2
