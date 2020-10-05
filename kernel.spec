@@ -204,8 +204,6 @@ package or when debugging this package.\
 
 %prep
 
-%autosetup -S git_am
-
 %if 0%{?with_patch}
 if [ ! -d kernel-%{version}/vanilla-%{TarballVer} ];then
 %setup -q -n kernel-%{version} -a 9998 -c
@@ -221,6 +219,8 @@ cp -rl linux-%{version} linux-%{KernelVer}
 %endif
 
 cd linux-%{KernelVer}
+
+%autosetup -S git_am
 
 %if 0%{?with_patch}
 cp %{SOURCE9000} .
