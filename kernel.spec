@@ -28,11 +28,7 @@ Release: %{hulkrelease}.0001
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
-%if 0%{?with_patch}
 Source0: linux-%{TarballVer}.tar.gz
-%else
-Source0: linux-%{version}.tar.gz#/kernel.tar.gz
-%endif
 Source10: sign-modules
 Source11: x509.genkey
 Source12: extra_certificates
@@ -53,6 +49,8 @@ Source9001: guards
 Source9002: series.conf
 Source9998: patches.tar.bz2
 %endif
+
+Patch0001: 0001-config-add-openeuler_defconfig.patch
 
 #BuildRequires:
 BuildRequires: module-init-tools, patch >= 2.5.4, bash >= 2.03, tar
@@ -205,6 +203,9 @@ package or when debugging this package.\
 %endif
 
 %prep
+
+%autosetup -S git_am
+
 %if 0%{?with_patch}
 if [ ! -d kernel-%{version}/vanilla-%{TarballVer} ];then
 %setup -q -n kernel-%{version} -a 9998 -c
