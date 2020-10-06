@@ -744,6 +744,7 @@ fi
 %{_bindir}/powernow-k8-decode
 %endif
 %{_unitdir}/cpupower.service
+%{_datadir}/bash-completion/completions/cpupower
 %{_mandir}/man[1-8]/cpupower*
 %config(noreplace) %{_sysconfdir}/sysconfig/cpupower
 %ifarch %{ix86} x86_64
@@ -759,6 +760,7 @@ fi
 %{_bindir}/lsgpio
 %{_bindir}/gpio-hammer
 %{_bindir}/gpio-event-mon
+%{_bindir}/gpio-watch
 %{_mandir}/man1/kvm_stat*
 %{_bindir}/kvm_stat
 %{_libdir}/libcpupower.so.0
@@ -778,6 +780,13 @@ fi
 %{_mandir}/man8/bpftool-prog.8.gz
 %{_mandir}/man8/bpftool-perf.8.gz
 %{_mandir}/man8/bpftool.8.gz
+%{_mandir}/man8/bpftool-btf.8.gz
+%{_mandir}/man8/bpftool-feature.8.gz
+%{_mandir}/man8/bpftool-gen.8.gz
+%{_mandir}/man8/bpftool-iter.8.gz
+%{_mandir}/man8/bpftool-link.8.gz
+%{_mandir}/man8/bpftool-net.8.gz
+%{_mandir}/man8/bpftool-struct_ops.8.gz
 %{_mandir}/man7/bpf-helpers.7.gz
 %license linux-%{KernelVer}/COPYING
 
