@@ -220,7 +220,7 @@ cp -rl linux-%{version} linux-%{KernelVer}
 
 cd linux-%{KernelVer}
 
-%autosetup -S git_am
+#%autosetup -S git_am
 
 %if 0%{?with_patch}
 cp %{SOURCE9000} .
