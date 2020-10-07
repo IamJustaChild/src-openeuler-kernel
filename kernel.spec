@@ -53,6 +53,7 @@ Source9998: patches.tar.bz2
 %endif
 
 Patch0001: 0001-config-add-openeuler_defconfig.patch
+Patch0002: 0001-x86-config-add-openeuler_defconfig.patch
 
 #BuildRequires:
 BuildRequires: module-init-tools, patch >= 2.5.4, bash >= 2.03, tar
@@ -231,6 +232,7 @@ cp -rl linux-%{version} linux-%{KernelVer}
 cd linux-%{KernelVer}
 
 %patch0001 -p1
+%patch0002 -p1
 
 %if 0%{?with_patch}
 cp %{SOURCE9000} .
