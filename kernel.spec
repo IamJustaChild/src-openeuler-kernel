@@ -1,32 +1,31 @@
 
-
 %define with_signmodules  1
-
-%define with_kabichk 1
+%define with_kabichk 0
 
 %define modsign_cmd %{SOURCE10}
 
 %global Arch $(echo %{_host_cpu} | sed -e s/i.86/x86/ -e s/x86_64/x86/ -e s/aarch64.*/arm64/)
 
-%global TarballVer v5.9-rc8
-
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 1.1.0
+%global upstream_version     5.9
+%global upstream_sublevel    0
+%global hulkrelease 	     1
+%global maintenance_release  .0.0
+%global buildid		     .0002
 
 %define with_patch 0
 
 %define debuginfodir /usr/lib/debug
 
 %define with_debuginfo 1
-
 %define with_source 1
 
 %define with_python2 0
 
 Name:	 kernel
-Version: 5.9.0
-Release: %{hulkrelease}.0001
+Version: %{upstream_version}.%{upstream_sublevel}
+Release: %{hulkrelease}%{?maintenance_release}%{?buildid}
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -657,7 +656,6 @@ popd
 %{__modsign_install_post}\
 %{nil}
 
-
 %post
 %{_sbindir}/new-kernel-pkg --package kernel --install %{KernelVer} || exit $?
 
@@ -690,7 +688,6 @@ then
 fi
 %{_sbindir}/new-kernel-pkg --package kernel --mkinitrd --dracut --depmod --update %{KernelVer} || exit $?
 %{_sbindir}/new-kernel-pkg --package kernel --rpmposttrans %{KernelVer} || exit $?
-
 
 %post devel
 if [ -f /etc/sysconfig/kernel ]
@@ -829,5 +826,5 @@ fi
 %endif
 
 %changelog
-* Mon Oct 05 2020 Xie XiuQi <xiexiuqi@huawei.com> - 5.9-rc8-1.1.0
+* Mon Oct 05 2020 Xie XiuQi <xiexiuqi@huawei.com> - 5.9.0-1.0.0
 - Package init
