@@ -270,7 +270,7 @@ find . -name .gitignore -exec rm -f {} \; >/dev/null
     cp %{SOURCE11} certs/.
 %endif
 
-pathfix.py -pni "/usr/bin/python" tools/power/pm-graph/sleepgraph.py tools/power/pm-graph/bootgraph.py tools/perf/scripts/python/call-graph-from-sql.py
+pathfix.py -pni "/usr/bin/python" tools/power/pm-graph/sleepgraph.py tools/power/pm-graph/bootgraph.py tools/perf/scripts/python/exported-sql-viewer.py
 
 %if 0%{?with_source}
 # Copy directory backup for kernel-source
