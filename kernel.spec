@@ -8,11 +8,11 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global upstream_version     5.9
-%global upstream_sublevel    0
-%global oeck_release 	     1
-%global maintenance_release  .0.0
-%global buildid		     .0003
+%global upstream_version    5.9
+%global upstream_sublevel   0
+%global devel_release       1
+%global maintenance_release .0.0
+%global buildid             .0004
 
 %define with_patch 0
 
@@ -25,7 +25,7 @@
 
 Name:	 kernel
 Version: %{upstream_version}.%{upstream_sublevel}
-Release: %{oeck_release}%{?maintenance_release}%{?buildid}
+Release: %{devel_release}%{?maintenance_release}%{?buildid}
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -412,7 +412,7 @@ install -m 644 System.map $RPM_BUILD_ROOT/boot/System.map-%{KernelVer}
 %endif
 
 mkdir -p $RPM_BUILD_ROOT%{_sbindir}
-install -m 755 %{SOURCE200} $RPM_BUILD_ROOT%{_sbindir}/mkgrub-menu-%{oeck_release}.sh
+install -m 755 %{SOURCE200} $RPM_BUILD_ROOT%{_sbindir}/mkgrub-menu-%{devel_release}.sh
 
 
 %if 0%{?with_debuginfo}
@@ -660,7 +660,7 @@ popd
 %preun
 if [ `uname -i` == "aarch64" ] &&
         [ -f /boot/EFI/grub2/grub.cfg ]; then
-    /usr/bin/sh  %{_sbindir}/mkgrub-menu-%{oeck_release}.sh %{version}-%{oeck_release}.aarch64  /boot/EFI/grub2/grub.cfg  remove
+    /usr/bin/sh  %{_sbindir}/mkgrub-menu-%{devel_release}.sh %{version}-%{devel_release}.aarch64  /boot/EFI/grub2/grub.cfg  remove
 fi
 
 %postun
@@ -678,7 +678,7 @@ fi
 %{_sbindir}/new-kernel-pkg --package kernel --rpmposttrans %{KernelVer} || exit $?
 if [ `uname -i` == "aarch64" ] &&
         [ -f /boot/EFI/grub2/grub.cfg ]; then
-	/usr/bin/sh %{_sbindir}/mkgrub-menu-%{oeck_release}.sh %{version}-%{oeck_release}.aarch64  /boot/EFI/grub2/grub.cfg  update  
+	/usr/bin/sh %{_sbindir}/mkgrub-menu-%{devel_release}.sh %{version}-%{devel_release}.aarch64  /boot/EFI/grub2/grub.cfg  update  
 fi
 if [ -x %{_sbindir}/weak-modules ]
 then
@@ -825,4 +825,4 @@ fi
 
 %changelog
 * Mon Oct 05 2020 Xie XiuQi <xiexiuqi@huawei.com> - 5.9.0-1.0.0
-- Package init
+- Package init based on v5.9-rc8
