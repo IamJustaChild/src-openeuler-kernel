@@ -10,9 +10,9 @@
 
 %global upstream_version    5.9
 %global upstream_sublevel   0
-%global devel_release       1
+%global devel_release       2
 %global maintenance_release .0.0
-%global buildid             .0004
+%global buildid             .0005
 
 %define with_patch 0
 
@@ -824,5 +824,8 @@ fi
 %endif
 
 %changelog
-* Mon Oct 05 2020 Xie XiuQi <xiexiuqi@huawei.com> - 5.9.0-1.0.0
+* Mon Oct 12 2020 Xie XiuQi <xiexiuqi@huawei.com> - 5.9.0-2.0.0.0005
+- rebased to v5.9
+
+* Mon Oct 05 2020 Xie XiuQi <xiexiuqi@huawei.com> - 5.9.0-1.0.0.0001
 - Package init based on v5.9-rc8
