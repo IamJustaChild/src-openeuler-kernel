@@ -13,7 +13,7 @@
 %global lsk_release         2
 %global maintenance_release .0.0
 %global buildid             .0005
-%global suffix              .lsk
+%global extra_release       .lsk
 
 %define with_patch 0
 
