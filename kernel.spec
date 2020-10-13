@@ -12,8 +12,8 @@
 %global upstream_sublevel   0
 %global lsk_release         2
 %global maintenance_release .0.0
-%global buildid             .0006
-%global extra_release       .lsk
+%global buildid             .0007
+%global extra_release       .olk
 
 %define with_patch 0
 
