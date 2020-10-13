@@ -12,7 +12,7 @@
 %global upstream_sublevel   0
 %global lsk_release         2
 %global maintenance_release .0.0
-%global buildid             .0005
+%global buildid             .0006
 %global extra_release       .lsk
 
 %define with_patch 0
@@ -26,7 +26,7 @@
 
 Name:	 kernel
 Version: %{upstream_version}.%{upstream_sublevel}
-Release: %{lsk_release}%{?maintenance_release}%{?buildid}%{?suffix}
+Release: %{lsk_release}%{?maintenance_release}%{?buildid}%{?extra_release}
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
