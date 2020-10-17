@@ -13,7 +13,7 @@
 %global lsk_release         2
 %global maintenance_release .0.0
 %global buildid             .0007
-%global extra_release       .olk
+#%global extra_release       .olk
 
 %define with_patch 0
 
@@ -24,7 +24,7 @@
 
 %define with_python2 0
 
-Name:	 kernel
+Name:	 kernel-olk
 Version: %{upstream_version}.%{upstream_sublevel}
 Release: %{lsk_release}%{?maintenance_release}%{?buildid}%{?extra_release}
 Summary: Linux Kernel
