@@ -88,8 +88,19 @@ Conflicts: mdadm < 3.2.1-5 nfs-utils < 1.0.7-12 oprofile < 0.9.1-2 ppp < 2.4.3-3
 Conflicts: reiserfs-utils < 3.6.19-2 selinux-policy-targeted < 1.25.3-14 squashfs-tools < 4.0
 Conflicts: udev < 063-6 util-linux < 2.12 wireless-tools < 29-3 xfsprogs < 2.6.13-4
 
-Provides: kernel-aarch64 = %{version}-%{release} kernel-drm = 4.3.0 kernel-drm-nouveau = 16 kernel-modeset = 1
-Provides: kernel-uname-r = %{KernelVer} kernel=%{KernelVer}
+Provides: %{name}-%{_target_cpu} = %{version}-%{release}
+Provides: %{name}-drm = 4.3.0
+Provides: %{name}-drm-nouveau = 16
+Provides: %{name}-modeset = 1
+Provides: %{name}-uname-r = %{KernelVer}
+Provides: %{name}=%{KernelVer}
+Provides: kernel-uname-r = %{KernelVer}
+Provides: kernel-%{_target_cpu} = %{version}-%{release}
+Provides: kernel-drm = 4.3.0
+Provides: kernel-drm-nouveau = 16
+Provides: kernel-modeset = 1
+Provides: kernel-uname-r = %{KernelVer}
+Provides: kernel=%{KernelVer}
 
 Requires: dracut >= 001-7 grubby >= 8.28-2 initscripts >= 8.11.1-1 linux-firmware >= 20100806-2 module-init-tools >= 3.16-2
 
@@ -105,6 +116,8 @@ AutoReqProv: no
 Provides: %{name}-headers
 Obsoletes: %{name}-headers
 Provides: glibc-kernheaders
+Provides: %{name}-devel-uname-r = %{KernelVer}
+Provides: %{name}-devel-aarch64 = %{version}-%{release}
 Provides: kernel-devel-uname-r = %{KernelVer}
 Provides: kernel-devel-aarch64 = %{version}-%{release}
 Requires: perl findutils
@@ -128,10 +141,10 @@ and the supporting documentation.
 
 %package tools-devel
 Summary: Assortment of tools for the Linux kernel
-Requires: kernel-tools = %{version}-%{release}
-Requires: kernel-tools-libs = %{version}-%{release}
-Provides: kernel-tools-libs-devel = %{version}-%{release}
-Obsoletes: kernel-tools-libs-devel
+Requires: %{name}-tools = %{version}-%{release}
+Requires: %{name}-tools-libs = %{version}-%{release}
+Provides: %{name}-tools-libs-devel = %{version}-%{release}
+Obsoletes: %{name}-tools-libs-devel
 %description tools-devel
 This package contains the development files for the tools/ directory from
 the kernel source.
@@ -186,16 +199,16 @@ Debug information is useful when developing applications that use this\
 package or when debugging this package.\
 %{nil}
 
-%debuginfo_template -n kernel
-%files -n kernel-debuginfo -f debugfiles.list
+%debuginfo_template -n %{name}
+%files -n %{name}-debuginfo -f debugfiles.list
 
 %debuginfo_template -n bpftool
 %files -n bpftool-debuginfo -f bpftool-debugfiles.list
 %{expand:%%global _find_debuginfo_opts %{?_find_debuginfo_opts} -p '.*%{_sbindir}/bpftool.*(\.debug)?|XXX' -o bpftool-debugfiles.list}
 
-%debuginfo_template -n kernel-tools
-%files -n kernel-tools-debuginfo -f kernel-tools-debugfiles.list
-%{expand:%%global _find_debuginfo_opts %{?_find_debuginfo_opts} -p '.*%{_bindir}/centrino-decode.*(\.debug)?|.*%{_bindir}/powernow-k8-decode.*(\.debug)?|.*%{_bindir}/cpupower.*(\.debug)?|.*%{_libdir}/libcpupower.*|.*%{_libdir}/libcpupower.*|.*%{_bindir}/turbostat.(\.debug)?|.*%{_bindir}/.*gpio.*(\.debug)?|.*%{_bindir}/.*iio.*(\.debug)?|.*%{_bindir}/tmon.*(.debug)?|XXX' -o kernel-tools-debugfiles.list}
+%debuginfo_template -n %{name}-tools
+%files -n %{name}-tools-debuginfo -f %{name}-tools-debugfiles.list
+%{expand:%%global _find_debuginfo_opts %{?_find_debuginfo_opts} -p '.*%{_bindir}/centrino-decode.*(\.debug)?|.*%{_bindir}/powernow-k8-decode.*(\.debug)?|.*%{_bindir}/cpupower.*(\.debug)?|.*%{_libdir}/libcpupower.*|.*%{_libdir}/libcpupower.*|.*%{_bindir}/turbostat.(\.debug)?|.*%{_bindir}/.*gpio.*(\.debug)?|.*%{_bindir}/.*iio.*(\.debug)?|.*%{_bindir}/tmon.*(.debug)?|XXX' -o %{name}-tools-debugfiles.list}
 
 %debuginfo_template -n perf
 %files -n perf-debuginfo -f perf-debugfiles.list
@@ -216,15 +229,15 @@ package or when debugging this package.\
 %prep
 
 %if 0%{?with_patch}
-if [ ! -d kernel-%{version}/vanilla-%{TarballVer} ];then
-%setup -q -n kernel-%{version} -a 9998 -c
+if [ ! -d %{name}-%{version}/vanilla-%{TarballVer} ];then
+%setup -q -n %{name}-%{version} -a 9998 -c
     mv linux-%{TarballVer} vanilla-%{TarballVer}
 else
-    cd kernel-%{version}
+    cd %{name}-%{version}
 fi
 cp -rl vanilla-%{TarballVer} linux-%{KernelVer}
 %else
-%setup -q -n kernel-%{version} -c
+%setup -q -n %{name}-%{version} -c
 mv kernel linux-%{version}
 cp -rl linux-%{version} linux-%{KernelVer}
 %endif
@@ -259,7 +272,7 @@ Applypatches()
     ) | sh
 }
 
-Applypatches series.conf %{_builddir}/kernel-%{version}/linux-%{KernelVer}
+Applypatches series.conf %{_builddir}/%{name}-%{version}/linux-%{KernelVer}
 %endif
 
 touch .scmversion
@@ -701,14 +714,14 @@ then
      done)
 fi
 
-%post -n kernel-tools
+%post -n %{name}-tools
 /sbin/ldconfig
 %systemd_post cpupower.service
 
-%preun -n kernel-tools
+%preun -n %{name}-tools
 %systemd_preun cpupower.service
 
-%postun -n kernel-tools
+%postun -n %{name}-tools
 /sbin/ldconfig
 %systemd_postun cpupower.service
 
@@ -763,7 +776,7 @@ fi
 %license linux-%{KernelVer}/COPYING
 %{python3_sitearch}/*
 
-%files -n kernel-tools -f cpupower.lang
+%files -n %{name}-tools -f cpupower.lang
 %{_bindir}/cpupower
 %ifarch %{ix86} x86_64
 %{_bindir}/centrino-decode
@@ -793,7 +806,7 @@ fi
 %{_libdir}/libcpupower.so.0.0.1
 %license linux-%{KernelVer}/COPYING
 
-%files -n kernel-tools-devel
+%files -n %{name}-tools-devel
 %{_libdir}/libcpupower.so
 %{_includedir}/cpufreq.h
 %{_includedir}/cpuidle.h
