@@ -10,10 +10,10 @@
 
 %global upstream_version    5.9
 %global upstream_sublevel   0
-%global lsk_release         2
-# %global maintenance_release .0.0
-# %global buildid             .0007
-# %global extra_release       .olk
+%global olk_release         2
+# %%global maintenance_release .0.0
+# %%global buildid             .0007
+# %%global extra_release       .olk
 
 %define with_patch 0
 
@@ -26,7 +26,7 @@
 
 Name:	 kernel-olk
 Version: %{upstream_version}.%{upstream_sublevel}
-Release: %{lsk_release}%{?maintenance_release}%{?buildid}%{?extra_release}
+Release: %{olk_release}%{?maintenance_release}%{?buildid}%{?extra_release}
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -426,7 +426,7 @@ install -m 644 System.map $RPM_BUILD_ROOT/boot/System.map-%{KernelVer}
 %endif
 
 mkdir -p $RPM_BUILD_ROOT%{_sbindir}
-install -m 755 %{SOURCE200} $RPM_BUILD_ROOT%{_sbindir}/mkgrub-menu-%{lsk_release}.sh
+install -m 755 %{SOURCE200} $RPM_BUILD_ROOT%{_sbindir}/mkgrub-menu-%{olk_release}.sh
 
 
 %if 0%{?with_debuginfo}
@@ -674,7 +674,7 @@ popd
 %preun
 if [ `uname -i` == "aarch64" ] &&
         [ -f /boot/EFI/grub2/grub.cfg ]; then
-    /usr/bin/sh  %{_sbindir}/mkgrub-menu-%{lsk_release}.sh %{version}-%{lsk_release}.aarch64  /boot/EFI/grub2/grub.cfg  remove
+    /usr/bin/sh  %{_sbindir}/mkgrub-menu-%{olk_release}.sh %{version}-%{olk_release}.aarch64  /boot/EFI/grub2/grub.cfg  remove
 fi
 
 %postun
@@ -692,7 +692,7 @@ fi
 %{_sbindir}/new-kernel-pkg --package kernel --rpmposttrans %{KernelVer} || exit $?
 if [ `uname -i` == "aarch64" ] &&
         [ -f /boot/EFI/grub2/grub.cfg ]; then
-	/usr/bin/sh %{_sbindir}/mkgrub-menu-%{lsk_release}.sh %{version}-%{lsk_release}.aarch64  /boot/EFI/grub2/grub.cfg  update  
+	/usr/bin/sh %{_sbindir}/mkgrub-menu-%{olk_release}.sh %{version}-%{olk_release}.aarch64  /boot/EFI/grub2/grub.cfg  update  
 fi
 if [ -x %{_sbindir}/weak-modules ]
 then
