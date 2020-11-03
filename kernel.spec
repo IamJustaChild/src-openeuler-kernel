@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2009.4.0
+%global hulkrelease 2011.1.0
 
 %define with_patch 0
 
@@ -26,7 +26,7 @@
 
 Name:	 kernel
 Version: 4.19.140
-Release: %{hulkrelease}.0048
+Release: %{hulkrelease}.0049
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -819,6 +819,28 @@ fi
 %endif
 
 %changelog
+* Thu Nov 3 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.140-2011.1.0.0049
+- xen/pciback: use lateeoi irq binding
+- xen/pvcallsback: use lateeoi irq binding
+- xen/scsiback: use lateeoi irq binding
+- xen/netback: use lateeoi irq binding
+- xen/blkback: use lateeoi irq binding
+- xen/events: fix race in evtchn_fifo_unmask()
+- xen/events: add a proper barrier to 2-level uevent unmasking
+- xen/events: defer eoi in case of excessive number of events
+- xen/events: use a common cpu hotplug hook for event channels
+- xen/events: switch user event channels to lateeoi model
+- xen/events: add a new "late EOI" evtchn framework
+- xen/events: avoid removing an event channel while handling it
+- Bluetooth: MGMT: Fix not checking if BT_HS is enabled
+- Bluetooth: Disable High Speed by default
+- Bluetooth: L2CAP: Fix calling sk_filter on non-socket based channel
+- Bluetooth: A2MP: Fix not initializing all members
+- perf/core: Fix race in the perf_mmap_close() function
+- geneve: add transport ports in route lookup for geneve
+- hdlc_ppp: add range checks in ppp_cp_parse_cr()
+- block: allow for_each_bvec to support zero len bvec
+
 * Thu Sep 24 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.140-2009.4.0.0048
 - ext4: fix potential negative array index in do_split()
 - fbcon: remove now unusued 'softback_lines' cursor() argument
