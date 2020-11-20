@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2011.1.0
+%global hulkrelease 2011.2.0
 
 %define with_patch 0
 
@@ -26,7 +26,7 @@
 
 Name:	 kernel
 Version: 4.19.140
-Release: %{hulkrelease}.0049
+Release: %{hulkrelease}.0050
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -819,6 +819,17 @@ fi
 %endif
 
 %changelog
+* Fri Nov 20 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.140-2011.2.0.0050
+- tty: make FONTX ioctl use the tty pointer they were actually passed
+- powercap: restrict energy meter to root access
+- Input: sunkbd - avoid use-after-free in teardown paths
+- nbd: don't update block size after device is started
+- icmp: randomize the global rate limiter
+- perf/core: Fix a memory leak in perf_event_parse_addr_filter()
+- vt: keyboard, extend func_buf_lock to readers
+- vt: keyboard, simplify vt_kdgkbsent
+- binder: fix UAF when releasing todo list
+
 * Thu Nov 3 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.140-2011.1.0.0049
 - xen/pciback: use lateeoi irq binding
 - xen/pvcallsback: use lateeoi irq binding
