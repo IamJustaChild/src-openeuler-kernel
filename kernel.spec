@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2011.2.0
+%global hulkrelease 2012.1.0
 
 %define with_patch 0
 
@@ -26,7 +26,7 @@
 
 Name:	 kernel
 Version: 4.19.140
-Release: %{hulkrelease}.0050
+Release: %{hulkrelease}.0051
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -819,6 +819,23 @@ fi
 %endif
 
 %changelog
+* Thu Dec 12 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.140-2012.1.0.0051
+- arm64: capabilities: Merge duplicate entries for Qualcomm erratum 1003
+- arm64: capabilities: Merge duplicate Cavium erratum entries
+- arm64: capabilities: Merge entries for ARM64_WORKAROUND_CLEAN_CACHE
+- powerpc/64s: flush L1D after user accesses
+- powerpc/uaccess: Evaluate macro arguments once, before user access is allowed
+- powerpc: Fix __clear_user() with KUAP enabled
+- powerpc: Implement user_access_begin and friends
+- powerpc: Add a framework for user access tracking
+- powerpc/64s: flush L1D on kernel entry
+- powerpc/64s: move some exception handlers out of line
+- vt: Disable KD_FONT_OP_COPY
+- fbcon: Fix global-out-of-bounds read in fbcon_get_font()
+- Fonts: Support FONT_EXTRA_WORDS macros for built-in fonts
+- fbdev, newport_con: Move FONT_EXTRA_WORDS macros into linux/font.h
+- speakup: Do not let the line discipline be used several times
+
 * Fri Nov 20 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.140-2011.2.0.0050
 - tty: make FONTX ioctl use the tty pointer they were actually passed
 - powercap: restrict energy meter to root access
