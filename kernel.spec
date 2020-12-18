@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2012.1.0
+%global hulkrelease 2012.2.0
 
 %define with_patch 0
 
@@ -26,7 +26,7 @@
 
 Name:	 kernel
 Version: 4.19.140
-Release: %{hulkrelease}.0051
+Release: %{hulkrelease}.0052
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -819,6 +819,9 @@ fi
 %endif
 
 %changelog
+* Thu Dec 18 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.140-2012.2.0.0052
+- romfs: fix uninitialized memory leak in romfs_dev_read()
+
 * Thu Dec 12 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.140-2012.1.0.0051
 - arm64: capabilities: Merge duplicate entries for Qualcomm erratum 1003
 - arm64: capabilities: Merge duplicate Cavium erratum entries
