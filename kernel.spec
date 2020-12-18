@@ -819,7 +819,7 @@ fi
 %endif
 
 %changelog
-* Thu Dec 18 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.140-2012.2.0.0052
+* Fri Dec 18 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.140-2012.2.0.0052
 - romfs: fix uninitialized memory leak in romfs_dev_read()
 
 * Thu Dec 12 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.140-2012.1.0.0051
