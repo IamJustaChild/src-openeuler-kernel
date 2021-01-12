@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2012.2.0
+%global hulkrelease 2101.1.0
 
 %define with_patch 0
 
@@ -26,7 +26,7 @@
 
 Name:	 kernel
 Version: 4.19.140
-Release: %{hulkrelease}.0052
+Release: %{hulkrelease}.0053
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -819,6 +819,22 @@ fi
 %endif
 
 %changelog
+* Mon Jan 11 2021 Yang Yingliang <yangyingliang@huawei.com> - 4.19.140-2101.1.0.0053
+- arm64: Kconfig: change fix compile error if gcc don't support armv8.4-a
+- powerpc/rtas: Restrict RTAS requests from userspace
+- mwifiex: Fix possible buffer overflows in mwifiex_cmd_802_11_ad_hoc_start
+- xenbus/xenbus_backend: Disallow pending watch messages
+- xen/xenbus: Count pending messages for each watch
+- xen/xenbus/xen_bus_type: Support will_handle watch callback
+- xen/xenbus: Add 'will_handle' callback support in xenbus_watch_path()
+- xen/xenbus: Allow watches discard events before queueing
+- xen-blkback: set ring->xenblkd to NULL after kthread_stop()
+- HID: core: Sanitize event code and type when mapping input
+- speakup: Reject setting the speakup line discipline outside of speakup
+- tty: Fix ->session locking
+- tty: Fix ->pgrp locking in tiocspgrp()
+- jfs: Fix array index bounds check in dbAdjTree
+
 * Fri Dec 18 2020 Yang Yingliang <yangyingliang@huawei.com> - 4.19.140-2012.2.0.0052
 - romfs: fix uninitialized memory leak in romfs_dev_read()
 
