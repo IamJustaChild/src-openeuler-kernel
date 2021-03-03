@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       4
-%global maintenance_release .4.0
-%global pkg_release         .17
+%global maintenance_release .5.0
+%global pkg_release         .18
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -869,6 +869,709 @@ fi
 %endif
 
 %changelog
+* Wed Mar 3 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.5.0.18
+- Revert "Bluetooth: Always request for user confirmation for Just Works"
+- Revert "Bluetooth: Always request for user confirmation for Just Works (LE SC)"
+- overlays: Update the upstream overlay
+- overlays: i2c-rtc: Add the Dallas DS1340
+- media: i2c: imx477: Remove unused function parameter
+- media: i2c: imx477: Remove internal v4l2_mbus_framefmt from the state
+- media: i2c: imx477: Replace existing 1012x760 mode
+- media: i2c: imx477: Fix crop height for 2028x1080 mode
+- configs: Change CONFIG_BLK_DEV_NVME=y for 2711
+- DAC overlays (#4154)
+- media: i2c: imx290: Handle exposure correctly when vblank changes
+- media: i2c: imx290: Fix up exposure calcuations and ranges
+- media: i2c: imx477: Add very long exposure control to the driver
+- media: i2c: imx477: Remove auto frame length adjusting
+- configs: Add various missing IPV6 modules
+- overlays: fsm-demo: Ensure all LEDs are turned off
+- gpio-fsm: Fix shutdown timeout handling
+- gpio-fsm: Show state info in /sys/class/gpio-fsm
+- drm/vc4: Change the default DPI format to being 18bpp, not 24.
+- dtoverlays: Add an overlay for the VGA666 when used with vc4-kms-v3d
+- defconfigs: Add DRM_DISPLAY_CONNECTOR and DRM_SIMPLE_BRIDGE for VGA666
+- dt: Add option for dpi without DE and PCLK (for VGA666)
+- staging: rpivid: Fix crash when CMA alloc fails
+- drm/vc4: Add connector check to trigger mode_change when hdr metadata changes
+- drm/vc4: Add HDR metadata property to the VC5 HDMI connectors
+- drm: fix HDR static metadata type field numbering
+- overlays: Rename gpio-fsm property num-soft-gpios
+- gpio-fsm: Rename 'num-soft-gpios' to avoid warning
+- Revert "ARM: dts: bcm2711: Add the BSC interrupt controller"
+- Partial revert "bcm2711: Disable bsc_intr and aon_intr by default and enable in overlay"
+- Added hflip and vflip controls to ov9281
+- Fixed picture line bug in all ov9281 modes
+- Hifiberry DAC+ADC Pro fix for the PLL when changing sample rates
+- bcm2835-isp: Allow formats with different colour spaces.
+- Added PiFi-Mini to rpi-simple-soundcard.c
+- Overlays for PiFi-Mini amp
+- staging:bcm2835-camera: Fix the cherry-pick of AWB Greyworld
+- w1: w1_therm: Fix conversion result for negative temperatures
+- bcm2711: Remove old GIC interrupt
+- drm/vc4: hdmi: Limit the BCM2711 to the max without scrambling
+- bcm2711: Disable bsc_intr and aon_intr by default and enable in overlay
+- ARM: dts: bcm2711: Add the CEC interrupt controller
+- ARM: dts: bcm2711: Add the BSC interrupt controller
+- dt-binding: display: bcm2711-hdmi: Add CEC and hotplug interrupts
+- drm/vc4: hdmi: Don't register the CEC adapter if there's no interrupts
+- drm/vc4: hdmi: Remove cec_available flag
+- drm/vc4: hdmi: Support BCM2711 CEC interrupt setup
+- drm/vc4: hdmi: Split the interrupt handlers
+- drm/vc4: hdmi: Introduce a CEC clock
+- drm/vc4: hdmi: Update the CEC clock divider on HSM rate change
+- drm/vc4: hdmi: Compute the CEC clock divider from the clock rate
+- drm/vc4: hdmi: Restore cec physical address on reconnect
+- drm/vc4: hdmi: Fix up CEC registers
+- drm/vc4: hdmi: Fix register offset with longer CEC messages
+- drm/vc4: hdmi: Move hdmi reset to bind
+- ARM: bcm: Select BRCMSTB_L2_IRQ for bcm2835
+- Revert "vc4_hdmi: Fix up CEC registers"
+- Revert "vc4_hdmi: BCM2835 requires a fixed hsm clock for CEC to work"
+- Revert "vc4_hdmi: Fix register offset when sending longer CEC messages"
+- Revert "vc4_hdmi_regs: Add Intr2 register block"
+- Revert "vc4_hdmi_regs: Make interrupt mask variant specific"
+- Revert "vc4_hdmi: Make irq shared"
+- Revert "vc4_hdmi: Adjust CEC ref clock based on its input clock"
+- Revert "vc4_hdmi: Remove cec_available flag as always supported"
+- Revert "vc4: cec: Restore cec physical address on reconnect"
+- Revert "drm/vc4: Reading the hotplug register is only valid if no GPIO defined"
+- Revert "vc4_hdmi: Move hdmi reset to bind"
+- Revert "drm/vc4: hdmi: Limit the BCM2711 to the max without scrambling"
+- configs: Add MICREL_PHY=y
+- i2c: bcm2835: Handle untimely DONE signal
+- media: i2c: imx290: Fix number of controls in v4l2_ctrl_handler_init
+- media: i2c: imx290: Replace V4L2_CID_GAIN with V4L2_CID_ANALOGUE_GAIN
+- ARM: dts: Declare Pi400 and CM4 have no audio pins
+- Enhances the Hifiberry DAC+ driver for Hifiberry AMP100 support
+- Adds the DT-overlays to support Hifiberry AMP100
+- configs: Enable CONFIG_MEDIA_CEC_RC
+- drm/vc4: hvs: Fix buffer overflow with the dlist handling
+- kbuild: Silence unavoidable dtc overlay warnings
+- spi: bcm2835: Workaround/fix for zero-length transfers
+- configs: Add CRYPTO_ADIANTUM=m
+- configs: Add NVMEM_RMEM=m for 2711
+- ARM: multi_v7_defconfig: Enable nvmem's rmem driver
+- arm64: defconfig: Enable nvmem's rmem driver
+- ARM: dts: bcm2711: Add reserved memory template to hold firmware configuration
+- nvmem: Add driver to expose reserved memory as nvmem
+- dt-bindings: nvmem: Add bindings for rmem driver
+- configs: Add CONFIG_USB_NET_AQC111=m
+- configs: Add CONFIG_NETFILTER_XT_MATCH_PHYSDEV=m
+- staging: vc04_services: ISP: Add colour denoise control
+- uapi: bcm2835-isp: Add colour denoise configuration
+- configs: Enable BCM2835 thermal driver in kernel8
+- SQUASH: Revert "overlays: Fix dtc warnings in i2c-gpio"
+- SQUASH: Revert: "overlays: Make the i2c-gpio overlay safe again"
+- overlays: seeed-can-fd-hat: clarify how to identify HAT version
+- dtoverlays: Update sensor overlays to use cam1_reg where possible
+- dt: Add a camera regulator node to all downstream Pi platforms
+- overlays: add spi override to merus-amp overlay
+- overlays: add wm8960-soundcard overlay
+- overlays: Add overlay for Seeed Studio CAN BUS FD HAT v1 (based on mcp2517fd)
+- overlays: give Seeed Studio CAN BUS FD HAT a -v2 postfix
+- media: i2c: ov5647: Selection compliance fixes
+- bcm2711-rpi.dtsi: Bump hdmi audio dma panic priority to max
+- dt: Enable DMA_WIDE_SOURCE and DMA_WIDE_DEST for hdmi audio
+- bcm2835-dma: Avoid losing CS flags after interrupt
+- bcm2835-dma: Move WAIT_RESP from extra to info
+- bcm2835-dma: Add bcm2835-dma: Add DMA_WIDE_SOURCE and DMA_WIDE_DEST flags
+- staging/bcm2835-isp: Log the number of excess supported formats
+- staging/bcm2835-isp: Add the unpacked (16bpp) raw formats
+- staging/bcm2835-codec: Log the number of excess supported formats
+- staging/bcm2835-codec: Add the unpacked (16bpp) raw formats
+- staging/vc04_services: Add additional unpacked raw formats
+- staging/mmal-vchiq: Fix incorrect static vchiq_instance.
+- staging/vc04-services/codec: Fix logical precedence issue
+- staging: vchiq: Fix bulk transfers on 64-bit builds
+- vc-sm-cma: fixed kbuild problem
+- Add overlay for Seeed Studio CAN BUS FD HAT (#4034)
+- overlays: Rebuild "upstream" with latest ovmerge
+- staging: vchiq: Fix bulk userdata handling
+- drm/vc4: Fixup fkms for API change
+- drm/vc4: hdmi: Enable 10/12 bpc output
+- drm/vc4: hdmi: Limit the BCM2711 to the max without scrambling
+- drm/vc4: hdmi: Use the connector state pixel rate for the PHY
+- drm/vc4: hdmi: Store pixel frequency in the connector state
+- drm/vc4: hdmi: Create a custom connector state
+- drm/vc4: hdmi: Don't access the connector state in reset if kmalloc fails
+- drm/vc4: hdmi: Take into account the clock doubling flag in atomic_check
+- drm/vc4: Pass the atomic state to encoder hooks
+- drm/vc4: hvs: Align the HVS atomic hooks to the new API
+- drm/atomic: Pass the full state to CRTC atomic begin and flush
+- drm/atomic: Pass the full state to CRTC atomic_check
+- drm/atomic: Pass the full state to CRTC atomic enable/disable
+- staging/vc04_services/codec: Clear last buf dequeued flag on START
+- staging/vc04_services/codec: Add support for CID MPEG_HEADER_MODE
+- media: i2c: imx477: Selection compliance fixes
+- overlays: Add missing addresses to ads1015/ads1115
+- drm/vc4: Make normalize_zpos conditional on using fkms
+- overlays: mpu6050: Add 'addr' parameter
+- net: lan78xx: Ack pending PHY ints when resetting
+- staging/bcm2835-codec: Ensure OUTPUT timestamps are always forwarded
+- overlays: Fix cut-and-paste error in README
+- overlays: Add PCF85063 and PCF85063A to i2c-rtc
+- configs: Add RTC_DRV_PCF85063=m
+- ARM: dts: CM4 audio pins are not connected
+- PCI: brcmstb: Advertise MSI-X support
+- media: bcm2835-unicam: Clear clock state when stopping streaming
+- media: bcm2835-unicam: Return early from stop_streaming() if stopped
+- media: bcm2835-unicam: Correctly handle error propagation for stream on
+- Overlay: Update Allo Piano Plus dac driver for 5.4.y kernels.
+- Add allo boss2 config
+- Add allo boss2 overlay
+- Allo boss2 driver
+- drm/vc4: Correct DSI register definition
+- vc4_hdmi: Move hdmi reset to bind
+- dt: Use compatible string for BCM2711 DSI1
+- drm/vc4: Add configuration for BCM2711 DSI1.
+- dt-bindings: Add compatible for BCM2711 DSI1
+- drm/vc4: Add support for DSI0
+- media: ov9281: Add 1280x720 and 640x480 modes
+- configs: Enable WireGuard kernel module on armhf configs
+- configs: Restore BRIDGE_NETFILTER=m
+- configs: Regenerate the defconfigs
+- mcp251xfd: add overlay
+- Add devicetree support for RaspberryPi 7" panel over DSI I2C
+- drm/panel/raspberrypi-ts: Insert delay before polling for startup state
+- drm/panel/raspberrypi-touchscreen: Use independent I2C actions with delay.
+- dtoverlays: Add an overlay for the EDT FT5406 touchscreen
+- Input: edt-ft5x06: Poll the device if no interrupt is configured.
+- vc4: Clear unused infoframe packet RAM registers
+- PCI: brcmstb: Restore initial fundamental reset
+- vc4_hdmi: Report that 3d/stereo is allowed
+- configs: Add CAN_MCP251XFD=m and CAN_ISOTP=m
+- ARM: dts: bcm27xx: Remove enable_headphones setting
+- overlays: Deprecate and delete the sdtweak overlay
+- ARM: dts: Add bcm2711-rpi-400.dts
+- overlays: Add MAX31856 support to maxtherm overlay
+- configs: Add CONFIG_MAX31856=m
+- phy: broadcom: Add bcm54213pe configuration
+- phy: broadcom: split out the BCM54213PE from the BCM54210E IDs
+- firmware: raspberrypi: Add support for tryonce reboot flag
+- watchdog: bcm2835: Ignore params after the partition number
+- bcm2835-pcm: Fix up multichannel pcm audio
+- PiFi-40 driver, Makefile and Kconfig
+- PiFi-40 Devicetree files
+- PiFi-40 defconfigs
+- bcm2708_fb: Fix a build warning
+- rpivid_h625: Fix build warnings
+- gpio-fsm: Fix a build warning
+- dwc_otg: Minimise header and fix build warnings
+- configs: Set RASPBERRYPI_FIRMWARE for arm64 bcm2711
+- ARM: dts: Expand PCIe space on BCM2711
+- rpisense-fb: Set pseudo_pallete to prevent crash on fbcon takeover
+- overlays: Enable headphone audio in audremap
+- ARM: dts: Disable headphone audio on Zeroes, CM4
+- staging: bcm2835-audio: Add disable-headphones flag
+- dts: Tidy the Raspberry Pi Makefile entries
+- xhci: quirks: add link TRB quirk for VL805
+- drm/vc4: Add the 2711 HVS as a suitable DMA node
+- dts: Add CM4 to arm64 dt files
+- overlays: imx219: Correct link frequency to match the upstream driver
+- overlays: Add option to disable composite to vc4-kms-v3d
+- ARM: dts: bcm271x: Use a53 pmu, drop RPI364
+- drm/vc4: Add all the HDMI registers into the debugfs dumps
+- drm/vc4: Reading the hotplug register is only valid if no GPIO defined
+- gpio: Add gpio-fsm driver
+- drm/vc4: Add debugfs node that dumps the current display lists
+- drm/vc4: A present but empty dmas disables audio
+- staging: vc04_services: ISP: Add a more complex ISP processing component
+- uapi: bcm2835-isp: Add bcm2835-isp uapi header file
+- bcm2835-dma: only reserve channel 0 if legacy dma driver is enabled
+- staging: vc04_services: Add a V4L2 M2M codec driver
+- staging: mmal-vchiq: Use vc-sm-cma to support zero copy
+- staging: mmal-vchiq: Add monochrome image formats
+- staging: vchiq-mmal: Add support for 14bit Bayer
+- staging: vc04_services: Add new vc-sm-cma driver
+- staging: bcm2835-camera: Replace deprecated V4L2_PIX_FMT_BGR32
+- dwc_otg: initialise sched_frame for periodic QHs that were parked
+- USB: gadget: f_hid: avoid crashes and log spam
+- char: Add broadcom char drivers back to build files
+- net: bcmgenet: Reset RBUF on first open
+- rpivid_h265: Fix width/height typo
+- brcmfmac: Increase power saving delay to 2s
+- staging/fbtft: Add support for display variants
+- media: bcm2835-unicam: change minimum number of vb2_queue buffers to 1
+- media: bcm2835-unicam: Retain packing information on G_FMT
+- media: bcm2835-unicam: Fixup review comments from Hans.
+- media: bcm2835: unicam: Fix uninitialized warning
+- media: bcm2835-unicam: Always service interrupts
+- media: i2c: imx477: Parse and register properties
+- media: i2c: imx477: Return correct result on sensor id verification
+- media: i2c: imx477: Add support for adaptive frame control
+- media: i2c: Add driver for Sony IMX477 sensor
+- drm/vc4: Add FKMS as an acceptable node for dma ranges.
+- drm/vc4: Add firmware-kms mode
+- drm/vc4: Add support for YUV color encodings and ranges
+- drm/vc4: Add support for DRM_FORMAT_P030 to vc4 planes
+- vc4: cec: Restore cec physical address on reconnect
+- vc4: Report channel mapping back to userspace
+- vc_hdmi: Set VC4_HDMI_MAI_CONFIG_FORMAT_REVERSE
+- vc4_hdmi: Remove firmware logic for MAI threshold setting
+- drm/vc4: enable HBR MAI format on HBR streams
+- drm/vc4: move setup from hw_params to prepare
+- drm/vc4: add iec958 controls to vc4_hdmi
+- vc4_hdmi: Set HDMI_MAI_FMT
+- vc4_hdmi: Set HD_CTL_WHOLSMP and HD_CTL_CHALIGN_SET
+- drm/vc4: Adopt the dma configuration from the HVS or V3D component
+- vc4_hdmi: Remove cec_available flag as always supported
+- vc4_hdmi: Adjust CEC ref clock based on its input clock
+- vc4_hdmi: Make irq shared
+- vc4_hdmi_regs: Make interrupt mask variant specific
+- vc4_hdmi_regs: Add Intr2 register block
+- vc4_hdmi: Fix up CEC registers
+- vc4_hdmi: Fix register offset when sending longer CEC messages
+- vc4_hdmi: BCM2835 requires a fixed hsm clock for CEC to work
+- include/firmware: Add enum for RPI_FIRMWARE_FRAMEBUFFER_GET_DISPLAY_ID
+- vchiq_2835_arm: Implement a DMA pool for small bulk transfers (#2699)
+- dwc_otg: whitelist_table is now productlist_table
+- bcm2835-mmc: uninitialized_var is no more
+- media: i2c: ov9281: Add support for 8 bit readout
+- media: i2c: tc358743: Only allow supported pixel fmts in set_fmt
+- media: bcm2835-unicam: Drop WARN on uing direct cache alias
+- staging: media: rpivid: Select MEDIA_CONTROLLER and MEDIA_CONTROLLER_REQUEST_API
+- media: bcm2835: unicam: Select MEDIA_CONTROLLER and VIDEO_V4L2_SUBDEV_API
+- ARM: proc-v7: Force misalignment of early stmia
+- bcm2835-dma: Advertise the full DMA range
+- staging: vchiq_arm: children inherit DMA config
+- leds: Add the actpwr trigger
+- media: i2c: ov5647: Parse and register properties
+- dt-bindings: bcm2835-unicam: Update documentation with new clock params
+- media: bcm2835: unicam: Set VPU min clock freq to 250Mhz.
+- media: bcm2835-unicam: Ensure type is VIDEO_CAPTURE in [g|s]_selection
+- media: bcm2835-unicam: Reinstate V4L2_CAP_READWRITE in the caps
+- media: i2c: imx290: Set the colorspace fields in the format
+- media: i2c: imx290: Add support for g_selection to report cropping
+- media: i2c: imx290: Explicitly set v&h blank on mode change
+- media: i2c: ov9281: Read chip ID via 2 reads
+- media: i2c: ov9281: Fixup for recent kernel releases, and remove custom code
+- media: i2c: ov9281: add enum_frame_interval function for iq tool 2.2 and hal3
+- media: i2c: ov9281: fix mclk issue when probe multiple camera.
+- media: i2c: add ov9281 driver.
+- bcm2835-dma: Add NO_WAIT_RESP flag
+- media: bcm2835-unicam: Add support for unpacked 14bit Bayer formats
+- media: bcm2835-unicam: Add support for 14bit mono sources
+- media: bcm2835-unicam: Add support for 12bit mono packed format
+- media: Add a pixel format for MIPI packed 14bit luma only.
+- media: Add a pixel format for MIPI packed 12bit luma only.
+- serial: 8250: bcm2835aux - defer if clock is zero
+- media: i2c: imx290: Switch set_hmax to use imx290_write_buffered_reg
+- media : i2c: imx290: Add support for the mono sensor variant.
+- media: dt-bindings: media: i2c: Add mono version to IMX290 bindings
+- media: i2c: imx290: Add H and V flip controls
+- media: i2c: imx290: Add exposure control to the driver.
+- media: i2c: imx290: Add support for V4L2_CID_VBLANK
+- media: i2c: imx290: Convert HMAX setting into V4L2_CID_HBLANK
+- media: i2c: imx290: Correct range for V4L2_CID_GAIN to 0-238
+- media: i2c: imx290: Add support for 74.25MHz clock
+- media: i2c: imx290: set the format before VIDIOC_SUBDEV_G_FMT is called
+- media: bcm2835-unicam: Avoid gcc warning over {0} on endpoint
+- media: bcm2835-unicam: Add support for get_mbus_config to set num lanes
+- media: bcm2835-unicam: Driver for CCP2/CSI2 camera interface
+- drivers: media: Remove the downstream version of bcm2835-unicam
+- brcmfmac: Prefer a ccode from OTP over nvram file
+- staging: bcm2835-audio: Add missing MODULE_ALIAS
+- media: irs1125: Keep HW in sync after imager reset
+- media: irs1125: Atomic access to imager reconfiguration
+- media: irs1125: Refactoring and debug messages
+- media: irs1125: Using i2c_transfer for ic2 reads
+- PCI: brcmstb: Add DT property to control L1SS
+- gpiolib: Don't prevent IRQ usage of output GPIOs
+- snd_bcm2835: disable HDMI audio when vc4 is used (#3640)
+- brcmfmac: BCM43436 needs dedicated firmware
+- media: bcm2835-unicam: change minimum number of vb2_queue buffers to 1
+- staging: vchiq_arm: Clean up 40-bit DMA support
+- SQUASH: pinctrl: bcm2835: Set base for bcm2711 GPIO to 0
+- zswap: Defer zswap initialisation
+- media: bcm2835-unicam: Retain packing information on G_FMT
+- kbuild: Disable gcc plugins
+- staging:vc04_services: bcm2835-camera: Request headers with I-frame
+- staging: vc04_services: mmal-vchiq: Update parameters list
+- sc16is7xx: Fix for hardware flow control
+- media: bcm2835-unicam: Always service interrupts
+- dt-bindings: media: i2c: Add IMX477 CMOS sensor binding
+- video: bcm2708_fb: Disable FB if no displays found
+- media: bcm2835: unicam: Fix uninitialized warning
+- media: i2c: tc358743: Fix fallthrough warning
+- media: bcm2835-unicam: Fix reference counting in unicam_open
+- media: bcm2835-unicam: Do not stop streaming in unicam_release
+- media: bcm2835-unicam: Add support for VIDIOC_[S|G]_SELECTION
+- media: i2c: ov5647: Advertise the correct exposure range
+- media: i2c: ov5647: Use member names in mode tables
+- media: i2c: ov5647: Neither analogue gain nor exposure need EXECUTE_ON_WRITE
+- media: i2c: ov5647: Add support for V4L2_CID_VBLANK
+- media: i2c: ov5647: Set V4L2_SUBDEV_FL_HAS_EVENTS flag
+- media: i2c: ov5647: Support V4L2_CID_PIXEL_RATE
+- media: i2c: ov5467: Fixup error path to release mutex
+- media: i2c: ov5647: Add support for g_selection to reflect cropping/binning
+- media: ov5647: change defaults to better match raw camera applications.
+- media: ov5647: Add extra 10-bit sensor modes.
+- media: ov5647: Add V4L2 controls for analogue gain, exposure and AWB
+- media: ov5647: Add basic support for multiple sensor modes.
+- media: ov5647: Fix return codes from ov5647_write/ov5647_read functions.
+- media: i2c: imx219: Declare that the driver can create events
+- overlays: Make the i2c-gpio overlay safe again
+- bcm2835-dma: Add proper 40-bit DMA support
+- staging: vchiq: Load bcm2835_isp driver from vchiq
+- media: uapi: v4l-ctrls: Add CID base for the bcm2835-isp driver
+- media: uapi: v4l2-core: Add ISP statistics output V4L2 fourcc type
+- media: bcm2835-unicam: Re-fetch mbus code from subdev on a g_fmt call
+- media: imx219: Advertise embedded data node on media pad 1
+- media: bcm2835-unicam: Add support for the FRAME_SYNC event
+- media: bcm2835-unicam: Disable event-related ioctls on metadata node
+- media: bcm2835-unicam: Use dummy buffer if none have been queued
+- media: bcm2835-unicam: Add embedded data node.
+- media: bcm2835-unicam: Add support for mulitple device nodes.
+- media: uapi: Add MEDIA_BUS_FMT_SENSOR_DATA media bus format
+- media: uapi: v4l2-core: Add sensor ancillary data V4L2 foucc type.
+- media: bcm2835-unicam: Driver for CCP2/CSI2 camera interface
+- driver: char: rpivid: Don't map more than wanted
+- spi: Force CS_HIGH if GPIO descriptors are used
+- driver: char: rpivid: Remove legacy name support
+- overlays: Fix dtc warnings in i2c-gpio
+- drm: Checking of the pitch is only valid for linear formats
+- dt-bindings: display: vc4: hdmi: Add BCM2711 HDMI controllers bindings
+- dt-bindings: clock: Add a binding for the RPi Firmware clocks
+- mmc: sdhci: Silence MMC warnings
+- staging: media: Add Raspberry Pi V4L2 H265 decoder
+- media: dt-bindings: media: Add binding for the Raspberry PI HEVC decoder
+- media: v4l2-mem2mem: allow request job buffer processing after job finish
+- media: videodev2.h: Add a format for column YUV4:2:0 modes
+- media: uapi: Add hevc ctrls for WPP decoding
+- media: hevc_ctrls: Add slice param dependent slice segment
+- media: uapi: hevc: Add segment address field
+- media: uapi: hevc: Add scaling matrix control
+- drm/fourcc: Add packed 10bit YUV 4:2:0 format
+- bcmgenet: Disable skip_umac_reset by default
+- Kbuild: Allow .dtbo overlays to be built, adjust.
+- dt-bindings: pci: Add DT docs for Brcmstb PCIe device
+- of: overlay: Correct symbol path fixups
+- video: fbdev: bcm2708_fb: Use common compat header
+- drivers: char: vcio: Use common compat header
+- pinctrl: bcm2835: Accept fewer than expected IRQs
+- pinctrl: bcm2835: Change init order for gpio hogs
+- pinctrl: bcm2835: Remove gpiochip on error
+- staging: vchiq_arm: Give vchiq children DT nodes
+- Initialise rpi-firmware before clk-bcm2835
+- ARM: bcm: Backport BCM2711 support from upstream
+- staging: vchiq: Use the old dma controller for OF config on platform devices
+- staging: vchiq_arm: Set up dma ranges on child devices
+- drm/v3d: Set dma_mask as well as coherent_dma_mask
+- clk-bcm2835: Disable v3d clock
+- clk-raspberrypi: Allow cpufreq driver to also adjust gpu clocks
+- v3d_gem: Kick the clock so firmware knows we are using firmware clock interface
+- v3d_drv: Handle missing clock more gracefully
+- net:phy:2711 Change the default ethernet LED actions
+- net:phy:2711 Allow ethernet LED mode to be set via device tree
+- net: bcmgenet: The second IRQ is optional
+- staging: vchiq_arm: Register bcm2835-codec as a platform driver
+- staging: vchiq_arm: Register vcsm-cma as a platform driver
+- drm/v3d: Plug dma_fence leak
+- drm/v3d: Suppress all but the first MMU error
+- drm/v3d: Don't clear MMU control bits on exception
+- media: i2c: Add a driver for the Infineon IRS1125 depth sensor
+- dt-bindings: Add binding for the Infineon IRS1125 sensor
+- Rename HDMI ALSA device names, check for enable state
+- ARM: bcm: Switch board, clk and pinctrl to bcm2711 compatible
+- kbuild: Allow .dtbo overlays to be built piecemeal
+- drm/v3d: Delete pm_runtime support
+- staging: bcm2835-camera: Add greyworld AWB mode
+- v4l2: Add a Greyworld AWB mode.
+- media: dt-bindings: Add binding for the Sony IMX219 sensor
+- arch/arm64: Add Revision, Serial, Model to cpuinfo
+- arch/arm: Add model string to cpuinfo
+- configs: arm64/bcm2711: Enable V3D
+- xhci: Use more event ring segment table entries
+- net: bcmgenet: Workaround #2 for Pi4 Ethernet fail
+- Add HDMI1 facility to the driver.
+- hid: usb: Add device quirks for Freeway Airmouse T3 and MX3
+- drivers: char: add chardev for mmap'ing the RPiVid control registers
+- drm/v3d: Clock V3D down when not in use.
+- drm/v3d: HACK: gut runtime pm for now.
+- clk-bcm2835: Avoid null pointer exception
+- i2c: bcm2835: Set clock-stretch timeout to 35ms
+- xhci: add quirk for host controllers that don't update endpoint DCS
+- drm/v3d: Hook up the runtime PM ops.
+- drm/v3d: Skip MMU flush if the device is currently off.
+- drm/v3d: Add support for 2711.
+- arm: bcm2835: Add bcm2838 compatible string.
+- usbhid: call usb_fixup_endpoint after mangling intervals
+- xhci: implement xhci_fixup_endpoint for interval adjustments
+- usb: add plumbing for updating interrupt endpoint interval state
+- clk: bcm2835: Allow reparenting leaf clocks while they're running.
+- clk: bcm2835: Add support for setting leaf clock rates while running.
+- soc: bcm: bcm2835-pm: Add support for 2711.
+- clk-bcm2835: Don't wait for pllh lock
+- spi: bcm2835: enable shared interrupt support
+- usb: xhci: Disable the XHCI 5 second timeout
+- net: genet: enable link energy detect powerdown for external PHYs
+- bcmgenet: Better coalescing parameter defaults
+- bcmgenet: constrain max DMA burst length
+- bcm2835-pcm.c: Support multichannel audio
+- vchiq: Add 36-bit address support
+- mmc: sdhci-iproc: Fix vmmc regulators on iProc
+- hwrng: iproc-rng200: Add BCM2838 support
+- arm: bcm2835: DMA can only address 1GB
+- arm: bcm2835: Fix FIQ early ioremap
+- w1: w1-gpio: Make GPIO an output for strong pullup
+- staging: mmal-vchiq: Fix memory leak in error path
+- staging: mmal-vchiq: Free the event context for control ports
+- staging: mmal-vchiq: Update mmal_parameters.h with recently defined params
+- staging: mmal_vchiq: Add in the Bayer encoding formats
+- media: ov5647: Use gpiod_set_value_cansleep
+- clk: clk-bcm2835: Use %zd when printing size_t
+- staging: mmal-vchiq: Fix client_component for 64 bit kernel
+- media: videobuf2: Allow exporting of a struct dmabuf
+- staging: vc04_services: Support sending data to MMAL ports
+- staging: mmal-vchiq: Add support for event callbacks.
+- staging: mmal-vchiq: Avoid use of bool in structures
+- media: tc358743: Return an appropriate colorspace from tc358743_set_fmt
+- MAINTAINERS: Add entry for BCM2835 Unicam driver
+- dt-bindings: Document BCM283x CSI2/CCP2 receiver
+- media: videodev2: Add helper defines for printing FOURCCs
+- media: adv7180: Add YPrPb support for ADV7282M
+- media: adv7180: Default to the first valid input
+- media: tc358743: Check I2C succeeded during probe.
+- media: tc358743: Add support for 972Mbit/s link freq.
+- media: tc358743: fix connected/active CSI-2 lane reporting
+- media: tc358743: Increase FIFO level to 374.
+- media: ov5647: Add support for non-continuous clock mode
+- media: ov5647: Add support for PWDN GPIO.
+- media: ov5647: Add set_fmt and get_fmt calls.
+- lan78xx: use default alignment for rx buffers
+- rtc: rv3028: Add backup switchover mode support
+- bcm2835-dma: Add support for per-channel flags
+- lan78xx: EEE support is now a PHY property
+- lan78xx: Debounce link events to minimize poll storm
+- firmware: raspberrypi: Report the fw variant during probe
+- net: lan78xx: Support auto-downshift to 100Mb/s
+- Update issue templates (#2736)
+- drivers: thermal: step_wise: avoid throttling at hysteresis temperature after dropping below it
+- drivers: thermal: step_wise: add support for hysteresis
+- sc16is7xx: Don't spin if no data received
+- firmware: raspberrypi: Add backward compatible get_throttled
+- hwmon: raspberrypi: Prevent voltage low warnings from filling log
+- cxd2880: CXD2880_SPI_DRV should select DVB_CXD2880 with MEDIA_SUBDRV_AUTOSELECT
+- Add rpi-poe-fan driver
+- lan78xx: Move enabling of EEE into PHY init code
+- brcmfmac: Re-enable firmware roaming support
+- net: lan78xx: Disable TCP Segmentation Offload (TSO)
+- of: configfs: Use of_overlay_fdt_apply API call
+- irqchip: irq-bcm2835: Calc. FIQ_START at boot-time
+- firmware/raspberrypi: Notify firmware of a reboot
+- Add ability to export gpio used by gpio-poweroff
+- hid: Reduce default mouse polling interval to 60Hz
+- lan78xx: Read initial EEE status from DT
+- added capture_clear option to pps-gpio via dtoverlay (#2433)
+- i2c-gpio: Also set bus numbers from reg property
+- raspberrypi-firmware: Export the general transaction function.
+- ARM: Activate FIQs to avoid __irq_startup warnings
+- dwc-otg: FIQ: Fix "bad mode in data abort handler"
+- ARM: bcm2835: Set Serial number and Revision
+- cgroup: Disable cgroup "memory" by default
+- AXI performance monitor driver (#2222)
+- cache: export clean and invalidate
+- ARM64: Force hardware emulation of deprecated instructions.
+- ARM64: Round-Robin dispatch IRQs between CPUs.
+- config: Add default configs
+- hci_h5: Don't send conf_req when ACTIVE
+- brcm: adds support for BCM43341 wifi
+- OF: DT-Overlay configfs interface
+- bcm2835-virtgpio: Virtual GPIO driver
+- rpi_display: add backlight driver and overlay
+- Fixes a problem when module probes before i2c module is available
+- Add support for all the downstream rpi sound card drivers
+- mfd: Add Raspberry Pi Sense HAT core driver
+- gpio-poweroff: Allow it to work on Raspberry Pi
+- Improve __copy_to_user and __copy_from_user performance
+- Added Device IDs for August DVB-T 205
+- BCM270x_DT: Add pwr_led, and the required "input" trigger
+- BCM2708: Add core Device Tree support
+- firmware: bcm2835: Support ARCH_BCM270x
+- char: broadcom: Add vcio module
+- Add Chris Boot's i2c driver
+- Add SMI driver
+- Add /dev/gpiomem device for rootless user GPIO access
+- vc_mem: Add vc_mem driver for querying firmware memory addresses
+- Adding bcm2835-sdhost driver, and an overlay to enable it
+- MMC: added alternative MMC driver
+- dmaengine: Add support for BCM2708
+- Speed up console framebuffer imageblit function
+- fbdev: add FBIOCOPYAREA ioctl
+- Pulled in the multi frame buffer support from the Pi3 repo
+- bcm2708 framebuffer driver
+- Add dwc_otg driver
+- Main bcm2708/bcm2709 linux port
+- pinctrl-bcm2835: Set base to 0 give expected gpio numbering
+- tty: amba-pl011: Avoid rare write-when-full error
+- tty: amba-pl011: Add un/throttle support
+- tty: amba-pl011: Make TX optimisation conditional
+- amba_pl011: Add cts-event-workaround DT property
+- amba_pl011: Insert mb() for correct FIFO handling
+- amba_pl011: Round input clock up
+- amba_pl011: Don't use DT aliases for numbering
+- lan78xx: Enable LEDs and auto-negotiation
+- irqchip: irq-bcm2836: Remove regmap and syscon use
+- mm: Remove the PFN busy warning
+- i2c: bcm2835: Add debug support
+- Update vfpmodule.c
+- sound: Demote deferral errors to INFO level
+- clk-bcm2835: Read max core clock from firmware
+- clk-bcm2835: Add claim-clocks property
+- clk-bcm2835: Mark used PLLs and dividers CRITICAL
+- bcm2835-rng: Avoid initialising if already enabled
+- Register the clocks early during the boot process, so that special/critical clocks can get enabled early on in the boot process avoiding the risk of disabling a clock, pll_divider or pll when a claiming driver fails to install propperly - maybe it needs to defer.
+- bcm: Make RASPBERRYPI_POWER depend on PM
+- reboot: Use power off rather than busy spinning when halt is requested
+- watchdog: bcm2835: Support setting reboot partition
+- rtc: Add SPI alias for pcf2123 driver
+- firmware: Updated mailbox header
+- dmaengine: bcm2835: Load driver early and support legacy API
+- spi: spidev: Completely disable the spidev warning
+- irqchip: irq-bcm2835: Add 2836 FIQ support
+- irqchip: bcm2835: Add FIQ support
+- irq-bcm2836: Avoid "Invalid trigger warning"
+- Protect __release_resource against resources without parents
+- Allow mac address to be set in smsc95xx
+- smsc95xx: Experimental: Enable turbo_mode and packetsize=2560 by default
+- smsx95xx: fix crimes against truesize
+- Revert "mailbox: avoid timer start from callback"
+- Revert "spi: spidev: Fix CS polarity if GPIO descriptors are used"
+- Revert "staging: bcm2835-audio: Drop DT dependency"
+- Revert "rtc: pcf8523: properly handle oscillator stop bit"
+- arm: partially revert 702b94bff3c50542a6e4ab9a4f4cef093262fe65
+- pid: add pid reserve method for checkpoint and recover
+- mm: add pin memory method for checkpoint add restore
+- cgroup: disable kernel memory accounting for all memory cgroups by default
+- openeuler_defconfig: Enable MPAM by default
+- arm64/mpam: Sort domains when cpu online
+- arm64/mpam: resctrl: Refresh cpu mask for handling cpuhp
+- arm64/mpam: resctrl: Allow setting register MPAMCFG_MBW_MIN to 0
+- arm64/mpam: resctrl: Use resctrl_group_init_alloc() for default group
+- arm64/mpam: resctrl: Add proper error handling to resctrl_mount()
+- arm64/mpam: Use fs_context to parse mount options
+- arm64/mpam: Supplement additional useful ctrl features for mount options
+- arm64/mpam: Set per-cpu's closid to none zero for cdp
+- arm64/mpam: Simplify mpamid cdp mapping process
+- arm64/mpam: Filter schema control type with ctrl features
+- arm64/mpam: resctrl: Add rmid file in resctrl sysfs
+- arm64/mpam: Split header files into suitable location
+- arm64/mpam: resctrl: Export resource's properties to info directory
+- arm64/mpam: Add resctrl_ctrl_feature structure to manage ctrl features
+- arm64/mpam: Add wait queue for monitor alloc and free
+- arm64/mpam: Remap reqpartid,pmg to rmid and intpartid to closid
+- arm64/mpam: Separate internal and downstream priority event
+- arm64/mpam: Enabling registering and logging error interrupts
+- arm64/mpam: Fix MPAM_ESR intPARTID_range error
+- arm64/mpam: Integrate monitor data for Memory Bandwidth if cdp enabled
+- arm64/mpam: Add hook-events id for ctrl features
+- arm64/mpam: Re-plan intpartid narrowing process
+- arm64/mpam: Restore extend ctrls' max width for checking schemata input
+- arm64/mpam: Squash default priority from mpam device to class
+- arm64/mpam: Store intpri and dspri for mpam device reset
+- arm64/mpam: resctrl: Support priority and hardlimit(Memory bandwidth) configuration
+- arm64/mpam: resctrl: Support cpus' monitoring for mon group
+- arm64/mpam: resctrl: collect child mon group's monitor data
+- arm64/mpam: Using software-defined id for rdtgroup instead of 32-bit integer
+- arm64/mpam: Implement intpartid narrowing process
+- arm64/mpam: resctrl: Remove unnecessary CONFIG_ARM64
+- arm64/mpam: resctrl: Remove ctrlmon sysfile
+- arm64/mpam: Clean up header files and rearrange declarations
+- arm64/mpam: resctrl: Support cdp on monitoring data
+- arm64/mpam: Support cdp on allocating monitors
+- arm64/mpam: resctrl: Move ctrlmon sysfile write/read function to mpam_ctrlmon.c
+- arm64/mpam: resctrl: Update closid alloc and free process with bitmap
+- arm64/mpam: resctrl: Update resources reset process
+- arm64/mpam: Support cdp in mpam_sched_in()
+- arm64/mpam: resctrl: Write and read schemata by schema_list
+- arm64/mpam: resctrl: Use resctrl_group_init_alloc() to init schema list
+- arm64/mpam: resctrl: Add helpers for init and destroy schemata list
+- arm64/mpam: resctrl: Supplement cdpl2,cdpl3 for mount options
+- arm64/mpam: resctrl: Append schemata CDP definitions
+- arm64/mpam: resctrl: Rebuild configuration and monitoring pipeline
+- arm64/mpam: Probe partid,pmg and feature capabilities' ranges from classes
+- arm64/mpam: Add helper for getting MSCs' configuration
+- arm64/mpam: Migrate old MSCs' discovery process to new branch
+- drivers: base: cacheinfo: Add helper to search cacheinfo by of_node
+- arm64/mpam: Implement helpers for handling configuration and monitoring
+- arm64/mpam: resctrl: Handle cpuhp and resctrl_dom allocation
+- arm64/mpam: resctrl: Re-synchronise resctrl's view of online CPUs
+- arm64/mpam: Init resctrl resources' info from resctrl_res selected
+- arm64/mpam: Pick MPAM resources and events for resctrl_res exported
+- arm64/mpam: Allocate mpam component configuration arrays
+- arm64/mpam: Summarize feature support during mpam_enable()
+- arm64/mpam: Reset controls when CPUs come online
+- arm64/mpam: Add helper for getting mpam sysprops
+- arm64/mpam: Probe the features resctrl supports
+- arm64/mpam: Supplement MPAM MSC register layout definitions
+- arm64/mpam: Probe supported partid/pmg ranges from devices
+- arm64/mpam: Add mpam driver discovery phase and kbuild boiler plate
+- arm64/mpam: Preparing for MPAM refactoring
+- arm64/mpam: Supplement err tips in info/last_cmd_status
+- arm64/mpam: Fix unreset resources when mkdir ctrl group or umount resctrl
+- MPAM / ACPI: Refactoring MPAM init process and set MPAM ACPI as entrance
+- ACPI 6.x: Add definitions for MPAM table
+- ACPI / PPTT: cacheinfo: Label caches based on fw_token
+- ACPI / PPTT: Filthy hack to find _a_ backwards reference in the PPTT [ROTTEN]
+- ACPI / PPTT: Add helper to validate cache nodes from an offset [dead]
+- ACPI / processor: Add helper to convert acpi_id to a phys_cpuid
+- arm64/mpam: cleanup the source file's licence
+- mpam : fix monitor's disorder from
+- mpam : fix missing fill MSMON_CFG_MON_SEL register
+- arm64/mpam: use snprintf instead of sprintf
+- arm64/mpam: cleanup debuging code
+- arm64/mpam: fix a missing unlock in error branch
+- arm64/mpam: remove unnecessary debug message and dead code
+- arm64/mpam: correct num of partid/pmg
+- arm64/mpam: get num_partids from system regs instead of hard code
+- arm64/mpam: update group flags only when enable sucsses
+- arm64/mpam: remove unsupported resource
+- arm64/mpam: only add new domain node to domain list
+- arm64/mpam: unmap all previous address when failed
+- arm64/mpam: destroy domain list when failed to init
+- arm64/mpam: fix hard code address map for 1620 2P
+- mpam: fix potential resource leak in mpam_domains_init
+- mpam: Code security rectification
+- cmetrics: remove dead code in mpam_ctrlmon.c and resctrlfs.c
+- arm64/mpam: fix compile warning
+- arm64/mpam: add cmdline option: mpam
+- resctrlfs: fix up RESCTRL dependency
+- arm64/mpam: hard code mpam resource for Hi1620 2P
+- arm64/mpam: support L3TALL, HHALL
+- arm64/mpam: debug: remove debug pr_info at schemata
+- arm64/mpam: use 5% as min memory bandwidth
+- arm64/mpam: don't allowd create mon_groups when out of mon/pmg
+- arm64/mpam: fix HHA MAX SET/GET operation
+- arm64/mpam: monitor pmg as a property of partid
+- arm64/mpam: enable alloc/mon capable when MPAM enabled
+- arm64/mpam: add L3TALL & HHALL
+- arm64/mpam: alloc/mon capable/enabled debug
+- arm64/mpam: get alloc/mon capable/enabled from h/w
+- arm64/mpam: don't reserve mon 0, we can use it as nomarl
+- arm64/mpam: get num_mon & num_pmg from hardware
+- arm64/mpam: add num_monitors in info dir
+- arm64/mpam: mon: add WARN_ON for debug free_pmg
+- arm64/mpam: free mon when remove momgroups
+- arm64/mpam: operation not permitted when remove a ctrl group with a mondata
+- arm64/mpam: support monitor
+- arm64/mpam: disable MPAM_SYS_REG_DEBUG
+- arm64/mpam: print mpam caps info when booting
+- arm64/mpam: add mpam extension runtime detection
+- arm64/mpam: support num_partids/num_pmgs
+- arm64/mpam: support monitor
+- arm64/mpam: support monitor read
+- arm64/mpam: pass rdtgroup when create mon_data dir
+- arm64/mpam: add group partid/pmg to tasks show
+- arm64/mpam: debug: print debug info when create mon_data
+- arm64/mpam: debug: print more useful info for mon_data
+- resctrlfs: mpam: Build basic framework for mpam
+- resctrlfs: init support resctrlfs
+- net/hinic: Remove the initialization of the global variable g_uld_info
+- arm64: Declare var of local_cpu_stop only on PARK
+- arm64: fix the compile error when CONFIG_NUMA is disabled
+- memig: fix compile error when CONFIG_NUMA is turned off
+
 * Sun Feb 28 2021 Xie XiuQi <xiexiuqi@huawei.com> - 5.10.0-4.4.0.17
 - memig: add memig-swap feature to openEuler
 - memig: add memig-scan feature to openEuler
