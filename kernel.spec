@@ -11,7 +11,7 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       4
-%global maintenance_release .5.0
+%global maintenance_release .6.0
 %global pkg_release         .18
 
 %define with_debuginfo 1
@@ -869,6 +869,9 @@ fi
 %endif
 
 %changelog
+* Thu Mar 4 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.6.0.18
+- Revert "Update issue templates (#2736)"
+
 * Wed Mar 3 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.5.0.18
 - Revert "Bluetooth: Always request for user confirmation for Just Works"
 - Revert "Bluetooth: Always request for user confirmation for Just Works (LE SC)"
