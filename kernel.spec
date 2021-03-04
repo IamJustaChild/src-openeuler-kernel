@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       4
-%global maintenance_release .6.0
-%global pkg_release         .18
+%global maintenance_release .7.0
+%global pkg_release         .19
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -869,6 +869,59 @@ fi
 %endif
 
 %changelog
+* Thu Mar 4 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.7.0.19
+- config: add digest list options for arm64 and x86
+- evm: Propagate choice of HMAC algorithm in evm_crypto.c
+- evm: Extend evm= with x509. allow_metadata_writes and complete values
+- ima: Execute parser to upload digest lists not recognizable by the kernel
+- ima: Add parser keyword to the policy
+- ima: Allow direct upload of digest lists to securityfs
+- ima: Search key in the built-in keyrings
+- certs: Introduce search_trusted_key()
+- KEYS: Introduce load_pgp_public_keyring()
+- KEYS: Provide a function to load keys from a PGP keyring blob
+- KEYS: Provide PGP key description autogeneration
+- KEYS: PGP data parser
+- PGPLIB: Basic packet parser
+- PGPLIB: PGP definitions (RFC 4880)
+- rsa: add parser of raw format
+- mpi: introduce mpi_key_length()
+- evm: Reset status even when security.evm is modified
+- ima: Add Documentation/security/IMA-digest-lists.txt
+- ima: Introduce appraise_exec_immutable policy
+- ima: Introduce appraise_exec_tcb policy
+- ima: Introduce exec_tcb policy
+- ima: Add meta_immutable appraisal type
+- evm: Add support for digest lists of metadata
+- ima: Add support for appraisal with digest lists
+- ima: Add support for measurement with digest lists
+- ima: Load all digest lists from a directory at boot time
+- ima: Introduce new hook DIGEST_LIST_CHECK
+- ima: Introduce new securityfs files
+- ima: Prevent usage of digest lists not measured or appraised
+- ima: Add parser of compact digest list
+- ima: Use ima_show_htable_value to show violations and hash table data
+- ima: Generalize policy file operations
+- ima: Generalize ima_write_policy() and raise uploaded data size limit
+- ima: Generalize ima_read_policy()
+- ima: Allow choice of file hash algorithm for measurement and audit
+- ima: Add enforce-evm and log-evm modes to strictly check EVM status
+- init: Add kernel option to force usage of tmpfs for rootfs
+- gen_init_cpio: add support for file metadata
+- initramfs: read metadata from special file METADATA!!!
+- initramfs: add file metadata
+- ima: Don't remove security.ima if file must not be appraised
+- ima: Introduce template field evmsig and write to field sig as fallback
+- ima: Allow imasig requirement to be satisfied by EVM portable signatures
+- evm: Allow setxattr() and setattr() for unmodified metadata
+- evm: Allow xattr/attr operations for portable signatures
+- evm: Ignore INTEGRITY_NOLABEL/INTEGRITY_NOXATTRS if conditions are safe
+- evm: Introduce evm_status_revalidate()
+- ima: Move ima_reset_appraise_flags() call to post hooks
+- evm: Refuse EVM_ALLOW_METADATA_WRITES only if an HMAC key is loaded
+- evm: Load EVM key in ima_load_x509() to avoid appraisal
+- evm: Execute evm_inode_init_security() only when an HMAC key is loaded
+
 * Thu Mar 4 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.6.0.18
 - Revert "Update issue templates (#2736)"
 - Revert "Bluetooth: Always request for user confirmation for Just Works"
