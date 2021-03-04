@@ -871,8 +871,6 @@ fi
 %changelog
 * Thu Mar 4 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.6.0.18
 - Revert "Update issue templates (#2736)"
-
-* Wed Mar 3 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.5.0.18
 - Revert "Bluetooth: Always request for user confirmation for Just Works"
 - Revert "Bluetooth: Always request for user confirmation for Just Works (LE SC)"
 - overlays: Update the upstream overlay
