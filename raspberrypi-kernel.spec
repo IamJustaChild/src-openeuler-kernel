@@ -78,7 +78,9 @@ install -m 644 System.map $RPM_BUILD_ROOT/boot/System.map-%{KernelVer}
 mkdir -p $RPM_BUILD_ROOT/boot/dtb-%{KernelVer}/overlays
 install -m 644 $(find arch/%{Arch}/boot/dts/broadcom/ -name "*.dtb") $RPM_BUILD_ROOT/boot/dtb-%{KernelVer}/
 install -m 644 $(find arch/%{Arch}/boot/dts/overlays/ -name "*.dtbo") $RPM_BUILD_ROOT/boot/dtb-%{KernelVer}/overlays/
-install -m 644 $(find arch/%{Arch}/boot/dts/overlays/ -name "*.dtb") $RPM_BUILD_ROOT/boot/dtb-%{KernelVer}/overlays/
+if ls arch/%{Arch}/boot/dts/overlays/*.dtb > /dev/null 2>&1; then
+    install -m 644 $(find arch/%{Arch}/boot/dts/overlays/ -name "*.dtb") $RPM_BUILD_ROOT/boot/dtb-%{KernelVer}/overlays/
+fi
 install -m 644 arch/%{Arch}/boot/dts/overlays/README $RPM_BUILD_ROOT/boot/dtb-%{KernelVer}/overlays/
 
 %postun
@@ -120,7 +122,9 @@ if [ "$version_old" != "0" ]; then
                     fi
                 done
                 install -m 644 $(find /boot/dtb-$version_old/overlays/ -name "*.dtbo") /boot/overlays/
-                install -m 644 $(find /boot/dtb-$version_old/overlays/ -name "*.dtb") /boot/overlays/
+                if ls /boot/dtb-$version_old/overlays/*.dtb > /dev/null 2>&1; then
+                    install -m 644 $(find /boot/dtb-$version_old/overlays/ -name "*.dtb") /boot/overlays/
+                fi
                 install -m 644 /boot/dtb-$version_old/overlays/README /boot/overlays/
             else
                 echo "warning: files in /boot/dtb-$version_old/*.dtb missing when resetting kernel as $version_old, something may go wrong when starting this device next time."
@@ -152,7 +156,9 @@ do
     fi
 done
 install -m 644 $(find /boot/dtb-%{KernelVer}/overlays/ -name "*.dtbo") /boot/overlays/
-install -m 644 $(find /boot/dtb-%{KernelVer}/overlays/ -name "*.dtb") /boot/overlays/
+if ls /boot/dtb-%{KernelVer}/overlays/*.dtb > /dev/null 2>&1; then
+    install -m 644 $(find /boot/dtb-%{KernelVer}/overlays/ -name "*.dtb") /boot/overlays/
+fi
 install -m 644 /boot/dtb-%{KernelVer}/overlays/README /boot/overlays/
 
 
