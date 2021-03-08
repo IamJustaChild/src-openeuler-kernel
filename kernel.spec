@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       4
-%global maintenance_release .7.0
-%global pkg_release         .19
+%global maintenance_release .8.0
+%global pkg_release         .20
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -869,6 +869,18 @@ fi
 %endif
 
 %changelog
+* Fri Mar 5 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.8.0.20
+- kbuild: keep the original function for non-RPi
+- arm64: keep the original function for non-RPi
+- usb: keep the original function for non-RPi
+- mm: keep the original function for non-RPi
+- video&logo: keep the original function for non-RPi
+- serial: keep the original function for non-RPi
+- some drivers: keep the original function for non-RPi
+- net: keep the original function for non-RPi
+- gpio:keep the original function for non-RPi
+- arm64: add Raspberry Pi specific config: CONFIG_OPENEULER_RASPBERRYPI for openEuler
+
 * Thu Mar 4 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.7.0.19
 - config: add digest list options for arm64 and x86
 - evm: Propagate choice of HMAC algorithm in evm_crypto.c
