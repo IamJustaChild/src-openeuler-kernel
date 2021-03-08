@@ -12,7 +12,7 @@
 %global upstream_sublevel   0
 %global devel_release       4
 %global maintenance_release .8.0
-%global pkg_release         .20
+%global pkg_release         .21
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -42,6 +42,7 @@ Source0: kernel.tar.gz
 Source10: sign-modules
 Source11: x509.genkey
 Source12: extra_certificates
+Source13: pubring.gpg
 
 %if 0%{?with_kabichk}
 Source18: check-kabi
@@ -263,6 +264,8 @@ fi
 %endif
 
 cd linux-%{KernelVer}
+
+cp %{SOURCE13} certs
 
 %if 0%{?with_patch}
 cp %{SOURCE9000} .
@@ -869,6 +872,9 @@ fi
 %endif
 
 %changelog
+* Mon Mar 8 2021 Roberto Sassu <roberto.sassu@huawei.com> - 5.10.0-4.8.0.21
+- Add OBS PGP key
+
 * Fri Mar 5 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.8.0.20
 - kbuild: keep the original function for non-RPi
 - arm64: keep the original function for non-RPi
