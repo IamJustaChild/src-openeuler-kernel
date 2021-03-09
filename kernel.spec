@@ -872,7 +872,7 @@ fi
 %endif
 
 %changelog
-* Mon Mar 8 2021 Roberto Sassu <roberto.sassu@huawei.com> - 5.10.0-4.8.0.22
+* Mon Mar 8 2021 Roberto Sassu <roberto.sassu@huawei.com> - 5.10.0-4.9.0.22
 - Add OBS PGP key
 
 * Mon Mar 8 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.9.0.21
