@@ -2,13 +2,13 @@
 
 %global KernelVer %{version}-%{release}.raspi.%{_target_cpu}
 
-%global hulkrelease 4.7.0
+%global hulkrelease 4.9.0
 
 %global debug_package %{nil}
 
 Name:	 raspberrypi-kernel
 Version: 5.10.0
-Release: %{hulkrelease}.1
+Release: %{hulkrelease}.2
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -172,5 +172,19 @@ install -m 644 /boot/dtb-%{KernelVer}/overlays/README /boot/overlays/
 /lib/modules/%{KernelVer}
 
 %changelog
+* Tue Mar 9  2021 Yafen Fang<yafen@iscas.ac.cn> - 5.10.0-4.9.0.2
+- arm64: ipi_nmi: fix compile error when CONFIG_KGDB is disabled
+- kbuild: fix compile error in Makefile.lib
+- kbuild: keep the original function for non-RPi
+- arm64: keep the original function for non-RPi
+- usb: keep the original function for non-RPi
+- mm: keep the original function for non-RPi
+- video&logo: keep the original function for non-RPi
+- serial: keep the original function for non-RPi
+- some drivers: keep the original function for non-RPi
+- net: keep the original function for non-RPi
+- gpio:keep the original function for non-RPi
+- arm64: add Raspberry Pi specific config: CONFIG_OPENEULER_RASPBERRYPI for openEuler
+
 * Thu Mar 4  2021 Yafen Fang<yafen@iscas.ac.cn> - 5.10.0-4.7.0.1
 - package init based on openEuler 5.10.0-4.7.0
