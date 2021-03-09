@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       4
-%global maintenance_release .8.0
-%global pkg_release         .20
+%global maintenance_release .9.0
+%global pkg_release         .21
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -869,6 +869,10 @@ fi
 %endif
 
 %changelog
+* Mon Mar 8 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.9.0.21
+- arm64: ipi_nmi: fix compile error when CONFIG_KGDB is disabled
+- kbuild: fix compile error in Makefile.lib
+
 * Fri Mar 5 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.8.0.20
 - kbuild: keep the original function for non-RPi
 - arm64: keep the original function for non-RPi
