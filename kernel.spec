@@ -11,7 +11,7 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       4
-%global maintenance_release .10.0
+%global maintenance_release .11.0
 %global pkg_release         .23
 
 %define with_debuginfo 1
@@ -872,7 +872,7 @@ fi
 %endif
 
 %changelog
-* Fri Mar 12 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.10.0.23
+* Fri Mar 12 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.11.0.23
 - park: Reserve park mem before kexec reserved
 - pmem: Enable legacy pmem on openEuler
 - arm64: Add memmap parameter and register pmem
