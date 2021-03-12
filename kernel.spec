@@ -872,7 +872,7 @@ fi
 %endif
 
 %changelog
-* Fri Mar 12 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.10.0.22
+* Fri Mar 12 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.10.0.23
 - park: Reserve park mem before kexec reserved
 - pmem: Enable legacy pmem on openEuler
 - arm64: Add memmap parameter and register pmem
