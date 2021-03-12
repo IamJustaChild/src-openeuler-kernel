@@ -12,7 +12,7 @@
 %global upstream_sublevel   0
 %global devel_release       4
 %global maintenance_release .10.0
-%global pkg_release         .22
+%global pkg_release         .23
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
