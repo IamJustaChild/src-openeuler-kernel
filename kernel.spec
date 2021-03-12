@@ -42,6 +42,7 @@ Source0: kernel.tar.gz
 Source10: sign-modules
 Source11: x509.genkey
 Source12: extra_certificates
+Source13: pubring.gpg
 
 %if 0%{?with_kabichk}
 Source18: check-kabi
@@ -263,6 +264,8 @@ fi
 %endif
 
 cd linux-%{KernelVer}
+
+cp %{SOURCE13} certs
 
 %if 0%{?with_patch}
 cp %{SOURCE9000} .
@@ -869,9 +872,15 @@ fi
 %endif
 
 %changelog
-* Thu Mar 11 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.10.0.22
+* Fri Mar 12 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.10.0.22
+- park: Reserve park mem before kexec reserved
+- pmem: Enable legacy pmem on openEuler
+- arm64: Add memmap parameter and register pmem
 - etmem: Modify the memig feature name to etmem
 - arm: keep the original function for non-RPi
+
+* Tue Mar 9 2021 Roberto Sassu <roberto.sassu@huawei.com> - 5.10.0-4.9.0.22
+- Add OBS PGP key
 
 * Mon Mar 8 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.9.0.21
 - arm64: ipi_nmi: fix compile error when CONFIG_KGDB is disabled
