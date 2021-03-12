@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       4
-%global maintenance_release .9.0
-%global pkg_release         .22
+%global maintenance_release .11.0
+%global pkg_release         .23
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -872,6 +872,13 @@ fi
 %endif
 
 %changelog
+* Fri Mar 12 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.11.0.23
+- park: Reserve park mem before kexec reserved
+- pmem: Enable legacy pmem on openEuler
+- arm64: Add memmap parameter and register pmem
+- etmem: Modify the memig feature name to etmem
+- arm: keep the original function for non-RPi
+
 * Tue Mar 9 2021 Roberto Sassu <roberto.sassu@huawei.com> - 5.10.0-4.9.0.22
 - Add OBS PGP key
 
