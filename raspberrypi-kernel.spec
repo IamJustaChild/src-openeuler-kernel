@@ -2,13 +2,13 @@
 
 %global KernelVer %{version}-%{release}.raspi.%{_target_cpu}
 
-%global hulkrelease 4.9.0
+%global hulkrelease 4.11.0
 
 %global debug_package %{nil}
 
 Name:	 raspberrypi-kernel
 Version: 5.10.0
-Release: %{hulkrelease}.2
+Release: %{hulkrelease}.3
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -172,6 +172,14 @@ install -m 644 /boot/dtb-%{KernelVer}/overlays/README /boot/overlays/
 /lib/modules/%{KernelVer}
 
 %changelog
+* Fri Mar 12 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.11.0.3
+- park: Reserve park mem before kexec reserved
+- pmem: Enable legacy pmem on openEuler
+- arm64: Add memmap parameter and register pmem
+- etmem: Modify the memig feature name to etmem
+- arm: keep the original function for non-RPi
+- Add OBS PGP key
+
 * Tue Mar 9  2021 Yafen Fang<yafen@iscas.ac.cn> - 5.10.0-4.9.0.2
 - arm64: ipi_nmi: fix compile error when CONFIG_KGDB is disabled
 - kbuild: fix compile error in Makefile.lib
