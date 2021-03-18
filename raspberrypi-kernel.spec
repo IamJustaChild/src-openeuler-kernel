@@ -2,7 +2,7 @@
 
 %global KernelVer %{version}-%{release}.raspi.%{_target_cpu}
 
-%global hulkrelease 4.13.0
+%global hulkrelease 4.14.0
 
 %global debug_package %{nil}
 
@@ -172,7 +172,8 @@ install -m 644 /boot/dtb-%{KernelVer}/overlays/README /boot/overlays/
 /lib/modules/%{KernelVer}
 
 %changelog
-* Thu Mar 18 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.13.0.5
+* Fri Mar 19 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.14.0.5
+- Revert "Speed up console framebuffer imageblit function"
 - arm64/mpam: fix a memleak in add_schema
 - fs: fix files.usage bug when move tasks
 - files_cgroup: fix error pointer when kvm_vm_worker_thread
