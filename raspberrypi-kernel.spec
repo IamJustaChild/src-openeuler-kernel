@@ -2,13 +2,13 @@
 
 %global KernelVer %{version}-%{release}.raspi.%{_target_cpu}
 
-%global hulkrelease 4.12.0
+%global hulkrelease 4.13.0
 
 %global debug_package %{nil}
 
 Name:	 raspberrypi-kernel
 Version: 5.10.0
-Release: %{hulkrelease}.4
+Release: %{hulkrelease}.5
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -172,6 +172,29 @@ install -m 644 /boot/dtb-%{KernelVer}/overlays/README /boot/overlays/
 /lib/modules/%{KernelVer}
 
 %changelog
+* Thu Mar 18 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.13.0.5
+- arm64/mpam: fix a memleak in add_schema
+- fs: fix files.usage bug when move tasks
+- files_cgroup: fix error pointer when kvm_vm_worker_thread
+- fs/filescontrol: add a switch to enable / disable accounting of open fds
+- cgroup/files: use task_get_css() to get a valid css during dup_fd()
+- cgroups: Resource controller for open files
+- openeuler_defconfig: enable CONFIG_CGROUP_FILES by default
+- ima: fix a memory leak in ima_del_digest_data_entry
+- x86: config: disable CONFIG_BOOTPARAM_HOTPLUG_CPU0 by default
+- scsi: iscsi: Verify lengths on passthrough PDUs
+- scsi: iscsi: Ensure sysfs attributes are limited to PAGE_SIZE
+- scsi: iscsi: Restrict sessions and handles to admin capabilities
+- of: unittest: Fix build on architectures without CONFIG_OF_ADDRESS
+- mm: Remove examples from enum zone_type comment
+- arm64: mm: Set ZONE_DMA size based on early IORT scan
+- arm64: mm: Set ZONE_DMA size based on devicetree's dma-ranges
+- of: unittest: Add test for of_dma_get_max_cpu_address()
+- of/address: Introduce of_dma_get_max_cpu_address()
+- arm64: mm: Move zone_dma_bits initialization into zone_sizes_init()
+- arm64: mm: Move reserve_crashkernel() into mem_init()
+- mm: improve physical page collecting method of pin memory
+
 * Fri Mar 12 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.12.0.4
 - arm64: Uninstall cpu park after cpu up
 - sysrq: avoid concurrently info printing by 'sysrq-trigger'
