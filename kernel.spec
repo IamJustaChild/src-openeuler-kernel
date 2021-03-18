@@ -11,7 +11,7 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       4
-%global maintenance_release .13.0
+%global maintenance_release .14.0
 %global pkg_release         .25
 
 %define with_debuginfo 1
@@ -872,7 +872,8 @@ fi
 %endif
 
 %changelog
-* Thu Mar 18 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.13.0.25
+* Fri Mar 19 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.14.0.25
+- Revert "Speed up console framebuffer imageblit function"
 - arm64/mpam: fix a memleak in add_schema
 - fs: fix files.usage bug when move tasks
 - files_cgroup: fix error pointer when kvm_vm_worker_thread
