@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       4
-%global maintenance_release .14.0
-%global pkg_release         .25
+%global maintenance_release .15.0
+%global pkg_release         .26
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -872,6 +872,11 @@ fi
 %endif
 
 %changelog
+* Fri Mar 19 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.15.0.26
+- RDMA/hns: Optimize the base address table config for MTR
+- fbdev: keep the original function for non-RPi
+- Speed up console framebuffer imageblit function
+
 * Fri Mar 19 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.14.0.25
 - Revert "Speed up console framebuffer imageblit function"
 - arm64/mpam: fix a memleak in add_schema
