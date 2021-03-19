@@ -2,13 +2,13 @@
 
 %global KernelVer %{version}-%{release}.raspi.%{_target_cpu}
 
-%global hulkrelease 4.14.0
+%global hulkrelease 4.15.0
 
 %global debug_package %{nil}
 
 Name:	 raspberrypi-kernel
 Version: 5.10.0
-Release: %{hulkrelease}.5
+Release: %{hulkrelease}.6
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -172,6 +172,11 @@ install -m 644 /boot/dtb-%{KernelVer}/overlays/README /boot/overlays/
 /lib/modules/%{KernelVer}
 
 %changelog
+* Fri Mar 19 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.15.0.6
+- RDMA/hns: Optimize the base address table config for MTR
+- fbdev: keep the original function for non-RPi
+- Speed up console framebuffer imageblit function
+
 * Fri Mar 19 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.14.0.5
 - Revert "Speed up console framebuffer imageblit function"
 - arm64/mpam: fix a memleak in add_schema
