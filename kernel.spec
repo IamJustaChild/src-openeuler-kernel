@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       4
-%global maintenance_release .15.0
-%global pkg_release         .26
+%global maintenance_release .16.0
+%global pkg_release         .27
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -872,6 +872,10 @@ fi
 %endif
 
 %changelog
+* Sat Mar 20 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.16.0.27
+- Revert "scsi: megaraid_sas: Set no_write_same only for Virtual Disk"  for openEuler issue I3BC45
+- Revert "scsi: megaraid_sas: Replace undefined MFI_BIG_ENDIAN macro with __BIG_ENDIAN_BITFIELD macro" for openEuler issue I3BC45
+
 * Fri Mar 19 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.15.0.26
 - RDMA/hns: Optimize the base address table config for MTR
 - fbdev: keep the original function for non-RPi
