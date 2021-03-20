@@ -2,13 +2,13 @@
 
 %global KernelVer %{version}-%{release}.raspi.%{_target_cpu}
 
-%global hulkrelease 4.15.0
+%global hulkrelease 4.16.0
 
 %global debug_package %{nil}
 
 Name:	 raspberrypi-kernel
 Version: 5.10.0
-Release: %{hulkrelease}.6
+Release: %{hulkrelease}.7
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -172,6 +172,10 @@ install -m 644 /boot/dtb-%{KernelVer}/overlays/README /boot/overlays/
 /lib/modules/%{KernelVer}
 
 %changelog
+* Sat Mar 20 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.16.0.7
+- Revert "scsi: megaraid_sas: Set no_write_same only for Virtual Disk"  for openEuler issue I3BC45
+- Revert "scsi: megaraid_sas: Replace undefined MFI_BIG_ENDIAN macro with __BIG_ENDIAN_BITFIELD macro" for openEuler issue I3BC45
+
 * Fri Mar 19 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.15.0.6
 - RDMA/hns: Optimize the base address table config for MTR
 - fbdev: keep the original function for non-RPi
