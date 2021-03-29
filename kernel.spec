@@ -169,6 +169,7 @@ Summary: the kernel source
 This package contains vaious source files from the kernel.
 
 %if 0%{?with_debuginfo}
+%define debug_package %{nil}
 %define _debuginfo_template %{nil}
 %define _debuginfo_subpackages 0
 
