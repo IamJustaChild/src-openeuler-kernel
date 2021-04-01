@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2103.1.0
+%global hulkrelease 2104.1.0
 
 %define with_patch 0
 
@@ -26,7 +26,7 @@
 
 Name:	 kernel
 Version: 4.19.140
-Release: %{hulkrelease}.0055
+Release: %{hulkrelease}.0056
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -820,6 +820,9 @@ fi
 
 %changelog
 
+
+* Thu Apr 01 2021 Cheng Jian <cj.chengjian@huawei.com> - 4.19.140-2104.1.0.0056
+- brcmfmac: Loading the correct firmware for brcm43456
 
 * Tue Mar 16 2021 Cheng Jian <cj.chengjian@huawei.com> - 4.19.140-2103.1.0.0055
 - xen-netback: respect gnttab_map_refs()'s return value
