@@ -2,13 +2,13 @@
 
 %global KernelVer %{version}-%{release}.raspi.%{_target_cpu}
 
-%global hulkrelease 4.17.0
+%global hulkrelease 4.18.0
 
 %global debug_package %{nil}
 
 Name:	 raspberrypi-kernel
 Version: 5.10.0
-Release: %{hulkrelease}.8
+Release: %{hulkrelease}.9
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -172,6 +172,9 @@ install -m 644 /boot/dtb-%{KernelVer}/overlays/README /boot/overlays/
 /lib/modules/%{KernelVer}
 
 %changelog
+* Fri Mar 27 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.18.0.9
+- arm64: mm: fixes reserve_crashkernel twice by mistake
+
 * Wed Mar 24 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.17.0.8
 - scsi: megaraid_sas: Replace undefined MFI_BIG_ENDIAN macro with __BIG_ENDIAN_BITFIELD macro
 - scsi: megaraid_sas: Set no_write_same only for Virtual Disk
