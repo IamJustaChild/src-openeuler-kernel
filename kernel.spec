@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       4
-%global maintenance_release .17.0
-%global pkg_release         .28
+%global maintenance_release .18.0
+%global pkg_release         .29
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -872,6 +872,9 @@ fi
 %endif
 
 %changelog
+* Fri Mar 27 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.18.0.29
+- arm64: mm: fixes reserve_crashkernel twice by mistake
+
 * Wed Mar 24 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.17.0.28
 - scsi: megaraid_sas: Replace undefined MFI_BIG_ENDIAN macro with __BIG_ENDIAN_BITFIELD macro
 - scsi: megaraid_sas: Set no_write_same only for Virtual Disk
