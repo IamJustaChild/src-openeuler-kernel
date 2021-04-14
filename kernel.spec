@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2104.9.0
+%global hulkrelease 2104.10.0
 
 %define with_patch 0
 
@@ -24,7 +24,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0071
+Release: %{hulkrelease}.0072
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -790,6 +790,10 @@ fi
 
 %changelog
 
+
+* Wed Apr 14 2021 Cheng Jian <cj.chengjian@huawei.com> - 4.19.90-2104.10.0.0072
+- bpf, x86: Validate computation of branch displacements for x86-32
+- bpf, x86: Validate computation of branch displacements for x86-64
 
 * Wed Apr 14 2021 Cheng Jian <cj.chengjian@huawei.com> - 4.19.90-2104.9.0.0071
 - mm/vmalloc.c: fix percpu free VM area search criteria
