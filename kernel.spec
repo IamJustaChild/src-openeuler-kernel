@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2104.6.0
+%global hulkrelease 2104.7.0
 
 %define with_patch 0
 
@@ -24,7 +24,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0068
+Release: %{hulkrelease}.0069
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -790,6 +790,23 @@ fi
 
 %changelog
 
+
+* Wed Apr 14 2021 Cheng Jian <cj.chengjian@huawei.com> - 4.19.90-2104.7.0.0069
+- sched/fair: fix kabi broken due to adding fields in rq and sched_domain_shared
+- sched/fair: fix try_steal compile error
+- config: enable CONFIG_SCHED_STEAL by default
+- sched/fair: introduce SCHED_STEAL
+- disable stealing by default
+- sched/fair: Provide idle search schedstats
+- sched/fair: disable stealing if too many NUMA nodes
+- sched/fair: Steal work from an overloaded CPU when CPU goes idle
+- sched/fair: Provide can_migrate_task_llc
+- sched/fair: Generalize the detach_task interface
+- sched/fair: Hoist idle_stamp up from idle_balance
+- sched/fair: Dynamically update cfs_overload_cpus
+- sched/topology: Provide cfs_overload_cpus bitmap
+- sched/topology: Provide hooks to allocate data shared per LLC
+- sched: Provide sparsemask, a reduced contention bitmap
 
 * Wed Apr 14 2021 Cheng Jian <cj.chengjian@huawei.com> - 4.19.90-2104.6.0.0068
 - sched/fair: fix kabi broken due to adding idle_h_nr_running in cfs_rq
