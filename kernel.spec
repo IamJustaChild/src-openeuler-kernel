@@ -24,7 +24,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0073
+Release: %{hulkrelease}.0074
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -790,6 +790,20 @@ fi
 
 %changelog
 
+
+* Thu Apr 15 2021 Cheng Jian <cj.chengjian@huawei.com> - 4.19.90-2104.12.0.0074
+- iommu/arm-smmu-v3: Reduce contention during command-queue insertion
+- iommu/arm-smmu-v3: Operate directly on low-level queue where possible
+- iommu/arm-smmu-v3: Move low-level queue fields out of arm_smmu_queue
+- iommu/arm-smmu-v3: Drop unused 'q' argument from Q_OVF macro
+- iommu/arm-smmu-v3: Separate s/w and h/w views of prod and cons indexes
+- iommu/io-pgtable: Rename iommu_gather_ops to iommu_flush_ops
+- iommu/io-pgtable-arm: Remove redundant call to io_pgtable_tlb_sync()
+- iommu/arm-smmu-v3: Increase maximum size of queues
+- iommu/io-pgtable: Replace IO_PGTABLE_QUIRK_NO_DMA with specific flag
+- iommu: Allow io-pgtable to be used outside of drivers/iommu/
+- iommu: Fix flush_tlb_all typo
+- iommu: Change tlb_range_add to iotlb_range_add and tlb_sync to iotlb_sync
 
 * Thu Apr 15 2021 Cheng Jian <cj.chengjian@huawei.com> - 4.19.90-2104.11.0.0073
 - io_uring: order refnode recycling
