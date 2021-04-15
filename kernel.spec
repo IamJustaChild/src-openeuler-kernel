@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2104.4.0
+%global hulkrelease 2104.5.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0067
+Release: %{hulkrelease}.0068
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -817,6 +817,84 @@ fi
 
 %changelog
 
+
+* Thu Apr 15 2021 Cheng Jian <cj.chengjian@huawei.com> - 4.19.90-2104.5.0.0068
+- ext4: add reclaim checks to xattr code
+- locking/mutex: Fix non debug version of mutex_lock_io_nested()
+- dm verity: add root hash pkcs#7 signature verification
+- Revert "netfilter: x_tables: Update remaining dereference to RCU"
+- netfilter: x_tables: Use correct memory barriers.
+- Revert "netfilter: x_tables: Switch synchronization to RCU"
+- arm64: kdump: update ppos when reading elfcorehdr
+- netfilter: ctnetlink: fix dump of the expect mask attribute
+- dm ioctl: fix out of bounds array access when no devices
+- block: Suppress uevent for hidden device when removed
+- NFS: Correct size calculation for create reply length
+- cifs: Fix preauth hash corruption
+- ext4: do not try to set xattr into ea_inode if value is empty
+- kernel, fs: Introduce and use set_restart_fn() and arch_set_restart_data()
+- nvme-rdma: fix possible hang when failing to set io queues
+- sunrpc: fix refcount leak for rpc auth modules
+- include/linux/sched/mm.h: use rcu_dereference in in_vfork()
+- hrtimer: Update softirq_expires_next correctly after __hrtimer_get_next_event()
+- scsi: target: core: Prevent underflow for service actions
+- scsi: target: core: Add cmd length set before cmd complete
+- PCI: Fix pci_register_io_range() memory leak
+- Revert "mm, slub: consider rest of partial list if acquire_slab() fails"
+- cifs: return proper error code in statfs(2)
+- tcp: add sanity tests to TCP_QUEUE_SEQ
+- tcp: annotate tp->write_seq lockless reads
+- tcp: annotate tp->copied_seq lockless reads
+- netfilter: x_tables: gpf inside xt_find_revision()
+- net: Fix gro aggregation for udp encaps with zero csum
+- dm table: fix zoned iterate_devices based device capability checks
+- dm table: fix DAX iterate_devices based device capability checks
+- dm table: fix iterate_devices based device capability checks
+- dm bufio: subtract the number of initial sectors in dm_bufio_get_device_size
+- swap: fix swapfile read/write offset
+- mm/hugetlb.c: fix unnecessary address expansion of pmd sharing
+- net: fix up truesize of cloned skb in skb_prepare_for_shift()
+- xfs: Fix assert failure in xfs_setattr_size()
+- arm64 module: set plt* section addresses to 0x0
+- hugetlb: fix update_and_free_page contig page struct assumption
+- net: icmp: pass zeroed opts from icmp{,v6}_ndo_send before sending
+- ipv6: silence compilation warning for non-IPV6 builds
+- ipv6: icmp6: avoid indirect call for icmpv6_send()
+- xfrm: interface: use icmp_ndo_send helper
+- sunvnet: use icmp_ndo_send helper
+- gtp: use icmp_ndo_send helper
+- icmp: allow icmpv6_ndo_send to work with CONFIG_IPV6=n
+- icmp: introduce helper for nat'd source address in network device context
+- dm: fix deadlock when swapping to encrypted device
+- printk: fix deadlock when kernel panic
+- module: Ignore _GLOBAL_OFFSET_TABLE_ when warning for undefined symbols
+- hugetlb: fix copy_huge_page_from_user contig page struct assumption
+- x86: fix seq_file iteration for pat/memtype.c
+- ACPI: property: Fix fwnode string properties matching
+- blk-settings: align max_sectors on "logical_block_size" boundary
+- mm/rmap: fix potential pte_unmap on an not mapped pte
+- arm64: Add missing ISB after invalidating TLB in __primary_switch
+- mm/hugetlb: fix potential double free in hugetlb_register_node() error path
+- mm/memory.c: fix potential pte_unmap_unlock pte error
+- ocfs2: fix a use after free on error
+- tracepoint: Do not fail unregistering a probe due to memory failure
+- isofs: release buffer head before return
+- tcp: fix SO_RCVLOWAT related hangs under mem pressure
+- random: fix the RNDRESEEDCRNG ioctl
+- bfq: Avoid false bfq queue merging
+- locking/static_key: Fix false positive warnings on concurrent dec/inc
+- jump_label/lockdep: Assert we hold the hotplug lock for _cpuslocked() operations
+- KVM: fix memory leak in kvm_io_bus_unregister_dev()
+- net: qrtr: fix a kernel-infoleak in qrtr_recvmsg()
+- xen-blkback: don't leak persistent grants from xen_blkbk_map()
+- KVM: SVM: Periodically schedule when unregistering regions on destroy
+- gianfar: fix jumbo packets+napi+rx overrun crash
+- usbip: fix stub_dev usbip_sockfd_store() races leading to gpf
+- media: v4l: ioctl: Fix memory leak in video_usercopy
+- block: only update parent bi_status when bio fail
+- RDMA/hns: fix timer, gid_type, scc cfg
+- block: respect queue limit of max discard segment
+- block: Use non _rcu version of list functions for tag_set_list
 
 * Mon Apr 12 2021 Cheng Jian <cj.chengjian@huawei.com> - 4.19.90-2104.4.0.0067
 - ext4: fix potential error in ext4_do_update_inode
