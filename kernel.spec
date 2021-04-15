@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2104.8.0
+%global hulkrelease 2104.9.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0071
+Release: %{hulkrelease}.0072
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -817,6 +817,13 @@ fi
 
 %changelog
 
+
+* Thu Apr 15 2021 Cheng Jian <cj.chengjian@huawei.com> - 4.19.90-2104.9.0.0072
+- mm/vmalloc.c: fix percpu free VM area search criteria
+- mm/vmalloc.c: avoid bogus -Wmaybe-uninitialized warning
+- mm/vmap: add DEBUG_AUGMENT_LOWEST_MATCH_CHECK macro
+- mm/vmap: add DEBUG_AUGMENT_PROPAGATE_CHECK macro
+- mm/vmalloc.c: keep track of free blocks for vmap allocation
 
 * Thu Apr 15 2021 Cheng Jian <cj.chengjian@huawei.com> - 4.19.90-2104.8.0.0071
 - config: Enable CONFIG_USERSWAP
