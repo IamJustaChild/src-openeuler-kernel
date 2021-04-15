@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2104.7.0
+%global hulkrelease 2104.8.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0070
+Release: %{hulkrelease}.0071
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -817,6 +817,17 @@ fi
 
 %changelog
 
+
+* Thu Apr 15 2021 Cheng Jian <cj.chengjian@huawei.com> - 4.19.90-2104.8.0.0071
+- config: Enable CONFIG_USERSWAP
+- userswap: support userswap via userfaultfd
+- userswap: add a new flag 'MAP_REPLACE' for mmap()
+- mm, mempolicy: fix up gup usage in lookup_node
+- mm/mempolicy: Allow lookup_node() to handle fatal signal
+- mm/gup: Let __get_user_pages_locked() return -EINTR for fatal signal
+- mm/gup: fix fixup_user_fault() on multiple retries
+- mm/gup: allow VM_FAULT_RETRY for multiple times
+- mm: allow VM_FAULT_RETRY for multiple times
 
 * Thu Apr 15 2021 Cheng Jian <cj.chengjian@huawei.com> - 4.19.90-2104.7.0.0070
 - sched/fair: fix kabi broken due to adding fields in rq and sched_domain_shared
