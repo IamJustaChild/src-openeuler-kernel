@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0077
+Release: %{hulkrelease}.0078
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -817,6 +817,10 @@ fi
 
 %changelog
 
+
+* Thu Apr 15 2021 Cheng Jian <cj.chengjian@huawei.com> - 4.19.90-2104.15.0.0078
+- config/x86: enable SHRINK_PAGECACHE
+- arm64: Add config switch and kernel parameter for CPU0 hotplug
 
 * Thu Apr 15 2021 Cheng Jian <cj.chengjian@huawei.com> - 4.19.90-2104.14.0.0077
 - arm64: errata: enable HISILICON_ERRATUM_HIP08_RU_PREFETCH
