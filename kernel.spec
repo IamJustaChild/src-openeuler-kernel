@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2104.5.0
+%global hulkrelease 2104.6.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0068
+Release: %{hulkrelease}.0069
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -817,6 +817,14 @@ fi
 
 %changelog
 
+
+* Thu Apr 15 2021 Cheng Jian <cj.chengjian@huawei.com> - 4.19.90-2104.6.0.0069
+- sched/fair: fix kabi broken due to adding idle_h_nr_running in cfs_rq
+- sched/fair: Make sched-idle CPU selection consistent throughout
+- sched/fair: Optimize select_idle_cpu
+- sched/fair: Fall back to sched-idle CPU if idle CPU isn't found
+- sched/fair: Start tracking SCHED_IDLE tasks count in cfs_rq
+- sched/core: Create task_has_idle_policy() helper
 
 * Thu Apr 15 2021 Cheng Jian <cj.chengjian@huawei.com> - 4.19.90-2104.5.0.0068
 - ext4: add reclaim checks to xattr code
