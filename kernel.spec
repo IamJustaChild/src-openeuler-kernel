@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0078
+Release: %{hulkrelease}.0079
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -817,6 +817,9 @@ fi
 
 %changelog
 
+
+* Thu Apr 15 2021 Cheng Jian <cj.chengjian@huawei.com> - 4.19.90-2104.16.0.0079
+- config/arm64: fix kabi by disable CONFIG_NVME_MULTIPATH
 
 * Thu Apr 15 2021 Cheng Jian <cj.chengjian@huawei.com> - 4.19.90-2104.15.0.0078
 - config/x86: enable SHRINK_PAGECACHE
