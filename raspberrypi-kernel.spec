@@ -2,13 +2,13 @@
 
 %global KernelVer %{version}-%{release}.raspi.%{_target_cpu}
 
-%global hulkrelease 4.18.0
+%global hulkrelease 4.19.0
 
 %global debug_package %{nil}
 
 Name:	 raspberrypi-kernel
 Version: 5.10.0
-Release: %{hulkrelease}.9
+Release: %{hulkrelease}.10
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -172,6 +172,10 @@ install -m 644 /boot/dtb-%{KernelVer}/overlays/README /boot/overlays/
 /lib/modules/%{KernelVer}
 
 %changelog
+* Fri Apr 16 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.19.0.10
+- arm64: amend config position of park and pmem
+- arm64/mpam: fix a possible deadlock in mpam_enable
+
 * Fri Mar 27 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.18.0.9
 - arm64: mm: fixes reserve_crashkernel twice by mistake
 

@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       4
-%global maintenance_release .18.0
-%global pkg_release         .29
+%global maintenance_release .19.0
+%global pkg_release         .30
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -872,6 +872,10 @@ fi
 %endif
 
 %changelog
+* Fri Apr 16 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.19.0.30
+- arm64: amend config position of park and pmem
+- arm64/mpam: fix a possible deadlock in mpam_enable
+
 * Fri Mar 27 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.18.0.29
 - arm64: mm: fixes reserve_crashkernel twice by mistake
 
