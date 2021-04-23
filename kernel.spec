@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       4
-%global maintenance_release .19.0
-%global pkg_release         .30
+%global maintenance_release .20.0
+%global pkg_release         .31
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -872,6 +872,18 @@ fi
 %endif
 
 %changelog
+* Fri Apr 23 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.20.0.31
+- bpf: Fix truncation handling for mod32 dst reg wrt zero
+- vhost-vdpa: fix use-after-free of v->config_ctx
+- bpf, x86: Validate computation of branch displacements for x86-32
+- bpf, x86: Validate computation of branch displacements for x86-64
+- PCI: rpadlpar: Fix potential drc_name corruption in store functions
+- ASoC: qcom: sdm845: Fix array out of bounds access
+- staging: rtl8188eu: prevent ->ssid overflow in rtw_wx_set_scan()
+- misc: fastrpc: restrict user apps from sending kernel RPC messages
+- kvm: debugfs: add EXIT_REASON_PREEMPTION_TIMER to vcpu_stat
+- kvm: debugfs: add fastpath msr_wr exits to debugfs statistics
+
 * Fri Apr 16 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.19.0.30
 - arm64: amend config position of park and pmem
 - arm64/mpam: fix a possible deadlock in mpam_enable
