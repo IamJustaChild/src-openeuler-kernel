@@ -2,13 +2,13 @@
 
 %global KernelVer %{version}-%{release}.raspi.%{_target_cpu}
 
-%global hulkrelease 4.19.0
+%global hulkrelease 4.20.0
 
 %global debug_package %{nil}
 
 Name:	 raspberrypi-kernel
 Version: 5.10.0
-Release: %{hulkrelease}.10
+Release: %{hulkrelease}.11
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -172,6 +172,18 @@ install -m 644 /boot/dtb-%{KernelVer}/overlays/README /boot/overlays/
 /lib/modules/%{KernelVer}
 
 %changelog
+* Fri Apr 23 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.20.0.11
+- bpf: Fix truncation handling for mod32 dst reg wrt zero
+- vhost-vdpa: fix use-after-free of v->config_ctx
+- bpf, x86: Validate computation of branch displacements for x86-32
+- bpf, x86: Validate computation of branch displacements for x86-64
+- PCI: rpadlpar: Fix potential drc_name corruption in store functions
+- ASoC: qcom: sdm845: Fix array out of bounds access
+- staging: rtl8188eu: prevent ->ssid overflow in rtw_wx_set_scan()
+- misc: fastrpc: restrict user apps from sending kernel RPC messages
+- kvm: debugfs: add EXIT_REASON_PREEMPTION_TIMER to vcpu_stat
+- kvm: debugfs: add fastpath msr_wr exits to debugfs statistics
+
 * Fri Apr 16 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.19.0.10
 - arm64: amend config position of park and pmem
 - arm64/mpam: fix a possible deadlock in mpam_enable
