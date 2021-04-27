@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2104.21.0
+%global hulkrelease 2104.22.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0083
+Release: %{hulkrelease}.0084
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -817,6 +817,15 @@ fi
 
 %changelog
 
+
+* Tue Apr 27 2021 Cheng Jian <cj.chengjian@huawei.com> - 4.19.90-2104.22.0.0084
+- kernel/cputime: do not update cputime when cpu offline
+- perf/x86: Always store regs->ip in perf_callchain_kernel()
+- perf/x86: Make perf callchains work without CONFIG_FRAME_POINTER
+- irqchip/gic-v3: Do not enable irqs when handling spurious interrups
+- config: enable CONFIG_HW_RANDOM_HISI_V2 by default
+- hwrng: add data_mode to support rand data with post process
+- hwrng: add HiSilicon TRNG driver
 
 * Sun Apr 25 2021 Cheng Jian <cj.chengjian@huawei.com> - 4.19.90-2104.21.0.0083
 - bcache: Rewrite patch to delay to invalidate cache data
