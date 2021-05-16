@@ -8,11 +8,11 @@
 
 %global Arch $(echo %{_host_cpu} | sed -e s/i.86/x86/ -e s/x86_64/x86/ -e s/aarch64.*/arm64/)
 
-%global TarballVer 4.19.188
+%global TarballVer 4.19.190
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2104.7.0
+%global hulkrelease 2104.8.0
 
 %define with_patch 0
 
@@ -20,7 +20,16 @@
 
 %define with_debuginfo 1
 
-%define with_perf 1
+#defualt is enabled. You can disable it with --without perf
+%bcond_without perf
+
+#python3 is disabled in default for 20-03. For systems with only python3, should --with python3
+%bcond_with python3
+
+#what is python path which corresponds to python version specified
+%{expand:%%global python_path %{?with_python3:%%{__python3}}%{!?with_python3:%%{__python2}}}
+
+
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
 %global _missing_build_ids_terminate_build 1
 %global _no_recompute_build_ids 1
@@ -31,8 +40,8 @@
 %define with_source 1
 
 Name:	 kernel
-Version: 4.19.188
-Release: %{hulkrelease}.0084
+Version: 4.19.190
+Release: %{hulkrelease}.0085
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -75,16 +84,31 @@ BuildRequires: ncurses-devel
 BuildRequires: elfutils-libelf-devel
 BuildRequires: rpm >= 4.14.2
 #BuildRequires: sparse >= 0.4.1
-BuildRequires: elfutils-devel zlib-devel binutils-devel newt-devel python-devel perl(ExtUtils::Embed) bison
+BuildRequires: elfutils-devel zlib-devel binutils-devel newt-devel perl(ExtUtils::Embed) bison
 BuildRequires: audit-libs-devel
 BuildRequires: pciutils-devel gettext
 BuildRequires: rpm-build, elfutils
 BuildRequires: numactl-devel python3-devel glibc-static python3-docutils
 BuildRequires: perl-generators perl(Carp) libunwind-devel gtk2-devel
-%if 0%{?with_perf}
+
+%if %{with perf}
 # libbabeltrace-devel >= 1.3.0
 BuildRequires: libbabeltrace-devel java-1.8.0-openjdk-devel
+BuildRequires: flex xz-devel
+BuildRequires: audit-libs-devel
+BuildRequires: libbpf-devel
+%ifnarch s390x
+BuildRequires: numactl-devel
 %endif
+%endif
+
+
+%if %{with python3}
+BuildRequires: python3-devel
+%else
+BuildRequires: python-devel
+%endif
+
 AutoReq: no
 AutoProv: yes
 
@@ -142,13 +166,14 @@ Obsoletes: kernel-tools-libs-devel
 This package contains the development files for the tools/ directory from
 the kernel source.
 
-%if 0%{?with_perf}
+%if %{with perf}
 %package -n perf
 Summary: Performance monitoring for the Linux kernel
 %description -n perf
 This package contains the perf tool, which enables performance monitoring
 of the Linux kernel.
 
+%if !%{with python3}
 %package -n python2-perf
 Provides: python-perf = %{version}-%{release}
 Obsoletes: python-perf
@@ -157,12 +182,15 @@ Summary: Python bindings for apps which will manipulate perf events
 %description -n python2-perf
 A Python module that permits applications written in the Python programming
 language to use the interface to manipulate perf events.
+%else
 
 %package -n python3-perf
 Summary: Python bindings for apps which will manipulate perf events
 %description -n python3-perf
 A Python module that permits applications written in the Python programming
 language to use the interface to manipulate perf events.
+%endif
+# with_perf
 %endif
 
 %package -n bpftool
@@ -209,14 +237,18 @@ package or when debugging this package.\
 %{expand:%%global _find_debuginfo_opts %{?_find_debuginfo_opts} -p '.*%{_bindir}/perf.*(\.debug)?|.*%{_libexecdir}/perf-core/.*|.*%{_libdir}/traceevent/.*|XXX' -o perf-debugfiles.list}
 
 
+%if !%{with python3}
 %debuginfo_template -n python2-perf
 %files -n python2-perf-debuginfo -f python2-perf-debugfiles.list
 %{expand:%%global _find_debuginfo_opts %{?_find_debuginfo_opts} -p '.*%{python2_sitearch}/perf.*(.debug)?|XXX' -o python2-perf-debugfiles.list}
-
+%else
 %debuginfo_template -n python3-perf
 %files -n python3-perf-debuginfo -f python3-perf-debugfiles.list
 %{expand:%%global _find_debuginfo_opts %{?_find_debuginfo_opts} -p '.*%{python3_sitearch}/perf.*(.debug)?|XXX' -o python3-perf-debugfiles.list}
 %endif
+# with_perf
+%endif
+# with_debuginfo
 %endif
 
 %prep
@@ -279,9 +311,6 @@ cp -a ../linux-%{KernelVer} ../linux-%{KernelVer}-Source
 find ../linux-%{KernelVer}-Source -type f -name "\.*" -exec rm -rf {} \; >/dev/null
 %endif
 
-%if 0%{?with_perf}
-cp -a tools/perf tools/python3-perf
-%endif
 
 %build
 cd linux-%{KernelVer}
@@ -315,19 +344,18 @@ make ARCH=%{Arch} modules %{?_smp_mflags}
 %endif
 
 ## make tools
-%if 0%{?with_perf}
+%if %{with perf}
 # perf
 %global perf_make \
     make EXTRA_CFLAGS="-Wl,-z,now -g -Wall -fstack-protector-strong -fPIC" EXTRA_PERFLIBS="-fpie -pie" %{?_smp_mflags} -s V=1 WERROR=0 NO_LIBUNWIND=1 HAVE_CPLUS_DEMANGLE=1 NO_GTK2=1 NO_LIBNUMA=1 NO_STRLCPY=1 prefix=%{_prefix}
-%global perf_python2 -C tools/perf PYTHON=%{__python2}
-%global perf_python3 -C tools/python3-perf PYTHON=%{__python3}
-# perf
-chmod +x tools/perf/check-headers.sh
-%{perf_make} %{perf_python2} all
+
+
+%global perf_python -C tools/perf PYTHON=%{python_path}
+
 
 # make sure check-headers.sh is executable
-chmod +x tools/python3-perf/check-headers.sh
-%{perf_make} %{perf_python3} all
+chmod +x tools/perf/check-headers.sh
+%{perf_make} %{perf_python} all
 
 pushd tools/perf/Documentation/
 make %{?_smp_mflags} man
@@ -569,10 +597,10 @@ popd
 
 
 ## install tools
-%if 0%{?with_perf}
-# perf
+%if %{with perf}
 # perf tool binary and supporting scripts/binaries
-%{perf_make} %{perf_python2} DESTDIR=%{buildroot} lib=%{_lib} install-bin install-traceevent-plugins
+%{perf_make} %{perf_python} DESTDIR=%{buildroot} lib=%{_lib} install-bin install-traceevent-plugins
+
 # remove the 'trace' symlink.
 rm -f %{buildroot}%{_bindir}/trace
 
@@ -582,14 +610,14 @@ rm -rf %{buildroot}/usr/lib/perf/examples
 rm -rf %{buildroot}/usr/lib/perf/include/bpf/
 
 # python-perf extension
-%{perf_make} %{perf_python3} DESTDIR=%{buildroot} install-python_ext
-%{perf_make} %{perf_python2} DESTDIR=%{buildroot} install-python_ext
+%{perf_make} %{perf_python} DESTDIR=%{buildroot} install-python_ext
+# with_perf
 %endif
 
 install -d %{buildroot}/%{_mandir}/man1
 install -pm0644 tools/kvm/kvm_stat/kvm_stat.1 %{buildroot}/%{_mandir}/man1/
 # perf man pages (note: implicit rpm magic compresses them later)
-%if 0%{?with_perf}
+%if %{with perf}
 install -pm0644 tools/perf/Documentation/*.1 %{buildroot}/%{_mandir}/man1/
 %endif
 
@@ -739,13 +767,18 @@ fi
 /usr/include/*
 
 
-%if 0%{?with_perf}
+%if %{with perf}
 %files -n perf
 %{_libdir}/libperf*
 %{_bindir}/perf
 %dir %{_libdir}/traceevent
 %{_libdir}/traceevent/plugins/
 %{_libexecdir}/perf-core
+#exclude some python scripts only for python2. If someone can make
+#those scripts support python3 too, then remove this condition
+%if %{with python3}
+%exclude %{_libexecdir}/perf-core/scripts/python/call-graph-from-sql.py
+%endif
 %{_datadir}/perf-core/
 %{_mandir}/man[1-8]/perf*
 %{_sysconfdir}/bash_completion.d/perf
@@ -754,13 +787,16 @@ fi
 %{_datadir}/doc/perf-tip/*
 %license linux-%{KernelVer}/COPYING
 
+%if !%{with python3}
 %files -n python2-perf
 %license linux-%{KernelVer}/COPYING
 %{python2_sitearch}/*
-
+%else
 %files -n python3-perf
 %license linux-%{KernelVer}/COPYING
 %{python3_sitearch}/*
+%endif
+# with_perf
 %endif
 
 %files -n kernel-tools -f cpupower.lang
@@ -817,6 +853,9 @@ fi
 
 %changelog
 
+* Thu May 13 2021 Zhichang Yuan <erik.yuan@arm.com> - 4.19.190-2104.8.0.0085
+- perf: support JVMTI plugin
+- perf: add a new option of 'python3' to build perf RPM for python3 only system
 
 * Sat May 08 2021 Cheng Jian <cj.chengjian@huawei.com> - 4.19.189-2104.7.0.0084
 - config: enable kernel hotupgrade features by default
