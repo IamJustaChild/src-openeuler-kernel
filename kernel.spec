@@ -28,11 +28,8 @@ Release: %{hulkrelease}.0095
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
-%if 0%{?with_patch}
-Source0: linux-%{TarballVer}.tar.gz
-%else
-Source0: linux-%{version}.tar.gz#/kernel.tar.gz
-%endif
+
+Source0: kernel.tar.gz
 Source10: sign-modules
 Source11: x509.genkey
 Source12: extra_certificates
@@ -205,20 +202,14 @@ package or when debugging this package.\
 %endif
 
 %prep
-%if 0%{?with_patch}
-if [ ! -d kernel-%{version}/vanilla-%{TarballVer} ];then
-%setup -q -n kernel-%{version} -a 9998 -c
-    mv linux-%{TarballVer} vanilla-%{TarballVer}
-else
-    cd kernel-%{version}
-fi
-cp -rl vanilla-%{TarballVer} linux-%{KernelVer}
-%else
+
 %setup -q -n kernel-%{version} -c
-mv kernel linux-%{version}
-cp -rl linux-%{version} linux-%{KernelVer}
+
+%if 0%{?with_patch}
+tar -xjf %{SOURCE9998}
 %endif
 
+mv kernel linux-%{KernelVer}
 cd linux-%{KernelVer}
 
 %if 0%{?with_patch}
