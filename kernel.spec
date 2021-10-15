@@ -10,9 +10,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       9
+%global devel_release       10
 %global maintenance_release .0.0
-%global pkg_release         .3
+%global pkg_release         .4
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -858,6 +858,144 @@ fi
 %endif
 
 %changelog
+* Fri Oct 15 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-10.0.0.4
+- configfs: fix memleak in configfs_release_bin_file
+- init: only move down lockup_detector_init() when sdei_watchdog is enabled
+- arm64: fix AUDIT_ARCH_AARCH64ILP32 bug on audit subsystem
+- ext4: cleanup in-core orphan list if ext4_truncate() failed to get a transaction handle
+- ext4: fix WARN_ON_ONCE(!buffer_uptodate) after an error writing the superblock
+- tty/serial/imx: Enable TXEN bit in imx_poll_init().
+- xen/events: reset active flag for lateeoi events later
+- Hexagon: change jumps to must-extend in futex_atomic_*
+- Hexagon: add target builtins to kernel
+- Hexagon: fix build errors
+- media: uvcvideo: Support devices that report an OT as an entity source
+- KVM: PPC: Book3S HV: Save and restore FSCR in the P9 path
+- ubifs: Remove ui_mutex in ubifs_xattr_get and change_xattr
+- ubifs: Fix races between xattr_{set|get} and listxattr operations
+- block: stop wait rcu once we can ensure no io while elevator init
+- writeback: don't warn on an unregistered BDI in __mark_inode_dirty
+- mm/page_isolation: do not isolate the max order page
+- mm/zswap: fix passing zero to 'PTR_ERR' warning
+- mm/page_alloc: speed up the iteration of max_order
+- mm: hugetlb: fix type of delta parameter and related local variables in gather_surplus_pages()
+- mm: vmalloc: prevent use after free in _vm_unmap_aliases
+- arm32: kaslr: Fix the bitmap error
+- net: make sure devices go through netdev_wait_all_refs
+- net: fib_notifier: don't return positive values on fib registration
+- netfilter: nftables: avoid potential overflows on 32bit arches
+- netfilter: Dissect flow after packet mangling
+- net: fix a concurrency bug in l2tp_tunnel_register()
+- ext4: fix possible UAF when remounting r/o a mmp-protected file system
+- SUNRPC: Should wake up the privileged task firstly.
+- SUNRPC: Fix the batch tasks count wraparound.
+- Revert "KVM: x86/mmu: Drop kvm_mmu_extended_role.cr4_la57 hack"
+- RDMA/mlx5: Block FDB rules when not in switchdev mode
+- gpio: AMD8111 and TQMX86 require HAS_IOPORT_MAP
+- drm/nouveau: fix dma_address check for CPU/GPU sync
+- gpio: mxc: Fix disabled interrupt wake-up support
+- scsi: sr: Return appropriate error code when disk is ejected
+- arm64: seccomp: fix compilation error with ILP32 support
+- scsi: sd: block: Fix regressions in read-only block device handling
+- integrity: Load mokx variables into the blacklist keyring
+- certs: Add ability to preload revocation certs
+- certs: Move load_system_certificate_list to a common function
+- certs: Add EFI_CERT_X509_GUID support for dbx entries
+- Revert "drm: add a locked version of drm_is_current_master"
+- netfs: fix test for whether we can skip read when writing beyond EOF
+- swiotlb: manipulate orig_addr when tlb_addr has offset
+- KVM: SVM: Call SEV Guest Decommission if ASID binding fails
+- mm, futex: fix shared futex pgoff on shmem huge page
+- mm/thp: another PVMW_SYNC fix in page_vma_mapped_walk()
+- mm/thp: fix page_vma_mapped_walk() if THP mapped by ptes
+- mm: page_vma_mapped_walk(): get vma_address_end() earlier
+- mm: page_vma_mapped_walk(): use goto instead of while (1)
+- mm: page_vma_mapped_walk(): add a level of indentation
+- mm: page_vma_mapped_walk(): crossing page table boundary
+- mm: page_vma_mapped_walk(): prettify PVMW_MIGRATION block
+- mm: page_vma_mapped_walk(): use pmde for *pvmw->pmd
+- mm: page_vma_mapped_walk(): settle PageHuge on entry
+- mm: page_vma_mapped_walk(): use page for pvmw->page
+- mm: thp: replace DEBUG_VM BUG with VM_WARN when unmap fails for split
+- mm/thp: unmap_mapping_page() to fix THP truncate_cleanup_page()
+- mm/thp: fix page_address_in_vma() on file THP tails
+- mm/thp: fix vma_address() if virtual address below file offset
+- mm/thp: try_to_unmap() use TTU_SYNC for safe splitting
+- mm/thp: make is_huge_zero_pmd() safe and quicker
+- mm/thp: fix __split_huge_pmd_locked() on shmem migration entry
+- mm, thp: use head page in __migration_entry_wait()
+- mm/rmap: use page_not_mapped in try_to_unmap()
+- mm/rmap: remove unneeded semicolon in page_not_mapped()
+- mm: add VM_WARN_ON_ONCE_PAGE() macro
+- x86/fpu: Make init_fpstate correct with optimized XSAVE
+- x86/fpu: Preserve supervisor states in sanitize_restored_user_xstate()
+- kthread: prevent deadlock when kthread_mod_delayed_work() races with kthread_cancel_delayed_work_sync()
+- kthread_worker: split code for canceling the delayed work timer
+- ceph: must hold snap_rwsem when filling inode for async create
+- i2c: robotfuzz-osif: fix control-request directions
+- KVM: do not allow mapping valid but non-reference-counted pages
+- s390/stack: fix possible register corruption with stack switch helper
+- nilfs2: fix memory leak in nilfs_sysfs_delete_device_group
+- gpiolib: cdev: zero padding during conversion to gpioline_info_changed
+- i2c: i801: Ensure that SMBHSTSTS_INUSE_STS is cleared when leaving i801_access
+- pinctrl: stm32: fix the reported number of GPIO lines per bank
+- perf/x86: Track pmu in per-CPU cpu_hw_events
+- net: ll_temac: Avoid ndo_start_xmit returning NETDEV_TX_BUSY
+- net: ll_temac: Add memory-barriers for TX BD access
+- PCI: Add AMD RS690 quirk to enable 64-bit DMA
+- recordmcount: Correct st_shndx handling
+- mac80211: handle various extensible elements correctly
+- mac80211: reset profile_periodicity/ema_ap
+- net: qed: Fix memcpy() overflow of qed_dcbx_params()
+- KVM: selftests: Fix kvm_check_cap() assertion
+- r8169: Avoid memcpy() over-reading of ETH_SS_STATS
+- sh_eth: Avoid memcpy() over-reading of ETH_SS_STATS
+- r8152: Avoid memcpy() over-reading of ETH_SS_STATS
+- net/packet: annotate accesses to po->ifindex
+- net/packet: annotate accesses to po->bind
+- net: caif: fix memory leak in ldisc_open
+- riscv32: Use medany C model for modules
+- net: phy: dp83867: perform soft reset and retain established link
+- net/packet: annotate data race in packet_sendmsg()
+- inet: annotate date races around sk->sk_txhash
+- net: annotate data race in sock_error()
+- ping: Check return value of function 'ping_queue_rcv_skb'
+- inet: annotate data race in inet_send_prepare() and inet_dgram_connect()
+- net: ethtool: clear heap allocations for ethtool function
+- mac80211: drop multicast fragments
+- net: ipv4: Remove unneed BUG() function
+- dmaengine: mediatek: use GFP_NOWAIT instead of GFP_ATOMIC in prep_dma
+- dmaengine: mediatek: do not issue a new desc if one is still current
+- dmaengine: mediatek: free the proper desc in desc_free handler
+- dmaengine: rcar-dmac: Fix PM reference leak in rcar_dmac_probe()
+- cfg80211: call cfg80211_leave_ocb when switching away from OCB
+- mac80211_hwsim: drop pending frames on stop
+- mac80211: remove warning in ieee80211_get_sband()
+- dmaengine: xilinx: dpdma: Limit descriptor IDs to 16 bits
+- dmaengine: xilinx: dpdma: Add missing dependencies to Kconfig
+- dmaengine: stm32-mdma: fix PM reference leak in stm32_mdma_alloc_chan_resourc()
+- dmaengine: zynqmp_dma: Fix PM reference leak in zynqmp_dma_alloc_chan_resourc()
+- perf/x86/intel/lbr: Zero the xstate buffer on allocation
+- perf/x86/lbr: Remove cpuc->lbr_xsave allocation from atomic context
+- locking/lockdep: Improve noinstr vs errors
+- x86/xen: Fix noinstr fail in exc_xen_unknown_trap()
+- x86/entry: Fix noinstr fail in __do_fast_syscall_32()
+- drm/vc4: hdmi: Make sure the controller is powered in detect
+- drm/vc4: hdmi: Move the HSM clock enable to runtime_pm
+- Revert "PCI: PM: Do not read power state in pci_enable_device_flags()"
+- spi: spi-nxp-fspi: move the register operation after the clock enable
+- arm64: Ignore any DMA offsets in the max_zone_phys() calculation
+- MIPS: generic: Update node names to avoid unit addresses
+- mmc: meson-gx: use memcpy_to/fromio for dram-access-quirk
+- ARM: 9081/1: fix gcc-10 thumb2-kernel regression
+- drm/amdgpu: wait for moving fence after pinning
+- drm/radeon: wait for moving fence after pinning
+- drm/nouveau: wait for moving fence after pinning v2
+- drm: add a locked version of drm_is_current_master
+- Revert "drm/amdgpu/gfx10: enlarge CP_MEC_DOORBELL_RANGE_UPPER to cover full doorbell."
+- Revert "drm/amdgpu/gfx9: fix the doorbell missing when in CGPG issue."
+- module: limit enabling module.sig_enforce
+
 * Wed Oct 13 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-9.0.0.3
 - scsi: core: Treat device offline as a failure
 - blk-wbt: make sure throttle is enabled properly
