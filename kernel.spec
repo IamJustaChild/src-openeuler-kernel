@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       4
-%global maintenance_release .22.0
-%global pkg_release         .32
+%global maintenance_release .25.0
+%global pkg_release         .33
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -872,6 +872,80 @@ fi
 %endif
 
 %changelog
+* Wed Oct 30 2021 Wang ShaoBo <bobo.shaobowang@huawei.com> - 5.10.0-4.25.0.33
+- scsi: bnx2fc: Return failure if io_req is already in ABTS processing
+- RDS tcp loopback connection can hang
+- usb: gadget: f_fs: Ensure io_completion_wq is idle during unbind
+- ALSA: seq: Fix race of snd_seq_timer_open()
+- RDMA/mlx4: Do not map the core_clock page to user space unless enabled
+- Revert "ACPI: sleep: Put the FACS table after using it"
+- ASoC: Intel: bytcr_rt5640: Add quirk for the Glavey TM800A550L tablet
+- nvme-tcp: remove incorrect Kconfig dep in BLK_DEV_NVME
+- regulator: fan53880: Fix missing n_voltages setting
+- net/nfc/rawsock.c: fix a permission check bug
+- scsi: core: Only put parent device if host state differs from SHOST_CREATED
+- usb: typec: ucsi: Clear PPM capability data in ucsi_init() error path
+- phy: cadence: Sierra: Fix error return code in cdns_sierra_phy_probe()
+- usb: pd: Set PD_T_SINK_WAIT_CAP to 310ms
+- scsi: core: Fix failure handling of scsi_add_host_with_dma()
+- ALSA: hda/realtek: headphone and mic don't work on an Acer laptop
+- isdn: mISDN: netjet: Fix crash in nj_probe:
+- nvmet: fix false keep-alive timeout when a controller is torn down
+- cgroup: disable controllers at parse time
+- RDMA/ipoib: Fix warning caused by destroying non-initial netns
+- gpio: wcd934x: Fix shift-out-of-bounds error
+- NFSv4: Fix deadlock between nfs4_evict_inode() and nfs4_opendata_get_inode()
+- usb: dwc3: ep0: fix NULL pointer exception
+- spi: bcm2835: Fix out-of-bounds access with more than 4 slaves
+- NFSv4: nfs4_proc_set_acl needs to restore NFS_CAP_UIDGID_NOMAP on error.
+- regulator: core: resolve supply for boot-on/always-on regulators
+- net: macb: ensure the device is available before accessing GEMGXL control registers
+- sched/fair: Make sure to update tg contrib for blocked load
+- KVM: x86: Ensure liveliness of nested VM-Enter fail tracepoint message
+- ALSA: firewire-lib: fix the context to call snd_pcm_stop_xrun()
+- dm verity: fix require_signatures module_param permissions
+- usb: chipidea: udc: assign interrupt number to USB gadget structure
+- regulator: max77620: Use device_set_of_node_from_dev()
+- USB: serial: omninet: add device id for Zyxel Omni 56K Plus
+- spi: Cleanup on failure of initial setup
+- drm/msm/a6xx: avoid shadow NULL reference in failure path
+- USB: f_ncm: ncm_bitrate (speed) is unsigned
+- nvme-fabrics: decode host pathing error for connect
+- NFSv4: Fix second deadlock in nfs4_evict_inode()
+- usb: typec: intel_pmc_mux: Put fwnode in error case during ->probe()
+- usb: dwc3: gadget: Disable gadget IRQ during pullup disable
+- usb: typec: tcpm: cancel vdm and state machine hrtimer when unregister tcpm port
+- spi: Fix spi device unregister flow
+- ALSA: hda/realtek: fix mute/micmute LEDs for HP EliteBook 840 Aero G8
+- tools/bootconfig: Fix error return code in apply_xbc()
+- ASoC: meson: gx-card: fix sound-dai dt schema
+- netlink: disable IRQs for netlink_lock_table()
+- vfio-ccw: Serialize FSM IDLE state with I/O completion
+- cgroup1: don't allow '\n' in renaming
+- mmc: renesas_sdhi: abort tuning when timeout detected
+- usb: f_ncm: only first packet of aggregate needs to start timer
+- sched/fair: Keep load_avg and load_sum synced
+- ASoC: sti-sas: add missing MODULE_DEVICE_TABLE
+- drm: Fix use-after-free read in drm_getunique()
+- NFS: Fix use-after-free in nfs4_init_client()
+- drm/mcde: Fix off by 10^3 in calculation
+- vfio-ccw: Reset FSM state to IDLE inside FSM
+- MIPS: Fix kernel hang under FUNCTION_GRAPH_TRACER and PREEMPT_TRACER
+- tracing: Correct the length check which causes memory corruption
+- proc: Track /proc/$pid/attr/ opener mm_struct
+- i2c: mpc: Make use of i2c_recover_bus()
+- ftrace: Do not blindly read the ip address in ftrace_bug()
+- drm: Lock pointer access in drm_master_release()
+- bpf: Forbid trampoline attach for functions with variable arguments
+- arm64/mpam: fix device_errcode out of bounds
+- arm64/mpam: add return value check for acpi_get_table()
+- perf stat: Add a new --quiet option to 'perf stat'
+- arm64/mpam: fix the problem that the ret variable is not initialized
+- tools/x86: Add a kcpuid tool to show raw CPU features
+- net: mdiobus: get rid of a BUG_ON()
+- usb: cdns3: Fix runtime PM imbalance on error
+- seq_file: disallow extremely large seq buffer allocations
+
 * Wed Jul 21 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-4.22.0.32
 - mm: alloc pages for pmem from peer node
 - mm: introduce and export pgdat peer_node
