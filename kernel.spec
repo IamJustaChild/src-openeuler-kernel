@@ -872,7 +872,7 @@ fi
 %endif
 
 %changelog
-* Wed Oct 30 2021 Wang ShaoBo <bobo.shaobowang@huawei.com> - 5.10.0-4.25.0.33
+* Sat Oct 30 2021 Wang ShaoBo <bobo.shaobowang@huawei.com> - 5.10.0-4.25.0.33
 - scsi: bnx2fc: Return failure if io_req is already in ABTS processing
 - RDS tcp loopback connection can hang
 - usb: gadget: f_fs: Ensure io_completion_wq is idle during unbind
