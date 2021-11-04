@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2111.8.0
+%global hulkrelease 2111.2.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0121
+Release: %{hulkrelease}.0122
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,8 @@ fi
 %endif
 
 %changelog
+
+* Thu Nov 04 2021 Laibin Qiu <qiulaibin@huawei.com> - 4.19.90-2111.2.0.0122
 
 * Thu Nov 04 2021 Laibin Qiu <qiulaibin@huawei.com> - 4.19.90-2111.8.0.0121
 
