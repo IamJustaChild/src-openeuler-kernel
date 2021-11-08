@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0122
+Release: %{hulkrelease}.0123
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,8 @@ fi
 %endif
 
 %changelog
+
+* Mon Nov 08 2021 Laibin Qiu <qiulaibin@huawei.com> - 4.19.90-2111.2.0.0123
 
 * Thu Nov 04 2021 Laibin Qiu <qiulaibin@huawei.com> - 4.19.90-2111.2.0.0122
 
