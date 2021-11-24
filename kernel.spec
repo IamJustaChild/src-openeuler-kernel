@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0124
+Release: %{hulkrelease}.0123
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,8 +808,6 @@ fi
 %endif
 
 %changelog
-
-* Tue Nov 23 2021 Laibin Qiu <qiulaibin@huawei.com> - 4.19.90-2111.5.0.0124
 
 * Tue Nov 23 2021 Laibin Qiu <qiulaibin@huawei.com> - 4.19.90-2111.5.0.0123
 - rq-qos: fix missed wake-ups in rq_qos_throttle try two
