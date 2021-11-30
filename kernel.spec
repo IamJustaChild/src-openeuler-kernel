@@ -12,7 +12,7 @@
 %global upstream_sublevel   0
 %global devel_release       22
 %global maintenance_release .0.0
-%global pkg_release         .13
+%global pkg_release         .14
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -858,6 +858,8 @@ fi
 %endif
 
 %changelog
+* Tue Nov 30 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-22.0.0.14
+
 * Mon Nov 29 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-22.0.0.13
 - printk: enable zap_locks on X86 and ARM64
 - printk: fix potential deadlock in printk()
