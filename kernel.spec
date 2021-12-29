@@ -10,9 +10,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       25
+%global devel_release       26
 %global maintenance_release .0.0
-%global pkg_release         .16
+%global pkg_release         .17
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -858,6 +858,15 @@ fi
 %endif
 
 %changelog
+* Wed Dec 29 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-26.0.0.17
+- mm: Change tmpfs size base on ddr size.
+- SUNRPC: Close a race with transport setup and module put
+- sched: Introduce handle priority reversion mechanism
+- mm: Check numa node hugepages enough when mmap hugetlb
+- block: return errors from blk_execute_rq()
+- blk: Fix lock inversion between ioc lock and bfqd lock
+- bfq: Remove merged request already in bfq_requests_merged()
+
 * Fri Dec 24 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-25.0.0.16
 - selftests/x86/iopl: Adjust to the faked iopl CLI/STI usage
 - thermal: Fix NULL pointer dereferences in of_thermal_ functions
