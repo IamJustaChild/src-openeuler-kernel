@@ -2,13 +2,13 @@
 
 %global KernelVer %{version}-%{release}.raspi.%{_target_cpu}
 
-%global hulkrelease 2112.8.0
+%global hulkrelease 2201.1.0
 
 %global debug_package %{nil}
 
 Name:	 raspberrypi-kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0038
+Release: %{hulkrelease}.0039
 Summary: Linux Kernel
 License: GPL-1.0 and GPL+ and GPLv2 and GPLv2+ and LGPLv2 and LGPLv2+ and LGPLv2.1 and LGPLv2.1+ and ISC and BSD and Apache-2.0 and MIT
 URL:	 http://www.kernel.org/
@@ -174,6 +174,9 @@ install -m 644 /boot/dtb-%{KernelVer}/overlays/README /boot/overlays/
 /lib/modules/%{KernelVer}
 
 %changelog
+* Thu Jan 6  2022 Yafen Fang <yafen@iscas.ac.cn> - 4.19.90-2201.1.0.0039
+- update kernel version to openEuler 4.19.90-2201.1.0
+
 * Thu Dec 30 2021 Yafen Fang <yafen@iscas.ac.cn> - 4.19.90-2112.8.0.0038
 - update kernel version to openEuler 4.19.90-2112.8.0
 
