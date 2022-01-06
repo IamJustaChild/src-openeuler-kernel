@@ -12,7 +12,7 @@
 %global upstream_sublevel   0
 %global devel_release       5
 %global maintenance_release .10.0
-%global pkg_release         .24
+%global pkg_release         .25
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -869,6 +869,9 @@ fi
 %endif
 
 %changelog
+* Thu Jan 6 2021 Zheng Yaohui <zhengyaohui1@huawei.com> - 5.10.0-5.10.0.25
+- ci test pr
+
 * Fri Sep 10 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-5.10.0.24
 - net: hns3: add ethtool support for CQE/EQE mode configuration
 - net: hns3: add support for EQE/CQE mode configuration
