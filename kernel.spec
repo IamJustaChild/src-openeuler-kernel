@@ -10,9 +10,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       36
+%global devel_release       37
 %global maintenance_release .0.0
-%global pkg_release         .19
+%global pkg_release         .20
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -858,6 +858,9 @@ fi
 %endif
 
 %changelog
+* Mon Jan 10 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-37.0.0.20
+- BMA: Fix format string compile warning in arm32 builds
+
 * Sat Jan 08 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-36.0.0.19
 - hugepage: add sysctl for hugepage alloc and mig
 - mm: export node type {pmem|dram} under /sys/bus/node
