@@ -10,9 +10,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       42
+%global devel_release       44
 %global maintenance_release .0.0
-%global pkg_release         .24
+%global pkg_release         .25
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -858,6 +858,68 @@ fi
 %endif
 
 %changelog
+* Mon Jan 24 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-44.0.0.25
+- arm64: openeuler_defconfig: Enable ARM64_PMEM_LEGACY
+- arm64: register persistent memory via protected memory
+- x86: pmem: move persistent memory(legacy) code into nvdimm
+- openeuler_defconfig: enable CONFIG_VENDOR_HOOKS for x86 and arm64
+- vendor_hooks: make android vendor hooks feature generic.
+- ANDROID: fixup restricted hooks after tracepont refactoring
+- tracepoints: Do not punish non static call users
+- tracepoints: Remove unnecessary "data_args" macro parameter
+- ANDROID: simplify vendor hooks for non-GKI builds
+- ANDROID: vendor_hooks: fix __section macro
+- ANDROID: use static_call() for restricted hooks
+- ANDROID: fix redefinition error for restricted vendor hooks
+- ANDROID: add support for vendor hooks
+- mm: add PG_pool in /proc/kpageflags
+- ext4: Fix BUG_ON in ext4_bread when write quota data
+- ext4: fix null-ptr-deref in '__ext4_journal_ensure_credits'
+- bpf, mm: Fix lockdep warning triggered by stack_map_get_build_id_offset()
+- mmap_lock: change trace and locking order
+- mm: mmap_lock: fix disabling preemption directly
+- mm/mmap_lock: remove dead code for !CONFIG_TRACING configurations
+- mm: mmap_lock: use local locks instead of disabling preemption
+- mm: mmap_lock: add tracepoints around lock acquisition
+- ext4: fix an use-after-free issue about data=journal writeback mode
+- mm/pin_mem: improve pin mem pages rmap and free method
+- mm/pin_mem: add PG_hotreplace to mark pages need hotreplaced
+- mm/pin_mem: refactor pin memory mem reserve and pid reserve code
+- audit: bugfix for infinite loop when flush the hold queue
+- iommu/arm-smmu-v3: Remove arm_smmu_cmdq_issue_sync() to keep consistent with upstream
+- ipvlan: disable l2e local xmit
+- watchdog: Fix sleeping function called from atomic context
+- tcp_comp: Del compressed_data and remaining_data from tcp_comp_context_rx
+- tcp_comp: Add dpkt to save decompressed skb
+- tcp_comp: Fix ZSTD_decompressStream failed
+- tcp_comp: Fix comp_read_size return value
+- tcp_comp: Avoiding the null pointer problem of ctx in comp_stream_read
+- tcp_comp: open configs for tcp compression
+- tcp_comp: implement recvmsg for tcp compression
+- tcp_comp: implement sendmsg for tcp compression
+- Revert "sched: Introcude config option SCHED_OPTIMIZE_LOAD_TRACKING"
+- Revert "sched: Add switch for update_blocked_averages"
+- Revert "sched: Add frequency control for load update in scheduler_tick"
+- Revert "sched: Access control for sysctl_update_load_latency"
+- Revert "sched: Fix branch prediction error in static_key"
+- Revert "arm: Optimize ttwu IPI"
+- Revert "sched/idle: introduce smart halt polling"
+- Revert "sched/idle: Add IAS_SMART_HALT_POLL config for smart halt polling feature"
+- Revert "sched: Add menuconfig option for CONFIG_SCHED_OPTIMIZE_LOAD_TRACKING"
+- Revert "sysctl: Refactor IAS framework"
+- Revert "sched/idle: Optimize the loop time algorithm to reduce multicore disturb"
+- Revert "sched/idle: Reported an error when an illegal negative value is passed"
+- Revert "sched: Aware multi-core system for optimize loadtracking"
+- blk-throttle: enable hierarchical throttle in cgroup v1
+- md: Fix undefined behaviour in is_mddev_idle
+- cgroup: fix compile error when CONFIG_MEMCG = n
+- xfs: map unwritten blocks in XFS_IOC_{ALLOC,FREE}SP just like fallocate
+- fbcon: fix ypos over boundary issue
+- mm/zswap: move to use crypto_acomp API for hardware acceleration
+- net: fix a data race when get vlan device
+- ipvlan: Add handling of NETDEV_UP events
+- perf vendor events amd: Add Zen3 events
+
 * Wed Jan 19 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-42.0.0.24
 - Disable-SATA-disk-phy-for-severe-I_T-nexus reset failure
 - Export-sas_phy_enable
