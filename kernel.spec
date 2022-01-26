@@ -10,9 +10,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       42
+%global devel_release       48
 %global maintenance_release .0.0
-%global pkg_release         .24
+%global pkg_release         .25
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -858,6 +858,148 @@ fi
 %endif
 
 %changelog
+* Wed Jan 26 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-48.0.0.25
+- openeuler_defconfig: Enable CONFIG_DEBUG_INFO_BTF
+- tools/bpftool: Fix cross-build
+- tools/bpftool: Force clean of out-of-tree build
+- x86/kdump: add log before booting crash kernel
+- selftests/x86: Test signal frame XSTATE header corruption handling
+- x86/fpu: Add address range checks to copy_user_to_xstate()
+- block, bfq: move bfqq to root_group if parent group is offlined
+- ext4: report error to userspace by netlink
+- crypto: Add PMULL judgment during initialization to prevent oops
+- phonet/pep: refuse to enable an unbound pipe
+- hamradio: improve the incomplete fix to avoid NPD
+- hamradio: defer ax25 kfree after unregister_netdev
+- ax25: NPD bug when detaching AX25 device
+- hwmon: (lm90) Do not report 'busy' status bit as alarm
+- hwmom: (lm90) Fix citical alarm status for MAX6680/MAX6681
+- pinctrl: mediatek: fix global-out-of-bounds issue
+- ASoC: rt5682: fix the wrong jack type detected
+- ASoC: tas2770: Fix setting of high sample rates
+- Input: goodix - add id->model mapping for the "9111" model
+- Input: elants_i2c - do not check Remark ID on eKTH3900/eKTH5312
+- mm: mempolicy: fix THP allocations escaping mempolicy restrictions
+- KVM: VMX: Fix stale docs for kvm-intel.emulate_invalid_guest_state
+- usb: gadget: u_ether: fix race in setting MAC address in setup phase
+- ceph: fix up non-directory creation in SGID directories
+- tee: optee: Fix incorrect page free bug
+- mac80211: fix locking in ieee80211_start_ap error path
+- ARM: 9169/1: entry: fix Thumb2 bug in iWMMXt exception handling
+- mmc: mmci: stm32: clear DLYB_CR after sending tuning command
+- mmc: core: Disable card detect during shutdown
+- mmc: meson-mx-sdhc: Set MANUAL_STOP for multi-block SDIO commands
+- mmc: sdhci-tegra: Fix switch to HS400ES mode
+- gpio: dln2: Fix interrupts when replugging the device
+- pinctrl: stm32: consider the GPIO offset to expose all the GPIO lines
+- KVM: VMX: Wake vCPU when delivering posted IRQ even if vCPU == this vCPU
+- platform/x86: intel_pmc_core: fix memleak on registration failure
+- x86/pkey: Fix undefined behaviour with PKRU_WD_BIT
+- parisc: Fix mask used to select futex spinlock
+- parisc: Correct completer in lws start
+- ipmi: fix initialization when workqueue allocation fails
+- ipmi: ssif: initialize ssif_info->client early
+- ipmi: bail out if init_srcu_struct fails
+- Input: atmel_mxt_ts - fix double free in mxt_read_info_block
+- ASoC: meson: aiu: Move AIU_I2S_MISC hold setting to aiu-fifo-i2s
+- ALSA: hda/realtek: Fix quirk for Clevo NJ51CU
+- ALSA: hda/realtek: Add new alc285-hp-amp-init model
+- ALSA: hda/realtek: Amp init fixup for HP ZBook 15 G6
+- ALSA: drivers: opl3: Fix incorrect use of vp->state
+- ALSA: jack: Check the return value of kstrdup()
+- hwmon: (lm90) Drop critical attribute support for MAX6654
+- hwmon: (lm90) Add basic support for TI TMP461
+- hwmon: (lm90) Introduce flag indicating extended temperature support
+- hwmon: (lm90) Fix usage of CONFIG2 register in detect function
+- pinctrl: bcm2835: Change init order for gpio hogs
+- Input: elantech - fix stack out of bound access in elantech_change_report_id()
+- sfc: falcon: Check null pointer of rx_queue->page_ring
+- sfc: Check null pointer of rx_queue->page_ring
+- net: ks8851: Check for error irq
+- drivers: net: smc911x: Check for error irq
+- fjes: Check for error irq
+- bonding: fix ad_actor_system option setting to default
+- ipmi: Fix UAF when uninstall ipmi_si and ipmi_msghandler module
+- igb: fix deadlock caused by taking RTNL in RPM resume path
+- net: skip virtio_net_hdr_set_proto if protocol already set
+- net: accept UFOv6 packages in virtio_net_hdr_to_skb
+- qlcnic: potential dereference null pointer of rx_queue->page_ring
+- net: marvell: prestera: fix incorrect return of port_find
+- ARM: dts: imx6qdl-wandboard: Fix Ethernet support
+- RDMA/hns: Replace kfree() with kvfree()
+- IB/qib: Fix memory leak in qib_user_sdma_queue_pkts()
+- ASoC: meson: aiu: fifo: Add missing dma_coerce_mask_and_coherent()
+- spi: change clk_disable_unprepare to clk_unprepare
+- arm64: dts: allwinner: orangepi-zero-plus: fix PHY mode
+- HID: potential dereference of null pointer
+- HID: holtek: fix mouse probing
+- net: usb: lan78xx: add Allied Telesis AT29M2-AF
+- arm64: vdso32: require CROSS_COMPILE_COMPAT for gcc+bfd
+- arm64: vdso32: drop -no-integrated-as flag
+- mm/shmem.c: fix judgment error in shmem_is_huge()
+- drm: fix free illegal pointer when create drm_property_blob failed
+- BMA: Fix pointer cast compile warning in arm32 builds
+- arm64: openeuler_defconfig: Enable ARM64_PMEM_LEGACY
+- arm64: register persistent memory via protected memory
+- x86: pmem: move persistent memory(legacy) code into nvdimm
+- openeuler_defconfig: enable CONFIG_VENDOR_HOOKS for x86 and arm64
+- vendor_hooks: make android vendor hooks feature generic.
+- ANDROID: fixup restricted hooks after tracepont refactoring
+- tracepoints: Do not punish non static call users
+- tracepoints: Remove unnecessary "data_args" macro parameter
+- ANDROID: simplify vendor hooks for non-GKI builds
+- ANDROID: vendor_hooks: fix __section macro
+- ANDROID: use static_call() for restricted hooks
+- ANDROID: fix redefinition error for restricted vendor hooks
+- ANDROID: add support for vendor hooks
+- mm: add PG_pool in /proc/kpageflags
+- ext4: Fix BUG_ON in ext4_bread when write quota data
+- ext4: fix null-ptr-deref in '__ext4_journal_ensure_credits'
+- bpf, mm: Fix lockdep warning triggered by stack_map_get_build_id_offset()
+- mmap_lock: change trace and locking order
+- mm: mmap_lock: fix disabling preemption directly
+- mm/mmap_lock: remove dead code for !CONFIG_TRACING configurations
+- mm: mmap_lock: use local locks instead of disabling preemption
+- mm: mmap_lock: add tracepoints around lock acquisition
+- ext4: fix an use-after-free issue about data=journal writeback mode
+- mm/pin_mem: improve pin mem pages rmap and free method
+- mm/pin_mem: add PG_hotreplace to mark pages need hotreplaced
+- mm/pin_mem: refactor pin memory mem reserve and pid reserve code
+- audit: bugfix for infinite loop when flush the hold queue
+- iommu/arm-smmu-v3: Remove arm_smmu_cmdq_issue_sync() to keep consistent with upstream
+- ipvlan: disable l2e local xmit
+- watchdog: Fix sleeping function called from atomic context
+- tcp_comp: Del compressed_data and remaining_data from tcp_comp_context_rx
+- tcp_comp: Add dpkt to save decompressed skb
+- tcp_comp: Fix ZSTD_decompressStream failed
+- tcp_comp: Fix comp_read_size return value
+- tcp_comp: Avoiding the null pointer problem of ctx in comp_stream_read
+- tcp_comp: open configs for tcp compression
+- tcp_comp: implement recvmsg for tcp compression
+- tcp_comp: implement sendmsg for tcp compression
+- Revert "sched: Introcude config option SCHED_OPTIMIZE_LOAD_TRACKING"
+- Revert "sched: Add switch for update_blocked_averages"
+- Revert "sched: Add frequency control for load update in scheduler_tick"
+- Revert "sched: Access control for sysctl_update_load_latency"
+- Revert "sched: Fix branch prediction error in static_key"
+- Revert "arm: Optimize ttwu IPI"
+- Revert "sched/idle: introduce smart halt polling"
+- Revert "sched/idle: Add IAS_SMART_HALT_POLL config for smart halt polling feature"
+- Revert "sched: Add menuconfig option for CONFIG_SCHED_OPTIMIZE_LOAD_TRACKING"
+- Revert "sysctl: Refactor IAS framework"
+- Revert "sched/idle: Optimize the loop time algorithm to reduce multicore disturb"
+- Revert "sched/idle: Reported an error when an illegal negative value is passed"
+- Revert "sched: Aware multi-core system for optimize loadtracking"
+- blk-throttle: enable hierarchical throttle in cgroup v1
+- md: Fix undefined behaviour in is_mddev_idle
+- cgroup: fix compile error when CONFIG_MEMCG = n
+- xfs: map unwritten blocks in XFS_IOC_{ALLOC,FREE}SP just like fallocate
+- fbcon: fix ypos over boundary issue
+- mm/zswap: move to use crypto_acomp API for hardware acceleration
+- net: fix a data race when get vlan device
+- ipvlan: Add handling of NETDEV_UP events
+- perf vendor events amd: Add Zen3 events
+
 * Wed Jan 19 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-42.0.0.24
 - Disable-SATA-disk-phy-for-severe-I_T-nexus reset failure
 - Export-sas_phy_enable
