@@ -360,6 +360,8 @@ popd
 # bpftool
 pushd tools/bpf/bpftool
 make
+which clang
+clang --version
 popd
 
 # cpupower
