@@ -359,6 +359,8 @@ popd
 
 # bpftool
 pushd tools/bpf/bpftool
+which clang
+clang --version
 make
 popd
 
