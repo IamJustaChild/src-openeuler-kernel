@@ -56,6 +56,8 @@ Source2001: cpupower.config
 Source3000: kernel-5.10.0-aarch64.config
 Source3001: kernel-5.10.0-x86_64.config
 
+Source4000: pahole.tar.gz
+
 %if 0%{?with_patch}
 Source9000: apply-patches
 Source9001: guards
@@ -109,6 +111,8 @@ BuildRequires: flex xz-devel libzstd-devel
 BuildRequires: java-devel
 %endif
 
+BuildRequires: cmake
+BuildRequires: tar
 
 %description
 The Linux Kernel, the operating system core itself.
@@ -253,6 +257,8 @@ tar -xjf %{SOURCE9998}
 mv kernel linux-%{KernelVer}
 cd linux-%{KernelVer}
 
+cp %{SOURCE4000} .  
+
 %if 0%{?with_patch}
 cp %{SOURCE9000} .
 cp %{SOURCE9001} .
@@ -302,6 +308,12 @@ cp -a tools/perf tools/python3-perf
 
 %build
 cd linux-%{KernelVer}
+
+## make pahole
+tar -xzvf pahole.tar.gz
+cd pahole/build
+sudo cmake -D__LIB=lib -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_SHARED_LIBS=OFF ../
+sudo make install
 
 perl -p -i -e "s/^EXTRAVERSION.*/EXTRAVERSION = -%{release}.%{_target_cpu}/" Makefile
 
