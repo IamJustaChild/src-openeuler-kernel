@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2202.4.0
+%global hulkrelease 2202.3.0
 
 %define with_patch 0
 
