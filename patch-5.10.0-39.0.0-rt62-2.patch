@@ -1,0 +1,169 @@
+diff --git a/arch/arm64/configs/openeuler_defconfig b/arch/arm64/configs/openeuler_defconfig
+index dfbfa10a6..17dc9bb97 100644
+--- a/arch/arm64/configs/openeuler_defconfig
++++ b/arch/arm64/configs/openeuler_defconfig
+@@ -71,8 +71,9 @@ CONFIG_HIGH_RES_TIMERS=y
+ # end of Timers subsystem
+ 
+ # CONFIG_PREEMPT_NONE is not set
+-CONFIG_PREEMPT_VOLUNTARY=y
++# CONFIG_PREEMPT_VOLUNTARY is not set
+ # CONFIG_PREEMPT is not set
++CONFIG_PREEMPT_RT=y
+ 
+ #
+ # CPU/Task time and stats accounting
+@@ -680,7 +681,7 @@ CONFIG_ACPI_GTDT=y
+ CONFIG_ACPI_PPTT=y
+ # CONFIG_PMIC_OPREGION is not set
+ CONFIG_IRQ_BYPASS_MANAGER=y
+-CONFIG_VIRTUALIZATION=y
++# CONFIG_VIRTUALIZATION is not set
+ CONFIG_KVM=y
+ CONFIG_HAVE_KVM_IRQCHIP=y
+ CONFIG_HAVE_KVM_IRQFD=y
+@@ -1053,7 +1054,7 @@ CONFIG_FRAME_VECTOR=y
+ # CONFIG_GUP_BENCHMARK is not set
+ # CONFIG_READ_ONLY_THP_FOR_FS is not set
+ CONFIG_ARCH_HAS_PTE_SPECIAL=y
+-CONFIG_PIN_MEMORY=y
++CONFIG_PIN_MEMORY is not set
+ CONFIG_PID_RESERVE=y
+ # end of Memory Management options
+ 
+diff --git a/arch/arm64/kernel/fpsimd.c b/arch/arm64/kernel/fpsimd.c
+index 84520f116..aa631771e 100644
+--- a/arch/arm64/kernel/fpsimd.c
++++ b/arch/arm64/kernel/fpsimd.c
+@@ -180,7 +180,7 @@ static void __get_cpu_fpsimd_context(void)
+  */
+ static void get_cpu_fpsimd_context(void)
+ {
+-	local_bh_disable();
++	preempt_disable();
+ 	__get_cpu_fpsimd_context();
+ }
+ 
+@@ -201,7 +201,7 @@ static void __put_cpu_fpsimd_context(void)
+ static void put_cpu_fpsimd_context(void)
+ {
+ 	__put_cpu_fpsimd_context();
+-	local_bh_enable();
++	preempt_enable();
+ }
+ 
+ static bool have_cpu_fpsimd_context(void)
+diff --git a/arch/x86/configs/openeuler_defconfig b/arch/x86/configs/openeuler_defconfig
+index 0200c289c..06d96bfc5 100644
+--- a/arch/x86/configs/openeuler_defconfig
++++ b/arch/x86/configs/openeuler_defconfig
+@@ -90,6 +90,7 @@ CONFIG_HIGH_RES_TIMERS=y
+ 
+ # CONFIG_PREEMPT_NONE is not set
+ CONFIG_PREEMPT_VOLUNTARY=y
++CONFIG_PREEMPT_RT=y
+ # CONFIG_PREEMPT is not set
+ 
+ #
+@@ -201,7 +202,7 @@ CONFIG_HAVE_UID16=y
+ CONFIG_SYSCTL_EXCEPTION_TRACE=y
+ CONFIG_HAVE_PCSPKR_PLATFORM=y
+ CONFIG_BPF=y
+-# CONFIG_EXPERT is not set
++CONFIG_EXPERT=y
+ CONFIG_UID16=y
+ CONFIG_MULTIUSER=y
+ CONFIG_SGETMASK_SYSCALL=y
+@@ -704,7 +705,7 @@ CONFIG_KVM_COMPAT=y
+ CONFIG_HAVE_KVM_IRQ_BYPASS=y
+ CONFIG_HAVE_KVM_NO_POLL=y
+ CONFIG_KVM_XFER_TO_GUEST_WORK=y
+-CONFIG_VIRTUALIZATION=y
++# CONFIG_VIRTUALIZATION is not set
+ CONFIG_KVM=m
+ CONFIG_KVM_INTEL=m
+ CONFIG_KVM_AMD=m
+diff --git a/arch/x86/include/asm/preempt.h b/arch/x86/include/asm/preempt.h
+index a3b73de27..c428744a2 100644
+--- a/arch/x86/include/asm/preempt.h
++++ b/arch/x86/include/asm/preempt.h
+@@ -133,11 +133,8 @@ static __always_inline bool should_resched(int preempt_offset)
+ 	return unlikely(raw_cpu_read_4(__preempt_count) == preempt_offset);
+ #endif
+ }
+-
++#ifndef CONFIG_PREEMPT_RT
+ #ifdef CONFIG_PREEMPTION
+-#ifdef CONFIG_PREEMPT_RT
+-   extern void preempt_schedule_lock(void);
+-#endif
+ extern asmlinkage void preempt_schedule(void);
+ extern asmlinkage void preempt_schedule_thunk(void);
+ 
+@@ -165,5 +162,15 @@ do { \
+ } while (0)
+ 
+ #endif
+-
++#else
++#ifdef CONFIG_PREEMPTION
++#ifdef CONFIG_PREEMPT_RT
++extern void preempt_schedule_lock(void);
++#endif
++extern asmlinkage void preempt_schedule(void);
++#define __preempt_schedule() preempt_schedule()
++extern asmlinkage void preempt_schedule_notrace(void);
++#define __preempt_schedule_notrace() preempt_schedule_notrace()
++#endif /* CONFIG_PREEMPTION */
++#endif
+ #endif /* __ASM_PREEMPT_H */
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index 6af8b0364..504140430 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -643,7 +643,6 @@ static void blk_mq_complete_send_ipi(struct request *rq)
+ 	if (llist_add(&rq->ipi_list, list)) {
+ 		rq->csd.func = __blk_mq_complete_request_remote;
+ 		rq->csd.info = rq;
+-		rq->csd.flags = 0;
+ 		smp_call_function_single_async(cpu, &rq->csd);
+ 	}
+ }
+diff --git a/drivers/tty/tty_buffer.c b/drivers/tty/tty_buffer.c
+index 1831738b3..bd2d91546 100644
+--- a/drivers/tty/tty_buffer.c
++++ b/drivers/tty/tty_buffer.c
+@@ -172,9 +172,7 @@ static struct tty_buffer *tty_buffer_alloc(struct tty_port *port, size_t size)
+ 	   have queued and recycle that ? */
+ 	if (atomic_read(&port->buf.mem_used) > port->buf.mem_limit)
+ 		return NULL;
+-	printk_safe_enter();
+ 	p = kmalloc(sizeof(struct tty_buffer) + 2 * size, GFP_ATOMIC);
+-	printk_safe_exit();
+ 	if (p == NULL)
+ 		return NULL;
+ 
+diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
+index 4bfdc2189..e759ef181 100644
+--- a/kernel/printk/printk.c
++++ b/kernel/printk/printk.c
+@@ -1810,7 +1810,7 @@ static void print_sync_until(struct console *con, u64 seq)
+ 	}
+ 	console_atomic_unlock(flags);
+ }
+-
++#ifndef CONFIG_PREEMPT_RT
+ #if defined(CONFIG_X86) || defined(CONFIG_ARM64_PSEUDO_NMI)
+ void zap_locks(void)
+ {
+@@ -1829,7 +1829,9 @@ void zap_locks(void)
+ 	sema_init(&console_sem, 1);
+ }
+ #endif
+-
++#else
++void zap_locks(void) {}
++#endif
+ #ifdef CONFIG_PRINTK_NMI
+ #define NUM_RECURSION_CTX 2
+ #else
