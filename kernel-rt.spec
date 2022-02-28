@@ -8,6 +8,8 @@
 %global KernelVer %{version}-%{release}.rt.%{_target_cpu}
 %global debuginfodir /usr/lib/debug
 
+%global hulkrelease %{devel_release}%{?maintenance_release}
+
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       39
