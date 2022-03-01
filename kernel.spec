@@ -215,16 +215,16 @@ Debug information is useful when developing applications that use this\
 package or when debugging this package.\
 %{nil}
 
-%debuginfo_template -n kernel
-%files -n kernel-debuginfo -f debugfiles.list
+%debuginfo_template -n %{name} 
+%files -n %{name}-debuginfo -f debugfiles.list
 
 %debuginfo_template -n bpftool
 %files -n bpftool-debuginfo -f bpftool-debugfiles.list
 %{expand:%%global _find_debuginfo_opts %{?_find_debuginfo_opts} -p '.*%{_sbindir}/bpftool.*(\.debug)?|XXX' -o bpftool-debugfiles.list}
 
-%debuginfo_template -n kernel-tools
-%files -n kernel-tools-debuginfo -f kernel-tools-debugfiles.list
-%{expand:%%global _find_debuginfo_opts %{?_find_debuginfo_opts} -p '.*%{_bindir}/centrino-decode.*(\.debug)?|.*%{_bindir}/powernow-k8-decode.*(\.debug)?|.*%{_bindir}/cpupower.*(\.debug)?|.*%{_libdir}/libcpupower.*|.*%{_libdir}/libcpupower.*|.*%{_bindir}/turbostat.(\.debug)?|.*%{_bindir}/.*gpio.*(\.debug)?|.*%{_bindir}/.*iio.*(\.debug)?|.*%{_bindir}/tmon.*(.debug)?|XXX' -o kernel-tools-debugfiles.list}
+%debuginfo_template -n %{name}-tools
+%files -n %{name}-tools-debuginfo -f %{name}-tools-debugfiles.list
+%{expand:%%global _find_debuginfo_opts %{?_find_debuginfo_opts} -p '.*%{_bindir}/centrino-decode.*(\.debug)?|.*%{_bindir}/powernow-k8-decode.*(\.debug)?|.*%{_bindir}/cpupower.*(\.debug)?|.*%{_libdir}/libcpupower.*|.*%{_libdir}/libcpupower.*|.*%{_bindir}/turbostat.(\.debug)?|.*%{_bindir}/.*gpio.*(\.debug)?|.*%{_bindir}/.*iio.*(\.debug)?|.*%{_bindir}/tmon.*(.debug)?|XXX' -o %{name}-tools-debugfiles.list}
 
 %if %{with_perf}
 %debuginfo_template -n perf
@@ -733,14 +733,14 @@ then
      done)
 fi
 
-%post -n kernel-tools
+%post -n %{name}-tools
 /sbin/ldconfig
 %systemd_post cpupower.service
 
-%preun -n kernel-tools
+%preun -n %{name}-tools
 %systemd_preun cpupower.service
 
-%postun -n kernel-tools
+%postun -n %{name}-tools
 /sbin/ldconfig
 %systemd_postun cpupower.service
 
@@ -799,7 +799,7 @@ fi
 %{python3_sitearch}/*
 %endif
 
-%files -n kernel-tools -f cpupower.lang
+%files -n %{name}-tools -f cpupower.lang
 %{_bindir}/cpupower
 %ifarch %{ix86} x86_64
 %{_bindir}/centrino-decode
@@ -829,7 +829,7 @@ fi
 %{_libdir}/libcpupower.so.0.0.1
 %license linux-%{KernelVer}/COPYING
 
-%files -n kernel-tools-devel
+%files -n %{name}-tools-devel
 %{_libdir}/libcpupower.so
 %{_includedir}/cpufreq.h
 %{_includedir}/cpuidle.h
