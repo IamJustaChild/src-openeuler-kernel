@@ -29,12 +29,15 @@
 # failed if there is new config options
 %define listnewconfig_fail 0
 
+%global rtpatch             .rt62
+
 #defualt is enabled. You can disable it with --without option
-%define with_perf    %{?_without_perf: 0} %{?!_without_perf: 1}
+%define with_perf     %{?_without_perf:     0} %{?!_without_perf:     1}
+%define with_realtime %{?_without_realtime: 0} %{?!_without_realtime: 1}
 
 Name:	 kernel-rt
 Version: %{upstream_version}.%{upstream_sublevel}
-Release: %{devel_release}%{?maintenance_release}%{?pkg_release}%{?extra_release}
+Release: %{devel_release}%{?maintenance_release}%{rtpatch}%{?pkg_release}%{?extra_release}
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
