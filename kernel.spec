@@ -34,8 +34,16 @@
 #defualt is enabled. You can disable it with --without option
 %define with_perf     %{?_without_perf:     0} %{?!_without_perf:     1}
 %define with_realtime %{?_without_realtime: 0} %{?!_without_realtime: 1}
+%define with_64kb     %{?_without_64kb:     0} %{?!_without_64kb:     1}
 
-Name:	 kernel-rt
+%define with_realtime 1
+
+%if %{with_realtime}
+%define pkg_rt   -rt
+%define pkg_64kb -64kb
+%endif
+
+Name:	 kernel%{pkg_rt}%{pkg_64kb}
 Version: %{upstream_version}.%{upstream_sublevel}
 Release: %{devel_release}%{?maintenance_release}%{rtpatch}%{?pkg_release}%{?extra_release}
 Summary: Linux Kernel
