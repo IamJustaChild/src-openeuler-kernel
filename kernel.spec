@@ -10,8 +10,8 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       60
-%global maintenance_release .0.0
+%global devel_release       59
+%global maintenance_release .1.0
 %global pkg_release         .33
 
 %define with_debuginfo 1
@@ -861,7 +861,7 @@ fi
 %endif
 
 %changelog
-* Wed Mar 02 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-60.0.0.33
+* Wed Mar 02 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-59.1.0.33
 - f2fs: fix to do sanity check in is_alive()
 - f2fs: fix to avoid panic in is_alive() if metadata is inconsistent
 - f2fs: fix to do sanity check on inode type during garbage collection
