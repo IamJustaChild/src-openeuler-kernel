@@ -36,11 +36,15 @@
 %define with_realtime %{?_without_realtime: 0} %{?!_without_realtime: 1}
 %define with_64kb     %{?_without_64kb:     0} %{?!_without_64kb:     1}
 
-%define with_realtime 1
+%define with_realtime 0
+%define with_64kb     1
 
-%if %{with_realtime}
-%define pkg_rt   -rt
-%define pkg_64kb -64kb
+%if 0%{?with_realtime}
+%global pkg_rt   -rt
+%endif
+
+%if 0%{?with_64kb}
+%global pkg_64kb -64kb
 %endif
 
 Name:	 kernel%{pkg_rt}%{pkg_64kb}
@@ -321,6 +325,9 @@ perl -p -i -e "s/^EXTRAVERSION.*/EXTRAVERSION = -%{release}.%{_target_cpu}/" Mak
 
 ## make linux
 make mrproper %{_smp_mflags}
+
+./scripts/kconfig/merge_config.sh -m arch/arm64/configs/openeuler_defconfig kernel-aarch64-64kb.config
+mv -f .config arch/arm64/configs/openeuler_defconfig
 
 make ARCH=%{Arch} openeuler_defconfig
 
