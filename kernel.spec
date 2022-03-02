@@ -41,10 +41,14 @@
 
 %if 0%{?with_realtime}
 %global pkg_rt   -rt
+%else
+%global pkg_rt
 %endif
 
 %if 0%{?with_64kb}
 %global pkg_64kb -64kb
+%else
+%global pkg_64kb
 %endif
 
 Name:	 kernel%{pkg_rt}%{pkg_64kb}
