@@ -29,31 +29,24 @@
 # failed if there is new config options
 %define listnewconfig_fail 0
 
-%global rtpatch             .rt62
-
 #defualt is enabled. You can disable it with --without option
 %define with_perf     %{?_without_perf:     0} %{?!_without_perf:     1}
 %define with_realtime %{?_without_realtime: 0} %{?!_without_realtime: 1}
 %define with_64kb     %{?_without_64kb:     0} %{?!_without_64kb:     1}
 
-%define with_realtime 0
 %define with_64kb     1
 
 %if 0%{?with_realtime}
 %global pkg_rt   -rt
-%else
-%global pkg_rt
 %endif
 
 %if 0%{?with_64kb}
 %global pkg_64kb -64kb
-%else
-%global pkg_64kb
 %endif
 
-Name:	 kernel%{pkg_rt}%{pkg_64kb}
+Name:	 kernel%{?pkg_rt}%{?pkg_64kb}
 Version: %{upstream_version}.%{upstream_sublevel}
-Release: %{devel_release}%{?maintenance_release}%{rtpatch}%{?pkg_release}%{?extra_release}
+Release: %{devel_release}%{?maintenance_release}%{?rtpatch}%{?pkg_release}%{?extra_release}
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -74,6 +67,7 @@ Source2001: cpupower.config
 
 Source3000: kernel-5.10.0-aarch64.config
 Source3001: kernel-5.10.0-x86_64.config
+Source3002: kernel-aarch64-64kb.config
 
 %if 0%{?with_patch}
 Source9000: apply-patches
@@ -330,7 +324,7 @@ perl -p -i -e "s/^EXTRAVERSION.*/EXTRAVERSION = -%{release}.%{_target_cpu}/" Mak
 ## make linux
 make mrproper %{_smp_mflags}
 
-./scripts/kconfig/merge_config.sh -m arch/arm64/configs/openeuler_defconfig kernel-aarch64-64kb.config
+./scripts/kconfig/merge_config.sh -m arch/arm64/configs/openeuler_defconfig %{SOURCE3002}
 mv -f .config arch/arm64/configs/openeuler_defconfig
 
 make ARCH=%{Arch} openeuler_defconfig
