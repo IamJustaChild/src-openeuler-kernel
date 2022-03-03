@@ -29,10 +29,16 @@
 # failed if there is new config options
 %define listnewconfig_fail 0
 
+%define with_64kb %{?_with_64kb: 1} %{?!_with_64kb: 0}
+%if 0%{?with_64kb}
+%global package64kb "-64kb"
+%endif
+
 #defualt is enabled. You can disable it with --without option
 %define with_perf    %{?_without_perf: 0} %{?!_without_perf: 1}
 
-Name:	 kernel
+
+Name:	 kernel%{?package64kb}
 Version: %{upstream_version}.%{upstream_sublevel}
 Release: %{devel_release}%{?maintenance_release}%{?pkg_release}%{?extra_release}
 Summary: Linux Kernel
@@ -52,9 +58,6 @@ Source200: mkgrub-menu-aarch64.sh
 
 Source2000: cpupower.service
 Source2001: cpupower.config
-
-Source3000: kernel-5.10.0-aarch64.config
-Source3001: kernel-5.10.0-x86_64.config
 
 %if 0%{?with_patch}
 Source9000: apply-patches
@@ -113,7 +116,8 @@ BuildRequires: java-devel
 %description
 The Linux Kernel, the operating system core itself.
 
-%package headers
+%package headers%{?package64kb}
+
 Summary: Header files for the Linux kernel for use by glibc
 Obsoletes: glibc-kernheaders < 3.0-46
 Provides: glibc-kernheaders = 3.0-46
@@ -125,14 +129,16 @@ building most standard programs and are also needed for rebuilding the
 glibc package.
 
 
-%package devel
+%package devel%{?package64kb}
+
 Summary: Development package for building kernel modules to match the %{KernelVer} kernel
 AutoReqProv: no
 Provides: kernel-devel-uname-r = %{KernelVer}
 Provides: kernel-devel-%{_target_cpu} = %{version}-%{release}
 Requires: perl findutils
 
-%description devel
+%description devel%{?package64kb}
+
 This package provides kernel headers and makefiles sufficient to build modules
 against the %{KernelVer} kernel package.
 
@@ -191,9 +197,11 @@ Summary: Inspection and simple manipulation of eBPF programs and maps
 This package contains the bpftool, which allows inspection and simple
 manipulation of eBPF programs and maps.
 
-%package source
+%package source%{?package64kb}
+
 Summary: the kernel source
-%description source
+%description source%{?package64kb}
+
 This package contains vaious source files from the kernel.
 
 %if 0%{?with_debuginfo}
@@ -201,12 +209,14 @@ This package contains vaious source files from the kernel.
 %define _debuginfo_subpackages 0
 
 %define debuginfo_template(n:) \
-%package -n %{-n*}-debuginfo\
-Summary: Debug information for package %{-n*}\
+%package -n %{-n*}-debuginfo%{?package64kb}
+\
+Summary: Debug information for package %{-n*}%{?package64kb}
+\
 Group: Development/Debug\
 AutoReq: 0\
 AutoProv: 1\
-%description -n %{-n*}-debuginfo\
+%description -n %{-n*}-debuginfo%{?package64kb}\
 This package provides debug information for package %{-n*}.\
 Debug information is useful when developing applications that use this\
 package or when debugging this package.\
@@ -858,6 +868,9 @@ fi
 %endif
 
 %changelog
+* Thu Mar 3 2022 wuxu <wuxu.wu@hotmail.com> - 5.10.0-42.0.0.25
+- add with_64kb to control 64KB page size
+
 * Wed Jan 19 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-42.0.0.24
 - Disable-SATA-disk-phy-for-severe-I_T-nexus reset failure
 - Export-sas_phy_enable
