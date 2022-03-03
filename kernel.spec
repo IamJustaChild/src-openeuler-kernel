@@ -35,6 +35,7 @@
 %define with_64kb     %{?_without_64kb:     0} %{?!_without_64kb:     1}
 
 %define with_64kb     1
+%define with_realtime 0
 
 %if 0%{?with_realtime}
 %global pkg_rt   -rt
