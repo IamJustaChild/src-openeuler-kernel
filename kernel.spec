@@ -12,7 +12,7 @@
 %global upstream_sublevel   0
 %global devel_release       52
 %global maintenance_release .0.0
-%global pkg_release         .25
+%global pkg_release         .26
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -29,10 +29,17 @@
 # failed if there is new config options
 %define listnewconfig_fail 0
 
+%define with_64kb  %{?_with_64kb: 1} %{?!_with_64kb: 0}
+
+%if %{with_64kb}
+%global package64kb "-64kb"
+%endif
+
 #defualt is enabled. You can disable it with --without option
 %define with_perf    %{?_without_perf: 0} %{?!_without_perf: 1}
 
-Name:	 kernel
+
+Name:	 kernel%{?package64kb}
 Version: %{upstream_version}.%{upstream_sublevel}
 Release: %{devel_release}%{?maintenance_release}%{?pkg_release}%{?extra_release}
 Summary: Linux Kernel
@@ -52,9 +59,6 @@ Source200: mkgrub-menu-aarch64.sh
 
 Source2000: cpupower.service
 Source2001: cpupower.config
-
-Source3000: kernel-5.10.0-aarch64.config
-Source3001: kernel-5.10.0-x86_64.config
 
 %if 0%{?with_patch}
 Source9000: apply-patches
@@ -310,6 +314,15 @@ perl -p -i -e "s/^EXTRAVERSION.*/EXTRAVERSION = -%{release}.%{_target_cpu}/" Mak
 
 ## make linux
 make mrproper %{_smp_mflags}
+
+
+%if %{with_64kb}
+sed -i arch/arm64/configs/openeuler_defconfig -e 's/^CONFIG_ARM64_4K_PAGES.*/CONFIG_ARM64_64K_PAGES=y/'
+sed -i arch/arm64/configs/openeuler_defconfig -e 's/^CONFIG_ARM64_PA_BITS=.*/CONFIG_ARM64_PA_BITS=52/'
+sed -i arch/arm64/configs/openeuler_defconfig -e 's/^CONFIG_ARM64_PA_BITS_.*/CONFIG_ARM64_PA_BITS_52=y/'
+sed -i arch/arm64/configs/openeuler_defconfig -e 's/^CONFIG_ARM64_VA_BITS=.*/CONFIG_ARM64_VA_BITS=52/'
+sed -i arch/arm64/configs/openeuler_defconfig -e 's/^CONFIG_ARM64_VA_BITS_.*/CONFIG_ARM64_VA_BITS_52=y/'
+%endif
 
 make ARCH=%{Arch} openeuler_defconfig
 
@@ -861,6 +874,9 @@ fi
 %endif
 
 %changelog
+* Thu Mar 3 2022 wuxu <wuxu.wu@hotmail.com> - 5.10.0-42.0.0.26
+- add with_64kb to control 64KB page size
+
 * Sat Jan 29 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-52.0.0.25
 - kabi: reserve space for arm64 SME in thread_struct
 - KABI: KABI reservation for IMA namespace
