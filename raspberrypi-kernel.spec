@@ -1,6 +1,6 @@
 %global Arch $(echo %{_host_cpu} | sed -e s/i.86/x86/ -e s/x86_64/x86/ -e s/aarch64.*/arm64/)
 
-%global KernelVer %{version}-%{release}.raspi.%{_target_cpu}
+%global KernelVer %{version}-%{release}.raspi.rt.%{_target_cpu}
 
 %global hulkrelease 15.0.0
 
@@ -14,6 +14,8 @@ License: GPLv2
 URL:	 http://www.kernel.org/
 Source0: kernel.tar.gz
 Patch0000: 0000-raspberrypi-kernel.patch
+Patch0001: 0001-add-preemptRT-patch.patch
+Patch0002: 0002-modifty-bcm2711_defconfig-for-rt-rpi-kernel.patch
 
 BuildRequires: module-init-tools, patch >= 2.5.4, bash >= 2.03, tar
 BuildRequires: bzip2, xz, findutils, gzip, m4, perl, make >= 3.78, diffutils, gawk
@@ -49,6 +51,8 @@ cp -a linux-%{version} linux-%{KernelVer}
 
 cd linux-%{KernelVer}
 %patch0000 -p1
+%patch0001 -p1
+%patch0002 -p1
 
 find . \( -name "*.orig" -o -name "*~" \) -exec rm -f {} \; >/dev/null
 find . -name .gitignore -exec rm -f {} \; >/dev/null
@@ -174,6 +178,9 @@ install -m 644 /boot/dtb-%{KernelVer}/overlays/README /boot/overlays/
 /lib/modules/%{KernelVer}
 
 %changelog
+* Fri Mar 4 2022 zhangyuanhang <zhangyuanhang@kylinos.cn> - 5.10.0-15.0.0.3
+- add preempt-RT to openEuler 5.10.0-15.0.0
+
 * Mon Oct 25 2021 Yafen Fang <yafen@iscas.ac.cn> - 5.10.0-15.0.0.3
 - update kernel version to openEuler 5.10.0-15.0.0
 
