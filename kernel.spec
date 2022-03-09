@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       60
-%global maintenance_release .4.0
-%global pkg_release         .37
+%global maintenance_release .6.0
+%global pkg_release         .38
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -864,6 +864,21 @@ fi
 %endif
 
 %changelog
+* Wed Mar 09 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-60.6.0.38
+- Revert "efi/libstub: arm64: Relax 2M alignment again for relocatable kernels"
+- crypto: hisilicon/qm - fix memset during queues clearing
+- crypto: hisilicon/qm - modify device status check parameter
+- crypto: hisilicon/qm - remove redundant cache writeback
+- crypto: hisilicon/qm - disable queue when 'CQ' error
+- crypto: hisilicon/qm - reset function if event queue overflows
+- crypto: hisilicon/qm - use request_threaded_irq instead
+- crypto: hisilicon/qm - modify the handling method after abnormal interruption
+- crypto: hisilicon/qm - code movement
+- crypto: hisilicon/qm - remove unnecessary device memory reset
+- crypto: hisilicon/qm - fix deadlock for remove driver
+- crypto: hisilicon/sec - add some comments for soft fallback
+- crypto: hisilicon/sec - fix the aead software fallback for engine
+
 * Tue Mar 08 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-60.4.0.37
 - blk-throttle: Set BIO_THROTTLED when bio has been throttled
 - bpf, selftests: Add ringbuf memory type confusion test
