@@ -5,7 +5,7 @@
 
 %global Arch $(echo %{_host_cpu} | sed -e s/i.86/x86/ -e s/x86_64/x86/ -e s/aarch64.*/arm64/)
 
-%global KernelVer %{version}-%{release}.rt.%{_target_cpu}
+%global KernelVer %{version}-%{release}.%{_target_cpu}
 %global debuginfodir /usr/lib/debug
 
 %global hulkrelease %{devel_release}%{?maintenance_release}
@@ -15,7 +15,7 @@
 %global devel_release       39
 %global maintenance_release .0.0
 %global pkg_release         .21
-%global extra_release       .1
+%global rt_release       .rt62
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -35,10 +35,11 @@
 #defualt is enabled. You can disable it with --without option
 %define with_perf    %{?_without_perf: 0} %{?!_without_perf: 1}
 
-Name:	 kernel
+Name:	 kernel-rt
 Version: %{upstream_version}.%{upstream_sublevel}
-Release: %{devel_release}%{?maintenance_release}%{?pkg_release}%{?extra_release}
-Summary: Linux Kernel
+Release: %{devel_release}%{?maintenance_release}%{?rt_release}%{?pkg_release}
+Summary: Linux Kerne
+
 License: GPLv2
 URL:	 http://www.kernel.org/
 Source0: kernel.tar.gz
@@ -102,8 +103,8 @@ Conflicts: mdadm < 3.2.1-5 nfs-utils < 1.0.7-12 oprofile < 0.9.1-2 ppp < 2.4.3-3
 Conflicts: reiserfs-utils < 3.6.19-2 selinux-policy-targeted < 1.25.3-14 squashfs-tools < 4.0
 Conflicts: udev < 063-6 util-linux < 2.12 wireless-tools < 29-3 xfsprogs < 2.6.13-4
 
-Provides: kernel-aarch64 = %{version}-%{release} kernel-drm = 4.3.0 kernel-drm-nouveau = 16 kernel-modeset = 1
-Provides: kernel-uname-r = %{KernelVer} kernel=%{KernelVer}
+Provides: kernel-rt-aarch64 = %{version}-%{release} kernel-rt-drm = 4.3.0 kernel-rt-drm-nouveau = 16 kernel-rt-modeset = 1
+Provides: kernel-rt-uname-r = %{KernelVer} kernel-rt=%{KernelVer}
 
 Requires: dracut >= 001-7 grubby >= 8.28-2 initscripts >= 8.11.1-1 linux-firmware >= 20100806-2 module-init-tools >= 3.16-2
 
@@ -134,8 +135,8 @@ glibc package.
 %package devel
 Summary: Development package for building kernel modules to match the %{KernelVer} kernel
 AutoReqProv: no
-Provides: kernel-devel-uname-r = %{KernelVer}
-Provides: kernel-devel-%{_target_cpu} = %{version}-%{release}
+Provides: kernel-rt-devel-uname-r = %{KernelVer}
+Provides: kernel-rt-devel-%{_target_cpu} = %{version}-%{release}
 Requires: perl findutils
 
 %description devel
@@ -159,7 +160,7 @@ and the supporting documentation.
 Summary: Assortment of tools for the Linux kernel
 Requires: kernel-tools = %{version}-%{release}
 Requires: kernel-tools-libs = %{version}-%{release}
-Provides: kernel-tools-libs-devel = %{version}-%{release}
+Provides: kernel-rt-tools-libs-devel = %{version}-%{release}
 Obsoletes: kernel-tools-libs-devel
 %description tools-devel
 This package contains the development files for the tools/ directory from
@@ -739,14 +740,14 @@ then
      done)
 fi
 
-%post -n kernel-tools
+%post -n kernel-rt-tools
 /sbin/ldconfig
 %systemd_post cpupower.service
 
-%preun -n kernel-tools
+%preun -n kernel-rt-tools
 %systemd_preun cpupower.service
 
-%postun -n kernel-tools
+%postun -n kernel-rt-tools
 /sbin/ldconfig
 %systemd_postun cpupower.service
 
@@ -805,7 +806,7 @@ fi
 %{python3_sitearch}/*
 %endif
 
-%files -n kernel-tools -f cpupower.lang
+%files -n kernel-rt-tools -f cpupower.lang
 %{_bindir}/cpupower
 %ifarch %{ix86} x86_64
 %{_bindir}/centrino-decode
@@ -835,7 +836,7 @@ fi
 %{_libdir}/libcpupower.so.0.0.1
 %license linux-%{KernelVer}/COPYING
 
-%files -n kernel-tools-devel
+%files -n kernel-rt-tools-devel
 %{_libdir}/libcpupower.so
 %{_includedir}/cpufreq.h
 %{_includedir}/cpuidle.h
