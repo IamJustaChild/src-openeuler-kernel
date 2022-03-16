@@ -60,7 +60,7 @@ index 84520f116..aa631771e 100644
  
  static bool have_cpu_fpsimd_context(void)
 diff --git a/arch/x86/configs/openeuler_defconfig b/arch/x86/configs/openeuler_defconfig
-index febdd7627..cd5b97891 100644
+index febdd7627..4820c8888 100644
 --- a/arch/x86/configs/openeuler_defconfig
 +++ b/arch/x86/configs/openeuler_defconfig
 @@ -88,9 +88,10 @@ CONFIG_NO_HZ=y
@@ -93,6 +93,48 @@ index febdd7627..cd5b97891 100644
  CONFIG_KVM=m
  CONFIG_KVM_INTEL=m
  CONFIG_KVM_AMD=m
+@@ -8085,7 +8086,7 @@ CONFIG_DEBUG_INFO=y
+ # CONFIG_DEBUG_INFO_COMPRESSED is not set
+ # CONFIG_DEBUG_INFO_SPLIT is not set
+ CONFIG_DEBUG_INFO_DWARF4=y
+-CONFIG_DEBUG_INFO_BTF=y
++# CONFIG_DEBUG_INFO_BTF is not set
+ # CONFIG_GDB_SCRIPTS is not set
+ CONFIG_ENABLE_MUST_CHECK=y
+ CONFIG_FRAME_WARN=2048
+diff --git a/arch/x86/include/asm/preempt.h b/arch/x86/include/asm/preempt.h
+index a3b73de27..dda9ec24f 100644
+--- a/arch/x86/include/asm/preempt.h
++++ b/arch/x86/include/asm/preempt.h
+@@ -134,10 +134,8 @@ static __always_inline bool should_resched(int preempt_offset)
+ #endif
+ }
+ 
++#ifndef CONFIG_PREEMPT_RT
+ #ifdef CONFIG_PREEMPTION
+-#ifdef CONFIG_PREEMPT_RT
+-   extern void preempt_schedule_lock(void);
+-#endif
+ extern asmlinkage void preempt_schedule(void);
+ extern asmlinkage void preempt_schedule_thunk(void);
+ 
+@@ -166,4 +164,16 @@ do { \
+ 
+ #endif
+ 
++#else
++#ifdef CONFIG_PREEMPTION
++#ifdef CONFIG_PREEMPT_RT
++extern void preempt_schedule_lock(void);
++#endif
++extern asmlinkage void preempt_schedule(void);
++#define __preempt_schedule() preempt_schedule()
++extern asmlinkage void preempt_schedule_notrace(void);
++#define __preempt_schedule_notrace() preempt_schedule_notrace()
++#endif /* CONFIG_PREEMPTION */
++#endif
++
+ #endif /* __ASM_PREEMPT_H */
 diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
 index 4bfdc2189..6ddafc84a 100644
 --- a/kernel/printk/printk.c
