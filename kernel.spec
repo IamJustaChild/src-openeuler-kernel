@@ -1,6 +1,8 @@
 %define with_signmodules  1
 %define with_kabichk 0
 
+%define with_libbpf 1
+
 %define modsign_cmd %{SOURCE10}
 
 %global Arch $(echo %{_host_cpu} | sed -e s/i.86/x86/ -e s/x86_64/x86/ -e s/aarch64.*/arm64/)
@@ -12,7 +14,7 @@
 %global upstream_sublevel   0
 %global devel_release       60
 %global maintenance_release .10.0
-%global pkg_release         .41
+%global pkg_release         .42
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -195,6 +197,32 @@ language to use the interface to manipulate perf events.
 # with_perf
 %endif
 
+%if %{with_libbpf}
+%package -n libbpf
+Summary: libbpf acts as a BPF program loader. It loads, checks, and relocates BPF programs, sorting out maps and hooks
+Provides: libbpf = 0.2.0
+
+%description -n libbpf
+This package contains the libbpf dynamic library for loading and checking
+ebpf programs.
+
+%package -n libbpf-devel
+Summary: Development files for libbpf
+Requires: kernel-headers >= %{version}
+%description -n libbpf-devel
+the libbpf-devel package contains libraries header files for
+developing applications that use libbpf
+
+%package -n libbpf-static
+Summary: Static library for libbpf development
+Requires: kernel-headers >= %{version}
+
+%description -n libbpf-static
+The libbpf-static package contains static library for
+developing applications that use libbpf
+# with_libbpf
+%endif
+
 %package -n bpftool
 Summary: Inspection and simple manipulation of eBPF programs and maps
 %description -n bpftool
@@ -224,6 +252,12 @@ package or when debugging this package.\
 
 %debuginfo_template -n kernel
 %files -n kernel-debuginfo -f debugfiles.list
+
+%if %{with_libbpf}
+%debuginfo_template -n libbpf
+%files -n libbpf-debuginfo -f libbpf-debugfiles.list
+%{expand:%%global _find_debuginfo_opts %{?_find_debuginfo_opts} -p '.*%{_libdir}/libbpf.*(\.debug)?|XXX' -o libbpf-debugfiles.list}
+%endif
 
 %debuginfo_template -n bpftool
 %files -n bpftool-debuginfo -f bpftool-debugfiles.list
@@ -374,6 +408,13 @@ chmod +x tools/python3-perf/check-headers.sh
 
 pushd tools/perf/Documentation/
 make %{?_smp_mflags} man
+popd
+%endif
+
+# libbpf
+%if %{with_libbpf}
+pushd tools/lib/bpf
+make
 popd
 %endif
 
@@ -678,6 +719,12 @@ install -m644 %{SOURCE2001} %{buildroot}%{_sysconfdir}/sysconfig/cpupower
     make DESTDIR=%{buildroot} install
     popd
 %endif
+# libbpf
+%if %{with_libbpf}
+pushd tools/lib/bpf
+make DESTDIR=%{buildroot} prefix=%{_prefix} mandir=%{_mandir} install
+popd
+%endif
 # thermal
 pushd tools/thermal/tmon
 make INSTALL_ROOT=%{buildroot} install
@@ -851,6 +898,20 @@ fi
 %{_includedir}/cpufreq.h
 %{_includedir}/cpuidle.h
 
+%if %{with_libbpf}
+%files -n libbpf
+%{_libdir}/libbpf.so.0.2.0
+%{_libdir}/libbpf.so.0
+
+%files -n libbpf-devel
+%{_libdir}/libbpf.so
+%{_includedir}/bpf/
+%{_libdir}/pkgconfig/libbpf.pc
+
+%files -n libbpf-static
+%{_libdir}/libbpf.a
+%endif
+
 %files -n bpftool
 %{_sbindir}/bpftool
 %{_sysconfdir}/bash_completion.d/bpftool
@@ -878,6 +939,9 @@ fi
 %endif
 
 %changelog
+* Thu Mar 17 2022 liuin <liuxin350@huawei.com> - 5.10.0-60.10.0.42
+- libbpf: generate libbpf package from kernel
+
 * Tue Mar 15 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-60.10.0.41
 - arm/arm64: paravirt: Remove GPL from pv_ops export
 
