@@ -135,10 +135,10 @@ and the supporting documentation.
 
 %package tools-devel
 Summary: Assortment of tools for the Linux kernel
-Requires: kernel-tools = %{version}-%{release}
-Requires: kernel-tools-libs = %{version}-%{release}
+Requires: kernel-rt-tools = %{version}-%{release}
+Requires: kernel-rt-tools-libs = %{version}-%{release}
 Provides: kernel-rt-tools-libs-devel = %{version}-%{release}
-Obsoletes: kernel-tools-libs-devel
+Obsoletes: kernel-rt-tools-libs-devel
 %description tools-devel
 This package contains the development files for the tools/ directory from
 the kernel source.
