@@ -1,0 +1,52 @@
+diff --git a/arch/arm64/configs/openeuler_defconfig b/arch/arm64/configs/openeuler_defconfig
+index 8717ffe01..7086ed5b1 100644
+--- a/arch/arm64/configs/openeuler_defconfig
++++ b/arch/arm64/configs/openeuler_defconfig
+@@ -73,8 +73,9 @@ CONFIG_NO_HZ_FULL=y
+ CONFIG_NO_HZ=y
+ CONFIG_HIGH_RES_TIMERS=y
+ # CONFIG_PREEMPT_NONE is not set
+-CONFIG_PREEMPT_VOLUNTARY=y
++# CONFIG_PREEMPT_VOLUNTARY is not set
+ # CONFIG_PREEMPT is not set
++CONFIG_PREEMPT_RT_FULL=y
+ 
+ #
+ # CPU/Task time and stats accounting
+@@ -988,7 +989,7 @@ CONFIG_FRAME_VECTOR=y
+ # CONFIG_PERCPU_STATS is not set
+ # CONFIG_GUP_BENCHMARK is not set
+ CONFIG_ARCH_HAS_PTE_SPECIAL=y
+-CONFIG_PIN_MEMORY=y
++# CONFIG_PIN_MEMORY is not set
+ CONFIG_PID_RESERVE=y
+ CONFIG_NET=y
+ CONFIG_COMPAT_NETLINK_MESSAGES=y
+diff --git a/arch/x86/configs/openeuler_defconfig b/arch/x86/configs/openeuler_defconfig
+index 64f0805a5..a791ac897 100644
+--- a/arch/x86/configs/openeuler_defconfig
++++ b/arch/x86/configs/openeuler_defconfig
+@@ -78,8 +78,9 @@ CONFIG_NO_HZ_FULL=y
+ CONFIG_NO_HZ=y
+ CONFIG_HIGH_RES_TIMERS=y
+ # CONFIG_PREEMPT_NONE is not set
+-CONFIG_PREEMPT_VOLUNTARY=y
++# CONFIG_PREEMPT_VOLUNTARY is not set
+ # CONFIG_PREEMPT is not set
++CONFIG_PREEMPT_RT_FULL=y
+ 
+ #
+ # CPU/Task time and stats accounting
+diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
+index 4c90438fc..5d2fc5be5 100644
+--- a/kernel/printk/printk.c
++++ b/kernel/printk/printk.c
+@@ -1846,6 +1846,8 @@ static int console_trylock_spinning(void)
+ 
+ #else
+ 
++void zap_locks(void) {}
++
+ static int console_trylock_spinning(void)
+ {
+ 	return console_trylock();
