@@ -60,8 +60,8 @@ Source9002: series.conf
 Source9998: patches.tar.bz2
 %endif
 
-Patch0: patch-4.19.90-2203.3.0-rt103.patch
-Patch1: patch-4.19.90-2203.3.0-rt103-openeuler_defconfig.patch
+Patch0: 0000-kernel-4.19.90-2203.3.0-rt103.patch
+Patch1: 0001-modify-openeuler_defconfig-for-rt103.patch
 
 #BuildRequires:
 BuildRequires: module-init-tools, patch >= 2.5.4, bash >= 2.03, tar
