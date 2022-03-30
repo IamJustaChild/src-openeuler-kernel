@@ -3,7 +3,7 @@
 
 %define modsign_cmd %{SOURCE10}
 
-%global Arch $(echo %{_host_cpu} | sed -e s/i.86/x86/ -e s/x86_64/x86/ -e s/aarch64.*/arm64/)
+%global Arch $(echo %{_host_cpu} | sed -e s/i.86/x86/ -e s/x86_64/x86/ -e s/aarch64.*/arm64/ -e s/loongarch64/loongarch/)
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 %global debuginfodir /usr/lib/debug
@@ -11,7 +11,7 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       60
-%global maintenance_release .18.0
+%global maintenance_release .19.0
 %global pkg_release         .50
 
 %define with_debuginfo 1
@@ -40,6 +40,54 @@
 
 #default is enabled. You can disable it with --without option
 %define with_perf    %{?_without_perf: 0} %{?!_without_perf: 1}
+
+%define update_boot_cfg() \
+if [ `uname -i` == "loongarch64" ] ;then \
+	pushd /boot >/dev/null \
+	grub_cfg_files=`find . -name grub.cfg` \
+	for grub_cfg_f in ${grub_cfg_files} ; do \
+		grub_cfg_dir=$(dirname $grub_cfg_f) \
+		pushd ${grub_cfg_dir} > /dev/null \
+			tmp_grub_cfg=$(mktemp) \
+			grub2-mkconfig -o ${tmp_grub_cfg} \
+			if [ $? -eq 0 ]; then \
+				cp -f grub.cfg grub.$(date "+%Y%m%d_%H%M").cfg.bak \
+				cat ${tmp_grub_cfg} > grub.cfg \
+			fi \
+\
+			rm -rf ${tmp_grub_cfg} \
+		popd > /dev/null \
+	done \
+	popd > /dev/null \
+\
+	pmon_cfg_dir="/boot" \
+	pushd ${pmon_cfg_dir} > /dev/null \
+	if [ -e "boot.cfg" ]; then \
+		cp -f boot.cfg boot.$(date "+%Y%m%d_%H%M").bak \
+		tmp_pmon_cfg=$(mktemp) \
+		base_title=$(grep "^NAME=" -r /etc/os-release | awk -F "=" '{print $2}') \
+		echo "" >> ${tmp_pmon_cfg} \
+		echo "default 0" >> ${tmp_pmon_cfg} \
+		echo "$(grep timeout ${pmon_cfg_dir}/boot.cfg)"  >> ${tmp_pmon_cfg} \
+		echo "$(grep showmenu ${pmon_cfg_dir}/boot.cfg)" >> ${tmp_pmon_cfg} \
+		echo "" >> ${tmp_pmon_cfg} \
+		for f in $(ls -1 vmlinuz-*); do \
+			suffix=$(echo $f | awk -F "vmlinuz" '{print $2}') \
+			initrd="initramfs-${suffix}.img" \
+			args=$(grep $f -m 1 ${grub_cfg_dir}/grub.cfg | awk -F "$f" '{print $2}') \
+			echo "title  '${base_title} ${suffix}'" >> ${tmp_pmon_cfg} \
+			echo "kernel /dev/fs/ext2@wd0/boot/$f"  >> ${tmp_pmon_cfg} \
+			if [ -e "${initrd}" ]; then \
+				echo "initrd /dev/fs/ext2@wd0/boot/${initrd}" >> ${tmp_pmon_cfg} \
+			fi \
+			echo "args ${args}" >> ${tmp_pmon_cfg} \
+			echo "" >> ${tmp_pmon_cfg} \
+		done \
+		cat ${tmp_pmon_cfg} > boot.cfg \
+		rm -rf ${tmp_pmon_cfg} \
+	fi \
+fi \
+%{nil}
 
 Name:	 kernel%{?package64kb}
 Version: %{upstream_version}.%{upstream_sublevel}
@@ -109,7 +157,7 @@ Provides: kernel-uname-r = %{KernelVer} kernel=%{KernelVer}
 
 Requires: dracut >= 001-7 grubby >= 8.28-2 initscripts >= 8.11.1-1 linux-firmware >= 20100806-2 module-init-tools >= 3.16-2
 
-ExclusiveArch: noarch aarch64 i686 x86_64
+ExclusiveArch: noarch aarch64 i686 x86_64 loongarch64
 ExclusiveOS: Linux
 
 %if %{with_perf}
@@ -453,8 +501,9 @@ install -m 644 System.map $RPM_BUILD_ROOT/boot/System.map-%{KernelVer}
 %endif
 
 mkdir -p $RPM_BUILD_ROOT%{_sbindir}
+%ifnarch loongarch64
 install -m 755 %{SOURCE200} $RPM_BUILD_ROOT%{_sbindir}/mkgrub-menu-%{devel_release}.sh
-
+%endif
 
 %if 0%{?with_debuginfo}
     mkdir -p $RPM_BUILD_ROOT%{debuginfodir}/lib/modules/%{KernelVer}
@@ -724,6 +773,7 @@ fi
 if [ -d /lib/modules/%{KernelVer} ] && [ "`ls -A  /lib/modules/%{KernelVer}`" = "" ]; then
     rm -rf /lib/modules/%{KernelVer}
 fi
+%{expand:%%update_boot_cfg}
 
 %posttrans
 %{_sbindir}/new-kernel-pkg --package kernel --mkinitrd --dracut --depmod --update %{KernelVer} || exit $?
@@ -732,6 +782,9 @@ if [ `uname -i` == "aarch64" ] &&
         [ -f /boot/EFI/grub2/grub.cfg ]; then
 	/usr/bin/sh %{_sbindir}/mkgrub-menu-%{devel_release}.sh %{version}-%{devel_release}.aarch64  /boot/EFI/grub2/grub.cfg  update
 fi
+
+%{expand:%%update_boot_cfg}
+
 if [ -x %{_sbindir}/weak-modules ]
 then
     %{_sbindir}/weak-modules --add-kernel %{KernelVer} || exit $?
@@ -781,7 +834,9 @@ fi
 /lib/modules/%{KernelVer}/
 %exclude /lib/modules/%{KernelVer}/source
 %exclude /lib/modules/%{KernelVer}/build
+%ifnarch loongarch64
 %{_sbindir}/mkgrub-menu*.sh
+%endif
 
 %files devel
 %defattr (-, root, root)
@@ -882,93 +937,70 @@ fi
 %endif
 
 %changelog
-* Sun Mar 27 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-60.18.0.50
-- net/spnic: Remove spnic driver.
-- SCSI: spfc: remove SPFC driver
-
-* Wed Mar 23 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-60.17.0.49
-- block-map: add __GFP_ZERO flag for alloc_page in function bio_copy_kern
-- net: snmp: inline snmp_get_cpu_field()
-
-* Tue Mar 22 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-60.16.0.48
-- Revert "Compress modules to xz format in kernel.spec, which reduces disk consumption"
-- esp: Fix possible buffer overflow in ESP transformation
-- sock: remove one redundant SKB_FRAG_PAGE_ORDER macro
-- kabi: only reserve flags on X86_64 and ARM64
-- mm/dynamic_hugetlb: only compile PG_pool on X86_64 and ARM64
-
-* Mon Mar 21 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-60.15.0.47
-- kabi: fix kabi broken in struct fuse_args
-- fuse: fix pipe buffer lifetime for direct_io
-
-* Mon Mar 21 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-60.14.0.46
-- vfs: fs_context: fix up param length parsing in legacy_parse_param
-- NFS: LOOKUP_DIRECTORY is also ok with symlinks
-- blk-mq: fix potential uaf for 'queue_hw_ctx'
-- blk-mq: add exception handling when srcu->sda alloc failed
-
-* Sun Mar 20 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-60.13.0.45
-- mm/dynamic_hugetlb: initialize subpages before merging
-- mm/dynamic_hugetlb: set/clear HPageFreed
-- mm/dynamic_hugetlb: only support to merge 2M dynamicly
-- mm/dynamic_hugetlb: hold the lock until pages back to hugetlb
-- mm/dynamic_hugetlb: use mem_cgroup_force_empty to reclaim pages
-- mm/dynamic_hugetlb: check page using check_new_page
-- mm/dynamic_hugetlb: use pfn to traverse subpages
-- mm/dynamic_hugetlb: improve the initialization of huge pages
-- mm/dynamic_hugetlb: check free_pages_prepares when split pages
-
-* Fri Mar 18 2022 Liu Yuntao <windspectator@gmail.com> - 5.10.0-60.12.0.44
-- Compress modules to xz format in kernel.spec, which reduces disk consumption.
-
-* Thu Mar 17 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-60.12.0.43
-- irqchip/gic-phytium-2500: Fix issue that interrupts are concentrated in one cpu
-
-* Thu Mar 17 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-60.11.0.42
-- scsi: ses: Fix crash caused by kfree an invalid pointer
-- ovl: fix incorrect extent info in metacopy case
-- perf sched: Cast PTHREAD_STACK_MIN to int as it may turn into sysconf(__SC_THREAD_STACK_MIN_VALUE)
-
-* Tue Mar 15 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-60.10.0.41
-- arm/arm64: paravirt: Remove GPL from pv_ops export
-
-* Fri Mar 11 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-60.9.0.40
-- ima: bugfix for digest lists importing
-- net/hinic: Fix call trace when the rx_buff module parameter is grater than 2
-- net/hinic: Fix null pointer dereference in hinic_physical_port_id
-
-* Thu Mar 10 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-60.8.0.39
-- net/hinic: Fix double free issue
-
-* Wed Mar 09 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-60.7.0.38
-- src-openEuler: add with_64kb to control 64KB page size
-- scsi: spfc: Remove redundant mask and spinlock
-- xfs: order CIL checkpoint start records
-- xfs: attach iclog callbacks in xlog_cil_set_ctx_write_state()
-- xfs: factor out log write ordering from xlog_cil_push_work()
-- xfs: pass a CIL context to xlog_write()
-- xfs: fix the forward progress assertion in xfs_iwalk_run_callbacks
-- xfs: move xlog_commit_record to xfs_log_cil.c
-- xfs: log head and tail aren't reliable during shutdown
-- xfs: don't run shutdown callbacks on active iclogs
-- xfs: separate out log shutdown callback processing
-- xfs: rework xlog_state_do_callback()
-- xfs: make forced shutdown processing atomic
-- xfs: convert log flags to an operational state field
-- xfs: move recovery needed state updates to xfs_log_mount_finish
-- xfs: XLOG_STATE_IOERROR must die
-- xfs: convert XLOG_FORCED_SHUTDOWN() to xlog_is_shutdown()
-- Revert "nfs: ensure correct writeback errors are returned on close()"
-- fuse: support SB_NOSEC flag to improve write performance
-- fuse: add a flag FUSE_OPEN_KILL_SUIDGID for open() request
-- fuse: don't send ATTR_MODE to kill suid/sgid for handle_killpriv_v2
-- fuse: setattr should set FATTR_KILL_SUIDGID
-- fuse: set FUSE_WRITE_KILL_SUIDGID in cached write path
-- fuse: rename FUSE_WRITE_KILL_PRIV to FUSE_WRITE_KILL_SUIDGID
-- fuse: introduce the notion of FUSE_HANDLE_KILLPRIV_V2
-- xfs: remove dead stale buf unpin handling code
-- xfs: hold buffer across unpin and potential shutdown processing
-- xfs: fix an ABBA deadlock in xfs_rename
+* Thu Mar 31 2022 Hongchen Zhang <zhanghongchen@loongson.cn> - 5.10.0-60.19.0
+- LS7A2000 : Add quirk for OHCI device rev 0x02
+- LS7A: add loongson GMAC and GNET support
+- Revert "net: stmmac: Set Flow Control to automatic mode in the driver"
+- LoongArch: add openeuler defconfig
+- stmmac: pci: Add dwmac support for Loongson
+- alsa: Add Loongson LS7A HD-Audio support
+- drm: Add Loongson LS7A Display-Controller driver
+- drm/radeon: Workaround radeon driver bug for Loongson
+- USB: Fix OHCI/XHCI wakeup problems
+- Input: i8042 - Add PNP checking hook for Loongson
+- Loongson: Add LS2H/LS7A i2c/rtc driver support
+- LoongArch: Add LS7A IOMMU support
+- LoongArch: Add platform device drivers
+- LoongArch: Add kernel address sanitizer support
+- LoongArch: Add kernel livepatching support
+- LoongArch: Add efistub support
+- LoongArch: Add debug machanism support
+- LoongArch: Add HIGHMEM and FDT support for future
+- LoongArch: crypto: Add crc32 and crc32c hw accelerated module
+- LoongArch: Add checksum optimization
+- LoongArch: Add orc stack unwinder support
+- LoongArch: Add STACKPROTECTOR and STACKVALIDATOR support
+- LoongArch: BPF: Add eBPF JIT support
+- LoongArch: Add alternative runtime patching support
+- LoongArch: Use TLB for ioremap()
+- tools/objtool: Add basic support for LoongArch
+- tools/perf: Add basic support for LoongArch
+- MAINTAINERS: Add maintainer information for LoongArch
+- LoongArch: Add Loongson-3 default config file
+- LoongArch: Add power management support
+- LoongArch: Add hardware watchpoint support
+- LoongArch: Add perf events support
+- LoongArch: Add kexec/kdump support
+- LoongArch: Add relocatable kernel support
+- LoongArch: Add kenel hacking options support
+- LoongArch: Add STACKTRACE and TRACE_IRQFLAGS support
+- LoongArch: Add zboot (compressed kernel) support
+- LoongArch: Add vector extensions support
+- LoongArch: Add sparse memory vmemmap support
+- LoongArch: Add basic NUMA support
+- LoongArch: Add basic SMP support
+- LoongArch: Add basic booting support
+- LoongArch: Add writecombine support for drm
+- LoongArch: Add elf-related definitions for LoongArch
+- PCI: Support ASpeed VGA cards behind a misbehaving bridge
+- PCI: Add quirk for multifunction devices of LS7A
+- PCI: Improve mrrs quirk for LS7A
+- PCI: Move loongson pci quirks to quirks.c
+- PCI/portdrv: Don't disable pci device during shutdown
+- PCI: loongson: Use correct pci config access operations
+- irqchip: Add Loongson PCH LPC controller support
+- irqchip: Add Loongson Extended I/O interrupt controller support
+- irqchip: Add LoongArch CPU interrupt controller support
+- irqchip/loongson-liointc: Add ACPI init support
+- irqchip/loongson-htvec: Add ACPI init support
+- irqchip/loongson-pch-msi: Add ACPI init support
+- irqchip/loongson-pch-pic: Add ACPI init support
+- irqchip: Adjust Kconfig for Loongson
+- serial: 8250_pnp: Support configurable clock frequency
+- ACPICA: Events: Support fixed pcie wake event
+- ACPICA: MADT: Add LoongArch APICs support
+- ACPI: Add LoongArch support for ACPI_PROCESSOR/ACPI_NUMA
+- fs: Move @f_count to different cacheline with @f_mode
 - Revert "efi/libstub: arm64: Relax 2M alignment again for relocatable kernels"
 - crypto: hisilicon/qm - fix memset during queues clearing
 - crypto: hisilicon/qm - modify device status check parameter
