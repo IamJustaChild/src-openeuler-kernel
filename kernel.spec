@@ -12,7 +12,7 @@
 %global upstream_sublevel   0
 %global devel_release       60
 %global maintenance_release .18.0
-%global pkg_release         .50
+%global pkg_release         .51
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -520,6 +520,7 @@ popd
         chmod 0755 %{modsign_cmd} \
         %{modsign_cmd} $RPM_BUILD_ROOT/lib/modules/%{KernelVer} || exit 1 \
     fi \
+    find $RPM_BUILD_ROOT/lib/modules/ -type f -name '*.ko' | xargs -n1 -P`nproc --all` xz; \
 %{nil}
 
 # deal with header
@@ -882,6 +883,9 @@ fi
 %endif
 
 %changelog
+* Tue Apr 12 2022 Liu Yuntao <windspectator@gmail.com> - 5.10.0-60.18.0.51
+- Compress modules to xz format in kernel.spec, which reduces disk consumption.
+
 * Sun Mar 27 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-60.18.0.50
 - net/spnic: Remove spnic driver.
 - SCSI: spfc: remove SPFC driver
