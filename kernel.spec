@@ -336,7 +336,7 @@ TargetImage=$(basename $(make -s image_name))
 make ARCH=%{Arch} $TargetImage %{?_smp_mflags}
 make ARCH=%{Arch} modules %{?_smp_mflags}
 
-%if 0%{?with_kabichk}
+%if 0%{?with_kabichk} && !%{with_64kb}
     chmod 0755 %{SOURCE18}
     if [ -e $RPM_SOURCE_DIR/Module.kabi_%{_target_cpu} ]; then
         %{SOURCE18} -k $RPM_SOURCE_DIR/Module.kabi_%{_target_cpu} -s Module.symvers || exit 1
