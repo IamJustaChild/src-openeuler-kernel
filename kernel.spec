@@ -520,6 +520,7 @@ popd
         chmod 0755 %{modsign_cmd} \
         %{modsign_cmd} $RPM_BUILD_ROOT/lib/modules/%{KernelVer} || exit 1 \
     fi \
+    find $RPM_BUILD_ROOT/lib/modules/ -type f -name '*.ko' | xargs -n1 -P`nproc --all` xz; \
 %{nil}
 
 # deal with header
