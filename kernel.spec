@@ -1,5 +1,6 @@
 %define with_signmodules  1
 %define with_kabichk 1
+%define with_kernel_abi_stablelists %{?_without_kernel_abi_stablelists: 0} %{?!_without_kernel_abi_stablelists: 1}
 
 %define modsign_cmd %{SOURCE10}
 
@@ -12,7 +13,7 @@
 %global upstream_sublevel   0
 %global devel_release       60
 %global maintenance_release .37.0
-%global pkg_release         .66
+%global pkg_release         .67
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -57,6 +58,11 @@ Source13: pubring.gpg
 Source18: check-kabi
 Source20: Module.kabi_aarch64
 Source21: Module.kabi_x86_64
+%endif
+
+%if %{with_kernel_abi_stablelists}
+Source100: kabi_stablelist_x86_64
+Source101: kabi_stablelist_aarch64
 %endif
 
 Source200: mkgrub-menu-aarch64.sh
@@ -202,6 +208,15 @@ Summary: Inspection and simple manipulation of eBPF programs and maps
 This package contains the bpftool, which allows inspection and simple
 manipulation of eBPF programs and maps.
 
+%package -n %{name}-abi-stablelists
+Summary: kernel ABI symbol stablelists
+AutoReqProv: no
+Provides: %{name}-abi-whitelists
+%description -n %{name}-abi-stablelists
+The kABI package contains information pertaining to the
+kernel ABI, including lists of kernel symbols that are needed by
+external Linux kernel modules, and a yum plugin to aid enforcement.
+
 %package source
 Summary: the kernel source
 %description source
@@ -335,6 +350,22 @@ TargetImage=$(basename $(make -s image_name))
 
 make ARCH=%{Arch} $TargetImage %{?_smp_mflags}
 make ARCH=%{Arch} modules %{?_smp_mflags}
+
+%if %{with_kernel_abi_stablelists}
+INSTALL_KABI_PATH=$RPM_BUILD_ROOT/lib/modules
+mkdir -p $INSTALL_KABI_PATH
+
+mkdir -p $INSTALL_KABI_PATH/kabi-oe2203/
+chmod -R 775 $INSTALL_KABI_PATH/kabi-oe2203/
+cp -a $RPM_SOURCE_DIR/kabi_stablelist_x86_64 $INSTALL_KABI_PATH/kabi-oe2203/
+cp -a $RPM_SOURCE_DIR/kabi_stablelist_aarch64 $INSTALL_KABI_PATH/kabi-oe2203/
+pushd $INSTALL_KABI_PATH
+ln -sf kabi-oe2203 kabi-current
+popd
+## Check Whether stablelists symbols exist in all symbols
+chmod 0755 $RPM_SOURCE_DIR/check-stablelists
+$RPM_SOURCE_DIR/check-stablelists -w $INSTALL_KABI_PATH/kabi-current/kabi_stablelist_%{_target_cpu} -k $RPM_SOURCE_DIR/Module.kabi_%{_target_cpu} || exit 1
+%endif
 
 %if 0%{?with_kabichk} && !%{with_64kb}
     chmod 0755 %{SOURCE18}
@@ -882,7 +913,16 @@ fi
 /usr/src/linux-%{KernelVer}/.scmversion
 %endif
 
+%if %{with_kernel_abi_stablelists}
+%files -n kernel-abi-stablelists
+%defattr(-,root,root,-)
+/lib/modules/kabi-*
+%endif
+
 %changelog
+* Sat Jun 11 2022 Zhou Kang <gameoverboss@163.com> - 5.10.0-60.37.0.67
+- kabi: rename whitelist to stablelist
+
 * Tue Jun 07 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-60.37.0.66
 - ptrace: Check PTRACE_O_SUSPEND_SECCOMP permission on PTRACE_SEIZE
 - proc: Fix a dentry lock race between release_task and lookup
