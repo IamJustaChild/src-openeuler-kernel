@@ -1,0 +1,96 @@
+#!/usr/bin/python3
+
+import getopt
+import os
+import re
+import string
+import sys
+
+def load_stablelists(stablelists,filename):
+        """Load a stablelists file."""
+
+        stablelist_file = open(filename,"r")
+
+        in_lines = stablelist_file.readlines()
+        for in_line in in_lines:
+                if in_line == "":
+                        break
+                if in_line == "\n" or in_line[0] == '[':
+                        continue
+                symbol = in_line.strip()
+                stablelists.append(symbol)
+
+def load_kabi(kabi,filename):
+        """Load a Module.kabi file."""
+
+        kabi_file = open(filename,"r")
+
+        in_lines = kabi_file.readlines()
+        for in_line in in_lines:
+                if in_line == "":
+                        break
+                if in_line == "\n":
+                        continue
+                words = str.split(in_line)
+                checksum = words[0]
+                symbol = words[1]
+                directory = words[2]
+                type = words[3]
+                kabi.append(symbol)
+
+def check_kabi(stablelists,kabi):
+        """Check Module.kabi and stablelists files."""
+        dismatch = 0
+        dismatch_symbols = []
+
+        for symbol in stablelists:
+                if symbol in kabi:
+                    continue
+                else:
+                    dismatch = 1
+                    dismatch_symbols.append(symbol)
+
+        if dismatch:
+            print("***Error - WHITELIST ABI SYMBOL MOVED***")
+            for symbol in dismatch_symbols:
+                print(symbol)
+            sys.exit(1)
+
+        print("************ check stablelists ok *************")
+        sys.exit(0)
+
+def usage():
+        print("""
+check-kabi: check Module.kabi and stablelists files.
+
+        check-kabi [ -k Module.kabi ] [ -w stablelists ]
+
+""")
+
+if __name__ == "__main__":
+
+        stablelists_file = ""
+        kabi_file = ""
+
+        opts, args = getopt.getopt(sys.argv[1:], 'hk:w:')
+
+        for o, v in opts:
+                if o == "-w":
+                        stablelists_file = v
+                if o == "-h":
+                        usage()
+                        sys.exit(0)
+                if o == "-k":
+                        kabi_file = v
+
+        if (stablelists_file == "") or (kabi_file == ""):
+                usage()
+                sys.exit(1)
+
+        stablelists= []
+        kabi = []
+
+        load_stablelists(stablelists,stablelists_file)
+        load_kabi(kabi,kabi_file)
+        check_kabi(stablelists,kabi)
+
