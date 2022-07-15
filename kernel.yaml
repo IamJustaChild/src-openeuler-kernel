@@ -1,0 +1,4 @@
+version_control: *
+src_repo: http://www.kernel.org/
+tag_prefix: ^v
+seperator: .
