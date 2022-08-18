@@ -71,8 +71,8 @@ Source9002: series.conf
 Source9998: patches.tar.bz2
 %endif
 
-Patch0: patch-5.10.0-60.10.0-rt62.patch
-Patch1: patch-5.10.0-60.10.0-rt62_openeuler_defconfig.patch
+Patch0: 0000-kernel-5.10.0-60.10.0-rt62.patch
+Patch1: 0001-modify-openeuler_defconfig-for-rt62.patch
 
 #BuildRequires:
 BuildRequires: module-init-tools, patch >= 2.5.4, bash >= 2.03, tar
