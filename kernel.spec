@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       60
-%global maintenance_release .57.0
-%global pkg_release         .85
+%global maintenance_release .58.0
+%global pkg_release         .86
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -883,6 +883,8 @@ fi
 %endif
 
 %changelog
+* Tue Sep 27 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-60.58.0.86
+
 * Tue Sep 20 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-60.57.0.85
 - efi: capsule-loader: Fix use-after-free in efi_capsule_write
 - etmem: Add a scan flag to support specified page swap-out
