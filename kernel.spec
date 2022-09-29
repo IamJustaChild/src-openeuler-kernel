@@ -3,7 +3,7 @@
 
 %define modsign_cmd %{SOURCE10}
 
-%global Arch $(echo %{_host_cpu} | sed -e s/i.86/x86/ -e s/x86_64/x86/ -e s/aarch64.*/arm64/)
+%global Arch $(echo %{_host_cpu} | sed -e s/i.86/x86/ -e s/x86_64/x86/ -e s/aarch64.*/arm64/ -e s/loongarch64/loongarch/)
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 %global debuginfodir /usr/lib/debug
@@ -40,6 +40,28 @@
 
 #default is enabled. You can disable it with --without option
 %define with_perf    %{?_without_perf: 0} %{?!_without_perf: 1}
+
+%define update_boot_cfg() \
+if [ `uname -i` == "loongarch64" ] ;then \
+	pushd /boot >/dev/null \
+	grub_cfg_files=`find . -name grub.cfg` \
+	for grub_cfg_f in ${grub_cfg_files} ; do \
+		grub_cfg_dir=$(dirname $grub_cfg_f) \
+		pushd ${grub_cfg_dir} > /dev/null \
+			tmp_grub_cfg="/tmp/tmp-grub.cfg" \
+			grub2-mkconfig -o ${tmp_grub_cfg} \
+			if [ $? -eq 0 ]; then \
+				cp -f grub.cfg grub.%{KernelVer}.cfg.bak \
+				cat ${tmp_grub_cfg} > grub.cfg \
+			fi \
+\
+			rm -rf ${tmp_grub_cfg} \
+		popd > /dev/null \
+	done \
+	popd > /dev/null \
+\
+fi \
+%{nil}
 
 Name:	 kernel%{?package64kb}
 Version: %{upstream_version}.%{upstream_sublevel}
@@ -108,7 +130,7 @@ Provides: kernel-uname-r = %{KernelVer} kernel=%{KernelVer}
 
 Requires: dracut >= 001-7 grubby >= 8.28-2 initscripts >= 8.11.1-1 linux-firmware >= 20100806-2 module-init-tools >= 3.16-2
 
-ExclusiveArch: noarch aarch64 i686 x86_64
+ExclusiveArch: noarch aarch64 i686 x86_64 loongarch64
 ExclusiveOS: Linux
 
 %if %{with_perf}
@@ -328,7 +350,20 @@ sed -i arch/arm64/configs/openeuler_defconfig -e 's/^CONFIG_ARM64_VA_BITS=.*/CON
 sed -i arch/arm64/configs/openeuler_defconfig -e 's/^CONFIG_ARM64_VA_BITS_.*/CONFIG_ARM64_VA_BITS_52=y/'
 %endif
 
+%ifarch loongarch64
+
+%if 0%{with_signmodules}
+echo "CONFIG_MODULE_SIG=y" >>arch/loongarch/configs/loongson3_defconfig
+%endif
+
+%if 0%{with_debuginfo}
+echo "CONFIG_DEBUG_INFO=y" >>arch/loongarch/configs/loongson3_defconfig
+%endif
+
+make ARCH=%{Arch} loongson3_defconfig
+%else
 make ARCH=%{Arch} openeuler_defconfig
+%endif
 
 TargetImage=$(basename $(make -s image_name))
 
@@ -440,7 +475,13 @@ cd linux-%{KernelVer}
 mkdir -p $RPM_BUILD_ROOT/boot
 dd if=/dev/zero of=$RPM_BUILD_ROOT/boot/initramfs-%{KernelVer}.img bs=1M count=20
 
+%ifarch loongarch64
+strip -s vmlinux -o vmlinux.elf
+install -m 755 vmlinux.elf $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}
+%else
 install -m 755 $(make -s image_name) $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}
+%endif
+
 pushd $RPM_BUILD_ROOT/boot
 sha512hmac ./vmlinuz-%{KernelVer} >./.vmlinuz-%{KernelVer}.hmac
 popd
@@ -723,6 +764,7 @@ fi
 if [ -d /lib/modules/%{KernelVer} ] && [ "`ls -A  /lib/modules/%{KernelVer}`" = "" ]; then
     rm -rf /lib/modules/%{KernelVer}
 fi
+%{expand:%%update_boot_cfg}
 
 %posttrans
 %{_sbindir}/new-kernel-pkg --package kernel --mkinitrd --dracut --depmod --update %{KernelVer} || exit $?
@@ -731,6 +773,9 @@ if [ `uname -i` == "aarch64" ] &&
         [ -f /boot/EFI/grub2/grub.cfg ]; then
 	/usr/bin/sh %{_sbindir}/mkgrub-menu-%{devel_release}.sh %{version}-%{devel_release}.aarch64  /boot/EFI/grub2/grub.cfg  update
 fi
+
+%{expand:%%update_boot_cfg}
+
 if [ -x %{_sbindir}/weak-modules ]
 then
     %{_sbindir}/weak-modules --add-kernel %{KernelVer} || exit $?
