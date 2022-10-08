@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       106
-%global maintenance_release .18.0
-%global pkg_release         .68
+%global maintenance_release .19.0
+%global pkg_release         .69
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -879,6 +879,9 @@ fi
 %endif
 
 %changelog
+* Thu Sep 29 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-106.19.0.69
+- xfrm: Reinject transport-mode packets through workqueue
+
 * Sat Sep 24 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-106.18.0.68
 - mm: reliable: Fix ret errno to EACCES
 - mm: reliable: Use EINVAL in reliable_check
