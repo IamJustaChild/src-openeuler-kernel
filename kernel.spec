@@ -42,7 +42,7 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %global upstream_sublevel   0
 %global devel_release       21
 %global maintenance_release .0.0
-%global pkg_release         .22
+%global pkg_release         .23
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -932,6 +932,8 @@ fi
 %files headers
 %defattr (-, root, root)
 /usr/include/*
+%exclude %{_includedir}/cpufreq.h
+%exclude %{_includedir}/cpuidle.h
 
 %if %{with_perf}
 %files -n perf
@@ -1019,6 +1021,9 @@ fi
 %endif
 
 %changelog
+* Tue Apr 23 2024 Hongchen Zhang <zhanghongchen@loongson.cn> - 6.6.0-21.0.0.23
+- exclude cpufreq.h and cpuidle.h from kernel-headers package
+
 * Sat Apr 20 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-21.0.0.22
 - !6201 v2  mm: some optimization about hugetlb and thp
 - mm: filemap: try to enable THP for exec mapping
