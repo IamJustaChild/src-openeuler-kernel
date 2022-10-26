@@ -25,7 +25,7 @@
 %global upstream_sublevel   0
 %global devel_release       10
 %global maintenance_release .0.0
-%global pkg_release         .7
+%global pkg_release         .8
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -869,6 +869,8 @@ fi
 %files headers
 %defattr (-, root, root)
 /usr/include/*
+%exclude %{_includedir}/cpufreq.h
+%exclude %{_includedir}/cpuidle.h
 
 %if %{with_perf}
 %files -n perf
@@ -954,6 +956,8 @@ fi
 %endif
 
 %changelog
+* Wed Mar 6 2024 Hongchen Zhang <zhanghongchen@loongson.cn> - 6.6.0-10.0.0.8
+- exclude cpufreq.h and cpuidle.h from kernel-headers package
 * Mon Feb 26 2024 huangzq6 <huangzhenqiang2@huawei.com> - 6.6.0-10.0.0.7
 - add signature for vmlinux
 
