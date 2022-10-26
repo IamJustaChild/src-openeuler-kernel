@@ -25,7 +25,7 @@
 %global upstream_sublevel   0
 %global devel_release       10
 %global maintenance_release .0.0
-%global pkg_release         .8
+%global pkg_release         .9
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -889,6 +889,8 @@ fi
 %files headers
 %defattr (-, root, root)
 /usr/include/*
+%exclude %{_includedir}/cpufreq.h
+%exclude %{_includedir}/cpuidle.h
 
 %if %{with_perf}
 %files -n perf
@@ -974,6 +976,9 @@ fi
 %endif
 
 %changelog
+* Wed Apr 1 2024 Hongchen Zhang <zhanghongchen@loongson.cn> - 6.6.0-10.0.0.9
+- exclude cpufreq.h and cpuidle.h from kernel-headers package
+
 * Thu Mar 21 2024 jinlun <jinlun@huawei.com> - 6.6.0-10.0.0.8
 - Support generating moudle/kernel signature with openEuler signature platform
 
