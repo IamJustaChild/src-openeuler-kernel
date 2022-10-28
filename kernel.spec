@@ -60,6 +60,8 @@ Source9002: series.conf
 Source9998: patches.tar.bz2
 %endif
 
+Patch0000: MegaRAID_9560_8i.patch
+
 #BuildRequires:
 BuildRequires: module-init-tools, patch >= 2.5.4, bash >= 2.03, tar
 BuildRequires: bzip2, xz, findutils, gzip, m4, perl, make >= 3.78, diffutils, gawk
@@ -227,6 +229,8 @@ tar -xjf %{SOURCE9998}
 
 mv kernel linux-%{KernelVer}
 cd linux-%{KernelVer}
+
+%patch0000 -p1
 
 %if 0%{?with_patch}
 cp %{SOURCE9000} .
@@ -808,6 +812,8 @@ fi
 %endif
 
 %changelog
+* Wed Oct 26 2022 Zhao Lei <zhao_lei1@hoperun.com> - 4.19.90-2210.4.0.0174
+- scsi: megaraid_sas: Add support for MegaRAID Aero controllers
 
 * Thu Oct 27 2022 Laibin Qiu <qiulaibin@huawei.com> - 4.19.90-2210.5.0.0174
 - sch_sfb: Also store skb len before calling child enqueue
