@@ -1,5 +1,5 @@
 %define with_signmodules  1
-%define with_kabichk 1
+%define with_kabichk 0
 
 %define modsign_cmd %{SOURCE10}
 
@@ -12,7 +12,7 @@
 %global upstream_sublevel   0
 %global devel_release       106
 %global maintenance_release .18.0
-%global pkg_release         .50
+%global pkg_release         .52
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -463,7 +463,13 @@ cd linux-%{KernelVer}
 mkdir -p $RPM_BUILD_ROOT/boot
 dd if=/dev/zero of=$RPM_BUILD_ROOT/boot/initramfs-%{KernelVer}.img bs=1M count=20
 
+%ifarch loongarch64
+strip -s vmlinux -o vmlinux.elf
+install -m 755 vmlinux.elf $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}
+%else
 install -m 755 $(make -s image_name) $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}
+%endif
+
 pushd $RPM_BUILD_ROOT/boot
 sha512hmac ./vmlinuz-%{KernelVer} >./.vmlinuz-%{KernelVer}.hmac
 popd
@@ -471,9 +477,7 @@ popd
 install -m 644 .config $RPM_BUILD_ROOT/boot/config-%{KernelVer}
 install -m 644 System.map $RPM_BUILD_ROOT/boot/System.map-%{KernelVer}
 
-%if 0%{?with_kabichk}
-    gzip -c9 < Module.symvers > $RPM_BUILD_ROOT/boot/symvers-%{KernelVer}.gz
-%endif
+gzip -c9 < Module.symvers > $RPM_BUILD_ROOT/boot/symvers-%{KernelVer}.gz
 
 mkdir -p $RPM_BUILD_ROOT%{_sbindir}
 install -m 755 %{SOURCE200} $RPM_BUILD_ROOT%{_sbindir}/mkgrub-menu-%{devel_release}.sh
@@ -797,9 +801,7 @@ fi
 %ifarch aarch64
 /boot/dtb-*
 %endif
-%if 0%{?with_kabichk}
 /boot/symvers-*
-%endif
 /boot/System.map-*
 /boot/vmlinuz-*
 %ghost /boot/initramfs-%{KernelVer}.img
@@ -820,6 +822,8 @@ fi
 %files headers
 %defattr (-, root, root)
 /usr/include/*
+%exclude %{_includedir}/cpufreq.h
+%exclude %{_includedir}/cpuidle.h
 
 %if %{with_perf}
 %files -n perf
@@ -909,6 +913,11 @@ fi
 %endif
 
 %changelog
+* Thu Nov 11 2022 Hongchen Zhang <zhanghongchen@loongson.cn> - 5.10.0-60.18.0.52
+- use vmlinux as default boot image
+- disable kabi check for for LoongArch
+- remove two files from kernel-headers
+
 * Sat Sep 24 2022 Hongchen Zhang <zhanghongchen@loongson.cn> - 5.10.0-106.18.0.50
 - mm: reliable: Fix ret errno to EACCES
 - mm: reliable: Use EINVAL in reliable_check
