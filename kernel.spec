@@ -10,9 +10,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       129
+%global devel_release       130
 %global maintenance_release .0.0
-%global pkg_release         .69
+%global pkg_release         .70
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -879,6 +879,401 @@ fi
 %endif
 
 %changelog
+* Wed Nov 30 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-130.0.0.70
+- staging: rtl8712: fix use after free bugs
+- Fix kabi change caused by reverting patches
+- Revert "iommu: Introduce attach/detach_pasid_table API"
+- Revert "iommu: Introduce bind/unbind_guest_msi"
+- Revert "iommu/smmuv3: Allow s1 and s2 configs to coexist"
+- Revert "iommu/smmuv3: Get prepared for nested stage support"
+- Revert "iommu/smmuv3: Implement attach/detach_pasid_table"
+- Revert "iommu/smmuv3: Allow stage 1 invalidation with unmanaged ASIDs"
+- Revert "iommu/smmuv3: Implement cache_invalidate"
+- Revert "dma-iommu: Implement NESTED_MSI cookie"
+- Revert "iommu/smmuv3: Nested mode single MSI doorbell per domain enforcement"
+- Revert "iommu/smmuv3: Enforce incompatibility between nested mode and HW MSI regions"
+- Revert "iommu/smmuv3: Implement bind/unbind_guest_msi"
+- Revert "iommu/smmuv3: report additional recoverable faults"
+- Revert "vfio: VFIO_IOMMU_SET_PASID_TABLE"
+- Revert "vfio: VFIO_IOMMU_CACHE_INVALIDATE"
+- Revert "vfio: VFIO_IOMMU_SET_MSI_BINDING"
+- Revert "vfio/pci: Add VFIO_REGION_TYPE_NESTED region type"
+- Revert "vfio/pci: Register an iommu fault handler"
+- Revert "vfio/pci: Allow to mmap the fault queue"
+- Revert "vfio: Use capability chains to handle device specific irq"
+- Revert "vfio/pci: Add framework for custom interrupt indices"
+- Revert "vfio: Add new IRQ for DMA fault reporting"
+- Revert "vfio/pci: Register and allow DMA FAULT IRQ signaling"
+- Revert "vfio: Document nested stage control"
+- Revert "vfio/pci: Register a DMA fault response region"
+- Revert "vfio/pci: Inject page response upon response region fill"
+- Revert "iommu/arm-smmu-v3: Using HTTU with SMMU STE and stage 2 TTD"
+- Revert "iommu/io-pgtable-arm: Make data access permissions of stage1/2 compatible"
+- Revert "iommu/io-pgtable-arm: Remove the limitation on the page table format of sync/clear_dirty_log()"
+- Revert "iommu/arm-smmu-v3: Change the TLBI CMD in arm_smmu_cache_invalidate()"
+- Revert "iommu/arm-smmu-v3: Align invalid range with leaf page size upwards when support RIL"
+- Revert "iommu/arm-smmu-v3: Standardize granule size when support RIL"
+- Revert "iommu/arm-smmu-v3: Remove the redundant shift operation of 'size'"
+- Revert "iommu: fix build error when CONFIG_IOMMU_API is off"
+- Revert "vfio/pci: Fix wrong return value when get iommu attribute DOMAIN_ATTR_NESTING"
+- Revert "iommu/smmuv3: Remove the S1 mapping restriction of dirty log"
+- RDMA/hns: Fixes concurrent ressetting and post_recv in DCA mode
+- RDMA/hns: Optimize user DCA perfermance by sharing DCA status
+- RDMA/hns: Add debugfs support for DCA
+- RDMA/hns: Add DCA support for kernel space
+- RDMA/hns: Add method to query WQE buffer's address
+- RDMA/hns: Add method to detach WQE buffer
+- RDMA/hns: Setup the configuration of WQE addressing to QPC
+- RDMA/hns: Add method for attaching WQE buffer
+- RDMA/hns: Configure DCA mode for the userspace QP
+- RDMA/hns: Add method for shrinking DCA memory pool
+- RDMA/hns: Introduce DCA for RC QP
+- net: hns3: add vf fault process in hns3 ras
+- net: hns3: add hns3 vf fault detect cap bit support
+- net: hns3: support debugfs for wake on lan
+- net: hns3: support wake on lan configuration and query
+- dm: Fix UAF in run_timer_softirq()
+- livepatch/ppc64: Fix preemption check when enabling
+- livepatch: Avoid CPU hogging with cond_resched
+- livepatch: Fix several code style issues
+- livepatch/x86: Avoid conflict with static {call,key}
+- livepatch/core: Restrict minimum size of function that can be patched
+- livepatch/x86: Rename old_code to old_insns
+- livepatch: Fix patching functions which have static_call
+- dm-thin: Resume failed in FAIL mode
+- dm: fix null pointer dereference in dev_create()
+- ARM: 9160/1: NOMMU: Reload __secondary_data after PROCINFO_INITFUNC
+- ARM: 9059/1: cache-v7: get rid of mini-stack
+- ARM: 9058/1: cache-v7: refactor v7_invalidate_l1 to avoid clobbering r5/r6
+- KVM: arm64: Implement the capability of DVMBM
+- KVM: arm64: Add kvm_arch::dvm_cpumask and dvm_lock
+- KVM: arm64: Add kvm_vcpu_arch::cpus_ptr and pre_cpus_ptr
+- KVM: arm64: Probe and configure DVMBM capability on HiSi CPUs
+- KVM: arm64: Support a new HiSi CPU type
+- mm: hugetlb: fix UAF in hugetlb_handle_userfault
+- mm/memory: add non-anonymous page check in the copy_present_page()
+- net: hns3: refactor the debugfs for dumping FD tcam
+- net: hns3: PF supports to set and query lane_num by sysfs
+- net: hns3: allocate fd counter for queue bonding
+- net: hns3: add queue bonding mode support for VF
+- net: hns3: add support for queue bonding mode of flow director
+- net: hns3: refine the handling for VF heartbeat
+- mpi: Fix length check in mpi_key_length()
+- Revert "posix-cpu-timers: Make timespec to nsec conversion safe"
+- ext4: fix bug in extents parsing when eh_entries == 0 and eh_depth > 0
+- bpf, sockmap: fix sk_rmem_alloc underflow for sockmap
+- sched/fair:ARM64 enables SIS_UTIL and disables SIS_PROP
+- sched/fair: Fix kabi borken in sched_domain_shared
+- sched/fair: Introduce SIS_UTIL to search idle CPU based on sum of util_avg
+- block: check flags of claimed slave bdev to fix uaf for bd_holder_dir
+- pinctrl: core: Set ret to 0 when group is skipped
+- pinctrl: core: Handling pinmux and pinconf separately
+- blk-mq: fix null pointer dereference in blk_mq_clear_rq_mapping()
+- blk-wbt: fix that 'rwb->wc' is always set to 1 in wbt_init()
+- blk-wbt: call rq_qos_add() after wb_normal is initialized
+- block: wbt: Remove unnecessary invoking of wbt_update_limits in wbt_init
+- blk-mq: fix missing blk_account_io_done() in error path
+- crypto: hisilicon/qm - delete redundancy check
+- crypto: hisilicon/qm - add pci bdf number check
+- crypto: hisilicon/qm - increase the memory of local variables
+- crypto: hisilicon/qm - re-enable communicate interrupt before notifying PF
+- crypto: hisilicon/sec - enabling clock gating of the address prefetch module
+- crypto: hisilicon/qm - fix incorrect parameters usage
+- crypto: hisilicon/qm - drop unnecessary IS_ENABLE(CONFIG_NUMA) check
+- crypto: hisilicon/hpre - fix resource leak in remove process
+- crypto: hisilicon/qm - fix the qos value initialization
+- !216 AMD： Add CONFIG_PERF_EVENTS_AMD_BRS=y to openeuler_defconfig
+- !201 AMD: Add Perfmonv2/IBS/BRS features for AMD EPYC platforms
+- !265 Add LoongArch support
+- !250 add UPROBE_ALTER_PC flag for uprobe mechanism
+- !268 [OLK-5.10]perf arm64 metricgroup support and some bugfix
+- !282 Synchronize the code of mainline perf tool and support the parsing of TRBE trace data
+- !283 [OLK-5.10] Add debug print of 64G link speed
+- LoongArch: defconfig: Set CONFIG_TXGBE=m by default
+- LS7A2000 : Add quirk for OHCI device rev 0x02
+- stmmac: pci: Add dwmac support for Loongson
+- uprobe: add UPROBE_ALTER_PC flag for uprobe
+- kabi: Fix kabi breakage caused by commit d5616bac7ada.
+- !276 support set/get VxLAN rule of rx flow director by ethtool
+- !215 cgroupv1使能cgroup writeback的功能
+- !222 vdpa: add two ioctl commands to support generic vDPA
+- qla2xxx: add debug print of 64G link speed
+- perf cs-etm: Fix corrupt inject files when only last branch option is enabled
+- perf cs-etm: No-op refactor of synth opt usage
+- perf cs-etm: Update deduction of TRCCONFIGR register for branch broadcast
+- perf cs-etm: Remove duplicate and incorrect aux size checks
+- perf cs-etm: Print size using consistent format
+- perf cs-etm: Show a warning for an unknown magic number
+- perf cs-etm: Print the decoder name
+- perf cs-etm: Create ETE decoder
+- perf cs-etm: Update OpenCSD decoder for ETE
+- perf cs-etm: Fix typo
+- perf cs-etm: Save TRCDEVARCH register
+- perf cs-etm: Refactor out ETMv4 header saving
+- perf cs-etm: Initialise architecture based on TRCIDR1
+- perf cs-etm: Refactor initialisation of decoder params.
+- perf cs-etm: Add warnings for missing DSOs
+- perf cs-etm: Improve Coresight zero timestamp warning
+- perf annotate: Add disassembly warnings for annotate --stdio
+- perf annotate: Re-add annotate_warned functionality
+- perf tools: Add WARN_ONCE equivalent for UI warnings
+- perf tools: Add flag for tracking warnings of missing DSOs
+- perf cs-etm: Pass unformatted flag to decoder
+- perf cs-etm: Use existing decoder instead of resetting it
+- perf cs-etm: Suppress printing when resetting decoder
+- perf cs-etm: Only setup queues when they are modified
+- perf cs-etm: Split setup and timestamp search functions
+- perf cs-etm: Refactor initialisation of kernel start address
+- tools headers UAPI: Sync perf_event.h with the kernel sources
+- perf cs-etm: Split --dump-raw-trace by AUX records
+- perf cs-etm: Split Coresight decode by aux records
+- perf cs-etm: Delay decode of non-timeless data until cs_etm__flush_events()
+- perf cs-etm: Remove callback cs_etm_find_snapshot()
+- perf cs-etm: Prevent and warn on underflows during timestamp calculation.
+- perf cs-etm: Start reading 'Z' --itrace option
+- perf cs-etm: Move synth_opts initialisation
+- perf auxtrace: Add Z itrace option for timeless decoding
+- perf cs-etm: Set time on synthesised samples to preserve ordering
+- perf cs-etm: Refactor timestamp variable names
+- perf cs-etm: Detect pid in VMID for kernel running at EL2
+- perf cs-etm: Add helper cs_etm__get_pid_fmt()
+- perf cs-etm: Support PID tracing in config
+- perf cs-etm: Fix bitmap for option
+- perf cs-etm: Update ETM metadata format
+- vdpa: clean up get_config_size ret value handling
+- vdpa/mlx5: Fix clearing of VIRTIO_NET_F_MAC feature bit
+- vdpa: Consider device id larger than 31
+- vdpa: fix use-after-free on vp_vdpa_remove
+- virtio: always enter drivers/virtio/
+- vp_vdpa: Fix return value check for vdpa_alloc_device()
+- virtio_pci_modern: correct sparse tags for notify
+- virtio_pci_modern: __force cast the notify mapping
+- vp_vdpa: allow set vq state to initial state after reset
+- virtio-pci library: introduce vp_modern_get_driver_features()
+- vdpa: support packed virtqueue for set/get_vq_state()
+- vp_vdpa: add vq irq offloading support
+- vdpa: Add reset callback in vdpa_config_ops
+- vp_vdpa: report doorbell address
+- virtio-pci library: report resource address
+- vp_vdpa: switch to use vp_modern_map_vq_notify()
+- virtio-pci library: switch to use vp_modern_map_vq_notify()
+- virtio_pci_modern: introduce helper to map vq notify area
+- vhost/vdpa: use get_config_size callback in vhost_vdpa_config_validate()
+- vdpa: add driver_override support
+- vdpa_sim_blk: add support for vdpa management tool
+- vdpa_sim_net: Add support for user supported devices
+- vdpa_sim: make vdpasim->buffer size configurable
+- vdpa: add vdpa simulator for block device
+- vdpa: split vdpasim to core and net modules
+- vdpa: set the virtqueue num during register
+- vdpa_sim: add supported_features field in vdpasim_dev_attr
+- vdpa_sim: add set_config callback in vdpasim_dev_attr
+- vdpa_sim: add work_fn in vdpasim_dev_attr
+- vdpa_sim: add device id field in vdpasim_dev_attr
+- vdpa_sim: split vdpasim_virtqueue's iov field in out_iov and in_iov
+- vdpa: remove unnecessary 'default n' in Kconfig entries
+- vdpa: Enable user to query vdpa device info
+- virtio-pci: introduce modern device module
+- virito-pci-modern: rename map_capability() to vp_modern_map_capability()
+- virtio-pci-modern: introduce helper to get notification offset
+- virtio-pci-modern: introduce helper for getting queue nums
+- virtio-pci-modern: introduce helper for setting/geting queue size
+- virtio-pci-modern: introduce helper to set/get queue_enable
+- virtio-pci-modern: introduce vp_modern_queue_address()
+- virtio-pci-modern: introduce vp_modern_set_queue_vector()
+- net: hns3: support set/get VxLAN rule of rx flow director by ethtool
+- net: ethtool: add VxLAN to the NFC API
+- perf vendor events arm64: Fix incorrect Hisi hip08 L3 metrics
+- cgroup: support cgroup writeback on cgroupv1
+- cgroup: Add cgroup1_get_from_id()
+- perf pmu: Add pmu_events_map__find() function to find the common PMU map for the system
+- perf test: Handle metric reuse in pmu-events parsing test
+- perf metricgroup: Make find_metric() public with name change
+- perf vendor events arm64: Add Hisi hip08 L3 metrics
+- perf vendor events arm64: Add Hisi hip08 L2 metrics
+- perf vendor events arm64: Add Hisi hip08 L1 metrics
+- LoongArch: hugepage table replace tlb
+- LoongArch: change global registers to local registers
+- LoongArch: Old BPI compatibility
+- LoongArch: add kernel setvirtmap for runtime
+- LoongArch: enable some netfilter related configs
+- LoongArch: defconfig: use make defconfig to save a clean defconfig
+- tools perf: Fix compilation error with new binutils
+- tools include: add dis-asm-compat.h to handle version differences
+- tools build: Don't display disassembler-four-args feature test
+- tools build: Add feature test for init_disassemble_info API changes
+- LoongArch: Support R_LARCH_GOT_PC_{LO12,HI20} in modules
+- LoongArch: Support PC-relative relocations in modules
+- LoongArch: Define ELF relocation types added in v2.00 ABI
+- LoongArch: Adjust symbol addressing for AS_HAS_EXPLICIT_RELOCS
+- LoongArch: Add Kconfig option AS_HAS_EXPLICIT_RELOCS
+- irqchip/loongson-liointc: Fix an error handling path in liointc_init()
+- irqchip/loongarch: Fix irq_domain_alloc_fwnode() abuse
+- irqchip/loongson-eiointc: Fix a build warning
+- irqchip/loongson-eiointc: Fix irq affinity setting
+- irqchip: Adjust Kconfig for Loongson
+- PCI: Add quirk for LS7A to avoid reboot failure
+- PCI: loongson: Improve the MRRS quirk for LS7A
+- PCI: loongson: Work around LS7A incorrect Interrupt Pin registers
+- PCI: loongson: Don't access non-existent devices
+- PCI: loongson: Add ACPI init support
+- PCI: loongson: Use generic 8/16/32-bit config ops on LS2K/LS7A
+- irqchip / ACPI: Introduce ACPI_IRQ_MODEL_LPIC for LoongArch
+- ACPI: irq: Allow acpi_gsi_to_irq() to have an arch-specific fallback
+- APCI: irq: Add support for multiple GSI domains
+- drm/radeon: Workaround radeon driver bug for Loongson
+- LoongArch: Add writecombine support for drm
+- Input: i8042 - Add PNP checking hook for Loongson
+- LoongArch: Add qspinlock support
+- LoongArch: Add perf events support
+- LoongArch: Add SysRq-x (TLB Dump) support
+- LoongArch: Use TLB for ioremap()
+- LoongArch: Enable ARCH_WANT_HUGETLB_PAGE_OPTIMIZE_VMEMMAP
+- LoongArch: Add sparse memory vmemmap support
+- MIPS&LoongArch&NIOS2: Adjust prototypes of p?d_init()
+- irqchip/loongson-pch-lpc: Add suspend/resume support
+- irqchip/loongson-pch-pic: Add suspend/resume support
+- irqchip/loongson-eiointc: Add suspend/resume support
+- irqchip/loongson-htvec: Add suspend/resume support
+- irqchip/loongson-htvec: Add ACPI init support
+- ACPI / table: Print CORE_PIC information when MADT is parsed
+- ACPICA: Events: Support fixed pcie wake event
+- ACPICA: MADT: Add LoongArch APICs support
+- ACPI: Add LoongArch support for ACPI_PROCESSOR/ACPI_NUMA
+- Revert "LoongArch: Provisionally add ACPICA data structures"
+- loongarch: efi: enable generic EFI compressed boot
+- efi/libstub: implement generic EFI zboot
+- efi/libstub: use EFI provided memcpy/memset routines
+- efi/libstub: add some missing EFI prototypes
+- efi/loongarch: Add efistub booting support
+- irqchip: Select downstream irqchip drivers for LoongArch CPU
+- LoongArch: Add subword xchg/cmpxchg emulation
+- LoongArch: Cleanup headers to avoid circular dependency
+- LoongArch: Cleanup reset routines with new API
+- LoongArch: Fix build warnings in VDSO
+- LoongArch: Select PCI_QUIRKS to avoid build error
+- LoongArch: Update Loongson-3 default config file
+- LoongArch: Add USER_STACKTRACE support
+- LoongArch: Add STACKTRACE support
+- LoongArch: Add prologue unwinder support
+- LoongArch: Add guess unwinder support
+- LoongArch: Add vDSO syscall __vdso_getcpu()
+- LoongArch: Add PCI controller support
+- LoongArch: Parse MADT to get multi-processor information
+- LoongArch: Jump to the link address before enable PG
+- LoongArch: Requires __force attributes for any casts
+- LoongArch: Fix unsigned comparison with less than zero
+- LoongArch: Adjust arch/loongarch/Kconfig
+- LoongArch: cpuinfo: Fix a warning for CONFIG_CPUMASK_OFFSTACK
+- irqchip/loongson-pch-pic: Move find_pch_pic() into CONFIG_ACPI
+- LoongArch: Fix wrong "ROM Size" of boardinfo
+- LoongArch: Fix missing fcsr in ptrace's fpr_set
+- LoongArch: Fix shared cache size calculation
+- LoongArch: Disable executable stack by default
+- LoongArch: Remove unused variables
+- LoongArch: Remove clock setting during cpu hotplug stage
+- LoongArch: Remove useless header compiler.h
+- LoongArch: Remove several syntactic sugar macros for branches
+- LoongArch: Re-tab the assembly files
+- LoongArch: Simplify "BGT foo, zero" with BGTZ
+- LoongArch: Simplify "BLT foo, zero" with BLTZ
+- LoongArch: Simplify "BEQ/BNE foo, zero" with BEQZ/BNEZ
+- LoongArch: Use the "move" pseudo-instruction where applicable
+- LoongArch: Use the "jr" pseudo-instruction where applicable
+- LoongArch: Use ABI names of registers where appropriate
+- irqchip: Add LoongArch CPU interrupt controller support
+- LoongArch: fix kabi change due to enum chuph_state
+- irqchip: Add Loongson Extended I/O interrupt controller support
+- irqchip/loongson-liointc: Add ACPI init support
+- irqchip/loongson-pch-msi: Add ACPI init support
+- irqchip/loongson-pch-pic: Add ACPI init support
+- irqchip: Add Loongson PCH LPC controller support
+- LoongArch: Prepare to support multiple pch-pic and pch-msi irqdomain
+- LoongArch: Use ACPI_GENERIC_GSI for gsi handling
+- LoongArch: Provisionally add ACPICA data structures
+- loongarch: drop definition of PGD_ORDER
+- loongarch: drop definition of PUD_ORDER
+- loongarch: drop definition of PMD_ORDER
+- loongarch: drop definition of PTE_ORDER
+- LoongArch: Fix section mismatch warning
+- LoongArch: Fix build errors for tinyconfig
+- LoongArch: Remove obsolete mentions of vcsr
+- LoongArch: Drop these obsolete selects in Kconfig
+- efi: Simplify arch_efi_call_virt() macro
+- LoongArch: Make compute_return_era() return void
+- LoongArch: Fix wrong fpu version
+- LoongArch: Fix EENTRY/MERRENTRY setting in setup_tlb_handler()
+- LoongArch: Fix sleeping in atomic context in setup_tlb_handler()
+- LoongArch: Fix the _stext symbol address
+- LoongArch: Fix the !THP build
+- LoongArch: vmlinux.lds.S: Add missing ELF_DETAILS
+- LoongArch: Remove MIPS comment about cycle counter
+- LoongArch: Fix the !CONFIG_SMP build
+- LoongArch: Add Loongson-3 default config file
+- LoongArch: Add Non-Uniform Memory Access (NUMA) support
+- LoongArch: Add multi-processor (SMP) support
+- LoongArch: Add VDSO and VSYSCALL support
+- LoongArch: Add some library functions
+- LoongArch: Add misc common routines
+- LoongArch: Add ELF and module support
+- LoongArch: Add signal handling support
+- LoongArch: Add system call support
+- LoongArch: Add memory management
+- LoongArch: Add process management
+- LoongArch: Add exception/interrupt handling
+- LoongArch: Add boot and setup routines
+- LoongArch: Add other common headers
+- LoongArch: Add atomic/locking headers
+- LoongArch: Add CPU definition headers
+- LoongArch: Add ELF-related definitions
+- LoongArch: Add build infrastructure
+- fbdev: Prevent probing generic drivers if a FB is already registered
+- serial: 8250_pnp: Support configurable clock frequency
+- genirq/generic_chip: Export irq_unmap_generic_chip
+- mm/swapops: make is_pmd_migration_entry more strict
+- initramfs: Provide a common initrd reserve function
+- initrd: Add the preprocessor guard in initrd.h
+- x86/cpufeatures: Fix abi breakage caused by NCAPINTS in cpufeature header file.
+- perf/amd/ibs: Advertise zen4_ibs_extensions as pmu capability attribute
+- perf/amd/ibs: Add support for L3 miss filtering
+- perf/amd/ibs: Use ->is_visible callback for dynamic attributes
+- perf/x86/amd/ibs: Add bitfield definitions in new <asm/amd-ibs.h> header
+- perf/x86/amd/core: Fix reloading events for SVM
+- perf/x86/amd/core: Add PerfMonV2 overflow handling
+- perf/x86/amd/core: Add PerfMonV2 counter control
+- perf/x86/amd/core: Detect available counters
+- perf/x86/amd/core: Detect PerfMonV2 support
+- x86/msr: Add PerfCntrGlobal* registers
+- x86/cpufeatures: Add PerfMonV2 feature bit
+- perf/x86/amd: Add idle hooks for branch sampling
+- ACPI: Add perf low power callback
+- perf/x86/amd: Make Zen3 branch sampling opt-in
+- perf/x86/amd: Add AMD branch sampling period adjustment
+- perf/x86/amd: Enable branch sampling priv level filtering
+- perf/x86/amd: Add branch-brs helper event for Fam19h BRS
+- perf/x86/amd: Add AMD Fam19h Branch Sampling support
+- x86/cpufeatures: Add AMD Fam19h Branch Sampling feature
+- perf/core: Add perf_clear_branch_entry_bitfields() helper
+- x86/cpufeatures: Assign dedicated feature word for CPUID_0x8000001F[EAX]
+- x86/cpu: Add VM page flush MSR availablility as a CPUID feature
+- virtio-pci-modern: introduce vp_modern_generation()
+- virtio-pci-modern: introduce helpers for setting and getting features
+- virtio-pci-modern: introduce helpers for setting and getting status
+- virtio-pci-modern: introduce helper to set config vector
+- virtio-pci-modern: introduce vp_modern_remove()
+- virtio-pci-modern: factor out modern device initialization logic
+- virtio-pci: split out modern device
+- virtio-pci: do not access iomem via struct virtio_pci_device directly
+- vdpa: support exposing the count of vqs to userspace
+- vdpa: Enable a user to add and delete a vdpa device
+- vdpa: Add missing comment for virtqueue count
+- vdpa: Define vdpa mgmt device, ops and a netlink interface
+- vdpa: Extend routine to accept vdpa device name
+- vdpa: support exposing the config size to userspace
+- vdpa: add get_config_size callback in vdpa_config_ops
+- vdpa: introduce virtio pci driver
+- add CONFIG_PERF_EVENTS_AMD_BRS=y to openeuler_defconfig
+
 * Sat Nov 26 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-129.0.0.69
 - !275 Intel Advanced Matrix Extensions (AMX) - KVM support
 - !227 Intel SPR: Enable Intel SPR features in default kernel config for OLK-5.10
