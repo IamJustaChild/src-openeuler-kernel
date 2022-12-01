@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #
 # check-kabi - Red Hat kABI reference checking tool
 #
@@ -41,7 +41,7 @@ def load_symvers(symvers,filename):
 			break
 		if in_line == "\n":
 			continue
-		checksum,symbol,directory,type = in_line.split()
+		checksum,symbol,directory,type,namespace = in_line.split('\t')
 
 		symvers[symbol] = in_line[0:-1]
 
