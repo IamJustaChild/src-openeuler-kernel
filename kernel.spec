@@ -10,9 +10,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       130
+%global devel_release       131
 %global maintenance_release .0.0
-%global pkg_release         .70
+%global pkg_release         .71
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -879,6 +879,91 @@ fi
 %endif
 
 %changelog
+* Thu Dec 01 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-131.0.0.71
+- !259 cgroup: Support iocost for cgroup v1
+- !279 sched: programmable: bpf support programmable schedule capacity for scheduler
+- cgroup: Support iocost for cgroup v1
+- !298 Perf tool add Hip09 json support.
+- !234 AMD: Support perf mem/c2c for AMD Zen platform.
+- !211  AMD: Add EPYC Gen4 PerfMonV2 uncore support
+- perf jevents: Add support for HiSilicon PA PMU aliasing
+- perf jevents: Add support for HiSilicon SLLC PMU aliasing
+- perf jevents: Add support for HiSilicon HHA PMU aliasing
+- perf jevents: Add support for HiSilicon DDRC PMU aliasing
+- perf jevents: Add support for HiSilicon L3C PMU aliasing
+- perf test: Add pmu-events test for aliases of hip09 ddrc pmu
+- perf vendor events arm64: Revise hip08 uncore events
+- perf test: Verify more event members in pmu-events test
+- perf jevents: Support ConfigCode
+- perf parse-events: Set numeric term config
+- perf test: Add pmu-events sys event support
+- perf jevents: Print SoC name per system event table
+- perf pmu: Make pmu_add_sys_aliases() public
+- perf test: Add more pmu-events uncore aliases
+- perf test: Re-add pmu-event uncore PMU alias test
+- perf pmu: Check .is_uncore field in pmu_add_cpu_aliases_map()
+- perf test: Test pmu-events core aliases separately
+- perf test: Factor out pmu-events alias comparison
+- perf test: Declare pmu-events test events separately
+- perf jevents: Relocate test events to cpu folder
+- perf test: Factor out pmu-events event comparison
+- perf jevents: Make build dependency on test JSONs
+- perf jevents: Add test for arch std events
+- perf pmu: Save pmu name
+- perf pmu: Add alias match method to fit pmu_name of HiSilicon DDRC
+- perf pmu: Fix alias matching
+- perf tools: Fix pattern matching for same substring in different PMU type
+- perf metricgroup: Support adding metrics for system PMUs
+- perf metricgroup: Support printing metric groups for system PMUs
+- perf metricgroup: Split up metricgroup__print()
+- perf metricgroup: Fix metrics using aliases covering multiple PMUs
+- perf evlist: Change evlist__splice_list_tail() ordering
+- perf pmu: Add pmu_add_sys_aliases()
+- perf pmu: Add pmu_id()
+- perf jevents: Add support for system events tables
+- perf jevents: Add support for an extra directory level
+- kabi: Fix kabi breakage caused by new member added to struct perf_sample_data.
+- perf/uapi: Define PERF_MEM_SNOOPX_PEER in kernel header file
+- perf/x86/amd: Support PERF_SAMPLE_PHY_ADDR
+- perf/x86/amd: Support PERF_SAMPLE_ADDR
+- perf/x86/amd: Support PERF_SAMPLE_{WEIGHT|WEIGHT_STRUCT}
+- perf/x86/amd: Support PERF_SAMPLE_DATA_SRC
+- perf/x86/amd: Add IBS OP_DATA2 DataSrc bit definitions
+- perf/mem: Introduce PERF_MEM_LVLNUM_{EXTN_MEM|IO}
+- perf: Add sample_flags to indicate the PMU-filled sample data
+- perf: Add new macros for mem_hops field
+- perf: Add mem_hops field in perf_mem_data_src structure
+- perf/x86/ibs: Add new IBS register bits into header
+- perf/amd/uncore: Allow the driver to be built as a module
+- perf/x86/amd/uncore: Add PerfMonV2 RDPMC assignments
+- perf/x86/amd/uncore: Add PerfMonV2 DF event format
+- perf/x86/amd/uncore: Detect available DF counters
+- perf/x86/amd/uncore: Use attr_update for format attributes
+- perf/x86/amd/uncore: Use dynamic events array
+- kabi: test fix kabi for enum bpf_prog_type and bpf_attach_type
+- openeuler_defconfig: enable CONFIG_BPF_SCHED for x86
+- sched: programmable: Add lib for sched programmable
+- sched: programmable: Add three hooks in select_task_rq_fair()
+- sched: programmable: add bpf hooks to update rq and task state in enqueue_task/deqeue_task of CFS
+- sched: programmable: Add hook for pick next task
+- sched: cfs: add bpf hooks to control wakeup and tick preemption
+- bpf:programmable: Add helper func to check cpu share cache
+- bpf:programmable: Add cpumask ops collection
+- sched: programmable: Add convenient helper functions to convert sched entity
+- sched: programmable: Add helper function for cpu topology.
+- bpf: sched: Add helper functions to get cpu statistics
+- sched: programmable: Add helpers to set tag of task or task_group
+- sched: programmable: add bpf_sched_task_tag_of helper function
+- sched: programmable: add bpf_sched_tg_tag_of helper function
+- sched: programmable: Add user interface of task tag
+- sched: programmable: Add user interface of task group tag
+- sched: programmable: Add a tag for the task group
+- sched: programmable: Add a tag for the task
+- bpftool: recognize scheduler programs
+- libbpf: add support for scheduler bpf programs
+- bpf: sched: introduce bpf_sched_enable()
+- bpf: sched: basic infrastructure for scheduler bpf
+
 * Wed Nov 30 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-130.0.0.70
 - staging: rtl8712: fix use after free bugs
 - Fix kabi change caused by reverting patches
