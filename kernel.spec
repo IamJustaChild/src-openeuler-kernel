@@ -10,9 +10,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       131
+%global devel_release       132
 %global maintenance_release .0.0
-%global pkg_release         .72
+%global pkg_release         .73
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -883,6 +883,21 @@ fi
 %endif
 
 %changelog
+* Thu Dec 01 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-132.0.0.73
+- !302 sched: programmable: fix build error of bpf_topology
+- sched: programmable: Fix build error for nr_cpus_ids
+- sched: programmable: fix build error of bpf_topology
+- !300 bpf: Fix build error: linux/kabi.h: No such file or directory
+- !294 昇腾补丁回合
+- bpf: Fix build error: linux/kabi.h: No such file or directory
+- memblock,arm64: expand the static memblock memory table
+- iort: Read ACPI configure to get streamid.
+- Hugtlb: bugfix for hugetlb remap
+- mm: cma: use pr_err_ratelimited for CMA warning
+- oom: add oom notifier call for oom panic
+- cpu-feature: Enable Taisan IDC feature for Taishan core version
+- memcontrol: Add oom recover for kmemcg when release buddy hugepage
+
 * Thu Dec 01 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-131.0.0.72
 - Add java-1.8.0-openjdk-devel BuildRequires for kernel.spec
 - kabichk: do kabi check only for 4K page_size
