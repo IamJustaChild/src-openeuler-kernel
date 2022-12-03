@@ -10,9 +10,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       121
+%global devel_release       132
 %global maintenance_release .0.0
-%global pkg_release         .53
+%global pkg_release         .56
 %global rt_release          .rt62
 
 %define with_debuginfo 1
@@ -71,7 +71,7 @@ Source9002: series.conf
 Source9998: patches.tar.bz2
 %endif
 
-Patch0: 0000-kernel-5.10.0-121.0.0-rt62.patch
+Patch0: 0001-apply-preempt-RT-patch.patch
 Patch1: 0001-modify-openeuler_defconfig-for-rt62.patch
 
 #BuildRequires:
@@ -886,6 +886,16 @@ fi
 %endif
 
 %changelog
+* Mon Dec  28 2022 kylin-liyulei <liyulei@kylinos.cn> - 5.10.0-132.0.0.56
+- add kernel-rt.spec and rt patches
+
+* Mon Nov  28 2022 kylin-liyulei <liyulei@kylinos.cn> - 5.10.0-129.0.0.55
+- add kernel-rt.spec and rt patches
+
+
+* Mon Nov  21 2022 kylin-mayukun <mayukun@kylinos.cn> - 5.10.0-126.0.0.54
+- add kernel-rt.spec and rt patches
+
 * Wed Nov  02 2022 kylin-mayukun <mayukun@kylinos.cn> - 5.10.0-121.0.0.53
 - add kernel-rt.spec and rt patches
 
