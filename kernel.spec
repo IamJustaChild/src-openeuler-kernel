@@ -10,9 +10,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       132
+%global devel_release       136
 %global maintenance_release .0.0
-%global pkg_release         .73
+%global pkg_release         .74
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -883,6 +883,196 @@ fi
 %endif
 
 %changelog
+* Fri Dec 09 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-136.0.0.74
+- sched: disable sched_autogroup by default
+- Revert "add barriers to buffer_uptodate and set_buffer_uptodate"
+- Fixed the issue that the macro def_domain_type is repeatedly defined.
+- coresight: trbe: remove cpuhp instance node before remove cpuhp state
+- RDMA/hns: adjust the structure of RoCE bonding driver
+- RDMA/hns: add constraints for bonding-unsupported situations
+- RDMA/hns: fix the error of missing GID in RoCE bonding mode 1
+- RDMA/hns: fix possible dead lock when setting RoCE Bonding
+- drm/i915: fix TLB invalidation for Gen12 video and compute engines
+- fork: Fixed the extended kabi memory is not initialized
+- mm/dynamic_hugetlb: fix compound_nr incorrect
+- mm/shmem: fix shmem_swapin() race with swapoff
+- swap: fix do_swap_page() race with swapoff
+- mm/swapfile: fix broken kabi in swap_info_struct
+- mm/swapfile: use percpu_ref to serialize against concurrent swapoff
+- swapfile: fix soft lockup in scan_swap_map_slots
+- spi: hisi-sfc-v3xx: drop unnecessary ACPI_PTR and related ifendif protection
+- spi: hisi-sfc-v3xx: fix potential irq race condition
+- spi: hisi-sfc-v3xx: add address mode check
+- spi: hisi-sfc-v3xx: extend version checking compatibility
+- coresight: ete: Add acpi match id for Hip09
+- coresight: etm4x: Fix accesses to TRCSEQRSTEVR and TRCSEQSTR
+- l2tp: Don't sleep and disable BH under writer-side sk_callback_lock
+- l2tp: Serialize access to sk_user_data with sk_callback_lock
+- Bluetooth: L2CAP: Fix u8 overflow
+- workqueue: fix state-dump console deadlock
+- preempt/dynamic: Fix typo in macro conditional statement
+- jump_label: Fix usage in module __init
+- arm64/mpam: update last_cmd_status in parse_cache() and parse_bw()
+- arm64/mpam: remove kernfs_get() calls() and add kernfs_put() calls to prevent refcount leak
+- arm64/mpam: make mbw_max/min not less than min_bw
+- arm64/mpam: Fix indent format error in resctrl_parse_param()
+- arm64/mpam: decrease dom_num when domain goes offline
+- arm64/mpam: correct mbw_max/min if remainder is too large
+- mm/migrate.c: rework migration_entry_wait() to not take a pageref
+- sched/fair: limit burst to zero when cfs bandwidth is toggled off
+- sched: Fix null-ptr-deref in free_fair_sched_group
+- !317 AMD: Fix allmodconfig build issue in amd perf uncore module.
+- !314 config: disable CONFIG_QOS_SCHED_SMT_EXPELLER
+- x86/cpu: Add get_llc_id() helper function
+- perf/amd/uncore: Clean up header use, use <linux/ include paths instead of <asm/
+- perf/amd/uncore: Simplify code, use free_percpu()'s built-in check for NULL
+- config: disable CONFIG_QOS_SCHED_SMT_EXPELLER
+- !232 txgbe : merge net-swift txgbe out_of_tree module v1.2.3 to openEuler/txgbe for some known bugs
+- !316 SPR: support Intel In Field Scan(IFS)
+- Enable Intel In Field Scan(IFS) as kernel module
+- openeuler: net: txgbe: Fix some known bugs, merge net-swift txgbe-1.2.3 out-of-tree
+- platform/x86/intel/ifs: Add CPU_SUP_INTEL dependency
+- Documentation: In-Field Scan
+- platform/x86/intel/ifs: add ABI documentation for IFS
+- trace: platform/x86/intel/ifs: Add trace point to track Intel IFS operations
+- platform/x86/intel/ifs: Add IFS sysfs interface
+- platform/x86/intel/ifs: Add scan test support
+- platform/x86/intel/ifs: Authenticate and copy to secured memory
+- platform/x86/intel/ifs: Check IFS Image sanity
+- platform/x86/intel/ifs: Read IFS firmware image
+- platform/x86/intel/ifs: Add stub driver for In-Field Scan
+- stop_machine: Add stop_core_cpuslocked() for per-core operations
+- x86/msr-index: Define INTEGRITY_CAPABILITIES MSR
+- x86/microcode/intel: Expose collect_cpu_info_early() for IFS
+- !312 intel: backport fix for SPR c1 and c1e independent support for intel_idle
+- !311 intel: backport  Sapphire Rapids PMT errata fix
+- intel_idle: make SPR C1 and C1E be independent
+- platform/x86/intel/pmt: Sapphire Rapids PMT errata fix
+- openeuler: configs: delete txgbe/Kconfig, add txgbe_config to netswift/Kconfig
+- !293 openEuler: add openEuler/MAINTAINERS for Maintainers & Committers
+- !281 [5.10] [Feature] :add netswift WX1860 series NIC ngbe  module support
+- openeuler: config: txgbe mode compile param default config
+- !310 config: support hns3 pmu
+- openeuler: net: ngbe: add ngbe module support
+- openeuler: config: add NGBE MODODULE CONFIG
+- config: support hns3 pmu
+- !304 update patches for sw64 architecture
+- !286 defconfig: add helper script for update openeuler_defconfig
+- !306 tc-testing: fix a bug in gitignore of tc-testing
+- configs: update arch/x86/configs/openeuler_defconfig
+- configs: update arch/arm64/configs/openeuler_defconfig
+- kconfig: Add script to update openeuler_defconfig
+- !303 iommu: bugfix for missing symbols when build arm_smmu_v3.ko
+- scsi: storvsc: Remove WQ_MEM_RECLAIM from storvsc_error_wq
+- scsi: ufs: core: Enable link lost interrupt
+- perf/x86/intel/uncore: Fix broken read_counter() for SNB IMC PMU
+- perf python: Fix build when PYTHON_CONFIG is user supplied
+- Documentation/ABI: Mention retbleed vulnerability info file for sysfs
+- arm64: Fix match_list for erratum 1286807 on Arm Cortex-A76
+- md: call __md_stop_writes in md_stop
+- Revert "md-raid: destroy the bitmap after destroying the thread"
+- mm/hugetlb: fix hugetlb not supporting softdirty tracking
+- xen/privcmd: fix error exit of privcmd_ioctl_dm_op()
+- ACPI: processor: Remove freq Qos request for all CPUs
+- s390: fix double free of GS and RI CBs on fork() failure
+- asm-generic: sections: refactor memory_intersects
+- loop: Check for overflow while configuring loop
+- x86/bugs: Add "unknown" reporting for MMIO Stale Data
+- perf/x86/lbr: Enable the branch type for the Arch LBR by default
+- btrfs: check if root is readonly while setting security xattr
+- btrfs: add info when mount fails due to stale replace target
+- btrfs: replace: drop assert for suspended replace
+- btrfs: fix silent failure when deleting root reference
+- ionic: fix up issues with handling EAGAIN on FW cmds
+- rxrpc: Fix locking in rxrpc's sendmsg
+- ixgbe: stop resetting SYSTIME in ixgbe_ptp_start_cyclecounter
+- net: Fix a data-race around sysctl_somaxconn.
+- net: Fix data-races around sysctl_devconf_inherit_init_net.
+- net: Fix data-races around sysctl_fb_tunnels_only_for_init_net.
+- net: Fix a data-race around netdev_budget_usecs.
+- net: Fix a data-race around netdev_budget.
+- net: Fix a data-race around sysctl_net_busy_read.
+- net: Fix a data-race around sysctl_net_busy_poll.
+- net: Fix a data-race around sysctl_tstamp_allow_data.
+- net: Fix data-races around sysctl_optmem_max.
+- bpf: Folding omem_charge() into sk_storage_charge()
+- ratelimit: Fix data-races in ___ratelimit().
+- net: Fix data-races around netdev_tstamp_prequeue.
+- net: Fix data-races around netdev_max_backlog.
+- net: Fix data-races around weight_p and dev_weight_[rt]x_bias.
+- net: Fix data-races around sysctl_[rw]mem_(max|default).
+- net: Fix data-races around sysctl_[rw]mem(_offset)?.
+- tcp: tweak len/truesize ratio for coalesce candidates
+- netfilter: nf_tables: disallow jump to implicit chain from set element
+- netfilter: nf_tables: upfront validation of data via nft_data_init()
+- netfilter: bitwise: improve error goto labels
+- netfilter: nft_cmp: optimize comparison for 16-bytes
+- netfilter: nf_tables: consolidate rule verdict trace call
+- netfilter: nftables: remove redundant assignment of variable err
+- netfilter: nft_tunnel: restrict it to netdev family
+- netfilter: nft_osf: restrict osf to ipv4, ipv6 and inet families
+- netfilter: nf_tables: do not leave chain stats enabled on error
+- netfilter: nft_payload: do not truncate csum_offset and csum_type
+- netfilter: nft_payload: report ERANGE for too long offset and length
+- bnxt_en: fix NQ resource accounting during vf creation on 57500 chips
+- netfilter: ebtables: reject blobs that don't provide all entry points
+- net: ipvtap - add __init/__exit annotations to module init/exit funcs
+- bonding: 802.3ad: fix no transmission of LACPDUs
+- net: moxa: get rid of asymmetry in DMA mapping/unmapping
+- net: ipa: don't assume SMEM is page-aligned
+- net/mlx5e: Properly disable vlan strip on non-UL reps
+- ice: xsk: prohibit usage of non-balanced queue id
+- ice: xsk: Force rings to be sized to power of 2
+- nfc: pn533: Fix use-after-free bugs caused by pn532_cmd_timeout
+- rose: check NULL rose_loopback_neigh->loopback
+- mm/smaps: don't access young/dirty bit if pte unpresent
+- mm/huge_memory.c: use helper function migration_entry_to_page()
+- SUNRPC: RPC level errors should set task->tk_rpc_status
+- NFSv4.2 fix problems with __nfs42_ssc_open
+- NFS: Don't allocate nfs_fattr on the stack in __nfs42_ssc_open()
+- xfrm: clone missing x->lastused in xfrm_do_migrate
+- xfrm: fix refcount leak in __xfrm_policy_check()
+- kernel/sched: Remove dl_boosted flag comment
+- vfs: make sync_filesystem return errors from ->sync_fs
+- fs: remove __sync_filesystem
+- pinctrl: amd: Don't save/restore interrupt status and wake status bits
+- kernel/sys_ni: add compat entry for fadvise64_64
+- parisc: Fix exception handler for fldw and fstw instructions
+- audit: fix potential double free on error path from fsnotify_add_inode_mark
+- kbuild: dummy-tools: avoid tmpdir leak in dummy gcc
+- iommu: bugfix for missing symbols when build arm_smmu_v3.ko
+- !308 Enable CONFIG_UPROBES_SUPPORT_PC_ALTER by default
+- uprobe: enable CONFIG_UPROBES_SUPPORT_PC_ALTER by default
+- tc-testing: gitignore, delete plugins directory
+- sw64: fix kernel_stack_pointer
+- sw64: add support for KPROBES_ON_FTRACE
+- sw64: optimize single float load store instruction emulation
+- sw64: fix VM_DATA_DEFAULT_FLAGS
+- sw64: kvm: support debugging guest kernel via gdb
+- sw64: add basic NVDIMM support
+- sw64: fix argument type of __sw64_vcpu_run()
+- sw64: ftrace: fix function graph tracing support
+- sw64: generate call instruction with disp 0
+- sw64: ftrace: fix ARCH_SUPPORTS_FTRACE_OPS support
+- sw64: mark sched_clock() as notrace
+- sw64: fix memmap_range_valid()
+- sw64: bpf: improve BPF_CALL address check
+- sw64: add basic livepatch support on SW64
+- sw64: acpi: fix compilation dependency when CONFIG_PCI=n
+- sw64: fix recordmcount and dynamic ftrace
+- sw64: fix topology setup
+- sw64: kvm: fix guest longtime offset of VCPU
+- sw64: improve stack trace
+- sw64: remove unused boot syncronization code
+- Revert "sw64: clean up unused single step support in kernel"
+- sw64: fix compile error when CONFIG_DEBUG_PER_CPU_MAPS=y
+- sw64: always restore MATCH configuration after scheduling
+- sw64: track last vpn in struct cpuinfo_sw64
+- sw64: make struct cpuinfo_sw64 cache line aligned
+- sw64: kvm: add qemu fw_cfg device to chip_vt.dts
+- sw64: kvm: add qemu fw_cfg device support in sysfs
+- openEuler: add openEuler/MAINTAINERS for Maintainers & Committers
+
 * Thu Dec 01 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-132.0.0.73
 - !302 sched: programmable: fix build error of bpf_topology
 - sched: programmable: Fix build error for nr_cpus_ids
