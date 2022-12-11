@@ -12,7 +12,7 @@
 %global upstream_sublevel   0
 %global devel_release       136
 %global maintenance_release .0.0
-%global pkg_release         .74
+%global pkg_release         .75
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -51,6 +51,9 @@ Source0: kernel.tar.gz
 Source10: sign-modules
 Source11: x509.genkey
 Source12: extra_certificates
+# pubring.gpg contains all openEuler RPM PGP certificates:
+# 1. openeuler <openeuler@compass-ci.com>
+# 2. private OBS <defaultkey@localobs>
 Source13: pubring.gpg
 
 %if 0%{?with_kabichk}
@@ -883,6 +886,9 @@ fi
 %endif
 
 %changelog
+* Mon Dec 12 2022 luhuaxin <luhuaxin1@huawei.com> - 5.10.0-136.0.0.75
+- Add new RPM PGP certificate for openEuler-22.03-SP1
+
 * Fri Dec 09 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-136.0.0.74
 - sched: disable sched_autogroup by default
 - Revert "add barriers to buffer_uptodate and set_buffer_uptodate"
