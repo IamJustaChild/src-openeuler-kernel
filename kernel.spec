@@ -12,7 +12,7 @@
 %global upstream_sublevel   0
 %global devel_release       136
 %global maintenance_release .1.0
-%global pkg_release         .76
+%global pkg_release         .77
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -84,6 +84,7 @@ BuildRequires: xmlto, asciidoc
 BuildRequires: openssl-devel openssl
 BuildRequires: hmaccalc
 BuildRequires: ncurses-devel
+BuildRequires: git 
 #BuildRequires: pesign >= 0.109-4
 BuildRequires: elfutils-libelf-devel
 BuildRequires: rpm >= 4.14.2
@@ -355,9 +356,17 @@ make ARCH=%{Arch} modules %{?_smp_mflags}
 
 ## make tools
 %if %{with_perf}
+
+# make libopencsd
+git clone https://github.com/Linaro/OpenCSD.git
+cd OpenCSD/decoder/build/linux
+make
+make install LIB_PATH=lib64
+cd -
+
 # perf
 %global perf_make \
-    make EXTRA_CFLAGS="-Wl,-z,now -g -Wall -fstack-protector-strong -fPIC" EXTRA_PERFLIBS="-fpie -pie" %{?_smp_mflags} -s V=1 WERROR=0 NO_LIBUNWIND=1 HAVE_CPLUS_DEMANGLE=1 NO_GTK2=1 NO_LIBNUMA=1 NO_STRLCPY=1 prefix=%{_prefix}
+    make EXTRA_CFLAGS="-Wl,-z,now -g -Wall -fstack-protector-strong -fPIC" EXTRA_PERFLIBS="-fpie -pie" %{?_smp_mflags} -s V=1 WERROR=0 NO_LIBUNWIND=1 HAVE_CPLUS_DEMANGLE=1 NO_GTK2=1 NO_LIBNUMA=1 NO_STRLCPY=1 CORESIGHT=1 prefix=%{_prefix}
 %if 0%{?with_python2}
 %global perf_python2 -C tools/perf PYTHON=%{__python2}
 %global perf_python3 -C tools/python3-perf PYTHON=%{__python3}
@@ -886,6 +895,9 @@ fi
 %endif
 
 %changelog
+* Tue Dec 13 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-136.1.0.77
+- perf: add CoreSight trace component support
+
 * Mon Dec 12 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-136.1.0.76
 - coresight: trbe: Enable ACPI/Platform automatic module loading
 - arm64/trbe: Add initial MADT/SPE probing
