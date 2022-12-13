@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .0.0
-%global pkg_release         .75
+%global maintenance_release .1.0
+%global pkg_release         .76
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -886,6 +886,23 @@ fi
 %endif
 
 %changelog
+* Mon Dec 12 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-136.1.0.76
+- coresight: trbe: Enable ACPI/Platform automatic module loading
+- arm64/trbe: Add initial MADT/SPE probing
+- ACPI 6.5: MADT: add support for trace buffer extension in GICC
+- coresight: Return the pointer of @pdata when not "fwnode"
+- blk-mq: don't access request_wrapper if request is not allocated from block layer
+- blk-mq: fix kabi broken due to request_wrapper
+- ide-cd: don't clear rq_flags after blk_get_request
+- iommu: Fix error handling in probe_acpi_namespace_devices()
+- !322 [sync] PR-321: net: hns3: fix the HCLGE_OPC_WOL_CFG opcode id for wol and fix the incorrect way to obtain parameters.
+- !320 Some bugfix about rx packet,rx copybreak and phy link ksettings for the HNS3.
+- net: hns3: fix the HCLGE_OPC_WOL_CFG opcode id for wol
+- net: hns3: fix getting supported parameter from driver in hclge_set_wol
+- net: hns3: fix setting incorrect phy link ksettings for firmware in resetting process
+- net: hns3: fix return value check bug of rx copybreak
+- net: hns3: fix incorrect hw rss hash type of rx packet
+
 * Mon Dec 12 2022 luhuaxin <luhuaxin1@huawei.com> - 5.10.0-136.0.0.75
 - Add new RPM PGP certificate for openEuler-22.03-SP1
 
