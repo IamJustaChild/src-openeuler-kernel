@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .1.0
-%global pkg_release         .76
+%global maintenance_release .3.0
+%global pkg_release         .77
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -886,6 +886,101 @@ fi
 %endif
 
 %changelog
+* Tue Dec 13 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-136.3.0.77
+- !326 vdpa: Add the vdpa device management mechanism and optimize the iotlb
+- Revert "ipvlan: Modify the value of ipvlan modes"
+- net/af_packet: make sure to pull mac header
+- KVM: arm64: Fix {fp_asimd,sve}_exit_stat manipulation
+- dm thin: Fix ABBA deadlock between shrink_slab and dm_pool_abort_metadata
+- arm64: fix a concurrency issue in emulation_proc_handler()
+- vdpa/vp_vdpa: fix kfree a wrong pointer in vp_vdpa_remove
+- tools include UAPI: Sync linux/vhost.h with the kernel sources
+- tools include UAPI: Sync linux/vhost.h with the kernel sources
+- tools include UAPI: Sync linux/vhost.h with the kernel sources
+- vhost-vdpa: call vhost_vdpa_cleanup during the release
+- vhost: allow batching hint without size
+- vdpa_sim: set vringh notify callback
+- virtio_pci: struct virtio_pci_common_cfg add queue_reset
+- virtio_pci: struct virtio_pci_common_cfg add queue_notify_data
+- virtio: use virtio_reset_device() when possible
+- virtio: document virtio_reset_device
+- virtio: wrap config->reset calls
+- virtio_pci: introduce helper to get/set queue reset
+- virtio_pci: extract the logic of active vq for modern pci
+- vhost-vdpa: uAPI to suspend the device
+- vhost-vdpa: introduce SUSPEND backend feature bit
+- vdpa: Add suspend operation
+- vhost-vdpa: Call ida_simple_remove() when failed
+- vDPA: fix 'cast to restricted le16' warnings in vdpa.c
+- vDPA: !FEATURES_OK should not block querying device config space
+- vdpa: make get_vq_group and set_group_asid optional
+- vhost-vdpa: return -EFAULT on copy_to_user() failure
+- vdpa/vp_vdpa : add vdpa tool support in vp_vdpa
+- vhost-vdpa: support ASID based IOTLB API
+- vhost-vdpa: introduce uAPI to set group ASID
+- vhost-vdpa: uAPI to get virtqueue group id
+- vhost-vdpa: introduce uAPI to get the number of address spaces
+- vhost-vdpa: introduce uAPI to get the number of virtqueue groups
+- vhost-vdpa: introduce asid based IOTLB
+- vhost: support ASID in IOTLB API
+- vhost_iotlb: split out IOTLB initialization
+- vdpa: introduce config operations for associating ASID to a virtqueue group
+- vdpa: multiple address spaces support
+- vdpa: introduce virtqueue groups
+- vhost-vdpa: switch to use vhost-vdpa specific IOTLB
+- vhost-vdpa: passing iotlb to IOMMU mapping helpers
+- virtio-vdpa: don't set callback if virtio doesn't need it
+- vhost: move the backend feature bits to vhost_types.h
+- net/vdpa: Use readers/writers semaphore instead of cf_mutex
+- net/vdpa: Use readers/writers semaphore instead of vdpa_dev_mutex
+- vdpa: Add support for querying vendor statistics
+- vdpa: Fix error logic in vdpa_nl_cmd_dev_get_doit
+- vhost: handle error while adding split ranges to iotlb
+- vdpa: change the type of nvqs to u32
+- vhost: fix hung thread due to erroneous iotlb entries
+- vdpa: factor out vdpa_set_features_unlocked for vdpa internal use
+- vdpa: Protect vdpa reset with cf_mutex
+- vdpa: Avoid taking cf_mutex lock on get status
+- vdpa: Use BIT_ULL for bit operations
+- vdpa: Support reporting max device capabilities
+- vdpa: Add support for returning device configuration information
+- vdpa: Allow to configure max data virtqueues
+- vdpa: Read device configuration only if FEATURES_OK
+- vdpa: Sync calls set/get config/status with cf_mutex
+- vdpa: Provide interface to read driver features
+- vdpa: Mark vdpa_config_ops.get_vq_notification as optional
+- vdpa: Avoid duplicate call to vp_vdpa get_status
+- docs: document sysfs ABI for vDPA bus
+- vhost-vdpa: clean irqs before reseting vdpa device
+- vdpa: Enable user to set mac and mtu of vdpa device
+- vdpa: Use kernel coding style for structure comments
+- vdpa: Introduce query of device config layout
+- vdpa: Introduce and use vdpa device get, set config helpers
+- vdpa: add new attribute VDPA_ATTR_DEV_MIN_VQ_SIZE
+- virtio_vdpa: setup correct vq size with callbacks get_vq_num_{max,min}
+- vdpa: min vq num of vdpa device cannot be greater than max vq num
+- vdpa: add new callback get_vq_num_min in vdpa_config_ops
+- vhost_vdpa: unset vq irq before freeing irq
+- vdpa: potential uninitialized return in vhost_vdpa_va_map()
+- vhost-iotlb: Add an opaque pointer for vhost IOTLB
+- vdpa: Support transferring virtual addressing during DMA mapping
+- vdpa: factor out vhost_vdpa_pa_map() and vhost_vdpa_pa_unmap()
+- vdpa: Add an opaque pointer for vdpa_config_ops.dma_map()
+- vhost-vdpa: Handle the failure of vdpa_reset()
+- vdpa: Fix some coding style issues
+- vdpa: Make use of PFN_PHYS/PFN_UP/PFN_DOWN helper macro
+- vdpa: Add documentation for vdpa_alloc_device() macro
+- virtio/vdpa: clear the virtqueue state during probe
+- vp_vdpa: correct the return value when fail to map notification
+- virito_pci libray: hide vp_modern_map_capability()
+- vhost/vdpa: Remove the restriction that only supports virtio-net devices
+- virtio_pci_modern: hide vp_modern_get_queue_notify_off()
+- vdpa: Follow kdoc comment style
+- vdpa: Follow kdoc comment style
+- virtio_vdpa: don't warn when fail to disable vq
+- vdpa: Use simpler version of ida allocation
+- vhost_vdpa: switch to vmemdup_user()
+
 * Mon Dec 12 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-136.1.0.76
 - coresight: trbe: Enable ACPI/Platform automatic module loading
 - arm64/trbe: Add initial MADT/SPE probing
