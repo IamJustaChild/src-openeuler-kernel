@@ -16,7 +16,7 @@
 
 %define modsign_cmd %{SOURCE10}
 
-%global Arch $(echo %{_host_cpu} | sed -e s/i.86/x86/ -e s/x86_64/x86/ -e s/aarch64.*/arm64/ -e s/riscv.*/riscv/)
+%global Arch $(echo %{_host_cpu} | sed -e s/i.86/x86/ -e s/x86_64/x86/ -e s/aarch64.*/arm64/ -e s/riscv.*/riscv/ -e s/loongarch64/loongarch/)
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 %global debuginfodir /usr/lib/debug
@@ -134,7 +134,7 @@ Provides: kernel-uname-r = %{KernelVer} kernel=%{KernelVer}
 
 Requires: dracut >= 001-7 grubby >= 8.28-2 initscripts >= 8.11.1-1 linux-firmware >= 20100806-2 module-init-tools >= 3.16-2
 
-ExclusiveArch: noarch aarch64 i686 x86_64 riscv64
+ExclusiveArch: noarch aarch64 i686 x86_64 riscv64 loongarch64
 ExclusiveOS: Linux
 
 %if %{with_perf}
@@ -382,7 +382,21 @@ sed -i arch/arm64/configs/openeuler_defconfig -e 's/^CONFIG_ARM64_VA_BITS_.*/CON
 
 %global make %{__make} %{?clang_make_opts} HOSTCFLAGS="%{?build_cflags}" HOSTLDFLAGS="%{?build_ldflags}"
 
+%ifarch loongarch64
+
+%if 0%{with_signmodules}
+echo "CONFIG_MODULE_SIG=y" >>arch/loongarch/configs/loongson3_defconfig
+%endif
+
+%if 0%{with_debuginfo}
+echo "CONFIG_DEBUG_INFO=y" >>arch/loongarch/configs/loongson3_defconfig
+%endif
+
+make ARCH=%{Arch} loongson3_defconfig
+
+%else
 %{make} ARCH=%{Arch} openeuler_defconfig
+%endif
 
 %if %{with clang_lto}
 scripts/config -e LTO_CLANG_FULL
@@ -498,7 +512,12 @@ cd linux-%{KernelVer}
 mkdir -p $RPM_BUILD_ROOT/boot
 dd if=/dev/zero of=$RPM_BUILD_ROOT/boot/initramfs-%{KernelVer}.img bs=1M count=20
 
+%ifarch loongarch64
+strip -s vmlinux -o vmlinux.elf
+install -m 755 vmlinux.elf $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}
+%else
 install -m 755 $(make -s image_name) $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}
+%endif
 
 %if 0%{?openEuler_sign_rsa}
     echo "start sign"
@@ -802,6 +821,12 @@ fi
 if [ -d /lib/modules/%{KernelVer} ] && [ "`ls -A  /lib/modules/%{KernelVer}`" = "" ]; then
     rm -rf /lib/modules/%{KernelVer}
 fi
+if [ `uname -i` == "loongarch64" ];then
+	[ -f /etc/grub2.cfg ] && GRUB_CFG=`readlink -f /etc/grub2.cfg`
+	[ "x${GRUB_CFG}" == "x" ] && [ -f /etc/grub2-efi.cfg ] && GRUB_CFG=`readlink -f /etc/grub2-efi.cfg`
+	[ "x${GRUB_CFG}" == "x" ] && [ -f /boot/efi/EFI/openEuler/grub.cfg ] && GRUB_CFG=/boot/efi/EFI/openEuler/grub.cfg
+	[ "x${GRUB_CFG}" != "x" ] && grub2-mkconfig -o ${GRUB_CFG}
+fi
 
 %posttrans
 %{_sbindir}/new-kernel-pkg --package kernel --mkinitrd --dracut --depmod --update %{KernelVer} || exit $?
@@ -809,6 +834,13 @@ fi
 if [ `uname -i` == "aarch64" ] &&
         [ -f /boot/EFI/grub2/grub.cfg ]; then
 	/usr/bin/sh %{_sbindir}/mkgrub-menu-%{version}-%{devel_release}%{?maintenance_release}%{?pkg_release}.sh %{version}-%{release}.aarch64  /boot/EFI/grub2/grub.cfg  update
+fi
+if [ `uname -i` == "loongarch64" ];then
+	[ -f /etc/grub2.cfg ] && GRUB_CFG=`readlink -f /etc/grub2.cfg`
+	[ "x${GRUB_CFG}" == "x" ] && [ -f /etc/grub2-efi.cfg ] && GRUB_CFG=`readlink -f /etc/grub2-efi.cfg`
+	[ "x${GRUB_CFG}" == "x" ] && [ -f /boot/efi/EFI/openEuler/grub.cfg ] && GRUB_CFG=/boot/efi/EFI/openEuler/grub.cfg
+	[ "x${GRUB_CFG}" != "x" ] && grub2-mkconfig -o ${GRUB_CFG}
+	grubby --set-default=/boot/vmlinuz-%{KernelVer}
 fi
 if [ -x %{_sbindir}/weak-modules ]
 then
