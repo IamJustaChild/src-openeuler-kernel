@@ -10,9 +10,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       132
-%global maintenance_release .0.0
-%global pkg_release         .56
+%global devel_release       136
+%global maintenance_release .3.0
+%global pkg_release         .57
 %global rt_release          .rt62
 
 %define with_debuginfo 1
@@ -886,7 +886,10 @@ fi
 %endif
 
 %changelog
-* Mon Dec  28 2022 kylin-liyulei <liyulei@kylinos.cn> - 5.10.0-132.0.0.56
+* Mon Dec  14 2022 kylin-liyulei <liyulei@kylinos.cn> - 5.10.0-136.3.0.57
+- add kernel-rt.spec and rt patches
+
+* Mon Dec  08 2022 kylin-liyulei <liyulei@kylinos.cn> - 5.10.0-132.0.0.56
 - add kernel-rt.spec and rt patches
 
 * Mon Nov  28 2022 kylin-liyulei <liyulei@kylinos.cn> - 5.10.0-129.0.0.55
