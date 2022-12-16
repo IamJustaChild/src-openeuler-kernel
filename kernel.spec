@@ -15,8 +15,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .3.0
-%global pkg_release         .77
+%global maintenance_release .4.0
+%global pkg_release         .78
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -921,6 +921,11 @@ fi
 %endif
 
 %changelog
+* Thu Dec 15 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-136.4.0.78
+- RDMA/hns: fix the error of RoCE VF based on RoCE Bonding PF
+- RDMA/hns: Fix AH attr queried by query_qp
+- RDMA/hns: Kernel notify usr space to stop ring db
+
 * Tue Dec 13 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-136.3.0.77
 - !326 vdpa: Add the vdpa device management mechanism and optimize the iotlb
 - Revert "ipvlan: Modify the value of ipvlan modes"
