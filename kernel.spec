@@ -15,8 +15,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .4.0
-%global pkg_release         .79
+%global maintenance_release .8.0
+%global pkg_release         .80
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -928,6 +928,28 @@ fi
 %endif
 
 %changelog
+* Mon Dec 19 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-136.8.0.80
+- Bluetooth: L2CAP: fix use-after-free in l2cap_conn_del()
+- Bluetooth: L2CAP: Fix build errors in some archs
+- cpuidle: add cpuidle-haltpoll driver module parameter
+- clk: imx: Add check for kcalloc
+- x86/cpu/hygon: Set __max_die_per_package on Hygon
+- mm/dynamic_hugetlb: fix clear PagePool without lock protection
+- mm/dynamic_hugetlb: fix list corruption in hpool_merge_page()
+- mm/swapfile: use new way to fix broken kabi in swap_info_struct
+- block: always align request_wrapper to cacheline
+- block: fix crash on cmpxchg for request_wrapper
+- efi/libstub: Fix build error in efi-stub.c for riscv
+- mm: init: Fix build waring for ascend enable features
+- mtd: physmap-core: Fix NULL pointer dereferencing in of_select_probe_type()
+- ACPI: APEI: Fix _EINJ vs EFI_MEMORY_SP
+- xen/netback: fix build warning
+- xen/netback: Ensure protocol headers don't fall in the non-linear area
+- block: only use cmpxchg64 in 64bit platform
+- proc: proc_skip_spaces() shouldn't think it is working on C strings
+- proc: avoid integer type confusion in get_proc_long
+- sched/qos: Don't unthrottle cfs_rq when cfs_rq is throttled by qos
+
 * Sat Dec 18 2022 luhuaxin <luhuaxin1@huawei.com> - 5.10.0-136.4.0.79
 - Process PGP certs before kernel building
 
