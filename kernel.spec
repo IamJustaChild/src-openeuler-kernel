@@ -16,7 +16,7 @@
 %global upstream_sublevel   0
 %global devel_release       136
 %global maintenance_release .4.0
-%global pkg_release         .78
+%global pkg_release         .79
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -55,10 +55,12 @@ Source0: kernel.tar.gz
 Source10: sign-modules
 Source11: x509.genkey
 Source12: extra_certificates
-# pubring.gpg contains all openEuler RPM PGP certificates:
+# openEuler RPM PGP certificates:
 # 1. openeuler <openeuler@compass-ci.com>
+Source13: RPM-GPG-KEY-openEuler-22.03-SP1
 # 2. private OBS <defaultkey@localobs>
-Source13: pubring.gpg
+Source14: RPM-GPG-KEY-openEuler-22.03
+Source15: process_pgp_certs.sh
 
 %if 0%{?with_kabichk}
 Source18: check-kabi
@@ -271,7 +273,12 @@ tar -xjf %{SOURCE9998}
 mv kernel linux-%{KernelVer}
 cd linux-%{KernelVer}
 
-cp %{SOURCE13} certs
+# process PGP certs
+cp %{SOURCE13} .
+cp %{SOURCE14} .
+cp %{SOURCE15} .
+sh %{SOURCE15}
+cp pubring.gpg certs
 
 %if 0%{?with_patch}
 cp %{SOURCE9000} .
@@ -921,6 +928,9 @@ fi
 %endif
 
 %changelog
+* Sat Dec 18 2022 luhuaxin <luhuaxin1@huawei.com> - 5.10.0-136.4.0.79
+- Process PGP certs before kernel building
+
 * Thu Dec 15 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-136.4.0.78
 - RDMA/hns: fix the error of RoCE VF based on RoCE Bonding PF
 - RDMA/hns: Fix AH attr queried by query_qp
