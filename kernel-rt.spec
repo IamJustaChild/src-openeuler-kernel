@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .3.0
-%global pkg_release         .57
+%global maintenance_release .8.0
+%global pkg_release         .58
 %global rt_release          .rt62
 
 %define with_debuginfo 1
@@ -52,7 +52,12 @@ Source0: kernel.tar.gz
 Source10: sign-modules
 Source11: x509.genkey
 Source12: extra_certificates
-Source13: pubring.gpg
+# openEuler RPM PGP certificates:
+# 1. openeuler <openeuler@compass-ci.com>
+Source13: RPM-GPG-KEY-openEuler-22.03-SP1
+# 2. private OBS <defaultkey@localobs>
+Source14: RPM-GPG-KEY-openEuler-22.03
+Source15: process_pgp_certs.sh
 
 %if 0%{?with_kabichk}
 Source18: check-kabi
@@ -91,6 +96,7 @@ BuildRequires: rpm >= 4.14.2
 %if 0%{?with_python2}
 BuildRequires: python-devel
 %endif
+
 
 BuildRequires: elfutils-devel zlib-devel binutils-devel newt-devel perl(ExtUtils::Embed) bison
 BuildRequires: audit-libs-devel
@@ -267,7 +273,12 @@ tar -xjf %{SOURCE9998}
 mv kernel linux-%{KernelVer}
 cd linux-%{KernelVer}
 
-cp %{SOURCE13} certs
+# process PGP certs
+cp %{SOURCE13} .
+cp %{SOURCE14} .
+cp %{SOURCE15} .
+sh %{SOURCE15}
+cp pubring.gpg certs
 
 %if 0%{?with_patch}
 cp %{SOURCE9000} .
@@ -886,10 +897,13 @@ fi
 %endif
 
 %changelog
-* Mon Dec  14 2022 kylin-liyulei <liyulei@kylinos.cn> - 5.10.0-136.3.0.57
+* Wed Dec  21 2022 kylin-liyulei <zhangyu4@kylinos.cn> - 5.10.0-136.8.0.58
 - add kernel-rt.spec and rt patches
 
-* Mon Dec  08 2022 kylin-liyulei <liyulei@kylinos.cn> - 5.10.0-132.0.0.56
+* Wed Dec  14 2022 kylin-liyulei <liyulei@kylinos.cn> - 5.10.0-136.3.0.57
+- add kernel-rt.spec and rt patches
+
+* Thu Dec  08 2022 kylin-liyulei <liyulei@kylinos.cn> - 5.10.0-132.0.0.56
 - add kernel-rt.spec and rt patches
 
 * Mon Nov  28 2022 kylin-liyulei <liyulei@kylinos.cn> - 5.10.0-129.0.0.55
@@ -17382,7 +17396,7 @@ fi
 - Revert "dm raid: fix discard limits for raid1 and raid10"
 - Revert "md: change mddev 'chunk_sectors' from int to unsigned"
 
-* Wed Dec 16 2020 Xie XiuQi <xiexiuqi@huawei.com> - 5.10.0-0.0.0.7
+*  Dec 16 2020 Xie XiuQi <xiexiuqi@huawei.com> - 5.10.0-0.0.0.7
 - rebase on top of v5.10
 
 * Wed Dec 09 2020 Xie XiuQi <xiexiuqi@huawei.com> - 5.10.0-rc7.0.0.6
