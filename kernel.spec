@@ -16,7 +16,7 @@
 %global upstream_sublevel   0
 %global devel_release       136
 %global maintenance_release .8.0
-%global pkg_release         .80
+%global pkg_release         .81
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -928,6 +928,8 @@ fi
 %endif
 
 %changelog
+* Fri Dec 23 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-136.8.0.81
+
 * Mon Dec 19 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-136.8.0.80
 - Bluetooth: L2CAP: fix use-after-free in l2cap_conn_del()
 - Bluetooth: L2CAP: Fix build errors in some archs
