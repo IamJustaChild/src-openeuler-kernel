@@ -15,8 +15,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .10.0
-%global pkg_release         .82
+%global maintenance_release .12.0
+%global pkg_release         .86
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -928,6 +928,9 @@ fi
 %endif
 
 %changelog
+* Mon Dec 26 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-136.12.0.86
+- timekeeping: Adding a padding before timekeeper in tk_core
+
 * Fri Dec 23 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-136.10.0.82
 - scsi: iscsi: remove .unbind_conn from iscsi_transport
 - Revert "scsi: iscsi: fix kabi broken in struct iscsi_transport"
