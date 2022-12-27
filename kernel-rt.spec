@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .8.0
-%global pkg_release         .58
+%global maintenance_release .12.0
+%global pkg_release         .59
 %global rt_release          .rt62
 
 %define with_debuginfo 1
@@ -897,6 +897,9 @@ fi
 %endif
 
 %changelog
+* Wed Dec 27 2022 kylin-liyulei <zhangyu4@kylinos.cn> - 5.10.0-136.12.0.59
+- update Kernel-rt:preempt-RT to openEuler 5.10.0-136.12.0
+
 * Wed Dec 21 2022 kylin-liyulei <zhangyu4@kylinos.cn> - 5.10.0-136.8.0.58
 - update kernel-rt.spec and rt patches
 
