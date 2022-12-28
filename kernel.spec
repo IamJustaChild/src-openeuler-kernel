@@ -15,8 +15,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .12.0
-%global pkg_release         .86
+%global maintenance_release .12.2
+%global pkg_release         .88
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -928,6 +928,10 @@ fi
 %endif
 
 %changelog
+* Wed Dec 28 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-136.12.2.88
+- !333 Fix PASID use-after-free issue
+- mm: Fix PASID use-after-free issue
+
 * Mon Dec 26 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-136.12.0.86
 - timekeeping: Adding a padding before timekeeper in tk_core
 
