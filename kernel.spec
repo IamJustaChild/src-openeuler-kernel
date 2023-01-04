@@ -15,8 +15,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .12.2
-%global pkg_release         .88
+%global maintenance_release .13.2
+%global pkg_release         .89
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -928,6 +928,39 @@ fi
 %endif
 
 %changelog
+* Wed Jan 04 2023 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-136.13.2.89
+- media: mceusb: Use new usb_control_msg_*() routines
+- perf: hisi: Fix read sccl_id and ccl_id error in TSV200
+- mm: add cond_resched() in swapin_walk_pmd_entry()
+- misc: sgi-gru: fix use-after-free error in gru_set_context_option, gru_fault and gru_handle_user_call_os
+- livepatch: Fix compile error when CONFIG_LIVEPATCH_WO_FTRACE disabled
+- dm thin: Use last transaction's pmd->root when commit failed
+- zram: avoid race between zram_remove and disksize_store
+- zram: don't fail to remove zram during unloading module
+- blk-mq: fix kabi broken in struct bio
+- blk-mq: fix kabi broken in struct request
+- block, bfq: fix possible uaf for 'bfqq->bic'
+- block, bfq: fix null pointer dereference in bfq_bio_bfqg()
+- blk-mq: set default elevator as deadline in case of hctx shared tagset
+- ext2: replace bh_submit_read() helper with bh_read()
+- ufs: replace ll_rw_block()
+- udf: replace ll_rw_block()
+- reiserfs: replace ll_rw_block()
+- ocfs2: replace ll_rw_block()
+- ntfs3: replace ll_rw_block()
+- jbd2: replace ll_rw_block()
+- isofs: replace ll_rw_block()
+- gfs2: replace ll_rw_block()
+- fs/buffer: replace ll_rw_block()
+- fs/buffer: add some new buffer read helpers
+- wifi: wilc1000: validate length of IEEE80211_P2P_ATTR_CHANNEL_LIST attribute
+- xen/netback: don't call kfree_skb() with interrupts disabled
+- media: dvb-core: Fix UAF due to refcount races at releasing
+- wifi: wilc1000: validate pairwise and authentication suite offsets
+- wifi: wilc1000: validate number of channels
+- wifi: wilc1000: validate length of IEEE80211_P2P_ATTR_OPER_CHANNEL attribute
+- drm/amdkfd: Check for null pointer after calling kmemdup
+
 * Wed Dec 28 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-136.12.2.88
 - !333 Fix PASID use-after-free issue
 - mm: Fix PASID use-after-free issue
