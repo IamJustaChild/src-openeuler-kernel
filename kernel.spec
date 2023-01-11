@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2301.2.0
+%global hulkrelease 2301.3.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0184
+Release: %{hulkrelease}.0185
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,10 @@ fi
 %endif
 
 %changelog
+
+* Wed Jan 11 2023 Laibin Qiu <qiulaibin@huawei.com> - 4.19.90-2301.3.0.0185
+- arm64: Kconfig: default unset ARCH_LLC_128_LINE_SIZE
+- mm/sharepool: clean up ABI breakage
 
 * Tue Jan 10 2023 Laibin Qiu <qiulaibin@huawei.com> - 4.19.90-2301.2.0.0184
 - timekeeping: Avoiding false sharing in field access of tk_core
