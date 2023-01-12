@@ -3,8 +3,7 @@
 %define with_kabichk 0
 %define with_bpftool 0
 %else
-%define with_bpftool 1
-%define with_kabichk 1
+%define with_kabichk 0
 %endif
 
 %define modsign_cmd %{SOURCE10}
@@ -14,13 +13,13 @@
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 %global debuginfodir /usr/lib/debug
 
-%global upstream_version    5.10
+%global upstream_version    6.1
 %global upstream_sublevel   0
-%global devel_release       136
-%global maintenance_release .15.0
-%global pkg_release         .91
+%global devel_release       1
+%global maintenance_release .0.0
+%global pkg_release         .1
 
-%define with_debuginfo 1
+%define with_debuginfo 0
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
 %global _missing_build_ids_terminate_build 1
 %global _no_recompute_build_ids 1
@@ -81,6 +80,10 @@ Source9001: guards
 Source9002: series.conf
 Source9998: patches.tar.bz2
 %endif
+
+Patch0001: 0001-kconfig-Add-script-to-update-openeuler_defconfig.patch
+Patch0002: 0002-config-add-initial-openeuler_defconfig-for-arm64.patch
+Patch0003: 0003-config-add-initial-openeuler_defconfig-for-x86_64.patch
 
 #BuildRequires:
 BuildRequires: module-init-tools, patch >= 2.5.4, bash >= 2.03, tar
@@ -315,6 +318,10 @@ Applypatches()
 Applypatches series.conf %{_builddir}/kernel-%{version}/linux-%{KernelVer}
 %endif
 
+%patch0001 -p1
+%patch0002 -p1
+%patch0003 -p1
+
 touch .scmversion
 
 find . \( -name "*.orig" -o -name "*~" \) -exec rm -f {} \; >/dev/null
@@ -324,7 +331,7 @@ find . -name .gitignore -exec rm -f {} \; >/dev/null
     cp %{SOURCE11} certs/.
 %endif
 
-pathfix.py -pni "/usr/bin/python" tools/power/pm-graph/sleepgraph.py tools/power/pm-graph/bootgraph.py tools/perf/scripts/python/exported-sql-viewer.py
+# pathfix.py -pni "/usr/bin/python" tools/power/pm-graph/sleepgraph.py tools/power/pm-graph/bootgraph.py tools/perf/scripts/python/exported-sql-viewer.py
 
 %if 0%{?with_source}
 # Copy directory backup for kernel-source
@@ -566,7 +573,7 @@ popd
 
 # deal with header
 make ARCH=%{Arch} INSTALL_HDR_PATH=$RPM_BUILD_ROOT/usr KBUILD_SRC= headers_install
-make ARCH=%{Arch} INSTALL_HDR_PATH=$RPM_BUILD_ROOT/usr headers_check
+# make ARCH=%{Arch} INSTALL_HDR_PATH=$RPM_BUILD_ROOT/usr headers_check
 find $RPM_BUILD_ROOT/usr/include -name "\.*"  -exec rm -rf {} \;
 
 # aarch64 dtbs install
@@ -929,7 +936,7 @@ fi
 %{_mandir}/man8/bpftool-link.8.gz
 %{_mandir}/man8/bpftool-net.8.gz
 %{_mandir}/man8/bpftool-struct_ops.8.gz
-%{_mandir}/man7/bpf-helpers.7.gz
+#%{_mandir}/man7/bpf-helpers.7.gz
 %license linux-%{KernelVer}/COPYING
 %endif
 
