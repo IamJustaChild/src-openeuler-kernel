@@ -18,7 +18,7 @@
 %global upstream_sublevel   0
 %global devel_release       136
 %global maintenance_release .15.0
-%global pkg_release         .91
+%global pkg_release         .92
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -126,6 +126,7 @@ ExclusiveOS: Linux
 %if %{with_perf}
 BuildRequires: flex xz-devel libzstd-devel
 BuildRequires: java-devel
+BuildRequires: OpenCSD
 %endif
 
 BuildRequires: dwarves
@@ -389,7 +390,7 @@ make ARCH=%{Arch} modules %{?_smp_mflags}
 %if %{with_perf}
 # perf
 %global perf_make \
-    make EXTRA_CFLAGS="-Wl,-z,now -g -Wall -fstack-protector-strong -fPIC" EXTRA_PERFLIBS="-fpie -pie" %{?_smp_mflags} -s V=1 WERROR=0 NO_LIBUNWIND=1 HAVE_CPLUS_DEMANGLE=1 NO_GTK2=1 NO_LIBNUMA=1 NO_STRLCPY=1 prefix=%{_prefix}
+    make EXTRA_CFLAGS="-Wl,-z,now -g -Wall -fstack-protector-strong -fPIC" EXTRA_PERFLIBS="-fpie -pie" %{?_smp_mflags} -s V=1 WERROR=0 NO_LIBUNWIND=1 HAVE_CPLUS_DEMANGLE=1 NO_GTK2=1 NO_LIBNUMA=1 NO_STRLCPY=1 CORESIGHT=1 prefix=%{_prefix}
 %if 0%{?with_python2}
 %global perf_python2 -C tools/perf PYTHON=%{__python2}
 %global perf_python3 -C tools/python3-perf PYTHON=%{__python3}
@@ -942,6 +943,9 @@ fi
 %endif
 
 %changelog
+* Sat Jan 14 2023 Junhao He <hejunhao3@huawei.com> - 5.10.0-136.15.0.92
+- perf: add CoreSight trace component support
+
 * Wed Jan 11 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.15.0.91
 - !347 Backport CVEs and fs bugfixes
 - io_uring: kill goto error handling in io_sqpoll_wait_sq()
