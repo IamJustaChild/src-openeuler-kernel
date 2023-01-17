@@ -8,11 +8,11 @@
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 %global debuginfodir /usr/lib/debug
 
-%global upstream_version    6.1
-%global upstream_sublevel   6
+%global upstream_version    6.2
+%global upstream_sublevel   rc4
 %global devel_release       1
 %global maintenance_release .0.0
-%global pkg_release         .3
+%global pkg_release         .4
 
 %define with_debuginfo 0
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -882,6 +882,9 @@ fi
 %endif
 
 %changelog
+* Tue Jan 17 2023 Xie XiuQi <xiexiuqi@huawei.com> - 6.2.rc4-1.0.0.4
+- update to v6.2-rc4
+
 * Tue Jan 17 2023 Xie XiuQi <xiexiuqi@huawei.com> - 6.1.6-1.0.0.3
 - update to v6.1.6
 
