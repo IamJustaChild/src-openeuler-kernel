@@ -17,8 +17,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .15.0
-%global pkg_release         .91
+%global maintenance_release .16.0
+%global pkg_release         .92
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -942,6 +942,25 @@ fi
 %endif
 
 %changelog
+* Wed Jan 18 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.16.0.92
+- !358 Backport CVEs, bugfixes and other
+- binder: fix UAF of alloc->vma in race with munmap()
+- io_uring: add missing item types for splice request
+- xfs: fix overfilling of reserve pool
+- xfs: always succeed at setting the reserve pool size
+- xfs: remove infinite loop when reserving free block pool
+- xfs: use current->journal_info for detecting transaction recursion
+- fix kabi broken due to may_pollfree
+- io_uring: disable polling pollfree files
+- ksmbd: check nt_len to be at least CIFS_ENCPWD_SIZE in ksmbd_decode_ntlmssp_auth_blob
+- driver: char: delete svm.c
+- mm: fix unexpected changes to {failslab|fail_page_alloc}.attr
+- fs/ntfs3: Fix attr_punch_hole() null pointer derenference
+- tracing/osnoise: Do not unregister events twice
+- tracing/osnoise: Properly unhook events if start_per_cpu_kthreads() fails
+- !351 AMD: Fix cpu capabilities incorrect detection bug.
+- x86/cpufeatures: Fix cpu capabilities incorrect detection.
+
 * Wed Jan 11 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.15.0.91
 - !347 Backport CVEs and fs bugfixes
 - io_uring: kill goto error handling in io_sqpoll_wait_sq()
