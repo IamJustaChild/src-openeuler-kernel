@@ -15,8 +15,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       60
-%global maintenance_release .77.0
-%global pkg_release         .101
+%global maintenance_release .78.0
+%global pkg_release         .102
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -918,6 +918,8 @@ fi
 %endif
 
 %changelog
+* Wed Jan 18 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-60.78.0.102
+
 * Wed Jan 11 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-60.77.0.101
 - !348 Backport CVEs and fs bugfixes
 - io_uring: kill goto error handling in io_sqpoll_wait_sq()
