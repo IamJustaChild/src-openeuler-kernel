@@ -12,7 +12,7 @@
 %global upstream_sublevel   0
 %global devel_release       141
 %global maintenance_release .0.0
-%global pkg_release         .71
+%global pkg_release         .72
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -879,6 +879,8 @@ fi
 %endif
 
 %changelog
+* Thu Jan 19 2023 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-141.0.0.72
+
 * Thu Jan 19 2023 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-141.0.0.71
 
 * Thu Jan 19 2023 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-141.0.0.70
