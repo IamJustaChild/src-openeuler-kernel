@@ -10,9 +10,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       129
+%global devel_release       141
 %global maintenance_release .0.0
-%global pkg_release         .69
+%global pkg_release         .70
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -879,6 +879,8 @@ fi
 %endif
 
 %changelog
+* Thu Jan 19 2023 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-141.0.0.70
+
 * Sat Nov 26 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-129.0.0.69
 - !275 Intel Advanced Matrix Extensions (AMX) - KVM support
 - !227 Intel SPR: Enable Intel SPR features in default kernel config for OLK-5.10
