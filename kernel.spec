@@ -39,8 +39,7 @@
 %endif
 
 #default is enabled. You can disable it with --without option
-#%define with_perf    %{?_without_perf: 0} %{?!_without_perf: 1}
-%define with_perf 0
+%define with_perf    %{?_without_perf: 0} %{?!_without_perf: 1}
 
 Name:	 kernel%{?package64kb}
 Version: %{upstream_version}.%{upstream_sublevel}
@@ -119,6 +118,7 @@ ExclusiveOS: Linux
 %if %{with_perf}
 BuildRequires: flex xz-devel libzstd-devel
 BuildRequires: java-devel
+BuildRequires: libtraceevent-devel
 %endif
 
 BuildRequires: dwarves
@@ -360,7 +360,7 @@ make ARCH=%{Arch} modules %{?_smp_mflags}
 %if %{with_perf}
 # perf
 %global perf_make \
-    make EXTRA_CFLAGS="-Wl,-z,now -g -Wall -fstack-protector-strong -fPIC" EXTRA_PERFLIBS="-fpie -pie" %{?_smp_mflags} -s V=1 WERROR=0 NO_LIBUNWIND=1 HAVE_CPLUS_DEMANGLE=1 NO_GTK2=1 NO_LIBNUMA=1 NO_STRLCPY=1 prefix=%{_prefix}
+    make EXTRA_CFLAGS="-Wl,-z,now -g -Wall -fstack-protector-strong -fPIC" EXTRA_PERFLIBS="-fpie -pie" %{?_smp_mflags} -s V=1 WERROR=0 NO_LIBUNWIND=1 HAVE_CPLUS_DEMANGLE=1 NO_GTK2=1 NO_LIBNUMA=1 NO_STRLCPY=1 LIBTRACEEVENT_DYNAMIC=1 prefix=%{_prefix}
 %if 0%{?with_python2}
 %global perf_python2 -C tools/perf PYTHON=%{__python2}
 %global perf_python3 -C tools/python3-perf PYTHON=%{__python3}
@@ -625,13 +625,14 @@ popd
 %if %{with_perf}
 # perf
 # perf tool binary and supporting scripts/binaries
-# %if 0%{?with_python2}
-# %{perf_make} %{perf_python2} DESTDIR=%{buildroot} lib=%{_lib} install-bin install-traceevent-plugins
-# %else
-# %{perf_make} %{perf_python3} DESTDIR=%{buildroot} lib=%{_lib} install-bin install-traceevent-plugins
-# %endif
+%if 0%{?with_python2}
+%{perf_make} %{perf_python2} DESTDIR=%{buildroot} lib=%{_lib} install-bin
+%else
+%{perf_make} %{perf_python3} DESTDIR=%{buildroot} lib=%{_lib} install-bin
+%endif
 # remove the 'trace' symlink.
-#rm -f %{buildroot}%{_bindir}/trace
+rm -f %{buildroot}%{_bindir}/trace
+rm -f %{buildroot}%{_bindir}/traceevent
 
 # remove examples
 rm -rf %{buildroot}/usr/lib/perf/examples
@@ -647,7 +648,6 @@ rm -rf %{buildroot}/usr/lib/perf/include/bpf/
 # perf man pages (note: implicit rpm magic compresses them later)
 install -d %{buildroot}/%{_mandir}/man1
 install -pm0644 tools/perf/Documentation/*.1 %{buildroot}/%{_mandir}/man1/
-popd
 %endif
 
 # bpftool
