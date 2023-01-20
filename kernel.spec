@@ -39,7 +39,8 @@
 %endif
 
 #default is enabled. You can disable it with --without option
-%define with_perf    %{?_without_perf: 0} %{?!_without_perf: 1}
+#%define with_perf    %{?_without_perf: 0} %{?!_without_perf: 1}
+%define with_perf 0
 
 Name:	 kernel%{?package64kb}
 Version: %{upstream_version}.%{upstream_sublevel}
@@ -624,13 +625,13 @@ popd
 %if %{with_perf}
 # perf
 # perf tool binary and supporting scripts/binaries
-%if 0%{?with_python2}
-%{perf_make} %{perf_python2} DESTDIR=%{buildroot} lib=%{_lib} install-bin install-traceevent-plugins
-%else
-%{perf_make} %{perf_python3} DESTDIR=%{buildroot} lib=%{_lib} install-bin install-traceevent-plugins
-%endif
+# %if 0%{?with_python2}
+# %{perf_make} %{perf_python2} DESTDIR=%{buildroot} lib=%{_lib} install-bin install-traceevent-plugins
+# %else
+# %{perf_make} %{perf_python3} DESTDIR=%{buildroot} lib=%{_lib} install-bin install-traceevent-plugins
+# %endif
 # remove the 'trace' symlink.
-rm -f %{buildroot}%{_bindir}/trace
+#rm -f %{buildroot}%{_bindir}/trace
 
 # remove examples
 rm -rf %{buildroot}/usr/lib/perf/examples
@@ -799,8 +800,8 @@ fi
 %files -n perf
 %{_bindir}/perf
 %{_libdir}/libperf-jvmti.so
-%dir %{_libdir}/traceevent
-%{_libdir}/traceevent/plugins/
+# %dir %{_libdir}/traceevent
+# %{_libdir}/traceevent/plugins/
 %{_libexecdir}/perf-core
 %{_datadir}/perf-core/
 %{_mandir}/man[1-8]/perf*
