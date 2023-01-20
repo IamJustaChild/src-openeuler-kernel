@@ -646,8 +646,8 @@ rm -rf %{buildroot}/usr/lib/perf/include/bpf/
 
 # perf man pages (note: implicit rpm magic compresses them later)
 install -d %{buildroot}/%{_mandir}/man1
-install -pm0644 tools/kvm/kvm_stat/kvm_stat.1 %{buildroot}/%{_mandir}/man1/
 install -pm0644 tools/perf/Documentation/*.1 %{buildroot}/%{_mandir}/man1/
+popd
 %endif
 
 # bpftool
@@ -699,6 +699,7 @@ popd
 # kvm
 pushd tools/kvm/kvm_stat
 make INSTALL_ROOT=%{buildroot} install-tools
+make INSTALL_ROOT=%{buildroot} install-man
 popd
 
 %define __spec_install_post\
