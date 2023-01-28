@@ -9,10 +9,10 @@
 %global debuginfodir /usr/lib/debug
 
 %global upstream_version    6.2
-%global upstream_sublevel   rc4
-%global devel_release       1
-%global maintenance_release .0.0
-%global pkg_release         .4
+%global upstream_sublevel   rc5
+#%global devel_release       1
+#%global maintenance_release .0.0
+%global pkg_release         4
 
 %define with_debuginfo 0
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -41,7 +41,7 @@
 #default is enabled. You can disable it with --without option
 %define with_perf    %{?_without_perf: 0} %{?!_without_perf: 1}
 
-Name:	 kernel%{?package64kb}
+Name:	 kernel-ml%{?package64kb}
 Version: %{upstream_version}.%{upstream_sublevel}
 Release: %{devel_release}%{?maintenance_release}%{?pkg_release}
 Summary: Linux Kernel
