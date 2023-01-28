@@ -41,7 +41,7 @@
 #default is enabled. You can disable it with --without option
 %define with_perf    %{?_without_perf: 0} %{?!_without_perf: 1}
 
-Name:	 kernel%{?package64kb}
+Name:	 kernel-lts%{?package64kb}
 Version: %{upstream_version}.%{upstream_sublevel}
 Release: %{devel_release}%{?maintenance_release}%{?pkg_release}
 Summary: Linux Kernel
