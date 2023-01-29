@@ -9,10 +9,10 @@
 %global debuginfodir /usr/lib/debug
 
 %global upstream_version    6.1
-%global upstream_sublevel   6
+%global upstream_sublevel   8
 %global devel_release       1
 %global maintenance_release .0.0
-%global pkg_release         .3
+%global pkg_release         .5
 
 %define with_debuginfo 0
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -41,13 +41,13 @@
 #default is enabled. You can disable it with --without option
 %define with_perf    %{?_without_perf: 0} %{?!_without_perf: 1}
 
-Name:	 kernel%{?package64kb}
+Name:	 kernel-lts%{?package64kb}
 Version: %{upstream_version}.%{upstream_sublevel}
 Release: %{devel_release}%{?maintenance_release}%{?pkg_release}
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
-Source0: kernel.tar.gz
+Source0: kernel-%{upstream_version}.tar.gz
 Source10: sign-modules
 Source11: x509.genkey
 Source12: extra_certificates
@@ -264,7 +264,7 @@ package or when debugging this package.\
 tar -xjf %{SOURCE9998}
 %endif
 
-mv kernel linux-%{KernelVer}
+mv kernel-6.1 linux-%{KernelVer}
 cd linux-%{KernelVer}
 
 cp %{SOURCE13} certs
@@ -882,6 +882,12 @@ fi
 %endif
 
 %changelog
+* Sat Jan 28 2023 Xie XiuQi <xiexiuqi@huawei.com> - 6.1.6-1.0.0.5
+- update to v6.1.8
+
+* Fri Jan 20 2023 Xie XiuQi <xiexiuqi@huawei.com> - 6.1.6-1.0.0.4
+- update to v6.1.7
+
 * Tue Jan 17 2023 Xie XiuQi <xiexiuqi@huawei.com> - 6.1.6-1.0.0.3
 - update to v6.1.6
 
