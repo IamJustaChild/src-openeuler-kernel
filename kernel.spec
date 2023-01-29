@@ -264,7 +264,7 @@ package or when debugging this package.\
 tar -xjf %{SOURCE9998}
 %endif
 
-mv kernel linux-%{KernelVer}
+mv kernel-6.1 linux-%{KernelVer}
 cd linux-%{KernelVer}
 
 cp %{SOURCE13} certs
