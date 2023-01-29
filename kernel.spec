@@ -47,7 +47,7 @@ Release: %{devel_release}%{?maintenance_release}%{?pkg_release}
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
-Source0: kernel.tar.gz
+Source0: kernel-%{upstream_version}.tar.gz
 Source10: sign-modules
 Source11: x509.genkey
 Source12: extra_certificates
