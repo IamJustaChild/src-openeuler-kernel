@@ -456,7 +456,7 @@ install -m 644 System.map $RPM_BUILD_ROOT/boot/System.map-%{KernelVer}
 gzip -c9 < Module.symvers > $RPM_BUILD_ROOT/boot/symvers-%{KernelVer}.gz
 
 mkdir -p $RPM_BUILD_ROOT%{_sbindir}
-install -m 755 %{SOURCE200} $RPM_BUILD_ROOT%{_sbindir}/mkgrub-menu-%{devel_release}.sh
+install -m 755 %{SOURCE200} $RPM_BUILD_ROOT%{_sbindir}/mkgrub-menu-%{version}-%{release}.sh
 
 
 %if 0%{?with_debuginfo}
@@ -713,7 +713,7 @@ popd
 %preun
 if [ `uname -i` == "aarch64" ] &&
         [ -f /boot/EFI/grub2/grub.cfg ]; then
-    /usr/bin/sh  %{_sbindir}/mkgrub-menu-%{devel_release}.sh %{version}-%{devel_release}.aarch64  /boot/EFI/grub2/grub.cfg  remove
+    /usr/bin/sh  %{_sbindir}/mkgrub-menu-%{version}-%{release}.sh %{version}-%{devel_release}.aarch64  /boot/EFI/grub2/grub.cfg  remove
 fi
 
 %postun
@@ -733,7 +733,7 @@ fi
 %{_sbindir}/new-kernel-pkg --package kernel --rpmposttrans %{KernelVer} || exit $?
 if [ `uname -i` == "aarch64" ] &&
         [ -f /boot/EFI/grub2/grub.cfg ]; then
-	/usr/bin/sh %{_sbindir}/mkgrub-menu-%{devel_release}.sh %{version}-%{devel_release}.aarch64  /boot/EFI/grub2/grub.cfg  update
+	/usr/bin/sh %{_sbindir}/mkgrub-menu-%{version}-%{release}.sh %{version}-%{devel_release}.aarch64  /boot/EFI/grub2/grub.cfg  update
 fi
 if [ -x %{_sbindir}/weak-modules ]
 then
