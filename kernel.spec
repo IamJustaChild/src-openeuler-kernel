@@ -17,8 +17,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .16.0
-%global pkg_release         .92
+%global maintenance_release .17.0
+%global pkg_release         .93
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -942,6 +942,54 @@ fi
 %endif
 
 %changelog
+* Wed Feb 01 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.17.0.93
+- !372 Backport 5.10.141 LTS
+- net: neigh: don't call kfree_skb() under spin_lock_irqsave()
+- net/af_packet: check len when min_header_len equals to 0
+- lib/vdso: Mark do_hres_timens() and do_coarse_timens() __always_inline()
+- netfilter: conntrack: NF_CONNTRACK_PROCFS should no longer default to y
+- drm/amdgpu: Increase tlb flush timeout for sriov
+- drm/amd/display: Fix pixel clock programming
+- drm/amd/pm: add missing ->fini_microcode interface for Sienna Cichlid
+- s390/hypfs: avoid error message under KVM
+- neigh: fix possible DoS due to net iface start/stop loop
+- drm/amd/display: clear optc underflow before turn off odm clock
+- drm/amd/display: For stereo keep "FLIP_ANY_FRAME"
+- drm/amd/display: Avoid MPC infinite loop
+- mmc: mtk-sd: Clear interrupts when cqe off/disable
+- ftrace: Fix NULL pointer dereference in is_ftrace_trampoline when ftrace is dead
+- fbdev: fb_pm2fb: Avoid potential divide by zero error
+- net: fix refcount bug in sk_psock_get (2)
+- HID: hidraw: fix memory leak in hidraw_release()
+- udmabuf: Set the DMA mask for the udmabuf device (v2)
+- HID: steam: Prevent NULL pointer dereference in steam_{recv,send}_report
+- Revert "PCI/portdrv: Don't disable AER reporting in get_port_device_capability()"
+- kbuild: Fix include path in scripts/Makefile.modpost
+- s390/mm: do not trigger write fault when vma does not allow VM_WRITE
+- crypto: lib - remove unneeded selection of XOR_BLOCKS
+- x86/nospec: Fix i386 RSB stuffing
+- x86/nospec: Unwreck the RSB stuffing
+- !368 Backport CVEs and bugfixes
+- mm/memory: return vm_fault_t result from migrate_to_ram() callback
+- net: sched: disallow noqueue for qdisc classes
+- netfilter: nft_payload: incorrect arithmetics when fetching VLAN header bits
+- xfs: Fix deadlock on xfs_inodegc_worker
+- net: sched: cbq: dont intepret cls results when asked to drop
+- net: sched: atm: dont intepret cls results when asked to drop
+- scsi: ses: fix slab-out-of-bounds in ses_enclosure_data_process
+- of/fdt: Don't calculate initrd size from DT if start > end
+- lib/cmdline: avoid page fault in next_arg
+- rndis_wlan: Prevent buffer overflow in rndis_query_oid
+- mm/vmpressure: fix data-race with memcg->socket_pressure
+- !367 [sync] PR-354: [OLK-5.10] machine check safe review issue modification
+- kasan: add kasan support for memcpy_mcs()
+- arm64: fix return value type of memcpy_mcs()
+- !363 AMD: Support svm guest when host CR4.LA57 is set.
+- KVM: x86: Allow CPU to force vendor-specific TDP level
+- !338 Fix virtio-gpu free issues
+- drm/virtio: free virtqueues on probe failure
+- drm/virtio: Fixes a potential NULL pointer dereference on probe failure
+
 * Wed Jan 18 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.16.0.92
 - !358 Backport CVEs, bugfixes and other
 - binder: fix UAF of alloc->vma in race with munmap()
