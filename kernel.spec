@@ -12,7 +12,7 @@
 %global upstream_sublevel   8
 %global devel_release       3
 %global maintenance_release .0.0
-%global pkg_release         .7
+%global pkg_release         .8
 
 %define with_debuginfo 0
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -886,6 +886,10 @@ fi
 %endif
 
 %changelog
+* Mon Feb 20 2023 Ge Wang <wangge20@h-partners.com> - 6.1.8-3.0.0.8
+- update to v6.1.8-3.0.0.8
+- config: add options CONFIG_DRM_GUD and CONFIG_LZ4_COMPRESS for x86_64 architecture
+
 * Tue Feb 7 2023 Zheng Zengkai <zhengzengkai@huawei.com> - 6.1.8-3.0.0.7
 - update to v6.1.8-3.0.0.7
 - arm64/vmalloc: use module region only for module_alloc() if CONFIG_RANDOMIZE_BASE is set
