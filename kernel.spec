@@ -17,8 +17,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .19.0
-%global pkg_release         .95
+%global maintenance_release .20.0
+%global pkg_release         .96
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -942,6 +942,42 @@ fi
 %endif
 
 %changelog
+* Thu Feb 23 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.20.0.96
+- !409 Backport CVEs and bugfixes
+- x86/kasan: Populate shadow for shared chunk of the CPU entry area
+- x86/kasan: Add helpers to align shadow addresses up and down
+- x86/kasan: Rename local CPU_ENTRY_AREA variables to shorten names
+- x86/mm: Populate KASAN shadow for entire per-CPU range of CPU entry area
+- x86/mm: Recompute physical address for every page of per-CPU CEA mapping
+- x86/kasan: Map shadow for percpu pages on demand
+- x86/mm: Randomize per-cpu entry area
+- Huawei BMA: Fix iBMA driver bug
+- mm: memcg: fix NULL pointer in mem_cgroup_track_foreign_dirty_slowpath()
+- mm,hugetlb: take hugetlb_lock before decrementing h->resv_huge_pages
+- vfio/iommu_type1: replace kvmalloc with kvzalloc and kfree with kvfree
+- vfio/iommu_type1: replace kfree with kvfree
+- ppp: associate skb with a device at tx
+- arm32: kaslr: Avoid using the -fpic and fno-pic parameters together
+- bpf, sockmap: fix race in sock_map_free()
+- bpf: make sure skb->len != 0 when redirecting to a tunneling device
+- raw: fix KABI for backporting raw RCU conversion patches
+- ipv6: Fix crash when IPv6 is administratively disabled
+- raw: remove unused variables from raw6_icmp_error()
+- raw: fix a typo in raw_icmp_error()
+- raw: complete rcu conversion
+- raw: Use helpers for the hlist_nulls variant.
+- raw: Fix mixed declarations error in raw_icmp_error().
+- raw: convert raw sockets to RCU
+- raw: use more conventional iterators
+- cifs: Fix use-after-free in rdata->read_into_pages()
+- net: bridge: mcast: add and enforce query interval minimum
+- net: bridge: mcast: add and enforce startup query interval minimum
+- media: vivid: fix compose size exceed boundary
+- !346 anolis: bond: broadcast ARP or ND messages to all slaves
+- !404 kvm: arm64: fix some pvsched bugs
+- kvm: arm64: fix some pvsched bugs
+- anolis: bond: broadcast ARP or ND messages to all slaves
+
 * Thu Feb 16 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.19.0.95
 - !403 Backport 5.10.145 - 5.10.149 LTS
 - wifi: mac80211: don't parse mbssid in assoc response
