@@ -9,10 +9,10 @@
 %global debuginfodir /usr/lib/debug
 
 %global upstream_version    6.1
-%global upstream_sublevel   8
-%global devel_release       3
+%global upstream_sublevel   14
+%global devel_release       4
 %global maintenance_release .0.0
-%global pkg_release         .10
+%global pkg_release         .12
 
 %define with_debuginfo 0
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -901,7 +901,10 @@ fi
 %endif
 
 %changelog
-* Mon Feb 20 2023 Ge Wang <wangge20@h-partners.com> 6.1.8-3.0.0.10
+* Tue Feb 28 2023 Zheng Zengkai <zhengzengkai@huawei.com> - 6.1.14-4.0.0.12
+- update to v6.1.14-4.0.0.12
+
+* Mon Feb 20 2023 Ge Wang <wangge20@h-partners.com> - 6.1.8-3.0.0.10
 - update to v6.1.8-3.0.0.10
 - config: add option CONFIG_DRM_GUD and CONFIG_LZ4_COMPRESS for x86_64 architecture
 
