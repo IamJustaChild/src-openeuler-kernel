@@ -12,7 +12,7 @@
 %global upstream_sublevel   8
 %global devel_release       3
 %global maintenance_release .0.0
-%global pkg_release         .11
+%global pkg_release         .12
 
 %define with_debuginfo 0
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -905,6 +905,9 @@ fi
 %endif
 
 %changelog
+* Tue Mar 02 2023 Liu Xin <liuxin350@huawei.com> - 6.1.8-3.0.0.12
+- fix the definition of the bpf_defer_connect error.
+
 * Mon Feb 25 2023 Jiang zhongbing <jiangzhongbing@huawei.com> 6.1.8-3.0.0.11
 - Add feature for nfs client support multipath
 
