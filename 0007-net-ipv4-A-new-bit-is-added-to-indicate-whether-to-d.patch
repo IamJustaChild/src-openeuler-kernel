@@ -32,11 +32,11 @@ index bf5654ce711e..497987bde8ad 100644
  						  * and cookie exists so we defer connect
  						  * until first data frame is written
  						  */
-+				bpf_defer_connect; /* specifies the ebpf program for
-+						    * traffic orchestration so we defer
-+						    * connect until first data frame is
-+						    * written
-+						    */
++				bpf_defer_connect:1; /* specifies the ebpf program for
++						      * traffic orchestration so we defer
++						      * connect until first data frame is
++						      * written
++						      */
  	__u8			rcv_tos;
  	__u8			convert_csum;
  	int			uc_index;
