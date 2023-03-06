@@ -1,0 +1,748 @@
+From 7de14407c37a60d37a77f493488eb3bef4d9d71b Mon Sep 17 00:00:00 2001
+From: Wen zhiwei <wenzhiwei@kylinos.cn>
+Date: Tue, 28 Feb 2023 15:34:49 +0800
+Subject: [PATCH] Support  unified-kernel-fault-event-function
+
+kylinos inclusion
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I6IACP
+
+----------------------------------------------------------
+
+There are various kernel errors/warnnings, if users want to know
+the effect with a error or warning, they should see the detail of
+kernel. It is difficult for users to handle so much things.
+
+This patch classify kernel fault events, divide events into its own
+module such as sched, mem, io, net, etc. At the same time,
+to report the effect class of the current fault event.
+There are three effect classes:
+Slight - just a jitter, every thing could works.
+Normal - the current task may have exception.
+Fatal  - system may be unstable.
+
+Accordding to these information, users can easily choose a suitable
+action to ensure the reliability.
+
+This feature also can be used for checking the side effect of a
+system-change.
+
+This feature can be enabled/disabled via
+/proc/sys/kernel/fault_event_enable.
+
+Signed-off-by: Wetp Zhang <wetp.zy@linux.alibaba.com>
+Signed-off-by: Meng shen <shenmeng@linux.alibaba.com>
+Acked-by: Xunlei Pang <xlpang@linux.alibaba.com>
+Signed-off-by: Wen zhiwei <wenzhiwei@kylinos.cn>
+---
+ arch/x86/kernel/cpu/mce/core.c |  10 ++
+ block/blk-core.c               |   4 +
+ fs/ext4/super.c                |  22 +++++
+ include/linux/fault_event.h    |  48 ++++++++++
+ kernel/fork.c                  |  11 ++-
+ kernel/hung_task.c             |   3 +
+ kernel/kexec_core.c            |   6 +-
+ kernel/panic.c                 | 167 +++++++++++++++++++++++++++++++++
+ kernel/rcu/tree.c              |   1 +
+ kernel/rcu/tree_stall.h        |  14 +++
+ kernel/signal.c                |  10 ++
+ kernel/sysctl.c                |  30 ++++++
+ mm/oom_kill.c                  |  10 ++
+ mm/page_alloc.c                |   4 +
+ 14 files changed, 337 insertions(+), 3 deletions(-)
+ create mode 100644 include/linux/fault_event.h
+
+diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
+index 2c8ec5c71712..987152d600f4 100644
+--- a/arch/x86/kernel/cpu/mce/core.c
++++ b/arch/x86/kernel/cpu/mce/core.c
+@@ -44,6 +44,7 @@
+ #include <linux/sync_core.h>
+ #include <linux/task_work.h>
+ #include <linux/hardirq.h>
++#include <linux/fault_event.h>
+ 
+ #include <asm/intel-family.h>
+ #include <asm/processor.h>
+@@ -736,6 +737,13 @@ bool machine_check_poll(enum mcp_flags flags, mce_banks_t *b)
+ 		continue;
+ 
+ log_it:
++		if (m.status & MCI_STATUS_UC)
++			report_fault_event(-1, NULL, SLIGHT_FAULT,
++					FE_MCE, "UCE hardware failure");
++                else
++			report_fault_event(-1, NULL, SLIGHT_FAULT,
++					FE_MCE, "CE hardware failure");
++
+ 		error_seen = true;
+ 
+ 		if (flags & MCP_DONTLOG)
+@@ -1319,6 +1327,7 @@ static void kill_me_maybe(struct callback_head *cb)
+ 	ret = memory_failure(p->mce_addr >> PAGE_SHIFT, flags);
+ 	if (!ret) {
+ 		set_mce_nospec(p->mce_addr >> PAGE_SHIFT);
++		report_fault_event(smp_processor_id(), p, SLIGHT_FAULT, FE_MCE, "UCE recovered");
+ 		sync_core();
+ 		return;
+ 	}
+@@ -1334,6 +1343,7 @@ static void kill_me_maybe(struct callback_head *cb)
+ 		return;
+ 
+ 	pr_err("Memory error not recovered");
++	report_fault_event(smp_processor_id(), p, FATAL_FAULT, FE_MCE, "UCE not recovered");
+ 	kill_me_now(cb);
+ }
+ 
+diff --git a/block/blk-core.c b/block/blk-core.c
+index 5487912befe8..a8ee8faefab0 100644
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -40,6 +40,7 @@
+ #include <linux/part_stat.h>
+ #include <linux/sched/sysctl.h>
+ #include <linux/blk-crypto.h>
++#include <linux/fault_event.h>
+ 
+ #define CREATE_TRACE_POINTS
+ #include <trace/events/block.h>
+@@ -204,6 +205,9 @@ const char *blk_status_to_str(blk_status_t status)
+ 
+ 	if (WARN_ON_ONCE(idx >= ARRAY_SIZE(blk_errors)))
+ 		return "<null>";
++	report_fault_event(smp_processor_id(), current,
++			FATAL_FAULT, FE_IO_ERR, NULL);
++
+ 	return blk_errors[idx].name;
+ }
+ 
+diff --git a/fs/ext4/super.c b/fs/ext4/super.c
+index 7cdd2138c897..f4fbc5b3a66c 100644
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -48,6 +48,7 @@
+ #include <linux/fsnotify.h>
+ #include <linux/fs_context.h>
+ #include <linux/fs_parser.h>
++#include <linux/fault_event.h>
+ 
+ #include "ext4.h"
+ #include "ext4_extents.h"	/* Needed for trace points definition */
+@@ -764,6 +765,9 @@ void __ext4_error(struct super_block *sb, const char *function,
+ 
+ 	trace_ext4_error(sb, function, line);
+ 	if (ext4_error_ratelimit(sb)) {
++		report_fault_event(smp_processor_id(), current,
++			NORMAL_FAULT, FE_EXT4_ERR, "ext4-fs error");
++
+ 		va_start(args, fmt);
+ 		vaf.fmt = fmt;
+ 		vaf.va = &args;
+@@ -789,6 +793,9 @@ void __ext4_error_inode(struct inode *inode, const char *function,
+ 
+ 	trace_ext4_error(inode->i_sb, function, line);
+ 	if (ext4_error_ratelimit(inode->i_sb)) {
++		report_fault_event(smp_processor_id(), current,
++			NORMAL_FAULT, FE_EXT4_ERR, "ext4-fs error");
++
+ 		va_start(args, fmt);
+ 		vaf.fmt = fmt;
+ 		vaf.va = &args;
+@@ -824,6 +831,9 @@ void __ext4_error_file(struct file *file, const char *function,
+ 
+ 	trace_ext4_error(inode->i_sb, function, line);
+ 	if (ext4_error_ratelimit(inode->i_sb)) {
++		report_fault_event(smp_processor_id(), current,
++			NORMAL_FAULT, FE_EXT4_ERR, "ext4-fs error");
++
+ 		path = file_path(file, pathname, sizeof(pathname));
+ 		if (IS_ERR(path))
+ 			path = "(unknown)";
+@@ -909,6 +919,9 @@ void __ext4_std_error(struct super_block *sb, const char *function,
+ 		return;
+ 
+ 	if (ext4_error_ratelimit(sb)) {
++		report_fault_event(smp_processor_id(), current,
++			NORMAL_FAULT, FE_EXT4_ERR, "ext4-fs error");
++
+ 		errstr = ext4_decode_error(sb, errno, nbuf);
+ 		printk(KERN_CRIT "EXT4-fs error (device %s) in %s:%d: %s\n",
+ 		       sb->s_id, function, line, errstr);
+@@ -957,6 +970,9 @@ void __ext4_warning(struct super_block *sb, const char *function,
+ 	if (!ext4_warning_ratelimit(sb))
+ 		return;
+ 
++	report_fault_event(smp_processor_id(), current,
++		SLIGHT_FAULT, FE_EXT4_ERR, "ext4-fs warning");
++
+ 	va_start(args, fmt);
+ 	vaf.fmt = fmt;
+ 	vaf.va = &args;
+@@ -974,6 +990,9 @@ void __ext4_warning_inode(const struct inode *inode, const char *function,
+ 	if (!ext4_warning_ratelimit(inode->i_sb))
+ 		return;
+ 
++	report_fault_event(smp_processor_id(), current,
++		SLIGHT_FAULT, FE_EXT4_ERR, "ext4-fs warning");
++
+ 	va_start(args, fmt);
+ 	vaf.fmt = fmt;
+ 	vaf.va = &args;
+@@ -998,6 +1017,9 @@ __acquires(bitlock)
+ 
+ 	trace_ext4_error(sb, function, line);
+ 	if (ext4_error_ratelimit(sb)) {
++		report_fault_event(smp_processor_id(), current,
++			NORMAL_FAULT, FE_EXT4_ERR, "ext4-fs error");
++
+ 		va_start(args, fmt);
+ 		vaf.fmt = fmt;
+ 		vaf.va = &args;
+diff --git a/include/linux/fault_event.h b/include/linux/fault_event.h
+new file mode 100644
+index 000000000000..fae0c45879ca
+--- /dev/null
++++ b/include/linux/fault_event.h
+@@ -0,0 +1,48 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _FAULT_EVENT_H
++#define _FAULT_EVENT_H
++#include <linux/sched.h>
++
++enum FAULT_CLASS {
++       SLIGHT_FAULT,
++       NORMAL_FAULT,
++       FATAL_FAULT,
++       FAULT_CLASSS_MAX
++};
++
++enum FAULT_EVENT {
++       /*kernel fault events*/
++       FE_SOFTLOCKUP,
++       FE_RCUSTALL,
++       FE_HUNGTASK,
++       FE_OOM_GLOBAL,
++       FE_OOM_CGROUP,
++       FE_ALLOCFAIL,
++       FE_LIST_CORRUPT,
++       FE_MM_STATE,
++       FE_IO_ERR,
++       FE_EXT4_ERR,
++       FE_MCE,
++       FE_SIGNAL,
++       FE_WARN,
++       FE_PANIC,
++       FE_MAX
++};
++
++struct fault_event {
++       enum FAULT_EVENT type;
++       char *name;
++       char *module;
++       atomic_t count;
++};
++
++extern unsigned int sysctl_fault_event_enable;
++extern unsigned int sysctl_fault_event_print;
++extern unsigned int sysctl_panic_on_fatal_event;
++
++extern bool fault_monitor_enable(void);
++extern void report_fault_event(int cpu, struct task_struct *tsk,
++               enum FAULT_CLASS class, enum FAULT_EVENT event,
++               const char *msg);
++#endif
++
+diff --git a/kernel/fork.c b/kernel/fork.c
+index 08969f5aa38d..05e244964bce 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -97,6 +97,7 @@
+ #include <linux/scs.h>
+ #include <linux/io_uring.h>
+ #include <linux/bpf.h>
++#include <linux/fault_event.h>
+ 
+ #include <asm/pgalloc.h>
+ #include <linux/uaccess.h>
+@@ -755,14 +756,20 @@ static void check_mm(struct mm_struct *mm)
+ 	for (i = 0; i < NR_MM_COUNTERS; i++) {
+ 		long x = atomic_long_read(&mm->rss_stat.count[i]);
+ 
+-		if (unlikely(x))
++		if (unlikely(x)) {
++			report_fault_event(-1, NULL, FATAL_FAULT,
++				FE_MM_STATE, "Bad rss-counter");
+ 			pr_alert("BUG: Bad rss-counter state mm:%p type:%s val:%ld\n",
+ 				 mm, resident_page_types[i], x);
++		}
+ 	}
+ 
+-	if (mm_pgtables_bytes(mm))
++	if (mm_pgtables_bytes(mm)) {
++		report_fault_event(-1, NULL, FATAL_FAULT,
++			FE_MM_STATE, "non-zero pgtables_bytes");
+ 		pr_alert("BUG: non-zero pgtables_bytes on freeing mm: %ld\n",
+ 				mm_pgtables_bytes(mm));
++	}
+ 
+ #if defined(CONFIG_TRANSPARENT_HUGEPAGE) && !USE_SPLIT_PMD_PTLOCKS
+ 	VM_BUG_ON_MM(mm->pmd_huge_pte, mm);
+diff --git a/kernel/hung_task.c b/kernel/hung_task.c
+index c71889f3f3fc..49e4e866dc26 100644
+--- a/kernel/hung_task.c
++++ b/kernel/hung_task.c
+@@ -22,6 +22,7 @@
+ #include <linux/sched/signal.h>
+ #include <linux/sched/debug.h>
+ #include <linux/sched/sysctl.h>
++#include <linux/fault_event.h>
+ 
+ #include <trace/events/sched.h>
+ 
+@@ -122,6 +123,8 @@ static void check_hung_task(struct task_struct *t, unsigned long timeout)
+ 		hung_task_call_panic = true;
+ 	}
+ 
++	report_fault_event(-1, t, NORMAL_FAULT, FE_HUNGTASK, NULL);
++
+ 	/*
+ 	 * Ok, the task did not get scheduled for more than 2 minutes,
+ 	 * complain:
+diff --git a/kernel/kexec_core.c b/kernel/kexec_core.c
+index ca2743f9c634..b2cb6a79554e 100644
+--- a/kernel/kexec_core.c
++++ b/kernel/kexec_core.c
+@@ -39,6 +39,7 @@
+ #include <linux/hugetlb.h>
+ #include <linux/objtool.h>
+ #include <linux/kmsg_dump.h>
++#include <linux/fault_event.h>
+ 
+ #include <asm/page.h>
+ #include <asm/sections.h>
+@@ -84,8 +85,11 @@ int kexec_should_crash(struct task_struct *p)
+ 	 * There are 4 panic() calls in make_task_dead() path, each of which
+ 	 * corresponds to each of these 4 conditions.
+ 	 */
+-	if (in_interrupt() || !p->pid || is_global_init(p) || panic_on_oops)
++	if (in_interrupt() || !p->pid || is_global_init(p) || panic_on_oops) {
++		report_fault_event(smp_processor_id(),
++			current, FATAL_FAULT, FE_PANIC, "kernel crash");
+ 		return 1;
++	}
+ 	return 0;
+ }
+ 
+diff --git a/kernel/panic.c b/kernel/panic.c
+index da323209f583..92f55ca91849 100644
+--- a/kernel/panic.c
++++ b/kernel/panic.c
+@@ -34,6 +34,9 @@
+ #include <linux/debugfs.h>
+ #include <trace/events/error_report.h>
+ #include <asm/sections.h>
++#include <linux/proc_fs.h>
++#include <linux/seq_file.h>
++#include <linux/fault_event.h>
+ 
+ #define PANIC_TIMER_STEP 100
+ #define PANIC_BLINK_SPD 18
+@@ -258,6 +261,8 @@ void panic(const char *fmt, ...)
+ 
+ 	console_verbose();
+ 	bust_spinlocks(1);
++	report_fault_event(smp_processor_id(), current, FATAL_FAULT,
++			FE_PANIC, NULL);
+ 	va_start(args, fmt);
+ 	len = vscnprintf(buf, sizeof(buf), fmt, args);
+ 	va_end(args);
+@@ -591,6 +596,160 @@ void oops_exit(void)
+ 	kmsg_dump(KMSG_DUMP_OOPS);
+ }
+ 
++unsigned int sysctl_fault_event_enable = 1;
++unsigned int sysctl_fault_event_print;
++unsigned int sysctl_panic_on_fatal_event;
++static atomic_t tot_fault_cnt;
++static atomic_t class_fault_cnt[FAULT_CLASSS_MAX];
++
++static char *fault_class_name[FAULT_CLASSS_MAX] = {
++       "Slight",
++       "Normal",
++       "Fatal"
++};
++
++static struct fault_event fevents[FE_MAX] = {
++       {FE_SOFTLOCKUP, "soft lockup", "general", {0} },
++       {FE_RCUSTALL, "rcu stall", "general", {0} },
++       {FE_HUNGTASK, "hung task", "general", {0} },
++       {FE_OOM_GLOBAL, "global oom", "mem", {0} },
++       {FE_OOM_CGROUP, "cgroup oom", "mem", {0} },
++       {FE_ALLOCFAIL, "alloc failed", "mem", {0} },
++       {FE_LIST_CORRUPT, "list corruption", "general", {0} },
++       {FE_MM_STATE, "bad mm_struct", "mem", {0} },
++       {FE_IO_ERR, "io error", "io", {0} },
++       {FE_EXT4_ERR, "ext4 fs error", "fs", {0} },
++       {FE_MCE, "mce", "hardware", {0} },
++       {FE_SIGNAL, "fatal signal", "general", {0} },
++       {FE_WARN, "warning", "general", {0} },
++       {FE_PANIC, "panic", "general", {0} },
++};
++
++bool fault_monitor_enable(void)
++{
++       return sysctl_fault_event_enable;
++}
++
++static const char *get_task_cmdline(struct task_struct *tsk, char *buff,
++               int size)
++{
++       struct mm_struct *mm;
++       char *p = buff, c;
++       int i, len, count = 0;
++
++       if (!tsk)
++               return "nil";
++
++       if (tsk->tgid != current->tgid || !tsk->mm
++           || (tsk->flags & PF_KTHREAD))
++               goto use_comm;
++
++       mm = tsk->mm;
++       len = mm->arg_end - mm->arg_start;
++       len = min(len, size);
++       if (len <= 0)
++               goto use_comm;
++
++       if (__copy_from_user_inatomic(p, (void *)mm->arg_start, len))
++               goto use_comm;
++
++       if (__copy_from_user_inatomic(&c, (void *)(mm->arg_end - 1), 1))
++               goto use_comm;
++
++       count += len;
++       if (c == '\0' || len == size)
++               goto out;
++
++       p = buff + len;
++       len = mm->env_end - mm->env_start;
++       len = min(len, size - count);
++       if (len <= 0)
++               goto out;
++
++       if (!__copy_from_user_inatomic(p, (void *)mm->env_start, len))
++               count += len;
++
++out:
++       for (i = 0; i < count-1; i++) {
++               if (buff[i] == '\0')
++                       buff[i] = ' ';
++       }
++       buff[count - 1] = '\0';
++
++       return buff;
++
++use_comm:
++       return tsk->comm;
++}
++
++void report_fault_event(int cpu, struct task_struct *tsk,
++               enum FAULT_CLASS class, enum FAULT_EVENT event,
++               const char *msg)
++{
++       unsigned int evt_cnt;
++       char tsk_cmdline[256];
++
++       if (!sysctl_fault_event_enable)
++               return;
++
++       if (class >= FAULT_CLASSS_MAX || event >= FE_MAX)
++               return;
++
++       evt_cnt = atomic_inc_return(&fevents[event].count);
++       atomic_inc(&class_fault_cnt[class]);
++       atomic_inc(&tot_fault_cnt);
++
++       if (!sysctl_fault_event_print)
++               goto may_panic;
++
++       printk_ratelimited(KERN_EMERG "%s fault event[%s:%s]: %s. "
++               "At cpu %d task %d(%s). Total: %d\n",
++               fault_class_name[class], fevents[event].module,
++               fevents[event].name, msg ? msg : "", cpu,
++               tsk ? tsk->pid : -1,
++               get_task_cmdline(tsk, tsk_cmdline, 256), evt_cnt);
++
++may_panic:
++       if (sysctl_panic_on_fatal_event && class == FATAL_FAULT &&
++           event != FE_PANIC) {
++               sysctl_fault_event_enable = false;
++               panic("kernel fault event");
++       }
++}
++EXPORT_SYMBOL(report_fault_event);
++
++static int fault_events_show(struct seq_file *m, void *v)
++{
++       unsigned int evt_cnt, class_cnt, total;
++       int i;
++
++       total = atomic_read(&tot_fault_cnt);
++       seq_printf(m, "\nTotal fault events: %d\n\n", total);
++
++       for (i = 0; i < FAULT_CLASSS_MAX; i++) {
++               class_cnt = atomic_read(&class_fault_cnt[i]);
++               seq_printf(m, "%s: %d\n", fault_class_name[i],
++               class_cnt);
++       }
++
++       seq_puts(m, "\n");
++       for (i = 0; i < FE_MAX; i++) {
++               evt_cnt = atomic_read(&fevents[i].count);
++               seq_printf(m, "%s: %d\n", fevents[i].name,
++                       evt_cnt);
++       }
++
++       return 0;
++}
++
++static int fault_events_init(void)
++{
++       proc_create_single("fault_events", 0, NULL, fault_events_show);
++
++       return 0;
++}
++module_init(fault_events_init);
++
+ struct warn_args {
+ 	const char *fmt;
+ 	va_list args;
+@@ -609,6 +768,14 @@ void __warn(const char *file, int line, void *caller, unsigned taint,
+ 		pr_warn("WARNING: CPU: %d PID: %d at %pS\n",
+ 			raw_smp_processor_id(), current->pid, caller);
+ 
++	if (strstr(file, "list_debug.c"))
++		report_fault_event(smp_processor_id(), current,
++			FATAL_FAULT, FE_LIST_CORRUPT, NULL);
++	else
++		report_fault_event(smp_processor_id(), current,
++			SLIGHT_FAULT, FE_WARN, "kernel warning");
++
++
+ 	if (args)
+ 		vprintk(args->fmt, args->args);
+ 
+diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
+index 93416afebd59..5dde2494c891 100644
+--- a/kernel/rcu/tree.c
++++ b/kernel/rcu/tree.c
+@@ -63,6 +63,7 @@
+ #include <linux/mm.h>
+ #include <linux/kasan.h>
+ #include <linux/context_tracking.h>
++#include <linux/fault_event.h>
+ #include "../time/tick-internal.h"
+ 
+ #include "tree.h"
+diff --git a/kernel/rcu/tree_stall.h b/kernel/rcu/tree_stall.h
+index 5653560573e2..6f276d9cf20b 100644
+--- a/kernel/rcu/tree_stall.h
++++ b/kernel/rcu/tree_stall.h
+@@ -8,6 +8,7 @@
+  */
+ 
+ #include <linux/kvm_para.h>
++#include <linux/fault_event.h>
+ 
+ //////////////////////////////////////////////////////////////////////////////
+ //
+@@ -558,6 +559,9 @@ static void print_other_cpu_stall(unsigned long gp_seq, unsigned long gps)
+ 	int ndetected = 0;
+ 	struct rcu_node *rnp;
+ 	long totqlen = 0;
++	enum FAULT_CLASS class = SLIGHT_FAULT;
++	int first_cpu = -1;
++	unsigned int stall_cpus = 0;
+ 
+ 	lockdep_assert_irqs_disabled();
+ 
+@@ -580,12 +584,19 @@ static void print_other_cpu_stall(unsigned long gp_seq, unsigned long gps)
+ 				if (rnp->qsmask & leaf_node_cpu_bit(rnp, cpu)) {
+ 					print_cpu_stall_info(cpu);
+ 					ndetected++;
++					if (first_cpu == -1)
++						first_cpu = cpu;
++					stall_cpus++;
+ 				}
+ 		}
+ 		ndetected += rcu_print_task_stall(rnp, flags); // Releases rnp->lock.
+ 		lockdep_assert_irqs_disabled();
+ 	}
+ 
++	if (stall_cpus > 1)
++		class = FATAL_FAULT;
++	report_fault_event(first_cpu, NULL, class, FE_RCUSTALL, NULL);
++
+ 	for_each_possible_cpu(cpu)
+ 		totqlen += rcu_get_n_cbs_cpu(cpu);
+ 	pr_cont("\t(detected by %d, t=%ld jiffies, g=%ld, q=%lu ncpus=%d)\n",
+@@ -637,6 +648,9 @@ static void print_cpu_stall(unsigned long gps)
+ 	if (rcu_stall_is_suppressed())
+ 		return;
+ 
++	report_fault_event(smp_processor_id(), current, SLIGHT_FAULT,
++		FE_RCUSTALL, NULL);
++
+ 	/*
+ 	 * OK, time to rat on ourselves...
+ 	 * See Documentation/RCU/stallwarn.rst for info on how to debug
+diff --git a/kernel/signal.c b/kernel/signal.c
+index d140672185a4..9825b96162cc 100644
+--- a/kernel/signal.c
++++ b/kernel/signal.c
+@@ -45,6 +45,7 @@
+ #include <linux/posix-timers.h>
+ #include <linux/cgroup.h>
+ #include <linux/audit.h>
++#include <linux/fault_event.h>
+ 
+ #define CREATE_TRACE_POINTS
+ #include <trace/events/signal.h>
+@@ -2830,6 +2831,11 @@ bool get_signal(struct ksignal *ksig)
+ 		current->flags |= PF_SIGNALED;
+ 
+ 		if (sig_kernel_coredump(signr)) {
++			char msg[32];
++			sprintf(msg, "sig%d exit", signr);
++			report_fault_event(smp_processor_id(), current,
++					NORMAL_FAULT, FE_SIGNAL, msg);
++
+ 			if (print_fatal_signals)
+ 				print_fatal_signal(ksig->info.si_signo);
+ 			proc_coredump_connector(current);
+@@ -2852,6 +2858,10 @@ bool get_signal(struct ksignal *ksig)
+ 		if (current->flags & PF_IO_WORKER)
+ 			goto out;
+ 
++		if (ksig->info.si_signo == SIGKILL && ksig->info.si_code == SI_KERNEL)
++			report_fault_event(smp_processor_id(), current,
++					NORMAL_FAULT, FE_SIGNAL, "sigkill kernel");
++
+ 		/*
+ 		 * Death signals, no core dump.
+ 		 */
+diff --git a/kernel/sysctl.c b/kernel/sysctl.c
+index c6d9dec11b74..697b338b4e4b 100644
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -64,6 +64,7 @@
+ #include <linux/mount.h>
+ #include <linux/userfaultfd_k.h>
+ #include <linux/pid.h>
++#include <linux/fault_event.h>
+ 
+ #include "../lib/kstrtox.h"
+ 
+@@ -2091,6 +2092,35 @@ static struct ctl_table kern_table[] = {
+ 		.extra2		= SYSCTL_INT_MAX,
+ 	},
+ #endif
++        {
++                .procname       = "fault_event_enable",
++                .data           = &sysctl_fault_event_enable,
++                .maxlen         = sizeof(unsigned int),
++                .mode           = 0644,
++                .proc_handler   = proc_dointvec_minmax,
++                .extra1         = SYSCTL_ZERO,
++                .extra2         = SYSCTL_ONE,
++        },
++#if defined CONFIG_PRINTK
++        {
++                .procname       = "fault_event_print",
++                .data           = &sysctl_fault_event_print,
++                .maxlen         = sizeof(unsigned int),
++                .mode           = 0644,
++                .proc_handler   = proc_dointvec_minmax,
++                .extra1         = SYSCTL_ZERO,
++                .extra2         = SYSCTL_ONE,
++        },
++#endif
++        {
++                .procname       = "panic_on_fatal_event",
++                .data           = &sysctl_panic_on_fatal_event,
++                .maxlen         = sizeof(unsigned int),
++                .mode           = 0644,
++                .proc_handler   = proc_dointvec_minmax,
++            	.extra1         = SYSCTL_ZERO,
++                .extra2         = SYSCTL_ONE,
++        },
+ 	{ }
+ };
+ 
+diff --git a/mm/oom_kill.c b/mm/oom_kill.c
+index 1276e49b31b0..06454ea5379f 100644
+--- a/mm/oom_kill.c
++++ b/mm/oom_kill.c
+@@ -44,6 +44,7 @@
+ #include <linux/kthread.h>
+ #include <linux/init.h>
+ #include <linux/mmu_notifier.h>
++#include <linux/fault_event.h>
+ 
+ #include <asm/tlb.h>
+ #include "internal.h"
+@@ -946,6 +947,9 @@ static void __oom_kill_process(struct task_struct *victim, const char *message)
+ 	 */
+ 	do_send_sig_info(SIGKILL, SEND_SIG_PRIV, victim, PIDTYPE_TGID);
+ 	mark_oom_victim(victim);
++	report_fault_event(smp_processor_id(), victim,
++			NORMAL_FAULT, FE_SIGNAL, "sigkill by oom");
++
+ 	pr_err("%s: Killed process %d (%s) total-vm:%lukB, anon-rss:%lukB, file-rss:%lukB, shmem-rss:%lukB, UID:%u pgtables:%lukB oom_score_adj:%hd\n",
+ 		message, task_pid_nr(victim), victim->comm, K(mm->total_vm),
+ 		K(get_mm_counter(mm, MM_ANONPAGES)),
+@@ -985,6 +989,8 @@ static void __oom_kill_process(struct task_struct *victim, const char *message)
+ 		if (unlikely(p->flags & PF_KTHREAD))
+ 			continue;
+ 		do_send_sig_info(SIGKILL, SEND_SIG_PRIV, p, PIDTYPE_TGID);
++		report_fault_event(smp_processor_id(), p, NORMAL_FAULT,
++				FE_SIGNAL, "sigkill by oom");
+ 	}
+ 	rcu_read_unlock();
+ 
+@@ -1145,6 +1151,10 @@ bool out_of_memory(struct oom_control *oc)
+ 	oc->constraint = constrained_alloc(oc);
+ 	if (oc->constraint != CONSTRAINT_MEMORY_POLICY)
+ 		oc->nodemask = NULL;
++
++	report_fault_event(smp_processor_id(), current, NORMAL_FAULT,
++			is_memcg_oom(oc) ? FE_OOM_CGROUP : FE_OOM_GLOBAL, NULL);
++
+ 	check_panic_on_oom(oc);
+ 
+ 	if (!is_memcg_oom(oc) && sysctl_oom_kill_allocating_task &&
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 6e60657875d3..96ddc84b962d 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -79,6 +79,7 @@
+ #include <asm/sections.h>
+ #include <asm/tlbflush.h>
+ #include <asm/div64.h>
++#include <linux/fault_event.h>
+ #include "internal.h"
+ #include "shuffle.h"
+ #include "page_reporting.h"
+@@ -4350,6 +4351,9 @@ void warn_alloc(gfp_t gfp_mask, nodemask_t *nodemask, const char *fmt, ...)
+ 	     !__ratelimit(&nopage_rs) ||
+ 	     ((gfp_mask & __GFP_DMA) && !has_managed_dma()))
+ 		return;
++	
++	report_fault_event(smp_processor_id(), current,
++			NORMAL_FAULT, FE_ALLOCFAIL, NULL);
+ 
+ 	va_start(args, fmt);
+ 	vaf.fmt = fmt;
+-- 
+2.33.0
+

@@ -1,0 +1,319 @@
+From 84771a8307c6584f14378dd5a4a883ddaf714cec Mon Sep 17 00:00:00 2001
+From: Wen zhiwei <wenzhiwei@kylinos.cn>
+Date: Mon, 6 Mar 2023 15:33:09 +0800
+Subject: [PATCH] add sched_prio_load_balance_enabled for CFS in kernel6.1
+
+Signed-off-by: Wen zhiwei <wenzhiwei@kylinos.cn>
+---
+ arch/arm64/configs/openeuler_defconfig |  1 +
+ arch/x86/configs/openeuler_defconfig   |  1 +
+ include/linux/sched/sysctl.h           |  4 ++
+ init/Kconfig                           | 17 ++++++
+ kernel/sched/core.c                    |  3 +
+ kernel/sched/fair.c                    | 81 +++++++++++++++++++++++++-
+ kernel/sched/sched.h                   |  9 +++
+ kernel/sysctl.c                        | 11 ++++
+ 8 files changed, 125 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm64/configs/openeuler_defconfig b/arch/arm64/configs/openeuler_defconfig
+index fbb71f7520a8..e576f916d0bf 100644
+--- a/arch/arm64/configs/openeuler_defconfig
++++ b/arch/arm64/configs/openeuler_defconfig
+@@ -175,6 +175,7 @@ CONFIG_BLK_CGROUP=y
+ CONFIG_CGROUP_WRITEBACK=y
+ CONFIG_CGROUP_SCHED=y
+ CONFIG_FAIR_GROUP_SCHED=y
++CONFIG_QOS_SCHED_PRIO_LB=y
+ CONFIG_CFS_BANDWIDTH=y
+ CONFIG_RT_GROUP_SCHED=y
+ CONFIG_CGROUP_PIDS=y
+diff --git a/arch/x86/configs/openeuler_defconfig b/arch/x86/configs/openeuler_defconfig
+index 8a824f33bc5b..d8ce4d50f2fc 100644
+--- a/arch/x86/configs/openeuler_defconfig
++++ b/arch/x86/configs/openeuler_defconfig
+@@ -186,6 +186,7 @@ CONFIG_BLK_CGROUP=y
+ CONFIG_CGROUP_WRITEBACK=y
+ CONFIG_CGROUP_SCHED=y
+ CONFIG_FAIR_GROUP_SCHED=y
++CONFIG_QOS_SCHED_PRIO_LB=y
+ CONFIG_CFS_BANDWIDTH=y
+ CONFIG_RT_GROUP_SCHED=y
+ CONFIG_CGROUP_PIDS=y
+diff --git a/include/linux/sched/sysctl.h b/include/linux/sched/sysctl.h
+index 303ee7dd0c7e..fdebd10f49e1 100644
+--- a/include/linux/sched/sysctl.h
++++ b/include/linux/sched/sysctl.h
+@@ -25,6 +25,10 @@ enum sched_tunable_scaling {
+ #define NUMA_BALANCING_NORMAL		0x1
+ #define NUMA_BALANCING_MEMORY_TIERING	0x2
+ 
++#ifdef CONFIG_QOS_SCHED_PRIO_LB
++extern unsigned int sysctl_sched_prio_load_balance_enabled;
++#endif
++
+ #ifdef CONFIG_NUMA_BALANCING
+ extern int sysctl_numa_balancing_mode;
+ extern unsigned int sysctl_numa_balancing_promote_rate_limit;
+diff --git a/init/Kconfig b/init/Kconfig
+index 94125d3b6893..fc78194ba40f 100644
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -1010,6 +1010,23 @@ menuconfig CGROUP_SCHED
+ 	  tasks.
+ 
+ if CGROUP_SCHED
++config QOS_SCHED
++    bool "Qos task scheduling"
++    depends on CGROUP_SCHED
++    depends on CFS_BANDWIDTH
++    depends on SMP
++
++    default n
++
++config QOS_SCHED_PRIO_LB
++	bool "Priority load balance for Qos scheduler"
++	depends on QOS_SCHED
++	default n
++	help
++	  This feature enable priority load balance
++	  for Qos scheduler, which prefer migrating online tasks
++	  and migrating offline tasks secondly between CPUs.
++
+ config FAIR_GROUP_SCHED
+ 	bool "Group scheduling for SCHED_OTHER"
+ 	depends on CGROUP_SCHED
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index daff72f00385..7496bdab4629 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -9749,6 +9749,9 @@ void __init sched_init(void)
+ 		rq->max_idle_balance_cost = sysctl_sched_migration_cost;
+ 
+ 		INIT_LIST_HEAD(&rq->cfs_tasks);
++#ifdef CONFIG_QOS_SCHED_PRIO_LB
++		INIT_LIST_HEAD(&rq->cfs_offline_tasks);
++#endif
+ 
+ 		rq_attach_root(rq, &def_root_domain);
+ #ifdef CONFIG_NO_HZ_COMMON
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index e4a0b8bd941c..417b5581f243 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -164,6 +164,10 @@ int __weak arch_asym_cpu_priority(int cpu)
+ #define capacity_greater(cap1, cap2) ((cap1) * 1024 > (cap2) * 1078)
+ #endif
+ 
++#ifdef CONFIG_QOS_SCHED_PRIO_LB
++unsigned int sysctl_sched_prio_load_balance_enabled;
++#endif
++
+ #ifdef CONFIG_CFS_BANDWIDTH
+ /*
+  * Amount of runtime to allocate from global (tg) to local (per-cfs_rq) pool
+@@ -3199,6 +3203,21 @@ static inline void update_scan_period(struct task_struct *p, int new_cpu)
+ 
+ #endif /* CONFIG_NUMA_BALANCING */
+ 
++#ifdef CONFIG_QOS_SCHED_PRIO_LB
++static void
++adjust_rq_cfs_tasks(void (*list_op)(struct list_head *, struct list_head *),
++	struct rq *rq,
++	struct sched_entity *se)
++{
++	struct task_group *tg = task_group(task_of(se));
++
++	if (sysctl_sched_prio_load_balance_enabled && tg->qos_level == -1)
++		(*list_op)(&se->group_node, &rq->cfs_offline_tasks);
++	else
++		(*list_op)(&se->group_node, &rq->cfs_tasks);
++}
++#endif
++
+ static void
+ account_entity_enqueue(struct cfs_rq *cfs_rq, struct sched_entity *se)
+ {
+@@ -3208,7 +3227,11 @@ account_entity_enqueue(struct cfs_rq *cfs_rq, struct sched_entity *se)
+ 		struct rq *rq = rq_of(cfs_rq);
+ 
+ 		account_numa_enqueue(rq, task_of(se));
++#ifdef CONFIG_QOS_SCHED_PRIO_LB
++		adjust_rq_cfs_tasks(list_add, rq, se);
++#else
+ 		list_add(&se->group_node, &rq->cfs_tasks);
++#endif
+ 	}
+ #endif
+ 	cfs_rq->nr_running++;
+@@ -7631,7 +7654,11 @@ done: __maybe_unused;
+ 	 * the list, so our cfs_tasks list becomes MRU
+ 	 * one.
+ 	 */
++#ifdef CONFIG_QOS_SCHED_PRIO_LB
++	adjust_rq_cfs_tasks(list_move, rq, &p->se);
++#else
+ 	list_move(&p->se.group_node, &rq->cfs_tasks);
++#endif
+ #endif
+ 
+ 	if (hrtick_enabled_fair(rq))
+@@ -7966,6 +7993,14 @@ static int task_hot(struct task_struct *p, struct lb_env *env)
+ 			 &p->se == cfs_rq_of(&p->se)->last))
+ 		return 1;
+ 
++#ifdef CONFIG_QOS_SCHED_PRIO_LB
++	/* Preempt sched idle cpu do not consider migration cost */
++	if (sysctl_sched_prio_load_balance_enabled &&
++	    cpus_share_cache(env->src_cpu, env->dst_cpu) &&
++	    sched_idle_cpu(env->dst_cpu))
++		return 0;
++#endif
++
+ 	if (sysctl_sched_migration_cost == -1)
+ 		return 1;
+ 
+@@ -8156,11 +8191,19 @@ static void detach_task(struct task_struct *p, struct lb_env *env)
+ static struct task_struct *detach_one_task(struct lb_env *env)
+ {
+ 	struct task_struct *p;
++	struct list_head *tasks = &env->src_rq->cfs_tasks;
++#ifdef CONFIG_QOS_SCHED_PRIO_LB
++	int loop = 0;
++#endif
+ 
+ 	lockdep_assert_rq_held(env->src_rq);
+ 
++#ifdef CONFIG_QOS_SCHED_PRIO_LB
++again:
++#endif
++
+ 	list_for_each_entry_reverse(p,
+-			&env->src_rq->cfs_tasks, se.group_node) {
++			tasks, se.group_node) {
+ 		if (!can_migrate_task(p, env))
+ 			continue;
+ 
+@@ -8175,6 +8218,15 @@ static struct task_struct *detach_one_task(struct lb_env *env)
+ 		schedstat_inc(env->sd->lb_gained[env->idle]);
+ 		return p;
+ 	}
++#ifdef CONFIG_QOS_SCHED_PRIO_LB
++	if (sysctl_sched_prio_load_balance_enabled) {
++		loop++;
++		if (loop == 1) {
++			tasks = &env->src_rq->cfs_offline_tasks;
++			goto again;
++		}
++	}
++#endif
+ 	return NULL;
+ }
+ 
+@@ -8190,7 +8242,9 @@ static int detach_tasks(struct lb_env *env)
+ 	unsigned long util, load;
+ 	struct task_struct *p;
+ 	int detached = 0;
+-
++#ifdef CONFIG_QOS_SCHED_PRIO_LB
++	int loop = 0;
++#endif
+ 	lockdep_assert_rq_held(env->src_rq);
+ 
+ 	/*
+@@ -8205,6 +8259,9 @@ static int detach_tasks(struct lb_env *env)
+ 	if (env->imbalance <= 0)
+ 		return 0;
+ 
++#ifdef CONFIG_QOS_SCHED_PRIO_LB
++again:
++#endif
+ 	while (!list_empty(tasks)) {
+ 		/*
+ 		 * We don't want to steal all, otherwise we may be treated likewise,
+@@ -8310,6 +8367,22 @@ static int detach_tasks(struct lb_env *env)
+ 		list_move(&p->se.group_node, tasks);
+ 	}
+ 
++#ifdef CONFIG_QOS_SCHED_PRIO_LB
++	if (sysctl_sched_prio_load_balance_enabled && env->imbalance > 0) {
++		/*
++		 * Avoid offline tasks starve to death if env->loop exceed
++		 * env->loop_max, so we should set env->loop to 0 and detach
++		 * offline tasks again.
++		*/
++		if (env->loop > env->loop_max)
++			env->loop = 0;
++		loop++;
++		if (loop == 1) {
++			tasks = &env->src_rq->cfs_offline_tasks;
++			goto again;
++		}
++	}
++#endif
+ 	/*
+ 	 * Right now, this is one of only two places we collect this stat
+ 	 * so we can safely collect detach_one_task() stats here rather
+@@ -11814,7 +11887,11 @@ static void set_next_task_fair(struct rq *rq, struct task_struct *p, bool first)
+ 		 * Move the next running task to the front of the list, so our
+ 		 * cfs_tasks list becomes MRU one.
+ 		 */
++#ifdef CONFIG_QOS_SCHED_PRIO_LB
++		adjust_rq_cfs_tasks(list_move, rq, se);
++#else
+ 		list_move(&se->group_node, &rq->cfs_tasks);
++#endif
+ 	}
+ #endif
+ 
+diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+index a4a20046e586..6e00988d9676 100644
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -409,6 +409,10 @@ struct task_group {
+ 
+ 	struct cfs_bandwidth	cfs_bandwidth;
+ 
++#ifdef CONFIG_QOS_SCHED
++	long qos_level;
++#endif
++
+ #ifdef CONFIG_UCLAMP_TASK_GROUP
+ 	/* The two decimal precision [%] value requested from user-space */
+ 	unsigned int		uclamp_pct[UCLAMP_CNT];
+@@ -1150,6 +1154,11 @@ struct rq {
+ 	unsigned int		core_forceidle_occupation;
+ 	u64			core_forceidle_start;
+ #endif
++
++#if defined(CONFIG_QOS_SCHED_PRIO_LB) && !defined(__GENKSYMS__)
++	struct list_head cfs_offline_tasks;
++#else
++#endif
+ };
+ 
+ #ifdef CONFIG_FAIR_GROUP_SCHED
+diff --git a/kernel/sysctl.c b/kernel/sysctl.c
+index 697b338b4e4b..a04d2dd02699 100644
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -2091,6 +2091,17 @@ static struct ctl_table kern_table[] = {
+ 		.extra1		= SYSCTL_ONE,
+ 		.extra2		= SYSCTL_INT_MAX,
+ 	},
++#endif
++#ifdef CONFIG_QOS_SCHED_PRIO_LB
++        {
++                .procname       = "sched_prio_load_balance_enabled",
++                .data           = &sysctl_sched_prio_load_balance_enabled,
++                .maxlen         = sizeof(unsigned int),
++                .mode           = 0644,
++                .proc_handler   = proc_dointvec_minmax,
++                .extra1         = SYSCTL_ZERO,
++                .extra2         = SYSCTL_ONE,
++        },
+ #endif
+         {
+                 .procname       = "fault_event_enable",
+-- 
+2.33.0
+
