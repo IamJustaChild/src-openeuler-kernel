@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .12.2
-%global pkg_release         .60
+%global maintenance_release .21.0
+%global pkg_release         .61
 %global rt_release          .rt62
 
 %define with_debuginfo 1
@@ -76,7 +76,7 @@ Source9002: series.conf
 Source9998: patches.tar.bz2
 %endif
 
-Patch0: 0000-kernel-5.10.0-136.8.0-rt62.patch
+Patch0: 0001-apply-preempt-RT-patch.patch
 Patch1: 0001-modify-openeuler_defconfig-for-rt62.patch
 
 #BuildRequires:
@@ -897,6 +897,11 @@ fi
 %endif
 
 %changelog
+
+* Wed Mar 7 2023 kylin-liyulei <zhangyu4@kylinos.cn> - 5.10.0-136.21.0.61
+- update Kernel-rt:preempt-RT to openEuler 5.10.0-136.21.0
+
+
 * Wed Dec 28 2022 kylin-liyulei <zhangyu4@kylinos.cn> - 5.10.0-136.12.2.60
 - update Kernel-rt:preempt-RT to openEuler 5.10.0-136.12.2
 
