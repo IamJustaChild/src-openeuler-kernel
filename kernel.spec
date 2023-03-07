@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0191
+Release: %{hulkrelease}.0192
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,8 @@ fi
 %endif
 
 %changelog
+
+* Tue Mar 07 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2303.1.0.0192
 
 * Tue Mar 07 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2303.1.0.0191
 - HID: check empty report_list in hid_validate_values()
