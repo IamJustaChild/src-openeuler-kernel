@@ -9,10 +9,10 @@
 %global debuginfodir /usr/lib/debug
 
 %global upstream_version    6.1
-%global upstream_sublevel   14
-%global devel_release       4
+%global upstream_sublevel   19
+%global devel_release       5
 %global maintenance_release .0.0
-%global pkg_release         .12
+%global pkg_release         .13
 
 %define with_debuginfo 0
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -905,6 +905,9 @@ fi
 %endif
 
 %changelog
+* Wen Mar 15 2023 Sang Lipeng <sanglipeng1@jd.com> - 6.1.19-5.0.0.13
+- update to v6.1.19-5.0.0.13
+
 * Tue Feb 28 2023 Zheng Zengkai <zhengzengkai@huawei.com> - 6.1.14-4.0.0.12
 - update to v6.1.14-4.0.0.12
 
