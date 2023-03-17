@@ -17,8 +17,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .22.0
-%global pkg_release         .98
+%global maintenance_release .23.0
+%global pkg_release         .99
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -942,6 +942,38 @@ fi
 %endif
 
 %changelog
+* Thu Mar 16 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.23.0.99
+- !484 Backport CVEs and bugfixes
+- scsi: cancel the inflight async device probe when remove scsi_target
+- ring-buffer: Fix race between reset page and reading page
+- raid1, raid10: switch to precise io accounting
+- block: add precise io accouting apis
+- md/raid10: fix memleak for 'conf->bio_split'
+- scsi: fix use-after-free problem in scsi_remove_target
+- sctp: fail if no bound addresses can be used for a given scope
+- ext4: fix WARNING in mb_find_extent
+- scsi: iscsi_tcp: Fix UAF during login when accessing the shost ipaddress
+- scsi: iscsi_tcp: Fix UAF during logout when accessing the shost ipaddress
+- scsi: iscsi: Move pool freeing
+- xfs: aborting inodes on shutdown may need buffer lock
+- ext4: fix incorrect options show of original mount_opt and extend mount_opt2
+- !473 [sync] PR-332: [5.10]Make Multiple functions On Netswift PCIE NIC belong to different IOMMU group
+- openeuler: pci: workaround multiple functions can be assigned to only one VM
+- !452 intel: backport isst issue fix and other update to align with upstream 6.0
+- !457 Backport CVEs and bugfixes
+- !464 Revert "scsi: fix iscsi rescan fails to create block"
+- Revert "scsi: fix iscsi rescan fails to create block"
+- phy: tegra: xusb: Fix return value of tegra_xusb_find_port_node function
+- platform/x86: ISST: PUNIT device mapping with Sub-NUMA clustering
+- platform/x86: ISST: use semi-colons instead of commas
+- platform/x86: ISST: Mark mmio_range_devid_0 and mmio_range_devid_1 with static keyword
+- platform/x86: ISST: Change PCI device macros
+- platform/x86: ISST: Allow configurable offset range
+- platform/x86: ISST: Check for unaligned mmio address
+- platform/x86: ISST: Fix optimization with use of numa
+- platform/x86: ISST: Use numa node id for cpu pci dev mapping
+- platform/x86: ISST: Optimize CPU to PCI device mapping
+
 * Wed Mar 08 2023 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-136.22.0.98
 - !455 Backport CVEs and bugfixes
 - media: rc: Fix use-after-free bugs caused by ene_tx_irqsim()
