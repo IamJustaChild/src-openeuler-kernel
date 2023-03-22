@@ -17,8 +17,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .23.0
-%global pkg_release         .99
+%global maintenance_release .24.0
+%global pkg_release         .100
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -942,6 +942,23 @@ fi
 %endif
 
 %changelog
+* Wed Mar 22 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.24.0.100
+- !513 Backport CVEs and bugfixes
+- livepatch/core: Fix hungtask against cpu hotplug on x86
+- seccomp: Move copy_seccomp() to no failure path.
+- media: dvb-usb: az6027: fix null-ptr-deref in az6027_i2c_xfer()
+- mm: optimize do_wp_page() for fresh pages in local LRU pagevecs
+- mm: optimize do_wp_page() for exclusive pages in the swapcache
+- ftrace: Fix invalid address access in lookup_rec() when index is 0
+- tipc: add an extra conn_get in tipc_conn_alloc
+- tipc: set con sock in tipc_conn_alloc
+- ext4: fix another off-by-one fsmap error on 1k block filesystems
+- mm/vmalloc: huge vmalloc backing pages should be split rather than compound
+- HID: asus: use spinlock to safely schedule workers
+- HID: asus: use spinlock to protect concurrent accesses
+- HID: asus: Remove check for same LED brightness on set
+- jbd2: fix data missing when reusing bh which is ready to be checkpointed
+
 * Thu Mar 16 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.23.0.99
 - !484 Backport CVEs and bugfixes
 - scsi: cancel the inflight async device probe when remove scsi_target
