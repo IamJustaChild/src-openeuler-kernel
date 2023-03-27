@@ -14,7 +14,7 @@
 %global maintenance_release .0.0
 %global pkg_release         .17
 
-%define with_debuginfo 0
+%define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
 %global _missing_build_ids_terminate_build 1
 %global _no_recompute_build_ids 1
