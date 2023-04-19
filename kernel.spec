@@ -9,10 +9,10 @@
 %global debuginfodir /usr/lib/debug
 
 %global upstream_version    6.1
-%global upstream_sublevel   8
-%global devel_release       3
+%global upstream_sublevel   19
+%global devel_release       7
 %global maintenance_release .0.0
-%global pkg_release         .7
+%global pkg_release         .17
 
 %define with_debuginfo 0
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -74,7 +74,27 @@ Patch0001: 0001-kconfig-Add-script-to-update-openeuler_defconfig.patch
 Patch0002: 0002-config-add-initial-openeuler_defconfig-for-arm64.patch
 Patch0003: 0003-config-add-initial-openeuler_defconfig-for-x86_64.patch
 Patch0004: 0004-config-disable-CONFIG_EFI_ZBOOT-by-default.patch
-Patch0005: 0005-arm64-vmalloc-use-module-region-only-for-module_allo.patch
+Patch0005: 0005-arm64-kaslr-don-t-pretend-KASLR-is-enabled-if-offset.patch
+Patch0006: 0006-bpf-Introduce-the-string-processing-helper.patch
+Patch0007: 0007-net-ipv4-A-new-bit-is-added-to-indicate-whether-to-d.patch
+Patch0008: 0008-ipv4-bpf-Introduced-to-support-the-ULP-to-modify-soc.patch
+Patch0009: 0009-bpf-Introduces-a-new-state-to-identify-the-location-.patch
+Patch0010: 0010-net-bpf-Sockops-supports-modification-of-remote_ip-a.patch
+Patch0011: 0011-bpf-Two-helper-functions-are-introduced-to-parse-use.patch
+Patch0012: 0012-net-bpf-Add-a-writeable_tracepoint-to-inet_stream_co.patch
+Patch0013: 0013-nfs-client-multipath.patch
+Patch0014: 0014-nfs-client-multipath-config.patch
+Patch0015: 0015-mm-demotion-fix-NULL-vs-IS_ERR-checking-in-memory_ti.patch
+Patch0016: 0016-x86-mm-Randomize-per-cpu-entry-area.patch
+Patch0017: 0017-x86-kasan-Map-shadow-for-percpu-pages-on-demand.patch
+Patch0018: 0018-x86-mm-Recompute-physical-address-for-every-page-of-.patch
+Patch0019: 0019-x86-mm-Populate-KASAN-shadow-for-entire-per-CPU-rang.patch
+Patch0020: 0020-x86-kasan-Rename-local-CPU_ENTRY_AREA-variables-to-s.patch
+Patch0021: 0021-x86-kasan-Add-helpers-to-align-shadow-addresses-up-a.patch
+Patch0022: 0022-x86-kasan-Populate-shadow-for-shared-chunk-of-the-CP.patch
+Patch0023: 0023-net-sched-act_mirred-better-wording-on-protection-ag.patch
+Patch0024: 0024-act_mirred-use-the-backlog-for-nested-calls-to-mirre.patch
+
 
 #BuildRequires:
 BuildRequires: module-init-tools, patch >= 2.5.4, bash >= 2.03, tar
@@ -99,7 +119,7 @@ BuildRequires: audit-libs-devel
 BuildRequires: pciutils-devel gettext
 BuildRequires: rpm-build, elfutils
 BuildRequires: numactl-devel python3-devel glibc-static python3-docutils
-BuildRequires: perl-generators perl(Carp) libunwind-devel gtk2-devel libbabeltrace-devel java-1.8.0-openjdk perl-devel
+BuildRequires: perl-generators perl(Carp) libunwind-devel gtk2-devel libbabeltrace-devel java-1.8.0-openjdk java-1.8.0-openjdk-devel perl-devel
 AutoReq: no
 AutoProv: yes
 
@@ -304,6 +324,25 @@ Applypatches series.conf %{_builddir}/kernel-%{version}/linux-%{KernelVer}
 %patch0003 -p1
 %patch0004 -p1
 %patch0005 -p1
+%patch0006 -p1
+%patch0007 -p1
+%patch0008 -p1
+%patch0009 -p1
+%patch0010 -p1
+%patch0011 -p1
+%patch0012 -p1
+%patch0013 -p1
+%patch0014 -p1
+%patch0015 -p1
+%patch0016 -p1
+%patch0017 -p1
+%patch0018 -p1
+%patch0019 -p1
+%patch0020 -p1
+%patch0021 -p1
+%patch0022 -p1
+%patch0023 -p1
+%patch0024 -p1
 touch .scmversion
 
 find . \( -name "*.orig" -o -name "*~" \) -exec rm -f {} \; >/dev/null
@@ -886,6 +925,34 @@ fi
 %endif
 
 %changelog
+* Fri Mar 18 2023 Jialin Zhang <zhangjialin11@huawei.com> - 6.1.19-7.0.0.17
+- Fix CVE-2023-23005, CVE-2023-0597 and CVE-2022-4269
+
+* Fri Mar 17 2023 Zheng Zengkai <zhengzengkai@huawei.com> - 6.1.19-6.0.0.16
+- Fix kernel rpm build failure that libperf-jvmti.so is missing
+
+* Wed Mar 15 2023 Sang Lipeng <sanglipeng1@jd.com> - 6.1.19-6.0.0.14
+- update to v6.1.19-6.0.0.14
+
+* Tue Mar 14 2023 Gaosheng Cui <cuigaosheng1@huawei.com> - 6.1.14-5.0.0.13
+- update the patch to fix module_alloc failed when CONFIG_RANDOMIZE_BASE is set
+
+* Tue Feb 28 2023 Zheng Zengkai <zhengzengkai@huawei.com> - 6.1.14-4.0.0.12
+- update to v6.1.14-4.0.0.12
+
+* Mon Feb 25 2023 Jiang zhongbing <jiangzhongbing@huawei.com> 6.1.8-3.0.0.11
+- Add feature for nfs client support multipath
+
+* Mon Feb 20 2023 Ge Wang <wangge20@h-partners.com> 6.1.8-3.0.0.10
+- update to v6.1.8-3.0.0.10
+- config: add option CONFIG_DRM_GUD and CONFIG_LZ4_COMPRESS for x86_64 architecture
+
+* Thu Feb 16 2023 Liu Xin <liuxin350@huawei.com> - 6.1.8-3.0.0.9
+- add feature for ebpf defer connect network
+
+* Thu Feb 16 2023 Liu Xin <liuxin350@huawei.com> - 6.1.8-3.0.0.8
+- add feature for ebpf defer connect helper
+
 * Tue Feb 7 2023 Zheng Zengkai <zhengzengkai@huawei.com> - 6.1.8-3.0.0.7
 - update to v6.1.8-3.0.0.7
 - arm64/vmalloc: use module region only for module_alloc() if CONFIG_RANDOMIZE_BASE is set
