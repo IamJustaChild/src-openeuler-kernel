@@ -8,11 +8,11 @@
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 %global debuginfodir /usr/lib/debug
 
-%global upstream_version    6.1
-%global upstream_sublevel   8
+%global upstream_version    6.3
+%global upstream_sublevel   0
 %global devel_release       3
 %global maintenance_release .0.0
-%global pkg_release         .7
+%global pkg_release         .8
 
 %define with_debuginfo 0
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -75,6 +75,8 @@ Patch0002: 0002-config-add-initial-openeuler_defconfig-for-arm64.patch
 Patch0003: 0003-config-add-initial-openeuler_defconfig-for-x86_64.patch
 Patch0004: 0004-config-disable-CONFIG_EFI_ZBOOT-by-default.patch
 Patch0005: 0005-arm64-vmalloc-use-module-region-only-for-module_allo.patch
+Patch0006: 0006-config-x86-update-defconfig-for-upstream-6.3.patch
+Patch0007: 0007-config-arm64-update-defconfig-for-upstream-6.3.patch
 
 #BuildRequires:
 BuildRequires: module-init-tools, patch >= 2.5.4, bash >= 2.03, tar
@@ -304,7 +306,8 @@ Applypatches series.conf %{_builddir}/kernel-%{version}/linux-%{KernelVer}
 %patch0003 -p1
 %patch0004 -p1
 %patch0005 -p1
-touch .scmversion
+%patch0006 -p1
+%patch0007 -p1
 
 find . \( -name "*.orig" -o -name "*~" \) -exec rm -f {} \; >/dev/null
 find . -name .gitignore -exec rm -f {} \; >/dev/null
@@ -435,7 +438,6 @@ popd
     mkdir -p $RPM_BUILD_ROOT/usr/src/
     mv linux-%{KernelVer}-source $RPM_BUILD_ROOT/usr/src/linux-%{KernelVer}
     cp linux-%{KernelVer}/.config $RPM_BUILD_ROOT/usr/src/linux-%{KernelVer}/
-    cp linux-%{KernelVer}/.scmversion $RPM_BUILD_ROOT/usr/src/linux-%{KernelVer}/
 %endif
 
 cd linux-%{KernelVer}
@@ -882,10 +884,12 @@ fi
 %defattr(-,root,root)
 /usr/src/linux-%{KernelVer}/*
 /usr/src/linux-%{KernelVer}/.config
-/usr/src/linux-%{KernelVer}/.scmversion
 %endif
 
 %changelog
+* Tue Apr 25 2023 Xie XiuQi <xiexiuqi@huawei.com> - 6.3.0-4.0.0.8
+- update to upstream v6.3
+
 * Tue Feb 7 2023 Zheng Zengkai <zhengzengkai@huawei.com> - 6.1.8-3.0.0.7
 - update to v6.1.8-3.0.0.7
 - arm64/vmalloc: use module region only for module_alloc() if CONFIG_RANDOMIZE_BASE is set
