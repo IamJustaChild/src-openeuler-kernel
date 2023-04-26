@@ -17,8 +17,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .29.0
-%global pkg_release         .105
+%global maintenance_release .30.0
+%global pkg_release         .106
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -942,6 +942,30 @@ fi
 %endif
 
 %changelog
+* Wed Apr 26 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.30.0.106
+- !631 Backport CVEs and bugfixes
+- bonding: Fix memory leak when changing bond type to Ethernet
+- bonding: restore bond's IFF_SLAVE flag if a non-eth dev enslave fails
+- bonding: restore IFF_MASTER/SLAVE flags on bond enslave ether type change
+- hwmon: (xgene) Fix use after free bug in xgene_hwmon_remove due to race condition
+- rxrpc: Fix race between conn bundle lookup and bundle removal [ZDI-CAN-15975]
+- power: supply: da9150: Fix use after free bug in da9150_charger_remove due to race condition
+- mm: mem_reliable: Fix blank space issue in reliable_report_usage()
+- timers/nohz: Last resort update jiffies on nohz_full IRQ entry
+- xfs: don't leak btree cursor when insrec fails after a split
+- xfs: avoid unnecessary runtime sibling pointer endian conversions
+- xfs: detect self referencing btree sibling pointers
+- xfs: introduce xfs_buf_daddr()
+- xfs: move kernel-specific superblock validation out of libxfs
+- xfs: bound maximum wait time for inodegc work
+- xfs: introduce xfs_inodegc_push()
+- xfs: flush inodegc workqueue tasks before cancel
+- xfs: drop async cache flushes from CIL commits.
+- xfs: limit iclog tail updates
+- xfs: need to see iclog flags in tracing
+- io_uring: ensure that io_init_req() passes in the right issue_flags
+- io_uring: add missing lock in io_get_file_fixed
+
 * Wed Apr 19 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.29.0.105
 - !589 [sync] PR-585:  x86/speculation: Allow enabling STIBP with legacy IBRS
 - !590 Backport CVEs and bugfixes
