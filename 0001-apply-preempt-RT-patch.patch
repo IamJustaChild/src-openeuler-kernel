@@ -22703,7 +22703,7 @@ index 19668d614f47..b35598de6ed6 100644
  
  restart:
  	/* Reset the pending bitmask before enabling irqs */
-@@ -307,8 +566,10 @@ asmlinkage __visible void __softirq_entry __do_softirq(void)
+@@ -307,8 +566,10 @@ restart:
  		pending >>= softirq_bit;
  	}
  
@@ -22715,7 +22715,7 @@ index 19668d614f47..b35598de6ed6 100644
  	local_irq_disable();
  
  	pending = local_softirq_pending();
-@@ -320,46 +581,23 @@ asmlinkage __visible void __softirq_entry __do_softirq(void)
+@@ -320,47 +581,28 @@ restart:
  		wakeup_softirqd();
  	}
  
@@ -22751,25 +22751,25 @@ index 19668d614f47..b35598de6ed6 100644
   */
  void irq_enter_rcu(void)
  {
--	if (is_idle_task(current) && !in_interrupt()) {
--		/*
--		 * Prevent raise_softirq from needlessly waking up ksoftirqd
--		 * here, as softirq will be serviced on return from interrupt.
--		 */
--		local_bh_disable();
 +	__irq_enter_raw();
-+
-+	if (is_idle_task(current) && (irq_count() == HARDIRQ_OFFSET))
+ 	if (tick_nohz_full_cpu(smp_processor_id()) ||
+-		(is_idle_task(current) && !in_interrupt())) {
++		(is_idle_task(current) && (irq_count() == HARDIRQ_OFFSET))) {
+ 		/*
+ 		 * Prevent raise_softirq from needlessly waking up ksoftirqd
+ 		 * here, as softirq will be serviced on return from interrupt.
+ 		 */
+-		local_bh_disable();
  		tick_irq_enter();
 -		_local_bh_enable();
--	}
+ 	}
 -	__irq_enter();
 +
 +	account_hardirq_enter(current);
  }
  
  /**
-@@ -371,31 +609,6 @@ void irq_enter(void)
+@@ -372,31 +614,6 @@ void irq_enter(void)
  	irq_enter_rcu();
  }
  
@@ -22801,7 +22801,7 @@ index 19668d614f47..b35598de6ed6 100644
  
  static inline void tick_irq_exit(void)
  {
-@@ -417,7 +630,7 @@ static inline void __irq_exit_rcu(void)
+@@ -418,7 +635,7 @@ static inline void __irq_exit_rcu(void)
  #else
  	lockdep_assert_irqs_disabled();
  #endif
@@ -22810,7 +22810,7 @@ index 19668d614f47..b35598de6ed6 100644
  	preempt_count_sub(HARDIRQ_OFFSET);
  	if (!in_interrupt() && local_softirq_pending())
  		invoke_softirq();
-@@ -466,7 +679,7 @@ inline void raise_softirq_irqoff(unsigned int nr)
+@@ -467,7 +684,7 @@ inline void raise_softirq_irqoff(unsigned int nr)
  	 * Otherwise we wake up ksoftirqd to make sure we
  	 * schedule the softirq soon.
  	 */
@@ -22819,7 +22819,7 @@ index 19668d614f47..b35598de6ed6 100644
  		wakeup_softirqd();
  }
  
-@@ -532,6 +745,16 @@ void __tasklet_hi_schedule(struct tasklet_struct *t)
+@@ -533,6 +750,16 @@ void __tasklet_hi_schedule(struct tasklet_struct *t)
  }
  EXPORT_SYMBOL(__tasklet_hi_schedule);
  
@@ -22836,7 +22836,7 @@ index 19668d614f47..b35598de6ed6 100644
  static void tasklet_action_common(struct softirq_action *a,
  				  struct tasklet_head *tl_head,
  				  unsigned int softirq_nr)
-@@ -551,8 +774,7 @@ static void tasklet_action_common(struct softirq_action *a,
+@@ -552,8 +779,7 @@ static void tasklet_action_common(struct softirq_action *a,
  
  		if (tasklet_trylock(t)) {
  			if (!atomic_read(&t->count)) {
@@ -22846,7 +22846,7 @@ index 19668d614f47..b35598de6ed6 100644
  					BUG();
  				if (t->use_callback)
  					t->callback(t);
-@@ -607,21 +829,62 @@ void tasklet_init(struct tasklet_struct *t,
+@@ -608,21 +834,62 @@ void tasklet_init(struct tasklet_struct *t,
  }
  EXPORT_SYMBOL(tasklet_init);
  
@@ -22915,7 +22915,7 @@ index 19668d614f47..b35598de6ed6 100644
  void __init softirq_init(void)
  {
  	int cpu;
-@@ -644,18 +907,18 @@ static int ksoftirqd_should_run(unsigned int cpu)
+@@ -645,18 +912,18 @@ static int ksoftirqd_should_run(unsigned int cpu)
  
  static void run_ksoftirqd(unsigned int cpu)
  {
