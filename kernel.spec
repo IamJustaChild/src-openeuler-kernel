@@ -17,8 +17,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .31.0
-%global pkg_release         .107
+%global maintenance_release .32.0
+%global pkg_release         .108
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -942,6 +942,26 @@ fi
 %endif
 
 %changelog
+* Tue May 16 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.32.0.108
+- !774 Backport CVEs and bugfixes
+- filemap: Correct the conditions for marking a folio as accessed
+- Revert "filemap: Correct the conditions for marking a folio as accessed"
+- netrom: Fix use-after-free caused by accept on already connected socket
+- bluetooth: Perform careful capability checks in hci_sock_ioctl()
+- fs/ntfs3: Delete duplicate condition in ntfs_read_mft()
+- fs/ntfs3: Fix slab-out-of-bounds read in run_unpack
+- fs/ntfs3: Validate data run offset
+- xfs: buffer pins need to hold a buffer reference
+- ovl: get_acl: Fix null pointer dereference at realinode in rcu-walk mode
+- fix kabi broken due to import new inode operation get_inode_acl
+- ovl: enable RCU'd ->get_acl()
+- vfs: add rcu argument to ->get_acl() callback
+- bpf: add missing header file include
+- uaccess: Add speculation barrier to copy_from_user()
+- !685 [sync] PR-675: driver/hifc&hinic: Fix compile error in allyesconfigs
+- scsi/hifc: Fix compile error in allyesconfigs
+- net/hinic: Fix compile error in allyesconfigs
+
 * Wed May 10 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.31.0.107
 - !721 Backport CVEs and bugfixes
 - !694 [sync] PR-625: AMD: Fix build warning.
