@@ -10,9 +10,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       150
+%global devel_release       151
 %global maintenance_release .0.0
-%global pkg_release         .76
+%global pkg_release         .77
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -879,6 +879,88 @@ fi
 %endif
 
 %changelog
+* Tue May 23 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-151.0.0.77
+- !798 bpf: support BPF_PROG_QUERY for progs attached to sockmap
+- !802 Backport CVEs and bugfixes
+- bpf: support BPF_PROG_QUERY for progs attached to sockmap
+- !780 Backport 5.10.152 LTS
+- netfilter: nf_tables: deactivate anonymous set from preparation phase
+- xfs: verify buffer contents when we skip log replay
+- iommu/arm-smmu-v3: Fix ECMDQs is not initialized correctly
+- !791 crypto: hisilicon/qm - support dumping stop queue status
+- !794 scsi: hisi_sas: The IO timeout mechanism and error handling related bugfix
+- !608 Net: ethernet: Support 3snic 3s9xx network card
+- crypto: hisilicon/qm - support dumping stop queue status
+- crypto: hisilicon/qm - add debugfs to query the status of the stop queue
+- scsi: hisi_sas: Change DMA setup lock timeout to 2.5s
+- scsi: hisi_sas: Modify v3 HW SATA disk error state completion processing
+- Net: ethernet: Support 3snic 3s9xx network card 3snic inclusion category: feature bugzilla: https://gitee.com/openeuler/kernel/issues/I6TX4J CVE: NA
+- udp: Update reuse->has_conns under reuseport_lock.
+- mm: /proc/pid/smaps_rollup: fix no vma's null-deref
+- mmc: core: Add SD card quirk for broken discard
+- Makefile.debug: re-enable debug info for .S files
+- x86/Kconfig: Drop check for -mabi=ms for CONFIG_EFI_STUB
+- ACPI: video: Force backlight native for more TongFang devices
+- hv_netvsc: Fix race between VF offering and VF association message from host
+- perf/x86/intel/pt: Relax address filter validation
+- riscv: topology: fix default topology reporting
+- arm64: dts: qcom: sc7180-trogdor: Fixup modem memory region
+- fcntl: make F_GETOWN(EX) return 0 on dead owner task
+- perf: Skip and warn on unknown format 'configN' attrs
+- perf pmu: Validate raw event with sysfs exported format bits
+- riscv: always honor the CONFIG_CMDLINE_FORCE when parsing dtb
+- riscv: Add machine name to kernel boot log and stack dump output
+- mmc: sdhci-tegra: Use actual clock rate for SW tuning correction
+- xen/gntdev: Accommodate VMA splitting
+- xen: assume XENFEAT_gnttab_map_avail_bits being set for pv guests
+- tracing: Do not free snapshot if tracer is on cmdline
+- tracing: Simplify conditional compilation code in tracing_set_tracer()
+- dmaengine: mxs: use platform_driver_register
+- dmaengine: mxs-dma: Remove the unused .id_table
+- drm/virtio: Use appropriate atomic state in virtio_gpu_plane_cleanup_fb()
+- iommu/vt-d: Clean up si_domain in the init_dmars() error path
+- iommu/vt-d: Allow NVS regions in arch_rmrr_sanity_check()
+- net: phy: dp83822: disable MDI crossover status change interrupt
+- net: hns: fix possible memory leak in hnae_ae_register()
+- sfc: include vport_id in filter spec hash and equal()
+- net: sched: sfb: fix null pointer access issue when sfb_init() fails
+- net: sched: delete duplicate cleanup of backlog and qlen
+- net: sched: cake: fix null pointer access issue when cake_init() fails
+- nvme-hwmon: kmalloc the NVME SMART log buffer
+- nvme-hwmon: consistently ignore errors from nvme_hwmon_init
+- nvme-hwmon: Return error code when registration fails
+- nvme-hwmon: rework to avoid devm allocation
+- ionic: catch NULL pointer issue on reconfig
+- net: hsr: avoid possible NULL deref in skb_clone()
+- cifs: Fix xid leak in cifs_ses_add_channel()
+- cifs: Fix xid leak in cifs_flock()
+- cifs: Fix xid leak in cifs_copy_file_range()
+- net: phy: dp83867: Extend RX strap quirk for SGMII mode
+- net/atm: fix proc_mpc_write incorrect return value
+- sfc: Change VF mac via PF as first preference if available.
+- HID: magicmouse: Do not set BTN_MOUSE on double report
+- i40e: Fix DMA mappings leak
+- tipc: fix an information leak in tipc_topsrv_kern_subscr
+- tipc: Fix recognition of trial period
+- ACPI: extlog: Handle multiple records
+- btrfs: fix processing of delayed tree block refs during backref walking
+- btrfs: fix processing of delayed data refs during backref walking
+- r8152: add PID for the Lenovo OneLink+ Dock
+- media: venus: dec: Handle the case where find_format fails
+- media: mceusb: set timeout to at least timeout provided
+- KVM: arm64: vgic: Fix exit condition in scan_its_table()
+- kvm: Add support for arch compat vm ioctls
+- cpufreq: qcom: fix memory leak in error path
+- ata: ahci: Match EM_MAX_SLOTS with SATA_PMP_MAX_PORTS
+- ata: ahci-imx: Fix MODULE_ALIAS
+- hwmon/coretemp: Handle large core ID value
+- x86/microcode/AMD: Apply the patch early on every logical thread
+- i2c: qcom-cci: Fix ordering of pm_runtime_xx and i2c_add_adapter
+- cpufreq: qcom: fix writes in read-only memory region
+- selinux: enable use of both GFP_KERNEL and GFP_ATOMIC in convert_context()
+- ocfs2: fix BUG when iput after ocfs2_mknod fails
+- ocfs2: clear dinode links count in case of error
+
 * Sat May 20 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-150.0.0.76
 - !782 openEuler supports bcache by default on x86 platforms
 - !765 LoongArch: fix some stability issues
