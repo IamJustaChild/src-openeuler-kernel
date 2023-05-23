@@ -17,8 +17,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .32.0
-%global pkg_release         .108
+%global maintenance_release .33.0
+%global pkg_release         .109
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -942,6 +942,17 @@ fi
 %endif
 
 %changelog
+* Tue May 23 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.33.0.109
+- !801 Backport CVEs
+- netfilter: nf_tables: deactivate anonymous set from preparation phase
+- xfs: verify buffer contents when we skip log replay
+- !779 [sync] PR-768: Backport 5.10.151 LTS
+- kbuild: Add skip_encoding_btf_enum64 option to pahole
+- kbuild: Unify options for BTF generation for vmlinux and modules
+- kbuild: skip per-CPU BTF generation for pahole v1.18-v1.21
+- kbuild: Quote OBJCOPY var to avoid a pahole call break the build
+- bpf: Generate BTF_KIND_FLOAT when linking vmlinux
+
 * Tue May 16 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.32.0.108
 - !774 Backport CVEs and bugfixes
 - filemap: Correct the conditions for marking a folio as accessed
