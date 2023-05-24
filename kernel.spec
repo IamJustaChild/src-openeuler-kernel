@@ -10,9 +10,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       151
+%global devel_release       152
 %global maintenance_release .0.0
-%global pkg_release         .77
+%global pkg_release         .78
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -879,6 +879,142 @@ fi
 %endif
 
 %changelog
+* Wed May 24 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-152.0.0.78
+- !824  Net: ethernet: 3snic 3s9xx network driver add "select NET_DEVLINK"
+- Net: ethernet: 3snic 3s9xx network driver add "select NET_DEVLINK"
+- !821 Revert "riscv: topology: fix default topology reporting"
+- !820 Net: m1600: Fix build err
+- Revert "riscv: topology: fix default topology reporting"
+- Net: m1600: Fix build err for hwmon.c.
+- !761 net: stmmac: fix potential double free of dma descriptor resources
+- !807 Backport 5.10.153 LTS
+- !805 Add support for HiSilicon UC/H60PA/PAv3 PMU driver
+- !545 [OLK-5.10] x86/acpi/cstate: Optimize ARB_DISABLE on Centaur CPUs
+- !789 x86 FPU/AMX bug fix since kernel v5.18
+- !787 Intel: Support In Field Scan(IFS) Array BIST
+- !781 Intel: backport split lock EMR  CPU support for OLK 5.10
+- !760 LoongArch: kvm: fix bug of kvm's hugepage
+- drivers/perf: hisi: Add support for HiSilicon UC PMU driver
+- drivers/perf: hisi: Add support for HiSilicon H60PA and PAv3 PMU driver
+- drivers/perf: hisi: add NULL check for name
+- drivers/perf: hisi: Remove redundant initialized of pmu->name
+- drivers/perf: hisi: Extract initialization of "cpa_pmu->pmu"
+- serial: Deassert Transmit Enable on probe in driver-specific way
+- serial: core: move RS485 configuration tasks from drivers into core
+- can: rcar_canfd: rcar_canfd_handle_global_receive(): fix IRQ storm on global FIFO receive
+- arm64/kexec: Test page size support with new TGRAN range values
+- arm64/mm: Fix __enable_mmu() for new TGRAN range values
+- arm64: Add AMPERE1 to the Spectre-BHB affected list
+- net: enetc: survive memory pressure without crashing
+- net/mlx5: Fix crash during sync firmware reset
+- net/mlx5: Fix possible use-after-free in async command interface
+- net/mlx5e: Do not increment ESN when updating IPsec ESN state
+- nh: fix scope used to find saddr when adding non gw nh
+- net: ehea: fix possible memory leak in ehea_register_port()
+- openvswitch: switch from WARN to pr_warn
+- ALSA: aoa: Fix I2S device accounting
+- ALSA: aoa: i2sbus: fix possible memory leak in i2sbus_add_dev()
+- net: fec: limit register access on i.MX6UL
+- PM: domains: Fix handling of unavailable/disabled idle states
+- net: ksz884x: fix missing pci_disable_device() on error in pcidev_init()
+- i40e: Fix flow-type by setting GL_HASH_INSET registers
+- i40e: Fix VF hang when reset is triggered on another VF
+- i40e: Fix ethtool rx-flow-hash setting for X722
+- ipv6: ensure sane device mtu in tunnels
+- media: vivid: set num_in/outputs to 0 if not supported
+- media: videodev2.h: V4L2_DV_BT_BLANKING_HEIGHT should check 'interlaced'
+- media: v4l2-dv-timings: add sanity checks for blanking values
+- media: vivid: dev->bitmap_cap wasn't freed in all cases
+- media: vivid: s_fbuf: add more sanity checks
+- PM: hibernate: Allow hybrid sleep to work with s2idle
+- can: mcp251x: mcp251x_can_probe(): add missing unregister_candev() in error path
+- can: mscan: mpc5xxx: mpc5xxx_can_probe(): add missing put_clock() in error path
+- tcp: fix indefinite deferral of RTO with SACK reneging
+- tcp: fix a signed-integer-overflow bug in tcp_add_backlog()
+- tcp: minor optimization in tcp_add_backlog()
+- net: lantiq_etop: don't free skb when returning NETDEV_TX_BUSY
+- net: fix UAF issue in nfqnl_nf_hook_drop() when ops_init() failed
+- kcm: annotate data-races around kcm->rx_wait
+- kcm: annotate data-races around kcm->rx_psock
+- atlantic: fix deadlock at aq_nic_stop
+- amd-xgbe: add the bit rate quirk for Molex cables
+- amd-xgbe: fix the SFP compliance codes check for DAC cables
+- x86/unwind/orc: Fix unreliable stack dump with gcov
+- net: netsec: fix error handling in netsec_register_mdio()
+- tipc: fix a null-ptr-deref in tipc_topsrv_accept
+- perf/x86/intel/lbr: Use setup_clear_cpu_cap() instead of clear_cpu_cap()
+- ALSA: ac97: fix possible memory leak in snd_ac97_dev_register()
+- ASoC: qcom: lpass-cpu: Mark HDMI TX parity register as volatile
+- arc: iounmap() arg is volatile
+- ASoC: qcom: lpass-cpu: mark HDMI TX registers as volatile
+- drm/msm: Fix return type of mdp4_lvds_connector_mode_valid
+- media: v4l2: Fix v4l2_i2c_subdev_set_name function documentation
+- net: ieee802154: fix error return code in dgram_bind()
+- xen/gntdev: Prevent leaking grants
+- Xen/gntdev: don't ignore kernel unmapping error
+- s390/pci: add missing EX_TABLE entries to __pcistg_mio_inuser()/__pcilg_mio_inuser()
+- s390/futex: add missing EX_TABLE entry to __futex_atomic_op()
+- perf auxtrace: Fix address filter symbol name match for modules
+- kernfs: fix use-after-free in __kernfs_remove
+- counter: microchip-tcb-capture: Handle Signal1 read and Synapse
+- mmc: core: Fix kernel panic when remove non-standard SDIO card
+- mmc: sdhci_am654: 'select', not 'depends' REGMAP_MMIO
+- drm/msm/dp: fix IRQ lifetime
+- drm/msm/hdmi: fix memory corruption with too many bridges
+- drm/msm/dsi: fix memory corruption with too many bridges
+- scsi: qla2xxx: Use transport-defined speed mask for supported_speeds
+- mac802154: Fix LQI recording
+- exec: Copy oldsighand->action under spin-lock
+- fs/binfmt_elf: Fix memory leak in load_elf_binary()
+- fbdev: smscufx: Fix several use-after-free bugs
+- iio: temperature: ltc2983: allocate iio channels once
+- iio: light: tsl2583: Fix module unloading
+- tools: iio: iio_utils: fix digit calculation
+- xhci: Remove device endpoints from bandwidth list when freeing the device
+- xhci: Add quirk to reset host back to default state at shutdown
+- mtd: rawnand: marvell: Use correct logic for nand-keep-config
+- usb: xhci: add XHCI_SPURIOUS_SUCCESS to ASM1042 despite being a V0.96 controller
+- usb: bdc: change state when port disconnected
+- usb: dwc3: gadget: Don't set IMI for no_interrupt
+- usb: dwc3: gadget: Stop processing more requests on IMI
+- USB: add RESET_RESUME quirk for NVIDIA Jetson devices in RCM
+- ALSA: rme9652: use explicitly signed char
+- ALSA: au88x0: use explicitly signed char
+- ALSA: Use del_timer_sync() before freeing timer
+- can: kvaser_usb: Fix possible completions during init_completion
+- can: j1939: transport: j1939_session_skb_drop_old(): spin_unlock_irqrestore() before kfree_skb()
+- drivers/perf: hisi: Simplify the parameters of hisi_pmu_init()
+- drivers/perf: hisi: Advertise the PERF_PMU_CAP_NO_EXCLUDE capability
+- perf: hisi: Extract hisi_pmu_init
+- selftests/x86/amx: Add a ptrace test
+- x86/fpu/xstate: Prevent false-positive warning in __copy_xstate_uabi_buf()
+- selftests/x86/amx: Use provided __cpuid_count() macro
+- selftests: Provide local define of __cpuid_count()
+- x86/fpu: Fix copy_xstate_to_uabi() to copy init states correctly
+- x86/fpu: Exclude dynamic states from init_fpstate
+- x86/fpu: Fix the init_fpstate size check with the actual size
+- x86/fpu: Configure init_fpstate attributes orderly
+- x86/fpu/xstate: Consolidate size calculations
+- x86/fpu/xstate: Handle supervisor states in XSTATE permissions
+- x86/fpu/xsave: Handle compacted offsets correctly with supervisor states
+- x86/fpu: Cache xfeature flags from CPUID
+- x86/fpu/xsave: Initialize offset/size cache early
+- x86/fpu: Remove unused supervisor only offsets
+- x86/fpu: Remove redundant XCOMP_BV initialization
+- x86/split_lock: Enumerate architectural split lock disable bit
+- Documentation/ABI: Update IFS ABI doc
+- platform/x86/intel/ifs: Update IFS doc
+- platform/x86/intel/ifs: Implement Array BIST test
+- platform/x86/intel/ifs: Sysfs interface for Array BIST
+- platform/x86/intel/ifs: Introduce Array Scan test to IFS
+- x86/include/asm/msr-index.h: Add IFS Array test bits
+- platform/x86/intel/ifs: IFS cleanup
+- platform/x86/intel/ifs: Reorganize driver data
+- platform/x86/intel/ifs: Separate ifs_pkg_auth from ifs_data
+- net: stmmac: fix potential double free of dma descriptor resources
+- LoongArch: kvm: fix bug of kvm's hugepage
+- x86/acpi/cstate: Optimize ARB_DISABLE on Centaur CPUs
+
 * Tue May 23 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-151.0.0.77
 - !798 bpf: support BPF_PROG_QUERY for progs attached to sockmap
 - !802 Backport CVEs and bugfixes
