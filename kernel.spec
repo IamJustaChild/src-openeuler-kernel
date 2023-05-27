@@ -12,7 +12,7 @@
 %global upstream_sublevel   8
 %global devel_release       3
 %global maintenance_release .0.0
-%global pkg_release         .7
+%global pkg_release         .8
 
 %define with_debuginfo 0
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -120,6 +120,7 @@ ExclusiveOS: Linux
 %if %{with_perf}
 BuildRequires: flex xz-devel libzstd-devel
 BuildRequires: java-devel
+BuildRequires: OpenCSD
 %endif
 
 BuildRequires: dwarves
@@ -363,7 +364,7 @@ make ARCH=%{Arch} modules %{?_smp_mflags}
 %if %{with_perf}
 # perf
 %global perf_make \
-    make EXTRA_CFLAGS="-Wl,-z,now -g -Wall -fstack-protector-strong -fPIC" EXTRA_PERFLIBS="-fpie -pie" %{?_smp_mflags} -s V=1 WERROR=0 NO_LIBUNWIND=1 HAVE_CPLUS_DEMANGLE=1 NO_GTK2=1 NO_LIBNUMA=1 NO_STRLCPY=1 prefix=%{_prefix}
+    make EXTRA_CFLAGS="-Wl,-z,now -g -Wall -fstack-protector-strong -fPIC" EXTRA_PERFLIBS="-fpie -pie" %{?_smp_mflags} -s V=1 WERROR=0 NO_LIBUNWIND=1 HAVE_CPLUS_DEMANGLE=1 NO_GTK2=1 NO_LIBNUMA=1 NO_STRLCPY=1 CORESIGHT=1 prefix=%{_prefix}
 %if 0%{?with_python2}
 %global perf_python2 -C tools/perf PYTHON=%{__python2}
 %global perf_python3 -C tools/python3-perf PYTHON=%{__python3}
@@ -886,6 +887,9 @@ fi
 %endif
 
 %changelog
+* Sat May 27 2023 Junhao He <hejunhao3@huawei.com> - 6.1.8-3.0.0.8
+- perf: add CoreSight trace component support
+
 * Tue Feb 7 2023 Zheng Zengkai <zhengzengkai@huawei.com> - 6.1.8-3.0.0.7
 - update to v6.1.8-3.0.0.7
 - arm64/vmalloc: use module region only for module_alloc() if CONFIG_RANDOMIZE_BASE is set
