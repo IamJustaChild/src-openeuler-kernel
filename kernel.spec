@@ -10,9 +10,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       152
+%global devel_release       153
 %global maintenance_release .0.0
-%global pkg_release         .79
+%global pkg_release         .80
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -888,6 +888,110 @@ fi
 %endif
 
 %changelog
+* Tue May 30 2023 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-153.0.0.80
+- !795 sched/fair: Introduce multiple qos level
+- !850 Fix race condition in __percpu_counter_sum() function within cpu hotplug
+- !849 drivers/cpufreq: gain accurate CPU frequency from cpufreq/cpuinfo_cur_freq
+- !773 Compiler: Add value profile support for kernel.
+- !842 net: hns3: add support for Hisilicon ptp sync device
+- !844 A patchset of sched to improve benchmark performance
+- !837 Backport bugfixes for RDMA/hns
+- GCC: Add value profile support for kernel.
+- !803 ACC support no-sva feature
+- sched/fair: Introduce multiple qos level
+- sched: Clear ttwu_pending after enqueue_task()
+- sched: Remove the limitation of WF_ON_CPU on wakelist if wakee cpu is idle
+- sched/fair: Fix kabi borken in sched_domain
+- sched/fair: Adjust the allowed NUMA imbalance when SD_NUMA spans multiple LLCs
+- sched/fair: Improve consistency of allowed NUMA balance calculations
+- sched/pelt: Relax the sync of load_sum with load_avg
+- pcpcntrs: fix dying cpu summation race
+- cpumask: introduce for_each_cpu_or
+- lib: extend the scope of small_const_nbits() macro
+- cpumask: Introduce DYING mask
+- sched/pelt: Relax the sync of runnable_sum with runnable_avg
+- sched/pelt: Continue to relax the sync of util_sum with util_avg
+- crypto: hisilicon/qm - support no-sva feature
+- uacce: add UACCE_MODE_NOIOMMU for warpdrive
+- !851 perf/smmuv3: Enable HiSilicon Erratum quirk
+- !793 LoongArch: kvm: add pv ipi support
+- !840 intel: backport  uncore-freq current  frequency sysfs related patches
+- !839 intel: backport intel-pstate patches for Server platforms
+- !809 LoongArch: defconfig: enable memory and pci hotplug related configs for LoongArch
+- !547 [OLK-5.10] cpufreq: ACPI: Add Zhaoxin/Centaur turbo boost control interface support
+- !544 [OLK-5.10] ACPI, x86: Improve Zhaoxin processors support for NONSTOP TSC
+- !848 Support T6 ETM and Workaround CPU hung bug on hip09
+- perf/smmuv3: Enable HiSilicon Erratum quirk
+- perf cs-etm: add error logging to cs_etm_is_etmv4()
+- coresight: etm4x: Workaround CPU hung bug on hip09
+- coresight: etm4x: Add Support for HiSilicon T6 ETM
+- cpufreq: CPPC: keep target core awake when reading its cpufreq rate
+- config: enable CONFIG_ARM64_AMU_EXTN to be compatible with AMU platform
+- cpufreq: ACPI: Add Zhaoxin/Centaur turbo boost control interface support
+- ACPI, x86: Improve Zhaoxin processors support for NONSTOP TSC
+- net: hns3: add support for Hisilicon ptp sync device
+- !835 Add Huawei Intelligent Network Card Driver: hinic3
+- LoongArch: defconfig: Add PCI hotplug support
+- LoongArch: defconfig: Add memory hotplug support
+- platform/x86: intel-uncore-freq: Prevent driver loading in guests
+- platform/x86/intel/uncore-freq: Display uncore current frequency
+- platform/x86/intel/uncore-freq: Use sysfs API to create attributes
+- cpufreq: intel_pstate: Enable HWP IO boost for all servers
+- cpufreq: intel_pstate: Add Sapphire Rapids support in no-HWP mode
+- cpufreq: intel_pstate: Support Sapphire Rapids OOB mode
+- cpufreq: intel_pstate: Handle no_turbo in frequency invariance
+- RDMA/hns: Modify the value of long message loopback slice
+- RDMA/hns: Fix base address table allocation
+- RDMA/hns: Fix timeout attr in query qp for HIP08
+- net/hinic3: Add Huawei Intelligent Network Card Driver: hinic3
+- cpufreq: intel_pstate: Add Ice Lake server to out-of-band IDs
+- !601 fix  test_vmxon failed
+- !739 Fix kvm-unit-tests  vmx_cr4_osxsave_test  case failed
+- !767 [HUST CSE] fs/ntfs3: Aolve errors caused by uninitialized variables
+- LoongArch: LSVZ: Support PV IPI to reduce VM exit
+- !777 update patches for sw64 architecture
+- sw64: bpf: optimize DIV and MOD instructions
+- sw64: fix crash kernel memory reservation
+- sw64: kvm: optimize external interrupts assignment for guest
+- sw64: guard hotplug cpu specific code
+- sw64: perf: unwind: use perf's copy of kernel headers
+- sw64: trace user task unalignment
+- sw64: kvm: fix inconsitent timing metrics
+- sw64: restart idle routine if it is interrupted
+- sw64: mm: fix pmd_present() for THP
+- sw64: fix format of Kconfig
+- sw64: reorganize CPU_FREQ related config
+- efi/sw_64: work around adding memblock regions
+- sw64: kvm: add the implementation of HCALL_STOP
+- sw64: fix a compile error with CONFIG_EFI=n
+- sw64: simplify and improve smp operations
+- sw64: kvm: fix clock synchronization of VM live migration
+- sw64: fix support for qemu boards without IOR:SMP_INFO
+- sw64: setup cpu topology of guest
+- sw64: simplify pgtable set and populate interfaces
+- sw64: extend pt_regs to fix broken bpf_user_pt_regs_t
+- sw64: update kata_openeuler_defconfig and kata_guest_defconfig
+- sw64: fix bpf_user_pt_regs_t
+- sw64: increase the minimun frequency of DVFS
+- sw64: fix compilation error when CONFIG_IPMI_POWEROFF=m
+- sw64: add support for restartable sequences
+- sw64: iommu: fix iommu-flush ops to support multi-device passthrough
+- sw64: enable CONFIG_IKHEADERS in defconfig
+- sw64: select ARCH_WANT_DEFAULT_BPF_JIT in Kconfig
+- sw64: expand the occasion for using legacy power management
+- sw64: optimize idle routine
+- sw64: fix THREAD_INFO_IN_TASK support for suspend and hibernation
+- sw64: topology: fix thread_sibling setup
+- sw64: perf: add libbfd support
+- sw64: fix a compile error with CONFIG_SCHED_INFO=n
+- sw64: add support for vmtop
+- sw64: add CONFIG_SCHEDSTATS=y to defconfig
+- sw64: add more registers saved during suspend/resume cycle
+- sw64: deprecate the restored memory region during suspend cycle
+- fs/ntfs3: Fixed the error of uninitialized value
+- kvm: x86: Sink cpuid update into vendor-specific set_cr4 functions
+- KVM: nVMX: Inject #GP, not #UD, if "generic" VMXON CR0/CR4 check fails
+
 * Sat May 27 2023 Junhao He <hejunhao3@huawei.com> - 5.10.0-152.0.0.79
 - perf: add CoreSight trace component support on aarch64 platform
 
