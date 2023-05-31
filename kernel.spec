@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2305.3.0
+%global hulkrelease 2305.4.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0202
+Release: %{hulkrelease}.0203
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,19 @@ fi
 %endif
 
 %changelog
+
+* Wed May 31 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2305.4.0.0203
+- !841 【openEuler-1.0-LTS】cpufreq: conservative: Add a switch to enable fast mode
+- x86/pm: Fix false positive kmemleak report in msr_build_context()
+- drm: Lock pointer access in drm_master_release()
+- drm: Fix use-after-free read in drm_getunique()
+- cpufreq: conservative: Add a switch to enable fast mode
+- of: overlay: kmemleak in dup_and_fixup_symbol_prop()
+- iommu/dma: Fix MSI reservation allocation
+- lib/stackdepot.c: fix global out-of-bounds in stack_slabs
+- rcu: Use *_ONCE() to protect lockless ->expmask accesses
+- iommu: Don't print warning when IOMMU driver only supports unmanaged domains
+- ext4: avoid a potential slab-out-of-bounds in ext4_group_desc_csum
 
 * Wed May 24 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2305.3.0.0202
 - netfilter: nf_tables: deactivate anonymous set from preparation phase
