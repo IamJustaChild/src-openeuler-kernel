@@ -8,13 +8,13 @@
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 %global debuginfodir /usr/lib/debug
 
-%global upstream_version    6.1
-%global upstream_sublevel   8
-%global devel_release       3
+%global upstream_version    6.4
+%global upstream_sublevel   rc4
+%global devel_release       1
 %global maintenance_release .0.0
-%global pkg_release         .7
+%global pkg_release         .1
 
-%define with_debuginfo 0
+%define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
 %global _missing_build_ids_terminate_build 1
 %global _no_recompute_build_ids 1
@@ -886,6 +886,9 @@ fi
 %endif
 
 %changelog
+* Wed May 31 2023 Wei Li <liwei391@huawei.com> - 6.4.rc4-1.0.0.1
+- update to v6.4-rc4
+
 * Tue Feb 7 2023 Zheng Zengkai <zhengzengkai@huawei.com> - 6.1.8-3.0.0.7
 - update to v6.1.8-3.0.0.7
 - arm64/vmalloc: use module region only for module_alloc() if CONFIG_RANDOMIZE_BASE is set
