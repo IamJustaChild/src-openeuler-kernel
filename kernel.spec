@@ -12,7 +12,7 @@
 %global upstream_sublevel   8
 %global devel_release       3
 %global maintenance_release .0.0
-%global pkg_release         .7
+%global pkg_release         .8
 
 %define with_debuginfo 0
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -114,7 +114,7 @@ Provides: kernel-uname-r = %{KernelVer} kernel=%{KernelVer}
 
 Requires: dracut >= 001-7 grubby >= 8.28-2 initscripts >= 8.11.1-1 linux-firmware >= 20100806-2 module-init-tools >= 3.16-2
 
-ExclusiveArch: noarch aarch64 i686 x86_64
+ExclusiveArch: aarch64 i686 x86_64
 ExclusiveOS: Linux
 
 %if %{with_perf}
@@ -886,6 +886,9 @@ fi
 %endif
 
 %changelog
+* Tue May 09 2023 Jia Chao <jiac13@chinaunicom.cn> - 6.1.8-3.0.0.8
+- Fix: remove noarch from ExclusiveArch.
+
 * Tue Feb 7 2023 Zheng Zengkai <zhengzengkai@huawei.com> - 6.1.8-3.0.0.7
 - update to v6.1.8-3.0.0.7
 - arm64/vmalloc: use module region only for module_alloc() if CONFIG_RANDOMIZE_BASE is set
