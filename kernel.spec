@@ -17,8 +17,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .33.0
-%global pkg_release         .109
+%global maintenance_release .34.0
+%global pkg_release         .110
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -942,6 +942,31 @@ fi
 %endif
 
 %changelog
+* Wed May 31 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.34.0.110
+- !861 Backport CVEs and bugfixes
+- drm/virtio: Fix error code in virtio_gpu_object_shmem_init()
+- drm/virtio: Correct drm_gem_shmem_get_sg_table() error handling
+- drm/virtio: Fix NULL vs IS_ERR checking in virtio_gpu_object_shmem_init
+- cgroup: Stop task iteration when rebinding subsystem
+- sched/topology: Fix exceptional memory access in sd_llc_free_all()
+- block: Fix the partition start may overflow in add_partition()
+- ext4: avoid a potential slab-out-of-bounds in ext4_group_desc_csum
+- iomap: don't invalidate folios after writeback errors
+- iomap: Don't create iomap_page objects in iomap_page_mkwrite_actor
+- iomap: Don't create iomap_page objects for inline files
+- iomap: Permit pages without an iop to enter writeback
+- md: fix kabi broken in struct mddev
+- md: use interruptible apis in idle/frozen_sync_thread
+- md: wake up 'resync_wait' at last in md_reap_sync_thread()
+- md: refactor idle/frozen_sync_thread()
+- md: add a mutex to synchronize idle and frozen in action_store()
+- md: refactor action_store() for 'idle' and 'frozen'
+- Revert "md: unlock mddev before reap sync_thread in action_store"
+- md: unlock mddev before reap sync_thread in action_store
+- block: fix wrong mode for blkdev_put() from disk_scan_partitions()
+- block: fix scan partition for exclusively open device again
+- block: merge disk_scan_partitions and blkdev_reread_part
+
 * Tue May 23 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.33.0.109
 - !801 Backport CVEs
 - netfilter: nf_tables: deactivate anonymous set from preparation phase
