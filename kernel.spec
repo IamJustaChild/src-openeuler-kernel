@@ -12,7 +12,7 @@
 %global upstream_sublevel   8
 %global devel_release       3
 %global maintenance_release .0.0
-%global pkg_release         .7
+%global pkg_release         .8
 
 %define with_debuginfo 0
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -629,9 +629,9 @@ popd
 # perf
 # perf tool binary and supporting scripts/binaries
 %if 0%{?with_python2}
-%{perf_make} %{perf_python2} DESTDIR=%{buildroot} lib=%{_lib} install-bin install-traceevent-plugins
+%{perf_make} %{perf_python2} DESTDIR=%{buildroot} lib=%{_lib} install-bin
 %else
-%{perf_make} %{perf_python3} DESTDIR=%{buildroot} lib=%{_lib} install-bin install-traceevent-plugins
+%{perf_make} %{perf_python3} DESTDIR=%{buildroot} lib=%{_lib} install-bin
 %endif
 # remove the 'trace' symlink.
 rm -f %{buildroot}%{_bindir}/trace
@@ -886,6 +886,9 @@ fi
 %endif
 
 %changelog
+* Tue May 09 2023 Jia Chao <jiac13@chinaunicom.cn> - 6.1.8-3.0.0.8
+- Fix: remove duplicate call for install-traceevent-plugins.
+
 * Tue Feb 7 2023 Zheng Zengkai <zhengzengkai@huawei.com> - 6.1.8-3.0.0.7
 - update to v6.1.8-3.0.0.7
 - arm64/vmalloc: use module region only for module_alloc() if CONFIG_RANDOMIZE_BASE is set
