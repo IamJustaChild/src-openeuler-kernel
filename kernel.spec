@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       153
-%global maintenance_release .0.0
-%global pkg_release         .80
+%global maintenance_release .1.0
+%global pkg_release         .81
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -888,6 +888,49 @@ fi
 %endif
 
 %changelog
+* Fri Jun 02 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.1.0.81
+- !888 [sync] PR-881: arm64: Keep HWCAP2_WFXT uapi consistent with upstream
+- arm64: Keep HWCAP2_WFXT uapi consistent with upstream
+- !885 [sync] PR-860: [OLK-5.10] Add support for Emerald Rapids to powercap/intel_rapl driver.
+- powercap: intel_rapl: add support for Emerald Rapids
+- !878 Bugfixes for RDMA/hns
+- !879 [sync] PR-877: sched: fix performance degradation on lmbench
+- sched: fix performance degradation on lmbench
+- RDMA/hns: Fix sleeping in atomic context during DCA unloading
+- RDMA/hns: Fix a missing kfree() to hr_dev->priv
+- RDMA/hns: Fix incorrect post-send with direct wqe of wr-list in kernel space
+- RDMA/hns: Fix inaccurate error label name in init instance
+- RDMA/hns: Remove VF extend configuration
+- RDMA/hns: fix iommu_map_sg() failed when MR bigger than 4G
+- RDMA/hns: Fix a missing check of atomic wr length
+- !871 [sync] PR-866:  arm64: kdump: Avoid reserving low memory repeatedly
+- !872 [sync] PR-863:  Backport CVEs and bugfixes
+- drm/virtio: Fix error code in virtio_gpu_object_shmem_init()
+- drm/virtio: Correct drm_gem_shmem_get_sg_table() error handling
+- drm/virtio: Fix NULL vs IS_ERR checking in virtio_gpu_object_shmem_init
+- cgroup: Stop task iteration when rebinding subsystem
+- sched/topology: Fix exceptional memory access in sd_llc_free_all()
+- block: Fix the partition start may overflow in add_partition()
+- ext4: avoid a potential slab-out-of-bounds in ext4_group_desc_csum
+- iomap: don't invalidate folios after writeback errors
+- iomap: Don't create iomap_page objects in iomap_page_mkwrite_actor
+- iomap: Don't create iomap_page objects for inline files
+- iomap: Permit pages without an iop to enter writeback
+- eulerfs: fix null-ptr-dereference when allocate page failed
+- eulerfs: add error handling for nv_init()
+- md: fix kabi broken in struct mddev
+- md: use interruptible apis in idle/frozen_sync_thread
+- md: wake up 'resync_wait' at last in md_reap_sync_thread()
+- md: refactor idle/frozen_sync_thread()
+- md: add a mutex to synchronize idle and frozen in action_store()
+- md: refactor action_store() for 'idle' and 'frozen'
+- Revert "md: unlock mddev before reap sync_thread in action_store"
+- md: unlock mddev before reap sync_thread in action_store
+- block: fix wrong mode for blkdev_put() from disk_scan_partitions()
+- block: fix scan partition for exclusively open device again
+- block: merge disk_scan_partitions and blkdev_reread_part
+- arm64: kdump: Avoid reserving low memory repeatedly
+
 * Tue May 30 2023 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-153.0.0.80
 - !795 sched/fair: Introduce multiple qos level
 - !850 Fix race condition in __percpu_counter_sum() function within cpu hotplug
