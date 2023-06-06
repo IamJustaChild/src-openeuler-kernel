@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .31.0
-%global pkg_release         .63
+%global maintenance_release .34.0
+%global pkg_release         .64
 %global rt_release          .rt62
 
 %define with_debuginfo 1
@@ -897,6 +897,8 @@ fi
 %endif
 
 %changelog
+* Wed April 10 2023 kylin-lzhanghyu <zhangyu4@kylinos.cn> - 5.10.0-136.34.0.64
+- update Kernel-rt:preempt-RT to openEuler 5.10.0-136.34.0
 
 * Wed April 10 2023 kylin-liyulei <zhangyu4@kylinos.cn> - 5.10.0-136.31.0.63
 - update Kernel-rt:preempt-RT to openEuler 5.10.0-136.31.0
