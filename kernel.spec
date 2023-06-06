@@ -12,7 +12,7 @@
 %global upstream_sublevel   0
 %global devel_release       153
 %global maintenance_release .1.0
-%global pkg_release         .81
+%global pkg_release         .82
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -51,7 +51,12 @@ Source0: kernel.tar.gz
 Source10: sign-modules
 Source11: x509.genkey
 Source12: extra_certificates
-Source13: pubring.gpg
+# openEuler RPM PGP certificates:
+# 1. openeuler <openeuler@compass-ci.com>
+Source13: RPM-GPG-KEY-openEuler-22.03-SP1
+# 2. private OBS <defaultkey@localobs>
+Source14: RPM-GPG-KEY-openEuler-22.03
+Source15: process_pgp_certs.sh
 
 %if 0%{?with_kabichk}
 Source18: check-kabi
@@ -266,7 +271,12 @@ tar -xjf %{SOURCE9998}
 mv kernel linux-%{KernelVer}
 cd linux-%{KernelVer}
 
-cp %{SOURCE13} certs
+# process PGP certs
+cp %{SOURCE13} .
+cp %{SOURCE14} .
+cp %{SOURCE15} .
+sh %{SOURCE15}
+cp pubring.gpg certs
 
 %if 0%{?with_patch}
 cp %{SOURCE9000} .
@@ -888,6 +898,9 @@ fi
 %endif
 
 %changelog
+* Tue Jun 06 2023 zhoushuiqing <zhoushuiqing2@huawei.com> - 5.10.0-153.1.0.82
+- Process PGP certs before kernel building
+
 * Fri Jun 02 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.1.0.81
 - !888 [sync] PR-881: arm64: Keep HWCAP2_WFXT uapi consistent with upstream
 - arm64: Keep HWCAP2_WFXT uapi consistent with upstream
