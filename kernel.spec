@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2305.4.0
+%global hulkrelease 2306.1.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0203
+Release: %{hulkrelease}.0204
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,15 @@ fi
 %endif
 
 %changelog
+
+* Tue Jun 06 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2306.1.0.0204
+- !932 [sync] PR-922:  jbd2: fix checkpoint inconsistent
+- jbd2: remove t_checkpoint_io_list
+- jbd2: recheck chechpointing non-dirty buffer
+- irqchip/gic-v3-its: Balance initial LPI affinity across CPUs
+- irqchip/gic-v3-its: Track LPI distribution on a per CPU basis
+- power: supply: bq24190: Fix use after free bug in bq24190_remove due to race condition
+- net: sched: fix NULL pointer dereference in mq_attach
 
 * Wed May 31 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2305.4.0.0203
 - !841 【openEuler-1.0-LTS】cpufreq: conservative: Add a switch to enable fast mode
