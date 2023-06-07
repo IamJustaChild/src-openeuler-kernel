@@ -2,13 +2,13 @@
 
 %global KernelVer %{version}-%{release}.raspi.%{_target_cpu}
 
-%global hulkrelease 146.0.0
+%global hulkrelease 153.2.0
 
 %global debug_package %{nil}
 
 Name:	 raspberrypi-kernel
 Version: 5.10.0
-Release: %{hulkrelease}.14
+Release: %{hulkrelease}.15
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -166,6 +166,9 @@ install -m 644 /boot/dtb-%{KernelVer}/overlays/README /boot/overlays/
 /lib/modules/%{KernelVer}
 
 %changelog
+* Tue Jun 5  2023 Yafen Fang <yafen@iscas.ac.cn> - 5.10.0-153.2.0.15
+- update kernel version to openEuler 5.10.0-153.2.0
+
 * Wed Apr 19 2023 Yafen Fang <yafen@iscas.ac.cn> - 5.10.0-146.0.0.14
 - update kernel version to openEuler 5.10.0-146.0.0
 
@@ -2761,7 +2764,7 @@ install -m 644 /boot/dtb-%{KernelVer}/overlays/README /boot/overlays/
 - crypto: hisilicon - enable zip device clock gating
 - crypto: hisilicon/sec - fix the process of disabling sva prefetching
 
-* Web Sep 15 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-6.0.0.0
+* Wed Sep 15 2021 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-6.0.0.0
 - mm/page_alloc: correct return value of populated elements if bulk array is populated
 - mm: fix oom killing for disabled pid
 - X86/config: Enable CONFIG_USERSWAP
