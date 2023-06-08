@@ -8444,9 +8444,9 @@ index 98bfd18e61bc..d8bcf815117d 100644
  #include <linux/resctrl.h>
  #include <linux/share_pool.h>
 +#include <linux/swait.h>
+ #include <linux/ksm.h>
  #include <trace/events/oom.h>
  #include "internal.h"
- #include "fd.h"
 @@ -2161,7 +2162,7 @@ bool proc_fill_cache(struct file *file, struct dir_context *ctx,
  
  	child = d_hash_and_lookup(dir, &qname);
@@ -12716,7 +12716,7 @@ diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
 index 60489cc5a92a..0a7c0a5635a1 100644
 --- a/kernel/cgroup/cpuset.c
 +++ b/kernel/cgroup/cpuset.c
-@@ -351,7 +351,7 @@ void cpuset_read_unlock(void)
+@@ -358,7 +358,7 @@ void cpuset_read_unlock(void)
  	percpu_up_read(&cpuset_rwsem);
  }
  
@@ -12725,7 +12725,19 @@ index 60489cc5a92a..0a7c0a5635a1 100644
  
  static struct workqueue_struct *cpuset_migrate_mm_wq;
  
-@@ -1290,7 +1290,7 @@ static int update_parent_subparts_cpumask(struct cpuset *cpuset, int cmd,
+@@ -737,9 +737,9 @@ static int update_prefer_cpumask(struct cpuset *cs, struct cpuset *trialcs,
+ 	if (!cpumask_empty(trialcs->prefer_cpus))
+ 		dynamic_affinity_enable();
+ 
+-	spin_lock_irq(&callback_lock);
++	raw_spin_lock_irq(&callback_lock);
+ 	cpumask_copy(cs->prefer_cpus, trialcs->prefer_cpus);
+-	spin_unlock_irq(&callback_lock);
++	raw_spin_unlock_irq(&callback_lock);
+ 
+ 	return 0;
+ }
+@@ -1399,7 +1399,7 @@ static int update_parent_subparts_cpumask(struct cpuset *cpuset, int cmd,
  	 * Newly added CPUs will be removed from effective_cpus and
  	 * newly deleted ones will be added back to effective_cpus.
  	 */
@@ -12734,7 +12746,7 @@ index 60489cc5a92a..0a7c0a5635a1 100644
  	if (adding) {
  		cpumask_or(parent->subparts_cpus,
  			   parent->subparts_cpus, tmp->addmask);
-@@ -1312,7 +1312,7 @@ static int update_parent_subparts_cpumask(struct cpuset *cpuset, int cmd,
+@@ -1421,7 +1421,7 @@ static int update_parent_subparts_cpumask(struct cpuset *cpuset, int cmd,
  
  	if (cpuset->partition_root_state != new_prs)
  		cpuset->partition_root_state = new_prs;
@@ -12743,7 +12755,7 @@ index 60489cc5a92a..0a7c0a5635a1 100644
  
  	return cmd == partcmd_update;
  }
-@@ -1415,7 +1415,7 @@ static void update_cpumasks_hier(struct cpuset *cs, struct tmpmasks *tmp)
+@@ -1524,7 +1524,7 @@ static void update_cpumasks_hier(struct cpuset *cs, struct tmpmasks *tmp)
  			continue;
  		rcu_read_unlock();
  
@@ -12752,7 +12764,7 @@ index 60489cc5a92a..0a7c0a5635a1 100644
  
  		cpumask_copy(cp->effective_cpus, tmp->new_cpus);
  		if (cp->nr_subparts_cpus && (new_prs != PRS_ENABLED)) {
-@@ -1449,7 +1449,7 @@ static void update_cpumasks_hier(struct cpuset *cs, struct tmpmasks *tmp)
+@@ -1558,7 +1558,7 @@ static void update_cpumasks_hier(struct cpuset *cs, struct tmpmasks *tmp)
  		if (new_prs != cp->partition_root_state)
  			cp->partition_root_state = new_prs;
  
@@ -12761,7 +12773,7 @@ index 60489cc5a92a..0a7c0a5635a1 100644
  
  		WARN_ON(!is_in_v2_mode() &&
  			!cpumask_equal(cp->cpus_allowed, cp->effective_cpus));
-@@ -1577,7 +1577,7 @@ static int update_cpumask(struct cpuset *cs, struct cpuset *trialcs,
+@@ -1686,7 +1686,7 @@ static int update_cpumask(struct cpuset *cs, struct cpuset *trialcs,
  			return -EINVAL;
  	}
  
@@ -12770,7 +12782,7 @@ index 60489cc5a92a..0a7c0a5635a1 100644
  	cpumask_copy(cs->cpus_allowed, trialcs->cpus_allowed);
  
  	/*
-@@ -1587,7 +1587,7 @@ static int update_cpumask(struct cpuset *cs, struct cpuset *trialcs,
+@@ -1696,7 +1696,7 @@ static int update_cpumask(struct cpuset *cs, struct cpuset *trialcs,
  		cpumask_and(cs->subparts_cpus, cs->subparts_cpus, cs->cpus_allowed);
  		cs->nr_subparts_cpus = cpumask_weight(cs->subparts_cpus);
  	}
@@ -12779,7 +12791,7 @@ index 60489cc5a92a..0a7c0a5635a1 100644
  
  	update_cpumasks_hier(cs, &tmp);
  
-@@ -1781,9 +1781,9 @@ static void update_nodemasks_hier(struct cpuset *cs, nodemask_t *new_mems)
+@@ -1890,9 +1890,9 @@ static void update_nodemasks_hier(struct cpuset *cs, nodemask_t *new_mems)
  			continue;
  		rcu_read_unlock();
  
@@ -12791,7 +12803,7 @@ index 60489cc5a92a..0a7c0a5635a1 100644
  
  		WARN_ON(!is_in_v2_mode() &&
  			!nodes_equal(cp->mems_allowed, cp->effective_mems));
-@@ -1851,9 +1851,9 @@ static int update_nodemask(struct cpuset *cs, struct cpuset *trialcs,
+@@ -1960,9 +1960,9 @@ static int update_nodemask(struct cpuset *cs, struct cpuset *trialcs,
  	if (retval < 0)
  		goto done;
  
@@ -12803,7 +12815,7 @@ index 60489cc5a92a..0a7c0a5635a1 100644
  
  	/* use trialcs->mems_allowed as a temp variable */
  	update_nodemasks_hier(cs, &trialcs->mems_allowed);
-@@ -1944,9 +1944,9 @@ static int update_flag(cpuset_flagbits_t bit, struct cpuset *cs,
+@@ -2053,9 +2053,9 @@ static int update_flag(cpuset_flagbits_t bit, struct cpuset *cs,
  	spread_flag_changed = ((is_spread_slab(cs) != is_spread_slab(trialcs))
  			|| (is_spread_page(cs) != is_spread_page(trialcs)));
  
@@ -12815,7 +12827,7 @@ index 60489cc5a92a..0a7c0a5635a1 100644
  
  	if (!cpumask_empty(trialcs->cpus_allowed) && balance_flag_changed)
  		rebuild_sched_domains_locked();
-@@ -2037,9 +2037,9 @@ static int update_prstate(struct cpuset *cs, int new_prs)
+@@ -2141,9 +2141,9 @@ static int update_prstate(struct cpuset *cs, int new_prs)
  	rebuild_sched_domains_locked();
  out:
  	if (!err) {
@@ -12827,7 +12839,7 @@ index 60489cc5a92a..0a7c0a5635a1 100644
  	}
  
  	free_cpumasks(NULL, &tmpmask);
-@@ -2456,7 +2456,7 @@ static int cpuset_common_seq_show(struct seq_file *sf, void *v)
+@@ -2575,7 +2575,7 @@ static int cpuset_common_seq_show(struct seq_file *sf, void *v)
  	cpuset_filetype_t type = seq_cft(sf)->private;
  	int ret = 0;
  
@@ -12836,7 +12848,7 @@ index 60489cc5a92a..0a7c0a5635a1 100644
  
  	switch (type) {
  	case FILE_CPULIST:
-@@ -2478,7 +2478,7 @@ static int cpuset_common_seq_show(struct seq_file *sf, void *v)
+@@ -2602,7 +2602,7 @@ static int cpuset_common_seq_show(struct seq_file *sf, void *v)
  		ret = -EINVAL;
  	}
  
@@ -12845,7 +12857,7 @@ index 60489cc5a92a..0a7c0a5635a1 100644
  	return ret;
  }
  
-@@ -2791,14 +2791,14 @@ static int cpuset_css_online(struct cgroup_subsys_state *css)
+@@ -2923,14 +2923,14 @@ static int cpuset_css_online(struct cgroup_subsys_state *css)
  
  	cpuset_inc();
  
@@ -12862,7 +12874,7 @@ index 60489cc5a92a..0a7c0a5635a1 100644
  
  	if (!test_bit(CGRP_CPUSET_CLONE_CHILDREN, &css->cgroup->flags))
  		goto out_unlock;
-@@ -2825,12 +2825,12 @@ static int cpuset_css_online(struct cgroup_subsys_state *css)
+@@ -2957,7 +2957,7 @@ static int cpuset_css_online(struct cgroup_subsys_state *css)
  	}
  	rcu_read_unlock();
  
@@ -12871,13 +12883,16 @@ index 60489cc5a92a..0a7c0a5635a1 100644
  	cs->mems_allowed = parent->mems_allowed;
  	cs->effective_mems = parent->mems_allowed;
  	cpumask_copy(cs->cpus_allowed, parent->cpus_allowed);
- 	cpumask_copy(cs->effective_cpus, parent->cpus_allowed);
+@@ -2965,7 +2965,7 @@ static int cpuset_css_online(struct cgroup_subsys_state *css)
+ #ifdef CONFIG_QOS_SCHED_DYNAMIC_AFFINITY
+ 	cpumask_copy(cs->prefer_cpus, parent->prefer_cpus);
+ #endif
 -	spin_unlock_irq(&callback_lock);
 +	raw_spin_unlock_irq(&callback_lock);
  out_unlock:
  	percpu_up_write(&cpuset_rwsem);
  	put_online_cpus();
-@@ -2886,7 +2886,7 @@ static void cpuset_css_free(struct cgroup_subsys_state *css)
+@@ -3021,7 +3021,7 @@ static void cpuset_css_free(struct cgroup_subsys_state *css)
  static void cpuset_bind(struct cgroup_subsys_state *root_css)
  {
  	percpu_down_write(&cpuset_rwsem);
@@ -12886,7 +12901,7 @@ index 60489cc5a92a..0a7c0a5635a1 100644
  
  	if (is_in_v2_mode()) {
  		cpumask_copy(top_cpuset.cpus_allowed, cpu_possible_mask);
-@@ -2897,7 +2897,7 @@ static void cpuset_bind(struct cgroup_subsys_state *root_css)
+@@ -3032,7 +3032,7 @@ static void cpuset_bind(struct cgroup_subsys_state *root_css)
  		top_cpuset.mems_allowed = top_cpuset.effective_mems;
  	}
  
@@ -12895,8 +12910,8 @@ index 60489cc5a92a..0a7c0a5635a1 100644
  	percpu_up_write(&cpuset_rwsem);
  }
  
-@@ -2994,12 +2994,12 @@ hotplug_update_tasks_legacy(struct cpuset *cs,
- {
+@@ -3144,12 +3144,12 @@ hotplug_update_tasks_legacy(struct cpuset *cs,
+ #endif
  	bool is_empty;
  
 -	spin_lock_irq(&callback_lock);
@@ -12910,7 +12925,7 @@ index 60489cc5a92a..0a7c0a5635a1 100644
  
  	/*
  	 * Don't call update_tasks_cpumask() if the cpuset becomes empty,
-@@ -3036,10 +3036,10 @@ hotplug_update_tasks(struct cpuset *cs,
+@@ -3193,10 +3193,10 @@ hotplug_update_tasks(struct cpuset *cs,
  	if (nodes_empty(*new_mems))
  		*new_mems = parent_cs(cs)->effective_mems;
  
@@ -12923,7 +12938,7 @@ index 60489cc5a92a..0a7c0a5635a1 100644
  
  	if (cpus_updated)
  		update_tasks_cpumask(cs);
-@@ -3106,10 +3106,10 @@ static void cpuset_hotplug_update_tasks(struct cpuset *cs, struct tmpmasks *tmp)
+@@ -3263,10 +3263,10 @@ retry:
  	if (is_partition_root(cs) && (cpumask_empty(&new_cpus) ||
  	   (parent->partition_root_state == PRS_ERROR))) {
  		if (cs->nr_subparts_cpus) {
@@ -12936,7 +12951,7 @@ index 60489cc5a92a..0a7c0a5635a1 100644
  			compute_effective_cpumask(&new_cpus, cs, parent);
  		}
  
-@@ -3123,9 +3123,9 @@ static void cpuset_hotplug_update_tasks(struct cpuset *cs, struct tmpmasks *tmp)
+@@ -3280,9 +3280,9 @@ retry:
  		     cpumask_empty(&new_cpus)) {
  			update_parent_subparts_cpumask(cs, partcmd_disable,
  						       NULL, tmp);
@@ -12948,7 +12963,7 @@ index 60489cc5a92a..0a7c0a5635a1 100644
  		}
  		cpuset_force_rebuild();
  	}
-@@ -3205,7 +3205,7 @@ static void cpuset_hotplug_workfn(struct work_struct *work)
+@@ -3362,7 +3362,7 @@ static void cpuset_hotplug_workfn(struct work_struct *work)
  
  	/* synchronize cpus_allowed to cpu_active_mask */
  	if (cpus_updated) {
@@ -12957,7 +12972,7 @@ index 60489cc5a92a..0a7c0a5635a1 100644
  		if (!on_dfl)
  			cpumask_copy(top_cpuset.cpus_allowed, &new_cpus);
  		/*
-@@ -3225,17 +3225,17 @@ static void cpuset_hotplug_workfn(struct work_struct *work)
+@@ -3382,17 +3382,17 @@ static void cpuset_hotplug_workfn(struct work_struct *work)
  			}
  		}
  		cpumask_copy(top_cpuset.effective_cpus, &new_cpus);
@@ -12978,7 +12993,7 @@ index 60489cc5a92a..0a7c0a5635a1 100644
  		update_tasks_nodemask(&top_cpuset);
  	}
  
-@@ -3339,11 +3339,11 @@ void cpuset_cpus_allowed(struct task_struct *tsk, struct cpumask *pmask)
+@@ -3496,11 +3496,11 @@ void cpuset_cpus_allowed(struct task_struct *tsk, struct cpumask *pmask)
  {
  	unsigned long flags;
  
@@ -12992,7 +13007,7 @@ index 60489cc5a92a..0a7c0a5635a1 100644
  }
  
  /**
-@@ -3404,11 +3404,11 @@ nodemask_t cpuset_mems_allowed(struct task_struct *tsk)
+@@ -3561,11 +3561,11 @@ nodemask_t cpuset_mems_allowed(struct task_struct *tsk)
  	nodemask_t mask;
  	unsigned long flags;
  
@@ -13006,7 +13021,7 @@ index 60489cc5a92a..0a7c0a5635a1 100644
  
  	return mask;
  }
-@@ -3500,14 +3500,14 @@ bool __cpuset_node_allowed(int node, gfp_t gfp_mask)
+@@ -3657,14 +3657,14 @@ bool __cpuset_node_allowed(int node, gfp_t gfp_mask)
  		return true;
  
  	/* Not hardwall and node outside mems_allowed: scan up cpusets */
@@ -20453,13 +20468,16 @@ index a2ea3b0ab334..e7a295c4fd0a 100644
  #ifdef CONFIG_SMP
  	plist_node_init(&p->pushable_tasks, MAX_PRIO);
  	RB_CLEAR_NODE(&p->pushable_dl_tasks);
-@@ -3854,59 +4429,143 @@ __fire_sched_out_preempt_notifiers(struct task_struct *curr,
- 		notifier->ops->sched_out(notifier, next);
- }
+@@ -3867,63 +4442,147 @@ __fire_sched_out_preempt_notifiers(struct task_struct *curr,
+ {
+ 	struct preempt_notifier *notifier;
  
--static __always_inline void
--fire_sched_out_preempt_notifiers(struct task_struct *curr,
--				 struct task_struct *next)
+-	hlist_for_each_entry(notifier, &curr->preempt_notifiers, link)
+-		notifier->ops->sched_out(notifier, next);
++	hlist_for_each_entry(notifier, &curr->preempt_notifiers, link)
++		notifier->ops->sched_out(notifier, next);
++}
++
 +static __always_inline void
 +fire_sched_out_preempt_notifiers(struct task_struct *curr,
 +				 struct task_struct *next)
@@ -20489,7 +20507,8 @@ index a2ea3b0ab334..e7a295c4fd0a 100644
 +	 * Claim the task as running, we do this before switching to it
 +	 * such that any running task will have this set.
 +	 *
-+	 * See the ttwu() WF_ON_CPU case and its ordering comment.
++	 * See the smp_load_acquire(&p->on_cpu) case in ttwu() and
++	 * its ordering comment.
 +	 */
 +	WRITE_ONCE(next->on_cpu, 1);
 +#endif
@@ -20564,9 +20583,7 @@ index a2ea3b0ab334..e7a295c4fd0a 100644
 +static void balance_push(struct rq *rq);
 +
 +static inline void balance_switch(struct rq *rq)
- {
--	if (static_branch_unlikely(&preempt_notifier_key))
--		__fire_sched_out_preempt_notifiers(curr, next);
++{
 +	if (likely(!rq->balance_flags))
 +		return;
 +
@@ -20578,41 +20595,52 @@ index a2ea3b0ab334..e7a295c4fd0a 100644
 +	__balance_callbacks(rq);
  }
  
--#else /* !CONFIG_PREEMPT_NOTIFIERS */
-+#else
- 
--static inline void fire_sched_in_preempt_notifiers(struct task_struct *curr)
-+static inline void __balance_callbacks(struct rq *rq)
- {
- }
- 
--static inline void
+-static __always_inline void
 -fire_sched_out_preempt_notifiers(struct task_struct *curr,
 -				 struct task_struct *next)
++#else
++ 
++static inline void __balance_callbacks(struct rq *rq)
+ {
+-	if (static_branch_unlikely(&preempt_notifier_key))
+-		__fire_sched_out_preempt_notifiers(curr, next);
+ }
+-
+-#else /* !CONFIG_PREEMPT_NOTIFIERS */
+-
+-static inline void fire_sched_in_preempt_notifiers(struct task_struct *curr)
++ 
 +static inline struct callback_head *splice_balance_callbacks(struct rq *rq)
  {
 +	return NULL;
  }
  
+-static inline void
+-fire_sched_out_preempt_notifiers(struct task_struct *curr,
+-				 struct task_struct *next)
++static inline void balance_callbacks(struct rq *rq, struct callback_head *head)
+ {
+ }
+ 
 -#endif /* CONFIG_PREEMPT_NOTIFIERS */
 -
 -static inline void prepare_task(struct task_struct *next)
-+static inline void balance_callbacks(struct rq *rq, struct callback_head *head)
++static inline void balance_switch(struct rq *rq)
  {
 -#ifdef CONFIG_SMP
 -	/*
 -	 * Claim the task as running, we do this before switching to it
 -	 * such that any running task will have this set.
 -	 *
--	 * See the ttwu() WF_ON_CPU case and its ordering comment.
+-	 * See the smp_load_acquire(&p->on_cpu) case in ttwu() and
+-	 * its ordering comment.
 -	 */
 -	WRITE_ONCE(next->on_cpu, 1);
 -#endif
  }
  
 -static inline void finish_task(struct task_struct *prev)
-+static inline void balance_switch(struct rq *rq)
- {
+-{
 -#ifdef CONFIG_SMP
 -	/*
 -	 * This must be the very last reference to @prev from this CPU. After
@@ -20626,14 +20654,11 @@ index a2ea3b0ab334..e7a295c4fd0a 100644
 -	 * Pairs with the smp_cond_load_acquire() in try_to_wake_up().
 -	 */
 -	smp_store_release(&prev->on_cpu, 0);
--#endif
- }
+ #endif
+-}
  
-+#endif
-+
  static inline void
  prepare_lock_switch(struct rq *rq, struct task_struct *next, struct rq_flags *rf)
- {
 @@ -3947,6 +4606,22 @@ static inline void finish_lock_switch(struct rq *rq)
  # define finish_arch_post_lock_switch()	do { } while (0)
  #endif
@@ -21956,7 +21981,7 @@ index 0ab8e2532f2d..fb01ee6e50d0 100644
  #endif /* CONFIG_SMP */
  
  #ifdef CONFIG_IRQ_TIME_ACCOUNTING
-@@ -1136,6 +1141,12 @@ struct rq {
+@@ -1147,6 +1147,12 @@ struct rq {
  	unsigned int		core_forceidle_seq;
  #endif
  
@@ -21966,10 +21991,10 @@ index 0ab8e2532f2d..fb01ee6e50d0 100644
 +        unsigned int            push_busy;
 +        struct cpu_stop_work    push_work;
 +
- 	KABI_RESERVE(1)
- 	KABI_RESERVE(2)
- 	KABI_RESERVE(3)
-@@ -1171,6 +1182,17 @@ static inline int cpu_of(struct rq *rq)
+ #if defined(CONFIG_QOS_SCHED_PRIO_LB) && !defined(__GENKSYMS__)
+ 	struct list_head cfs_offline_tasks;
+ #else
+@@ -1192,6 +1192,17 @@ static inline int cpu_of(struct rq *rq)
  #endif
  }
  
@@ -21985,8 +22010,8 @@ index 0ab8e2532f2d..fb01ee6e50d0 100644
 +}
 +
  #ifdef CONFIG_QOS_SCHED
+ #ifdef CONFIG_QOS_SCHED_MULTILEVEL
  enum task_qos_level {
- 	QOS_LEVEL_OFFLINE = -1,
 @@ -1565,6 +1587,9 @@ static inline void rq_pin_lock(struct rq *rq, struct rq_flags *rf)
  	rq->clock_update_flags &= (RQCF_REQ_SKIP|RQCF_ACT_SKIP);
  	rf->clock_update_flags = 0;
@@ -22022,14 +22047,15 @@ index 0ab8e2532f2d..fb01ee6e50d0 100644
  }
  
  #define rcu_dereference_check_sched_domain(p) \
-@@ -2067,6 +2096,7 @@ static inline int task_on_rq_migrating(struct task_struct *p)
+@@ -2106,7 +2112,7 @@ static inline int task_on_rq_migrating(struct task_struct *p)
+ #define WF_SYNC			0x01		/* Waker goes to sleep after wakeup */
  #define WF_FORK			0x02		/* Child wakeup after fork */
  #define WF_MIGRATED		0x04		/* Internal use, task got migrated */
- #define WF_ON_CPU		0x08		/* Wakee is on_cpu */
-+#define WF_LOCK_SLEEPER		0x10		/* Wakeup spinlock "sleeper" */
- 
+-
++#define WF_LOCK_SLEEPER		0x08		/* Wakeup spinlock "sleeper" */
  /*
   * To aid in avoiding the subversion of "niceness" due to uneven distribution
+  * of tasks with abnormal "nice" values across CPUs the contribution that
 @@ -2148,10 +2178,13 @@ struct sched_class {
  	void (*task_woken)(struct rq *this_rq, struct task_struct *task);
  
@@ -22680,7 +22706,7 @@ index 19668d614f47..aafbb7a0f9ca 100644
  	local_irq_disable();
  
  	pending = local_softirq_pending();
-@@ -320,46 +581,23 @@ asmlinkage __visible void __softirq_entry __do_softirq(void)
+@@ -320,47 +581,28 @@ restart:
  		wakeup_softirqd();
  	}
  
@@ -22716,18 +22742,18 @@ index 19668d614f47..aafbb7a0f9ca 100644
   */
  void irq_enter_rcu(void)
  {
--	if (is_idle_task(current) && !in_interrupt()) {
--		/*
--		 * Prevent raise_softirq from needlessly waking up ksoftirqd
--		 * here, as softirq will be serviced on return from interrupt.
--		 */
--		local_bh_disable();
 +	__irq_enter_raw();
-+
-+	if (is_idle_task(current) && (irq_count() == HARDIRQ_OFFSET))
+ 	if (tick_nohz_full_cpu(smp_processor_id()) ||
+-		(is_idle_task(current) && !in_interrupt())) {
++		(is_idle_task(current) && (irq_count() == HARDIRQ_OFFSET))) {
+ 		/*
+ 		 * Prevent raise_softirq from needlessly waking up ksoftirqd
+ 		 * here, as softirq will be serviced on return from interrupt.
+ 		 */
+-		local_bh_disable();
  		tick_irq_enter();
 -		_local_bh_enable();
--	}
+ 	}
 -	__irq_enter();
 +
 +	account_hardirq_enter(current);
