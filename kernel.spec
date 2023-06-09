@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       153
-%global maintenance_release .1.0
-%global pkg_release         .82
+%global maintenance_release .4.0
+%global pkg_release         .83
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -898,6 +898,231 @@ fi
 %endif
 
 %changelog
+* Fri Jun 09 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.4.0.83
+- !1042  xfrm: Reinject transport-mode packets through workqueue
+- !1069  support ACPI for MPAM 2.0
+- !1070 crypto: hisilicon - fix some reset problem
+- ACPI/MPAM: Adapt to Arm's MPAM ACPI table version 2
+- ACPI / PPTT: Find PPTT processor node by cache id
+- ACPICA: ACPI 6.4: PPTT: add new version of subtable type 1
+- ACPICA: Add support for Arm's MPAM ACPI table version 2
+- crypto: hisilicon/qm - disable error report before flr
+- crypto: hisilicon/qm - disable same error report before resetting
+- crypto: hisilicon/qm - remove duplicate assignment and release
+- crypto: hisilicon/hpre - enable sva error interrupt event
+- crypto: hisilicon/qm - flush all work before driver removed.
+- !1026 [sync] PR-947:  locking/rwsem: Prevent potential lock starvation
+- !1022 [sync] PR-978:  io_uring: fix the problem of running
+- !1045 perf: hisi: delete global enable pmu from xxx_write_counter()
+- !1037  xfs: fixes patchs and backport patchs
+- !1048 spi: dw: Add support for 32-bits max xfer size
+- !1055 Complementing PTT functions to the openEuler-22.03-LTS-SP2
+- !1005 scsi: hisi_sas: A group of SAS-related bugfixes
+- !1052 [sync] PR-1027: scripts: Fix issue of module signing with openssl 3.x
+- !1039 [sync] PR-1032: bugfix the lost interruption problem after live migration
+- hwtracing: hisi_ptt: Fix potential sleep in atomic context
+- hwtracing: hisi_ptt: Advertise PERF_PMU_CAP_NO_EXCLUDE for PTT PMU
+- hwtracing: hisi_ptt: Export available filters through sysfs
+- hwtracing: hisi_ptt: Add support for dynamically updating the filter list
+- hwtracing: hisi_ptt: Factor out filter allocation and release operation
+- scripts: Fix issue of module signing with openssl 3.x
+- spi: dw: Add support for 32-bits max xfer size
+- perf: hisi: delete global enable pmu from xxx_write_counter()
+- xfrm: Reinject transport-mode packets through workqueue
+- scsi: hisi_sas: Check usage count only when the runtime PM status is RPM_SUSPENDING
+- scsi: hisi_sas: Work around build failure in suspend function
+- scsi: hisi_sas: Block requests before take debugfs snapshot
+- scsi: hisi_sas: Add slave_destroy interface for v3 hw
+- !996 [sync] PR-990:  ubi: Fix deadlock caused by recursively holding work_sem
+- !1001 [sync] PR-928:  hikey9xx: Fixed incorrect use of kfree to free sreg
+- !1018 [sync] PR-944:  nbd: get config_lock before sock_shutdown
+- !1033 perf: hns3: add event suppport for ROH and default use hardware event 0 as group leader event
+- vfio/migration: bugfix lost interruption after live migration
+- crypto: hisilicon/qm - fix EQ/AEQ interrupt issue
+- xfs: atomic drop extent entries when inactiving attr
+- xfs: factor out __xfs_da3_node_read()
+- xfs: fix a UAF in xfs_iflush_abort_clean
+- xfs: fix a UAF when inode item push
+- xfs: fix the problem of mount failure caused by not refreshing mp->m_sb
+- iomap: iomap: fix memory corruption when recording errors during writeback
+- xfs: fix hung when transaction commit fail in xfs_inactive_ifree
+- xfs: fix dead loop when do mount with IO fault injection
+- xfs: fix ag count overflow during growfs
+- xfs: account extra freespace btree splits for multiple allocations
+- xfs: force shutdown xfs when xfs_attr_inactive fails
+- xfs: fix negative array access in xfs_getbmap
+- xfs: fix BUG_ON in xfs_getbmap()
+- xfs: use iomap_valid method to detect stale cached iomaps
+- iomap: write iomap validity checks
+- xfs: write page faults in iomap are not buffered writes
+- xfs: fix exception caused by unexpected illegal bestcount in leaf dir
+- Revert "[Huawei] xfs: fix uaf when leaf dir bestcount not match with dir data blocks"
+- xfs: don't expose internal symlink metadata buffers to the vfs
+- xfs: shut down filesystem if we xfs_trans_cancel with deferred work items
+- xfs: fix maxlevels comparisons in the btree staging code
+- xfs: sb verifier doesn't handle uncached sb buffer
+- xfs: fallocate() should call file_modified()
+- xfs: remove XFS_PREALLOC_SYNC
+- xfs: shutdown during log recovery needs to mark the log shutdown
+- xfs: xfs_trans_commit() path must check for log shutdown
+- xfs: xfs_do_force_shutdown needs to block racing shutdowns
+- xfs: log shutdown triggers should only shut down the log
+- xfs: shutdown in intent recovery has non-intent items in the AIL
+- xfs: AIL should be log centric
+- xfs: increase rename inode reservation
+- xfs: trim the mapp array accordingly in xfs_da_grow_inode_int
+- xfs: check return codes when flushing block devices
+- xfs: remove xfs_blkdev_issue_flush
+- xfs: fix NULL pointer dereference in xfs_getbmap()
+- scsi: sd: try more retries of START_STOP when resuming scsi device
+- !1012 [sync] PR-924:  dm: add disk before alloc dax
+- !1015 [sync] PR-920:  dm thin: Fix ABBA deadlock by resetting dm_bufio_client
+- perf: hns3: default use hardware event 0 as group leader event.
+- perf: hns3: add event suppport for ROH
+- !1020 [sync] PR-1003: roh: Fix ROH multi-BD cmdq issue
+- !1009 [sync] PR-980: crypto: hisilicon - fix mailbox operation process
+- !952 [sync] PR-929:  xfs: rework feature flags
+- !982 [sync] PR-356: x86/boot/compressed: Register dummy NMI handler in EFI boot loader, to avoid kdump crashes
+- locking/rwsem: Prevent potential lock starvation
+- locking/rwsem: Pass the current atomic count to rwsem_down_read_slowpath()
+- locking/rwsem: Better collate rwsem_read_trylock()
+- !973 [sync] PR-969:  kobject: Fix slab-out-of-bounds in fill_kobj_path()
+- !988 [sync] PR-954:  block: iocost bugfix
+- !985 [sync] PR-946:  icost bugfix
+- kernel: don't call do_exit() for PF_IO_WORKER threads
+- x86/process: setup io_threads more like normal user space threads
+- arch: ensure parisc/powerpc handle PF_IO_WORKER in copy_thread()
+- arch: setup PF_IO_WORKER threads like PF_KTHREAD
+- roh: Fix ROH multi-BD cmdq issue
+- !1006 drivers/perf: hisi: Don't migrate perf to the CPU going to teardown
+- nbd: get config_lock before sock_shutdown
+- dm thin: Fix ABBA deadlock by resetting dm_bufio_client
+- dm: add disk before alloc dax
+- crypto: hisilicon/qm - alloc buffer to set and get xqc
+- crypto: hisilicon/qm - fix the pf2vf timeout when device reset
+- vfio/migration: obtain the mailbox configuration at one time
+- crypto: hisilicon/qm - obtain the mailbox configuration at one time
+- drivers/perf: hisi: Don't migrate perf to the CPU going to teardown
+- !993 Clean up for RDMA/HNS
+- !979 [sync] PR-943: Fixed the accelerator capability register issue.
+- !981 [sync] PR-967:  Support dynamic_hugetlb on arm64 and fix some bug
+- !989 [sync] PR-940: net: hns3: related bugfixes, refactoring, and cleanup
+- hikey9xx: Fixed incorrect use of kfree to free sreg
+- RDMA/hns: Remove redundant 'num_mtt_segs' and 'max_extend_sg'
+- RDMA/hns: Remove redundant 'use_lowmem' argument from hns_roce_init_hem_table()
+- !992 [sync] PR-949:  mm: page_counter: remove unneeded atomic ops for low/min
+- ubi: Fix deadlock caused by recursively holding work_sem
+- mtd: ubi: wl: Fix a couple of kernel-doc issues
+- !977 [sync] PR-968:  Fix ORC unwinder on paravirt {save,restore}_fl
+- mm: page_counter: remove unneeded atomic ops for low/min
+- net: hns3: restore user pause configure when disable autoneg
+- net: hns3: fix strncpy() not using dest-buf length as length issue
+- net: hns3: refactor hclge_update_desc_vfid for extension
+- net: hns3: add tm flush when setting tm
+- net: hns3: fix the imp capability bit cannot exceed 32 bits issue
+- net: hns3: fix GRE checksum offload issue
+- perf: pmu: fix set wrong filter mode for running events issue
+- block: fix order error in blk_release_queue
+- block: fix null-pointer dereference in ioc_pd_init
+- blk-iocost: dispatch all throttled bio in ioc_pd_offline
+- blk-iocost: don't throttle bio if iocg is offlined
+- blk-iocost: track whether iocg is still online
+- blk-iocost: fix UAF in ioc_pd_free
+- x86/boot/compressed: Register dummy NMI handler in EFI boot loader, to avoid kdump crashes
+- mm/dynamic_hugetlb: fix type error of pfn in __hpool_split_gigantic_page()
+- mm/dynamic_hugetlb: set PagePool to bad page
+- mm/dynamic_hugetlb: replace spin_lock with mutex_lock and fix kabi broken
+- mm/dynamic_hugetlb: isolate hugepage without dissolve
+- mm/dynamic_hugetlb: support dynamic hugetlb on arm64
+- mm/dynamic_hugetlb: fix kabi broken when enable CONFIG_DYNAMIC_HUGETLB on arm64
+- !964 [sync] PR-937:  tcp: restrict net.ipv4.tcp_app_win
+- !961 [sync] PR-925:  tcp: prohibit TCP_REPAIR_OPTIONS if data was already sent
+- crypto: hisilicon/zip - save capability registers in probe process
+- crypto: hisilicon/sec2 - save capability registers in probe process
+- crypto: hisilicon/hpre - save capability registers in probe process
+- crypto: hisilicon/qm - save capability registers in qm init process
+- crypto: hisilicon/qm - add a function to set qm algs
+- crypto: hisilicon/sec - fix for resource leak
+- crypto: hisilicon/sec - remove unused parameter
+- crypto: hisilicon/sec - misc cleanups
+- !957 [sync] PR-938:  config: Disable CONFIG_EULER_FS by default
+- x86/unwind: Fix check_paravirt() calls orc_find() before declaration
+- x86/unwind: Fix orc entry for paravirt {save,restore}_fl
+- kobject: Fix slab-out-of-bounds in fill_kobj_path()
+- tcp: restrict net.ipv4.tcp_app_win
+- tcp: prohibit TCP_REPAIR_OPTIONS if data was already sent
+- config: Disable CONFIG_EULER_FS by default
+- xfs: kill xfs_sb_version_has_v3inode()
+- xfs: introduce xfs_sb_is_v5 helper
+- xfs: remove unused xfs_sb_version_has wrappers
+- xfs: convert xfs_sb_version_has checks to use mount features
+- xfs: convert scrub to use mount-based feature checks
+- xfs: open code sb verifier feature checks
+- xfs: convert xfs_fs_geometry to use mount feature checks
+- xfs: replace XFS_FORCED_SHUTDOWN with xfs_is_shutdown
+- xfs: convert remaining mount flags to state flags
+- xfs: convert mount flags to features
+- xfs: consolidate mount option features in m_features
+- xfs: replace xfs_sb_version checks with feature flag checks
+- xfs: reflect sb features in xfs_mount
+- xfs: rework attr2 feature and mount options
+- xfs: rename xfs_has_attr()
+- xfs: xfs_is_shutdown vs xlog_is_shutdown cage fight
+- xfs: log items should have a xlog pointer, not a mount
+- xfs: fix incorrect error-out in xfs_remove
+- !933 [sync] PR-922:  jbd2: fix checkpoint inconsistent
+- jbd2: remove t_checkpoint_io_list
+- jbd2: recheck chechpointing non-dirty buffer
+- !923 [sync] PR-918: Misc fixes for Kunpeng accelerator drivers!
+- !914 [sync] PR-906:  ipv6: Add lwtunnel encap size of all siblings in nexthop calculation
+- crypto: hisilicon/qm - remove unnecessary aer.h include
+- crypto: hisilicon/qm - stop function and write data to memory
+- crypto: hisilicon/hpre - ensure private key less than n
+- crypto: hisilicon/qm - prevent soft lockup in qm_poll_req_cb()'s loop
+- !921 [sync] PR-919:  Revert "ext4: dio take shared inode lock when overwriting preallocated blocks"
+- Revert "ext4: dio take shared inode lock when overwriting preallocated blocks"
+- !898 [sync] PR-894: Fixed two accelerator bugfixes
+- !908 [sync] PR-874: nic: hns3: fix pointer cast for wol and fix getting GE port lanes error and set cpu affinity
+- ipv6: Add lwtunnel encap size of all siblings in nexthop calculation
+- !909 [sync] PR-907:  tcp/dccp: Add another way to allocate local ports in connect()
+- !893 mitigatin cacheline false sharing
+- tcp/dccp: Add another way to allocate local ports in connect()
+- net: hns3: fix set cpu affinity when state down
+- net: hns3: add support for getting GE port lanes
+- net: hns3: fix pointer cast to different type for wol
+- !903 backport block bugfix
+- md/raid10: fix incorrect done of recovery
+- md/raid10: fix null-ptr-deref in raid10_sync_request
+- block/badblocks: fix badblocks loss when badblocks combine
+- block/badblocks: fix the bug of reverse order
+- md: fix unexpected changes of return value in rdev_set_badblocks
+- md/raid10: fix io hung in md_wait_for_blocked_rdev()
+- block: Only set bb->changed when badblocks changes
+- md/raid10: fix incorrect counting of rdev->nr_pending
+- md/raid10: remove WANR_ON_ONCE in raid10_end_write_request
+- md/raid10: fix uaf if replacement replaces rdev
+- md/raid10: fix null-ptr-deref of mreplace in raid10_sync_request
+- md/raid10: fix io loss while replacement replace rdev
+- md/raid10: prioritize adding disk to 'removed' mirror
+- md: fix io loss when remove rdev fail
+- md/raid10: fix a race between removing rdev and access conf->mirrors[i].rdev
+- md/raid10: fix taks hung in raid10d
+- md/raid10: factor out code from wait_barrier() to stop_waiting_barrier()
+- md/raid10: fix softlockup in raid10_unplug
+- md/raid1: stop mdx_raid1 thread when raid1 array run failed
+- md: fix sysfs duplicate file while adding rdev
+- md: replace invalid function flush_rdev_wq() with flush_workqueue()
+- md: Flush workqueue md_rdev_misc_wq in md_alloc()
+- block: don't allow the same type rq_qos add more than once
+- blk-iocost: use spin_lock_irqsave in adjust_inuse_and_calc_cost
+- blk-iocost: don't allow to configure bio based device
+- !899 [sync] PR-895:  config: enable CONFIG_BPF_STREAM_PARSER=y on arm64
+- config: enable CONFIG_BPF_STREAM_PARSER=y on arm64
+- uacce: use filep->f_mapping to replace inode->i_mapping
+- crypto:hisilicon/qm: bugfix queue parameter issue
+- enable MITIGATION_FALSE_SHARING by default
+- ext4: mitigatin cacheline false sharing in struct ext4_inode_info
+
 * Tue Jun 06 2023 zhoushuiqing <zhoushuiqing2@huawei.com> - 5.10.0-153.1.0.82
 - Process PGP certs before kernel building
 
