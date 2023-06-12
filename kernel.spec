@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       153
-%global maintenance_release .4.0
-%global pkg_release         .83
+%global maintenance_release .5.0
+%global pkg_release         .84
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -898,6 +898,16 @@ fi
 %endif
 
 %changelog
+* Mon Jun 12 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.5.0.84
+- !1077  drm/qxl: Fix missing free_irq
+- !1087 genirq: Increase the number of IRQ descriptors
+- genirq: Increase the number of IRQ descriptors
+- !1063 i2c: hisi: Only handle the interrupt of the driver's transfer
+- drm/qxl: Fix missing free_irq
+- !1059 [sync] PR-1028:  fs: hfsplus: fix UAF issue in hfsplus_put_super
+- i2c: hisi: Only handle the interrupt of the driver's transfer
+- fs: hfsplus: fix UAF issue in hfsplus_put_super
+
 * Fri Jun 09 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.4.0.83
 - !1042  xfrm: Reinject transport-mode packets through workqueue
 - !1069  support ACPI for MPAM 2.0
