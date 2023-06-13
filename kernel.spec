@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2306.1.0
+%global hulkrelease 2306.3.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0204
+Release: %{hulkrelease}.0205
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,46 @@ fi
 %endif
 
 %changelog
+
+* Tue Jun 13 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2306.3.0.0205
+- arm64: Add AMPERE1 to the Spectre-BHB affected list
+- sctp: Call inet6_destroy_sock() via sk->sk_destruct().
+- net: Remove WARN_ON_ONCE(sk->sk_forward_alloc) from sk_stream_kill_queues().
+- dccp/tcp: Avoid negative sk_forward_alloc by ipv6_pinfo.pktoptions.
+- media: dvb-core: Fix kernel WARNING for blocking operation in wait_event*()
+- sched: smart grid: init sched_grid_qos structure on QOS purpose
+- sched: Introduce smart grid scheduling strategy for cfs
+- ipmi: fix SSIF not responding under certain cond.
+- ipmi_ssif: Rename idle state and check
+- mm/page_alloc: fix potential deadlock on zonelist_update_seq seqlock
+- printk: declare printk_deferred_{enter,safe}() in include/linux/printk.h
+- serial: 8250: Fix serial8250_tx_empty() race with DMA Tx
+- tty: Prevent writing chars during tcsetattr TCSADRAIN/FLUSH
+- af_packet: Don't send zero-byte data in packet_sendmsg_spkt().
+- nohz: Add TICK_DEP_BIT_RCU
+- perf/core: Fix hardlockup failure caused by perf throttle
+- of: Fix modalias string generation
+- tcp/udp: Fix memleaks of sk and zerocopy skbs with TX timestamp.
+- ipv4: Fix potential uninit variable access bug in __ip_make_skb()
+- crypto: drbg - Only fail when jent is unavailable in FIPS mode
+- crypto: drbg - make drbg_prepare_hrng() handle jent instantiation errors
+- net/packet: convert po->auxdata to an atomic flag
+- net/packet: convert po->origdev to an atomic flag
+- ring-buffer: Sync IRQ works before buffer destruction
+- dccp: Call inet6_destroy_sock() via sk->sk_destruct().
+- inet6: Remove inet6_destroy_sock() in sk->sk_prot->destroy().
+- tcp/udp: Call inet6_destroy_sock() in IPv6 sk->sk_destruct().
+- udp: Call inet6_destroy_sock() in setsockopt(IPV6_ADDRFORM).
+- lib/cmdline: fix get_option() for strings starting with hyphen
+- of: overlay: fix for_each_child.cocci warnings
+- kprobes: Fix to handle forcibly unoptimized kprobes on freeing_list
+- fs: hfsplus: fix UAF issue in hfsplus_put_super
+- block: Fix the partition start may overflow in add_partition()
+- block: refactor blkpg_ioctl
+- nbd: get config_lock before sock_shutdown
+- ipv6: sr: fix out-of-bounds read when setting HMAC data.
+- dm: add disk before alloc dax
+- dm thin: Fix ABBA deadlock by resetting dm_bufio_client
 
 * Tue Jun 06 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2306.1.0.0204
 - !932 [sync] PR-922:  jbd2: fix checkpoint inconsistent
