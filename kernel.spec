@@ -12,7 +12,7 @@
 %global upstream_sublevel   0
 %global devel_release       153
 %global maintenance_release .6.0
-%global pkg_release         .84
+%global pkg_release         .85
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -902,6 +902,9 @@ fi
 %endif
 
 %changelog
+* Tue Jun 13 2023 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-153.6.0.85
+- Enable kabi checking and adapt the check-kabi script
+
 * Tue Jun 13 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.6.0.84
 - !1119 [openEuler-22.03-LTS-SP2] net: hns3: refactor hclge_mac_link_status_wait and add wait until mac link down
 - net: hns3: add wait until mac link down
