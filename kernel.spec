@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       153
-%global maintenance_release .4.0
-%global pkg_release         .83
+%global maintenance_release .6.0
+%global pkg_release         .84
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -898,6 +898,35 @@ fi
 %endif
 
 %changelog
+* Tue Jun 13 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.6.0.84
+- !1119 [openEuler-22.03-LTS-SP2] net: hns3: refactor hclge_mac_link_status_wait and add wait until mac link down
+- net: hns3: add wait until mac link down
+- net: hns3: refactor hclge_mac_link_status_wait for interface reuse
+- !1093 vfio-pci: Match specific devices with vendor id and device id
+- !1085 irqchip/gicv3-its: Add workaround for hip09 ITS erratum 162100801
+- irqchip/gicv3-its: Add workaround for hip09 ITS erratum 162100801
+- !1095 irqchip: gic-v3: Collection table support muti pages
+- !1081  some backport bugfix for sockmap
+- irqchip: gic-v3: Collection table support muti pages
+- vfio-pci: Match specific devices with vendor id and device id
+- !1077  drm/qxl: Fix missing free_irq
+- !1087 genirq: Increase the number of IRQ descriptors
+- genirq: Increase the number of IRQ descriptors
+- bpf: fix bpf_tcp_ingress addr use after free
+- net: deal with most data-races in sk_wait_event()
+- bpf, sockmap: Don't let sock_map_{close,destroy,unhash} call itself
+- bpf, sockmap: Check for any of tcp_bpf_prots when cloning a listener
+- bpf, sockmap: Fix data loss caused by using apply_bytes on ingress redirect
+- bpf, sockmap: Fix missing BPF_F_INGRESS flag when using apply_bytes
+- bpf, sockmap: Fix repeated calls to sock_put() when msg has more_data
+- bpf, sock_map: Move cancel_work_sync() out of sock lock
+- bpf, sockmap: Fix the sk->sk_forward_alloc warning of sk_stream_kill_queues
+- !1063 i2c: hisi: Only handle the interrupt of the driver's transfer
+- drm/qxl: Fix missing free_irq
+- !1059 [sync] PR-1028:  fs: hfsplus: fix UAF issue in hfsplus_put_super
+- i2c: hisi: Only handle the interrupt of the driver's transfer
+- fs: hfsplus: fix UAF issue in hfsplus_put_super
+
 * Fri Jun 09 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.4.0.83
 - !1042  xfrm: Reinject transport-mode packets through workqueue
 - !1069  support ACPI for MPAM 2.0
