@@ -1,5 +1,5 @@
 %define with_signmodules  1
-%define with_kabichk 0
+%define with_kabichk 1
 
 %define modsign_cmd %{SOURCE10}
 
@@ -61,6 +61,7 @@ Source15: process_pgp_certs.sh
 %if 0%{?with_kabichk}
 Source18: check-kabi
 Source20: Module.kabi_aarch64
+Source21: Module.kabi_x86_64
 %endif
 
 Source200: mkgrub-menu-aarch64.sh
@@ -351,8 +352,7 @@ make ARCH=%{Arch} modules %{?_smp_mflags}
 %if 0%{?with_kabichk}
     chmod 0755 %{SOURCE18}
     if [ -e $RPM_SOURCE_DIR/Module.kabi_%{_target_cpu} ]; then
-        ##%{SOURCE18} -k $RPM_SOURCE_DIR/Module.kabi_%{_target_cpu} -s Module.symvers || exit 1
-	echo "**** NOTE: now don't check Kabi. ****"
+        %{SOURCE18} -k $RPM_SOURCE_DIR/Module.kabi_%{_target_cpu} -s Module.symvers || exit 1
     else
         echo "**** NOTE: Cannot find reference Module.kabi file. ****"
     fi
@@ -467,7 +467,9 @@ popd
 install -m 644 .config $RPM_BUILD_ROOT/boot/config-%{KernelVer}
 install -m 644 System.map $RPM_BUILD_ROOT/boot/System.map-%{KernelVer}
 
-gzip -c9 < Module.symvers > $RPM_BUILD_ROOT/boot/symvers-%{KernelVer}.gz
+%if 0%{?with_kabichk}
+    gzip -c9 < Module.symvers > $RPM_BUILD_ROOT/boot/symvers-%{KernelVer}.gz
+%endif
 
 mkdir -p $RPM_BUILD_ROOT%{_sbindir}
 install -m 755 %{SOURCE200} $RPM_BUILD_ROOT%{_sbindir}/mkgrub-menu-%{devel_release}.sh
@@ -788,7 +790,9 @@ fi
 %ifarch aarch64
 /boot/dtb-*
 %endif
+%if 0%{?with_kabichk}
 /boot/symvers-*
+%endif
 /boot/System.map-*
 /boot/vmlinuz-*
 %ghost /boot/initramfs-%{KernelVer}.img
