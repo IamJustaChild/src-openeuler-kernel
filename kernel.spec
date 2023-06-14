@@ -17,8 +17,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .35.0
-%global pkg_release         .111
+%global maintenance_release .36.0
+%global pkg_release         .112
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -942,6 +942,71 @@ fi
 %endif
 
 %changelog
+* Wed Jun 14 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.36.0.112
+- !1104 [sync] PR-1089:  power: supply: bq24190: Fix use after free bug in bq24190_remove due to race condition
+- !1109 [sync] PR-1090:  fs/ntfs3: Check fields while reading
+- fs/ntfs3: Check fields while reading
+- power: supply: bq24190: Fix use after free bug in bq24190_remove due to race condition
+- !1062  Support dynamic_hugetlb on arm64 and fix some bug
+- !1058 [sync] PR-1028:  fs: hfsplus: fix UAF issue in hfsplus_put_super
+- mm/dynamic_hugetlb: fix type error of pfn in __hpool_split_gigantic_page()
+- mm/dynamic_hugetlb: set PagePool to bad page
+- mm/dynamic_hugetlb: replace spin_lock with mutex_lock and fix kabi broken
+- mm/dynamic_hugetlb: isolate hugepage without dissolve
+- mm/dynamic_hugetlb: support dynamic hugetlb on arm64
+- mm/dynamic_hugetlb: fix kabi broken when enable CONFIG_DYNAMIC_HUGETLB on arm64
+- !1021 [sync] PR-978:  io_uring: fix the problem of running
+- fs: hfsplus: fix UAF issue in hfsplus_put_super
+- !1051 [sync] PR-1027: scripts: Fix issue of module signing with openssl 3.x
+- scripts: Fix issue of module signing with openssl 3.x
+- !995 [sync] PR-990:  ubi: Fix deadlock caused by recursively holding work_sem
+- !1000 [sync] PR-928:  hikey9xx: Fixed incorrect use of kfree to free sreg
+- !1017 [sync] PR-944:  nbd: get config_lock before sock_shutdown
+- !1011 [sync] PR-924:  dm: add disk before alloc dax
+- !1014 [sync] PR-920:  dm thin: Fix ABBA deadlock by resetting dm_bufio_client
+- !951 [sync] PR-929:  xfs: rework feature flags
+- !972 [sync] PR-969:  kobject: Fix slab-out-of-bounds in fill_kobj_path()
+- !987 [sync] PR-954:  block: iocost bugfix
+- !984 [sync] PR-946:  icost bugfix
+- kernel: don't call do_exit() for PF_IO_WORKER threads
+- x86/process: setup io_threads more like normal user space threads
+- arch: ensure parisc/powerpc handle PF_IO_WORKER in copy_thread()
+- arch: setup PF_IO_WORKER threads like PF_KTHREAD
+- nbd: get config_lock before sock_shutdown
+- dm thin: Fix ABBA deadlock by resetting dm_bufio_client
+- dm: add disk before alloc dax
+- hikey9xx: Fixed incorrect use of kfree to free sreg
+- ubi: Fix deadlock caused by recursively holding work_sem
+- mtd: ubi: wl: Fix a couple of kernel-doc issues
+- !976 [sync] PR-968:  Fix ORC unwinder on paravirt {save,restore}_fl
+- block: fix order error in blk_release_queue
+- block: fix null-pointer dereference in ioc_pd_init
+- blk-iocost: dispatch all throttled bio in ioc_pd_offline
+- blk-iocost: don't throttle bio if iocg is offlined
+- blk-iocost: track whether iocg is still online
+- blk-iocost: fix UAF in ioc_pd_free
+- x86/unwind: Fix check_paravirt() calls orc_find() before declaration
+- x86/unwind: Fix orc entry for paravirt {save,restore}_fl
+- kobject: Fix slab-out-of-bounds in fill_kobj_path()
+- xfs: kill xfs_sb_version_has_v3inode()
+- xfs: introduce xfs_sb_is_v5 helper
+- xfs: remove unused xfs_sb_version_has wrappers
+- xfs: convert xfs_sb_version_has checks to use mount features
+- xfs: convert scrub to use mount-based feature checks
+- xfs: open code sb verifier feature checks
+- xfs: convert xfs_fs_geometry to use mount feature checks
+- xfs: replace XFS_FORCED_SHUTDOWN with xfs_is_shutdown
+- xfs: convert remaining mount flags to state flags
+- xfs: convert mount flags to features
+- xfs: consolidate mount option features in m_features
+- xfs: replace xfs_sb_version checks with feature flag checks
+- xfs: reflect sb features in xfs_mount
+- xfs: rework attr2 feature and mount options
+- xfs: rename xfs_has_attr()
+- xfs: xfs_is_shutdown vs xlog_is_shutdown cage fight
+- xfs: log items should have a xlog pointer, not a mount
+- xfs: fix incorrect error-out in xfs_remove
+
 * Wed Jun 07 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.35.0.111
 - !905 [sync] PR-903: backport block bugfix
 - !963 [sync] PR-937:  tcp: restrict net.ipv4.tcp_app_win
