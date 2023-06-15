@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       153
-%global maintenance_release .8.0
-%global pkg_release         .86
+%global maintenance_release .9.0
+%global pkg_release         .87
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -438,6 +438,9 @@ popd
 pushd tools/kvm/kvm_stat/
 make %{?_smp_mflags} man
 popd
+pushd tools/netacc
+make BPFTOOL=../../tools/bpf/bpftool/bpftool
+popd
 
 %install
 %if 0%{?with_source}
@@ -716,6 +719,9 @@ popd
 pushd tools/kvm/kvm_stat
 make INSTALL_ROOT=%{buildroot} install-tools
 popd
+pushd tools/netacc
+make INSTALL_ROOT=%{buildroot} install
+popd
 
 %define __spec_install_post\
 %{?__debug_package:%{__debug_install_post}}\
@@ -866,6 +872,8 @@ fi
 %{_bindir}/gpio-watch
 %{_mandir}/man1/kvm_stat*
 %{_bindir}/kvm_stat
+%{_sbindir}/net-acc
+%{_sbindir}/tuned_acc/redis_acc
 %{_libdir}/libcpupower.so.0
 %{_libdir}/libcpupower.so.0.0.1
 %license linux-%{KernelVer}/COPYING
@@ -902,7 +910,10 @@ fi
 %endif
 
 %changelog
-* Tue Jun 14 2023 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-153.8.0.86
+* Thu Jun 15 2023 Liu Jian <liujian56@huawei.com> - 5.10.0-153.9.0.87
+- And net-acc tool to kernel-tools.
+
+* Wed Jun 14 2023 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-153.8.0.86
 - Enable kabi checking and adapt the check-kabi script
 - net: let sockops can use bpf_get_current_comm()
 - net: add bpf_is_local_ipaddr bpf helper function
