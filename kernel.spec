@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       153
-%global maintenance_release .9.0
-%global pkg_release         .87
+%global maintenance_release .10.0
+%global pkg_release         .88
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -99,7 +99,7 @@ BuildRequires: audit-libs-devel
 BuildRequires: pciutils-devel gettext
 BuildRequires: rpm-build, elfutils
 BuildRequires: numactl-devel python3-devel glibc-static python3-docutils
-BuildRequires: perl-generators perl(Carp) libunwind-devel gtk2-devel libbabeltrace-devel java-1.8.0-openjdk perl-devel
+BuildRequires: perl-generators perl(Carp) libunwind-devel gtk2-devel libbabeltrace-devel java-1.8.0-openjdk java-1.8.0-openjdk-devel perl-devel
 AutoReq: no
 AutoProv: yes
 
@@ -910,6 +910,50 @@ fi
 %endif
 
 %changelog
+* Wed Jun 21 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.10.0.88
+- Add java-1.8.0-openjdk-devel BuildRequires for kernel.spec
+- !1213 [sync] PR-1196:  fs/stat: make tmp variable 16-bytes aligned in copy stat
+- !1208  arm64: kernel: disable CNP on LINXICORE9100
+- fs/stat: make tmp variable 16-bytes aligned in copy stat
+- !1204  kernel: update SP2 OPENEULER_MINOR value to 2
+- !1203  Revert "locking/rwsem: Prevent potential lock starvation"
+- !1200 [sync] PR-1190:  memcg: fix implicit declaration of memcg_print_bad_task()
+- arm64: kernel: disable CNP on LINXICORE9100
+- !1193 [sync] PR-1178:  memstick: r592: Fix UAF bug in r592_remove due to race condition
+- !1195 [sync] PR-1159: xhci:fix USB xhci controller issue
+- !1183  Fix some warning messages in netacc
+- kernel: update SP2 OPENEULER_MINOR value to 2
+- Revert "locking/rwsem: Better collate rwsem_read_trylock()"
+- Revert "locking/rwsem: Pass the current atomic count to rwsem_down_read_slowpath()"
+- Revert "locking/rwsem: Prevent potential lock starvation"
+- memcg: fix implicit declaration of memcg_print_bad_task()
+- xhci:fix USB xhci controller issue
+- !1186  Fix NULL pointer and Keep PERF_PMU_CAP_EXCLUSIVE
+- memstick: r592: Fix UAF bug in r592_remove due to race condition
+- hwtracing: hisi_ptt: Keep to advertise PERF_PMU_CAP_EXCLUSIVE
+- hwtracing: hisi_ptt: Add dummy callback pmu::read()
+- !1182 Fix CQ and QP cache affinity
+- libbpf: Support uniform BTF-defined key/value specification across all BPF maps
+- tools: ignore one warning message
+- RDMA/hns: Fix CQ and QP cache affinity
+- !1151 [sync] PR-1150:  EDAC/i10nm: Add Intel Emerald Rapids server support
+- !1175 [sync] PR-1157: Add LoongArch maintainers to openEuler/MAINTAINERS
+- !1165 [sync] PR-1098:  proc: allow pid_revalidate() during LOOKUP_RCU
+- MAINTAINERS: update openEuler/MAINTAINERS for LoongArch
+- !1169 [sync] PR-1162:  fbcon: Check font dimension limits
+- !1156 [sync] PR-582: mm: oom: move memcg_print_bad_task() out of  mem_cgroup_scan_tasks()
+- fbcon: Check font dimension limits
+- proc: allow pid_revalidate() during LOOKUP_RCU
+- !882 [sync] PR-855: Remove the automatic loading of the hisi_trng driver
+- mm: oom: move memcg_print_bad_task() out of mem_cgroup_scan_tasks()
+- EDAC/i10nm: Add Intel Emerald Rapids server support
+- !1144 crypto: hisilicon/qm: modify loop exit condition
+- !1147 [sync] PR-1136:  gfs2: Don't deref jdesc in evict
+- gfs2: Don't deref jdesc in evict
+- crypto: hisilicon/qm: modify loop exit condition
+- crypto/trng: Remove the automatic loading of the hisi_trng driver
+- crypto: hisilicon/trng - use %u to print u32 variables
+
 * Thu Jun 15 2023 Liu Jian <liujian56@huawei.com> - 5.10.0-153.9.0.87
 - And net-acc tool to kernel-tools.
 
