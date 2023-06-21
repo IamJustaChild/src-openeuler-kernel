@@ -17,8 +17,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .36.0
-%global pkg_release         .112
+%global maintenance_release .37.0
+%global pkg_release         .113
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -942,6 +942,24 @@ fi
 %endif
 
 %changelog
+* Tue Jun 20 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.37.0.113
+- !1164 [sync] PR-1098:  proc: allow pid_revalidate() during LOOKUP_RCU
+- !1168 [sync] PR-1162:  fbcon: Check font dimension limits
+- fbcon: Check font dimension limits
+- proc: allow pid_revalidate() during LOOKUP_RCU
+- !582 mm: oom: move memcg_print_bad_task() out of  mem_cgroup_scan_tasks()
+- !1146 [sync] PR-1136:  gfs2: Don't deref jdesc in evict
+- gfs2: Don't deref jdesc in evict
+- !1025 [sync] PR-947:  locking/rwsem: Prevent potential lock starvation
+- !1072 [sync] PR-1042:  xfrm: Reinject transport-mode packets through workqueue
+- !1129 [sync] PR-1077:  drm/qxl: Fix missing free_irq
+- drm/qxl: Fix missing free_irq
+- xfrm: Reinject transport-mode packets through workqueue
+- locking/rwsem: Prevent potential lock starvation
+- locking/rwsem: Pass the current atomic count to rwsem_down_read_slowpath()
+- locking/rwsem: Better collate rwsem_read_trylock()
+- mm: oom: move memcg_print_bad_task() out of mem_cgroup_scan_tasks()
+
 * Wed Jun 14 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.36.0.112
 - !1104 [sync] PR-1089:  power: supply: bq24190: Fix use after free bug in bq24190_remove due to race condition
 - !1109 [sync] PR-1090:  fs/ntfs3: Check fields while reading
