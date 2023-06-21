@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2306.3.0
+%global hulkrelease 2306.4.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0205
+Release: %{hulkrelease}.0206
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,27 @@ fi
 %endif
 
 %changelog
+
+* Tue Jun 20 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2306.4.0.0206
+- sched: Adjust few parameters range for smart grid
+- sched: clear credit count in error branch
+- sched: Fix memory leak on error branch
+- sched: fix dereference NULL pointers
+- sched: Fix timer storm for smart grid
+- memstick: r592: Fix UAF bug in r592_remove due to race condition
+- fbcon: Check font dimension limits
+- sched/rt: Fix possible warn when push_rt_task
+- !1152 pci: workaround multiple functions can be assigned to only one VM
+- pci: workaround multiple functions can be assigned to only one VM
+- sched: Fix negative count for jump label
+- sched: Fix possible deadlock in tg_set_dynamic_affinity_mode
+- sched: fix WARN found by deadlock detect
+- sched: fix smart grid usage count
+- sched: Add static key to reduce noise
+- net: nsh: Use correct mac_offset to unwind gso skb in nsh_gso_segment()
+- !1134 【openEuler-1.0-LTS】cpufreq:conservative: Fix load in fast_dbs_update()
+- firewire: fix potential uaf in outbound_phy_packet_callback()
+- cpufreq: conservative: fix load in fast_dbs_update()
 
 * Tue Jun 13 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2306.3.0.0205
 - arm64: Add AMPERE1 to the Spectre-BHB affected list
