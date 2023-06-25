@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       153
-%global maintenance_release .10.0
-%global pkg_release         .88
+%global maintenance_release .12.0
+%global pkg_release         .89
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -910,6 +910,16 @@ fi
 %endif
 
 %changelog
+* Sun Jun 25 2023 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-153.12.0.89
+- !1189 [sync] PR-1177:  net/sched: flower: fix possible OOB write in fl_set_geneve_opt()
+- !1226 [sync] PR-1221:  media: rkvdec: fix use after free bug in rkvdec_remove
+- !1229 [sync] PR-1227:  x86/fpu: KABI_BROKEN_REMOVE "union fpregs_state state" from struct fpu
+- x86/fpu: KABI_BROKEN_REMOVE "union fpregs_state state" from struct fpu
+- media: rkvdec: fix use after free bug in rkvdec_remove
+- !1219  openEuler: introduced OPENEULER_LTS to identify LTS Release
+- openEuler: introduced OPENEULER_LTS to identify LTS Release
+- net/sched: flower: fix possible OOB write in fl_set_geneve_opt()
+
 * Wed Jun 21 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.10.0.88
 - Add java-1.8.0-openjdk-devel BuildRequires for kernel.spec
 - !1213 [sync] PR-1196:  fs/stat: make tmp variable 16-bytes aligned in copy stat
