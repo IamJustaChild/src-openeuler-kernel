@@ -12,7 +12,7 @@
 %global upstream_sublevel   0
 %global devel_release       153
 %global maintenance_release .12.0
-%global pkg_release         .89
+%global pkg_release         .90
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -475,7 +475,7 @@ install -m 644 System.map $RPM_BUILD_ROOT/boot/System.map-%{KernelVer}
 %endif
 
 mkdir -p $RPM_BUILD_ROOT%{_sbindir}
-install -m 755 %{SOURCE200} $RPM_BUILD_ROOT%{_sbindir}/mkgrub-menu-%{devel_release}.sh
+install -m 755 %{SOURCE200} $RPM_BUILD_ROOT%{_sbindir}/mkgrub-menu-%{version}-%{devel_release}%{?maintenance_release}%{?pkg_release}.sh
 
 
 %if 0%{?with_debuginfo}
@@ -736,7 +736,7 @@ popd
 %preun
 if [ `uname -i` == "aarch64" ] &&
         [ -f /boot/EFI/grub2/grub.cfg ]; then
-    /usr/bin/sh  %{_sbindir}/mkgrub-menu-%{devel_release}.sh %{version}-%{devel_release}.aarch64  /boot/EFI/grub2/grub.cfg  remove
+    /usr/bin/sh  %{_sbindir}/mkgrub-menu-%{version}-%{devel_release}%{?maintenance_release}%{?pkg_release}.sh %{version}-%{release}.aarch64  /boot/EFI/grub2/grub.cfg  remove
 fi
 
 %postun
@@ -756,7 +756,7 @@ fi
 %{_sbindir}/new-kernel-pkg --package kernel --rpmposttrans %{KernelVer} || exit $?
 if [ `uname -i` == "aarch64" ] &&
         [ -f /boot/EFI/grub2/grub.cfg ]; then
-	/usr/bin/sh %{_sbindir}/mkgrub-menu-%{devel_release}.sh %{version}-%{devel_release}.aarch64  /boot/EFI/grub2/grub.cfg  update
+	/usr/bin/sh %{_sbindir}/mkgrub-menu-%{version}-%{devel_release}%{?maintenance_release}%{?pkg_release}.sh %{version}-%{release}.aarch64  /boot/EFI/grub2/grub.cfg  update
 fi
 if [ -x %{_sbindir}/weak-modules ]
 then
@@ -910,6 +910,9 @@ fi
 %endif
 
 %changelog
+* Tue Jun 27 2023 Shi Kemeng <shikemeng@huawei.com> - 5.10.0-153.12.0.90
+- use full version-release instead of devel_release for mkgrub-menu
+
 * Sun Jun 25 2023 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-153.12.0.89
 - !1189 [sync] PR-1177:  net/sched: flower: fix possible OOB write in fl_set_geneve_opt()
 - !1226 [sync] PR-1221:  media: rkvdec: fix use after free bug in rkvdec_remove
