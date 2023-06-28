@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2306.4.0
+%global hulkrelease 2306.5.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0206
+Release: %{hulkrelease}.0207
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,20 @@ fi
 %endif
 
 %changelog
+
+* Tue Jun 27 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2306.5.0.0207
+- HID: intel_ish-hid: Add check for ishtp_dma_tx_map
+- media: saa7134: fix use after free bug in saa7134_finidev due to race condition
+- config: enable CONFIG_QOS_SCHED_SMART_GRID by default
+- mm: oom: move memcg_print_bad_task() out of mem_cgroup_scan_tasks()
+- media: dm1105: Fix use after free bug in dm1105_remove due to race condition
+- sched: Fix memory leak for smart grid
+- sched: Delete redundant updates to p->prefer_cpus
+- nbd: fix incomplete validation of ioctl arg
+- nbd: validate the block size in nbd_set_size
+- relayfs: fix out-of-bounds access in relay_file_read
+- kernel/relay.c: fix read_pos error when multiple readers
+- net/sched: flower: fix possible OOB write in fl_set_geneve_opt()
 
 * Tue Jun 20 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2306.4.0.0206
 - sched: Adjust few parameters range for smart grid
