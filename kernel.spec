@@ -12,7 +12,7 @@
 %global upstream_sublevel   0
 %global devel_release       153
 %global maintenance_release .12.0
-%global pkg_release         .90
+%global pkg_release         .92
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -910,6 +910,9 @@ fi
 %endif
 
 %changelog
+* Tue Jun 27 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.12.0.92
+- Add hugetlb_optimize_vmemmap_key and __x86_return_thunk to kabi whitelist
+
 * Tue Jun 27 2023 Shi Kemeng <shikemeng@huawei.com> - 5.10.0-153.12.0.90
 - use full version-release instead of devel_release for mkgrub-menu
 

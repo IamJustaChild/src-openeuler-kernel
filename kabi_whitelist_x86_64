@@ -1237,6 +1237,7 @@
     hrtimer_init
     hrtimer_start_range_ns
     hrtimer_try_to_cancel
+    hugetlb_optimize_vmemmap_key
     __hw_addr_sync_dev
     __hw_addr_unsync_dev
     hwmon_device_register
@@ -3109,6 +3110,7 @@
     __x86_indirect_thunk_rdi
     __x86_indirect_thunk_rdx
     __x86_indirect_thunk_rsi
+    __x86_return_thunk
     __xa_alloc
     __xa_alloc_cyclic
     __xa_cmpxchg
