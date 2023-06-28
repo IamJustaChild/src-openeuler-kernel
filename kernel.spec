@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       153
-%global maintenance_release .12.0
-%global pkg_release         .92
+%global maintenance_release .16.0
+%global pkg_release         .93
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -910,6 +910,11 @@ fi
 %endif
 
 %changelog
+* Wed Jun 28 2023 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-153.16.0.93
+- !1244  set the iova rcache global
+- config: enable set the max iova mag size to 128
+- iommu/iova: increase the iova_rcache depot max size
+
 * Tue Jun 27 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.12.0.92
 - Add hugetlb_optimize_vmemmap_key and __x86_return_thunk to kabi whitelist
 
