@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2306.5.0
+%global hulkrelease 2306.7.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0207
+Release: %{hulkrelease}.0208
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,13 @@ fi
 %endif
 
 %changelog
+
+* Fri Jun 30 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2306.7.0.0208
+- sched: Fix null pointer derefrence for sd->span
+- scsi: hisi_sas: Fix Null point exception after call debugfs_remove_recursive()
+- scsi: hisi_sas: Fix normally completed I/O analysed as failed
+- drm/msm/dpu: Add check for pstates
+- usb: gadget: udc: renesas_usb3: Fix use after free bug in renesas_usb3_remove due to race condition
 
 * Tue Jun 27 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2306.5.0.0207
 - HID: intel_ish-hid: Add check for ishtp_dma_tx_map
