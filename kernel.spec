@@ -12,7 +12,7 @@
 %global upstream_sublevel   8
 %global devel_release       3
 %global maintenance_release .0.0
-%global pkg_release         .8
+%global pkg_release         .9
 
 %define with_debuginfo 0
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -154,8 +154,7 @@ against the %{KernelVer} kernel package.
 
 %package tools
 Summary: Assortment of tools for the Linux kernel
-Provides: %{name}-tools-libs
-Obsoletes: %{name}-tools-libs
+Requires: %{name}-tools-libs = %{version}-%{release}
 Provides:  cpufreq-utils = 1:009-0.6.p1
 Provides:  cpufrequtils = 1:009-0.6.p1
 Obsoletes: cpufreq-utils < 1:009-0.6.p1
@@ -164,6 +163,12 @@ Obsoletes: cpuspeed < 1:1.5-16
 %description tools
 This package contains the tools/ directory from the kernel source
 and the supporting documentation.
+
+%package -n %{name}-tools-libs
+Summary: Libraries for the kernels-tools
+%description -n kernel-tools-libs
+This package contains the libraries built from the tools/ directory
+from the kernel source.
 
 %package tools-devel
 Summary: Assortment of tools for the Linux kernel
@@ -851,9 +856,11 @@ fi
 %{_bindir}/gpio-watch
 %{_mandir}/man1/kvm_stat*
 %{_bindir}/kvm_stat
+%license linux-%{KernelVer}/COPYING
+
+%files -n %{name}-tools-libs
 %{_libdir}/libcpupower.so.0
 %{_libdir}/libcpupower.so.0.0.1
-%license linux-%{KernelVer}/COPYING
 
 %files -n %{name}-tools-devel
 %{_libdir}/libcpupower.so
@@ -886,6 +893,9 @@ fi
 %endif
 
 %changelog
+* Fri Jun 30 2023 Shi Kemeng <shikemeng@huawei.com> - 6.1.8-3.0.0.9
+- add kernel-tools-libs to collect kernel library
+
 * Mon Jun 26 2023 Shi Kemeng <shikemeng@huawei.com> - 6.1.8-3.0.0.8
 - use full version-release instead of devel_release for mkgrub-menu
 
