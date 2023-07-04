@@ -12,7 +12,7 @@
 %global upstream_sublevel   8
 %global devel_release       3
 %global maintenance_release .0.0
-%global pkg_release         .8
+%global pkg_release         .9
 
 %define with_debuginfo 0
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -886,6 +886,9 @@ fi
 %endif
 
 %changelog
+* Mon Jul 10 2023 Wei Li <liwei391@huawei.com> - 6.1.8-3.0.0.9
+- remove obsoleted kabi files
+
 * Mon Jun 26 2023 Shi Kemeng <shikemeng@huawei.com> - 6.1.8-3.0.0.8
 - use full version-release instead of devel_release for mkgrub-menu
 
