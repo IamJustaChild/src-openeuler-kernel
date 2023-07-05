@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       153
-%global maintenance_release .12.0
-%global pkg_release         .92
+%global maintenance_release .17.0
+%global pkg_release         .93
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -910,6 +910,38 @@ fi
 %endif
 
 %changelog
+* Wed Jul 05 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.17.0.93
+- !1231 [sync] PR-1191:  fix memory reliable related issues
+- !1236 [sync] PR-1194:  fix memleak with efi_fake_mem
+- !1257 [sync] PR-1247:  HID: intel_ish-hid: Add check for ishtp_dma_tx_map
+- !1249 [sync] PR-1245:  hugetlb: Fix some incorrect behavior
+- !1234 [sync] PR-1220:  mm/memory_hotplug: extend offline_and_remove_memory() to handle more than one memory block
+- !1211 [sync] PR-1185:  nbd: validate the block size in nbd_set_size
+- !1276 [sync] PR-1253:  media: saa7134: fix use after free bug in saa7134_finidev due to race condition
+- !1304 [sync] PR-1283:  media: dm1105: Fix use after free bug in dm1105_remove due to race condition
+- !1301 [sync] PR-1270:  media: dvb-core: Fix kernel WARNING for blocking operation in wait_event*()
+- !1266 [sync] PR-1261:  usb: gadget: udc: renesas_usb3: Fix use after free bug in renesas_usb3_remove due to race condition
+- media: dm1105: Fix use after free bug in dm1105_remove due to race condition
+- media: dvb-core: Fix kernel WARNING for blocking operation in wait_event*()
+- !1240 [sync] PR-1181:  relayfs: fix out-of-bounds access in relay_file_read
+- media: saa7134: fix use after free bug in saa7134_finidev due to race condition
+- usb: gadget: udc: renesas_usb3: Fix use after free bug in renesas_usb3_remove due to race condition
+- !1244  set the iova rcache global
+- HID: intel_ish-hid: Add check for ishtp_dma_tx_map
+- hugetlb: fix hugepages_setup when deal with pernode
+- hugetlb: fix wrong use of nr_online_nodes
+- config: enable set the max iova mag size to 128
+- iommu/iova: increase the iova_rcache depot max size
+- relayfs: fix out-of-bounds access in relay_file_read
+- config: Disable EFI_FAKE_MEMMAP support for arm64 by default
+- efi: Fix UAF for arm64 when enable efi_fake_mem
+- mm/memory_hotplug: extend offline_and_remove_memory() to handle more than one memory block
+- efi: Disable mirror feature during crashkernel
+- mm: mem_reliable: Update reliable page counter to zero if underflows
+- mm: mem_reliable: Fix reliable page counter mismatch problem
+- nbd: fix incomplete validation of ioctl arg
+- nbd: validate the block size in nbd_set_size
+
 * Tue Jun 27 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.12.0.92
 - Add hugetlb_optimize_vmemmap_key and __x86_return_thunk to kabi whitelist
 
