@@ -17,8 +17,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .38.0
-%global pkg_release         .115
+%global maintenance_release .39.0
+%global pkg_release         .116
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -942,6 +942,29 @@ fi
 %endif
 
 %changelog
+* Wed Jul 05 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.39.0.116
+- !1251 [sync] PR-1191:  fix memory reliable related issues
+- !1230 [sync] PR-1194:  fix memleak with efi_fake_mem
+- !1275 [sync] PR-1253:  media: saa7134: fix use after free bug in saa7134_finidev due to race condition
+- !1302 [sync] PR-1283:  media: dm1105: Fix use after free bug in dm1105_remove due to race condition
+- !1305 [sync] PR-1269:  arm64: Add AMPERE1 to the Spectre-BHB affected list
+- !1300 [sync] PR-1270:  media: dvb-core: Fix kernel WARNING for blocking operation in wait_event*()
+- arm64: Add AMPERE1 to the Spectre-BHB affected list
+- !1265 [sync] PR-1261:  usb: gadget: udc: renesas_usb3: Fix use after free bug in renesas_usb3_remove due to race condition
+- media: dm1105: Fix use after free bug in dm1105_remove due to race condition
+- !1188 [sync] PR-1177:  net/sched: flower: fix possible OOB write in fl_set_geneve_opt()
+- media: dvb-core: Fix kernel WARNING for blocking operation in wait_event*()
+- media: saa7134: fix use after free bug in saa7134_finidev due to race condition
+- !1256 [sync] PR-1247:  HID: intel_ish-hid: Add check for ishtp_dma_tx_map
+- usb: gadget: udc: renesas_usb3: Fix use after free bug in renesas_usb3_remove due to race condition
+- HID: intel_ish-hid: Add check for ishtp_dma_tx_map
+- efi: Disable mirror feature during crashkernel
+- mm: mem_reliable: Update reliable page counter to zero if underflows
+- mm: mem_reliable: Fix reliable page counter mismatch problem
+- config: Disable EFI_FAKE_MEMMAP support for arm64 by default
+- efi: Fix UAF for arm64 when enable efi_fake_mem
+- net/sched: flower: fix possible OOB write in fl_set_geneve_opt()
+
 * Thu Jun 29 2023 Shi Kemeng <shikemeng@huawei.com> - 5.10.0-136.38.0.115
 - use full version-release instead of devel_release for mkgrub-menu
 
