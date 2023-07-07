@@ -12,7 +12,7 @@
 %global upstream_sublevel   19
 %global devel_release       7
 %global maintenance_release .0.0
-%global pkg_release         .17
+%global pkg_release         .18
 
 %define with_debuginfo 0
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -129,7 +129,7 @@ Conflicts: mdadm < 3.2.1-5 nfs-utils < 1.0.7-12 oprofile < 0.9.1-2 ppp < 2.4.3-3
 Conflicts: reiserfs-utils < 3.6.19-2 selinux-policy-targeted < 1.25.3-14 squashfs-tools < 4.0
 Conflicts: udev < 063-6 util-linux < 2.12 wireless-tools < 29-3 xfsprogs < 2.6.13-4
 
-Provides: kernel-aarch64 = %{version}-%{release} kernel-drm = 4.3.0 kernel-drm-nouveau = 16 kernel-modeset = 1
+Provides: kernel-%{_tartget_cpu}= %{version}-%{release} kernel-drm = 4.3.0 kernel-drm-nouveau = 16 kernel-modeset = 1
 Provides: kernel-uname-r = %{KernelVer} kernel=%{KernelVer}
 
 Requires: dracut >= 001-7 grubby >= 8.28-2 initscripts >= 8.11.1-1 linux-firmware >= 20100806-2 module-init-tools >= 3.16-2
@@ -925,6 +925,9 @@ fi
 %endif
 
 %changelog
+* Fri Jul 7 2023 Chunsheng Luo <luochunsheng@huawei.com> - 6.1.19-7.0.0.18
+- Fix x86 provides error symbol
+
 * Fri Mar 18 2023 Jialin Zhang <zhangjialin11@huawei.com> - 6.1.19-7.0.0.17
 - Fix CVE-2023-23005, CVE-2023-0597 and CVE-2022-4269
 
