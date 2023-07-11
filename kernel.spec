@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       153
-%global maintenance_release .17.0
-%global pkg_release         .93
+%global maintenance_release .18.0
+%global pkg_release         .94
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -910,6 +910,25 @@ fi
 %endif
 
 %changelog
+* Tue Jul 11 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.18.0.94
+- !1370 [sync] PR-1324:  io_uring: hold uring mutex around poll removal
+- !1365 [sync] PR-1287:  ipvlan:Fix out-of-bounds caused by unclear skb->cb
+- io_uring: hold uring mutex around poll removal
+- ipvlan:Fix out-of-bounds caused by unclear skb->cb
+- ipvlan:Fix out-of-bounds caused by unclear skb->cb
+- !1344 [sync] PR-1272:  xfs: fix some problems recently
+- xfs: fix uninitialized variable access
+- xfs: set XFS_FEAT_NLINK correctly
+- xfs: don't leak perag when growfs fails
+- xfs: factor out xfs_destroy_perag()
+- xfs: fix warning in xfs_vm_writepages()
+- xfs: don't leak intent item when recovery intents fail
+- xfs: factor out xfs_defer_pending_abort
+- xfs: fix mounting failed caused by sequencing problem in the log records
+- !1306 [sync] PR-1297:  iommu/iova: move IOVA_MAX_GLOBAL_MAGS outside of IOMMU_SUPPORT
+- iommu/iova: move IOVA_MAX_GLOBAL_MAGS outside of IOMMU_SUPPORT
+- Fix x86 provides error symbol
+
 * Wed Jul 05 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.17.0.93
 - !1231 [sync] PR-1191:  fix memory reliable related issues
 - !1236 [sync] PR-1194:  fix memleak with efi_fake_mem
