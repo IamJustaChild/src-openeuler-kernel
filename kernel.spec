@@ -8,13 +8,13 @@
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 %global debuginfodir /usr/lib/debug
 
-%global upstream_version    6.1
-%global upstream_sublevel   8
-%global devel_release       3
+%global upstream_version    6.4
+%global upstream_sublevel   0
+%global devel_release       1
 %global maintenance_release .0.0
-%global pkg_release         .9
+%global pkg_release         .1
 
-%define with_debuginfo 0
+%define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
 %global _missing_build_ids_terminate_build 1
 %global _no_recompute_build_ids 1
@@ -56,6 +56,7 @@ Source13: pubring.gpg
 %if 0%{?with_kabichk}
 Source18: check-kabi
 Source20: Module.kabi_aarch64
+Source21: Module.kabi_x86_64
 %endif
 
 Source200: mkgrub-menu-aarch64.sh
@@ -71,10 +72,6 @@ Source9998: patches.tar.bz2
 %endif
 
 Patch0001: 0001-kconfig-Add-script-to-update-openeuler_defconfig.patch
-Patch0002: 0002-config-add-initial-openeuler_defconfig-for-arm64.patch
-Patch0003: 0003-config-add-initial-openeuler_defconfig-for-x86_64.patch
-Patch0004: 0004-config-disable-CONFIG_EFI_ZBOOT-by-default.patch
-Patch0005: 0005-arm64-vmalloc-use-module-region-only-for-module_allo.patch
 
 #BuildRequires:
 BuildRequires: module-init-tools, patch >= 2.5.4, bash >= 2.03, tar
@@ -95,11 +92,11 @@ BuildRequires: python-devel
 %endif
 
 BuildRequires: elfutils-devel zlib-devel binutils-devel newt-devel perl(ExtUtils::Embed) bison
-BuildRequires: audit-libs-devel
+BuildRequires: audit-libs-devel libpfm-devel libtraceevent-devel
 BuildRequires: pciutils-devel gettext
 BuildRequires: rpm-build, elfutils
 BuildRequires: numactl-devel python3-devel glibc-static python3-docutils
-BuildRequires: perl-generators perl(Carp) libunwind-devel gtk2-devel libbabeltrace-devel java-1.8.0-openjdk perl-devel
+BuildRequires: perl-generators perl(Carp) libunwind-devel gtk2-devel libbabeltrace-devel java-1.8.0-openjdk java-1.8.0-openjdk-devel perl-devel
 AutoReq: no
 AutoProv: yes
 
@@ -300,11 +297,6 @@ Applypatches series.conf %{_builddir}/kernel-%{version}/linux-%{KernelVer}
 %endif
 
 %patch0001 -p1
-%patch0002 -p1
-%patch0003 -p1
-%patch0004 -p1
-%patch0005 -p1
-touch .scmversion
 
 find . \( -name "*.orig" -o -name "*~" \) -exec rm -f {} \; >/dev/null
 find . -name .gitignore -exec rm -f {} \; >/dev/null
@@ -347,8 +339,7 @@ make ARCH=%{Arch} modules %{?_smp_mflags}
 %if 0%{?with_kabichk}
     chmod 0755 %{SOURCE18}
     if [ -e $RPM_SOURCE_DIR/Module.kabi_%{_target_cpu} ]; then
-        ##%{SOURCE18} -k $RPM_SOURCE_DIR/Module.kabi_%{_target_cpu} -s Module.symvers || exit 1
-	echo "**** NOTE: now don't check Kabi. ****"
+        %{SOURCE18} -k $RPM_SOURCE_DIR/Module.kabi_%{_target_cpu} -s Module.symvers || exit 1
     else
         echo "**** NOTE: Cannot find reference Module.kabi file. ****"
     fi
@@ -435,7 +426,6 @@ popd
     mkdir -p $RPM_BUILD_ROOT/usr/src/
     mv linux-%{KernelVer}-source $RPM_BUILD_ROOT/usr/src/linux-%{KernelVer}
     cp linux-%{KernelVer}/.config $RPM_BUILD_ROOT/usr/src/linux-%{KernelVer}/
-    cp linux-%{KernelVer}/.scmversion $RPM_BUILD_ROOT/usr/src/linux-%{KernelVer}/
 %endif
 
 cd linux-%{KernelVer}
@@ -457,7 +447,9 @@ popd
 install -m 644 .config $RPM_BUILD_ROOT/boot/config-%{KernelVer}
 install -m 644 System.map $RPM_BUILD_ROOT/boot/System.map-%{KernelVer}
 
-gzip -c9 < Module.symvers > $RPM_BUILD_ROOT/boot/symvers-%{KernelVer}.gz
+%if 0%{?with_kabichk}
+    gzip -c9 < Module.symvers > $RPM_BUILD_ROOT/boot/symvers-%{KernelVer}.gz
+%endif
 
 mkdir -p $RPM_BUILD_ROOT%{_sbindir}
 install -m 755 %{SOURCE200} $RPM_BUILD_ROOT%{_sbindir}/mkgrub-menu-%{version}-%{devel_release}%{?maintenance_release}%{?pkg_release}.sh
@@ -629,9 +621,9 @@ popd
 # perf
 # perf tool binary and supporting scripts/binaries
 %if 0%{?with_python2}
-%{perf_make} %{perf_python2} DESTDIR=%{buildroot} lib=%{_lib} install-bin install-traceevent-plugins
+%{perf_make} %{perf_python2} DESTDIR=%{buildroot} lib=%{_lib} install-bin
 %else
-%{perf_make} %{perf_python3} DESTDIR=%{buildroot} lib=%{_lib} install-bin install-traceevent-plugins
+%{perf_make} %{perf_python3} DESTDIR=%{buildroot} lib=%{_lib} install-bin
 %endif
 # remove the 'trace' symlink.
 rm -f %{buildroot}%{_bindir}/trace
@@ -777,7 +769,9 @@ fi
 %ifarch aarch64
 /boot/dtb-*
 %endif
+%if 0%{?with_kabichk}
 /boot/symvers-*
+%endif
 /boot/System.map-*
 /boot/vmlinuz-*
 %ghost /boot/initramfs-%{KernelVer}.img
@@ -803,8 +797,6 @@ fi
 %files -n perf
 %{_bindir}/perf
 %{_libdir}/libperf-jvmti.so
-%dir %{_libdir}/traceevent
-%{_libdir}/traceevent/plugins/
 %{_libexecdir}/perf-core
 %{_datadir}/perf-core/
 %{_mandir}/man[1-8]/perf*
@@ -882,10 +874,12 @@ fi
 %defattr(-,root,root)
 /usr/src/linux-%{KernelVer}/*
 /usr/src/linux-%{KernelVer}/.config
-/usr/src/linux-%{KernelVer}/.scmversion
 %endif
 
 %changelog
+* Wed May 31 2023 Wei Li <liwei391@huawei.com> - 6.4.0-1.0.0.1
+- update to 6.4.0-1.0.0.1
+
 * Mon Jul 10 2023 Wei Li <liwei391@huawei.com> - 6.1.8-3.0.0.9
 - remove obsoleted kabi files
 
@@ -900,7 +894,7 @@ fi
 - update to v6.1.8-2.0.0.6
 - config: disable CONFIG_EFI_ZBOOT by default
 
-* Fri Jan 29 2023 Xie XiuQi <xiexiuqi@huawei.com> - 6.1.8-1.0.0.5
+* Sun Jan 29 2023 Xie XiuQi <xiexiuqi@huawei.com> - 6.1.8-1.0.0.5
 - update to v6.1.8
 
 * Sun Jan 29 2023 Xie XiuQi <xiexiuqi@huawei.com> - 6.1.6-1.0.0.4
