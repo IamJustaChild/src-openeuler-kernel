@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2306.7.0
+%global hulkrelease 2307.3.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0208
+Release: %{hulkrelease}.0209
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,85 @@ fi
 %endif
 
 %changelog
+
+* Wed Jul 12 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2307.3.0.0209
+- !1361 fix CVE-2023-1295
+- io_uring: get rid of intermediate IORING_OP_CLOSE stage
+- fs: provide locked helper variant of close_fd_get_file()
+- file: Rename __close_fd_get_file close_fd_get_file
+- Remove DECnet support from kernel
+- net/netlink: fix NETLINK_LIST_MEMBERSHIPS length report
+- net: tcp: fix kabi breakage in struct sock
+- tcp: deny tcp_disconnect() when threads are waiting
+- ping6: Fix send to link-local addresses with VRF.
+- net: sched: fix possible refcount leak in tc_chain_tmplt_add()
+- rfs: annotate lockless accesses to RFS sock flow table
+- rfs: annotate lockless accesses to sk->sk_rxhash
+- xfrm: Check if_id in inbound policy/secpath match
+- udp6: Fix race condition in udp6_sendmsg & connect
+- tcp: Return user_mss for TCP_MAXSEG in CLOSE/LISTEN state if user_mss set
+- af_packet: do not use READ_ONCE() in packet_bind()
+- af_packet: Fix data-races of pkt_sk(sk)->num.
+- ipv{4,6}/raw: fix output xfrm lookup wrt protocol
+- ipv6: Fix out-of-bounds access in ipv6_find_tlv()
+- net: fix skb leak in __skb_tstamp_tx()
+- udplite: Fix NULL pointer dereference in __sk_mem_raise_allocated().
+- vlan: fix a potential uninit-value in vlan_dev_hard_start_xmit()
+- af_key: Reject optional tunnel/BEET mode templates in outbound policies
+- net: Catch invalid index in XPS mapping
+- af_unix: Fix data races around sk->sk_shutdown.
+- af_unix: Fix a data race of sk->sk_receive_queue->qlen.
+- net: datagram: fix data-races in datagram_poll()
+- tcp: factor out __tcp_close() helper
+- net: annotate sk->sk_err write from do_recvmmsg()
+- netlink: annotate accesses to nlk->cb_running
+- quota: simplify drop_dquot_ref()
+- quota: fix dqput() to follow the guarantees dquot_srcu should provide
+- quota: add new helper dquot_active()
+- quota: rename dquot_active() to inode_quota_active()
+- quota: factor out dquot_write_dquot()
+- quota: add dqi_dirty_list description to comment of Dquot List Management
+- quota: avoid increasing DQST_LOOKUPS when iterating over dirty/inuse list
+- kernel/extable.c: use address-of operator on section symbols
+- arm64/mm: mark private VM_FAULT_X defines as vm_fault_t
+- x86/mm: Avoid incomplete Global INVLPG flushes
+- sched: Fix KCSAN noinstr violation
+- serial: 8250: Reinit port->pm on port specific driver unbind
+- ACPICA: ACPICA: check null return of ACPI_ALLOCATE_ZEROED in acpi_db_display_objects
+- ACPI: EC: Fix oops when removing custom query handlers
+- lib: cpu_rmap: Fix potential use-after-free in irq_cpu_rmap_release()
+- lib: cpu_rmap: Avoid use after free on rmap->obj array entries
+- ext4: improve error recovery code paths in __ext4_remount()
+- scsi: core: Improve scsi_vpd_inquiry() checks
+- PCI: pciehp: Fix AB-BA deadlock between reset_lock and device_lock
+- loop: loop_set_status_from_info() check before assignment
+- loop: Check for overflow while configuring loop
+- Revert "loop: Check for overflow while configuring loop"
+- block: don't set GD_NEED_PART_SCAN if scan partition failed
+- block: return -EBUSY when there are open partitions in blkdev_reread_part
+- blk-wbt: make enable_state more accurate
+- block: Limit number of items taken from the I/O scheduler in one go
+- crypto: cryptd - Protect per-CPU resource by disabling BH.
+- random: fix data race on crng_node_pool
+- x86/kprobes: Fix the error judgment for debug exceptions
+- ext4: turning quotas off if mount failed after enable quotas
+- ext4: forbid commit inconsistent quota data when errors=remount-ro
+- quota: fixup *_write_file_info() to return proper error code
+- ipmi_si: fix a memleak in try_smi_init()
+- net: add vlan_get_protocol_and_depth() helper
+- net: tap: check vlan with eth_type_vlan() method
+- !1317  ext4: Stop trying writing pages if no free blocks generated
+- !1323  jbd2: fix several checkpoint
+- jbd2: fix checkpoint cleanup performance regression
+- jbd2: remove __journal_try_to_free_buffer()
+- jbd2: fix a race when checking checkpoint buffer busy
+- jbd2: Fix wrongly judgement for buffer head removing while doing checkpoint
+- jbd2: remove journal_clean_one_cp_list()
+- nbd: fix null-ptr-dereference while accessing 'nbd->config'
+- nbd: factor out a helper to get nbd_config without holding 'config_lock'
+- nbd: fold nbd config initialization into nbd_alloc_config()
+- ext4: Stop trying writing pages if no free blocks generated
+- ipvlan:Fix out-of-bounds caused by unclear skb->cb
 
 * Fri Jun 30 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2306.7.0.0208
 - sched: Fix null pointer derefrence for sd->span
