@@ -12,7 +12,7 @@
 %global upstream_sublevel   0
 %global devel_release       1
 %global maintenance_release .0.0
-%global pkg_release         .1
+%global pkg_release         .2
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -70,8 +70,6 @@ Source9001: guards
 Source9002: series.conf
 Source9998: patches.tar.bz2
 %endif
-
-Patch0001: 0001-kconfig-Add-script-to-update-openeuler_defconfig.patch
 
 #BuildRequires:
 BuildRequires: module-init-tools, patch >= 2.5.4, bash >= 2.03, tar
@@ -295,8 +293,6 @@ Applypatches()
 
 Applypatches series.conf %{_builddir}/kernel-%{version}/linux-%{KernelVer}
 %endif
-
-%patch0001 -p1
 
 find . \( -name "*.orig" -o -name "*~" \) -exec rm -f {} \; >/dev/null
 find . -name .gitignore -exec rm -f {} \; >/dev/null
@@ -877,6 +873,9 @@ fi
 %endif
 
 %changelog
+* Sat Jul 15 2023 Xie XiuQi <xiexiuqi@huawei.com> - 6.4.0-1.0.0.2
+- remove patch for check and update defconfig
+
 * Wed May 31 2023 Wei Li <liwei391@huawei.com> - 6.4.0-1.0.0.1
 - update to 6.4.0-1.0.0.1
 
