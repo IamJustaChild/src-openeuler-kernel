@@ -12,7 +12,7 @@
 %global upstream_sublevel   0
 %global devel_release       1
 %global maintenance_release .0.0
-%global pkg_release         .1
+%global pkg_release         .2
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -72,6 +72,7 @@ Source9998: patches.tar.bz2
 %endif
 
 Patch0001: 0001-kconfig-Add-script-to-update-openeuler_defconfig.patch
+Patch0002: 0002-config-add-initial-openeuler_defconfig-for-x86_64.patch
 
 #BuildRequires:
 BuildRequires: module-init-tools, patch >= 2.5.4, bash >= 2.03, tar
@@ -297,6 +298,7 @@ Applypatches series.conf %{_builddir}/kernel-%{version}/linux-%{KernelVer}
 %endif
 
 %patch0001 -p1
+%patch0002 -p1
 
 find . \( -name "*.orig" -o -name "*~" \) -exec rm -f {} \; >/dev/null
 find . -name .gitignore -exec rm -f {} \; >/dev/null
@@ -877,6 +879,10 @@ fi
 %endif
 
 %changelog
+* Sat Jul 15 2023 xu_ping <707078654@qq.com> - 6.4.0-1.0.0.2
+- update to v6.4.0-1.0.0.2
+- config: add option CONFIG_DRM_GUD and CONFIG_LZ4_COMPRESS for x86_64 architecture
+
 * Wed May 31 2023 Wei Li <liwei391@huawei.com> - 6.4.0-1.0.0.1
 - update to 6.4.0-1.0.0.1
 
