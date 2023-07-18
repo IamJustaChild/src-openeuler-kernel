@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2307.3.0
+%global hulkrelease 2307.4.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0209
+Release: %{hulkrelease}.0210
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,26 @@ fi
 %endif
 
 %changelog
+
+* Tue Jul 18 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2307.4.0.0210
+- !1435 fix CVE-2023-3117
+- netfilter: nf_tables: unbind non-anonymous set if rule construction fails
+- netfilter: nf_tables: add NFT_TRANS_PREPARE_ERROR to deal with bound set/chain
+- netfilter: nf_tables: incorrect error path handling with NFT_MSG_NEWRULE
+- !1400 [openEuler-1.0-LTS] block: Try to handle busy underlying device on discard
+- !1416  Fix generic/299 fail
+- ext4: Add debug message to notify user space is out of free
+- Revert "ext4: Stop trying writing pages if no free blocks generated"
+- !1404  bpf: cpumap: Fix memory leak in cpu_map_update_elem
+- bpf: cpumap: Fix memory leak in cpu_map_update_elem
+- block: Try to handle busy underlying device on discard
+- !1377 [sync] PR-1376:  jbd2: Check 'jh->b_transaction' before remove it from checkpoint
+- !1374  etmem: fix the div 0 problem in swapcache reclaim process
+- !177 net:bonding:support balance-alb interface with vlan to bridge
+- jbd2: Check 'jh->b_transaction' before remove it from checkpoint
+- etmem: fix the div 0 problem in swapcache reclaim process
+- bonding: fix reference count leak in balance-alb mode
+- net:bonding:support balance-alb interface with vlan to bridge
 
 * Wed Jul 12 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2307.3.0.0209
 - !1361 fix CVE-2023-1295
