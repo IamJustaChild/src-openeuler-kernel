@@ -3,7 +3,7 @@
 
 %define modsign_cmd %{SOURCE10}
 
-%global Arch $(echo %{_host_cpu} | sed -e s/i.86/x86/ -e s/x86_64/x86/ -e s/aarch64.*/arm64/)
+%global Arch $(echo %{_host_cpu} | sed -e s/i.86/x86/ -e s/x86_64/x86/ -e s/aarch64.*/arm64/ -e s/riscv.*/riscv/)
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 %global debuginfodir /usr/lib/debug
@@ -12,7 +12,7 @@
 %global upstream_sublevel   0
 %global devel_release       1
 %global maintenance_release .0.1
-%global pkg_release         .4
+%global pkg_release         .5
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -111,7 +111,7 @@ Provides: kernel-uname-r = %{KernelVer} kernel=%{KernelVer}
 
 Requires: dracut >= 001-7 grubby >= 8.28-2 initscripts >= 8.11.1-1 linux-firmware >= 20100806-2 module-init-tools >= 3.16-2
 
-ExclusiveArch: noarch aarch64 i686 x86_64
+ExclusiveArch: noarch aarch64 i686 x86_64 riscv64
 ExclusiveOS: Linux
 
 %if %{with_perf}
@@ -346,7 +346,7 @@ make ARCH=%{Arch} modules %{?_smp_mflags}
 %endif
 
 # aarch64 make dtbs
-%ifarch aarch64
+%ifarch aarch64 riscv64
     make ARCH=%{Arch} dtbs
 %endif
 
@@ -524,8 +524,8 @@ popd
 make ARCH=%{Arch} INSTALL_HDR_PATH=$RPM_BUILD_ROOT/usr KBUILD_SRC= headers_install
 find $RPM_BUILD_ROOT/usr/include -name "\.*"  -exec rm -rf {} \;
 
-# aarch64 dtbs install
-%ifarch aarch64
+# dtbs install
+%ifarch aarch64 riscv64
     mkdir -p $RPM_BUILD_ROOT/boot/dtb-%{KernelVer}
     install -m 644 $(find arch/%{Arch}/boot -name "*.dtb") $RPM_BUILD_ROOT/boot/dtb-%{KernelVer}/
     rm -f $(find arch/$Arch/boot -name "*.dtb")
@@ -764,7 +764,7 @@ fi
 %defattr (-, root, root)
 %doc
 /boot/config-*
-%ifarch aarch64
+%ifarch aarch64 riscv64
 /boot/dtb-*
 %endif
 /boot/symvers-*
@@ -873,6 +873,9 @@ fi
 %endif
 
 %changelog
+* Wed Aug 9 2023 Mingzheng Xing <xingmingzheng@iscas.ac.cn> - 6.4.0-1.0.1.5
+- add riscv64 support
+
 * Tue Aug 1 2023 Kong Weibin <kongweibin2@huawei.com> - 6.4.0-1.0.1.4
 - update to 6.4.0-1.0.1.4
 
