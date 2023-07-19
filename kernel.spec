@@ -12,7 +12,7 @@
 %global upstream_sublevel   0
 %global devel_release       153
 %global maintenance_release .19.0
-%global pkg_release         .95
+%global pkg_release         .96
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -109,7 +109,7 @@ Conflicts: mdadm < 3.2.1-5 nfs-utils < 1.0.7-12 oprofile < 0.9.1-2 ppp < 2.4.3-3
 Conflicts: reiserfs-utils < 3.6.19-2 selinux-policy-targeted < 1.25.3-14 squashfs-tools < 4.0
 Conflicts: udev < 063-6 util-linux < 2.12 wireless-tools < 29-3 xfsprogs < 2.6.13-4
 
-Provides: kernel-%{_target_cpu}= %{version}-%{release} kernel-drm = 4.3.0 kernel-drm-nouveau = 16 kernel-modeset = 1
+Provides: kernel-%{_target_cpu} = %{version}-%{release} kernel-drm = 4.3.0 kernel-drm-nouveau = 16 kernel-modeset = 1
 Provides: kernel-uname-r = %{KernelVer} kernel=%{KernelVer}
 
 Requires: dracut >= 001-7 grubby >= 8.28-2 initscripts >= 8.11.1-1 linux-firmware >= 20100806-2 module-init-tools >= 3.16-2
@@ -910,6 +910,9 @@ fi
 %endif
 
 %changelog
+* Wed Jul 19 2023 Chunsheng Luo <luochunsheng@huawei.com> - 5.10.0-153.19.0.96
+- fix error provides
+
 * Wed Jul 19 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.19.0.95
 - !1291 [sync] PR-1262:  drm/msm/dpu: Add check for pstates
 - !1457 [sync] PR-1358:  Remove DECnet support from kernel
