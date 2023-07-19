@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       153
-%global maintenance_release .18.0
-%global pkg_release         .94
+%global maintenance_release .19.0
+%global pkg_release         .95
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -910,6 +910,56 @@ fi
 %endif
 
 %changelog
+* Wed Jul 19 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.19.0.95
+- !1291 [sync] PR-1262:  drm/msm/dpu: Add check for pstates
+- !1457 [sync] PR-1358:  Remove DECnet support from kernel
+- !1440 [sync] PR-1426:  netfilter: nf_tables: do not ignore genmask when looking up chain by id
+- !1461 [sync] PR-1425:  loop: loop_set_status_from_info() check before assignment
+- !1464 [sync] PR-1436: Fix CVE-2023-3117
+- !1319 [sync] PR-1285:  nbd: fix null-ptr-dereference while accessing 'nbd->config'
+- netfilter: nf_tables: unbind non-anonymous set if rule construction fails
+- netfilter: nf_tables: add NFT_TRANS_PREPARE_ERROR to deal with bound set/chain
+- netfilter: nf_tables: fix chain binding transaction logic
+- netfilter: nf_tables: incorrect error path handling with NFT_MSG_NEWRULE
+- loop: loop_set_status_from_info() check before assignment
+- Remove DECnet support from kernel
+- netfilter: nf_tables: do not ignore genmask when looking up chain by id
+- !1421 [sync] PR-1415:  Fix generic/299 fail
+- !1379 [sync] PR-1295:  blk-wbt: don't show valid wbt_lat_usec in
+- !1433 [sync] PR-346: anolis: bond: broadcast ARP or ND messages to all slaves
+- anolis: bond: broadcast ARP or ND messages to all slaves
+- ext4: Add debug message to notify user space is out of free
+- Revert "ext4: Stop trying writing pages if no free blocks generated"
+- !1413 [sync] PR-1408:  Replace the hulk patch with the lts patch
+- cgroup: Do not corrupt task iteration when rebinding subsystem
+- Revert "cgroup: Stop task iteration when rebinding subsystem"
+- !1390 [sync] PR-1312:  quota: fix race condition between dqput() and dquot_mark_dquot_dirty()
+- !1393 [sync] PR-1376:  jbd2: Check 'jh->b_transaction' before remove it from checkpoint
+- !1309 [sync] PR-1280: cgroup: always put cset in cgroup_css_set_put_fork
+- jbd2: Check 'jh->b_transaction' before remove it from checkpoint
+- quota: simplify drop_dquot_ref()
+- quota: fix dqput() to follow the guarantees dquot_srcu should provide
+- quota: add new helper dquot_active()
+- quota: rename dquot_active() to inode_quota_active()
+- quota: factor out dquot_write_dquot()
+- !1330 [sync] PR-1325:  jbd2: fix several checkpoint
+- !1333 [sync] PR-1314:  ext4: Stop trying writing pages if no free blocks generated
+- blk-wbt: don't show valid wbt_lat_usec in sysfs while wbt is disabled
+- blk-wbt: make enable_state more accurate
+- !1341 [sync] PR-1286:  ext4: turning quotas off if mount failed after enable quotas
+- ext4: turning quotas off if mount failed after enable quotas
+- ext4: Stop trying writing pages if no free blocks generated
+- jbd2: fix checkpoint cleanup performance regression
+- jbd2: remove __journal_try_to_free_buffer()
+- jbd2: fix a race when checking checkpoint buffer busy
+- jbd2: Fix wrongly judgement for buffer head removing while doing checkpoint
+- jbd2: remove journal_clean_one_cp_list()
+- nbd: fix null-ptr-dereference while accessing 'nbd->config'
+- nbd: factor out a helper to get nbd_config without holding 'config_lock'
+- nbd: fold nbd config initialization into nbd_alloc_config()
+- cgroup: always put cset in cgroup_css_set_put_fork
+- drm/msm/dpu: Add check for pstates
+
 * Tue Jul 11 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.18.0.94
 - !1370 [sync] PR-1324:  io_uring: hold uring mutex around poll removal
 - !1365 [sync] PR-1287:  ipvlan:Fix out-of-bounds caused by unclear skb->cb
