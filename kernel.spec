@@ -12,7 +12,7 @@
 %global upstream_sublevel   0
 %global devel_release       1
 %global maintenance_release .0.0
-%global pkg_release         .2
+%global pkg_release         .3
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -447,9 +447,7 @@ popd
 install -m 644 .config $RPM_BUILD_ROOT/boot/config-%{KernelVer}
 install -m 644 System.map $RPM_BUILD_ROOT/boot/System.map-%{KernelVer}
 
-%if 0%{?with_kabichk}
-    gzip -c9 < Module.symvers > $RPM_BUILD_ROOT/boot/symvers-%{KernelVer}.gz
-%endif
+gzip -c9 < Module.symvers > $RPM_BUILD_ROOT/boot/symvers-%{KernelVer}.gz
 
 mkdir -p $RPM_BUILD_ROOT%{_sbindir}
 install -m 755 %{SOURCE200} $RPM_BUILD_ROOT%{_sbindir}/mkgrub-menu-%{version}-%{devel_release}%{?maintenance_release}%{?pkg_release}.sh
@@ -769,9 +767,7 @@ fi
 %ifarch aarch64
 /boot/dtb-*
 %endif
-%if 0%{?with_kabichk}
 /boot/symvers-*
-%endif
 /boot/System.map-*
 /boot/vmlinuz-*
 %ghost /boot/initramfs-%{KernelVer}.img
@@ -877,6 +873,9 @@ fi
 %endif
 
 %changelog
+* Thu Jul 20 2023 Wei Li <liwei391@huawei.com> - 6.4.0-1.0.0.3
+- provide /boot/symvers-kernelver.gz even no kabichk
+
 * Wed Jul 19 2023 Wei Li <liwei391@huawei.com> - 6.4.0-1.0.0.2
 - fix wrong provides
 
