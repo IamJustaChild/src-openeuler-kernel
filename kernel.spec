@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2307.4.0
+%global hulkrelease 2307.5.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0210
+Release: %{hulkrelease}.0211
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,23 @@ fi
 %endif
 
 %changelog
+
+* Tue Jul 25 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2307.5.0.0211
+- !1534 arm64/mpam: fix missing kfree domain's ctrl_val arrray
+- arm64/mpam: fix missing kfree domain's ctrl_val arrray
+- !1529  net/sched: sch_qfq: account for stab overhead in qfq_enqueue
+- net/sched: sch_qfq: account for stab overhead in qfq_enqueue
+- !1474 [openEuler-1.0-LTS] pmu: remove uncore code for Zhaoxin Platform
+- !1498  media: dvb-core: Fix use-after-free due on race condition at dvb_net
+- media: dvb-core: Fix use-after-free due on race condition at dvb_net
+- !1444 ring-buffer: Fix deadloop issue on reading trace_pipe
+- !1469  netfilter: nf_tables: prevent OOB access in nft_byteorder_eval
+- !1472  ipv6/addrconf: fix a potential refcount underflow for idev
+- pmu: remove uncore code for Zhaoxin Platform
+- ipv6/addrconf: fix a potential refcount underflow for idev
+- netfilter: nf_tables: prevent OOB access in nft_byteorder_eval
+- ftrace: Fix possible warning on checking all pages used in ftrace_process_locs()
+- ring-buffer: Fix deadloop issue on reading trace_pipe
 
 * Tue Jul 18 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2307.4.0.0210
 - !1435 fix CVE-2023-3117
