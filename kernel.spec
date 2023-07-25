@@ -17,8 +17,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .41.0
-%global pkg_release         .119
+%global maintenance_release .42.0
+%global pkg_release         .120
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -942,6 +942,23 @@ fi
 %endif
 
 %changelog
+* Tue Jul 25 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.42.0.120
+- !1525 [sync] PR-1482:  CVE-2023-3567 fix patches
+- !1336 [sync] PR-1335:  bpf: Fix incorrect verifier pruning due to missing register precision taints
+- vc_screen: modify vcs_size() handling in vcs_read()
+- vc_screen: don't clobber return value in vcs_read
+- vc_screen: move load of struct vc_data pointer in vcs_read() to avoid UAF
+- !1490 [sync] PR-1476:  ipv6/addrconf: fix a potential refcount underflow for idev
+- !1486 [sync] PR-1452:  media: dvb-core: Fix use-after-free due on race condition at dvb_net
+- !1495 [sync] PR-1445:  netfilter: nf_tables: prevent OOB access in nft_byteorder_eval
+- netfilter: nf_tables: prevent OOB access in nft_byteorder_eval
+- ipv6/addrconf: fix a potential refcount underflow for idev
+- media: dvb-core: Fix use-after-free due on race condition at dvb_net
+- !1422 [sync] PR-1254:  Two CVE fixes of ksmbd
+- ksmbd: fix NULL pointer dereference in smb2_get_info_filesystem()
+- ksmbd: fix memleak in session setup
+- bpf: Fix incorrect verifier pruning due to missing register precision taints
+
 * Wed Jul 19 2023 Chunsheng Luo <luochunsheng@huawei.com> - 5.10.0-136.41.0.119
 - Fix error provides
 
