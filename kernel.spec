@@ -1,4 +1,5 @@
 %define with_signmodules  1
+%define with_kernel_abi_stablelists %{?_without_kernel_abi_stablelists: 0} %{?!_without_kernel_abi_stablelists: 1}
 %ifarch loongarch64
 %define with_kabichk 0
 %define with_bpftool 0
@@ -18,7 +19,7 @@
 %global upstream_sublevel   0
 %global devel_release       136
 %global maintenance_release .49.0
-%global pkg_release         .127
+%global pkg_release         .128
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -68,6 +69,11 @@ Source15: process_pgp_certs.sh
 Source18: check-kabi
 Source20: Module.kabi_aarch64
 Source21: Module.kabi_x86_64
+%endif
+
+%if %{with_kernel_abi_stablelists}
+Source100: kabi_whitelist_x86_64
+Source101: kabi_whitelist_aarch64
 %endif
 
 Source200: mkgrub-menu-aarch64.sh
@@ -215,6 +221,15 @@ This package contains the bpftool, which allows inspection and simple
 manipulation of eBPF programs and maps.
 # with_bpftool
 %endif
+
+%package -n %{name}-abi-stablelists
+Summary: kernel ABI symbol stablelists
+AutoReqProv: no
+Provides: %{name}-abi-whitelists
+%description -n %{name}-abi-stablelists
+The kABI package contains information pertaining to the
+kernel ABI, including lists of kernel symbols that are needed by
+external Linux kernel modules, and a yum plugin to aid enforcement.
 
 %package source
 Summary: the kernel source
@@ -490,6 +505,20 @@ popd
 
 install -m 644 .config $RPM_BUILD_ROOT/boot/config-%{KernelVer}
 install -m 644 System.map $RPM_BUILD_ROOT/boot/System.map-%{KernelVer}
+
+%if %{with_kernel_abi_stablelists}
+INSTALL_KABI_PATH=$RPM_BUILD_ROOT/lib/modules
+mkdir -p $INSTALL_KABI_PATH
+
+mkdir -p $INSTALL_KABI_PATH/kabi-oe2203sp1/
+cp $RPM_SOURCE_DIR/kabi_whitelist_x86_64 $RPM_SOURCE_DIR/kabi_stablelist_x86_64
+cp $RPM_SOURCE_DIR/kabi_whitelist_aarch64 $RPM_SOURCE_DIR/kabi_stablelist_aarch64
+cp -a $RPM_SOURCE_DIR/kabi_stablelist_x86_64 $INSTALL_KABI_PATH/kabi-oe2203sp1/
+cp -a $RPM_SOURCE_DIR/kabi_stablelist_aarch64 $INSTALL_KABI_PATH/kabi-oe2203sp1/
+pushd $INSTALL_KABI_PATH
+ln -sf kabi-oe2203sp1 kabi-current
+popd
+%endif
 
 gzip -c9 < Module.symvers > $RPM_BUILD_ROOT/boot/symvers-%{KernelVer}.gz
 
@@ -941,7 +970,16 @@ fi
 /usr/src/linux-%{KernelVer}/.scmversion
 %endif
 
+%if %{with_kernel_abi_stablelists}
+%files -n kernel-abi-stablelists
+%defattr(-,root,root,-)
+/lib/modules/kabi-*
+%endif
+
 %changelog
+* Thu Sep 14 2023 Naichuan Zhang <zhangnaichuan@huawei.com> - 5.10.0-136.49.0.128
+- kabi: add kernel_abi_stablelists
+
 * Wed Sep 13 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.49.0.127
 - !2146  netfilter: nf_tables: skip immediate deactivate in _PREPARE_ERROR
 - netfilter: nf_tables: skip immediate deactivate in _PREPARE_ERROR
@@ -1085,6 +1123,7 @@ fi
 - Revert "dm: make sure dm_table is binded before queue request"
 - scsi: iscsi_tcp: Check that sock is valid before iscsi_set_param()
 - dm stats: check for and propagate alloc_percpu failure
+
 
 * Tue Jul 25 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.42.0.120
 - !1525 [sync] PR-1482:  CVE-2023-3567 fix patches
@@ -5590,7 +5629,8 @@ fi
 - objtool: Fix code relocs vs weak symbols
 - x86/alternative: Add debug prints to apply_retpolines()
 - x86/alternative: Try inline spectre_v2=retpoline,amd
-- x86/alternative: Handle Jcc __x86_indirect_thunk_eg
+- x86/alternative: Handle Jcc __x86_indirect_thunk_
+eg
 - x86/insn-eval: Handle return values from the decoder
 - x86/pat: Fix x86_has_pat_wp()
 - serial: 8250: Fix PM usage_count for console handover
