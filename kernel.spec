@@ -11,8 +11,8 @@
 %global upstream_version    6.4
 %global upstream_sublevel   0
 %global devel_release       1
-%global maintenance_release .0.0
-%global pkg_release         .3
+%global maintenance_release .0.1
+%global pkg_release         .4
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -873,6 +873,9 @@ fi
 %endif
 
 %changelog
+* Tue Aug 1 2023 Kong Weibin <kongweibin2@huawei.com> - 6.4.0-1.0.1.4
+- update to 6.4.0-1.0.1.4
+
 * Thu Jul 20 2023 Wei Li <liwei391@huawei.com> - 6.4.0-1.0.0.3
 - provide /boot/symvers-kernelver.gz even no kabichk
 
