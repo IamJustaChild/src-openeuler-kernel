@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2307.5.0
+%global hulkrelease 2308.1.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0211
+Release: %{hulkrelease}.0212
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,24 @@ fi
 %endif
 
 %changelog
+
+* Tue Aug 01 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2308.1.0.0212
+- !1571 【openEuler-1.0-LTS】net: hns: fix wrong head when modify the tx feature when sending packets
+- !1570 【openEuler-1.0-LTS】net: hns3: bugfixes for hns3 drivers 2023.07.29
+- net: hns: update hns version to 23.7.1
+- net: hns: fix wrong head when modify the tx feature when sending packets
+- net: hns3: update hns3 version to 23.7.1
+- net: hns3: fix tx timeout issue
+- net: hns3: fix incorrect hw rss hash type of rx packet
+- net: hns3: add barrier in vf mailbox reply process
+- net: hns3: fix use-after-free bug in hclgevf_send_mbx_msg
+- net: hns3: fix not call nic_call_event() problem when reset failed
+- !1556  net/sched: cls_fw: Fix improper refcount update leads to use-after-free
+- !1568  net/sched: cls_u32: Fix reference counter leak leading to overflow
+- net/sched: cls_u32: Fix reference counter leak leading to overflow
+- net/sched: cls_fw: Fix improper refcount update leads to use-after-free
+- !1549  binder: fix UAF caused by faulty buffer cleanup
+- binder: fix UAF caused by faulty buffer cleanup
 
 * Tue Jul 25 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2307.5.0.0211
 - !1534 arm64/mpam: fix missing kfree domain's ctrl_val arrray
