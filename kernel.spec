@@ -17,8 +17,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .42.0
-%global pkg_release         .120
+%global maintenance_release .43.0
+%global pkg_release         .121
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -942,6 +942,35 @@ fi
 %endif
 
 %changelog
+* Thu Aug 03 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.43.0.121
+- !1588 [sync] PR-1557:  net/sched: cls_fw: Fix improper refcount update leads to use-after-free
+- !1583 [sync] PR-1480:  ksmbd: fix wrong UserName check in session_user
+- !1599 [sync] PR-1547:  binder: fix UAF caused by faulty buffer cleanup
+- !1602 [sync] PR-1581:  psi: fix compile error for psi cgroupv1 when CONFIG_CGROUP=n
+- !1615 [sync] PR-1591:  net/sched: cls_u32: Fix reference counter leak leading to overflow
+- net/sched: cls_u32: Fix reference counter leak leading to overflow
+- !1593 [sync] PR-1585:  ksmbd: fix global-out-of-bounds in smb2_find_context_vals
+- psi: fix compile error for psi cgroupv1 when CONFIG_CGROUP=n
+- binder: fix UAF caused by faulty buffer cleanup
+- ksmbd: fix global-out-of-bounds in smb2_find_context_vals
+- net/sched: cls_fw: Fix improper refcount update leads to use-after-free
+- ksmbd: fix wrong UserName check in session_user
+- !1465 [sync] PR-1428:  scsi: iscsi_tcp: Check that sock is valid before iscsi_set_param()
+- !1574 [sync] PR-1535:  net/sched: sch_qfq: account for stab overhead in qfq_enqueue
+- net/sched: sch_qfq: account for stab overhead in qfq_enqueue
+- !1559 [sync] PR-1548:  mm: memcontrol: fix cannot alloc the maximum memcg ID
+- !1362 [sync] PR-1294:  dm stats: check for and propagate alloc_percpu failure
+- !1503  block: don't set GD_NEED_PART_SCAN if scan partition failed
+- !1478 [sync] PR-1345:  dm: requeue IO if mapping table not yet
+- mm: memcontrol: fix cannot alloc the maximum memcg ID
+- block: don't set GD_NEED_PART_SCAN if scan partition failed
+- dm: don't lock fs when the map is NULL during suspend or resume
+- dm: don't lock fs when the map is NULL in process of resume
+- dm: requeue IO if mapping table not yet available
+- Revert "dm: make sure dm_table is binded before queue request"
+- scsi: iscsi_tcp: Check that sock is valid before iscsi_set_param()
+- dm stats: check for and propagate alloc_percpu failure
+
 * Tue Jul 25 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.42.0.120
 - !1525 [sync] PR-1482:  CVE-2023-3567 fix patches
 - !1336 [sync] PR-1335:  bpf: Fix incorrect verifier pruning due to missing register precision taints
