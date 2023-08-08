@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2308.1.0
+%global hulkrelease 2308.2.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0212
+Release: %{hulkrelease}.0213
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,44 @@ fi
 %endif
 
 %changelog
+
+* Tue Aug 08 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2308.2.0.0213
+- !1699 dm bugfixes backport from mainline
+- !1697  x86/cpu/amd: Add a Zenbleed fix
+- md: Flush workqueue md_rdev_misc_wq in md_alloc()
+- dm: don't lock fs when the map is NULL during suspend or resume
+- dm: don't lock fs when the map is NULL in process of resume
+- dm: requeue IO if mapping table not yet available
+- Revert "dm: make sure dm_table is binded before queue request"
+- dm thin metadata: check fail_io before using data_sm
+- !1662  media: usb: siano: Fix CVE-2023-4132
+- !1696  Revert "arm64/mpam: Fix mpam corrupt when cpu online"
+- x86/cpu/amd: Add a Zenbleed fix
+- !1694 linux-4.19.y bugfixes backport
+- Revert "arm64/mpam: Fix mpam corrupt when cpu online"
+- x86/apic: Fix kernel panic when booting with intremap=off and x2apic_phys
+- sch_netem: fix issues in netem_change() vs get_dist_table()
+- sch_netem: acquire qdisc lock in netem_change()
+- cgroup: Do not corrupt task iteration when rebinding subsystem
+- !1577  tracing: Fix warning in trace_buffered_event_disable()
+- !1663  tty: fix pid memleak in disassociate_ctty()
+- tty: fix pid memleak in disassociate_ctty()
+- media: usb: siano: Fix warning due to null work_func_t function pointer
+- media: usb: siano: Fix use after free bugs caused by do_submit_urb
+- !1629  can: raw: fix receiver memory leak
+- !1655  can: bcm: Fix UAF in bcm_proc_show()
+- can: bcm: Fix UAF in bcm_proc_show()
+- can: raw: fix lockdep issue in raw_release()
+- can: raw: fix receiver memory leak
+- !1625  Fix host zero page refcount overflow caused by kvm
+- !1595  net: nfc: Fix CVE-2023-3863
+- KVM: Don't set Accessed/Dirty bits for ZERO_PAGE
+- KVM: fix overflow of zero page refcount with ksm running
+- net: nfc: Fix use-after-free caused by nfc_llcp_find_local
+- nfc: llcp: simplify llcp_sock_connect() error paths
+- nfc: llcp: nullify llcp_sock->dev on connect() error paths
+- nfc: Fix to check for kmemdup failure
+- tracing: Fix warning in trace_buffered_event_disable()
 
 * Tue Aug 01 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2308.1.0.0212
 - !1571 【openEuler-1.0-LTS】net: hns: fix wrong head when modify the tx feature when sending packets
