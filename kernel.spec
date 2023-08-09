@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       153
-%global maintenance_release .21.0
-%global pkg_release         .97
+%global maintenance_release .22.0
+%global pkg_release         .98
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -910,6 +910,22 @@ fi
 %endif
 
 %changelog
+* Wed Aug 09 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.22.0.98
+- !1704 [sync] PR-1682:  netfilter: nft_set_pipapo: fix improper element removal
+- !1700 vfio-pci: Match specific devices with vendor id and device id
+- !1676 [sync] PR-1596:  ksmbd: fix out-of-bound read in deassemble_neg_contexts()
+- netfilter: nft_set_pipapo: fix improper element removal
+- vfio-pci: Match specific devices with vendor id and device id
+- Revert "vfio-pci: Match specific devices with vendor id and device id"
+- !1651 Fix missing dealloc_dfx_cnt() during device unregister
+- !1643 [sync] PR-1551:  ksmbd: allocate one more byte for implied bcc[0
+- !1645 [sync] PR-1605:  CVE-2023-38430
+- ksmbd: fix out-of-bound read in deassemble_neg_contexts()
+- RDMA/hns: Fix missing dealloc_dfx_cnt() during device unregister
+- ksmbd: validate smb request protocol id
+- ksmbd: define SMB2_COMPRESSION_TRANSFORM_ID in fs/ksmbd/smb2pdu.h
+- ksmbd: allocate one more byte for implied bcc[0]
+
 * Thu Aug 03 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.21.0.97
 - !1589 [sync] PR-1557:  net/sched: cls_fw: Fix improper refcount update leads to use-after-free
 - !1584 [sync] PR-1480:  ksmbd: fix wrong UserName check in session_user
