@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       153
-%global maintenance_release .22.0
-%global pkg_release         .98
+%global maintenance_release .23.0
+%global pkg_release         .99
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -910,6 +910,107 @@ fi
 %endif
 
 %changelog
+* Tue Aug 15 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.23.0.99
+- !1758 [sync] PR-1742:  cxgb4: fix use after free bugs caused by circular dependency problem
+- !1765 [sync] PR-1749:  Input: cyttsp4_core - change del_timer_sync() to timer_shutdown_sync()
+- !1670 [sync] PR-1657:  media: usb: siano: Fix CVE-2023-4132
+- Input: cyttsp4_core - change del_timer_sync() to timer_shutdown_sync()
+- !1755 [sync] PR-1737:  ksmbd: fix out of bounds read in smb2_sess_setup
+- cxgb4: fix use after free bugs caused by circular dependency problem
+- !1746 [sync] PR-1727:  add support for timer_shutdown() api
+- !1733 [sync] PR-1713:  netfilter: nf_tables: disallow rule addition to bound chain via NFTA_RULE_CHAIN_ID
+- !1620 [sync] PR-1578: Backport 5.10.160 - 5.10.162 LTS patches from upstream.
+- ksmbd: fix out of bounds read in smb2_sess_setup
+- timers: Keep del_timer[_sync]() exported
+- timers: Provide timer_shutdown[_sync]()
+- timers: Add shutdown mechanism to the internal functions
+- timers: Split [try_to_]del_timer[_sync]() to prepare for shutdown mode
+- timers: Silently ignore timers with a NULL function
+- timers: Rename del_timer() to timer_delete()
+- timers: Rename del_timer_sync() to timer_delete_sync()
+- timers: Use del_timer_sync() even on UP
+- timers: Update kernel-doc for various functions
+- timers: Replace BUG_ON()s
+- timers: Get rid of del_singleshot_timer_sync()
+- sw64: Do not use timer namespace for timer_shutdown() function
+- clocksource/drivers/sp804: Do not use timer namespace for timer_shutdown() function
+- clocksource/drivers/arm_arch_timer: Do not use timer namespace for timer_shutdown() function
+- ARM: spear: Do not use timer namespace for timer_shutdown() function
+- !1716 [sync] PR-1711:  xfrm: add NULL check in xfrm_update_ae_params
+- !1634 [sync] PR-1604:  net: nfc: Fix CVE-2023-3863
+- netfilter: nf_tables: disallow rule addition to bound chain via NFTA_RULE_CHAIN_ID
+- xfrm: add NULL check in xfrm_update_ae_params
+- media: usb: siano: Fix warning due to null work_func_t function pointer
+- media: usb: siano: Fix use after free bugs caused by do_submit_urb
+- net: nfc: Fix use-after-free caused by nfc_llcp_find_local
+- nfc: llcp: simplify llcp_sock_connect() error paths
+- io_uring: pass in EPOLL_URING_WAKE for eventfd signaling and wakeups
+- eventfd: provide a eventfd_signal_mask() helper
+- eventpoll: add EPOLL_URING_WAKE poll wakeup flag
+- Revert "proc: don't allow async path resolution of /proc/self components"
+- Revert "proc: don't allow async path resolution of /proc/thread-self components"
+- task_work: unconditionally run task_work from get_signal()
+- signal: kill JOBCTL_TASK_WORK
+- kernel: stop masking signals in create_io_thread()
+- entry/kvm: Exit to user mode when TIF_NOTIFY_SIGNAL is set
+- kernel: allow fork with TIF_NOTIFY_SIGNAL pending
+- task_work: remove legacy TWA_SIGNAL path
+- alpha: fix TIF_NOTIFY_SIGNAL handling
+- ARC: unbork 5.11 bootup: fix snafu in _TIF_NOTIFY_SIGNAL handling
+- ia64: don't call handle_signal() unless there's actually a signal queued
+- sparc: add support for TIF_NOTIFY_SIGNAL
+- nds32: add support for TIF_NOTIFY_SIGNAL
+- ia64: add support for TIF_NOTIFY_SIGNAL
+- h8300: add support for TIF_NOTIFY_SIGNAL
+- c6x: add support for TIF_NOTIFY_SIGNAL
+- alpha: add support for TIF_NOTIFY_SIGNAL
+- xtensa: add support for TIF_NOTIFY_SIGNAL
+- microblaze: add support for TIF_NOTIFY_SIGNAL
+- hexagon: add support for TIF_NOTIFY_SIGNAL
+- csky: add support for TIF_NOTIFY_SIGNAL
+- openrisc: add support for TIF_NOTIFY_SIGNAL
+- sh: add support for TIF_NOTIFY_SIGNAL
+- um: add support for TIF_NOTIFY_SIGNAL
+- s390: add support for TIF_NOTIFY_SIGNAL
+- mips: add support for TIF_NOTIFY_SIGNAL
+- parisc: add support for TIF_NOTIFY_SIGNAL
+- nios32: add support for TIF_NOTIFY_SIGNAL
+- m68k: add support for TIF_NOTIFY_SIGNAL
+- arc: add support for TIF_NOTIFY_SIGNAL
+- task_work: Use TIF_NOTIFY_SIGNAL if available
+- tools headers UAPI: Sync openat2.h with the kernel sources
+- saner calling conventions for unlazy_child()
+- net: loopback: use NET_NAME_PREDICTABLE for name_assign_type
+- HID: uclogic: Add HID_QUIRK_HIDINPUT_FORCE quirk
+- HID: ite: Enable QUIRK_TOUCHPAD_ON_OFF_REPORT on Acer Aspire Switch V 10
+- HID: ite: Enable QUIRK_TOUCHPAD_ON_OFF_REPORT on Acer Aspire Switch 10E
+- HID: ite: Add support for Acer S1002 keyboard-dock
+- igb: Initialize mailbox message for VF reset
+- xhci: Apply XHCI_RESET_TO_DEFAULT quirk to ADL-N
+- USB: serial: f81534: fix division by zero on line-speed change
+- USB: serial: f81232: fix division by zero on line-speed change
+- USB: serial: cp210x: add Kamstrup RF sniffer PIDs
+- USB: serial: option: add Quectel EM05-G modem
+- usb: gadget: uvc: Prevent buffer overflow in setup handler
+- udf: Fix extending file within last block
+- udf: Do not bother looking for prealloc extents if i_lenExtents matches i_size
+- udf: Fix preallocation discarding at indirect extent boundary
+- udf: Discard preallocation before extending file with a hole
+- ASoC: ops: Correct bounds check for second channel on SX controls
+- nvme-pci: clear the prp2 field when not used
+- ASoC: cs42l51: Correct PGA Volume minimum value
+- can: mcba_usb: Fix termination command argument
+- can: sja1000: fix size of OCR_MODE_MASK define
+- pinctrl: meditatek: Startup with the IRQs disabled
+- libbpf: Use page size as max_entries when probing ring buffer map
+- ASoC: ops: Check bounds for second channel in snd_soc_put_volsw_sx()
+- ASoC: fsl_micfil: explicitly clear CHnF flags
+- ASoC: fsl_micfil: explicitly clear software reset bit
+- fuse: always revalidate if exclusive create
+- vfs: fix copy_file_range() averts filesystem freeze protection
+- vfs: fix copy_file_range() regression in cross-fs copies
+- x86/smpboot: Move rcu_cpu_starting() earlier
+
 * Wed Aug 09 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.22.0.98
 - !1704 [sync] PR-1682:  netfilter: nft_set_pipapo: fix improper element removal
 - !1700 vfio-pci: Match specific devices with vendor id and device id
