@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2308.2.0
+%global hulkrelease 2308.3.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0213
+Release: %{hulkrelease}.0214
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,21 @@ fi
 %endif
 
 %changelog
+
+* Tue Aug 15 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2308.3.0.0214
+- !1762  xen/netback: Fix buffer overrun triggered by unusual packet
+- xen/netback: Fix buffer overrun triggered by unusual packet
+- !1761 fix CVE-2023-4194
+- net: tap_open(): set sk_uid from current_fsuid()
+- net: tun_chr_open(): set sk_uid from current_fsuid()
+- !1728  fix CVE-2023-4128
+- !1673  sched: disable sched_autogroup by default
+- net/sched: cls_fw: No longer copy tcf_result on update to avoid use-after-free
+- net/sched: cls_route: No longer copy tcf_result on update to avoid use-after-free
+- net/sched: cls_u32: No longer copy tcf_result on update to avoid use-after-free
+- !1712  xfrm: add NULL check in xfrm_update_ae_params
+- xfrm: add NULL check in xfrm_update_ae_params
+- sched: disable sched_autogroup by default
 
 * Tue Aug 08 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2308.2.0.0213
 - !1699 dm bugfixes backport from mainline
