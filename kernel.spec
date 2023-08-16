@@ -17,8 +17,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .44.0
-%global pkg_release         .122
+%global maintenance_release .45.0
+%global pkg_release         .123
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -942,6 +942,40 @@ fi
 %endif
 
 %changelog
+* Tue Aug 15 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.45.0.123
+- !1757 [sync] PR-1742:  cxgb4: fix use after free bugs caused by circular dependency problem
+- !1764 [sync] PR-1749:  Input: cyttsp4_core - change del_timer_sync() to timer_shutdown_sync()
+- !1669 [sync] PR-1657:  media: usb: siano: Fix CVE-2023-4132
+- Input: cyttsp4_core - change del_timer_sync() to timer_shutdown_sync()
+- !1754 [sync] PR-1737:  ksmbd: fix out of bounds read in smb2_sess_setup
+- cxgb4: fix use after free bugs caused by circular dependency problem
+- !1745 [sync] PR-1727:  add support for timer_shutdown() api
+- !1732 [sync] PR-1713:  netfilter: nf_tables: disallow rule addition to bound chain via NFTA_RULE_CHAIN_ID
+- ksmbd: fix out of bounds read in smb2_sess_setup
+- timers: Keep del_timer[_sync]() exported
+- timers: Provide timer_shutdown[_sync]()
+- timers: Add shutdown mechanism to the internal functions
+- timers: Split [try_to_]del_timer[_sync]() to prepare for shutdown mode
+- timers: Silently ignore timers with a NULL function
+- timers: Rename del_timer() to timer_delete()
+- timers: Rename del_timer_sync() to timer_delete_sync()
+- timers: Use del_timer_sync() even on UP
+- timers: Update kernel-doc for various functions
+- timers: Replace BUG_ON()s
+- timers: Get rid of del_singleshot_timer_sync()
+- sw64: Do not use timer namespace for timer_shutdown() function
+- clocksource/drivers/sp804: Do not use timer namespace for timer_shutdown() function
+- clocksource/drivers/arm_arch_timer: Do not use timer namespace for timer_shutdown() function
+- ARM: spear: Do not use timer namespace for timer_shutdown() function
+- !1715 [sync] PR-1711:  xfrm: add NULL check in xfrm_update_ae_params
+- !1633 [sync] PR-1604:  net: nfc: Fix CVE-2023-3863
+- netfilter: nf_tables: disallow rule addition to bound chain via NFTA_RULE_CHAIN_ID
+- xfrm: add NULL check in xfrm_update_ae_params
+- media: usb: siano: Fix warning due to null work_func_t function pointer
+- media: usb: siano: Fix use after free bugs caused by do_submit_urb
+- net: nfc: Fix use-after-free caused by nfc_llcp_find_local
+- nfc: llcp: simplify llcp_sock_connect() error paths
+
 * Wed Aug 09 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.44.0.122
 - !1703 [sync] PR-1682:  netfilter: nft_set_pipapo: fix improper element removal
 - !1675 [sync] PR-1596:  ksmbd: fix out-of-bound read in deassemble_neg_contexts()
