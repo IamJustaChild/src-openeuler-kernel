@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2308.3.0
+%global hulkrelease 2308.4.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0214
+Release: %{hulkrelease}.0215
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,22 @@ fi
 %endif
 
 %changelog
+
+* Tue Aug 22 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2308.4.0.0215
+- !1831  fix NULL pointer dereference in __nf_nat_mangle_tcp_packet
+- netfilter: nat: fix kabi change
+- netfilter: nat: fix udp checksum corruption
+- netfilter: nat: remove csum_recalc hook
+- !1769  workqueue: Make flush_workqueue() also watch flush_work()
+- !1803  net: vmxnet3: fix possible use-after-free bugs in vmxnet3_rq_alloc_rx_buf()
+- net: vmxnet3: fix possible use-after-free bugs in vmxnet3_rq_alloc_rx_buf()
+- !1767  bonding: Fix incorrect deletion of ETH_P_8021AD protocol vid from slaves
+- workqueue: Assign a color to barrier work items
+- workqueue: Mark barrier work with WORK_STRUCT_INACTIVE
+- workqueue: Change the code of calculating work_flags in insert_wq_barrier()
+- workqueue: Change arguement of pwq_dec_nr_in_flight()
+- workqueue: Rename "delayed" (delayed by active management) to "inactive"
+- bonding: Fix incorrect deletion of ETH_P_8021AD protocol vid from slaves
 
 * Tue Aug 15 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2308.3.0.0214
 - !1762  xen/netback: Fix buffer overrun triggered by unusual packet
