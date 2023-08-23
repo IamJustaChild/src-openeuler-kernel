@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       153
-%global maintenance_release .23.0
-%global pkg_release         .99
+%global maintenance_release .24.0
+%global pkg_release         .100
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -910,6 +910,19 @@ fi
 %endif
 
 %changelog
+* Tue Aug 22 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.24.0.100
+- !1837 [sync] PR-1814:  fix CVE-2023-20593 for openEuler
+- tools arch x86: Sync the msr-index.h copy with the kernel sources
+- x86/cpu/amd: Enable Zenbleed fix for AMD Custom APU 0405
+- x86/cpu/amd: Add a Zenbleed fix
+- x86/cpu/amd: Move the errata checking functionality up
+- !1790 [sync] PR-1650:  mm: disable kernelcore=mirror when no mirror memory
+- mm: disable kernelcore=mirror when no mirror memory
+- !1777 [sync] PR-1729:  fix CVE-2023-4128 in OLK510
+- net/sched: cls_route: No longer copy tcf_result on update to avoid use-after-free
+- net/sched: cls_fw: No longer copy tcf_result on update to avoid use-after-free
+- net/sched: cls_u32: No longer copy tcf_result on update to avoid use-after-free
+
 * Tue Aug 15 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.23.0.99
 - !1758 [sync] PR-1742:  cxgb4: fix use after free bugs caused by circular dependency problem
 - !1765 [sync] PR-1749:  Input: cyttsp4_core - change del_timer_sync() to timer_shutdown_sync()
