@@ -11,8 +11,8 @@
 %global upstream_version    6.4
 %global upstream_sublevel   0
 %global devel_release       1
-%global maintenance_release .0.1
-%global pkg_release         .5
+%global maintenance_release .0.2
+%global pkg_release         .6
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -226,7 +226,8 @@ package or when debugging this package.\
 %{nil}
 
 %debuginfo_template -n kernel
-%files -n kernel-debuginfo -f debugfiles.list
+%files -n kernel-debuginfo -f kernel-debugfiles.list -f debugfiles.list
+%{expand:%%global _find_debuginfo_opts %{?_find_debuginfo_opts} --keep-section '.BTF' -p '.*/%{KernelVer}/.*|.*/vmlinux|XXX' -o kernel-debugfiles.list}
 
 %debuginfo_template -n bpftool
 %files -n bpftool-debuginfo -f bpftool-debugfiles.list
@@ -873,6 +874,9 @@ fi
 %endif
 
 %changelog
+* Wed Aug 23 2023 Wei Li <liwei391@huawei.com> - 6.4.0-1.0.2.6
+- keep .BTF section in modules
+
 * Wed Aug 9 2023 Mingzheng Xing <xingmingzheng@iscas.ac.cn> - 6.4.0-1.0.1.5
 - add riscv64 support
 
