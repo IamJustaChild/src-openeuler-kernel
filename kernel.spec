@@ -12,7 +12,7 @@
 %global upstream_sublevel   0
 %global devel_release       1
 %global maintenance_release .0.1
-%global pkg_release         .5
+%global pkg_release         .6
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -52,6 +52,9 @@ Source10: sign-modules
 Source11: x509.genkey
 Source12: extra_certificates
 Source13: pubring.gpg
+Source14: min_%{_target_cpu}.filelist
+Source15: base_%{_target_cpu}.filelist
+Source16: extras_%{_target_cpu}.filelist
 
 %if 0%{?with_kabichk}
 Source18: check-kabi
@@ -106,11 +109,6 @@ Conflicts: mdadm < 3.2.1-5 nfs-utils < 1.0.7-12 oprofile < 0.9.1-2 ppp < 2.4.3-3
 Conflicts: reiserfs-utils < 3.6.19-2 selinux-policy-targeted < 1.25.3-14 squashfs-tools < 4.0
 Conflicts: udev < 063-6 util-linux < 2.12 wireless-tools < 29-3 xfsprogs < 2.6.13-4
 
-Provides: kernel-%{_target_cpu} = %{version}-%{release} kernel-drm = 4.3.0 kernel-drm-nouveau = 16 kernel-modeset = 1
-Provides: kernel-uname-r = %{KernelVer} kernel=%{KernelVer}
-
-Requires: dracut >= 001-7 grubby >= 8.28-2 initscripts >= 8.11.1-1 linux-firmware >= 20100806-2 module-init-tools >= 3.16-2
-
 ExclusiveArch: noarch aarch64 i686 x86_64 riscv64
 ExclusiveOS: Linux
 
@@ -125,6 +123,27 @@ BuildRequires: llvm
 
 %description
 The Linux Kernel, the operating system core itself.
+
+%package min
+Summary: The Linux kernel, the operating system core itself and min kernel modules. 
+Provides: kernel-uname-r = %{KernelVer} 
+Requires: dracut >= 001-7 grubby >= 8.28-2 initscripts >= 8.11.1-1 linux-firmware >= 20100806-2 module-init-tools >= 3.16-2
+%description min
+The Linux kernel, the operating system core itself and min kernel modules.
+
+%package base
+Summary: Base kernel modules.
+Provides: kernel = %{KernelVer}  kernel-%{_target_cpu} = %{version}-%{release}
+Requires: kernel-min = %{version}-%{release}
+%description base
+This package provides base kernel modules for the kernel package.
+
+%package extras
+Summary: Extra kernel modules.
+Provides: kernel-drm = 4.3.0 kernel-drm-nouveau = 16 kernel-modeset = 1
+Requires: kernel-base = %{version}-%{release}
+%description extras
+This package provides extra kernel modules for the kernel package.
 
 %package headers
 Summary: Header files for the Linux kernel for use by glibc
@@ -760,11 +779,19 @@ fi
 /sbin/ldconfig
 %systemd_postun cpupower.service
 
+%ifarch aarch64 x86_64
+%files min -f %{SOURCE14}
+
+%files base -f %{SOURCE15}
+
+%files extras -f %{SOURCE16}
+
+%else
 %files
 %defattr (-, root, root)
 %doc
 /boot/config-*
-%ifarch aarch64 riscv64
+%ifarch riscv64
 /boot/dtb-*
 %endif
 /boot/symvers-*
@@ -774,9 +801,8 @@ fi
 /boot/.vmlinuz-*.hmac
 /etc/ld.so.conf.d/*
 /lib/modules/%{KernelVer}/
-%exclude /lib/modules/%{KernelVer}/source
-%exclude /lib/modules/%{KernelVer}/build
 %{_sbindir}/mkgrub-menu*.sh
+%endif
 
 %files devel
 %defattr (-, root, root)
@@ -873,6 +899,9 @@ fi
 %endif
 
 %changelog
+* Wed Aug 23 2023 Liu Chao <liuchao173@huawei.com> - 6.4.0-1.0.1.6
+- split kernel into kernel-min, kernel-base and kernel-extras
+
 * Wed Aug 9 2023 Mingzheng Xing <xingmingzheng@iscas.ac.cn> - 6.4.0-1.0.1.5
 - add riscv64 support
 
