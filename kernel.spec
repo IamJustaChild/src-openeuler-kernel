@@ -8,6 +8,12 @@
 %global toolchain clang
 %endif
 
+%bcond_with clang_lto
+
+%if %{with clang_lto} && "%{toolchain}" != "clang"
+{error:clang_lto requires --with toolchain_clang}
+%endif
+
 %define modsign_cmd %{SOURCE10}
 
 %global Arch $(echo %{_host_cpu} | sed -e s/i.86/x86/ -e s/x86_64/x86/ -e s/aarch64.*/arm64/ -e s/riscv.*/riscv/)
@@ -19,7 +25,7 @@
 %global upstream_sublevel   0
 %global devel_release       1
 %global maintenance_release .0.2
-%global pkg_release         .8
+%global pkg_release         .9
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -132,6 +138,9 @@ BuildRequires: java-devel
 BuildRequires: dwarves
 BuildRequires: clang >= 10.0.0
 BuildRequires: llvm
+%if %{with clang_lto}
+BuildRequires: lld
+%endif
 
 %description
 The Linux Kernel, the operating system core itself.
@@ -355,11 +364,21 @@ sed -i arch/arm64/configs/openeuler_defconfig -e 's/^CONFIG_ARM64_VA_BITS_.*/CON
 
 %global clang_make_opts HOSTCC=clang CC=clang LLVM_IAS=%{llvm_ias}
 
+%if %{with clang_lto}
+%global clang_make_opts %{clang_make_opts} HOSTLD=ld.lld LD=ld.lld AR=llvm-ar NM=llvm-nm HOSTAR=llvm-ar HOSTNM=llvm-nm
+%endif
+
 %endif
 
 %global make %{__make} %{?clang_make_opts} HOSTCFLAGS="%{?build_cflags}" HOSTLDFLAGS="%{?build_ldflags}"
 
 %{make} ARCH=%{Arch} openeuler_defconfig
+
+%if %{with clang_lto}
+scripts/config -e LTO_CLANG_FULL
+sed -i 's/# CONFIG_LTO_CLANG_FULL is not set/CONFIG_LTO_CLANG_FULL=y/' .config
+sed -i 's/CONFIG_LTO_NONE=y/# CONFIG_LTO_NONE is not set/' .config
+%endif
 
 TargetImage=$(basename $(make -s image_name))
 
@@ -908,6 +927,9 @@ fi
 %endif
 
 %changelog
+* Fri Aug 25 2023 liyunfei <liyunfei33@huawei.com> - 6.4.0-1.0.2.9
+- add clang LTO compile support
+
 * Fri Aug 25 2023 liyunfei <liyunfei33@huawei.com> - 6.4.0-1.0.2.8
 - add clang toolchain support
 
