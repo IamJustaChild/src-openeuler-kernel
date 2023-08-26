@@ -12,7 +12,7 @@
 %global upstream_sublevel   0
 %global devel_release       1
 %global maintenance_release .0.2
-%global pkg_release         .6
+%global pkg_release         .7
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -648,6 +648,11 @@ install -pm0644 tools/perf/Documentation/*.1 %{buildroot}/%{_mandir}/man1/
 pushd tools/bpf/bpftool
 make DESTDIR=%{buildroot} prefix=%{_prefix} bash_compdir=%{_sysconfdir}/bash_completion.d/ mandir=%{_mandir} install doc-install
 popd
+
+# resolve_btfids
+mkdir -p %{buildroot}/usr/src/kernels/%{KernelVer}/tools/bpf/resolve_btfids
+cp tools/bpf/resolve_btfids/resolve_btfids %{buildroot}/usr/src/kernels/%{KernelVer}/tools/bpf/resolve_btfids
+
 # cpupower
 make -C tools/power/cpupower DESTDIR=%{buildroot} libdir=%{_libdir} mandir=%{_mandir} CPUFREQ_BENCH=false install
 rm -f %{buildroot}%{_libdir}/*.{a,la}
@@ -874,6 +879,9 @@ fi
 %endif
 
 %changelog
+* Fri Aug 25 2023 bitcoffee <liuxin350@huawei.com> - 6.4.0-1.0.2.7
+- add resolver_btfids tool to kernel-devel for compiling ko
+
 * Wed Aug 23 2023 Wei Li <liwei391@huawei.com> - 6.4.0-1.0.2.6
 - keep .BTF section in modules
 
