@@ -1,6 +1,19 @@
 %define with_signmodules  1
 %define with_kabichk 0
 
+# Default without toolchain_clang
+%bcond_with toolchain_clang
+
+%if %{with toolchain_clang}
+%global toolchain clang
+%endif
+
+%bcond_with clang_lto
+
+%if %{with clang_lto} && "%{toolchain}" != "clang"
+{error:clang_lto requires --with toolchain_clang}
+%endif
+
 %define modsign_cmd %{SOURCE10}
 
 %global Arch $(echo %{_host_cpu} | sed -e s/i.86/x86/ -e s/x86_64/x86/ -e s/aarch64.*/arm64/ -e s/riscv.*/riscv/)
@@ -12,7 +25,7 @@
 %global upstream_sublevel   0
 %global devel_release       1
 %global maintenance_release .0.2
-%global pkg_release         .7
+%global pkg_release         .9
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -72,6 +85,9 @@ Source9998: patches.tar.bz2
 %endif
 
 Patch0001: 0001-kconfig-Add-script-to-update-openeuler_defconfig.patch
+Patch0002: 0002-cpupower-clang-compile-support.patch
+Patch0003: 0003-x86_energy_perf_policy-clang-compile-support.patch
+Patch0004: 0004-turbostat-clang-compile-support.patch
 
 #BuildRequires:
 BuildRequires: module-init-tools, patch >= 2.5.4, bash >= 2.03, tar
@@ -122,6 +138,9 @@ BuildRequires: java-devel
 BuildRequires: dwarves
 BuildRequires: clang >= 10.0.0
 BuildRequires: llvm
+%if %{with clang_lto}
+BuildRequires: lld
+%endif
 
 %description
 The Linux Kernel, the operating system core itself.
@@ -298,6 +317,11 @@ Applypatches series.conf %{_builddir}/kernel-%{version}/linux-%{KernelVer}
 %endif
 
 %patch0001 -p1
+%if "%toolchain" == "clang"
+%patch0002 -p1
+%patch0003 -p1
+%patch0004 -p1
+%endif
 
 find . \( -name "*.orig" -o -name "*~" \) -exec rm -f {} \; >/dev/null
 find . -name .gitignore -exec rm -f {} \; >/dev/null
@@ -330,12 +354,36 @@ sed -i arch/arm64/configs/openeuler_defconfig -e 's/^CONFIG_ARM64_VA_BITS=.*/CON
 sed -i arch/arm64/configs/openeuler_defconfig -e 's/^CONFIG_ARM64_VA_BITS_.*/CONFIG_ARM64_VA_BITS_52=y/'
 %endif
 
-make ARCH=%{Arch} openeuler_defconfig
+%if "%toolchain" == "clang"
+
+%ifarch s390x ppc64le
+%global llvm_ias 0
+%else
+%global llvm_ias 1
+%endif
+
+%global clang_make_opts HOSTCC=clang CC=clang LLVM_IAS=%{llvm_ias}
+
+%if %{with clang_lto}
+%global clang_make_opts %{clang_make_opts} HOSTLD=ld.lld LD=ld.lld AR=llvm-ar NM=llvm-nm HOSTAR=llvm-ar HOSTNM=llvm-nm
+%endif
+
+%endif
+
+%global make %{__make} %{?clang_make_opts} HOSTCFLAGS="%{?build_cflags}" HOSTLDFLAGS="%{?build_ldflags}"
+
+%{make} ARCH=%{Arch} openeuler_defconfig
+
+%if %{with clang_lto}
+scripts/config -e LTO_CLANG_FULL
+sed -i 's/# CONFIG_LTO_CLANG_FULL is not set/CONFIG_LTO_CLANG_FULL=y/' .config
+sed -i 's/CONFIG_LTO_NONE=y/# CONFIG_LTO_NONE is not set/' .config
+%endif
 
 TargetImage=$(basename $(make -s image_name))
 
-make ARCH=%{Arch} $TargetImage %{?_smp_mflags}
-make ARCH=%{Arch} modules %{?_smp_mflags}
+%{make} ARCH=%{Arch} $TargetImage %{?_smp_mflags}
+%{make} ARCH=%{Arch} modules %{?_smp_mflags}
 
 %if 0%{?with_kabichk}
     chmod 0755 %{SOURCE18}
@@ -348,14 +396,14 @@ make ARCH=%{Arch} modules %{?_smp_mflags}
 
 # aarch64 make dtbs
 %ifarch aarch64 riscv64
-    make ARCH=%{Arch} dtbs
+    %{make} ARCH=%{Arch} dtbs
 %endif
 
 ## make tools
 %if %{with_perf}
 # perf
 %global perf_make \
-    make EXTRA_CFLAGS="-Wl,-z,now -g -Wall -fstack-protector-strong -fPIC" EXTRA_PERFLIBS="-fpie -pie" %{?_smp_mflags} -s V=1 WERROR=0 NO_LIBUNWIND=1 HAVE_CPLUS_DEMANGLE=1 NO_GTK2=1 NO_LIBNUMA=1 NO_STRLCPY=1 prefix=%{_prefix}
+    make %{?clang_make_opts} EXTRA_LDFLAGS="%[ "%{toolchain}" == "clang" ? "-z now" : "" ]" EXTRA_CFLAGS="%[ "%{toolchain}" == "clang" ? "" : "-Wl,-z,now" ] -g -Wall -fstack-protector-strong -fPIC" EXTRA_PERFLIBS="-fpie -pie" %{?_smp_mflags} -s V=1 WERROR=0 NO_LIBUNWIND=1 HAVE_CPLUS_DEMANGLE=1 NO_GTK2=1 NO_LIBNUMA=1 NO_STRLCPY=1 prefix=%{_prefix}
 %if 0%{?with_python2}
 %global perf_python2 -C tools/perf PYTHON=%{__python2}
 %global perf_python3 -C tools/python3-perf PYTHON=%{__python3}
@@ -374,51 +422,51 @@ chmod +x tools/python3-perf/check-headers.sh
 %{perf_make} %{perf_python3} all
 
 pushd tools/perf/Documentation/
-make %{?_smp_mflags} man
+%{make} %{?_smp_mflags} man
 popd
 %endif
 
 # bpftool
 pushd tools/bpf/bpftool
-make
+%{make}
 popd
 
 # cpupower
 chmod +x tools/power/cpupower/utils/version-gen.sh
-make %{?_smp_mflags} -C tools/power/cpupower CPUFREQ_BENCH=false
+%{make} %{?_smp_mflags} -C tools/power/cpupower CPUFREQ_BENCH=false
 %ifarch %{ix86}
     pushd tools/power/cpupower/debug/i386
-    make %{?_smp_mflags} centrino-decode powernow-k8-decode
+    %{make} %{?_smp_mflags} centrino-decode powernow-k8-decode
     popd
 %endif
 %ifarch x86_64
     pushd tools/power/cpupower/debug/x86_64
-    make %{?_smp_mflags} centrino-decode powernow-k8-decode
+    %{make} %{?_smp_mflags} centrino-decode powernow-k8-decode
     popd
 %endif
 %ifarch %{ix86} x86_64
     pushd tools/power/x86/x86_energy_perf_policy/
-    make
+    %{make}
     popd
     pushd tools/power/x86/turbostat
-    make
+    %{make}
     popd
 %endif
 # thermal
 pushd tools/thermal/tmon/
-make
+%{make}
 popd
 # iio
 pushd tools/iio/
-make
+%{make}
 popd
 # gpio
 pushd tools/gpio/
-make
+%{make}
 popd
 # kvm
 pushd tools/kvm/kvm_stat/
-make %{?_smp_mflags} man
+%{make} %{?_smp_mflags} man
 popd
 
 %install
@@ -460,7 +508,7 @@ install -m 755 %{SOURCE200} $RPM_BUILD_ROOT%{_sbindir}/mkgrub-menu-%{version}-%{
 %endif
 
 # deal with module, if not kdump
-make ARCH=%{Arch} INSTALL_MOD_PATH=$RPM_BUILD_ROOT modules_install KERNELRELEASE=%{KernelVer} mod-fw=
+%{make} ARCH=%{Arch} INSTALL_MOD_PATH=$RPM_BUILD_ROOT modules_install KERNELRELEASE=%{KernelVer} mod-fw=
 ######## to collect ko to module.filelist about netwoking. block. drm. modesetting ###############
 pushd $RPM_BUILD_ROOT/lib/modules/%{KernelVer}
 find -type f -name "*.ko" >modnames
@@ -522,7 +570,7 @@ popd
 %{nil}
 
 # deal with header
-make ARCH=%{Arch} INSTALL_HDR_PATH=$RPM_BUILD_ROOT/usr KBUILD_SRC= headers_install
+%{make} ARCH=%{Arch} INSTALL_HDR_PATH=$RPM_BUILD_ROOT/usr KBUILD_SRC= headers_install
 find $RPM_BUILD_ROOT/usr/include -name "\.*"  -exec rm -rf {} \;
 
 # dtbs install
@@ -533,7 +581,7 @@ find $RPM_BUILD_ROOT/usr/include -name "\.*"  -exec rm -rf {} \;
 %endif
 
 # deal with vdso
-make -s ARCH=%{Arch} INSTALL_MOD_PATH=$RPM_BUILD_ROOT vdso_install KERNELRELEASE=%{KernelVer}
+%{make} -s ARCH=%{Arch} INSTALL_MOD_PATH=$RPM_BUILD_ROOT vdso_install KERNELRELEASE=%{KernelVer}
 if [ ! -s ldconfig-kernel.conf ]; then
     echo "# Placeholder file, no vDSO hwcap entries used in this kernel." >ldconfig-kernel.conf
 fi
@@ -646,7 +694,7 @@ install -pm0644 tools/perf/Documentation/*.1 %{buildroot}/%{_mandir}/man1/
 
 # bpftool
 pushd tools/bpf/bpftool
-make DESTDIR=%{buildroot} prefix=%{_prefix} bash_compdir=%{_sysconfdir}/bash_completion.d/ mandir=%{_mandir} install doc-install
+%{make} DESTDIR=%{buildroot} prefix=%{_prefix} bash_compdir=%{_sysconfdir}/bash_completion.d/ mandir=%{_mandir} install doc-install
 popd
 
 # resolve_btfids
@@ -654,7 +702,7 @@ mkdir -p %{buildroot}/usr/src/kernels/%{KernelVer}/tools/bpf/resolve_btfids
 cp tools/bpf/resolve_btfids/resolve_btfids %{buildroot}/usr/src/kernels/%{KernelVer}/tools/bpf/resolve_btfids
 
 # cpupower
-make -C tools/power/cpupower DESTDIR=%{buildroot} libdir=%{_libdir} mandir=%{_mandir} CPUFREQ_BENCH=false install
+%{make} -C tools/power/cpupower DESTDIR=%{buildroot} libdir=%{_libdir} mandir=%{_mandir} CPUFREQ_BENCH=false install
 rm -f %{buildroot}%{_libdir}/*.{a,la}
 %find_lang cpupower
 mv cpupower.lang ../
@@ -677,27 +725,27 @@ install -m644 %{SOURCE2001} %{buildroot}%{_sysconfdir}/sysconfig/cpupower
 %ifarch %{ix86} x86_64
     mkdir -p %{buildroot}%{_mandir}/man8
     pushd tools/power/x86/x86_energy_perf_policy
-    make DESTDIR=%{buildroot} install
+    %{make} DESTDIR=%{buildroot} install
     popd
     pushd tools/power/x86/turbostat
-    make DESTDIR=%{buildroot} install
+    %{make} DESTDIR=%{buildroot} install
     popd
 %endif
 # thermal
 pushd tools/thermal/tmon
-make INSTALL_ROOT=%{buildroot} install
+%{make} INSTALL_ROOT=%{buildroot} install
 popd
 # iio
 pushd tools/iio
-make DESTDIR=%{buildroot} install
+%{make} DESTDIR=%{buildroot} install
 popd
 # gpio
 pushd tools/gpio
-make DESTDIR=%{buildroot} install
+%{make} DESTDIR=%{buildroot} install
 popd
 # kvm
 pushd tools/kvm/kvm_stat
-make INSTALL_ROOT=%{buildroot} install-tools
+%{make} INSTALL_ROOT=%{buildroot} install-tools
 popd
 
 %define __spec_install_post\
@@ -879,6 +927,12 @@ fi
 %endif
 
 %changelog
+* Fri Aug 25 2023 liyunfei <liyunfei33@huawei.com> - 6.4.0-1.0.2.9
+- add clang LTO compile support
+
+* Fri Aug 25 2023 liyunfei <liyunfei33@huawei.com> - 6.4.0-1.0.2.8
+- add clang toolchain support
+
 * Fri Aug 25 2023 bitcoffee <liuxin350@huawei.com> - 6.4.0-1.0.2.7
 - add resolver_btfids tool to kernel-devel for compiling ko
 
