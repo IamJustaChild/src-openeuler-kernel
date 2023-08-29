@@ -23,9 +23,9 @@
 
 %global upstream_version    6.4
 %global upstream_sublevel   0
-%global devel_release       1
-%global maintenance_release .0.2
-%global pkg_release         .9
+%global devel_release       2
+%global maintenance_release .0.0
+%global pkg_release         .10
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -84,7 +84,6 @@ Source9002: series.conf
 Source9998: patches.tar.bz2
 %endif
 
-Patch0001: 0001-kconfig-Add-script-to-update-openeuler_defconfig.patch
 Patch0002: 0002-cpupower-clang-compile-support.patch
 Patch0003: 0003-x86_energy_perf_policy-clang-compile-support.patch
 Patch0004: 0004-turbostat-clang-compile-support.patch
@@ -316,7 +315,6 @@ Applypatches()
 Applypatches series.conf %{_builddir}/kernel-%{version}/linux-%{KernelVer}
 %endif
 
-%patch0001 -p1
 %if "%toolchain" == "clang"
 %patch0002 -p1
 %patch0003 -p1
@@ -927,6 +925,10 @@ fi
 %endif
 
 %changelog
+* Tue Aug 29 2023 Wei Li <liwei391@huawei.com> - 6.4.0-2.0.0.10
+- remove Patch0001
+- update to 6.4.0-2.0.0.10
+
 * Fri Aug 25 2023 liyunfei <liyunfei33@huawei.com> - 6.4.0-1.0.2.9
 - add clang LTO compile support
 
