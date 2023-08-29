@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2308.4.0
+%global hulkrelease 2308.5.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0215
+Release: %{hulkrelease}.0216
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,84 @@ fi
 %endif
 
 %changelog
+
+* Tue Aug 29 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2308.5.0.0216
+- !1863  nbd: pass nbd_sock to nbd_read_reply() instead of index
+- !1638 [openEuler-1.0-LTS] Add support for Hygon model 4h~6h processors
+- !1884  ipvlan: Fix a reference count leak warning in ipvlan_ns_exit()
+- !1882  ip6mr: Fix skb_under_panic in ip6mr_cache_report()
+- ipvlan: Fix a reference count leak warning in ipvlan_ns_exit()
+- ip6mr: Fix skb_under_panic in ip6mr_cache_report()
+- EDAC/amd64: Add support for Hygon family 18h model 6h
+- x86/amd_nb: Add support for Hygon family 18h model 6h
+- hwmon/k10temp: Add support for Hygon family 18h model 5h
+- EDAC/amd64: Add support for Hygon family 18h model 5h
+- x86/amd_nb: Add support for Hygon family 18h model 5h
+- x86/cpu: Get LLC ID for Hygon family 18h model 5h
+- i2c-piix4: Remove the IMC detecting for Hygon SMBus
+- hwmon/k10temp: Add support for Hygon family 18h model 4h
+- EDAC/mce_amd: Use struct cpuinfo_x86.logical_die_id for Hygon NodeId
+- EDAC/amd64: Adjust address translation for Hygon family 18h model 4h
+- EDAC/amd64: Add support for Hygon family 18h model 4h
+- EDAC/amd64: Get UMC channel from the 6th nibble for Hygon
+- iommu/hygon: Add support for Hygon family 18h model 4h IOAPIC
+- x86/amd_nb: Add northbridge support for Hygon family 18h model 4h
+- x86/amd_nb: Add Hygon family 18h model 4h PCI IDs
+- x86/microcode/hygon: Add microcode loading support for Hygon processors
+- x86/cpu/hygon: Modify the CPU topology deriving method for Hygon
+- x86/MCE/AMD: Use an u64 for bank_map
+- EDAC/mc_sysfs: Increase legacy channel support to 12
+- EDAC/amd64: Add new register offset support and related changes
+- EDAC/amd64: Set memory type per DIMM
+- rtc: mc146818-lib: Fix the AltCentury for AMD platforms
+- EDAC/amd64: Add support for AMD Family 19h Models 10h-1Fh and A0h-AFh
+- EDAC: Add RDDR5 and LRDDR5 memory types
+- hwmon: (k10temp) Remove unused definitions
+- hwmon: (k10temp) Remove residues of current and voltage
+- hwmon: (k10temp) Rework the temperature offset calculation
+- hwmon: (k10temp) Don't show Tdie for all Zen/Zen2/Zen3 CPU/APU
+- x86/cstate: Allow ACPI C1 FFH MWAIT use on Hygon systems
+- x86/topology: Make __max_die_per_package available unconditionally
+- x86/cpu/amd: Set __max_die_per_package on AMD
+- hwmon: (k10temp) Remove support for displaying voltage and current on Zen CPUs
+- EDAC: Add DDR5 new memory type
+- x86/topology: Set cpu_die_id only if DIE_TYPE found
+- EDAC/mce_amd: Use struct cpuinfo_x86.cpu_die_id for AMD NodeId
+- x86/CPU/AMD: Save AMD NodeId as cpu_die_id
+- EDAC/amd64: Set proper family type for Family 19h Models 20h-2Fh
+- hwmon: (k10temp) Add support for Zen3 CPUs
+- x86/mce: Increase maximum number of banks to 64
+- hwmon: (k10temp) Define SVI telemetry and current factors for Zen2 CPUs
+- hwmon: (k10temp) Create common functions and macros for Zen CPU families
+- i2c: designware: Add device HID for Hygon I2C controller
+- hwmon: (k10temp) make some symbols static
+- hwmon: (k10temp) Reorganize and simplify temperature support detection
+- hwmon: (k10temp) Swap Tdie and Tctl on Family 17h CPUs
+- hwmon: (k10temp) Display up to eight sets of CCD temperatures
+- hwmon: (k10temp) Don't show temperature limits on Ryzen (Zen) CPUs
+- hwmon: (k10temp) Show core and SoC current and voltages on Ryzen CPUs
+- hwmon: (k10temp) Report temperatures per CPU die
+- hmon: (k10temp) Convert to use devm_hwmon_device_register_with_info
+- hwmon: (k10temp) Use bitops
+- hwmon: Add convience macro to define simple static sensors
+- hwmon: (k10temp) Auto-convert to use SENSOR_DEVICE_ATTR_{RO, RW, WO}
+- hwmon: Introduce SENSOR_DEVICE_ATTR_{RO, RW, WO} and variants
+- x86/umip: Make the UMIP activated message generic
+- x86/umip: Print UMIP line only once
+- x86/microcode/AMD: Clean up per-family patch size checks
+- !1689 [openEuler-1.0-LTS] drm/atomic-helper: Bump vblank timeout to 100 ms
+- nbd: pass nbd_sock to nbd_read_reply() instead of index
+- !1807  Bluetooth: L2CAP: Fix use-after-free in l2cap_sock_ready_cb
+- !1844  net: vmxnet3: fix possible NULL pointer dereference in vmxnet3_rq_cleanup()
+- !1785  README: Remove out-of-date contribution guide
+- !1849  fs: jfs: fix possible NULL pointer dereference in dbFree()
+- fs: jfs: fix possible NULL pointer dereference in dbFree()
+- !1836  tcp: Reduce chance of collisions in inet6_hashfn().
+- net: vmxnet3: fix possible NULL pointer dereference in vmxnet3_rq_cleanup()
+- tcp: Reduce chance of collisions in inet6_hashfn().
+- Bluetooth: L2CAP: Fix use-after-free in l2cap_sock_ready_cb
+- README: Remove out-of-date contribution guide
+- drm/atomic-helper: Bump vblank timeout to 100 ms
 
 * Tue Aug 22 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2308.4.0.0215
 - !1831  fix NULL pointer dereference in __nf_nat_mangle_tcp_packet
