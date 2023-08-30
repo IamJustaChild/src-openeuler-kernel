@@ -23,9 +23,9 @@
 
 %global upstream_version    6.4
 %global upstream_sublevel   0
-%global devel_release       2
+%global devel_release       3
 %global maintenance_release .0.0
-%global pkg_release         .10
+%global pkg_release         .11
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -925,6 +925,9 @@ fi
 %endif
 
 %changelog
+* Wed Aug 30 2023 Xiaobo Liu <xiaobo.liu@huawei.com> - 6.4.0-3.0.0.11
+- add UPROBE_ALTER_PC flag for uprobe
+
 * Tue Aug 29 2023 Wei Li <liwei391@huawei.com> - 6.4.0-2.0.0.10
 - remove Patch0001
 - update to 6.4.0-2.0.0.10
