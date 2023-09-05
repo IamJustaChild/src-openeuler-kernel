@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2308.5.0
+%global hulkrelease 2309.1.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0216
+Release: %{hulkrelease}.0217
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,20 @@ fi
 %endif
 
 %changelog
+
+* Tue Sep 05 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2309.1.0.0217
+- !1964  crypto:padata: Fix return err for PADATA_RESET
+- !1955  fuse: revalidate: don't invalidate if interrupted
+- !1973  sched/smt: fix unbalance sched_smt_present dec/inc
+- sched/smt: fix unbalance sched_smt_present dec/inc
+- !1906  tracing: Fix memleak due to race between current_tracer and trace
+- !1958  block: don't get gendisk if queue has not been registered
+- crypto:padata: Fix return err for PADATA_RESET
+- block: don't get gendisk if queue has not been registered
+- fuse: revalidate: don't invalidate if interrupted
+- !1902  tracing: Fix cpu buffers unavailable due to 'record_disabled' missed
+- tracing: Fix memleak due to race between current_tracer and trace
+- tracing: Fix cpu buffers unavailable due to 'record_disabled' missed
 
 * Tue Aug 29 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2308.5.0.0216
 - !1863  nbd: pass nbd_sock to nbd_read_reply() instead of index
