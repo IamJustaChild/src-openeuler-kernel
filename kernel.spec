@@ -23,9 +23,9 @@
 
 %global upstream_version    6.4
 %global upstream_sublevel   0
-%global devel_release       3
+%global devel_release       4
 %global maintenance_release .0.0
-%global pkg_release         .11
+%global pkg_release         .12
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -925,6 +925,9 @@ fi
 %endif
 
 %changelog
+* Thu Aug 31 2023 Cunshu Ni <nicunshu@huawei.com> - 6.4.0-4.0.0.12
+- add remote_pager module
+
 * Wed Aug 30 2023 Xiaobo Liu <xiaobo.liu@huawei.com> - 6.4.0-3.0.0.11
 - add UPROBE_ALTER_PC flag for uprobe
 
