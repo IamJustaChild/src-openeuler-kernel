@@ -23,9 +23,9 @@
 
 %global upstream_version    6.4
 %global upstream_sublevel   0
-%global devel_release       4
+%global devel_release       5
 %global maintenance_release .0.0
-%global pkg_release         .12
+%global pkg_release         .13
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -925,6 +925,18 @@ fi
 %endif
 
 %changelog
+* Tue Sep 05 2023 Wei Li <liwei391@huawei.com> - 6.4.0-5.0.0.13
+- enable memcg qos and memcg async reclaim
+- Introduce programmable base on bpf for scheduler
+- support Android vendor hooks
+- Backport corelockup from OLK-5.10
+- I/O readahead scenario optimization feature backport to 6.4 kernel
+- Support Qos scheduler
+- Cleanup for gmem
+- Fix wrong initialization of rpg_kmsg_cbftns
+- Support livepatch without ftrace on
+- backport etmem feature from OLK-5.10
+
 * Thu Aug 31 2023 Cunshu Ni <nicunshu@huawei.com> - 6.4.0-4.0.0.12
 - add remote_pager module
 
