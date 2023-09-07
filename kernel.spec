@@ -23,9 +23,9 @@
 
 %global upstream_version    6.4
 %global upstream_sublevel   0
-%global devel_release       5
+%global devel_release       6
 %global maintenance_release .0.0
-%global pkg_release         .13
+%global pkg_release         .14
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -925,6 +925,14 @@ fi
 %endif
 
 %changelog
+* Wed Sep 06 2023 Wei Li <liwei391@huawei.com> - 6.4.0-6.0.0.14
+ - sched/fair: Introduce multiple qos level
+ - mm: Fix variable alignment issues in mm_struct
+ - Introduce qos smt expeller for co-location
+ - enable cgroup1 writeback
+ - enable filescgroup
+ - Add sharepool support
+
 * Tue Sep 05 2023 Wei Li <liwei391@huawei.com> - 6.4.0-5.0.0.13
 - enable memcg qos and memcg async reclaim
 - Introduce programmable base on bpf for scheduler
