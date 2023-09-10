@@ -23,9 +23,9 @@
 
 %global upstream_version    6.4
 %global upstream_sublevel   0
-%global devel_release       6
+%global devel_release       7
 %global maintenance_release .0.0
-%global pkg_release         .14
+%global pkg_release         .15
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -925,6 +925,10 @@ fi
 %endif
 
 %changelog
+* Sun Sep 10 2023 Wei Li <liwei391@huawei.com> - 6.4.0-7.0.0.15
+ - configs: open drivers' config
+ - mm: gmem: Release gm lock once during huge pmd fault
+
 * Wed Sep 06 2023 Wei Li <liwei391@huawei.com> - 6.4.0-6.0.0.14
  - sched/fair: Introduce multiple qos level
  - mm: Fix variable alignment issues in mm_struct
