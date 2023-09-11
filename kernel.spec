@@ -1,8 +1,12 @@
+%global build_cflags %{nil}
+
+%global build_ldflags %{nil}
+
 %define with_signmodules  1
 %define with_kabichk 0
 
 # Default without toolchain_clang
-%bcond_with toolchain_clang
+%bcond_without toolchain_clang
 
 %if %{with toolchain_clang}
 %global toolchain clang
@@ -371,6 +375,8 @@ sed -i arch/arm64/configs/openeuler_defconfig -e 's/^CONFIG_ARM64_VA_BITS_.*/CON
 %global make %{__make} %{?clang_make_opts} HOSTCFLAGS="%{?build_cflags}" HOSTLDFLAGS="%{?build_ldflags}"
 
 %{make} ARCH=%{Arch} openeuler_defconfig
+
+scripts/config -e KASAN
 
 %if %{with clang_lto}
 scripts/config -e LTO_CLANG_FULL
