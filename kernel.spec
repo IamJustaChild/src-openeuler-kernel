@@ -25,7 +25,7 @@
 %global upstream_sublevel   0
 %global devel_release       10
 %global maintenance_release .0.0
-%global pkg_release         .19
+%global pkg_release         .20
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -74,6 +74,11 @@ Source18: check-kabi
 Source20: Module.kabi_aarch64
 Source21: Module.kabi_x86_64
 %endif
+
+Source22: core_%{_target_cpu}.filelist
+Source23: modules_%{_target_cpu}.filelist
+Source24: modules-extras_%{_target_cpu}.filelist
+Source25: mod-split.sh
 
 Source200: mkgrub-menu-aarch64.sh
 
@@ -124,11 +129,6 @@ Conflicts: mdadm < 3.2.1-5 nfs-utils < 1.0.7-12 oprofile < 0.9.1-2 ppp < 2.4.3-3
 Conflicts: reiserfs-utils < 3.6.19-2 selinux-policy-targeted < 1.25.3-14 squashfs-tools < 4.0
 Conflicts: udev < 063-6 util-linux < 2.12 wireless-tools < 29-3 xfsprogs < 2.6.13-4
 
-Provides: kernel-%{_target_cpu} = %{version}-%{release} kernel-drm = 4.3.0 kernel-drm-nouveau = 16 kernel-modeset = 1
-Provides: kernel-uname-r = %{KernelVer} kernel=%{KernelVer}
-
-Requires: dracut >= 001-7 grubby >= 8.28-2 initscripts >= 8.11.1-1 linux-firmware >= 20100806-2 module-init-tools >= 3.16-2
-
 ExclusiveArch: noarch aarch64 i686 x86_64 riscv64
 ExclusiveOS: Linux
 
@@ -146,6 +146,27 @@ BuildRequires: lld
 
 %description
 The Linux Kernel, the operating system core itself.
+
+%package core
+Summary: The Linux kernel, the operating system core itself and core kernel modules.
+Provides: kernel-uname-r = %{KernelVer}
+Requires: dracut >= 001-7 grubby >= 8.28-2 initscripts >= 8.11.1-1 linux-firmware >= 20100806-2 module-init-tools >= 3.16-2
+%description core
+The Linux kernel, the operating system core itself and min kernel modules.
+
+%package modules
+Summary: Base kernel modules.
+Provides: kernel = %{KernelVer}  kernel-%{_target_cpu} = %{version}-%{release}
+Provides: kernel-drm = 4.3.0 kernel-drm-nouveau = 16 kernel-modeset = 1
+Requires: kernel-core = %{version}-%{release}
+%description modules
+This package provides base kernel modules for the kernel package.
+
+%package modules-extras
+Summary: Extra kernel modules.
+Requires: kernel-modules = %{version}-%{release}
+%description modules-extras
+This package provides extra kernel modules for the kernel package.
 
 %package headers
 Summary: Header files for the Linux kernel for use by glibc
@@ -753,6 +774,9 @@ pushd tools/kvm/kvm_stat
 %{make} INSTALL_ROOT=%{buildroot} install-tools
 popd
 
+chmod 0755 %{SOURCE25}
+%{SOURCE25} %{SOURCE22} %{SOURCE23} %{SOURCE24} $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/modules.dep
+
 %define __spec_install_post\
 %{?__debug_package:%{__debug_install_post}}\
 %{__arch_install_post}\
@@ -819,11 +843,19 @@ fi
 /sbin/ldconfig
 %systemd_postun cpupower.service
 
+%ifarch aarch64 x86_64
+%files core -f %{SOURCE22}
+
+%files modules -f %{SOURCE23}
+
+%files modules-extras -f %{SOURCE24}
+
+%else
 %files
 %defattr (-, root, root)
 %doc
 /boot/config-*
-%ifarch aarch64 riscv64
+%ifarch riscv64
 /boot/dtb-*
 %endif
 /boot/symvers-*
@@ -833,9 +865,8 @@ fi
 /boot/.vmlinuz-*.hmac
 /etc/ld.so.conf.d/*
 /lib/modules/%{KernelVer}/
-%exclude /lib/modules/%{KernelVer}/source
-%exclude /lib/modules/%{KernelVer}/build
 %{_sbindir}/mkgrub-menu*.sh
+%endif
 
 %files devel
 %defattr (-, root, root)
@@ -932,6 +963,9 @@ fi
 %endif
 
 %changelog
+* Wed Sep 13 2023 Liu Chao <liuchao173@huawei.com> - 6.4.0-10.0.0.20
+- split kernel into kernel-core, kernel-modules and kernel-modules-extras
+
 * Wed Sep 20 2023 Wei Li <liwei391@huawei.com> - 6.4.0-10.0.0.19
  - xfs: fix NULL dereference in xlog_cil_pcp_dead
  - remote_pager: fix msg_handler_peer.c build failed
