@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       153
-%global maintenance_release .26.0
-%global pkg_release         .102
+%global maintenance_release .27.0
+%global pkg_release         .103
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -910,6 +910,31 @@ fi
 %endif
 
 %changelog
+* Wed Sep 13 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.27.0.103
+- !2145 [sync] PR-2126:  netfilter: nf_tables: skip immediate deactivate in _PREPARE_ERROR
+- !2110 [sync] PR-2090:  net/sched: sch_hfsc: Ensure inner classes have fsc curve
+- netfilter: nf_tables: skip immediate deactivate in _PREPARE_ERROR
+- !2103 [sync] PR-2092:  netfilter: nf_tables: skip bound chain on rule flush
+- !2112 [sync] PR-2085:  af_unix: Fix null-ptr-deref in unix_stream_sendpage().
+- !2104 [sync] PR-2097:  Fixed 4 CVEs of the ksmbd
+- !2078 [sync] PR-2065:  dm: switch to precise io accounting
+- af_unix: Fix null-ptr-deref in unix_stream_sendpage().
+- net/sched: sch_hfsc: Ensure inner classes have fsc curve
+- netfilter: nf_tables: skip bound chain on rule flush
+- ksmbd: not allow guest user on multichannel
+- ksmbd: fix deadlock in ksmbd_find_crypto_ctx()
+- ksmbd: block asynchronous requests when making a delay on session setup
+- ksmbd: destroy expired sessions
+- !1927 [sync] PR-1883:  SUNRPC: don't pause on incomplete allocation
+- !2008 [sync] PR-1928: RDMA/hns Bugfix from mainline linux
+- dm: switch to precise io accounting
+- !2059 [sync] PR-2055: Only enable unicast promisc when mac table full to fix the hns3 bug
+- SUNRPC: don't pause on incomplete allocation
+- net: hns3: only enable unicast promisc when mac table full
+- !2049 [sync] PR-1752:  ksmbd: validate session id and tree id in the compound request
+- ksmbd: validate session id and tree id in the compound request
+- RDMA/hns: Remove the num_qpc_timer variable
+
 * Wed Sep 06 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.26.0.102
 - !2004 [sync] PR-1911:  ksmbd: fix out-of-bound read in smb2_write
 - !1628 [sync] PR-1621:  fix three CVEs by backport mainline patchs
