@@ -17,8 +17,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .48.0
-%global pkg_release         .126
+%global maintenance_release .49.0
+%global pkg_release         .127
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -942,6 +942,29 @@ fi
 %endif
 
 %changelog
+* Wed Sep 13 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.49.0.127
+- !2146  netfilter: nf_tables: skip immediate deactivate in _PREPARE_ERROR
+- netfilter: nf_tables: skip immediate deactivate in _PREPARE_ERROR
+- !2139  net/sched: sch_hfsc: Ensure inner classes have fsc curve
+- !2138  netfilter: nf_tables: skip bound chain on rule flush
+- !2136  af_unix: Fix null-ptr-deref in unix_stream_sendpage().
+- net/sched: sch_hfsc: Ensure inner classes have fsc curve
+- netfilter: nf_tables: skip bound chain on rule flush
+- af_unix: Fix null-ptr-deref in unix_stream_sendpage().
+- !2114  Fixed 4 CVEs of the ksmbd
+- !2077 [sync] PR-2065:  dm: switch to precise io accounting
+- ksmbd: not allow guest user on multichannel
+- ksmbd: fix deadlock in ksmbd_find_crypto_ctx()
+- ksmbd: block asynchronous requests when making a delay on session setup
+- ksmbd: destroy expired sessions
+- !1926 [sync] PR-1883:  SUNRPC: don't pause on incomplete allocation
+- dm: switch to precise io accounting
+- !2058 [sync] PR-2055: Only enable unicast promisc when mac table full to fix the hns3 bug
+- SUNRPC: don't pause on incomplete allocation
+- net: hns3: only enable unicast promisc when mac table full
+- !2048 [sync] PR-1752:  ksmbd: validate session id and tree id in the compound request
+- ksmbd: validate session id and tree id in the compound request
+
 * Wed Sep 06 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.48.0.126
 - !2003 [sync] PR-1911:  ksmbd: fix out-of-bound read in smb2_write
 - !2010  block: don't get gendisk if queue has not been registered
