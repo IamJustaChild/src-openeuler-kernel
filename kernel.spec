@@ -23,9 +23,9 @@
 
 %global upstream_version    6.4
 %global upstream_sublevel   0
-%global devel_release       7
+%global devel_release       8
 %global maintenance_release .0.0
-%global pkg_release         .15
+%global pkg_release         .16
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -925,6 +925,10 @@ fi
 %endif
 
 %changelog
+* Wed Sep 13 2023 Wei Li <liwei391@huawei.com> - 6.4.0-8.0.0.16
+ - ima: Add IMA digest lists extension
+ - mm: gmem: create gm_as when dont have device avoid mmap failed
+
 * Tue Sep 12 2023 Wei Li <liwei391@huawei.com> - 6.4.0-7.0.0.15
  - kernel: add OPENEULER_VERSION_CODE to version.h
  - openeuler_defconfig: enable CONFIG_FS_DAX and CONFIG_FS_DAX_PMD for arm64
