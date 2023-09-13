@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2309.1.0
+%global hulkrelease 2309.3.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0217
+Release: %{hulkrelease}.0218
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,99 @@ fi
 %endif
 
 %changelog
+
+* Wed Sep 13 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2309.3.0.0218
+- !2084  af_unix: Fix null-ptr-deref in unix_stream_sendpage().
+- !2071 【openEuler-1.0-LTS】net: openvswitch: don't send internal clone attribute to the userspace
+- net: openvswitch: don't send internal clone attribute to the userspace.
+- !2089  net/sched: sch_hfsc: Ensure inner classes have fsc curve
+- !335 efi: fix crash due to EFI runtime service page faults
+- net/sched: sch_hfsc: Ensure inner classes have fsc curve
+- !2088 [openEuler-1.0-LTS] bugfixes of scsi
+- scsi: fix kabi broken in struct Scsi_Host
+- scsi: don't fail if hostt->module is NULL
+- scsi: scsi_device_gets returns failure when the module is NULL.
+- af_unix: Fix null-ptr-deref in unix_stream_sendpage().
+- !2069  x86/speculation: Add Gather Data Sampling mitigation
+- !1692  Mainline bugfix patches backport 4.19
+- !2075  x86/cpu/amd: Enable Zenbleed fix for AMD Custom APU 0405
+- !2079 [openEuler-1.0-LTS] stable inclusion from linux-4.19.y
+- scsi: core: raid_class: Remove raid_component_add()
+- scsi: core: Fix possible memory leak if device_add() fails
+- scsi: core: Fix legacy /proc parsing buffer overflow
+- serial: 8250_dw: Preserve original value of DLF register
+- serial: 8250_dw: split Synopsys DesignWare 8250 common functions
+- nbd: Add the maximum limit of allocated index in nbd_dev_add
+- integrity: Fix possible multiple allocation in integrity_inode_get()
+- !2070 net bugfixes inclusion from linux-4.19.y
+- drivers: net: prevent tun_build_skb() to exceed the packet size limit
+- net/packet: annotate data-races around tp->status
+- tcp_metrics: fix data-race in tcpm_suck_dst() vs fastopen
+- tcp_metrics: annotate data-races around tm->tcpm_net
+- tcp_metrics: annotate data-races around tm->tcpm_vals[]
+- tcp_metrics: annotate data-races around tm->tcpm_lock
+- tcp_metrics: annotate data-races around tm->tcpm_stamp
+- tcp_metrics: fix addr_same() helper
+- virtio-net: set queues after driver_ok
+- virtio-net: fix race between set queues and probe
+- team: reset team's flags when down link is P2P device
+- bonding: reset bond's flags when down link is P2P device
+- tcp: annotate data-races around fastopenq.max_qlen
+- tcp: annotate data-races around tp->notsent_lowat
+- tcp: annotate data-races around rskq_defer_accept
+- tcp: annotate data-races around tp->linger2
+- net: Replace the limit of TCP_LINGER2 with TCP_FIN_TIMEOUT_MAX
+- SUNRPC: Fix UAF in svc_tcp_listen_data_ready()
+- net/sched: make psched_mtu() RTNL-less safe
+- udp6: fix udp6_ehashfn() typo
+- icmp6: Fix null-ptr-deref of ip6_null_entry->rt6i_idev in icmp6_dev().
+- vrf: Increment Icmp6InMsgs on the original netdev
+- netfilter: conntrack: Avoid nf_ct_helper_hash uses after free
+- tcp: annotate data races in __tcp_oow_rate_limited()
+- net: bridge: keep ports without IFF_UNICAST_FLT in BR_PROMISC mode
+- ipvlan: Fix return value of ipvlan_queue_xmit()
+- netlink: do not hard code device address lenth in fdb dumps
+- netlink: Add __sock_i_ino() for __netlink_diag_dump().
+- x86/cpu/amd: Enable Zenbleed fix for AMD Custom APU 0405
+- !1987  tracing: Fix race issue between cpu buffer write and swap
+- !2067  memcg: add refcnt for pcpu stock to avoid UAF problem in drain_all_stock()
+- netlink: fix potential deadlock in netlink_set_err()
+- x86/speculation: Mark all Skylake CPUs as vulnerable to GDS
+- x86: Move gds_ucode_mitigated() declaration to header
+- Documentation/x86: Fix backwards on/off logic about YMM support
+- KVM: Add GDS_NO support to KVM
+- x86/speculation: Add Kconfig option for GDS
+- x86/speculation: Add force option to GDS mitigation
+- x86/speculation: Add cpu_show_gds() prototype
+- x86/speculation: Add Gather Data Sampling mitigation
+- !2063  cpu/hotplug: Prevent self deadlock on CPU hot-unplug
+- !2046  use precise io accounting apis
+- memcg: add refcnt for pcpu stock to avoid UAF problem in drain_all_stock()
+- cpu/hotplug: Prevent self deadlock on CPU hot-unplug
+- !2050  memcg: fix a UAF problem in drain_all_stock()
+- !1976  fix race between setxattr and write back
+- memcg: fix a UAF problem in drain_all_stock()
+- dm: switch to precise io accounting
+- block: add precise io accouting apis
+- tracing: Fix race issue between cpu buffer write and swap
+- ext2: dump current reservation window info
+- ext2: fix race between setxattr and write back
+- ext2: introduce flag argument for ext2_new_blocks()
+- ext2: remove ext2_new_block()
+- arm64: efi: Make efi_rt_lock a raw_spinlock
+- efi: rt-wrapper: Add missing include
+- arm64: efi: Recover from synchronous exceptions occurring in firmware
+- arm64: efi: Execute runtime services from a dedicated stack
+- efi: fix userspace infinite retry read efivars after EFI runtime services page fault
+- arm64: efi: Restore register x18 if it was corrupted
+- x86/efi: fix a -Wtype-limits compilation warning
+- efi: Fix build error due to enum collision between efi.h and ima.h
+- efi: Fix debugobjects warning on 'efi_rts_work'
+- efi/x86: Handle page faults occurring while running EFI runtime services
+- efi: Make efi_rts_work accessible to efi page fault handler
+- lib/genalloc.c: change return type to unsigned long for bitmap_set_ll
+- iommu/amd: Restore IRTE.RemapEn bit after programming IRTE
+- iommu/amd: Use cmpxchg_double() when updating 128-bit IRTE
 
 * Tue Sep 05 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2309.1.0.0217
 - !1964  crypto:padata: Fix return err for PADATA_RESET
