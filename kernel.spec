@@ -25,7 +25,7 @@
 %global upstream_sublevel   0
 %global devel_release       8
 %global maintenance_release .0.0
-%global pkg_release         .16
+%global pkg_release         .17
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -64,7 +64,10 @@ Source0: kernel.tar.gz
 Source10: sign-modules
 Source11: x509.genkey
 Source12: extra_certificates
-Source13: pubring.gpg
+# openEuler RPM PGP certificates:
+# 1. openeuler <openeuler@compass-ci.com>
+Source13: RPM-GPG-KEY-openEuler-compass-ci
+Source14: process_pgp_certs.sh
 
 %if 0%{?with_kabichk}
 Source18: check-kabi
@@ -285,7 +288,11 @@ tar -xjf %{SOURCE9998}
 mv kernel linux-%{KernelVer}
 cd linux-%{KernelVer}
 
-cp %{SOURCE13} certs
+# process PGP certs
+cp %{SOURCE13} .
+cp %{SOURCE14} .
+sh %{SOURCE14}
+cp pubring.gpg certs
 
 %if 0%{?with_patch}
 cp %{SOURCE9000} .
@@ -925,6 +932,9 @@ fi
 %endif
 
 %changelog
+* Sat Sep 16 2023 luhuaxin <luhuaxin1@huawei.com> - 6.4.0-8.0.0.17
+- Process PGP certs before kernel building
+
 * Wed Sep 13 2023 Wei Li <liwei391@huawei.com> - 6.4.0-8.0.0.16
  - ima: Add IMA digest lists extension
  - mm: gmem: create gm_as when dont have device avoid mmap failed
