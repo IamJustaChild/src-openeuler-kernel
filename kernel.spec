@@ -1,4 +1,5 @@
 %define with_signmodules  1
+%define with_kernel_abi_stablelists %{?_without_kernel_abi_stablelists: 0} %{?!_without_kernel_abi_stablelists: 1}
 %ifarch loongarch64
 %define with_kabichk 0
 %define with_bpftool 0
@@ -18,7 +19,7 @@
 %global upstream_sublevel   0
 %global devel_release       60
 %global maintenance_release .111.0
-%global pkg_release         .138
+%global pkg_release         .139
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -63,6 +64,11 @@ Source13: pubring.gpg
 Source18: check-kabi
 Source20: Module.kabi_aarch64
 Source21: Module.kabi_x86_64
+%endif
+
+%if %{with_kernel_abi_stablelists}
+Source100: kabi_whitelist_x86_64
+Source101: kabi_whitelist_aarch64
 %endif
 
 Source200: mkgrub-menu-aarch64.sh
@@ -210,6 +216,15 @@ This package contains the bpftool, which allows inspection and simple
 manipulation of eBPF programs and maps.
 # with_bpftool
 %endif
+
+%package -n %{name}-abi-stablelists
+Summary: kernel ABI symbol stablelists
+AutoReqProv: no
+Provides: %{name}-abi-whitelists
+%description -n %{name}-abi-stablelists
+The kABI package contains information pertaining to the
+kernel ABI, including lists of kernel symbols that are needed by
+external Linux kernel modules, and a yum plugin to aid enforcement.
 
 %package source
 Summary: the kernel source
@@ -480,6 +495,20 @@ popd
 
 install -m 644 .config $RPM_BUILD_ROOT/boot/config-%{KernelVer}
 install -m 644 System.map $RPM_BUILD_ROOT/boot/System.map-%{KernelVer}
+
+%if %{with_kernel_abi_stablelists}
+INSTALL_KABI_PATH=$RPM_BUILD_ROOT/lib/modules
+mkdir -p $INSTALL_KABI_PATH
+
+mkdir -p $INSTALL_KABI_PATH/kabi-oe2203/
+cp $RPM_SOURCE_DIR/kabi_whitelist_x86_64 $RPM_SOURCE_DIR/kabi_stablelist_x86_64
+cp $RPM_SOURCE_DIR/kabi_whitelist_aarch64 $RPM_SOURCE_DIR/kabi_stablelist_aarch64
+cp -a $RPM_SOURCE_DIR/kabi_stablelist_x86_64 $INSTALL_KABI_PATH/kabi-oe2203/
+cp -a $RPM_SOURCE_DIR/kabi_stablelist_aarch64 $INSTALL_KABI_PATH/kabi-oe2203/
+pushd $INSTALL_KABI_PATH
+ln -sf kabi-oe2203 kabi-current
+popd
+%endif
 
 gzip -c9 < Module.symvers > $RPM_BUILD_ROOT/boot/symvers-%{KernelVer}.gz
 
@@ -931,7 +960,16 @@ fi
 /usr/src/linux-%{KernelVer}/.scmversion
 %endif
 
+%if %{with_kernel_abi_stablelists}
+%files -n kernel-abi-stablelists
+%defattr(-,root,root,-)
+/lib/modules/kabi-*
+%endif
+
 %changelog
+* Thu Sep 14 2023 Naichuan Zhang <zhangnaichuan@huawei.com> - 5.10.0-60.111.0.139
+- kabi: add kernel_abi_stablelists
+
 * Wed Sep 13 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-60.111.0.138
 - !2143 [sync] PR-2126:  netfilter: nf_tables: skip immediate deactivate in _PREPARE_ERROR
 - !2107 [sync] PR-2090:  net/sched: sch_hfsc: Ensure inner classes have fsc curve
