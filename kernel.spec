@@ -12,7 +12,7 @@
 %global upstream_sublevel   0
 %global devel_release       153
 %global maintenance_release .27.0
-%global pkg_release         .103
+%global pkg_release         .104
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -53,9 +53,9 @@ Source11: x509.genkey
 Source12: extra_certificates
 # openEuler RPM PGP certificates:
 # 1. openeuler <openeuler@compass-ci.com>
-Source13: RPM-GPG-KEY-openEuler-22.03-SP1
+Source13: RPM-GPG-KEY-openEuler-compass-ci
 # 2. private OBS <defaultkey@localobs>
-Source14: RPM-GPG-KEY-openEuler-22.03
+Source14: RPM-GPG-KEY-openEuler-localobs
 Source15: process_pgp_certs.sh
 
 %if 0%{?with_kabichk}
@@ -910,6 +910,9 @@ fi
 %endif
 
 %changelog
+* Mon Sep 18 2023 luhuaxin <luhuxin1@huawei.com> - 5.10.0-153.27.0.104
+- Rename the PGP certificates
+
 * Wed Sep 13 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.27.0.103
 - !2145 [sync] PR-2126:  netfilter: nf_tables: skip immediate deactivate in _PREPARE_ERROR
 - !2110 [sync] PR-2090:  net/sched: sch_hfsc: Ensure inner classes have fsc curve
