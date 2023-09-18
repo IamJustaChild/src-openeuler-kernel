@@ -12,7 +12,7 @@
 %global upstream_sublevel   0
 %global devel_release       146
 %global maintenance_release .0.0
-%global pkg_release         .76
+%global pkg_release         .77
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -53,9 +53,9 @@ Source11: x509.genkey
 Source12: extra_certificates
 # openEuler RPM PGP certificates:
 # 1. openeuler <openeuler@compass-ci.com>
-Source13: RPM-GPG-KEY-openEuler-22.03-SP1
+Source13: RPM-GPG-KEY-openEuler-compass-ci
 # 2. private OBS <defaultkey@localobs>
-Source14: RPM-GPG-KEY-openEuler-22.03
+Source14: RPM-GPG-KEY-openEuler-localobs
 Source15: process_pgp_certs.sh
 
 %if 0%{?with_kabichk}
@@ -889,6 +889,9 @@ fi
 %endif
 
 %changelog
+* Mon Sep 18 2023 luhuaxin <luhuxin1@huawei.com> - 5.10.0-146.0.0.77
+- Rename the PGP certificates
+
 * Tue Jun 06 2023 zhoushuiqing <zhoushuiqing2@huawei.com> - 5.10.0-146.0.0.76
 - Process PGP certs before kernel building
 
