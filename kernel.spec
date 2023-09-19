@@ -23,9 +23,9 @@
 
 %global upstream_version    6.4
 %global upstream_sublevel   0
-%global devel_release       8
+%global devel_release       9
 %global maintenance_release .0.0
-%global pkg_release         .17
+%global pkg_release         .18
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -932,6 +932,15 @@ fi
 %endif
 
 %changelog
+* Tue Sep 19 2023 Wei Li <liwei391@huawei.com> - 6.4.0-9.0.0.18
+ - config update for IMA and livepatch
+ - ima: fix parser strategy unable to manually import kernel
+ - ima: fix the PGP certificate failure to load into the kernel
+ - mm: gmem: Use find_vma_intersection to find overlap vma
+ - mm: gmem: Check overflow for prefetch/eagerfree
+ - kernel: Fix compile failure out of the srctree
+ - Add cleanup and fixes for sharepool
+
 * Sat Sep 16 2023 luhuaxin <luhuaxin1@huawei.com> - 6.4.0-8.0.0.17
 - Process PGP certs before kernel building
 
