@@ -17,8 +17,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .49.0
-%global pkg_release         .128
+%global maintenance_release .50.0
+%global pkg_release         .129
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -942,6 +942,30 @@ fi
 %endif
 
 %changelog
+* Wed Sep 20 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.50.0.129
+- !2221 [sync] PR-2210:  jbd2: Fix potential data lost in recovering journal raced with synchronizing fs bdev
+- !2232 [sync] PR-2086:  fix CVE-2023-20588
+- !2240 [sync] PR-2169:  net: sched: sch_qfq: Fix UAF in qfq_dequeue()
+- !2243 [sync] PR-2230:  media: ttusb-dec: fix memory leak in ttusb_dec_exit_dvb()
+- !2234 [sync] PR-1962:  x86/speculation: Add force option to GDS mitigation
+- media: ttusb-dec: fix memory leak in ttusb_dec_exit_dvb()
+- net: sched: sch_qfq: Fix UAF in qfq_dequeue()
+- x86: Move gds_ucode_mitigated() declaration to header
+- Documentation/x86: Fix backwards on/off logic about YMM support
+- KVM: Add GDS_NO support to KVM
+- x86/speculation: Add Kconfig option for GDS
+- x86/speculation: Add force option to GDS mitigation
+- x86/CPU/AMD: Fix the DIV(0) initial fix attempt
+- x86/CPU/AMD: Do not leak quotient data after a division by 0
+- !1878 [sync] PR-1826:  x86/speculation: Add Gather Data Sampling mitigation
+- jbd2: Fix potential data lost in recovering journal raced with synchronizing fs bdev
+- !2204 [sync] PR-2153:  netfilter: nftables: exthdr: fix 4-byte stack OOB write
+- netfilter: nftables: exthdr: fix 4-byte stack OOB write
+- !2152  io_uring: ensure IOPOLL locks around deferred work
+- io_uring: ensure IOPOLL locks around deferred work
+- x86/speculation: Add cpu_show_gds() prototype
+- x86/speculation: Add Gather Data Sampling mitigation
+
 * Mon Sep 18 2023 luhuaxin <luhuxin1@huawei.com> - 5.10.0-136.49.0.128
 - Rename the PGP certificates
 
