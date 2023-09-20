@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       153
-%global maintenance_release .27.0
-%global pkg_release         .104
+%global maintenance_release .28.0
+%global pkg_release         .105
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -910,6 +910,36 @@ fi
 %endif
 
 %changelog
+* Wed Sep 20 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.28.0.105
+- !2215 [sync] PR-2210:  jbd2: Fix potential data lost in recovering journal raced with synchronizing fs bdev
+- !2241 [sync] PR-2169:  net: sched: sch_qfq: Fix UAF in qfq_dequeue()
+- !2244 [sync] PR-2230:  media: ttusb-dec: fix memory leak in ttusb_dec_exit_dvb()
+- !2235 [sync] PR-1962:  x86/speculation: Add force option to GDS mitigation
+- !2233 [sync] PR-2086:  fix CVE-2023-20588
+- media: ttusb-dec: fix memory leak in ttusb_dec_exit_dvb()
+- net: sched: sch_qfq: Fix UAF in qfq_dequeue()
+- x86: Move gds_ucode_mitigated() declaration to header
+- Documentation/x86: Fix backwards on/off logic about YMM support
+- KVM: Add GDS_NO support to KVM
+- x86/speculation: Add Kconfig option for GDS
+- x86/speculation: Add force option to GDS mitigation
+- x86/CPU/AMD: Fix the DIV(0) initial fix attempt
+- x86/CPU/AMD: Do not leak quotient data after a division by 0
+- !1879 [sync] PR-1826:  x86/speculation: Add Gather Data Sampling mitigation
+- jbd2: Fix potential data lost in recovering journal raced with synchronizing fs bdev
+- !2172 [sync] PR-2153:  netfilter: nftables: exthdr: fix 4-byte stack OOB write
+- !2083 [sync] PR-2009: Fix errors related to bond for RDMA/hns
+- netfilter: nftables: exthdr: fix 4-byte stack OOB write
+- !2151 [sync] PR-2095:  io_uring: ensure IOPOLL locks around deferred work
+- io_uring: ensure IOPOLL locks around deferred work
+- RDMA/hns: Fix missing cleanup when bond_grp becomes invalid
+- RDMA/hns: Fix the device loss after unbinding RoCE bond resource slave
+- RDMA/hns: Fix wild pointer error of RoCE bonding when rmmod hns3
+- RDMA/hns: Add functions to obtain netdev and bus_num from an hr_dev
+- RDMA/hns: Fix a memory leak error when bond clear failed
+- x86/speculation: Add cpu_show_gds() prototype
+- x86/speculation: Add Gather Data Sampling mitigation
+
 * Mon Sep 18 2023 luhuaxin <luhuxin1@huawei.com> - 5.10.0-153.27.0.104
 - Rename the PGP certificates
 
