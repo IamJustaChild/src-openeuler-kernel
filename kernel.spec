@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2309.3.0
+%global hulkrelease 2309.4.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0218
+Release: %{hulkrelease}.0219
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,43 @@ fi
 %endif
 
 %changelog
+
+* Wed Sep 20 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2309.4.0.0219
+- !2168  net: sched: sch_qfq: Fix UAF in qfq_dequeue()
+- !2226  crypto: hisilicon/qm - prevent soft lockup in qm_poll_qp()'s loop
+- !2225  media: ttusb-dec: fix memory leak in ttusb_dec_exit_dvb()
+- crypto: hisilicon/qm - prevent soft lockup in qm_poll_qp()'s loop
+- media: ttusb-dec: fix memory leak in ttusb_dec_exit_dvb()
+- !2177  sched/qos: Fix warning in CPU hotplug scenarios
+- !2207  crypto:hisilicon/qm - cache write back before flr and poweroff
+- !2206  Fix booting failure on arm64
+- crypto:hisilicon/qm - cache write back before flr and poweroff
+- !2205  crypto:hisilicon/sec - modify hw endian config
+- Revert "efi: Make efi_rts_work accessible to efi page fault handler"
+- Revert "efi/x86: Handle page faults occurring while running EFI runtime services"
+- Revert "efi: Fix debugobjects warning on 'efi_rts_work'"
+- Revert "efi: Fix build error due to enum collision between efi.h and ima.h"
+- Revert "x86/efi: fix a -Wtype-limits compilation warning"
+- Revert "arm64: efi: Restore register x18 if it was corrupted"
+- Revert "efi: fix userspace infinite retry read efivars after EFI runtime services page fault"
+- Revert "arm64: efi: Execute runtime services from a dedicated stack"
+- Revert "arm64: efi: Recover from synchronous exceptions occurring in firmware"
+- Revert "efi: rt-wrapper: Add missing include"
+- Revert "arm64: efi: Make efi_rt_lock a raw_spinlock"
+- crypto:hisilicon/sec - modify hw endian config
+- !2118 Compiler: Backport value profile support to openEuler 20.03 LTS SP3.
+- GCOV: Add value profile support for kernel.
+- sched/qos: Fix warning in CPU hotplug scenarios
+- !2154  netfilter: nftables: exthdr: fix 4-byte stack OOB write
+- net: sched: sch_qfq: Fix UAF in qfq_dequeue()
+- !2140  io_uring: ensure IOPOLL locks around deferred work
+- !2056 i2c: hisi: Add gpio bus recovery support
+- netfilter: nftables: exthdr: fix 4-byte stack OOB write
+- !2082  fix CVE-2023-20588
+- io_uring: ensure IOPOLL locks around deferred work
+- i2c: hisi: Add gpio bus recovery support
+- x86/CPU/AMD: Fix the DIV(0) initial fix attempt
+- x86/CPU/AMD: Do not leak quotient data after a division by 0
 
 * Wed Sep 13 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2309.3.0.0218
 - !2084  af_unix: Fix null-ptr-deref in unix_stream_sendpage().
