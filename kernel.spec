@@ -23,9 +23,9 @@
 
 %global upstream_version    6.4
 %global upstream_sublevel   0
-%global devel_release       9
+%global devel_release       10
 %global maintenance_release .0.0
-%global pkg_release         .18
+%global pkg_release         .19
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -932,6 +932,14 @@ fi
 %endif
 
 %changelog
+* Wed Sep 20 2023 Wei Li <liwei391@huawei.com> - 6.4.0-10.0.0.19
+ - xfs: fix NULL dereference in xlog_cil_pcp_dead
+ - remote_pager: fix msg_handler_peer.c build failed
+ - sch_netem: fix issues in netem_change() vs get_dist_table()
+ - jbd2: Fix potential data lost in recovering journal raced with synchronizing fs bdev
+ - mm/mlock: return EINVAL for illegal user memory range in mlock
+ - LoongArch: Fixed a compilation error caused by issue(I7R4EN)
+
 * Tue Sep 19 2023 Wei Li <liwei391@huawei.com> - 6.4.0-9.0.0.18
  - config update for IMA and livepatch
  - ima: fix parser strategy unable to manually import kernel
