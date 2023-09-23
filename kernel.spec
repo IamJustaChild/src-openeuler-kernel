@@ -24,8 +24,8 @@
 %global upstream_version    6.4
 %global upstream_sublevel   0
 %global devel_release       10
-%global maintenance_release .0.0
-%global pkg_release         .19
+%global maintenance_release .1.0
+%global pkg_release         .20
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -932,6 +932,9 @@ fi
 %endif
 
 %changelog
+* Sat Sep 23 2023 Wei Li <liwei391@huawei.com> - 6.4.0-10.1.0.20
+ - config: riscv64: Update openeuler_defconfig
+
 * Wed Sep 20 2023 Wei Li <liwei391@huawei.com> - 6.4.0-10.0.0.19
  - xfs: fix NULL dereference in xlog_cil_pcp_dead
  - remote_pager: fix msg_handler_peer.c build failed
