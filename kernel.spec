@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2309.4.0
+%global hulkrelease 2309.5.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0219
+Release: %{hulkrelease}.0220
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,16 @@ fi
 %endif
 
 %changelog
+
+* Mon Sep 25 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2309.5.0.0220
+- !2274  cec-api: prevent leaking memory through hole in structure
+- !2281  sdei_watchdog: Avoid exception during sdei handler
+- sdei_watchdog: Avoid exception during sdei handler
+- cec-api: prevent leaking memory through hole in structure
+- !2262  crypto: hisilicon - reset before init the device
+- crypto: hisilicon - reset before init the device
+- !2212 [sync] PR-2210:  jbd2: Fix potential data lost in recovering journal raced with synchronizing fs bdev
+- jbd2: Fix potential data lost in recovering journal raced with synchronizing fs bdev
 
 * Wed Sep 20 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2309.4.0.0219
 - !2168  net: sched: sch_qfq: Fix UAF in qfq_dequeue()
