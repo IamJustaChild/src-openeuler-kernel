@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0220
+Release: %{hulkrelease}.0221
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -62,7 +62,7 @@ Source9998: patches.tar.bz2
 
 Patch0001: 0001-nfs_add_api_to_support_enfs_registe_and_handle_mount_option.patch
 Patch0002: 0002-sunrpc_add_api_to_support_enfs_registe_and_create_multipath_then_dispatch_IO.patch
-Patch0003: 0003-add_enfs_module.patch
+Patch0003: 0003-add_enfs_module_for_nfs_mount_option.patch
 Patch0004: 0004-add_enfs_module_for_sunrpc_multipatch.patch
 Patch0005: 0005-add_enfs_module_for_sunrpc_failover_and_configure.patch
 Patch0006: 0006-add_enfs_compile_option.patch
