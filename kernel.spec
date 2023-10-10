@@ -5,14 +5,13 @@
 
 %global Arch $(echo %{_host_cpu} | sed -e s/i.86/x86/ -e s/x86_64/x86/ -e s/aarch64.*/arm64/)
 
-%global KernelVer %{version}-%{release}.%{_target_cpu}
 %global debuginfodir /usr/lib/debug
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       166
 %global maintenance_release .0.0
-%global pkg_release         .80
+%global pkg_release         .81
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -33,10 +32,14 @@
 %define with_64kb  %{?_with_64kb: 1} %{?!_with_64kb: 0}
 %if %{with_64kb}
 %global package64kb -64kb
+%global kv_suffix +64kb
+%define with_kabichk 0
 %endif
 %else
 %define with_64kb  0
 %endif
+
+%global KernelVer %{version}-%{release}.%{_target_cpu}%{?kv_suffix}
 
 #default is enabled. You can disable it with --without option
 %define with_perf    %{?_without_perf: 0} %{?!_without_perf: 1}
@@ -151,6 +154,7 @@ Requires: perl findutils
 This package provides kernel headers and makefiles sufficient to build modules
 against the %{KernelVer} kernel package.
 
+%if !%{with_64kb}
 %package tools
 Summary: Assortment of tools for the Linux kernel
 Provides: %{name}-tools-libs
@@ -210,6 +214,7 @@ manipulation of eBPF programs and maps.
 Summary: the kernel source
 %description source
 This package contains vaious source files from the kernel.
+%endif
 
 %if 0%{?with_debuginfo}
 %define _debuginfo_template %{nil}
@@ -227,6 +232,10 @@ Debug information is useful when developing applications that use this\
 package or when debugging this package.\
 %{nil}
 
+%if %{with_64kb}
+%debuginfo_template -n kernel-64kb
+%files -n kernel-64kb-debuginfo -f debugfiles.list
+%else
 %debuginfo_template -n kernel
 %files -n kernel-debuginfo -f debugfiles.list
 
@@ -254,7 +263,8 @@ package or when debugging this package.\
 %{expand:%%global _find_debuginfo_opts %{?_find_debuginfo_opts} -p '.*%{python3_sitearch}/perf.*(.debug)?|XXX' -o python3-perf-debugfiles.list}
 #with_perf
 %endif
-
+#with_64kb
+%endif
 %endif
 
 %prep
@@ -325,7 +335,7 @@ cp -a tools/perf tools/python3-perf
 %build
 cd linux-%{KernelVer}
 
-perl -p -i -e "s/^EXTRAVERSION.*/EXTRAVERSION = -%{release}.%{_target_cpu}/" Makefile
+perl -p -i -e "s/^EXTRAVERSION.*/EXTRAVERSION = -%{release}.%{_target_cpu}%{?kv_suffix}/" Makefile
 
 ## make linux
 make mrproper %{_smp_mflags}
@@ -434,12 +444,14 @@ make BPFTOOL=../../tools/bpf/bpftool/bpftool
 popd
 
 %install
+%if !%{with_64kb}
 %if 0%{?with_source}
     %define _python_bytecompile_errors_terminate_build 0
     mkdir -p $RPM_BUILD_ROOT/usr/src/
     mv linux-%{KernelVer}-source $RPM_BUILD_ROOT/usr/src/linux-%{KernelVer}
     cp linux-%{KernelVer}/.config $RPM_BUILD_ROOT/usr/src/linux-%{KernelVer}/
     cp linux-%{KernelVer}/.scmversion $RPM_BUILD_ROOT/usr/src/linux-%{KernelVer}/
+%endif
 %endif
 
 cd linux-%{KernelVer}
@@ -630,6 +642,7 @@ popd
 
 
 ## install tools
+%if !%{with_64kb}
 %if %{with_perf}
 # perf
 # perf tool binary and supporting scripts/binaries
@@ -711,6 +724,7 @@ popd
 pushd tools/netacc
 make INSTALL_ROOT=%{buildroot} install
 popd
+%endif
 
 %define __spec_install_post\
 %{?__debug_package:%{__debug_install_post}}\
@@ -767,6 +781,7 @@ then
      done)
 fi
 
+%if !%{with_64kb}
 %post -n %{name}-tools
 /sbin/ldconfig
 %systemd_post cpupower.service
@@ -777,6 +792,7 @@ fi
 %postun -n %{name}-tools
 /sbin/ldconfig
 %systemd_postun cpupower.service
+%endif
 
 %files
 %defattr (-, root, root)
@@ -807,6 +823,7 @@ fi
 %defattr (-, root, root)
 /usr/include/*
 
+%if !%{with_64kb}
 %if %{with_perf}
 %files -n perf
 %{_bindir}/perf
@@ -896,7 +913,13 @@ fi
 /usr/src/linux-%{KernelVer}/.scmversion
 %endif
 
+#with_64kb
+%endif
+
 %changelog
+* Mon Nov 13 2023 zhaoxiaoqiang11 <zhaoxiaoqiang11@jd.com> - 5.10.0-166.0.0.81
+- adapt spec for arm64 64kb page build
+
 * Tue Nov 07 2023 Liu Jian <liujian56@huawei.com> - 5.10.0-166.0.0.80
 - And net-acc tool to kernel-tools.
 
