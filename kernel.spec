@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       153
-%global maintenance_release .28.0
-%global pkg_release         .105
+%global maintenance_release .29.0
+%global pkg_release         .106
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -910,6 +910,201 @@ fi
 %endif
 
 %changelog
+* Wed Oct 11 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.29.0.106
+- !2393  netfilter: nf_tables: disallow rule removal from chain binding
+- netfilter: nf_tables: disallow rule removal from chain binding
+- !2386  nf_table LTS
+- netfilter: nf_tables: disallow rule addition to bound chain via NFTA_RULE_CHAIN_ID
+- netfilter: nf_tables: skip bound chain on rule flush
+- netfilter: nf_tables: skip immediate deactivate in _PREPARE_ERROR
+- netfilter: nf_tables: unbind non-anonymous set if rule construction fails
+- netfilter: nf_tables: drop map element references from preparation phase
+- netfilter: nftables: rename set element data activation/deactivation functions
+- netfilter: nf_tables: reject unbound chain set before commit phase
+- netfilter: nf_tables: reject unbound anonymous set before commit phase
+- netfilter: nf_tables: add NFT_TRANS_PREPARE_ERROR to deal with bound set/chain
+- netfilter: nf_tables: fix chain binding transaction logic
+- netfilter: nf_tables: incorrect error path handling with NFT_MSG_NEWRULE
+- netfilter: nf_tables: use net_generic infra for transaction data
+- Revert "netfilter: nf_tables: disallow rule addition to bound chain via NFTA_RULE_CHAIN_ID"
+- Revert "netfilter: nf_tables: skip bound chain on rule flush"
+- Revert "netfilter: nf_tables: incorrect error path handling with NFT_MSG_NEWRULE"
+- Revert "netfilter: nf_tables: fix chain binding transaction logic"
+- Revert "netfilter: nf_tables: add NFT_TRANS_PREPARE_ERROR to deal with bound set/chain"
+- Revert "netfilter: nf_tables: skip immediate deactivate in _PREPARE_ERROR"
+- Revert "netfilter: nf_tables: unbind non-anonymous set if rule construction fails"
+- !2380 [sync] PR-2359:  netfilter: ipset: add the missing IP_SET_HASH_WITH_NET0 macro for ip_set_hash_netportnet.c
+- netfilter: ipset: add the missing IP_SET_HASH_WITH_NET0 macro for ip_set_hash_netportnet.c
+- !1939 [sync] PR-1771: Backport 5.10.164 - 5.10.165  LTS patches from upstream.
+- !2320 [sync] PR-2287:  scsi: lpfc: Fix ioremap issues in lpfc_sli4_pci_mem_setup()
+- scsi: lpfc: Fix ioremap issues in lpfc_sli4_pci_mem_setup()
+- !2311 [sync] PR-2286:  scsi: lpfc: Prevent lpfc_debugfs_lockstat_write() buffer overflow
+- scsi: lpfc: Prevent lpfc_debugfs_lockstat_write() buffer overflow
+- !2279 [sync] PR-2269:  etmem: Fixed an issue where the module reference counting is incorrect
+- etmem: Fixed an issue where the module reference counting is incorrect
+- !2125 [sync] PR-1778:  nvme-pci: fix DMA direction of unmapping integrity data
+- !2187  nvme-pci: fix timeout request state check
+- !2251 [sync] PR-2224:  ext4: fix rec_len verify error
+- ext4: fix rec_len verify error
+- nvme-pci: fix timeout request state check
+- nvme-pci: fix DMA direction of unmapping integrity data
+- io_uring/rw: remove leftover debug statement
+- io_uring/rw: ensure kiocb_end_write() is always called
+- io_uring: fix double poll leak on repolling
+- io_uring: Clean up a false-positive warning from GCC 9.3.0
+- mm/khugepaged: fix collapse_pte_mapped_thp() to allow anon_vma
+- Bluetooth: hci_qca: Fixed issue during suspend
+- Bluetooth: hci_qca: check for SSR triggered flag while suspend
+- Bluetooth: hci_qca: Wait for SSR completion during suspend
+- soc: qcom: apr: Make qcom,protection-domain optional again
+- Revert "wifi: mac80211: fix memory leak in ieee80211_if_add()"
+- net/mlx5: fix missing mutex_unlock in mlx5_fw_fatal_reporter_err_work()
+- io_uring/net: fix fast_iov assignment in io_setup_async_msg()
+- io_uring: io_kiocb_update_pos() should not touch file for non -1 offset
+- tracing: Use alignof__(struct {type b;}) instead of offsetof()
+- x86/fpu: Use _Alignof to avoid undefined behavior in TYPE_ALIGN
+- Revert "drm/amdgpu: make display pinning more flexible (v2)"
+- efi: rt-wrapper: Add missing include
+- arm64: efi: Execute runtime services from a dedicated stack
+- drm/amd/display: Fix COLOR_SPACE_YCBCR2020_TYPE matrix
+- drm/amd/display: Calculate output_color_space after pixel encoding adjustment
+- drm/amd/display: Fix set scaling doesn's work
+- drm/i915: re-disable RC6p on Sandy Bridge
+- mei: me: add meteor lake point M DID
+- gsmi: fix null-deref in gsmi_get_variable
+- serial: atmel: fix incorrect baudrate setup
+- dmaengine: tegra210-adma: fix global intr clear
+- serial: pch_uart: Pass correct sg to dma_unmap_sg()
+- dt-bindings: phy: g12a-usb3-pcie-phy: fix compatible string documentation
+- dt-bindings: phy: g12a-usb2-phy: fix compatible string documentation
+- usb-storage: apply IGNORE_UAS only for HIKSEMI MD202 on RTL9210
+- usb: gadget: f_ncm: fix potential NULL ptr deref in ncm_bitrate()
+- usb: gadget: g_webcam: Send color matching descriptor per frame
+- usb: typec: altmodes/displayport: Fix pin assignment calculation
+- usb: typec: altmodes/displayport: Add pin assignment helper
+- usb: host: ehci-fsl: Fix module alias
+- USB: serial: cp210x: add SCALANCE LPE-9000 device id
+- tty: serial: qcom-geni-serial: fix slab-out-of-bounds on RX FIFO buffer
+- thunderbolt: Use correct function to calculate maximum USB3 link rate
+- cifs: do not include page data when checking signature
+- btrfs: fix race between quota rescan and disable leading to NULL pointer deref
+- mmc: sdhci-esdhc-imx: correct the tuning start tap and step setting
+- mmc: sunxi-mmc: Fix clock refcount imbalance during unbind
+- comedi: adv_pci1760: Fix PWM instruction handling
+- usb: core: hub: disable autosuspend for TI TUSB8041
+- misc: fastrpc: Fix use-after-free race condition for maps
+- misc: fastrpc: Don't remove map on creater_process and device_release
+- USB: misc: iowarrior: fix up header size for USB_DEVICE_ID_CODEMERCS_IOW100
+- staging: vchiq_arm: fix enum vchiq_status return types
+- USB: serial: option: add Quectel EM05CN modem
+- USB: serial: option: add Quectel EM05CN (SG) modem
+- USB: serial: option: add Quectel EC200U modem
+- USB: serial: option: add Quectel EM05-G (RS) modem
+- USB: serial: option: add Quectel EM05-G (CS) modem
+- USB: serial: option: add Quectel EM05-G (GR) modem
+- xhci: Detect lpm incapable xHC USB3 roothub ports from ACPI tables
+- usb: acpi: add helper to check port lpm capability using acpi _DSM
+- xhci: Add a flag to disable USB3 lpm on a xhci root port level.
+- xhci: Add update_hub_device override for PCI xHCI hosts
+- xhci: Fix null pointer dereference when host dies
+- usb: xhci: Check endpoint is valid before dereferencing it
+- xhci-pci: set the dma max_seg_size
+- io_uring/rw: defer fsnotify calls to task context
+- io_uring: do not recalculate ppos unnecessarily
+- io_uring: update kiocb->ki_pos at execution time
+- io_uring: remove duplicated calls to io_kiocb_ppos
+- io_uring: ensure that cached task references are always put on exit
+- io_uring: fix CQ waiting timeout handling
+- io_uring: lock overflowing for IOPOLL
+- io_uring: check for valid register opcode earlier
+- io_uring: fix async accept on O_NONBLOCK sockets
+- io_uring: allow re-poll if we made progress
+- io_uring: support MSG_WAITALL for IORING_OP_SEND(MSG)
+- io_uring: add flag for disabling provided buffer recycling
+- io_uring: ensure recv and recvmsg handle MSG_WAITALL correctly
+- io_uring: improve send/recv error handling
+- io_uring: don't gate task_work run on TIF_NOTIFY_SIGNAL
+- Bluetooth: hci_qca: Fix driver shutdown on closed serdev
+- Bluetooth: hci_qca: Wait for timeout during suspend
+- drm/i915/gt: Reset twice
+- ALSA: hda/realtek - Turn on power early
+- efi: fix userspace infinite retry read efivars after EFI runtime services page fault
+- nilfs2: fix general protection fault in nilfs_btree_insert()
+- zonefs: Detect append writes at invalid locations
+- Add exception protection processing for vd in axi_chan_handle_err function
+- wifi: mac80211: sdata can be NULL during AMPDU start
+- wifi: brcmfmac: fix regression for Broadcom PCIe wifi devices
+- f2fs: let's avoid panic if extent_tree is not created
+- x86/asm: Fix an assembler warning with current binutils
+- btrfs: always report error in run_one_delayed_ref()
+- RDMA/srp: Move large values to a new enum for gcc13
+- net/ethtool/ioctl: return -EOPNOTSUPP if we have no phy stats
+- tools/virtio: initialize spinlocks in vring_test.c
+- selftests/bpf: check null propagation only neither reg is PTR_TO_BTF_ID
+- pNFS/filelayout: Fix coalescing test for single DS
+- btrfs: fix trace event name typo for FLUSH_DELAYED_REFS
+- Revert "usb: ulpi: defer ulpi_register on ulpi_read_id timeout"
+- io_uring/io-wq: only free worker if it was allocated for creation
+- io_uring/io-wq: free worker if task_work creation is canceled
+- drm/virtio: Fix GEM handle creation UAF
+- efi: fix NULL-deref in init error path
+- arm64: cmpxchg_double*: hazard against entire exchange variable
+- arm64: atomics: remove LL/SC trampolines
+- arm64: atomics: format whitespace consistently
+- x86/resctrl: Fix task CLOSID/RMID update race
+- x86/resctrl: Use task_curr() instead of task_struct->on_cpu to prevent unnecessary IPI
+- KVM: x86: Do not return host topology information from KVM_GET_SUPPORTED_CPUID
+- Documentation: KVM: add API issues section
+- iommu/mediatek-v1: Fix an error handling path in mtk_iommu_v1_probe()
+- iommu/mediatek-v1: Add error handle for mtk_iommu_probe
+- mm: Always release pages to the buddy allocator in memblock_free_late().
+- net/mlx5e: Don't support encap rules with gbp option
+- net/mlx5: Fix ptp max frequency adjustment range
+- net/sched: act_mpls: Fix warning during failed attribute validation
+- nfc: pn533: Wait for out_urb's completion in pn533_usb_send_frame()
+- hvc/xen: lock console list traversal
+- octeontx2-af: Fix LMAC config in cgx_lmac_rx_tx_enable
+- octeontx2-af: Map NIX block from CGX connection
+- octeontx2-af: Update get/set resource count functions
+- tipc: fix unexpected link reset due to discovery messages
+- ASoC: wm8904: fix wrong outputs volume after power reactivation
+- regulator: da9211: Use irq handler when ready
+- EDAC/device: Fix period calculation in edac_device_reset_delay_period()
+- x86/boot: Avoid using Intel mnemonics in AT&T syntax asm
+- powerpc/imc-pmu: Fix use of mutex in IRQs disabled section
+- netfilter: ipset: Fix overflow before widen in the bitmap_ip_create() function.
+- ext4: fix uninititialized value in 'ext4_evict_inode'
+- usb: ulpi: defer ulpi_register on ulpi_read_id timeout
+- xhci: Prevent infinite loop in transaction errors recovery for streams
+- xhci: move and rename xhci_cleanup_halted_endpoint()
+- xhci: store TD status in the td struct instead of passing it along
+- xhci: move xhci_td_cleanup so it can be called by more functions
+- xhci: Add xhci_reset_halted_ep() helper function
+- xhci: adjust parameters passed to cleanup_halted_endpoint()
+- xhci: get isochronous ring directly from endpoint structure
+- xhci: Avoid parsing transfer events several times
+- clk: imx: imx8mp: add shared clk gate for usb suspend clk
+- dt-bindings: clocks: imx8mp: Add ID for usb suspend clock
+- clk: imx8mp: add clkout1/2 support
+- clk: imx8mp: Add DISP2 pixel clock
+- iommu/amd: Fix ill-formed ivrs_ioapic, ivrs_hpet and ivrs_acpihid options
+- iommu/amd: Add PCI segment support for ivrs_[ioapic/hpet/acpihid] commands
+- bus: mhi: host: Fix race between channel preparation and M0 event
+- ixgbe: fix pci device refcount leak
+- platform/x86: sony-laptop: Don't turn off 0x153 keyboard backlight during probe
+- drm/msm/dp: do not complete dp_aux_cmd_fifo_tx() if irq is not for aux transfer
+- drm/msm/adreno: Make adreno quirks not overwrite each other
+- cifs: Fix uninitialized memory read for smb311 posix symlink create
+- s390/percpu: add READ_ONCE() to arch_this_cpu_to_op_simple()
+- s390/cpum_sf: add READ_ONCE() semantics to compare and swap loops
+- ASoC: qcom: lpass-cpu: Fix fallback SD line index handling
+- s390/kexec: fix ipl report address for kdump
+- perf auxtrace: Fix address filter duplicate symbol selection
+- docs: Fix the docs build with Sphinx 6.0
+- efi: tpm: Avoid READ_ONCE() for accessing the event log
+- KVM: arm64: Fix S1PTW handling on RO memslots
+- ALSA: hda/realtek: Enable mute/micmute LEDs on HP Spectre x360 13-aw0xxx
+
 * Wed Sep 20 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.28.0.105
 - !2215 [sync] PR-2210:  jbd2: Fix potential data lost in recovering journal raced with synchronizing fs bdev
 - !2241 [sync] PR-2169:  net: sched: sch_qfq: Fix UAF in qfq_dequeue()
