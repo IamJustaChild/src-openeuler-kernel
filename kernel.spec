@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2309.5.0
+%global hulkrelease 2310.2.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0220
+Release: %{hulkrelease}.0221
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,52 @@ fi
 %endif
 
 %changelog
+
+* Wed Oct 11 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2310.2.0.0221
+- !2322  net/sched: Retire rsvp classifier
+- !2346  RDMA/irdma: Prevent zero-length STAG registration
+- !2349  net: ipv4: fix one memleak in __inet_del_ifa()
+- !2329  ipv4: fix null-deref in ipv4_link_failure
+- !2342 linux-4.19.y inclusion
+- !2345  Backport lts bugfix patch for macvlan
+- !2344  PCI: acpiphp: linux-4.19.y bugfixes backport
+- !2341  quota: fix warning in dqgrab()
+- net: ipv4: fix one memleak in __inet_del_ifa()
+- !1706  cgroup: fix missing cpus_read_{lock,unlock}() in cgroup_transfer_tasks()
+- rtnetlink: Reject negative ifindexes in RTM_NEWLINK
+- netfilter: nf_queue: fix socket leak
+- net/sched: fix a qdisc modification with ambiguous command request
+- net: xfrm: Amend XFRMA_SEC_CTX nla_policy structure
+- net: fix the RTO timer retransmitting skb every 1ms if linear option is enabled
+- sock: annotate data-races around prot->memory_pressure
+- !2337  mm: memory-failure: use rcu lock instead of tasklist_lock when collect_procs()
+- RDMA/irdma: Prevent zero-length STAG registration
+- bonding: fix macvlan over alb bond support
+- net: remove bond_slave_has_mac_rcu()
+- PCI: acpiphp: Use pci_assign_unassigned_bridge_resources() only for non-root bus
+- PCI: acpiphp: Reassign resources on bridge if necessary
+- sock: Fix misuse of sk_under_memory_pressure()
+- team: Fix incorrect deletion of ETH_P_8021AD protocol vid from slaves
+- ip_vti: fix potential slab-use-after-free in decode_session6
+- net: af_key: fix sadb_x_filter validation
+- net: xfrm: Fix xfrm_address_filter OOB read
+- serial: 8250: Fix oops for port->pm on uart_change_pm()
+- quota: Properly disable quotas when add_dquot_ref() fails
+- quota: fix warning in dqgrab()
+- !2335  x86/topology: Fix erroneous smp_num_siblings on Intel Hybrid platforms
+- mm: memory-failure: use rcu lock instead of tasklist_lock when collect_procs()
+- x86/topology: Fix erroneous smp_num_siblings on Intel Hybrid platforms
+- ipv4: fix null-deref in ipv4_link_failure
+- net/sched: Retire rsvp classifier
+- !2301  xfrm6: fix inet6_dev refcount underflow problem
+- !2303  cifs: Release folio lock on fscache read hit.
+- cifs: Release folio lock on fscache read hit.
+- !2294  netfilter: ipset: add the missing IP_SET_HASH_WITH_NET0 macro for ip_set_hash_netportnet.c
+- xfrm6: fix inet6_dev refcount underflow problem
+- netfilter: ipset: add the missing IP_SET_HASH_WITH_NET0 macro for ip_set_hash_netportnet.c
+- !2276  cpuidle: Fix kobject memory leaks in error paths
+- cpuidle: Fix kobject memory leaks in error paths
+- cgroup: fix missing cpus_read_{lock,unlock}() in cgroup_transfer_tasks()
 
 * Mon Sep 25 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2309.5.0.0220
 - !2274  cec-api: prevent leaking memory through hole in structure
