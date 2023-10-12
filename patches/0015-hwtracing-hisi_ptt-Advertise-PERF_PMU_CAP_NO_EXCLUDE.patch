@@ -1,0 +1,45 @@
+From db12a7b834f2a871db351062740ecafffb78fac6 Mon Sep 17 00:00:00 2001
+From: Yicong Yang <yangyicong@huawei.com>
+Date: Wed, 7 Jun 2023 17:31:22 +0800
+Subject: [PATCH 15/19] hwtracing: hisi_ptt: Advertise PERF_PMU_CAP_NO_EXCLUDE
+ for PTT PMU
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I7BZYX
+CVE: NA
+
+--------------------------------------------------------------------------
+
+From: Yicong Yang <yangyicong@hisilicon.com>
+
+The PTT trace collects PCIe TLP headers from the PCIe link and don't
+have the ability to exclude certain context. It doesn't support itrace
+as well. So only advertise PERF_PMU_CAP_NO_EXCLUDE. This will greatly
+save the storage of final data. Tested tracing idle link for ~15s,
+without this patch we'll collect ~28.682MB data for context related
+information and with this patch it reduced to ~0.226MB.
+
+Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/hwtracing/ptt/hisi_ptt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/hwtracing/ptt/hisi_ptt.c b/drivers/hwtracing/ptt/hisi_ptt.c
+index 31977a7c7e68..afd069245a1f 100644
+--- a/drivers/hwtracing/ptt/hisi_ptt.c
++++ b/drivers/hwtracing/ptt/hisi_ptt.c
+@@ -1248,7 +1248,7 @@ static int hisi_ptt_register_pmu(struct hisi_ptt *hisi_ptt)
+ 
+ 	hisi_ptt->hisi_ptt_pmu = (struct pmu) {
+ 		.module		= THIS_MODULE,
+-		.capabilities	= PERF_PMU_CAP_EXCLUSIVE | PERF_PMU_CAP_ITRACE,
++		.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
+ 		.task_ctx_nr	= perf_sw_context,
+ 		.attr_groups	= hisi_ptt_pmu_groups,
+ 		.event_init	= hisi_ptt_pmu_event_init,
+-- 
+2.27.0
+

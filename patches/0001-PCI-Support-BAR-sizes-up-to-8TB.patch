@@ -1,0 +1,52 @@
+From fc96a37739f1017fb91a0339f7f9b101704ca130 Mon Sep 17 00:00:00 2001
+From: Dongdong Liu <liudongdong3@huawei.com>
+Date: Tue, 18 Jan 2022 17:21:17 +0800
+Subject: [PATCH 01/19] PCI: Support BAR sizes up to 8TB
+
+mainline inclusion
+from mainline-v5.18-rc1
+commit 3dc8a1f6f64481a8a5a669633e880f26dae0d752
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I6XOIU
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=3dc8a1f6f64481a8a5a669633e880f26dae0d752
+
+----------------------------------------------------------------------
+
+Current kernel reports that BARs larger than 128GB, e.g., this 4TB BAR, are
+disabled:
+
+    pci 0000:01:00.0: disabling BAR 4: [mem 0x00000000-0x3ffffffffff 64bit pref] (bad alignment 0x40000000000)
+
+Increase the maximum BAR size from 128GB to 8TB for future expansion.
+
+[bhelgaas: commit log]
+Link: https://lore.kernel.org/r/20220118092117.10089-1-liudongdong3@huawei.com
+Signed-off-by: Dongdong Liu <liudongdong3@huawei.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: huangfangrun <huangfangrun1@h-partners.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/pci/setup-bus.c
+---
+ drivers/pci/setup-bus.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/pci/setup-bus.c b/drivers/pci/setup-bus.c
+index 39d19302f3cb..426d21c1db31 100644
+--- a/drivers/pci/setup-bus.c
++++ b/drivers/pci/setup-bus.c
+@@ -968,7 +968,7 @@ static int pbus_size_mem(struct pci_bus *bus, unsigned long mask,
+ {
+ 	struct pci_dev *dev;
+ 	resource_size_t min_align, align, size, size0, size1;
+-	resource_size_t aligns[18];	/* Alignments from 1Mb to 128Gb */
++	resource_size_t aligns[24]; /* Alignments from 1MB to 8TB */
+ 	int order, max_order;
+ 	struct resource *b_res = find_free_bus_resource(bus,
+ 					mask | IORESOURCE_PREFETCH, type);
+-- 
+2.27.0
+

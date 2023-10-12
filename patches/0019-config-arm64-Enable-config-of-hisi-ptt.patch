@@ -1,0 +1,33 @@
+From d8c1e574fad2421eb6c9b394b4d2de33ebb728b5 Mon Sep 17 00:00:00 2001
+From: YunYi Yang <yangyunyi2@huawei.com>
+Date: Tue, 24 Oct 2023 19:54:57 +0800
+Subject: [PATCH 19/19] config: arm64: Enable config of hisi ptt
+
+driver inclusion
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I5RP8T
+
+-------------------------------------------------------------------
+
+Enable config of hisi ptt. Set CONFIG_HISI_PTT to m.
+
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ arch/arm64/configs/openeuler_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm64/configs/openeuler_defconfig b/arch/arm64/configs/openeuler_defconfig
+index 60b1db8e190c..6667015bfa35 100644
+--- a/arch/arm64/configs/openeuler_defconfig
++++ b/arch/arm64/configs/openeuler_defconfig
+@@ -5135,6 +5135,7 @@ CONFIG_NVMEM=y
+ # CONFIG_FPGA is not set
+ # CONFIG_FSI is not set
+ CONFIG_TEE=m
++CONFIG_HISI_PTT=m
+ 
+ #
+ # TEE drivers
+-- 
+2.27.0
+

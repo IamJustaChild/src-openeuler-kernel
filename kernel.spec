@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0224
+Release: %{hulkrelease}.0225
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -807,6 +807,27 @@ fi
 %endif
 
 %changelog
+* Sat Oct 28 2023 YunYi Yang <yangyunyi2@huawei.com> - 4.19.90-2310.4.0.0225
+- config: arm64: Enable config of hisi ptt
+- hwtracing: hisi_ptt: Add dummy callback pmu::read()
+- hwtracing: hisi_ptt: Keep to advertise PERF_PMU_CAP_EXCLUSIVE
+- hwtracing: hisi_ptt: Fix potential sleep in atomic context
+- hwtracing: hisi_ptt: Advertise PERF_PMU_CAP_NO_EXCLUDE for PTT PMU
+- hwtracing: hisi_ptt: Export available filters through sysfs
+- hwtracing: hisi_ptt: Add support for dynamically updating the filter list
+- hwtracing: hisi_ptt: Factor out filter allocation and release operation
+- hwtracing: hisi_ptt: Only add the supported devices to the filters list
+- hwtracing: hisi_ptt: Fix up for "iommu/dma: Make header private"
+- MAINTAINERS: Add maintainer for HiSilicon PTT driver
+- docs: trace: Add HiSilicon PTT device driver documentation
+- hwtracing: hisi_ptt: Add tune function support for HiSilicon PCIe Tune and Trace device
+- hwtracing: hisi_ptt: Add trace function support for HiSilicon PCIe Tune and Trace device
+- genirq: Export affinity setter for modules
+- iommu/arm-smmu-v3: Integrate the function for obtain the device domain type in bypass mode
+- iommu/arm-smmu-v3: Make default domain type of HiSilicon PTT device to identity
+- iommu: Add def_domain_type() callback in iommu_ops
+- PCI: Support BAR sizes up to 8TB
+
 * Fri Oct 27 2023 Luo Shengwei <luoshengwei@huawei.com> - 4.19.90-2310.4.0.0224
 - open macro: with_patch and add file: series.conf, where patches defined can 
 - be applied automatically.
