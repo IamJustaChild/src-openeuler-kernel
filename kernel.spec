@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0220
+Release: %{hulkrelease}.0221
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -59,6 +59,8 @@ Source9001: guards
 Source9002: series.conf
 Source9998: patches.tar.bz2
 %endif
+
+Patch0001: 0001-KAE-inheritance-feature-supports-new-devices.patch
 
 #BuildRequires:
 BuildRequires: module-init-tools, patch >= 2.5.4, bash >= 2.03, tar
@@ -255,6 +257,8 @@ Applypatches()
 
 Applypatches series.conf %{_builddir}/kernel-%{version}/linux-%{KernelVer}
 %endif
+
+%patch0001 -p1
 
 touch .scmversion
 
@@ -808,6 +812,9 @@ fi
 %endif
 
 %changelog
+
+* Thu Oct 12 2023 liuyang <liuyang645@huawei.com> - 4.19.90-2309.5.0.0221
+- KAE inheritance feature supports new devices
 
 * Mon Sep 25 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2309.5.0.0220
 - !2274  cec-api: prevent leaking memory through hole in structure
