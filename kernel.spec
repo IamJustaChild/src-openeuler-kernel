@@ -17,8 +17,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .51.0
-%global pkg_release         .130
+%global maintenance_release .52.0
+%global pkg_release         .131
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -942,6 +942,15 @@ fi
 %endif
 
 %changelog
+* Tue Oct 17 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.52.0.131
+- !2421 [sync] PR-2323:  net/sched: Retire rsvp classifier
+- net/sched: Retire rsvp classifier
+- !1417  Replace the hulk patch with the lts patch
+- !2367 [sync] PR-2282:  sdei_watchdog: Avoid exception during sdei handler
+- sdei_watchdog: Avoid exception during sdei handler
+- cgroup: Do not corrupt task iteration when rebinding subsystem
+- Revert "cgroup: Stop task iteration when rebinding subsystem"
+
 * Wed Oct 11 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.51.0.130
 - !2392  netfilter: nf_tables: disallow rule removal from chain binding
 - netfilter: nf_tables: disallow rule removal from chain binding
