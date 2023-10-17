@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       153
-%global maintenance_release .29.0
-%global pkg_release         .106
+%global maintenance_release .30.0
+%global pkg_release         .107
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -910,6 +910,142 @@ fi
 %endif
 
 %changelog
+* Tue Oct 17 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.30.0.107
+- !2422 [sync] PR-2323:  net/sched: Retire rsvp classifier
+- !2398 Backport 5.10.166 - 5.10.167 LTS patches from upstream.
+- net/sched: Retire rsvp classifier
+- !1122  ext4: delete redundant uptodate check for buffer
+- !2368 [sync] PR-2282:  sdei_watchdog: Avoid exception during sdei handler
+- net: fix NULL pointer in skb_segment_list
+- Bluetooth: fix null ptr deref on hci_sync_conn_complete_evt
+- dmaengine: imx-sdma: Fix a possible memory leak in sdma_transfer_init
+- blk-cgroup: fix missing pd_online_fn() while activating policy
+- arm64: dts: imx8mq-thor96: fix no-mmc property for SDHCI
+- ARM: dts: vf610: Fix pca9548 i2c-mux node names
+- ARM: dts: imx: Fix pca9547 i2c-mux node name
+- clk: Fix pointer casting to prevent oops in devm_clk_release()
+- perf/x86/amd: fix potential integer overflow on shift of a int
+- netfilter: conntrack: unify established states for SCTP paths
+- x86/i8259: Mark legacy PIC interrupts with IRQ_LEVEL
+- block: fix and cleanup bio_check_ro
+- Revert "selftests/ftrace: Update synthetic event syntax errors"
+- nfsd: Ensure knfsd shuts down when the "nfsd" pseudofs is unmounted
+- nouveau: explicitly wait on the fence in nouveau_bo_move_m2mf
+- Revert "Input: synaptics - switch touchpad on HP Laptop 15-da3001TU to RMI mode"
+- tools: gpio: fix -c option of gpio-event-mon
+- net: mdio-mux-meson-g12a: force internal PHY off on mux switch
+- net/tg3: resolve deadlock in tg3_reset_task() during EEH
+- thermal: intel: int340x: Add locking to int340x_thermal_get_trip_type()
+- net: ravb: Fix possible hang if RIS2_QFF1 happen
+- netrom: Fix use-after-free of a listening socket.
+- netfilter: conntrack: fix vtag checks for ABORT/SHUTDOWN_COMPLETE
+- ipv4: prevent potential spectre v1 gadget in fib_metrics_match()
+- ipv4: prevent potential spectre v1 gadget in ip_metrics_convert()
+- netlink: annotate data races around sk_state
+- netlink: annotate data races around dst_portid and dst_group
+- netlink: annotate data races around nlk->portid
+- netfilter: nft_set_rbtree: skip elements in transaction from garbage collection
+- netfilter: nft_set_rbtree: Switch to node list walk for overlap detection
+- net: fix UaF in netns ops registration error path
+- netlink: prevent potential spectre v1 gadgets
+- i2c: designware: use casting of u64 in clock multiplication to avoid overflow
+- i2c: designware: Use DIV_ROUND_CLOSEST() macro
+- units: Add SI metric prefix definitions
+- units: Add Watt units
+- EDAC/qcom: Do not pass llcc_driv_data as edac_device_ctl_info's pvt_info
+- EDAC/device: Respect any driver-supplied workqueue polling value
+- ARM: 9280/1: mm: fix warning on phys_addr_t to void pointer assignment
+- thermal: intel: int340x: Protect trip temperature from concurrent updates
+- KVM: x86/vmx: Do not skip segment attributes if unusable bit is set
+- cifs: Fix oops due to uncleared server->smbd_conn in reconnect
+- ftrace/scripts: Update the instructions for ftrace-bisect.sh
+- trace_events_hist: add check for return value of 'create_hist_field'
+- tracing: Make sure trace_printk() can output as soon as it can be used
+- module: Don't wait for GOING modules
+- scsi: hpsa: Fix allocation size for scsi_host_alloc()
+- xhci: Set HCD flag to defer primary roothub registration
+- Bluetooth: hci_sync: cancel cmd_timer if hci_open failed
+- docs: Fix path paste-o for /sys/kernel/warn_count
+- panic: Expose "warn_count" to sysfs
+- panic: Introduce warn_limit
+- panic: Consolidate open-coded panic_on_warn checks
+- panic: Separate sysctl logic from CONFIG_SMP
+- ia64: make IA64_MCA_RECOVERY bool instead of tristate
+- kasan: no need to unset panic_on_warn in end_report()
+- ubsan: no need to unset panic_on_warn in ubsan_epilogue()
+- panic: unset panic_on_warn inside panic()
+- kernel/panic: move panic sysctls to its own file
+- fs: reiserfs: remove useless new_opts in reiserfs_remount
+- x86: ACPI: cstate: Optimize C3 entry on AMD CPUs
+- netfilter: conntrack: do not renew entry stuck in tcp SYN_SENT state
+- Revert "selftests/bpf: check null propagation only neither reg is PTR_TO_BTF_ID"
+- lockref: stop doing cpu_relax in the cmpxchg loop
+- platform/x86: asus-nb-wmi: Add alternate mapping for KEY_SCREENLOCK
+- platform/x86: touchscreen_dmi: Add info for the CSL Panther Tab HD
+- KVM: s390: interrupt: use READ_ONCE() before cmpxchg()
+- spi: spidev: remove debug messages that access spidev->spi without locking
+- ASoC: fsl-asoc-card: Fix naming of AC'97 CODEC widgets
+- ASoC: fsl_ssi: Rename AC'97 streams to avoid collisions with AC'97 CODEC
+- cpufreq: armada-37xx: stop using 0 as NULL pointer
+- s390/debug: add _ASM_S390_ prefix to header guard
+- drm: Add orientation quirk for Lenovo ideapad D330-10IGL
+- ASoC: fsl_micfil: Correct the number of steps on SX controls
+- kcsan: test: don't put the expect array on the stack
+- cpufreq: Add Tegra234 to cpufreq-dt-platdev blocklist
+- tcp: fix rate_app_limited to default to 1
+- net: dsa: microchip: ksz9477: port map correction in ALU table entry register
+- driver core: Fix test_async_probe_init saves device in wrong array
+- w1: fix WARNING after calling w1_process()
+- w1: fix deadloop in __w1_remove_master_device()
+- tcp: avoid the lookup process failing to get sk in ehash table
+- dmaengine: xilinx_dma: call of_node_put() when breaking out of for_each_child_of_node()
+- HID: betop: check shape of output reports
+- l2tp: prevent lockdep issue in l2tp_tunnel_register()
+- net: macb: fix PTP TX timestamp failure due to packet padding
+- dmaengine: Fix double increment of client_count in dma_chan_get()
+- drm/panfrost: fix GENERIC_ATOMIC64 dependency
+- net: mlx5: eliminate anonymous module_init & module_exit
+- usb: gadget: f_fs: Ensure ep0req is dequeued before free_request
+- usb: gadget: f_fs: Prevent race during ffs_ep0_queue_wait
+- HID: revert CHERRY_MOUSE_000C quirk
+- net: stmmac: fix invalid call to mdiobus_get_phy()
+- net: mdio: validate parameter addr in mdiobus_get_phy()
+- net: usb: sr9700: Handle negative len
+- l2tp: close all race conditions in l2tp_tunnel_register()
+- l2tp: convert l2tp_tunnel_list to idr
+- gpio: mxc: Always set GPIOs used as interrupt source to INPUT mode
+- net: wan: Add checks for NULL for utdm in undo_uhdlc_init and unmap_si_regs
+- net: nfc: Fix use-after-free in local_cleanup()
+- phy: rockchip-inno-usb2: Fix missing clk_disable_unprepare() in rockchip_usb2phy_power_on()
+- bpf: Fix pointer-leak due to insufficient speculative store bypass mitigation
+- amd-xgbe: Delay AN timeout during KR training
+- amd-xgbe: TX Flow Ctrl Registers are h/w ver dependent
+- ARM: dts: at91: sam9x60: fix the ddr clock for sam9x60
+- phy: ti: fix Kconfig warning and operator precedence
+- PM: AVS: qcom-cpr: Fix an error handling path in cpr_probe()
+- affs: initialize fsdata in affs_truncate()
+- IB/hfi1: Remove user expected buffer invalidate race
+- IB/hfi1: Immediately remove invalid memory from hardware
+- IB/hfi1: Fix expected receive setup error exit issues
+- IB/hfi1: Reserve user expected TIDs
+- IB/hfi1: Reject a zero-length user expected buffer
+- RDMA/core: Fix ib block iterator counter overflow
+- tomoyo: fix broken dependency on *.conf.default
+- firmware: arm_scmi: Harden shared memory access in fetch_notification
+- firmware: arm_scmi: Harden shared memory access in fetch_response
+- EDAC/highbank: Fix memory leak in highbank_mc_probe()
+- ARM: imx: add missing of_node_put()
+- arm64: dts: imx8mm-beacon: Fix ecspi2 pinmux
+- ARM: dts: imx6qdl-gw560x: Remove incorrect 'uart-has-rtscts'
+- ARM: dts: imx7d-pico: Use 'clock-frequency'
+- ARM: dts: imx6ul-pico-dwarf: Use 'clock-frequency'
+- memory: mvebu-devbus: Fix missing clk_disable_unprepare in mvebu_devbus_probe()
+- memory: atmel-sdramc: Fix missing clk_disable_unprepare in atmel_ramc_probe()
+- clk: Provide new devm_clk helpers for prepared and enabled clocks
+- clk: generalize devm_clk_get() a bit
+- sdei_watchdog: Avoid exception during sdei handler
+- ext4: delete redundant uptodate check for buffer
+
 * Wed Oct 11 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.29.0.106
 - !2393  netfilter: nf_tables: disallow rule removal from chain binding
 - netfilter: nf_tables: disallow rule removal from chain binding
