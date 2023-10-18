@@ -60,6 +60,8 @@ Source9002: series.conf
 Source9998: patches.tar.bz2
 %endif
 
+Patch0001: 0001-arm64-config-add-CONFIG_NGBE-for-Wangxun-1G-NIC.patch
+
 #BuildRequires:
 BuildRequires: module-init-tools, patch >= 2.5.4, bash >= 2.03, tar
 BuildRequires: bzip2, xz, findutils, gzip, m4, perl, make >= 3.78, diffutils, gawk
@@ -256,6 +258,7 @@ Applypatches()
 Applypatches series.conf %{_builddir}/kernel-%{version}/linux-%{KernelVer}
 %endif
 
+%patch0001 -p1
 touch .scmversion
 
 find . \( -name "*.orig" -o -name "*~" \) -exec rm -f {} \; >/dev/null
@@ -808,6 +811,8 @@ fi
 %endif
 
 %changelog
+* Wed Oct 18 2023 DuanqaingWen <duanqiangwen@net-swift.com> - 4.19.90-2310.2.0.0221
+- !1238 [openEuler-20.03-LTS-SP4]add CONFIG_NGBE for Wangxun 1G NIC for aarch64
 
 * Wed Oct 11 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2310.2.0.0221
 - !2322  net/sched: Retire rsvp classifier
