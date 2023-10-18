@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2310.2.0
+%global hulkrelease 2310.3.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0221
+Release: %{hulkrelease}.0222
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,23 @@ fi
 %endif
 
 %changelog
+
+* Wed Oct 18 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2310.3.0.0222
+- !2466  x86/microcode/AMD: Make stub function static inline
+- !2461  perf/core: Fix reentry problem in perf_output_read_group()
+- x86/microcode/AMD: Make stub function static inline
+- perf/core: Fix reentry problem in perf_output_read_group()
+- !2409  netfilter: nfnetlink_osf: avoid OOB read
+- !2330 Add a check of uvhub_mask in init_per_cpu()
+- x86/platform/uv: Fix missing checks of kcalloc() return values
+- x86/platform/UV: Replace kmalloc() and memset() with k[cz]alloc() calls
+- !2412  netfilter: xt_sctp: validate the flag_info count
+- !2419  ext4: fix rec_len verify error
+- ext4: fix rec_len verify error
+- netfilter: xt_sctp: validate the flag_info count
+- netfilter: nfnetlink_osf: avoid OOB read
+- !2360  scsi: hisi_sas: Handle the NCQ error returned by D2H frame
+- scsi: hisi_sas: Handle the NCQ error returned by D2H frame
 
 * Wed Oct 11 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2310.2.0.0221
 - !2322  net/sched: Retire rsvp classifier
