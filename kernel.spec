@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0222
+Release: %{hulkrelease}.0223
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -59,6 +59,13 @@ Source9001: guards
 Source9002: series.conf
 Source9998: patches.tar.bz2
 %endif
+
+Patch0001: 0001-nfs_add_api_to_support_enfs_registe_and_handle_mount_option.patch
+Patch0002: 0002-sunrpc_add_api_to_support_enfs_registe_and_create_multipath_then_dispatch_IO.patch
+Patch0003: 0003-add_enfs_module_for_nfs_mount_option.patch
+Patch0004: 0004-add_enfs_module_for_sunrpc_multipatch.patch
+Patch0005: 0005-add_enfs_module_for_sunrpc_failover_and_configure.patch
+Patch0006: 0006-add_enfs_compile_option.patch
 
 #BuildRequires:
 BuildRequires: module-init-tools, patch >= 2.5.4, bash >= 2.03, tar
@@ -256,6 +263,12 @@ Applypatches()
 Applypatches series.conf %{_builddir}/kernel-%{version}/linux-%{KernelVer}
 %endif
 
+%patch0001 -p1
+%patch0002 -p1
+%patch0003 -p1
+%patch0004 -p1
+%patch0005 -p1
+%patch0006 -p1
 touch .scmversion
 
 find . \( -name "*.orig" -o -name "*~" \) -exec rm -f {} \; >/dev/null
@@ -808,6 +821,9 @@ fi
 %endif
 
 %changelog
+
+* Mon Oct 23 2023 mingqian218472 <hangmingqian.zhang@huawei.com> - 4.19.90-2310.5.0.0223
+- Add feature for nfs client support multipath
 
 * Wed Oct 18 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2310.3.0.0222
 - !2466  x86/microcode/AMD: Make stub function static inline
