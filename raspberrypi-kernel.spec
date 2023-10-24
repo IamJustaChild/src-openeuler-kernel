@@ -166,7 +166,7 @@ install -m 644 /boot/dtb-%{KernelVer}/overlays/README /boot/overlays/
 /lib/modules/%{KernelVer}
 
 %changelog
-* Tue Oct 24 2023 Junyu Mu <junyu@iscas.ac.cn> - 5.10.0-161.0.0.15
+* Tue Oct 24 2023 Junyu Mu <junyu@isrc.iscas.ac.cn> - 5.10.0-161.0.0.15
 - update kernel version to openEuler 5.10.0-161.0.0
 
 * Wed Apr 19 2023 Yafen Fang <yafen@iscas.ac.cn> - 5.10.0-146.0.0.14
