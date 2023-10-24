@@ -1,0 +1,40 @@
+From 182c9a59569b2f7adcd0473a1871a9899224d95d Mon Sep 17 00:00:00 2001
+From: wangwudi <wangwudi@hisilicon.com>
+Date: Mon, 12 Jun 2023 22:51:24 +0800
+Subject: [PATCH] irqchip: gic-v3: Collection table support muti pages
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I7CX6S
+CVE: NA
+
+--------------------------------------------------------------------------
+
+Only one page is allocated to the collection table.
+Recalculate the page number of collection table based on the number of
+CPUs.
+
+Signed-off-by: wangwudi <wangwudi@hisilicon.com>
+Signed-off-by: Shengwei Luo <luoshengwei@huawei.com>
+---
+ drivers/irqchip/irq-gic-v3-its.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/irqchip/irq-gic-v3-its.c b/drivers/irqchip/irq-gic-v3-its.c
+index 73ce248da42c..46012ad327e7 100644
+--- a/drivers/irqchip/irq-gic-v3-its.c
++++ b/drivers/irqchip/irq-gic-v3-its.c
+@@ -2180,6 +2180,10 @@ static int its_alloc_tables(struct its_node *its)
+ 			indirect = its_parse_indirect_baser(its, baser, &order,
+ 							    ITS_MAX_VPEID_BITS);
+ 			break;
++		case GITS_BASER_TYPE_COLLECTION:
++			indirect = its_parse_indirect_baser(its, baser, &order,
++					order_base_2(num_possible_cpus()));
++			break;
+ 		}
+ 
+ 		err = its_setup_baser(its, baser, cache, shr, order, indirect);
+-- 
+2.27.0
+

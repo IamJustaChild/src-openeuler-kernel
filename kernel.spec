@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0222
+Release: %{hulkrelease}.0223
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -59,6 +59,10 @@ Source9001: guards
 Source9002: series.conf
 Source9998: patches.tar.bz2
 %endif
+
+Patch0001: 0001-irqchip-gic-v3-Collection-table-support-muti-pages.patch
+Patch0002: 0002-genirq-Increase-the-number-of-IRQ-descriptors.patch
+Patch0003: 0003-ext4-delete-redundant-uptodate-check-for-buffer.patch
 
 #BuildRequires:
 BuildRequires: module-init-tools, patch >= 2.5.4, bash >= 2.03, tar
@@ -255,6 +259,10 @@ Applypatches()
 
 Applypatches series.conf %{_builddir}/kernel-%{version}/linux-%{KernelVer}
 %endif
+
+%patch0001 -p1
+%patch0002 -p1
+%patch0003 -p1
 
 touch .scmversion
 
@@ -808,6 +816,11 @@ fi
 %endif
 
 %changelog
+
+* Mon Oct 23 2023 Luo Shengwei <luoshengwei@huawei.com> - 4.19.90-2310.3.0.0223
+- irqchip: gic-v3: Collection table support muti pages
+- genirq: Increase the number of IRQ descriptors
+- ext4: delete redundant uptodate check for buffer
 
 * Wed Oct 18 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2310.3.0.0222
 - !2466  x86/microcode/AMD: Make stub function static inline

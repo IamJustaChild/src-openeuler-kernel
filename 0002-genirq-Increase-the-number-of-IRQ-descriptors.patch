@@ -1,0 +1,64 @@
+From e5a8fe52b7e6506767f457f34ed237ae16f1d73f Mon Sep 17 00:00:00 2001
+From: Kunkun Jiang <jiangkunkun@huawei.com>
+Date: Wed, 7 Jun 2023 19:23:45 +0800
+Subject: [PATCH] genirq: Increase the number of IRQ descriptors
+
+virt inclusion
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I7BQMW
+CVE: NA
+
+-----------------------------------------------------------------
+
+The default value of NR_IRQS is not sufficient to support GICv4.1
+features and ~56K LPIs. This parameter would be too small for certain
+server platforms where it has many IO devices and is capable of
+direct injection of vSGI and vLPI features.
+
+Currently, maximum of 64 + 8192 (IRQ_BITMAP_BITS) IRQ descriptors
+are allowed. The vCPU creation fails after reaching count ~400 with
+kvm-arm.vgic_v4_enable=1.
+
+This patch increases NR_IRQS to 1^19 to cover 56K LPIs and 262144
+vSGIs (16vPEs x 16).
+
+------------------------------------------------------------------
+
+Tips: This is a temporary fix[1], but it has been able to solve the
+problem. The latest upstream version[2] depends on the 'maple tree',
+which is inappropriately introduced to the current kernel.
+
+-------------------------------------------------------------------
+
+Another Tips: According to Chao Liu and Chang Liao's suggestion,
+modifying IRQ_BITMAP_BITS can achieve the same effect with less
+impact. Compared with solution[2], solution[1] has a disadvantage:
+the memory foot print increases as the number of VMs increases.
+
+Link: https://lore.kernel.org/linux-arm-kernel/20230104023738.1258925-1-sdonthineni@nvidia.com/ [1]
+Link: https://lore.kernel.org/all/20230519134902.1495562-1-sdonthineni@nvidia.com/#t [2]
+Signed-off-by: Shanker Donthineni <sdonthineni@nvidia.com>
+Signed-off-by: Chao Liu <liuchao173@huawei.com>
+Signed-off-by: Chang Liao <liaochang1@huawei.com>
+Signed-off-by: Kunkun Jiang <jiangkunkun@huawei.com>
+Signed-off-by: Shengwei Luo <luoshengwei@huawei.com>
+---
+ kernel/irq/internals.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/kernel/irq/internals.h b/kernel/irq/internals.h
+index f29d6982b3ce..176daa503ad5 100644
+--- a/kernel/irq/internals.h
++++ b/kernel/irq/internals.h
+@@ -12,7 +12,7 @@
+ #include <linux/sched/clock.h>
+ 
+ #ifdef CONFIG_SPARSE_IRQ
+-# define IRQ_BITMAP_BITS	(NR_IRQS + 8196)
++# define IRQ_BITMAP_BITS	(1 << 19)
+ #else
+ # define IRQ_BITMAP_BITS	NR_IRQS
+ #endif
+-- 
+2.27.0
+
