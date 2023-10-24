@@ -25,7 +25,7 @@
 %global upstream_sublevel   0
 %global devel_release       10
 %global maintenance_release .1.0
-%global pkg_release         .20
+%global pkg_release         .21
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -129,7 +129,7 @@ Provides: kernel-uname-r = %{KernelVer} kernel=%{KernelVer}
 
 Requires: dracut >= 001-7 grubby >= 8.28-2 initscripts >= 8.11.1-1 linux-firmware >= 20100806-2 module-init-tools >= 3.16-2
 
-ExclusiveArch: noarch aarch64 i686 x86_64 riscv64
+ExclusiveArch: aarch64 i686 x86_64 riscv64
 ExclusiveOS: Linux
 
 %if %{with_perf}
@@ -932,6 +932,9 @@ fi
 %endif
 
 %changelog
+* Tue Oct 24 2023 Jia Chao <jiac13@chinaunicom.cn> - 6.4.0-10.1.0.21
+- Fix: kernel do not provides noarch pkgs, remove it from ExclusiveArch.
+
 * Sat Sep 23 2023 Wei Li <liwei391@huawei.com> - 6.4.0-10.1.0.20
  - config: riscv64: Update openeuler_defconfig
 
