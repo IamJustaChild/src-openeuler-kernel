@@ -1,0 +1,33 @@
+From 7c19db7f345cb0b62444835dd65984940621e9df Mon Sep 17 00:00:00 2001
+From: DuanqiangWen <duanqiangwen@net-swift.com>
+Date: Wed, 18 Oct 2023 17:02:32 +0800
+Subject: [PATCH] arm64: config: add CONFIG_NGBE for Wangxun 1G NIC
+
+wx inclusion
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I893QC?from=project-issue
+
+---------------------
+
+Add CONFIG_NGBE for Beijing Wangxun 1G NIC.
+
+Signed-off-by: DuanqiangWen <duanqiangwen@net-swift.com>
+---
+ arch/arm64/configs/openeuler_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm64/configs/openeuler_defconfig b/arch/arm64/configs/openeuler_defconfig
+index 8717ffe01b32..dd00313cf41f 100644
+--- a/arch/arm64/configs/openeuler_defconfig
++++ b/arch/arm64/configs/openeuler_defconfig
+@@ -2475,6 +2475,7 @@ CONFIG_HINIC=m
+ CONFIG_BMA=m
+ CONFIG_NET_VENDOR_NETSWIFT=y
+ CONFIG_TXGBE=m
++CONFIG_NGBE=m
+ # CONFIG_NET_VENDOR_I825XX is not set
+ CONFIG_NET_VENDOR_INTEL=y
+ # CONFIG_E100 is not set
+-- 
+2.27.0
+
