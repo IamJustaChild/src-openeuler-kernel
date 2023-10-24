@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2310.3.0
+%global hulkrelease 2310.4.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0222
+Release: %{hulkrelease}.0223
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,18 @@ fi
 %endif
 
 %changelog
+
+* Tue Oct 24 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2310.4.0.0223
+- !2334 ktask: add memory leak handling for ktask_works in ktask_init()
+- !2333 ktask: add null-pointer checks for ktask_works in ktask_init()
+- !2453  igb: set max size RX buffer when store bad packet is enabled
+- ktask: add memory leak handling for ktask_works in ktask_init()
+- ktask: add null-pointer checks for ktask_works in ktask_init()
+- !2441  netfilter: xt_u32: validate user space input
+- !2435  USB: ene_usb6250: Allocate enough memory for full object
+- igb: set max size RX buffer when store bad packet is enabled
+- netfilter: xt_u32: validate user space input
+- USB: ene_usb6250: Allocate enough memory for full object
 
 * Wed Oct 18 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2310.3.0.0222
 - !2466  x86/microcode/AMD: Make stub function static inline
