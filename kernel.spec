@@ -822,7 +822,7 @@ fi
 
 %changelog
 
-* Mon Oct 23 2023 mingqian218472 <hangmingqian.zhang@huawei.com> - 4.19.90-2310.5.0.0223
+* Mon Oct 23 2023 mingqian218472 <hangmingqian.zhang@huawei.com> - 4.19.90-2310.3.0.0223
 - Add feature for nfs client support multipath
 
 * Wed Oct 18 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2310.3.0.0222
