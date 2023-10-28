@@ -14,7 +14,7 @@
 
 %global hulkrelease 2310.4.0
 
-%define with_patch 0
+%define with_patch 1
 
 %define debuginfodir /usr/lib/debug
 
