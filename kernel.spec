@@ -14,7 +14,7 @@
 
 %global hulkrelease 2310.4.0
 
-%define with_patch 0
+%define with_patch 1
 
 %define debuginfodir /usr/lib/debug
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0223
+Release: %{hulkrelease}.0224
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -57,7 +57,8 @@ Source2001: cpupower.config
 Source9000: apply-patches
 Source9001: guards
 Source9002: series.conf
-Source9998: patches.tar.bz2
+Source9003: patches
+#Source9998: patches.tar.bz2
 %endif
 
 #BuildRequires:
@@ -221,9 +222,6 @@ package or when debugging this package.\
 
 %setup -q -n kernel-%{version} -c
 
-%if 0%{?with_patch}
-tar -xjf %{SOURCE9998}
-%endif
 
 mv kernel linux-%{KernelVer}
 cd linux-%{KernelVer}
@@ -232,6 +230,7 @@ cd linux-%{KernelVer}
 cp %{SOURCE9000} .
 cp %{SOURCE9001} .
 cp %{SOURCE9002} .
+cp %{SOURCE9003} . -r
 
 if [ ! -d patches ];then
     mv ../patches .
@@ -808,6 +807,9 @@ fi
 %endif
 
 %changelog
+* Fri Oct 27 2023 Luo Shengwei <luoshengwei@huawei.com> - 4.19.90-2310.4.0.0224
+- open macro: with_patch and add file: series.conf, where patches defined can 
+- be applied automatically.
 
 * Tue Oct 24 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2310.4.0.0223
 - !2334 ktask: add memory leak handling for ktask_works in ktask_init()
