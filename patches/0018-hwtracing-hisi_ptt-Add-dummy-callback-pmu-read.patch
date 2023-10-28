@@ -1,0 +1,106 @@
+From dc4d7fdddf976f9f14ce4b37c5dacd23a2219ed9 Mon Sep 17 00:00:00 2001
+From: Junhao He <hejunhao3@huawei.com>
+Date: Tue, 20 Jun 2023 22:06:42 +0800
+Subject: [PATCH 18/19] hwtracing: hisi_ptt: Add dummy callback pmu::read()
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I7F2F2
+CVE: NA
+
+--------------------------------
+
+When the perf is tracing hisi_ptt pmu and then stopped immediately
+with "ctrl + c". the perf will call pmu::read() to updata trace data,
+but driver does not implement the callback pmu::read().
+Will cause the following panic.
+
+     root@localhost:/# perf record -m,16M -e hisi_ptt0_2/xxx/ -C 0
+     ^C
+     [ perf record: Woken up 0 times to write data ]
+     [ 3693.734230] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
+     [ 3693.747212] Mem abort info:
+     [ 3693.749991]   ESR = 0x0000000086000006
+     [ 3693.753725]   EC = 0x21: IABT (current EL), IL = 32 bits
+     [ 3693.759022]   SET = 0, FnV = 0
+     [ 3693.762062]   EA = 0, S1PTW = 0
+     [ 3693.765188]   FSC = 0x06: level 2 translation fault
+     [ 3693.770051] user pgtable: 4k pages, 48-bit VAs, pgdp=000008302912e000
+     [ 3693.776477] [0000000000000000] pgd=0800083019fc2003, p4d=0800083019fc2003, pud=0800083019fca003, pmd=0000000000000000
+     [ 3693.787072] Internal error: Oops: 0000000086000006 [#1] PREEMPT SMP
+     [ 3693.822414] pstate: 614008c9 (nZCv daIF +PAN -UAO -TCO +DIT -SSBS BTYPE=-c)
+     [ 3693.829361] pc : 0x0
+     [ 3693.831534] lr : __perf_event_read+0x110/0x208
+     [ 3693.835966] sp : ffff800008003eb0
+     [ 3693.839266] x29: ffff800008003eb0 x28: ffffa4f0d14f1100 x27: 0000000000000001
+     [ 3693.846388] x26: ffffa4f0d14f1100 x25: 0000000000000000 x24: 0000000000000000
+     [ 3693.853509] x23: ffff082197adf4f8 x22: 0000000000000000 x21: ffff80001f8ebc28
+     [ 3693.860630] x20: ffff08478be506c8 x19: ffff083028f22220 x18: 0000000000000000
+     [ 3693.867751] x17: ffff6356bb355000 x16: ffff800008000000 x15: 0000000000000000
+     [ 3693.874871] x14: 0000000000000002 x13: 0000000000000000 x12: 0000000000000040
+     [ 3693.881992] x11: ffff08300a915b40 x10: ffff08300a915b42 x9 : ffffa4f0ce6ee5a0
+     [ 3693.889113] x8 : ffff083000401268 x7 : 0000000000000000 x6 : 000000108dce8ee0
+     [ 3693.896234] x5 : 01ffffffffffffff x4 : 0000000000000000 x3 : 000000000112024a
+     [ 3693.903355] x2 : 000000003cadb114 x1 : 0000000000000000 x0 : ffff083028f22220
+     [ 3693.910476] Call trace:
+     [ 3693.912908]  0x0
+     [ 3693.914733]  __flush_smp_call_function_queue+0x154/0x258
+     [ 3693.920032]  generic_smp_call_function_single_interrupt+0x1c/0x30
+     [ 3693.926111]  ipi_handler+0x90/0x2d0
+     [ 3693.929588]  handle_percpu_devid_irq+0x90/0x250
+     [ 3693.934105]  generic_handle_domain_irq+0x34/0x58
+     [ 3693.938708]  gic_handle_irq+0x12c/0x270
+     [ 3693.942530]  call_on_irq_stack+0x24/0x30
+     [ 3693.946439]  do_interrupt_handler+0x88/0x98
+     [ 3693.950608]  el1_interrupt+0x48/0xe8
+     [ 3693.954171]  el1h_64_irq_handler+0x18/0x28
+     [ 3693.958253]  el1h_64_irq+0x78/0x80
+     [ 3693.961641]  default_idle_call+0x5c/0x180
+     [ 3693.965636]  do_idle+0x25c/0x2d0
+     [ 3693.968851]  cpu_startup_entry+0x2c/0x40
+     [ 3693.972760]  rest_init+0xec/0xf8
+     [ 3693.975974]  arch_call_rest_init+0x18/0x20
+     [ 3693.980057]  start_kernel+0x41c/0x7f0
+     [ 3693.983705]  __primary_switched+0xbc/0xd0
+     [ 3693.987702] Code: ???????? ???????? ???????? ???????? (????????)
+     [ 3693.993781] ---[ end trace 0000000000000000 ]---
+     [ 3694.182495] Kernel panic - not syncing: Oops: Fatal exception in interrupt
+     [ 3694.189354] SMP: stopping secondary CPUs
+     [ 3694.193276] Kernel Offset: 0x24f0c6470000 from 0xffff800008000000
+     [ 3694.199354] PHYS_OFFSET: 0x0
+     [ 3694.202220] CPU features: 0x000000,00d005be,12affea7
+     [ 3694.207170] Memory Limit: none
+     [ 3694.389463] ---[ end Kernel panic - not syncing: Oops: Fatal exception in interrupt ]---
+
+Signed-off-by: Junhao He <hejunhao3@huawei.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/hwtracing/ptt/hisi_ptt.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/hwtracing/ptt/hisi_ptt.c b/drivers/hwtracing/ptt/hisi_ptt.c
+index ea981afb55fe..793352390191 100644
+--- a/drivers/hwtracing/ptt/hisi_ptt.c
++++ b/drivers/hwtracing/ptt/hisi_ptt.c
+@@ -1210,6 +1210,10 @@ static void hisi_ptt_pmu_del(struct perf_event *event, int flags)
+ 	hisi_ptt_pmu_stop(event, PERF_EF_UPDATE);
+ }
+ 
++static void hisi_ptt_pmu_read(struct perf_event *event)
++{
++}
++
+ static void hisi_ptt_remove_cpuhp_instance(void *hotplug_node)
+ {
+ 	cpuhp_state_remove_instance_nocalls(hisi_ptt_pmu_online, hotplug_node);
+@@ -1254,6 +1258,7 @@ static int hisi_ptt_register_pmu(struct hisi_ptt *hisi_ptt)
+ 		.stop		= hisi_ptt_pmu_stop,
+ 		.add		= hisi_ptt_pmu_add,
+ 		.del		= hisi_ptt_pmu_del,
++		.read		= hisi_ptt_pmu_read,
+ 	};
+ 
+ 	reg = readl(hisi_ptt->iobase + HISI_PTT_LOCATION);
+-- 
+2.27.0
+

@@ -1,0 +1,39 @@
+From 5fb3efe86694b0340b9bf17b060022495bafdb00 Mon Sep 17 00:00:00 2001
+From: Junhao He <hejunhao3@huawei.com>
+Date: Tue, 20 Jun 2023 22:06:43 +0800
+Subject: [PATCH 17/19] hwtracing: hisi_ptt: Keep to advertise
+ PERF_PMU_CAP_EXCLUSIVE
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I7F2F2
+CVE: NA
+
+--------------------------------
+
+Keep to advertise PERF_PMU_CAP_EXCLUSIVE. Such pmus can only have one
+event scheduled at a time, and the perf tool will report device busy.
+
+Signed-off-by: Junhao He <hejunhao3@huawei.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/hwtracing/ptt/hisi_ptt.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/hwtracing/ptt/hisi_ptt.c b/drivers/hwtracing/ptt/hisi_ptt.c
+index f8aa66e37a4e..ea981afb55fe 100644
+--- a/drivers/hwtracing/ptt/hisi_ptt.c
++++ b/drivers/hwtracing/ptt/hisi_ptt.c
+@@ -1243,7 +1243,8 @@ static int hisi_ptt_register_pmu(struct hisi_ptt *hisi_ptt)
+ 
+ 	hisi_ptt->hisi_ptt_pmu = (struct pmu) {
+ 		.module		= THIS_MODULE,
+-		.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
++		.capabilities	= PERF_PMU_CAP_NO_EXCLUDE |
++				  PERF_PMU_CAP_EXCLUSIVE,
+ 		.task_ctx_nr	= perf_sw_context,
+ 		.attr_groups	= hisi_ptt_pmu_groups,
+ 		.event_init	= hisi_ptt_pmu_event_init,
+-- 
+2.27.0
+

@@ -1,0 +1,186 @@
+From adb665e7ecae8d4e3f48634e8c0db291d0826aff Mon Sep 17 00:00:00 2001
+From: Sai Praneeth Prakhya <sai.praneeth.prakhya@intel.com>
+Date: Wed, 29 Apr 2020 15:36:40 +0200
+Subject: [PATCH 02/19] iommu: Add def_domain_type() callback in iommu_ops
+
+mainline inclusion
+from mainline-v5.8-rc1
+commit 4cbf38511a007867def958872203ae8adb8e2351
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I5RP8T
+CVE: NA
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=4cbf38511a007867def958872203ae8adb8e2351
+
+------------------------------------------------------------------------
+
+Some devices are reqired to use a specific type (identity or dma)
+of default domain when they are used with a vendor iommu. When the
+system level default domain type is different from it, the vendor
+iommu driver has to request a new default domain with
+iommu_request_dma_domain_for_dev() and iommu_request_dm_for_dev()
+in the add_dev() callback. Unfortunately, these two helpers only
+work when the group hasn't been assigned to any other devices,
+hence, some vendor iommu driver has to use a private domain if
+it fails to request a new default one.
+
+This adds def_domain_type() callback in the iommu_ops, so that
+any special requirement of default domain for a device could be
+aware by the iommu generic layer.
+
+Signed-off-by: Sai Praneeth Prakhya <sai.praneeth.prakhya@intel.com>
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+[ jroedel@suse.de: Added iommu_get_def_domain_type() function and use
+                   it to allocate the default domain ]
+Co-developed-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Link: https://lore.kernel.org/r/20200429133712.31431-3-joro@8bytes.org
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/iommu/iommu.c
+	include/linux/iommu.h
+---
+ drivers/iommu/arm-smmu-v3.c |  7 ++-----
+ drivers/iommu/arm-smmu.c    |  8 +-------
+ drivers/iommu/iommu.c       | 22 ++++++++++++++--------
+ include/linux/iommu.h       |  2 --
+ 4 files changed, 17 insertions(+), 22 deletions(-)
+
+diff --git a/drivers/iommu/arm-smmu-v3.c b/drivers/iommu/arm-smmu-v3.c
+index 05cb92da6836..5029d9af1100 100644
+--- a/drivers/iommu/arm-smmu-v3.c
++++ b/drivers/iommu/arm-smmu-v3.c
+@@ -3067,9 +3067,9 @@ static void arm_smmu_put_resv_regions(struct device *dev,
+ 		kfree(entry);
+ }
+ 
+-#ifdef CONFIG_SMMU_BYPASS_DEV
+ static int arm_smmu_device_domain_type(struct device *dev, unsigned int *type)
+ {
++#ifdef CONFIG_SMMU_BYPASS_DEV
+ 	int i;
+ 	struct pci_dev *pdev;
+ 
+@@ -3086,10 +3086,9 @@ static int arm_smmu_device_domain_type(struct device *dev, unsigned int *type)
+ 			return 0;
+ 		}
+ 	}
+-
++#endif
+ 	return -ERANGE;
+ }
+-#endif
+ 
+ static struct iommu_ops arm_smmu_ops = {
+ 	.capable		= arm_smmu_capable,
+@@ -3118,9 +3117,7 @@ static struct iommu_ops arm_smmu_ops = {
+ 	.get_resv_regions	= arm_smmu_get_resv_regions,
+ 	.put_resv_regions	= arm_smmu_put_resv_regions,
+ 	.pgsize_bitmap		= -1UL, /* Restricted during device attach */
+-#ifdef CONFIG_SMMU_BYPASS_DEV
+ 	.device_domain_type	= arm_smmu_device_domain_type,
+-#endif
+ };
+ 
+ /* Probing and initialisation functions */
+diff --git a/drivers/iommu/arm-smmu.c b/drivers/iommu/arm-smmu.c
+index d1c00b1dfd2e..01ab7c990a58 100644
+--- a/drivers/iommu/arm-smmu.c
++++ b/drivers/iommu/arm-smmu.c
+@@ -1632,8 +1632,6 @@ static void arm_smmu_put_resv_regions(struct device *dev,
+ 		kfree(entry);
+ }
+ 
+-#ifdef CONFIG_SMMU_BYPASS_DEV
+-
+ #ifdef CONFIG_ARCH_PHYTIUM
+ static int phytium_smmu_def_domain_type(struct device *dev, unsigned int *type)
+ {
+@@ -1651,8 +1649,6 @@ static inline int phytium_smmu_def_domain_type(struct device *dev, unsigned int
+ }
+ #endif
+ 
+-#endif
+-
+ static struct iommu_ops arm_smmu_ops = {
+ 	.capable		= arm_smmu_capable,
+ 	.domain_alloc		= arm_smmu_domain_alloc,
+@@ -1672,9 +1668,7 @@ static struct iommu_ops arm_smmu_ops = {
+ 	.get_resv_regions	= arm_smmu_get_resv_regions,
+ 	.put_resv_regions	= arm_smmu_put_resv_regions,
+ 	.pgsize_bitmap		= -1UL, /* Restricted during device attach */
+-#ifdef CONFIG_SMMU_BYPASS_DEV
+-	.device_domain_type = phytium_smmu_def_domain_type,
+-#endif
++	.device_domain_type     = phytium_smmu_def_domain_type,
+ };
+ 
+ static void arm_smmu_device_reset(struct arm_smmu_device *smmu)
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index 1c39d1b8a80a..eb141afbec67 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -1260,6 +1260,17 @@ struct iommu_group *pci_device_group(struct device *dev)
+ }
+ EXPORT_SYMBOL_GPL(pci_device_group);
+ 
++static int iommu_get_def_domain_type(struct device *dev)
++{
++	const struct iommu_ops *ops = dev->bus->iommu_ops;
++	unsigned int type = 0;
++
++	if (ops->device_domain_type)
++		ops->device_domain_type(dev, &type);
++
++	return (type == 0) ? iommu_def_domain_type : type;
++}
++
+ /**
+  * iommu_group_get_for_dev - Find or create the IOMMU group for a device
+  * @dev: target device
+@@ -1298,20 +1309,15 @@ struct iommu_group *iommu_group_get_for_dev(struct device *dev)
+ 	if (!group->default_domain) {
+ 		struct iommu_domain *dom;
+ 
+-#ifdef CONFIG_SMMU_BYPASS_DEV
+-		/* direct allocate required default domain type for some specific devices. */
+-		if (ops->device_domain_type) {
+-			if (ops->device_domain_type(dev, &type))
+-				type = iommu_def_domain_type;
+-		}
+-#endif
++		type = iommu_get_def_domain_type(dev);
++
+ 		dom = __iommu_domain_alloc(dev->bus, type);
+ 		if (!dom && type != IOMMU_DOMAIN_DMA) {
+ 			dom = __iommu_domain_alloc(dev->bus, IOMMU_DOMAIN_DMA);
+ 			if (dom) {
+ 				dev_warn(dev,
+ 					 "failed to allocate default IOMMU domain of type %u; falling back to IOMMU_DOMAIN_DMA",
+-					 iommu_def_domain_type);
++					 type);
+ 			}
+ 		}
+ 
+diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+index d44f3a6762be..790834df8525 100644
+--- a/include/linux/iommu.h
++++ b/include/linux/iommu.h
+@@ -363,11 +363,9 @@ struct iommu_ops {
+ 
+ 	unsigned long pgsize_bitmap;
+ 
+-#ifdef CONFIG_SMMU_BYPASS_DEV
+ #ifndef __GENKSYMS__
+ 	int (*device_domain_type)(struct device *dev, unsigned int *type);
+ #endif
+-#endif
+ };
+ 
+ /**
+-- 
+2.27.0
+

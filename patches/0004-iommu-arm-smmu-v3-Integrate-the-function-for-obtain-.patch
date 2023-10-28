@@ -1,0 +1,75 @@
+From 6f5496b19beae6c819d9a9d719e71b4af578c936 Mon Sep 17 00:00:00 2001
+From: YunYi Yang <yangyunyi2@huawei.com>
+Date: Tue, 24 Oct 2023 19:41:44 +0800
+Subject: [PATCH 04/19] iommu/arm-smmu-v3: Integrate the function for obtain
+ the device domain type in bypass mode
+
+driver inclusion
+category: cleanup
+bugzilla: https://gitee.com/openeuler/kernel/issues/I5RP8T
+
+-------------------------------------------------------------------
+
+When the CONFIG_SMMU_BYPASS_DEV macro is enabled, the obtaining of domain
+type is encapsulated as a function as a step in arm_smmu_device_domian_type
+function. So that the code is clearer and easier to call later.
+
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/iommu/arm-smmu-v3.c | 31 +++++++++++++++++++++----------
+ 1 file changed, 21 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/iommu/arm-smmu-v3.c b/drivers/iommu/arm-smmu-v3.c
+index a11f5f03fcd0..66fab92a3e26 100644
+--- a/drivers/iommu/arm-smmu-v3.c
++++ b/drivers/iommu/arm-smmu-v3.c
+@@ -3075,9 +3075,27 @@ static void arm_smmu_put_resv_regions(struct device *dev,
+ #define IS_HISI_PTT_DEVICE(pdev)   ((pdev)->vendor == PCI_VENDOR_ID_HUAWEI && \
+ 				     (pdev)->device == 0xa12e)
+ 
+-static int arm_smmu_device_domain_type(struct device *dev, unsigned int *type)
++#ifdef CONFIG_SMMU_BYPASS_DEV
++static int arm_smmu_bypass_dev_domain_type(struct device *dev)
+ {
+ 	int i;
++	struct pci_dev *pdev = to_pci_dev(dev);
++
++	for (i = 0; i < smmu_bypass_devices_num; i++) {
++		if ((smmu_bypass_devices[i].vendor == pdev->vendor) &&
++		    (smmu_bypass_devices[i].device == pdev->device)) {
++			dev_info(dev, "device 0x%hx:0x%hx uses identity mapping.",
++				 pdev->vendor, pdev->device);
++			return IOMMU_DOMAIN_IDENTITY;
++		}
++	}
++
++	return 0;
++}
++#endif
++
++static int arm_smmu_device_domain_type(struct device *dev, unsigned int *type)
++{
+ 	struct pci_dev *pdev;
+ 
+ 	if (!dev_is_pci(dev))
+@@ -3091,15 +3109,8 @@ static int arm_smmu_device_domain_type(struct device *dev, unsigned int *type)
+ 	}
+ 
+ #ifdef CONFIG_SMMU_BYPASS_DEV
+-	for (i = 0; i < smmu_bypass_devices_num; i++) {
+-		if ((smmu_bypass_devices[i].vendor == pdev->vendor)
+-			&& (smmu_bypass_devices[i].device == pdev->device)) {
+-			dev_info(dev, "device 0x%hx:0x%hx uses identity mapping.",
+-				pdev->vendor, pdev->device);
+-			*type = IOMMU_DOMAIN_IDENTITY;
+-			return 0;
+-		}
+-	}
++	*type = arm_smmu_bypass_dev_domain_type(dev);
++	return 0;
+ #endif
+ 	return -ERANGE;
+ }
+-- 
+2.27.0
+
