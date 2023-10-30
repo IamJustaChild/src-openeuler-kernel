@@ -460,7 +460,7 @@ index 000000000000..c7483ca1222a
 +static inline
 +int nfs_remount_iplist(struct nfs_client *nfs_client, void *data)
 +{
-+	return 1;
++	return 0;
 +}
 +#endif // CONFIG_ENFS
 +#endif // _NFS_MULTIPATH_H_
