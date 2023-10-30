@@ -1,0 +1,78 @@
+From f88b39a83ba13280ccef443533b43b53d8d464dd Mon Sep 17 00:00:00 2001
+From: Yicong Yang <yangyicong@hisilicon.com>
+Date: Thu, 29 Sep 2022 22:01:00 +0800
+Subject: [PATCH 03/19] iommu/arm-smmu-v3: Make default domain type of
+ HiSilicon PTT device to identity
+
+mainline inclusion
+from mainline-v6.1-rc1
+commit 24b6c7798a0122012ca848ea0d25e973334266b0
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I5RP8T
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/coresight/linux.git/commit/?id=24b6c7798a0122012ca848ea0d25e973334266b0
+
+--------------------------------------------------------------------------
+
+The DMA operations of HiSilicon PTT device can only work properly with
+identical mappings. So add a quirk for the device to force the domain
+as passthrough.
+
+Acked-by: Will Deacon <will@kernel.org>
+Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
+Reviewed-by: John Garry <john.garry@huawei.com>
+Link: https://lore.kernel.org/r/20220816114414.4092-2-yangyicong@huawei.com
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Signed-off-by: Wangming Shao <shaowangming@h-partners.com>
+Reviewed-by: Hanjun Guo <guohanjun@huawei.com>
+Reviewed-by: Jay Fang <f.fangjian@huawei.com>
+Acked-by: Xie XiuQi <xiexiuqi@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
+---
+ drivers/iommu/arm-smmu-v3.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/iommu/arm-smmu-v3.c b/drivers/iommu/arm-smmu-v3.c
+index 5029d9af1100..a11f5f03fcd0 100644
+--- a/drivers/iommu/arm-smmu-v3.c
++++ b/drivers/iommu/arm-smmu-v3.c
+@@ -3067,9 +3067,16 @@ static void arm_smmu_put_resv_regions(struct device *dev,
+ 		kfree(entry);
+ }
+ 
++/*
++ * HiSilicon PCIe tune and trace device can be used to trace TLP headers on the
++ * PCIe link and save the data to memory by DMA. The hardware is restricted to
++ * use identity mapping only.
++ */
++#define IS_HISI_PTT_DEVICE(pdev)   ((pdev)->vendor == PCI_VENDOR_ID_HUAWEI && \
++				     (pdev)->device == 0xa12e)
++
+ static int arm_smmu_device_domain_type(struct device *dev, unsigned int *type)
+ {
+-#ifdef CONFIG_SMMU_BYPASS_DEV
+ 	int i;
+ 	struct pci_dev *pdev;
+ 
+@@ -3077,6 +3084,13 @@ static int arm_smmu_device_domain_type(struct device *dev, unsigned int *type)
+ 		return -ERANGE;
+ 
+ 	pdev = to_pci_dev(dev);
++
++	if (IS_HISI_PTT_DEVICE(pdev)) {
++		*type = IOMMU_DOMAIN_IDENTITY;
++		return 0;
++	}
++
++#ifdef CONFIG_SMMU_BYPASS_DEV
+ 	for (i = 0; i < smmu_bypass_devices_num; i++) {
+ 		if ((smmu_bypass_devices[i].vendor == pdev->vendor)
+ 			&& (smmu_bypass_devices[i].device == pdev->device)) {
+-- 
+2.27.0
+
