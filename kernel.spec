@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0226
+Release: %{hulkrelease}.0227
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -830,6 +830,9 @@ fi
 %endif
 
 %changelog
+* Mon Oct 30 2023 Keyi Zhong <zhongkeyi1@huawei.com> - 4.19.90-2310.4.0.0227
+- crypto: hisilicon - fix different version of devices driver compatibility issue
+
 * Mon Oct 30 2023 Yu Liao <liaoyu15@huawei.com> - 4.19.90-2310.4.0.0226
 - Add checkpatch check
 
