@@ -2,13 +2,13 @@
 
 %global KernelVer %{version}-%{release}.raspi.%{_target_cpu}
 
-%global hulkrelease 126.0.0
+%global hulkrelease 161.0.0
 
 %global debug_package %{nil}
 
 Name:	 raspberrypi-kernel-rt
 Version: 5.10.0
-Release: %{hulkrelease}.rt62.9
+Release: %{hulkrelease}.rt62.10
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -16,6 +16,7 @@ Source0: kernel.tar.gz
 Patch0000: 0000-raspberrypi-kernel.patch
 Patch0001: 0001-apply-preempt-RT-patch.patch
 Patch0002: 0002-modify-bcm2711_defconfig-for-rt-rpi-kernel.patch
+Patch0003: 0003-rpi4-extern.patch
 
 BuildRequires: module-init-tools, patch >= 2.5.4, bash >= 2.03, tar
 BuildRequires: bzip2, xz, findutils, gzip, m4, perl, make >= 3.78, diffutils, gawk
@@ -53,6 +54,7 @@ cd linux-%{KernelVer}
 %patch0000 -p1
 %patch0001 -p1
 %patch0002 -p1
+%patch0003 -p1
 
 find . \( -name "*.orig" -o -name "*~" \) -exec rm -f {} \; >/dev/null
 find . -name .gitignore -exec rm -f {} \; >/dev/null
@@ -170,6 +172,9 @@ install -m 644 /boot/dtb-%{KernelVer}/overlays/README /boot/overlays/
 /lib/modules/%{KernelVer}
 
 %changelog
+* Mon Dec 30 2023 zhangyu <zhangyu4@kylinos.cn> - 5.10.0-161.0.0.10
+- - update preempt-RT to openEuler 5.10.0-161.0.0
+
 * Mon Nov 20 2022 zhangyu <zhangyu4@kylinos.cn> - 5.10.0-126.0.0.9
 - - update preempt-RT to openEuler 5.10.0-126.0.0
 

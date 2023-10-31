@@ -10,9 +10,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       146
+%global devel_release       161
 %global maintenance_release .0.0
-%global pkg_release         .59
+%global pkg_release         .60
 %global rt_release          .rt62
 
 %define with_debuginfo 1
@@ -52,7 +52,12 @@ Source0: kernel.tar.gz
 Source10: sign-modules
 Source11: x509.genkey
 Source12: extra_certificates
-Source13: pubring.gpg
+# openEuler RPM PGP certificates:
+# 1. openeuler <openeuler@compass-ci.com>
+Source13: RPM-GPG-KEY-openEuler-compass-ci
+# 2. private OBS <defaultkey@localobs>
+Source14: RPM-GPG-KEY-openEuler-localobs
+Source15: process_pgp_certs.sh
 
 %if 0%{?with_kabichk}
 Source18: check-kabi
@@ -886,6 +891,8 @@ fi
 %endif
 
 %changelog
+* Mon Nov 1 2023 zhangyu <zhangyu4@kylinos.cn> - 5.10.0-161.0.0.60
+- update kernel-rt version to 5.10.0-161.0.0
 
 * Wed Apr 10 2023 liyulei <liyulei@kylinos.cn> - 5.10.0-146.0.0.59
 - update kernel-rt version to 5.10.0-146.0.0
