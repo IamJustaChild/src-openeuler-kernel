@@ -1,0 +1,97 @@
+From ce76ffbdbb8cf7dcdc4bbd2988971202f4ab7e0f Mon Sep 17 00:00:00 2001
+From: YueHaibing <yuehaibing@huawei.com>
+Date: Fri, 6 Sep 2019 22:36:44 +0800
+Subject: [PATCH 11/55] perf: hisi: use devm_platform_ioremap_resource() to
+ simplify code
+
+mainline inclusion
+from mainline-v5.5-rc1
+commit 42c184ade43a79d36f50a0b3394b3326633f53f5
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8AU2M
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=42c184ade43a79d36f50a0b3394b3326633f53f5
+
+---------------------------------------------------------------
+
+Use devm_platform_ioremap_resource() to simplify the code a bit.
+This is detected by coccinelle.
+
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c | 5 +----
+ drivers/perf/hisilicon/hisi_uncore_hha_pmu.c  | 4 +---
+ drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c  | 4 +---
+ 3 files changed, 3 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c b/drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c
+index 4bab34504425..5d9dd4078994 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c
+@@ -248,8 +248,6 @@ MODULE_DEVICE_TABLE(acpi, hisi_ddrc_pmu_acpi_match);
+ static int hisi_ddrc_pmu_init_data(struct platform_device *pdev,
+ 				   struct hisi_pmu *ddrc_pmu)
+ {
+-	struct resource *res;
+-
+ 	/*
+ 	 * Use the SCCL_ID and DDRC channel ID to identify the
+ 	 * DDRC PMU, while SCCL_ID is in MPIDR[aff2].
+@@ -268,8 +266,7 @@ static int hisi_ddrc_pmu_init_data(struct platform_device *pdev,
+ 	/* DDRC PMUs only share the same SCCL */
+ 	ddrc_pmu->ccl_id = -1;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	ddrc_pmu->base = devm_ioremap_resource(&pdev->dev, res);
++	ddrc_pmu->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(ddrc_pmu->base)) {
+ 		dev_err(&pdev->dev, "ioremap failed for ddrc_pmu resource\n");
+ 		return PTR_ERR(ddrc_pmu->base);
+diff --git a/drivers/perf/hisilicon/hisi_uncore_hha_pmu.c b/drivers/perf/hisilicon/hisi_uncore_hha_pmu.c
+index 53711b945551..d3c517325a3f 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_hha_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_hha_pmu.c
+@@ -239,7 +239,6 @@ static int hisi_hha_pmu_init_data(struct platform_device *pdev,
+ 				  struct hisi_pmu *hha_pmu)
+ {
+ 	unsigned long long id;
+-	struct resource *res;
+ 	acpi_status status;
+ 
+ 	status = acpi_evaluate_integer(ACPI_HANDLE(&pdev->dev),
+@@ -261,8 +260,7 @@ static int hisi_hha_pmu_init_data(struct platform_device *pdev,
+ 	/* HHA PMUs only share the same SCCL */
+ 	hha_pmu->ccl_id = -1;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	hha_pmu->base = devm_ioremap_resource(&pdev->dev, res);
++	hha_pmu->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(hha_pmu->base)) {
+ 		dev_err(&pdev->dev, "ioremap failed for hha_pmu resource\n");
+ 		return PTR_ERR(hha_pmu->base);
+diff --git a/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c b/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c
+index 171cf74405b3..cbbf73ea66e6 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c
+@@ -238,7 +238,6 @@ static int hisi_l3c_pmu_init_data(struct platform_device *pdev,
+ 				  struct hisi_pmu *l3c_pmu)
+ {
+ 	unsigned long long id;
+-	struct resource *res;
+ 	acpi_status status;
+ 
+ 	status = acpi_evaluate_integer(ACPI_HANDLE(&pdev->dev),
+@@ -264,8 +263,7 @@ static int hisi_l3c_pmu_init_data(struct platform_device *pdev,
+ 		return -EINVAL;
+ 	}
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	l3c_pmu->base = devm_ioremap_resource(&pdev->dev, res);
++	l3c_pmu->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(l3c_pmu->base)) {
+ 		dev_err(&pdev->dev, "ioremap failed for l3c_pmu resource\n");
+ 		return PTR_ERR(l3c_pmu->base);
+-- 
+2.27.0
+

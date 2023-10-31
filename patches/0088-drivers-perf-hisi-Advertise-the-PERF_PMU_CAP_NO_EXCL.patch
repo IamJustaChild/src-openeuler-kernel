@@ -1,0 +1,48 @@
+From 31854a763b417d8f751691e9e4fc81b3523c569d Mon Sep 17 00:00:00 2001
+From: Junhao He <hejunhao3@huawei.com>
+Date: Tue, 23 May 2023 14:44:25 +0800
+Subject: [PATCH 47/55] drivers/perf: hisi: Advertise the
+ PERF_PMU_CAP_NO_EXCLUDE capability
+
+mainline inclusion
+from mainline-v6.3-rc1
+commit 7f95da9d2dc4c20bb374c281ceb8fa40b6208f4b
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I77IH6
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=7f95da9d2dc4c20bb374c281ceb8fa40b6208f4b
+
+----------------------------------------------------------------------
+
+Missed initialization the variable of pmu::capabilities when extract
+the initialization code of hisi_pmu->pmu into a function.
+
+HISI UNCORE PMU drivers counters that not support context exclusion.
+So we have to advertise the PERF_PMU_CAP_NO_EXCLUDE capability.
+This ensures that perf will prevent us from handling events where
+any exclusion flags are set.
+
+Signed-off-by: Junhao He <hejunhao3@huawei.com>
+Link: https://lore.kernel.org/r/20230119100307.3660-2-hejunhao3@huawei.com
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ drivers/perf/hisilicon/hisi_uncore_pmu.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/perf/hisilicon/hisi_uncore_pmu.c b/drivers/perf/hisilicon/hisi_uncore_pmu.c
+index 41640de74072..c5860912d765 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_pmu.c
+@@ -555,6 +555,7 @@ void hisi_pmu_init(struct pmu *pmu, const char *name,
+ 	pmu->stop               = hisi_uncore_pmu_stop;
+ 	pmu->read               = hisi_uncore_pmu_read;
+ 	pmu->attr_groups        = attr_groups;
++	pmu->capabilities       = PERF_PMU_CAP_NO_EXCLUDE;
+ }
+ EXPORT_SYMBOL_GPL(hisi_pmu_init);
+ 
+-- 
+2.27.0
+

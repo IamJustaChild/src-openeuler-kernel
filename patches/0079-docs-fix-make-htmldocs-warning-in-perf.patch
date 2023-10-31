@@ -1,0 +1,43 @@
+From 73918c84177dc0867dafd8bb3826fead1289425f Mon Sep 17 00:00:00 2001
+From: Wan Jiabing <wanjiabing@vivo.com>
+Date: Mon, 28 Feb 2022 11:16:56 +0800
+Subject: [PATCH 38/55] docs: fix 'make htmldocs' warning in perf
+
+mainline inclusion
+from mainline-v5.18-rc1
+commit 0d6356d6cdd0afeb546f4e8ca653748a8ec3ba26
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8AU2M
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=0d6356d6cdd0afeb546f4e8ca653748a8ec3ba26
+
+-------------------------------------------------------------------
+
+Fix following 'make htmldocs' warnings:
+./Documentation/admin-guide/perf/hisi-pcie-pmu.rst: WARNING:
+document isn't included in any toctree
+
+Fixes: c8602008e247 ("docs: perf: Add description for HiSilicon PCIe PMU driver")
+Signed-off-by: Wan Jiabing <wanjiabing@vivo.com>
+Reviewed-by: John Garry <john.garry@huawei.com>
+Link: https://lore.kernel.org/r/20220228031700.1669086-1-wanjiabing@vivo.com
+Signed-off-by: Jonathan Corbet <corbet@lwn.net>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ Documentation/admin-guide/perf/index.rst | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Documentation/admin-guide/perf/index.rst b/Documentation/admin-guide/perf/index.rst
+index 9d445451ea18..5a9afa1263f6 100644
+--- a/Documentation/admin-guide/perf/index.rst
++++ b/Documentation/admin-guide/perf/index.rst
+@@ -6,6 +6,7 @@ Performance monitor support
+    :maxdepth: 1
+ 
+    hisi-pmu
++   hisi-pcie-pmu
+    qcom_l2_pmu
+    qcom_l3_pmu
+    arm-ccn
+-- 
+2.27.0
+

@@ -1,0 +1,71 @@
+From d1ff276b62baa5fd8138f2432bed59773702df7a Mon Sep 17 00:00:00 2001
+From: Qi Liu <liuqi115@huawei.com>
+Date: Mon, 29 Mar 2021 20:32:01 +0800
+Subject: [PATCH 37/55] docs: perf: Address some html build warnings
+
+mainline inclusion
+from mainline-v5.13-rc1
+commit b88f5e9792cc320a511697dcba8890d032ee3ed3
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8AU2M
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=b88f5e9792cc320a511697dcba8890d032ee3ed3
+
+----------------------------------------------------------------------------
+
+Fix following html build warnings:
+Documentation/admin-guide/perf/hisi-pmu.rst:61: WARNING: Unexpected indentation.
+Documentation/admin-guide/perf/hisi-pmu.rst:62: WARNING: Block quote ends without a blank line; unexpected unindent.
+Documentation/admin-guide/perf/hisi-pmu.rst:69: WARNING: Unexpected indentation.
+Documentation/admin-guide/perf/hisi-pmu.rst:70: WARNING: Block quote ends without a blank line; unexpected unindent.
+Documentation/admin-guide/perf/hisi-pmu.rst:83: WARNING: Unexpected indentation.
+
+Fixes: 9b86b1b41e0f ("docs: perf: Add new description on HiSilicon uncore PMU v2")
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Signed-off-by: Qi Liu <liuqi115@huawei.com>
+Link: https://lore.kernel.org/r/1617021121-31450-1-git-send-email-liuqi115@huawei.com
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ Documentation/admin-guide/perf/hisi-pmu.rst | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/Documentation/admin-guide/perf/hisi-pmu.rst b/Documentation/admin-guide/perf/hisi-pmu.rst
+index 3b3120e2dd9e..546979360513 100644
+--- a/Documentation/admin-guide/perf/hisi-pmu.rst
++++ b/Documentation/admin-guide/perf/hisi-pmu.rst
+@@ -57,16 +57,20 @@ For HiSilicon uncore PMU v2 whose identifier is 0x30, the topology is the same
+ as PMU v1, but some new functions are added to the hardware.
+ 
+ (a) L3C PMU supports filtering by core/thread within the cluster which can be
+-specified as a bitmap.
++specified as a bitmap::
++
+   $# perf stat -a -e hisi_sccl3_l3c0/config=0x02,tt_core=0x3/ sleep 5
++
+ This will only count the operations from core/thread 0 and 1 in this cluster.
+ 
+ (b) Tracetag allow the user to chose to count only read, write or atomic
+ operations via the tt_req parameeter in perf. The default value counts all
+ operations. tt_req is 3bits, 3'b100 represents read operations, 3'b101
+ represents write operations, 3'b110 represents atomic store operations and
+-3'b111 represents atomic non-store operations, other values are reserved.
++3'b111 represents atomic non-store operations, other values are reserved::
++
+   $# perf stat -a -e hisi_sccl3_l3c0/config=0x02,tt_req=0x4/ sleep 5
++
+ This will only count the read operations in this cluster.
+ 
+ (c) Datasrc allows the user to check where the data comes from. It is 5 bits.
+@@ -79,7 +83,8 @@ Some important codes are as follows:
+ 5'b10000: comes from cross-socket DDR;
+ etc, it is mainly helpful to find that the data source is nearest from the CPU
+ cores. If datasrc_cfg is used in the multi-chips, the datasrc_skt shall be
+-configured in perf command.
++configured in perf command::
++
+   $# perf stat -a -e hisi_sccl3_l3c0/config=0xb9,datasrc_cfg=0xE/,
+   hisi_sccl3_l3c0/config=0xb9,datasrc_cfg=0xF/ sleep 5
+ 
+-- 
+2.27.0
+

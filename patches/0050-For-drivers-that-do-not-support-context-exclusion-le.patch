@@ -1,0 +1,194 @@
+From 6d7245609c516aae8719e8d27b737337635ad8c3 Mon Sep 17 00:00:00 2001
+From: Andrew Murray <andrew.murray@arm.com>
+Date: Thu, 10 Jan 2019 13:53:29 +0000
+Subject: [PATCH 09/55] For drivers that do not support context exclusion let's
+ advertise the PERF_PMU_CAP_NO_EXCLUDE capability. This ensures that perf will
+ prevent us from handling events where any exclusion flags are set. Let's also
+ remove the now unnecessary check for exclusion flags.
+
+mainline inclusion
+from mainline-v5.1-rc1
+commit 306563985819ed2af9df0a26ae368ed12cf28f41
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8AU2M
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?=306563985819ed2af9df0a26ae368ed12cf28f41
+
+--------------------------------------------------------------------
+
+Signed-off-by: Andrew Murray <andrew.murray@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Will Deacon <will.deacon@arm.com>
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Matt Turner <mattst88@gmail.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Richard Henderson <rth@twiddle.net>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Sascha Hauer <s.hauer@pengutronix.de>
+Cc: Shawn Guo <shawnguo@kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: robin.murphy@arm.com
+Cc: suzuki.poulose@arm.com
+Link: https://lkml.kernel.org/r/1547128414-50693-8-git-send-email-andrew.murray@arm.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+
+ Conflicts:
+	drivers/perf/thunderx2_pmu.c
+---
+ drivers/perf/arm-cci.c                        | 10 +---------
+ drivers/perf/arm-ccn.c                        |  6 ++----
+ drivers/perf/arm_dsu_pmu.c                    |  9 ++-------
+ drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c |  1 +
+ drivers/perf/hisilicon/hisi_uncore_hha_pmu.c  |  1 +
+ drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c  |  1 +
+ drivers/perf/hisilicon/hisi_uncore_pmu.c      |  9 ---------
+ 7 files changed, 8 insertions(+), 29 deletions(-)
+
+diff --git a/drivers/perf/arm-cci.c b/drivers/perf/arm-cci.c
+index 3bbc853dc12f..aca4570f78a8 100644
+--- a/drivers/perf/arm-cci.c
++++ b/drivers/perf/arm-cci.c
+@@ -1327,15 +1327,6 @@ static int cci_pmu_event_init(struct perf_event *event)
+ 	if (is_sampling_event(event) || event->attach_state & PERF_ATTACH_TASK)
+ 		return -EOPNOTSUPP;
+ 
+-	/* We have no filtering of any kind */
+-	if (event->attr.exclude_user	||
+-	    event->attr.exclude_kernel	||
+-	    event->attr.exclude_hv	||
+-	    event->attr.exclude_idle	||
+-	    event->attr.exclude_host	||
+-	    event->attr.exclude_guest)
+-		return -EINVAL;
+-
+ 	/*
+ 	 * Following the example set by other "uncore" PMUs, we accept any CPU
+ 	 * and rewrite its affinity dynamically rather than having perf core
+@@ -1433,6 +1424,7 @@ static int cci_pmu_init(struct cci_pmu *cci_pmu, struct platform_device *pdev)
+ 		.stop		= cci_pmu_stop,
+ 		.read		= pmu_read,
+ 		.attr_groups	= pmu_attr_groups,
++		.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
+ 	};
+ 
+ 	cci_pmu->plat_device = pdev;
+diff --git a/drivers/perf/arm-ccn.c b/drivers/perf/arm-ccn.c
+index e4e06d2fbe29..e13ff765b362 100644
+--- a/drivers/perf/arm-ccn.c
++++ b/drivers/perf/arm-ccn.c
+@@ -741,10 +741,7 @@ static int arm_ccn_pmu_event_init(struct perf_event *event)
+ 		return -EOPNOTSUPP;
+ 	}
+ 
+-	if (has_branch_stack(event) || event->attr.exclude_user ||
+-			event->attr.exclude_kernel || event->attr.exclude_hv ||
+-			event->attr.exclude_idle || event->attr.exclude_host ||
+-			event->attr.exclude_guest) {
++	if (has_branch_stack(event)) {
+ 		dev_dbg(ccn->dev, "Can't exclude execution levels!\n");
+ 		return -EINVAL;
+ 	}
+@@ -1290,6 +1287,7 @@ static int arm_ccn_pmu_init(struct arm_ccn *ccn)
+ 		.read = arm_ccn_pmu_event_read,
+ 		.pmu_enable = arm_ccn_pmu_enable,
+ 		.pmu_disable = arm_ccn_pmu_disable,
++		.capabilities = PERF_PMU_CAP_NO_EXCLUDE,
+ 	};
+ 
+ 	/* No overflow interrupt? Have to use a timer instead. */
+diff --git a/drivers/perf/arm_dsu_pmu.c b/drivers/perf/arm_dsu_pmu.c
+index f1cb7a910394..87573eaa7fdd 100644
+--- a/drivers/perf/arm_dsu_pmu.c
++++ b/drivers/perf/arm_dsu_pmu.c
+@@ -562,13 +562,7 @@ static int dsu_pmu_event_init(struct perf_event *event)
+ 		return -EINVAL;
+ 	}
+ 
+-	if (has_branch_stack(event) ||
+-	    event->attr.exclude_user ||
+-	    event->attr.exclude_kernel ||
+-	    event->attr.exclude_hv ||
+-	    event->attr.exclude_idle ||
+-	    event->attr.exclude_host ||
+-	    event->attr.exclude_guest) {
++	if (has_branch_stack(event)) {
+ 		dev_dbg(dsu_pmu->pmu.dev, "Can't support filtering\n");
+ 		return -EINVAL;
+ 	}
+@@ -735,6 +729,7 @@ static int dsu_pmu_device_probe(struct platform_device *pdev)
+ 		.read		= dsu_pmu_read,
+ 
+ 		.attr_groups	= dsu_pmu_attr_groups,
++		.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
+ 	};
+ 
+ 	rc = perf_pmu_register(&dsu_pmu->pmu, name, -1);
+diff --git a/drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c b/drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c
+index 620fa1345150..4bab34504425 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c
+@@ -397,6 +397,7 @@ static int hisi_ddrc_pmu_probe(struct platform_device *pdev)
+ 		.stop		= hisi_uncore_pmu_stop,
+ 		.read		= hisi_uncore_pmu_read,
+ 		.attr_groups	= hisi_ddrc_pmu_attr_groups,
++		.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
+ 	};
+ 
+ 	ret = perf_pmu_register(&ddrc_pmu->pmu, name, -1);
+diff --git a/drivers/perf/hisilicon/hisi_uncore_hha_pmu.c b/drivers/perf/hisilicon/hisi_uncore_hha_pmu.c
+index 33a0da941be2..53711b945551 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_hha_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_hha_pmu.c
+@@ -408,6 +408,7 @@ static int hisi_hha_pmu_probe(struct platform_device *pdev)
+ 		.stop		= hisi_uncore_pmu_stop,
+ 		.read		= hisi_uncore_pmu_read,
+ 		.attr_groups	= hisi_hha_pmu_attr_groups,
++		.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
+ 	};
+ 
+ 	ret = perf_pmu_register(&hha_pmu->pmu, name, -1);
+diff --git a/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c b/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c
+index 92485f00dcc8..171cf74405b3 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c
+@@ -398,6 +398,7 @@ static int hisi_l3c_pmu_probe(struct platform_device *pdev)
+ 		.stop		= hisi_uncore_pmu_stop,
+ 		.read		= hisi_uncore_pmu_read,
+ 		.attr_groups	= hisi_l3c_pmu_attr_groups,
++		.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
+ 	};
+ 
+ 	ret = perf_pmu_register(&l3c_pmu->pmu, name, -1);
+diff --git a/drivers/perf/hisilicon/hisi_uncore_pmu.c b/drivers/perf/hisilicon/hisi_uncore_pmu.c
+index 53f623ac4cc6..50b654a13305 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_pmu.c
+@@ -148,15 +148,6 @@ int hisi_uncore_pmu_event_init(struct perf_event *event)
+ 	if (is_sampling_event(event) || event->attach_state & PERF_ATTACH_TASK)
+ 		return -EOPNOTSUPP;
+ 
+-	/* counters do not have these bits */
+-	if (event->attr.exclude_user	||
+-	    event->attr.exclude_kernel	||
+-	    event->attr.exclude_host	||
+-	    event->attr.exclude_guest	||
+-	    event->attr.exclude_hv	||
+-	    event->attr.exclude_idle)
+-		return -EINVAL;
+-
+ 	/*
+ 	 *  The uncore counters not specific to any CPU, so cannot
+ 	 *  support per-task
+-- 
+2.27.0
+

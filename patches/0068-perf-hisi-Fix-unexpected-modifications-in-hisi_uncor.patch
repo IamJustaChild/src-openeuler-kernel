@@ -1,0 +1,41 @@
+From 91e203d62a15728846824029f1eb18fa8eb03aeb Mon Sep 17 00:00:00 2001
+From: Chen Jun <chenjun102@huawei.com>
+Date: Mon, 23 May 2022 21:18:33 +0800
+Subject: [PATCH 27/55] perf: hisi: Fix unexpected modifications in
+ hisi_uncore_l3c_pmu.c
+
+hulk inclusion
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I584X2
+CVE: NA
+
+--------------------------------
+
+the name passed to cpuhp_setup_state_multi in hisi_uncore_l3c_pmu.c was
+modification unexpected.
+
+Fixes: 744d0990ad13 ("perf: hisi: Add support for HiSilicon SoC L3TPMU")
+Signed-off-by: Chen Jun <chenjun102@huawei.com>
+Reviewed-by: Weilong Chen <chenweilong@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c b/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c
+index bb39b44761a5..d70a01587d72 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c
+@@ -611,7 +611,7 @@ static int __init hisi_l3c_pmu_module_init(void)
+ 	int ret;
+ 
+ 	ret = cpuhp_setup_state_multi(CPUHP_AP_PERF_ARM_HISI_L3_ONLINE,
+-				      "AP_PERF_ARM_HISI_L3T_ONLINE",
++				      "AP_PERF_ARM_HISI_L3_ONLINE",
+ 				      hisi_uncore_pmu_online_cpu,
+ 				      hisi_uncore_pmu_offline_cpu);
+ 	if (ret) {
+-- 
+2.27.0
+

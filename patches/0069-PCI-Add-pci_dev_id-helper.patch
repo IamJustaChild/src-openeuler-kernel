@@ -1,0 +1,114 @@
+From 5fe54aa034e28dc979d147c3cf4a2ae25c529ff7 Mon Sep 17 00:00:00 2001
+From: Heiner Kallweit <hkallweit1@gmail.com>
+Date: Wed, 24 Apr 2019 21:11:58 +0200
+Subject: [PATCH 28/55] PCI: Add pci_dev_id() helper
+
+mainline inclusion
+from mainline-v5.2-rc1
+commit 4e544bac8267f65a0bf06aed1bde9964da4812ed
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8AU2M
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=4e544bac8267f65a0bf06aed1bde9964da4812ed
+
+----------------------------------------------------------------
+
+In several places in the kernel we find PCI_DEVID used like this:
+
+  PCI_DEVID(dev->bus->number, dev->devfn)
+
+Add a "pci_dev_id(struct pci_dev *dev)" helper to simplify callers.
+
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ drivers/pci/msi.c    |  6 +++---
+ drivers/pci/search.c | 10 +++-------
+ include/linux/pci.h  |  5 +++++
+ 3 files changed, 11 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
+index bf560dcf8dd4..8138f67123a1 100644
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -1385,7 +1385,7 @@ irq_hw_number_t pci_msi_domain_calc_hwirq(struct pci_dev *dev,
+ 					  struct msi_desc *desc)
+ {
+ 	return (irq_hw_number_t)desc->msi_attrib.entry_nr |
+-		PCI_DEVID(dev->bus->number, dev->devfn) << 11 |
++		pci_dev_id(dev) << 11 |
+ 		(pci_domain_nr(dev->bus) & 0xFFFFFFFF) << 27;
+ }
+ 
+@@ -1555,7 +1555,7 @@ static int get_msi_id_cb(struct pci_dev *pdev, u16 alias, void *data)
+ u32 pci_msi_domain_get_msi_rid(struct irq_domain *domain, struct pci_dev *pdev)
+ {
+ 	struct device_node *of_node;
+-	u32 rid = PCI_DEVID(pdev->bus->number, pdev->devfn);
++	u32 rid = pci_dev_id(pdev);
+ 
+ 	pci_for_each_dma_alias(pdev, get_msi_id_cb, &rid);
+ 
+@@ -1578,7 +1578,7 @@ u32 pci_msi_domain_get_msi_rid(struct irq_domain *domain, struct pci_dev *pdev)
+ struct irq_domain *pci_msi_get_device_domain(struct pci_dev *pdev)
+ {
+ 	struct irq_domain *dom;
+-	u32 rid = PCI_DEVID(pdev->bus->number, pdev->devfn);
++	u32 rid = pci_dev_id(pdev);
+ 
+ 	pci_for_each_dma_alias(pdev, get_msi_id_cb, &rid);
+ 	dom = of_msi_map_get_device_domain(&pdev->dev, rid);
+diff --git a/drivers/pci/search.c b/drivers/pci/search.c
+index 2b5f720862d3..5c7922612733 100644
+--- a/drivers/pci/search.c
++++ b/drivers/pci/search.c
+@@ -33,7 +33,7 @@ int pci_for_each_dma_alias(struct pci_dev *pdev,
+ 	struct pci_bus *bus;
+ 	int ret;
+ 
+-	ret = fn(pdev, PCI_DEVID(pdev->bus->number, pdev->devfn), data);
++	ret = fn(pdev, pci_dev_id(pdev), data);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -88,9 +88,7 @@ int pci_for_each_dma_alias(struct pci_dev *pdev,
+ 					return ret;
+ 				continue;
+ 			case PCI_EXP_TYPE_PCIE_BRIDGE:
+-				ret = fn(tmp,
+-					 PCI_DEVID(tmp->bus->number,
+-						   tmp->devfn), data);
++				ret = fn(tmp, pci_dev_id(tmp), data);
+ 				if (ret)
+ 					return ret;
+ 				continue;
+@@ -101,9 +99,7 @@ int pci_for_each_dma_alias(struct pci_dev *pdev,
+ 					 PCI_DEVID(tmp->subordinate->number,
+ 						   PCI_DEVFN(0, 0)), data);
+ 			else
+-				ret = fn(tmp,
+-					 PCI_DEVID(tmp->bus->number,
+-						   tmp->devfn), data);
++				ret = fn(tmp, pci_dev_id(tmp), data);
+ 			if (ret)
+ 				return ret;
+ 		}
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index bc49349fcc53..bfc26f8d5552 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -633,6 +633,11 @@ struct pci_bus {
+ 
+ #define to_pci_bus(n)	container_of(n, struct pci_bus, dev)
+ 
++static inline u16 pci_dev_id(struct pci_dev *dev)
++{
++	return PCI_DEVID(dev->bus->number, dev->devfn);
++}
++
+ /*
+  * Returns true if the PCI bus is root (behind host-PCI bridge),
+  * false otherwise
+-- 
+2.27.0
+

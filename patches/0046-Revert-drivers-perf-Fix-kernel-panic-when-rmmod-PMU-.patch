@@ -1,0 +1,36 @@
+From 05df62b6b7f9e92e9f25b8a0bcd5c99c4ae02165 Mon Sep 17 00:00:00 2001
+From: hongrongxuan <hongrongxuan@huawei.com>
+Date: Wed, 25 Oct 2023 15:26:10 +0800
+Subject: [PATCH 05/55] Revert "drivers/perf: Fix kernel panic when rmmod PMU
+ modules during perf sampling"
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8AU2M
+
+--------------------------------------------------------------
+
+This reverts commit 525a3927062f89be41f1b23ae33ad0638c13bf8e.
+
+revert it, and inclusion the upstream version later.
+
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ drivers/perf/hisilicon/hisi_uncore_pmu.h | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/perf/hisilicon/hisi_uncore_pmu.h b/drivers/perf/hisilicon/hisi_uncore_pmu.h
+index 129896662cf2..8445ee581e46 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_pmu.h
++++ b/drivers/perf/hisilicon/hisi_uncore_pmu.h
+@@ -105,7 +105,6 @@ static inline void HISI_INIT_PMU(struct pmu *pmu, const char *name,
+ 			    const struct attribute_group **attr_groups)
+ {
+ 	pmu->name		= name;
+-	pmu->module		= THIS_MODULE;
+ 	pmu->task_ctx_nr	= perf_invalid_context;
+ 	pmu->event_init		= hisi_uncore_pmu_event_init;
+ 	pmu->pmu_enable		= hisi_uncore_pmu_enable;
+-- 
+2.27.0
+
