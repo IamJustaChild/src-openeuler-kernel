@@ -1,0 +1,86 @@
+From a7e133186aa078eb9450e47121f5d26a4330f83c Mon Sep 17 00:00:00 2001
+From: Leo Yan <leo.yan@linaro.org>
+Date: Fri, 31 Dec 2021 13:31:57 +0800
+Subject: [PATCH 01/21] perf arm-spe: Include bitops.h for BIT() macro
+
+mainline inclusion
+from mainline-v5.11-rc1
+commit c185f1cde46653cd0a7a1eaf461d16c462870781
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I4NGPV
+CVE: NA
+
+-------------------------------------------------
+
+Include header linux/bitops.h, directly use its BIT() macro and remove
+the self defined macros.
+
+Committer notes:
+
+Use BIT_ULL() instead of BIT to build on 32-bit arches as mentioned in
+review by Andre Przywara <andre.przywara@arm.com>. I noticed the build
+failure when crossbuilding to arm32 from x86_64.
+
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Reviewed-by: Andre Przywara <andre.przywara@arm.com>
+Link: https://lore.kernel.org/r/20201111071149.815-2-leo.yan@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Wei Li <liwei391@huawei.com>
+Reviewed-by: Yang Jihong <yangjihong1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+
+Conflicts:
+	tools/perf/util/arm-spe-decoder/arm-spe-decoder.c
+---
+ tools/perf/util/arm-spe-decoder/arm-spe-decoder.c     | 5 +----
+ tools/perf/util/arm-spe-decoder/arm-spe-pkt-decoder.c | 7 +++----
+ 2 files changed, 4 insertions(+), 8 deletions(-)
+
+diff --git a/tools/perf/util/arm-spe-decoder/arm-spe-decoder.c b/tools/perf/util/arm-spe-decoder/arm-spe-decoder.c
+index 322961c863f0..3993c1524c73 100644
+--- a/tools/perf/util/arm-spe-decoder/arm-spe-decoder.c
++++ b/tools/perf/util/arm-spe-decoder/arm-spe-decoder.c
+@@ -7,6 +7,7 @@
+ #include <errno.h>
+ #include <stdint.h>
+ #include <inttypes.h>
++#include <linux/bitops.h>
+ #include <linux/compiler.h>
+ 
+ #include "cache.h"
+@@ -16,10 +17,6 @@
+ #include "arm-spe-pkt-decoder.h"
+ #include "arm-spe-decoder.h"
+ 
+-#ifndef BIT
+-#define BIT(n)		(1UL << (n))
+-#endif
+-
+ struct arm_spe_decoder {
+ 	int (*get_trace)(struct arm_spe_buffer *buffer, void *data);
+ 	void *data;
+diff --git a/tools/perf/util/arm-spe-decoder/arm-spe-pkt-decoder.c b/tools/perf/util/arm-spe-decoder/arm-spe-pkt-decoder.c
+index b94001b756c7..5f65a3a70c57 100644
+--- a/tools/perf/util/arm-spe-decoder/arm-spe-pkt-decoder.c
++++ b/tools/perf/util/arm-spe-decoder/arm-spe-pkt-decoder.c
+@@ -8,13 +8,12 @@
+ #include <string.h>
+ #include <endian.h>
+ #include <byteswap.h>
++#include <linux/bitops.h>
+ 
+ #include "arm-spe-pkt-decoder.h"
+ 
+-#define BIT(n)		(1ULL << (n))
+-
+-#define NS_FLAG		BIT(63)
+-#define EL_FLAG		(BIT(62) | BIT(61))
++#define NS_FLAG		BIT_ULL(63)
++#define EL_FLAG		(BIT_ULL(62) | BIT_ULL(61))
+ 
+ #define SPE_HEADER0_PAD			0x0
+ #define SPE_HEADER0_END			0x1
+-- 
+2.27.0
+
