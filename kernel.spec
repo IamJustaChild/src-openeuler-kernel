@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0228
+Release: %{hulkrelease}.0229
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -241,11 +241,12 @@ ignores_for_main="CONFIG_DESCRIPTION,FILE_PATH_CHANGES,GERRIT_CHANGE_ID,GIT_COMM
 Checkpatches() {
   local SERIESCONF=$1
   local PATCH_DIR=$2
+  echo "" >> $SERIESCONF
   sed -i '/^#/d'  $SERIESCONF
   sed -i '/^[\s]*$/d' $SERIESCONF
 
   set +e
-  while IFS= read -r patch; do
+  while read patch; do
     output=$(scripts/checkpatch.pl --ignore $ignores_for_main $PATCH_DIR/$patch)
     if echo "$output" | grep -q "ERROR:"; then
       echo "checkpatch $patch failed"
@@ -830,6 +831,10 @@ fi
 %endif
 
 %changelog
+
+* Tue Oct 31 2023 Yu Liao <liaoyu15@huawei.com> - 4.19.90-2310.4.0.0229
+- add new line at the end of series.conf
+
 * Tue Oct 31 2023 hongrongxuan <hongrongxuan@huawei.com> - 4.19.90-2310.4.0.0228
 - drivers/perf: Add support for ARMv8.3-SPE
 - perf arm-spe: Add support for ARMv8.3-SPE
