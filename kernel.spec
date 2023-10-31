@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0227
+Release: %{hulkrelease}.0228
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -830,6 +830,26 @@ fi
 %endif
 
 %changelog
+* Tue Oct 31 2023 hongrongxuan <hongrongxuan@huawei.com> - 4.19.90-2310.4.0.0228
+- drivers/perf: Add support for ARMv8.3-SPE
+- perf arm-spe: Add support for ARMv8.3-SPE
+- perf arm_spe: Decode memory tagging properties
+- perf arm-spe: Add more sub classes for operation packet
+- perf arm-spe: Refactor operation packet handling
+- perf arm-spe: Add new function arm_spe_pkt_desc_op_type()
+- perf arm-spe: Remove size condition checking for events
+- perf arm-spe: Refactor event type handling
+- perf arm-spe: Add new function arm_spe_pkt_desc_event()
+- perf arm-spe: Refactor counter packet handling
+- perf arm-spe: Add new function arm_spe_pkt_desc_counter()
+- perf arm-spe: Refactor context packet handling
+- perf arm-spe: Refactor address packet handling
+- perf arm-spe: Add new function arm_spe_pkt_desc_addr()
+- perf arm-spe: Refactor packet header parsing
+- perf arm-spe: Refactor printing string to buffer
+- perf arm-spe: Fix packet length handling
+- perf arm-spe: Refactor arm_spe_get_events()
+
 * Mon Oct 30 2023 Keyi Zhong <zhongkeyi1@huawei.com> - 4.19.90-2310.4.0.0227
 - crypto: hisilicon - fix different version of devices driver compatibility issue
 

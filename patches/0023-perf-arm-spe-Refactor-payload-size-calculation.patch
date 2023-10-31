@@ -1,0 +1,84 @@
+From 8563343c538c17d40bcfabd329cf8de1d722c1ca Mon Sep 17 00:00:00 2001
+From: Leo Yan <leo.yan@linaro.org>
+Date: Fri, 31 Dec 2021 13:31:59 +0800
+Subject: [PATCH 03/21] perf arm-spe: Refactor payload size calculation
+
+mainline inclusion
+from mainline-v5.11-rc1
+commit b2ded2e2e2764e502fc025f615210434f1eaa2a9
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I4NGPV
+CVE: NA
+
+-------------------------------------------------
+
+This patch defines macro to extract "sz" field from header, and renames
+the function payloadlen() to arm_spe_payload_len().
+
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Reviewed-by: Andre Przywara <andre.przywara@arm.com>
+Link: https://lore.kernel.org/r/20201111071149.815-4-leo.yan@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Wei Li <liwei391@huawei.com>
+Reviewed-by: Yang Jihong <yangjihong1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ tools/include/linux/bits.h                     |  4 ++++
+ .../util/arm-spe-decoder/arm-spe-pkt-decoder.c | 18 +++++++++---------
+ 2 files changed, 13 insertions(+), 9 deletions(-)
+
+diff --git a/tools/include/linux/bits.h b/tools/include/linux/bits.h
+index 2b7b532c1d51..0d431f8e70cf 100644
+--- a/tools/include/linux/bits.h
++++ b/tools/include/linux/bits.h
+@@ -3,6 +3,10 @@
+ #define __LINUX_BITS_H
+ #include <asm/bitsperlong.h>
+ 
++#ifndef BITS_PER_LONG_LONG
++#define BITS_PER_LONG_LONG 64
++#endif
++
+ #define BIT(nr)			(1UL << (nr))
+ #define BIT_ULL(nr)		(1ULL << (nr))
+ #define BIT_MASK(nr)		(1UL << ((nr) % BITS_PER_LONG))
+diff --git a/tools/perf/util/arm-spe-decoder/arm-spe-pkt-decoder.c b/tools/perf/util/arm-spe-decoder/arm-spe-pkt-decoder.c
+index 12a96585da94..a8eb7be189ec 100644
+--- a/tools/perf/util/arm-spe-decoder/arm-spe-pkt-decoder.c
++++ b/tools/perf/util/arm-spe-decoder/arm-spe-pkt-decoder.c
+@@ -69,22 +69,22 @@ const char *arm_spe_pkt_name(enum arm_spe_pkt_type type)
+ 	return arm_spe_packet_name[type];
+ }
+ 
+-/* return ARM SPE payload size from its encoding,
+- * which is in bits 5:4 of the byte.
+- * 00 : byte
+- * 01 : halfword (2)
+- * 10 : word (4)
+- * 11 : doubleword (8)
++/*
++ * Extracts the field "sz" from header bits and converts to bytes:
++ *   00 : byte (1)
++ *   01 : halfword (2)
++ *   10 : word (4)
++ *   11 : doubleword (8)
+  */
+-static int payloadlen(unsigned char byte)
++static unsigned int arm_spe_payload_len(unsigned char hdr)
+ {
+-	return 1 << ((byte & 0x30) >> 4);
++	return 1U << ((hdr & GENMASK_ULL(5, 4)) >> 4);
+ }
+ 
+ static int arm_spe_get_payload(const unsigned char *buf, size_t len,
+ 			       struct arm_spe_pkt *packet)
+ {
+-	size_t payload_len = payloadlen(buf[0]);
++	size_t payload_len = arm_spe_payload_len(buf[0]);
+ 
+ 	if (len < 1 + payload_len)
+ 		return ARM_SPE_NEED_MORE_BYTES;
+-- 
+2.27.0
+

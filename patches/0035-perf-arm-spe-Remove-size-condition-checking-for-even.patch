@@ -1,0 +1,91 @@
+From 18de9e65c81f31b2855301308c05a55002f89239 Mon Sep 17 00:00:00 2001
+From: Leo Yan <leo.yan@linaro.org>
+Date: Fri, 31 Dec 2021 13:32:12 +0800
+Subject: [PATCH 15/21] perf arm-spe: Remove size condition checking for events
+
+mainline inclusion
+from mainline-v5.11-rc1
+commit 4d0f4ca273aa95bf592b8bad3c619b5766c8ecc7
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I4NGPV
+CVE: NA
+
+-------------------------------------------------
+
+In the Armv8 ARM (ARM DDI 0487F.c), chapter "D10.2.6 Events packet", it
+describes the event bit is valid with specific payload requirement.  For
+example, the Last Level cache access event, the bit is defined as:
+
+  E[8], byte 1 bit [0], when SZ == 0b01 , when SZ == 0b10 ,
+  		     or when SZ == 0b11
+
+It requires the payload size is at least 2 bytes, when byte 1 (start
+counting from 0) is valid, E[8] (bit 0 in byte 1) can be used for LLC
+access event type.  For safety, the code checks the condition for
+payload size firstly, if meet the requirement for payload size, then
+continue to parse event type.
+
+If review function arm_spe_get_payload(), it has used cast, so any bytes
+beyond the valid size have been set to zeros.
+
+For this reason, we don't need to check payload size anymore afterwards
+when parse events, thus this patch removes payload size conditions.
+
+Suggested-by: Andre Przywara <andre.przywara@arm.com>
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Reviewed-by: Andre Przywara <andre.przywara@arm.com>
+Acked-by: Will Deacon <will@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Al Grant <Al.Grant@arm.com>
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: Dave Martin <Dave.Martin@arm.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: James Clark <james.clark@arm.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: John Garry <john.garry@huawei.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Wei Li <liwei391@huawei.com>
+Link: https://lore.kernel.org/r/20201119152441.6972-12-leo.yan@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Wei Li <liwei391@huawei.com>
+Reviewed-by: Yang Jihong <yangjihong1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+
+Conflicts:
+	tools/perf/util/arm-spe-decoder/arm-spe-pkt-decoder.c
+---
+ .../util/arm-spe-decoder/arm-spe-pkt-decoder.c     | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
+
+diff --git a/tools/perf/util/arm-spe-decoder/arm-spe-pkt-decoder.c b/tools/perf/util/arm-spe-decoder/arm-spe-pkt-decoder.c
+index 3f30b2937715..88bcf7e5be76 100644
+--- a/tools/perf/util/arm-spe-decoder/arm-spe-pkt-decoder.c
++++ b/tools/perf/util/arm-spe-decoder/arm-spe-pkt-decoder.c
+@@ -311,14 +311,12 @@ static int arm_spe_pkt_desc_event(const struct arm_spe_pkt *packet,
+ 		arm_spe_pkt_out_string(&err, &buf, &buf_len, " NOT-TAKEN");
+ 	if (payload & BIT(EV_MISPRED))
+ 		arm_spe_pkt_out_string(&err, &buf, &buf_len, " MISPRED");
+-	if (packet->index > 1) {
+-		if (payload & BIT(EV_LLC_ACCESS))
+-			arm_spe_pkt_out_string(&err, &buf, &buf_len, " LLC-ACCESS");
+-		if (payload & BIT(EV_LLC_MISS))
+-			arm_spe_pkt_out_string(&err, &buf, &buf_len, " LLC-REFILL");
+-		if (payload & BIT(EV_REMOTE_ACCESS))
+-			arm_spe_pkt_out_string(&err, &buf, &buf_len, " REMOTE-ACCESS");
+-	}
++	if (payload & BIT(EV_LLC_ACCESS))
++		arm_spe_pkt_out_string(&err, &buf, &buf_len, " LLC-ACCESS");
++	if (payload & BIT(EV_LLC_MISS))
++		arm_spe_pkt_out_string(&err, &buf, &buf_len, " LLC-REFILL");
++	if (payload & BIT(EV_REMOTE_ACCESS))
++		arm_spe_pkt_out_string(&err, &buf, &buf_len, " REMOTE-ACCESS");
+ 
+ 	return err;
+ }
+-- 
+2.27.0
+
