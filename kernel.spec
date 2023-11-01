@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0229
+Release: %{hulkrelease}.0230
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -831,6 +831,12 @@ fi
 %endif
 
 %changelog
+
+* Wed Nov 1 2023 Yu Liao <liaoyu15@huawei.com> - 4.19.90-2310.4.0.0230
+- arm64: HWCAP: add support for AT_HWCAP2
+- arm64: Expose SVE2 features for userspace
+- arm64: cpufeature: Fix missing ZFR0 in __read_sysreg_by_encoding()
+- arm64: cpufeature: Treat ID_AA64ZFR0_EL1 as RAZ when SVE is not enabled
 
 * Tue Oct 31 2023 Yu Liao <liaoyu15@huawei.com> - 4.19.90-2310.4.0.0229
 - add new line at the end of series.conf
