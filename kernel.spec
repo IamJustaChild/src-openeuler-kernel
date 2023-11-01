@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2310.4.0
+%global hulkrelease 2311.1.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0229
+Release: %{hulkrelease}.0230
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -831,6 +831,46 @@ fi
 %endif
 
 %changelog
+
+* Wed Nov 1 2023 Luo Shengwei <luoshengwei@huawei.com> - 4.19.90-2311.1.0.0230
+- !2609  Fix CVE-2023-5717
+- !2588 [openEuler-1.0-LTS] Add Phytium Display Engine support.
+- !2627  ubi: Refuse attaching if mtd's erasesize is 0
+- !2473  Revert irq reentrant warm log
+- !1860 irqchip/gicv3-its: Add workaround for hip09 ITS erratum 162100801
+- !2551  Avoid spin or livelock during panic
+- !2314  can: raw: add missing refcount for memory leak fix
+- !2396  efi: use 32-bit alignment for efi_guid_t literals
+- ubi: Refuse attaching if mtd's erasesize is 0
+- !2446  audit: fix possible soft lockup in __audit_inode_child()
+- !2614  CVE-2022-44033
+- DRM: Phytium display DRM document
+- DRM: Phytium display DRM driver
+- ASoC: hdmi-codec: Add an op to set callback function for plug event
+- char: pcmcia: remove all the drivers
+- tty: ipwireless: move Kconfig entry to tty
+- !1974 CAN driver for phytium CPUs
+- perf: Fix kabi breakage in struct perf_event
+- perf: Disallow mis-matched inherited group reads
+- !2577  media: dvb-core: Fix use-after-free due to race condition at dvb_ca_en50221
+- can: can controller driver for phytium CPUs
+- !2550  xen/events: replace evtchn_rwlock with RCU
+- media: dvb-core: Fix use-after-free due to race condition at dvb_ca_en50221
+- !2557  Bluetooth: hci_ldisc: check HCI_UART_PROTO_READY flag in HCIUARTGETPROTO
+- Bluetooth: hci_ldisc: check HCI_UART_PROTO_READY flag in HCIUARTGETPROTO
+- printk: Drop console_sem during panic
+- printk: Avoid livelock with heavy printk during panic
+- printk: disable optimistic spin during panic
+- printk: Add panic_in_progress helper
+- xen/events: replace evtchn_rwlock with RCU
+- irqchip/gicv3-its: Add workaround for hip09 ITS erratum 162100801
+- irqchip/gic-v3-its: Make is_v4 use a TYPER copy
+- Revert "genirq: Introduce warn log when irq be reentrant"
+- Revert "genirq: add printk safe in irq context"
+- audit: fix possible soft lockup in __audit_inode_child()
+- can: add phytium can driver document
+- efi: use 32-bit alignment for efi_guid_t literals
+- can: raw: add missing refcount for memory leak fix
 
 * Tue Oct 31 2023 Yu Liao <liaoyu15@huawei.com> - 4.19.90-2310.4.0.0229
 - add new line at the end of series.conf
