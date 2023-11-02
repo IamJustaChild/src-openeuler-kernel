@@ -1,0 +1,57 @@
+From 52b22aa2df42650d15ff80d32c827a55e6907a49 Mon Sep 17 00:00:00 2001
+From: Chen Jun <chenjun102@huawei.com>
+Date: Thu, 19 May 2022 20:09:49 +0800
+Subject: [PATCH 24/55] perf: hisi: Fix read sccl_id and ccl_id error in some
+ platform
+
+hulk inclusion
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I584X2
+CVE: NA
+
+--------------------------------
+
+Some platforms with TSV200 or CORTEX_A55, sccl and ccl are keep in
+aff2 if mt.
+
+Signed-off-by: Chen Jun <chenjun102@huawei.com>
+Reviewed-by: Weilong Chen <chenweilong@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ drivers/perf/hisilicon/hisi_uncore_pmu.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/perf/hisilicon/hisi_uncore_pmu.c b/drivers/perf/hisilicon/hisi_uncore_pmu.c
+index eceff43c89f7..4a781c2e1992 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_pmu.c
+@@ -437,12 +437,19 @@ static void hisi_read_sccl_and_ccl_id(int *scclp, int *cclp)
+ 	bool mt = mpidr & MPIDR_MT_BITMASK;
+ 	int sccl, ccl;
+ 
+-	if (mt && read_cpuid_part_number() == HISI_CPU_PART_TSV110) {
+-		sccl = aff2 >> 3;
+-		ccl = aff2 & 0x7;
+-	} else if (mt) {
+-		sccl = aff3;
+-		ccl = aff2;
++	if (mt) {
++		switch (read_cpuid_part_number()) {
++		case HISI_CPU_PART_TSV110:
++		case HISI_CPU_PART_TSV200:
++		case ARM_CPU_PART_CORTEX_A55:
++			sccl = aff2 >> 3;
++			ccl = aff2 & 0x7;
++			break;
++		default:
++			sccl = aff3;
++			ccl = aff2;
++			break;
++		}
+ 	} else {
+ 		sccl = aff2;
+ 		ccl = aff1;
+-- 
+2.27.0
+

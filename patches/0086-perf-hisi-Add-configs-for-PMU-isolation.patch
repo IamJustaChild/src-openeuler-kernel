@@ -1,0 +1,86 @@
+From 2bbf35baac46c41879f770e2273134192a565f86 Mon Sep 17 00:00:00 2001
+From: Zhang Zekun <zhangzekun11@huawei.com>
+Date: Sat, 4 Mar 2023 07:24:36 +0000
+Subject: [PATCH 45/55] perf: hisi: Add configs for PMU isolation
+
+hulk inclusion
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I6HRGK
+
+------------------------------------------
+
+Add CONFIG_HISI_L3T_PMU and CONFIG_HISI_LPDDRC_PMU to isolate features
+of hisi pmu driver.
+
+This patch isolates commit 0edc58409e30 and 6bf896bea639.
+
+Signed-off-by: Zhang Zekun <zhangzekun11@huawei.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+
+ Conflicts:
+	drivers/perf/hisilicon/Kconfig
+	drivers/perf/hisilicon/Makefile
+---
+ arch/arm64/configs/openeuler_defconfig |  2 ++
+ drivers/perf/hisilicon/Kconfig         | 18 ++++++++++++++++++
+ drivers/perf/hisilicon/Makefile        |  6 +++---
+ 3 files changed, 23 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm64/configs/openeuler_defconfig b/arch/arm64/configs/openeuler_defconfig
+index 6a7497f2df95..db461e4c2dae 100644
+--- a/arch/arm64/configs/openeuler_defconfig
++++ b/arch/arm64/configs/openeuler_defconfig
+@@ -5108,6 +5108,8 @@ CONFIG_QCOM_L3_PMU=y
+ CONFIG_XGENE_PMU=y
+ CONFIG_ARM_SPE_PMU=y
+ CONFIG_HISI_PMU=m
++CONFIG_HISI_L3T_PMU=m
++CONFIG_HISI_LPDDRC_PMU=m
+ CONFIG_HISI_PCIE_PMU=m
+ CONFIG_RAS=y
+ 
+diff --git a/drivers/perf/hisilicon/Kconfig b/drivers/perf/hisilicon/Kconfig
+index 5546218b5598..91a6e2463180 100644
+--- a/drivers/perf/hisilicon/Kconfig
++++ b/drivers/perf/hisilicon/Kconfig
+@@ -14,3 +14,21 @@ config HISI_PCIE_PMU
+ 	  RCiEP devices.
+ 	  Adds the PCIe PMU into perf events system for monitoring latency,
+ 	  bandwidth etc.
++
++config HISI_L3T_PMU
++	tristate "HiSilicon SoC L3T PMU drivers"
++	depends on HISI_PMU
++	default n
++	  help
++	  Support for HiSilicon SoC L3 Cache performance monitor, Hydra Home
++	  Agent performance monitor and DDR Controller performance monitor.
++	  L3T is a specialized PMU driver.
++
++config HISI_LPDDRC_PMU
++	tristate "HiSilicon SoC LDPPRC PMU drivers"
++	depends on HISI_PMU
++	default n
++	  help
++	  Support for HiSilicon SoC L3 Cache performance monitor, Hydra Home
++	  Agent performance monitor and DDR Controller performance monitor.
++	  LPDDRC is a specialize PMU driver.
+diff --git a/drivers/perf/hisilicon/Makefile b/drivers/perf/hisilicon/Makefile
+index a3522abb3975..26d678eb3250 100644
+--- a/drivers/perf/hisilicon/Makefile
++++ b/drivers/perf/hisilicon/Makefile
+@@ -1,8 +1,8 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ obj-$(CONFIG_HISI_PMU) += hisi_uncore_pmu.o hisi_uncore_l3c_pmu.o \
+ 			  hisi_uncore_hha_pmu.o hisi_uncore_ddrc_pmu.o hisi_uncore_sllc_pmu.o \
+-			  hisi_uncore_pa_pmu.o hisi_uncore_cpa_pmu.o \
+-			  hisi_uncore_l3t_pmu.o \
+-			  hisi_uncore_lpddrc_pmu.o
++			  hisi_uncore_pa_pmu.o hisi_uncore_cpa_pmu.o
+ 
+ obj-$(CONFIG_HISI_PCIE_PMU) += hisi_pcie_pmu.o
++obj-$(CONFIG_HISI_L3T_PMU) += hisi_uncore_l3t_pmu.o
++obj-$(CONFIG_HISI_LPDDRC_PMU) += hisi_uncore_lpddrc_pmu.o
+-- 
+2.27.0
+

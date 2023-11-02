@@ -1,0 +1,44 @@
+From d6ffa958e5f2fd9eff8cec5b41817e9bdec94f5e Mon Sep 17 00:00:00 2001
+From: Chen Jun <chenjun102@huawei.com>
+Date: Thu, 19 May 2022 20:09:48 +0800
+Subject: [PATCH 23/55] perf: hisi: Make irq shared
+
+hulk inclusion
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I584X2
+CVE: NA
+
+--------------------------------
+
+On some platforms, there are some error:
+genirq: Flags mismatch irq 23. 00010804 (xxx) vs. 00010804 (xxx)
+
+The reason is that there are more than one pmu nodes witch uses the same
+irq number.
+
+Add IROF_SHARED when devm_request_irq
+
+Signed-off-by: Chen Jun <chenjun102@huawei.com>
+Reviewed-by: Weilong Chen <chenweilong@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ drivers/perf/hisilicon/hisi_uncore_pmu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/perf/hisilicon/hisi_uncore_pmu.c b/drivers/perf/hisilicon/hisi_uncore_pmu.c
+index 2758cab39a58..eceff43c89f7 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_pmu.c
+@@ -171,7 +171,7 @@ int hisi_uncore_pmu_init_irq(struct hisi_pmu *hisi_pmu,
+ 		return irq;
+ 
+ 	ret = devm_request_irq(&pdev->dev, irq, hisi_uncore_pmu_isr,
+-			       IRQF_NOBALANCING | IRQF_NO_THREAD,
++			       IRQF_NOBALANCING | IRQF_NO_THREAD | IRQF_SHARED,
+ 			       dev_name(&pdev->dev), hisi_pmu);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev,
+-- 
+2.27.0
+

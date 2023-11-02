@@ -1,0 +1,181 @@
+From e0b763c0b1c8c96a04fd56f7be82d13903123b19 Mon Sep 17 00:00:00 2001
+From: Thomas Gleixner <tglx@linutronix.de>
+Date: Fri, 30 Jul 2021 15:44:12 +0800
+Subject: [PATCH 21/55] perf/hisi: Use irq_set_affinity()
+
+mainline inclusion
+from mainline-v5.13-rc3
+commit 77b06ddc04354293f746d0434f00700110d3392d
+category: bugfix
+bugzilla: 175148
+CVE: NA
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=77b06ddc04354293f746d0434f00700110d3392d
+
+------------------------------------------------------------------------
+
+These drivers use irq_set_affinity_hint() to set the affinity for the PMU
+interrupts, which relies on the undocumented side effect that this function
+actually sets the affinity under the hood.
+
+Setting an hint is clearly not a guarantee and for these PMU interrupts an
+affinity hint, which is supposed to guide userspace for setting affinity,
+is beyond pointless, because the affinity of these interrupts cannot be
+modified from user space.
+
+Aside of that the error checks are bogus because the only error which is
+returned from irq_set_affinity_hint() is when there is no irq descriptor
+for the interrupt number, but not when the affinity set fails. That's on
+purpose because the hint can point to an offline CPU.
+
+Replace the mindless abuse with irq_set_affinity().
+
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Shaokun Zhang <zhangshaokun@hisilicon.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Link: https://lore.kernel.org/r/20210518093118.813375875@linutronix.de
+Signed-off-by: Will Deacon <will@kernel.org>
+Reviewed-by: Shaokun Zhang <zhangshaokun@hisilicon.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c | 3 ---
+ drivers/perf/hisilicon/hisi_uncore_hha_pmu.c  | 3 ---
+ drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c  | 3 ---
+ drivers/perf/hisilicon/hisi_uncore_pa_pmu.c   | 3 ---
+ drivers/perf/hisilicon/hisi_uncore_pmu.c      | 4 ++--
+ drivers/perf/hisilicon/hisi_uncore_sllc_pmu.c | 3 ---
+ 6 files changed, 2 insertions(+), 17 deletions(-)
+
+diff --git a/drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c b/drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c
+index af5f8c16eab1..457ac6a1ad64 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c
+@@ -540,7 +540,6 @@ static int hisi_ddrc_pmu_probe(struct platform_device *pdev)
+ 		dev_err(ddrc_pmu->dev, "DDRC PMU register failed!\n");
+ 		cpuhp_state_remove_instance_nocalls(
+ 			CPUHP_AP_PERF_ARM_HISI_DDRC_ONLINE, &ddrc_pmu->node);
+-		irq_set_affinity_hint(ddrc_pmu->irq, NULL);
+ 	}
+ 
+ 	return ret;
+@@ -553,8 +552,6 @@ static int hisi_ddrc_pmu_remove(struct platform_device *pdev)
+ 	perf_pmu_unregister(&ddrc_pmu->pmu);
+ 	cpuhp_state_remove_instance_nocalls(CPUHP_AP_PERF_ARM_HISI_DDRC_ONLINE,
+ 					    &ddrc_pmu->node);
+-	irq_set_affinity_hint(ddrc_pmu->irq, NULL);
+-
+ 	return 0;
+ }
+ 
+diff --git a/drivers/perf/hisilicon/hisi_uncore_hha_pmu.c b/drivers/perf/hisilicon/hisi_uncore_hha_pmu.c
+index a7e1749fc3e4..89996b4d939f 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_hha_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_hha_pmu.c
+@@ -543,7 +543,6 @@ static int hisi_hha_pmu_probe(struct platform_device *pdev)
+ 		dev_err(hha_pmu->dev, "HHA PMU register failed!\n");
+ 		cpuhp_state_remove_instance_nocalls(
+ 			CPUHP_AP_PERF_ARM_HISI_HHA_ONLINE, &hha_pmu->node);
+-		irq_set_affinity_hint(hha_pmu->irq, NULL);
+ 	}
+ 
+ 	return ret;
+@@ -556,8 +555,6 @@ static int hisi_hha_pmu_remove(struct platform_device *pdev)
+ 	perf_pmu_unregister(&hha_pmu->pmu);
+ 	cpuhp_state_remove_instance_nocalls(CPUHP_AP_PERF_ARM_HISI_HHA_ONLINE,
+ 					    &hha_pmu->node);
+-	irq_set_affinity_hint(hha_pmu->irq, NULL);
+-
+ 	return 0;
+ }
+ 
+diff --git a/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c b/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c
+index 87ca2a9ca8c5..d70a01587d72 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c
+@@ -581,7 +581,6 @@ static int hisi_l3c_pmu_probe(struct platform_device *pdev)
+ 		dev_err(l3c_pmu->dev, "L3C PMU register failed!\n");
+ 		cpuhp_state_remove_instance_nocalls(
+ 			CPUHP_AP_PERF_ARM_HISI_L3_ONLINE, &l3c_pmu->node);
+-		irq_set_affinity_hint(l3c_pmu->irq, NULL);
+ 	}
+ 
+ 	return ret;
+@@ -594,8 +593,6 @@ static int hisi_l3c_pmu_remove(struct platform_device *pdev)
+ 	perf_pmu_unregister(&l3c_pmu->pmu);
+ 	cpuhp_state_remove_instance_nocalls(CPUHP_AP_PERF_ARM_HISI_L3_ONLINE,
+ 					    &l3c_pmu->node);
+-	irq_set_affinity_hint(l3c_pmu->irq, NULL);
+-
+ 	return 0;
+ }
+ 
+diff --git a/drivers/perf/hisilicon/hisi_uncore_pa_pmu.c b/drivers/perf/hisilicon/hisi_uncore_pa_pmu.c
+index 5517a90552ec..390e59f4ef60 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_pa_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_pa_pmu.c
+@@ -436,7 +436,6 @@ static int hisi_pa_pmu_probe(struct platform_device *pdev)
+ 		dev_err(pa_pmu->dev, "PMU register failed, ret = %d\n", ret);
+ 		cpuhp_state_remove_instance(CPUHP_AP_PERF_ARM_HISI_PA_ONLINE,
+ 					    &pa_pmu->node);
+-		irq_set_affinity_hint(pa_pmu->irq, NULL);
+ 		return ret;
+ 	}
+ 
+@@ -451,8 +450,6 @@ static int hisi_pa_pmu_remove(struct platform_device *pdev)
+ 	perf_pmu_unregister(&pa_pmu->pmu);
+ 	cpuhp_state_remove_instance_nocalls(CPUHP_AP_PERF_ARM_HISI_PA_ONLINE,
+ 					    &pa_pmu->node);
+-	irq_set_affinity_hint(pa_pmu->irq, NULL);
+-
+ 	return 0;
+ }
+ 
+diff --git a/drivers/perf/hisilicon/hisi_uncore_pmu.c b/drivers/perf/hisilicon/hisi_uncore_pmu.c
+index c0f221e39aff..2758cab39a58 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_pmu.c
+@@ -491,7 +491,7 @@ int hisi_uncore_pmu_online_cpu(unsigned int cpu, struct hlist_node *node)
+ 	hisi_pmu->on_cpu = cpu;
+ 
+ 	/* Overflow interrupt also should use the same CPU */
+-	WARN_ON(irq_set_affinity_hint(hisi_pmu->irq, cpumask_of(cpu)));
++	WARN_ON(irq_set_affinity(hisi_pmu->irq, cpumask_of(cpu)));
+ 
+ 	return 0;
+ }
+@@ -524,7 +524,7 @@ int hisi_uncore_pmu_offline_cpu(unsigned int cpu, struct hlist_node *node)
+ 	perf_pmu_migrate_context(&hisi_pmu->pmu, cpu, target);
+ 	/* Use this CPU for event counting */
+ 	hisi_pmu->on_cpu = target;
+-	WARN_ON(irq_set_affinity_hint(hisi_pmu->irq, cpumask_of(target)));
++	WARN_ON(irq_set_affinity(hisi_pmu->irq, cpumask_of(target)));
+ 
+ 	return 0;
+ }
+diff --git a/drivers/perf/hisilicon/hisi_uncore_sllc_pmu.c b/drivers/perf/hisilicon/hisi_uncore_sllc_pmu.c
+index 46be312fa126..835ec3e2178f 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_sllc_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_sllc_pmu.c
+@@ -465,7 +465,6 @@ static int hisi_sllc_pmu_probe(struct platform_device *pdev)
+ 		dev_err(sllc_pmu->dev, "PMU register failed, ret = %d\n", ret);
+ 		cpuhp_state_remove_instance(CPUHP_AP_PERF_ARM_HISI_SLLC_ONLINE,
+ 					    &sllc_pmu->node);
+-		irq_set_affinity_hint(sllc_pmu->irq, NULL);
+ 		return ret;
+ 	}
+ 
+@@ -481,8 +480,6 @@ static int hisi_sllc_pmu_remove(struct platform_device *pdev)
+ 	perf_pmu_unregister(&sllc_pmu->pmu);
+ 	cpuhp_state_remove_instance_nocalls(CPUHP_AP_PERF_ARM_HISI_SLLC_ONLINE,
+ 					    &sllc_pmu->node);
+-	irq_set_affinity_hint(sllc_pmu->irq, NULL);
+-
+ 	return 0;
+ }
+ 
+-- 
+2.27.0
+

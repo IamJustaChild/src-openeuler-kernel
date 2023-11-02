@@ -1,0 +1,162 @@
+From 418fb2ed339c7856662bb6244ac5477cba81f80f Mon Sep 17 00:00:00 2001
+From: hongrongxuan <hongrongxuan@huawei.com>
+Date: Fri, 27 Oct 2023 18:49:23 +0800
+Subject: [PATCH 52/55] Revert "perf/smmuv3_pmu: Enable HiSilicon Erratum
+ 162001800 quirk"
+
+driver inclusion
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8AU2M
+
+-----------------------------------------------------------
+
+This reverts commit 68088650bec0647cef4d822b31f818a094f5eead.
+We inclusion it again from upstream later.
+
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ drivers/acpi/arm64/iort.c     | 16 +-----------
+ drivers/perf/arm_smmuv3_pmu.c | 48 +++++------------------------------
+ include/linux/acpi_iort.h     |  1 -
+ 3 files changed, 8 insertions(+), 57 deletions(-)
+
+diff --git a/drivers/acpi/arm64/iort.c b/drivers/acpi/arm64/iort.c
+index 9ad4ee8884de..d507556d508f 100644
+--- a/drivers/acpi/arm64/iort.c
++++ b/drivers/acpi/arm64/iort.c
+@@ -1476,23 +1476,9 @@ static void __init arm_smmu_v3_pmcg_init_resources(struct resource *res,
+ 				       ACPI_EDGE_SENSITIVE, &res[2]);
+ }
+ 
+-static struct acpi_platform_list pmcg_plat_info[] __initdata = {
+-	/* HiSilicon Hip08 Platform */
+-	{"HISI  ", "HIP08   ", 0, ACPI_SIG_IORT, greater_than_or_equal, 0,
+-	 IORT_SMMU_V3_PMCG_HISI_HIP08},
+-	{ }
+-};
+-
+ static int __init arm_smmu_v3_pmcg_add_platdata(struct platform_device *pdev)
+ {
+-	u32 model;
+-	int idx;
+-
+-	idx = acpi_match_platform_list(pmcg_plat_info);
+-	if (idx >= 0)
+-		model = pmcg_plat_info[idx].data;
+-	else
+-		model = IORT_SMMU_V3_PMCG_GENERIC;
++	u32 model = IORT_SMMU_V3_PMCG_GENERIC;
+ 
+ 	return platform_device_add_data(pdev, &model, sizeof(model));
+ }
+diff --git a/drivers/perf/arm_smmuv3_pmu.c b/drivers/perf/arm_smmuv3_pmu.c
+index bda901e2a5fc..e9cd120f4268 100644
+--- a/drivers/perf/arm_smmuv3_pmu.c
++++ b/drivers/perf/arm_smmuv3_pmu.c
+@@ -35,7 +35,6 @@
+  */
+ 
+ #include <linux/acpi.h>
+-#include <linux/acpi_iort.h>
+ #include <linux/bitfield.h>
+ #include <linux/bitops.h>
+ #include <linux/cpuhotplug.h>
+@@ -94,8 +93,6 @@
+ 
+ #define SMMU_PMCG_PA_SHIFT              12
+ 
+-#define SMMU_PMCG_EVCNTR_RDONLY         BIT(0)
+-
+ static int cpuhp_state_num;
+ 
+ struct smmu_pmu {
+@@ -110,7 +107,6 @@ struct smmu_pmu {
+ 	struct device *dev;
+ 	void __iomem *reg_base;
+ 	void __iomem *reloc_base;
+-	u32 options;
+ 	u64 counter_mask;
+ 	bool global_filter;
+ };
+@@ -224,27 +220,15 @@ static void smmu_pmu_set_period(struct smmu_pmu *smmu_pmu,
+ 	u32 idx = hwc->idx;
+ 	u64 new;
+ 
+-	if (smmu_pmu->options & SMMU_PMCG_EVCNTR_RDONLY) {
+-		/*
+-		 * On platforms that require this quirk, if the counter starts
+-		 * at < half_counter value and wraps, the current logic of
+-		 * handling the overflow may not work. It is expected that,
+-		 * those platforms will have full 64 counter bits implemented
+-		 * so that such a possibility is remote(eg: HiSilicon HIP08).
+-		 */
+-		new = smmu_pmu_counter_get_value(smmu_pmu, idx);
+-	} else {
+-		/*
+-		 * We limit the max period to half the max counter value
+-		 * of the counter size, so that even in the case of extreme
+-		 * interrupt latency the counter will (hopefully) not wrap
+-		 * past its initial value.
+-		 */
+-		new = smmu_pmu->counter_mask >> 1;
+-		smmu_pmu_counter_set_value(smmu_pmu, idx, new);
+-	}
++	/*
++	 * We limit the max period to half the max counter value of the counter
++	 * size, so that even in the case of extreme interrupt latency the
++	 * counter will (hopefully) not wrap past its initial value.
++	 */
++	new = smmu_pmu->counter_mask >> 1;
+ 
+ 	local64_set(&hwc->prev_count, new);
++	smmu_pmu_counter_set_value(smmu_pmu, idx, new);
+ }
+ 
+ static void smmu_pmu_set_event_filter(struct perf_event *event,
+@@ -718,22 +702,6 @@ static void smmu_pmu_reset(struct smmu_pmu *smmu_pmu)
+ 		       smmu_pmu->reloc_base + SMMU_PMCG_OVSCLR0);
+ }
+ 
+-static void smmu_pmu_get_acpi_options(struct smmu_pmu *smmu_pmu)
+-{
+-	u32 model;
+-
+-	model = *(u32 *)dev_get_platdata(smmu_pmu->dev);
+-
+-	switch (model) {
+-	case IORT_SMMU_V3_PMCG_HISI_HIP08:
+-		/* HiSilicon Erratum 162001800 */
+-		smmu_pmu->options |= SMMU_PMCG_EVCNTR_RDONLY;
+-		break;
+-	}
+-
+-	dev_notice(smmu_pmu->dev, "option mask 0x%x\n", smmu_pmu->options);
+-}
+-
+ static int smmu_pmu_probe(struct platform_device *pdev)
+ {
+ 	struct smmu_pmu *smmu_pmu;
+@@ -813,8 +781,6 @@ static int smmu_pmu_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 	}
+ 
+-	smmu_pmu_get_acpi_options(smmu_pmu);
+-
+ 	/* Pick one CPU to be the preferred one to use */
+ 	smmu_pmu->on_cpu = raw_smp_processor_id();
+ 	WARN_ON(irq_set_affinity(smmu_pmu->irq, cpumask_of(smmu_pmu->on_cpu)));
+diff --git a/include/linux/acpi_iort.h b/include/linux/acpi_iort.h
+index bdb69125854e..832bd6ae9ad4 100644
+--- a/include/linux/acpi_iort.h
++++ b/include/linux/acpi_iort.h
+@@ -31,7 +31,6 @@
+  * that, this is not part of the IORT specification.
+  */
+ #define IORT_SMMU_V3_PMCG_GENERIC        0x00000000 /* Generic SMMUv3 PMCG */
+-#define IORT_SMMU_V3_PMCG_HISI_HIP08     0x00000001 /* HiSilicon HIP08 PMCG */
+ 
+ int iort_register_domain_token(int trans_id, phys_addr_t base,
+ 			       struct fwnode_handle *fw_node);
+-- 
+2.27.0
+

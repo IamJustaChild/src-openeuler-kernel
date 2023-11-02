@@ -1,0 +1,127 @@
+From 158cb44475a0c6d29c08716ccb3a868262388e55 Mon Sep 17 00:00:00 2001
+From: Junhao He <hejunhao3@huawei.com>
+Date: Tue, 23 May 2023 14:44:29 +0800
+Subject: [PATCH 51/55] drivers/perf: hisi: add NULL check for name
+
+mainline inclusion
+from mainline-v6.4-rc1
+commit 257aedb72e731082ab514058e57b132f0b29d707
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I77IH6
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=257aedb72e731082ab514058e57b132f0b29d707
+
+----------------------------------------------------------------------
+
+When allocations fails that can be NULL now.
+
+If the name provided is NULL, then the initialization process of the PMU
+type and dev will be skipped in function perf_pmu_register().
+Consequently, the PMU will not be able to register into the kernel.
+Moreover, in the case of unregister the PMU, the function device_del()
+will need to handle NULL pointers, which potentially can cause issues.
+
+So move this allocation above the cpuhp_state_add_instance() and directly
+return if it does fail.
+
+Signed-off-by: Junhao He <hejunhao3@huawei.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c | 17 ++++++++++-------
+ drivers/perf/hisilicon/hisi_uncore_hha_pmu.c  |  7 +++++--
+ drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c  | 11 +++++------
+ 3 files changed, 20 insertions(+), 15 deletions(-)
+
+diff --git a/drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c b/drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c
+index eddeb76ce4c5..184f2f986c98 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c
+@@ -502,13 +502,6 @@ static int hisi_ddrc_pmu_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = cpuhp_state_add_instance(CPUHP_AP_PERF_ARM_HISI_DDRC_ONLINE,
+-				       &ddrc_pmu->node);
+-	if (ret) {
+-		dev_err(&pdev->dev, "Error %d registering hotplug;\n", ret);
+-		return ret;
+-	}
+-
+ 	if (ddrc_pmu->identifier >= HISI_PMU_V2)
+ 		name = devm_kasprintf(&pdev->dev, GFP_KERNEL,
+ 				      "hisi_sccl%u_ddrc%u_%u",
+@@ -519,6 +512,16 @@ static int hisi_ddrc_pmu_probe(struct platform_device *pdev)
+ 				      "hisi_sccl%u_ddrc%u", ddrc_pmu->sccl_id,
+ 				      ddrc_pmu->index_id);
+ 
++	if (!name)
++		return -ENOMEM;
++
++	ret = cpuhp_state_add_instance(CPUHP_AP_PERF_ARM_HISI_DDRC_ONLINE,
++				       &ddrc_pmu->node);
++	if (ret) {
++		dev_err(&pdev->dev, "Error %d registering hotplug;\n", ret);
++		return ret;
++	}
++
+ 	hisi_pmu_init(ddrc_pmu, THIS_MODULE);
+ 
+ 	ret = perf_pmu_register(&ddrc_pmu->pmu, name, -1);
+diff --git a/drivers/perf/hisilicon/hisi_uncore_hha_pmu.c b/drivers/perf/hisilicon/hisi_uncore_hha_pmu.c
+index 1b8f44dada6d..16038ebf08b6 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_hha_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_hha_pmu.c
+@@ -513,6 +513,11 @@ static int hisi_hha_pmu_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		return ret;
+ 
++	name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "hisi_sccl%u_hha%u",
++			      hha_pmu->sccl_id, hha_pmu->index_id);
++	if (!name)
++		return -ENOMEM;
++
+ 	ret = cpuhp_state_add_instance(CPUHP_AP_PERF_ARM_HISI_HHA_ONLINE,
+ 				       &hha_pmu->node);
+ 	if (ret) {
+@@ -520,8 +525,6 @@ static int hisi_hha_pmu_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "hisi_sccl%u_hha%u",
+-			      hha_pmu->sccl_id, hha_pmu->index_id);
+ 	hisi_pmu_init(hha_pmu, THIS_MODULE);
+ 
+ 	ret = perf_pmu_register(&hha_pmu->pmu, name, -1);
+diff --git a/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c b/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c
+index b2ac90e9f2cd..f9640dbd4095 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c
+@@ -547,6 +547,11 @@ static int hisi_l3c_pmu_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		return ret;
+ 
++	name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "hisi_sccl%u_l3c%u",
++			      l3c_pmu->sccl_id, l3c_pmu->ccl_id);
++	if (!name)
++		return -ENOMEM;
++
+ 	ret = cpuhp_state_add_instance(CPUHP_AP_PERF_ARM_HISI_L3_ONLINE,
+ 				       &l3c_pmu->node);
+ 	if (ret) {
+@@ -554,12 +559,6 @@ static int hisi_l3c_pmu_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	/*
+-	 * CCL_ID is used to identify the L3C in the same SCCL which was
+-	 * used _UID by mistake.
+-	 */
+-	name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "hisi_sccl%u_l3c%u",
+-			      l3c_pmu->sccl_id, l3c_pmu->ccl_id);
+ 	hisi_pmu_init(l3c_pmu, THIS_MODULE);
+ 
+ 	ret = perf_pmu_register(&l3c_pmu->pmu, name, -1);
+-- 
+2.27.0
+

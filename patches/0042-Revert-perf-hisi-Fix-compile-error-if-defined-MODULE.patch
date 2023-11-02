@@ -1,0 +1,37 @@
+From 6f28c899df9750b13fdc86b9b3bb80d46aa89c8d Mon Sep 17 00:00:00 2001
+From: hongrongxuan <hongrongxuan@huawei.com>
+Date: Wed, 25 Oct 2023 14:58:04 +0800
+Subject: [PATCH 01/55] Revert "perf: hisi: Fix compile error if defined
+ MODULE"
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8AU2M
+
+--------------------------------------------------------------
+
+This reverts commit f00917fa81207962a5455e1084c90aff36b3a6ae.
+
+This bugfix fixed in higher verison in L3t pmu driver, inclusion it later.
+
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ drivers/perf/hisilicon/hisi_uncore_lpddrc_pmu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/perf/hisilicon/hisi_uncore_lpddrc_pmu.c b/drivers/perf/hisilicon/hisi_uncore_lpddrc_pmu.c
+index ca395252ccc3..8f8b211788e0 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_lpddrc_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_lpddrc_pmu.c
+@@ -241,7 +241,7 @@ static int hisi_lpddrc_pmu_init_irq(struct hisi_pmu *lpddrc_pmu,
+ static const struct of_device_id lpddrc_of_match[] = {
+ 	{ .compatible = "hisilicon,lpddrc-pmu", },
+ 	{},
+-};
++}
+ MODULE_DEVICE_TABLE(of, lpddrc_of_match);
+ 
+ static int hisi_lpddrc_pmu_init_data(struct platform_device *pdev,
+-- 
+2.27.0
+
