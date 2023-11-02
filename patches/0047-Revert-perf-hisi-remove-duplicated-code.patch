@@ -1,0 +1,129 @@
+From 41ea05f9ac69e7cbae775862e5c3e0dad2e1e4ca Mon Sep 17 00:00:00 2001
+From: hongrongxuan <hongrongxuan@huawei.com>
+Date: Wed, 25 Oct 2023 15:26:31 +0800
+Subject: [PATCH 06/55] Revert "perf: hisi: remove duplicated code"
+
+driver inclusion
+category: cleanup
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8AU2M
+
+----------------------------------------------------------
+
+This reverts commit de1ea4e7f5209c7f84965c38bf37287c11db02dc.
+
+revert it, and inclusion the newer version of commit c38992d67c15(perf: hisi: Extract hisi_pmu_init) later.
+
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c | 15 ++++++++++++++-
+ drivers/perf/hisilicon/hisi_uncore_hha_pmu.c  | 15 ++++++++++++++-
+ drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c  | 14 +++++++++++++-
+ drivers/perf/hisilicon/hisi_uncore_pmu.h      | 17 -----------------
+ 4 files changed, 41 insertions(+), 20 deletions(-)
+
+diff --git a/drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c b/drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c
+index f2a144ba3724..b3488ae1f2b8 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c
+@@ -384,7 +384,20 @@ static int hisi_ddrc_pmu_probe(struct platform_device *pdev)
+ 
+ 	name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "hisi_sccl%u_ddrc%u",
+ 			      ddrc_pmu->sccl_id, ddrc_pmu->index_id);
+-	HISI_INIT_PMU(&ddrc_pmu->pmu, name, hisi_ddrc_pmu_attr_groups);
++	ddrc_pmu->pmu = (struct pmu) {
++		.name		= name,
++		.task_ctx_nr	= perf_invalid_context,
++		.event_init	= hisi_uncore_pmu_event_init,
++		.pmu_enable	= hisi_uncore_pmu_enable,
++		.pmu_disable	= hisi_uncore_pmu_disable,
++		.add		= hisi_uncore_pmu_add,
++		.del		= hisi_uncore_pmu_del,
++		.start		= hisi_uncore_pmu_start,
++		.stop		= hisi_uncore_pmu_stop,
++		.read		= hisi_uncore_pmu_read,
++		.attr_groups	= hisi_ddrc_pmu_attr_groups,
++	};
++
+ 	ret = perf_pmu_register(&ddrc_pmu->pmu, name, -1);
+ 	if (ret) {
+ 		dev_err(ddrc_pmu->dev, "DDRC PMU register failed!\n");
+diff --git a/drivers/perf/hisilicon/hisi_uncore_hha_pmu.c b/drivers/perf/hisilicon/hisi_uncore_hha_pmu.c
+index 540f664463a8..f0215d50d84d 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_hha_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_hha_pmu.c
+@@ -395,7 +395,20 @@ static int hisi_hha_pmu_probe(struct platform_device *pdev)
+ 
+ 	name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "hisi_sccl%u_hha%u",
+ 			      hha_pmu->sccl_id, hha_pmu->index_id);
+-	HISI_INIT_PMU(&hha_pmu->pmu, name, hisi_hha_pmu_attr_groups);
++	hha_pmu->pmu = (struct pmu) {
++		.name		= name,
++		.task_ctx_nr	= perf_invalid_context,
++		.event_init	= hisi_uncore_pmu_event_init,
++		.pmu_enable	= hisi_uncore_pmu_enable,
++		.pmu_disable	= hisi_uncore_pmu_disable,
++		.add		= hisi_uncore_pmu_add,
++		.del		= hisi_uncore_pmu_del,
++		.start		= hisi_uncore_pmu_start,
++		.stop		= hisi_uncore_pmu_stop,
++		.read		= hisi_uncore_pmu_read,
++		.attr_groups	= hisi_hha_pmu_attr_groups,
++	};
++
+ 	ret = perf_pmu_register(&hha_pmu->pmu, name, -1);
+ 	if (ret) {
+ 		dev_err(hha_pmu->dev, "HHA PMU register failed!\n");
+diff --git a/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c b/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c
+index 117edd114445..11563e29d983 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c
+@@ -385,7 +385,19 @@ static int hisi_l3c_pmu_probe(struct platform_device *pdev)
+ 
+ 	name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "hisi_sccl%u_l3c%u",
+ 			      l3c_pmu->sccl_id, l3c_pmu->index_id);
+-	HISI_INIT_PMU(&l3c_pmu->pmu, name, hisi_l3c_pmu_attr_groups);
++	l3c_pmu->pmu = (struct pmu) {
++		.name		= name,
++		.task_ctx_nr	= perf_invalid_context,
++		.event_init	= hisi_uncore_pmu_event_init,
++		.pmu_enable	= hisi_uncore_pmu_enable,
++		.pmu_disable	= hisi_uncore_pmu_disable,
++		.add		= hisi_uncore_pmu_add,
++		.del		= hisi_uncore_pmu_del,
++		.start		= hisi_uncore_pmu_start,
++		.stop		= hisi_uncore_pmu_stop,
++		.read		= hisi_uncore_pmu_read,
++		.attr_groups	= hisi_l3c_pmu_attr_groups,
++	};
+ 
+ 	ret = perf_pmu_register(&l3c_pmu->pmu, name, -1);
+ 	if (ret) {
+diff --git a/drivers/perf/hisilicon/hisi_uncore_pmu.h b/drivers/perf/hisilicon/hisi_uncore_pmu.h
+index 8445ee581e46..8f2f2fc5dde4 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_pmu.h
++++ b/drivers/perf/hisilicon/hisi_uncore_pmu.h
+@@ -100,21 +100,4 @@ ssize_t hisi_cpumask_sysfs_show(struct device *dev,
+ 				struct device_attribute *attr, char *buf);
+ int hisi_uncore_pmu_online_cpu(unsigned int cpu, struct hlist_node *node);
+ int hisi_uncore_pmu_offline_cpu(unsigned int cpu, struct hlist_node *node);
+-
+-static inline void HISI_INIT_PMU(struct pmu *pmu, const char *name,
+-			    const struct attribute_group **attr_groups)
+-{
+-	pmu->name		= name;
+-	pmu->task_ctx_nr	= perf_invalid_context;
+-	pmu->event_init		= hisi_uncore_pmu_event_init;
+-	pmu->pmu_enable		= hisi_uncore_pmu_enable;
+-	pmu->pmu_disable	= hisi_uncore_pmu_disable;
+-	pmu->add		= hisi_uncore_pmu_add;
+-	pmu->del		= hisi_uncore_pmu_del;
+-	pmu->start		= hisi_uncore_pmu_start;
+-	pmu->stop		= hisi_uncore_pmu_stop;
+-	pmu->read		= hisi_uncore_pmu_read;
+-	pmu->attr_groups	= attr_groups;
+-}
+-
+ #endif /* __HISI_UNCORE_PMU_H__ */
+-- 
+2.27.0
+

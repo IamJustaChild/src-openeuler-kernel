@@ -1,0 +1,57 @@
+From 6a6aa532c3e4951259c5c024aa560afe4798e22a Mon Sep 17 00:00:00 2001
+From: Junhao He <hejunhao3@huawei.com>
+Date: Tue, 23 May 2023 14:44:27 +0800
+Subject: [PATCH 49/55] drivers/perf: hisi: Extract initialization of
+ "cpa_pmu->pmu"
+
+mainline inclusion
+from mainline-v6.3-rc1
+commit e126f6f42f89baee09e088ab6bc48f83ac3a0eae
+category: cleanup
+bugzilla: https://gitee.com/openeuler/kernel/issues/I77IH6
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=e126f6f42f89baee09e088ab6bc48f83ac3a0eae
+
+----------------------------------------------------------------------
+
+Use hisi_pmu_init() function to simplify initialization of "cpa_pmu->pmu".
+
+Signed-off-by: Junhao He <hejunhao3@huawei.com>
+Link: https://lore.kernel.org/r/20230119100307.3660-4-hejunhao3@huawei.com
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ drivers/perf/hisilicon/hisi_uncore_cpa_pmu.c | 16 +---------------
+ 1 file changed, 1 insertion(+), 15 deletions(-)
+
+diff --git a/drivers/perf/hisilicon/hisi_uncore_cpa_pmu.c b/drivers/perf/hisilicon/hisi_uncore_cpa_pmu.c
+index 09839dae9b7c..1a75351013f1 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_cpa_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_cpa_pmu.c
+@@ -319,21 +319,7 @@ static int hisi_cpa_pmu_probe(struct platform_device *pdev)
+ 	if (!name)
+ 		return -ENOMEM;
+ 
+-	cpa_pmu->pmu = (struct pmu) {
+-		.name		= name,
+-		.module		= THIS_MODULE,
+-		.task_ctx_nr	= perf_invalid_context,
+-		.event_init	= hisi_uncore_pmu_event_init,
+-		.pmu_enable	= hisi_uncore_pmu_enable,
+-		.pmu_disable	= hisi_uncore_pmu_disable,
+-		.add		= hisi_uncore_pmu_add,
+-		.del		= hisi_uncore_pmu_del,
+-		.start		= hisi_uncore_pmu_start,
+-		.stop		= hisi_uncore_pmu_stop,
+-		.read		= hisi_uncore_pmu_read,
+-		.attr_groups	= cpa_pmu->pmu_events.attr_groups,
+-		.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
+-	};
++	hisi_pmu_init(cpa_pmu, name, THIS_MODULE);
+ 
+ 	/* Power Management should be disabled before using CPA PMU. */
+ 	hisi_cpa_pmu_disable_pm(cpa_pmu);
+-- 
+2.27.0
+

@@ -1,0 +1,144 @@
+From 2ccc10a1b9770a9205a8ababd910a08dd8512b96 Mon Sep 17 00:00:00 2001
+From: Junhao He <hejunhao3@huawei.com>
+Date: Tue, 23 May 2023 14:44:28 +0800
+Subject: [PATCH 50/55] drivers/perf: hisi: Remove redundant initialized of
+ pmu->name
+
+mainline inclusion
+from mainline-v6.4-rc1
+commit 25d8c25025a46e7621edde2eb6d5f55c6d29ee86
+category: cleanup
+bugzilla: https://gitee.com/openeuler/kernel/issues/I77IH6
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=25d8c25025a46e7621edde2eb6d5f55c6d29ee86
+
+----------------------------------------------------------------------
+
+"pmu->name" is initialized by perf_pmu_register() function, so remove
+the redundant initialized in hisi_pmu_init().
+
+Signed-off-by: Junhao He <hejunhao3@huawei.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ drivers/perf/hisilicon/hisi_uncore_cpa_pmu.c  | 2 +-
+ drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c | 2 +-
+ drivers/perf/hisilicon/hisi_uncore_hha_pmu.c  | 2 +-
+ drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c  | 2 +-
+ drivers/perf/hisilicon/hisi_uncore_pa_pmu.c   | 2 +-
+ drivers/perf/hisilicon/hisi_uncore_pmu.c      | 4 +---
+ drivers/perf/hisilicon/hisi_uncore_pmu.h      | 3 +--
+ drivers/perf/hisilicon/hisi_uncore_sllc_pmu.c | 2 +-
+ 8 files changed, 8 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/perf/hisilicon/hisi_uncore_cpa_pmu.c b/drivers/perf/hisilicon/hisi_uncore_cpa_pmu.c
+index 1a75351013f1..9322fc3dac07 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_cpa_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_cpa_pmu.c
+@@ -319,7 +319,7 @@ static int hisi_cpa_pmu_probe(struct platform_device *pdev)
+ 	if (!name)
+ 		return -ENOMEM;
+ 
+-	hisi_pmu_init(cpa_pmu, name, THIS_MODULE);
++	hisi_pmu_init(cpa_pmu, THIS_MODULE);
+ 
+ 	/* Power Management should be disabled before using CPA PMU. */
+ 	hisi_cpa_pmu_disable_pm(cpa_pmu);
+diff --git a/drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c b/drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c
+index 3a1b3919c736..eddeb76ce4c5 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c
+@@ -519,7 +519,7 @@ static int hisi_ddrc_pmu_probe(struct platform_device *pdev)
+ 				      "hisi_sccl%u_ddrc%u", ddrc_pmu->sccl_id,
+ 				      ddrc_pmu->index_id);
+ 
+-	hisi_pmu_init(ddrc_pmu, name, THIS_MODULE);
++	hisi_pmu_init(ddrc_pmu, THIS_MODULE);
+ 
+ 	ret = perf_pmu_register(&ddrc_pmu->pmu, name, -1);
+ 	if (ret) {
+diff --git a/drivers/perf/hisilicon/hisi_uncore_hha_pmu.c b/drivers/perf/hisilicon/hisi_uncore_hha_pmu.c
+index 9aa951bdf417..1b8f44dada6d 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_hha_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_hha_pmu.c
+@@ -522,7 +522,7 @@ static int hisi_hha_pmu_probe(struct platform_device *pdev)
+ 
+ 	name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "hisi_sccl%u_hha%u",
+ 			      hha_pmu->sccl_id, hha_pmu->index_id);
+-	hisi_pmu_init(hha_pmu, name, THIS_MODULE);
++	hisi_pmu_init(hha_pmu, THIS_MODULE);
+ 
+ 	ret = perf_pmu_register(&hha_pmu->pmu, name, -1);
+ 	if (ret) {
+diff --git a/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c b/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c
+index 0406c034e7c4..b2ac90e9f2cd 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c
+@@ -560,7 +560,7 @@ static int hisi_l3c_pmu_probe(struct platform_device *pdev)
+ 	 */
+ 	name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "hisi_sccl%u_l3c%u",
+ 			      l3c_pmu->sccl_id, l3c_pmu->ccl_id);
+-	hisi_pmu_init(l3c_pmu, name, THIS_MODULE);
++	hisi_pmu_init(l3c_pmu, THIS_MODULE);
+ 
+ 	ret = perf_pmu_register(&l3c_pmu->pmu, name, -1);
+ 	if (ret) {
+diff --git a/drivers/perf/hisilicon/hisi_uncore_pa_pmu.c b/drivers/perf/hisilicon/hisi_uncore_pa_pmu.c
+index df8605a0b24d..cf10c84ada41 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_pa_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_pa_pmu.c
+@@ -414,7 +414,7 @@ static int hisi_pa_pmu_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	hisi_pmu_init(pa_pmu, name, THIS_MODULE);
++	hisi_pmu_init(pa_pmu, THIS_MODULE);
+ 	ret = perf_pmu_register(&pa_pmu->pmu, name, -1);
+ 	if (ret) {
+ 		dev_err(pa_pmu->dev, "PMU register failed, ret = %d\n", ret);
+diff --git a/drivers/perf/hisilicon/hisi_uncore_pmu.c b/drivers/perf/hisilicon/hisi_uncore_pmu.c
+index 13e54e458f9a..aed38a8c582c 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_pmu.c
+@@ -540,12 +540,10 @@ int hisi_uncore_pmu_offline_cpu(unsigned int cpu, struct hlist_node *node)
+ }
+ EXPORT_SYMBOL_GPL(hisi_uncore_pmu_offline_cpu);
+ 
+-void hisi_pmu_init(struct hisi_pmu *hisi_pmu, const char *name,
+-		   struct module *module)
++void hisi_pmu_init(struct hisi_pmu *hisi_pmu, struct module *module)
+ {
+ 	struct pmu *pmu = &hisi_pmu->pmu;
+ 
+-	pmu->name               = name;
+ 	pmu->module             = module;
+ 	pmu->task_ctx_nr        = perf_invalid_context;
+ 	pmu->event_init         = hisi_uncore_pmu_event_init;
+diff --git a/drivers/perf/hisilicon/hisi_uncore_pmu.h b/drivers/perf/hisilicon/hisi_uncore_pmu.h
+index 27951213c9e8..93b672d9731e 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_pmu.h
++++ b/drivers/perf/hisilicon/hisi_uncore_pmu.h
+@@ -135,6 +135,5 @@ ssize_t hisi_uncore_pmu_identifier_attr_show(struct device *dev,
+ int hisi_uncore_pmu_init_irq(struct hisi_pmu *hisi_pmu,
+ 			     struct platform_device *pdev);
+ 
+-void hisi_pmu_init(struct hisi_pmu *hisi_pmu, const char *name,
+-		   struct module *module);
++void hisi_pmu_init(struct hisi_pmu *hisi_pmu, struct module *module);
+ #endif /* __HISI_UNCORE_PMU_H__ */
+diff --git a/drivers/perf/hisilicon/hisi_uncore_sllc_pmu.c b/drivers/perf/hisilicon/hisi_uncore_sllc_pmu.c
+index c1b038fc534e..149a0d8f403f 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_sllc_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_sllc_pmu.c
+@@ -447,7 +447,7 @@ static int hisi_sllc_pmu_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	hisi_pmu_init(sllc_pmu, name, THIS_MODULE);
++	hisi_pmu_init(sllc_pmu, THIS_MODULE);
+ 
+ 	ret = perf_pmu_register(&sllc_pmu->pmu, name, -1);
+ 	if (ret) {
+-- 
+2.27.0
+

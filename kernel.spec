@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0230
+Release: %{hulkrelease}.0231
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -831,6 +831,63 @@ fi
 %endif
 
 %changelog
+
+* Wed Nov 1 2023 hongrongxuan <hongrongxuan@huawei.com> - 4.19.90-2311.1.0.0231
+- perf/smmuv3: Add MODULE_ALIAS for module auto loading
+- perf/smmuv3: Enable HiSilicon Erratum 162001900 quirk for HIP08/09
+- perf/smmuv3: Enable HiSilicon Erratum 162001800 quirk
+- Revert "perf/smmuv3_pmu: Enable HiSilicon Erratum 162001800 quirk"
+- drivers/perf: hisi: add NULL check for name
+- drivers/perf: hisi: Remove redundant initialized of pmu->name
+- drivers/perf: hisi: Extract initialization of "cpa_pmu->pmu"
+- drivers/perf: hisi: Simplify the parameters of hisi_pmu_init()
+- drivers/perf: hisi: Advertise the PERF_PMU_CAP_NO_EXCLUDE capability
+- perf: hisi: Extract hisi_pmu_init
+- perf: hisi: Add configs for PMU isolation
+- perf: hisi: Fix read sccl_id and ccl_id error in TSV200
+- drivers/perf: fixed kabi broken for SLLC and PA PMU
+- drivers/perf: fixed the issue that the kabi value changed
+- drivers/perf: hisi: Don't migrate perf to the CPU going to teardown
+- drivers/perf: hisi: Add TLP filter support
+- docs: perf: Fix PMU instance name of hisi-pcie-pmu
+- docs: fix 'make htmldocs' warning in perf
+- docs: perf: Address some html build warnings
+- docs: perf: Add description for HiSilicon PCIe PMU driver
+- docs: perf: Add new description on HiSilicon uncore PMU v2
+- docs: perf: move to the admin-guide
+- drivers/perf: hisi: Fix some event id for hisi-pcie-pmu
+- drivers/perf: hisi: Add Support for CPA PMU
+- driver/perf: hisi: fix kabi broken for struct hisi_pmu
+- drivers/perf: hisi: Associate PMUs in SICL with CPUs online
+- drivers/perf: hisi: Add driver for HiSilicon PCIe PMU
+- PCI: Add pci_dev_id() helper
+- perf: hisi: Fix unexpected modifications in hisi_uncore_l3c_pmu.c
+- perf: hisi: Add support for HiSilicon SoC LPDDRC PMU
+- perf: hisi: Add support for HiSilicon SoC L3T PMU
+- perf: hisi: Fix read sccl_id and ccl_id error in some platform
+- perf: hisi: Make irq shared
+- drivers/perf: hisi: Fix data source control
+- perf/hisi: Use irq_set_affinity()
+- drivers/perf: hisi: Add support for HiSilicon PA PMU driver
+- drivers/perf: hisi: Add support for HiSilicon SLLC PMU driver
+- drivers/perf: hisi: Update DDRC PMU for programmable counter
+- drivers/perf: hisi: Add new functions for HHA PMU
+- drivers/perf: hisi: Add new functions for L3C PMU
+- drivers/perf: hisi: Add PMU version for uncore PMU drivers.
+- drivers/perf: hisi: Refactor code for more uncore PMUs
+- drivers/perf: hisi: Remove unnecessary check of counter index
+- drivers/perf: hisi: Add identifier sysfs file
+- perf: hisi: use devm_platform_ioremap_resource() to simplify code
+- drivers: provide devm_platform_ioremap_resource()
+- For drivers that do not support context exclusion let's advertise the PERF_PMU_CAP_NO_EXCLUDE capability. This ensures that perf will prevent us from handling events where any exclusion flags are set. Let's also remove the now unnecessary check for exclusion flags.
+- drivers/perf: Fix kernel panic when rmmod PMU modules during perf sampling
+- docs: perf: convert to ReST
+- Revert "perf: hisi: remove duplicated code"
+- Revert "drivers/perf: Fix kernel panic when rmmod PMU modules during perf sampling"
+- Revert "perf: hisi: Add support for HiSilicon SoC PMU driver dt probe"
+- Revert "perf: hisi: Add support for HiSilicon SoC LPDDRC PMU driver"
+- Revert "perf: hisi: Add support for HiSilicon SoC L3T PMU driver"
+- Revert "perf: hisi: Fix compile error if defined MODULE"
 
 * Wed Nov 1 2023 Luo Shengwei <luoshengwei@huawei.com> - 4.19.90-2311.1.0.0230
 - !2609  Fix CVE-2023-5717
