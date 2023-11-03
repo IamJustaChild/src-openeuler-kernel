@@ -1,0 +1,275 @@
+From 2ba00283ddd367afa75f72e3b4de15f80b4a97a7 Mon Sep 17 00:00:00 2001
+From: Dave Martin <Dave.Martin@arm.com>
+Date: Thu, 18 Apr 2019 18:41:38 +0100
+Subject: [PATCH openEuler-20.03-LTS-SP4 2/4] arm64: Expose SVE2 features for
+ userspace
+
+mainline inclusion
+from mainline-v5.2-rc1
+commit 06a916feca2b262ab0c1a2aeb68882f4b1108a07
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8B82O
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=06a916feca2b262ab0c1a2aeb68882f4b1108a07
+
+--------------------------------
+
+This patch provides support for reporting the presence of SVE2 and
+its optional features to userspace.
+
+This will also enable visibility of SVE2 for guests, when KVM
+support for SVE-enabled guests is available.
+
+Signed-off-by: Dave Martin <Dave.Martin@arm.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+
+Conflicts:
+	arch/arm64/include/asm/hwcap.h
+	arch/arm64/include/uapi/asm/hwcap.h
+	arch/arm64/kernel/cpuinfo.c
+
+Signed-off-by: Yu Liao <liaoyu15@huawei.com>
+---
+ Documentation/arm64/cpu-feature-registers.txt | 16 +++++++++++++
+ Documentation/arm64/elf_hwcaps.txt            | 24 +++++++++++++++++++
+ Documentation/arm64/sve.txt                   | 17 +++++++++++++
+ arch/arm64/Kconfig                            |  3 +++
+ arch/arm64/include/asm/hwcap.h                |  6 +++++
+ arch/arm64/include/asm/sysreg.h               | 14 +++++++++++
+ arch/arm64/include/uapi/asm/hwcap.h           | 10 ++++++++
+ arch/arm64/kernel/cpufeature.c                | 17 ++++++++++++-
+ arch/arm64/kernel/cpuinfo.c                   | 10 ++++++++
+ 9 files changed, 116 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/arm64/cpu-feature-registers.txt b/Documentation/arm64/cpu-feature-registers.txt
+index 7964f03846b1..fcd2e1deb886 100644
+--- a/Documentation/arm64/cpu-feature-registers.txt
++++ b/Documentation/arm64/cpu-feature-registers.txt
+@@ -201,6 +201,22 @@ infrastructure:
+      | AT                           | [35-32] |    y    |
+      x--------------------------------------------------x
+ 
++  6) ID_AA64ZFR0_EL1 - SVE feature ID register 0
++
++     x--------------------------------------------------x
++     | Name                         |  bits   | visible |
++     |--------------------------------------------------|
++     | SM4                          | [43-40] |    y    |
++     |--------------------------------------------------|
++     | SHA3                         | [35-32] |    y    |
++     |--------------------------------------------------|
++     | BitPerm                      | [19-16] |    y    |
++     |--------------------------------------------------|
++     | AES                          | [7-4]   |    y    |
++     |--------------------------------------------------|
++     | SVEVer                       | [3-0]   |    y    |
++     x--------------------------------------------------x
++
+ Appendix I: Example
+ ---------------------------
+ 
+diff --git a/Documentation/arm64/elf_hwcaps.txt b/Documentation/arm64/elf_hwcaps.txt
+index 186feb16e2f2..e2ce14dfccf2 100644
+--- a/Documentation/arm64/elf_hwcaps.txt
++++ b/Documentation/arm64/elf_hwcaps.txt
+@@ -159,6 +159,30 @@ HWCAP_SVE
+ 
+     Functionality implied by ID_AA64PFR0_EL1.SVE == 0b0001.
+ 
++HWCAP2_SVE2
++
++    Functionality implied by ID_AA64ZFR0_EL1.SVEVer == 0b0001.
++
++HWCAP2_SVEAES
++
++    Functionality implied by ID_AA64ZFR0_EL1.AES == 0b0001.
++
++HWCAP2_SVEPMULL
++
++    Functionality implied by ID_AA64ZFR0_EL1.AES == 0b0010.
++
++HWCAP2_SVEBITPERM
++
++    Functionality implied by ID_AA64ZFR0_EL1.BitPerm == 0b0001.
++
++HWCAP2_SVESHA3
++
++    Functionality implied by ID_AA64ZFR0_EL1.SHA3 == 0b0001.
++
++HWCAP2_SVESM4
++
++    Functionality implied by ID_AA64ZFR0_EL1.SM4 == 0b0001.
++
+ HWCAP_ASIMDFHM
+ 
+    Functionality implied by ID_AA64ISAR0_EL1.FHM == 0b0001.
+diff --git a/Documentation/arm64/sve.txt b/Documentation/arm64/sve.txt
+index 2001d84384ca..5689fc9a976a 100644
+--- a/Documentation/arm64/sve.txt
++++ b/Documentation/arm64/sve.txt
+@@ -34,6 +34,23 @@ model features for SVE is included in Appendix A.
+   following sections: software that needs to verify that those interfaces are
+   present must check for HWCAP_SVE instead.
+ 
++* On hardware that supports the SVE2 extensions, HWCAP2_SVE2 will also
++  be reported in the AT_HWCAP2 aux vector entry.  In addition to this,
++  optional extensions to SVE2 may be reported by the presence of:
++
++	HWCAP2_SVE2
++	HWCAP2_SVEAES
++	HWCAP2_SVEPMULL
++	HWCAP2_SVEBITPERM
++	HWCAP2_SVESHA3
++	HWCAP2_SVESM4
++
++  This list may be extended over time as the SVE architecture evolves.
++
++  These extensions are also reported via the CPU ID register ID_AA64ZFR0_EL1,
++  which userspace can read using an MRS instruction.  See elf_hwcaps.txt and
++  cpu-feature-registers.txt for details.
++
+ * Debuggers should restrict themselves to interacting with the target via the
+   NT_ARM_SVE regset.  The recommended way of detecting support for this regset
+   is to connect to a target process first and then attempt a
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index 88b8031a93b2..f7398a1904a2 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -1316,6 +1316,9 @@ config ARM64_SVE
+ 
+ 	  To enable use of this extension on CPUs that implement it, say Y.
+ 
++	  On CPUs that support the SVE2 extensions, this option will enable
++	  those too.
++
+ 	  Note that for architectural reasons, firmware _must_ implement SVE
+ 	  support when running on SVE capable hardware.  The required support
+ 	  is present in:
+diff --git a/arch/arm64/include/asm/hwcap.h b/arch/arm64/include/asm/hwcap.h
+index 458ff2d7ece3..08315a3bf387 100644
+--- a/arch/arm64/include/asm/hwcap.h
++++ b/arch/arm64/include/asm/hwcap.h
+@@ -85,6 +85,12 @@
+ #define KERNEL_HWCAP_SSBS		__khwcap_feature(SSBS)
+ 
+ #define __khwcap2_feature(x)		(const_ilog2(HWCAP2_ ## x) + 32)
++#define KERNEL_HWCAP_SVE2		__khwcap2_feature(SVE2)
++#define KERNEL_HWCAP_SVEAES		__khwcap2_feature(SVEAES)
++#define KERNEL_HWCAP_SVEPMULL		__khwcap2_feature(SVEPMULL)
++#define KERNEL_HWCAP_SVEBITPERM		__khwcap2_feature(SVEBITPERM)
++#define KERNEL_HWCAP_SVESHA3		__khwcap2_feature(SVESHA3)
++#define KERNEL_HWCAP_SVESM4		__khwcap2_feature(SVESM4)
+ 
+ /*
+  * This yields a mask that user programs can use to figure out what
+diff --git a/arch/arm64/include/asm/sysreg.h b/arch/arm64/include/asm/sysreg.h
+index 0fd51d253648..69618e602ed8 100644
+--- a/arch/arm64/include/asm/sysreg.h
++++ b/arch/arm64/include/asm/sysreg.h
+@@ -564,6 +564,20 @@
+ #define ID_AA64PFR1_SSBS_PSTATE_ONLY	1
+ #define ID_AA64PFR1_SSBS_PSTATE_INSNS	2
+ 
++/* id_aa64zfr0 */
++#define ID_AA64ZFR0_SM4_SHIFT		40
++#define ID_AA64ZFR0_SHA3_SHIFT		32
++#define ID_AA64ZFR0_BITPERM_SHIFT	16
++#define ID_AA64ZFR0_AES_SHIFT		4
++#define ID_AA64ZFR0_SVEVER_SHIFT	0
++
++#define ID_AA64ZFR0_SM4			0x1
++#define ID_AA64ZFR0_SHA3		0x1
++#define ID_AA64ZFR0_BITPERM		0x1
++#define ID_AA64ZFR0_AES			0x1
++#define ID_AA64ZFR0_AES_PMULL		0x2
++#define ID_AA64ZFR0_SVEVER_SVE2		0x1
++
+ /* id_aa64mmfr0 */
+ #define ID_AA64MMFR0_TGRAN4_SHIFT	28
+ #define ID_AA64MMFR0_TGRAN64_SHIFT	24
+diff --git a/arch/arm64/include/uapi/asm/hwcap.h b/arch/arm64/include/uapi/asm/hwcap.h
+index 602158a55554..fea93415b493 100644
+--- a/arch/arm64/include/uapi/asm/hwcap.h
++++ b/arch/arm64/include/uapi/asm/hwcap.h
+@@ -50,4 +50,14 @@
+ #define HWCAP_FLAGM		(1 << 27)
+ #define HWCAP_SSBS		(1 << 28)
+ 
++/*
++ * HWCAP2 flags - for AT_HWCAP2
++ */
++#define HWCAP2_SVE2		(1 << 1)
++#define HWCAP2_SVEAES		(1 << 2)
++#define HWCAP2_SVEPMULL		(1 << 3)
++#define HWCAP2_SVEBITPERM	(1 << 4)
++#define HWCAP2_SVESHA3		(1 << 5)
++#define HWCAP2_SVESM4		(1 << 6)
++
+ #endif /* _UAPI__ASM_HWCAP_H */
+diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
+index 3a0e7e10f2d7..4f384bbd86c7 100644
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -183,6 +183,15 @@ static const struct arm64_ftr_bits ftr_id_aa64pfr1[] = {
+ 	ARM64_FTR_END,
+ };
+ 
++static const struct arm64_ftr_bits ftr_id_aa64zfr0[] = {
++	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64ZFR0_SM4_SHIFT, 4, 0),
++	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64ZFR0_SHA3_SHIFT, 4, 0),
++	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64ZFR0_BITPERM_SHIFT, 4, 0),
++	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64ZFR0_AES_SHIFT, 4, 0),
++	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64ZFR0_SVEVER_SHIFT, 4, 0),
++	ARM64_FTR_END,
++};
++
+ static const struct arm64_ftr_bits ftr_id_aa64mmfr0[] = {
+ 	/*
+ 	 * We already refuse to boot CPUs that don't support our configured
+@@ -399,7 +408,7 @@ static const struct __ftr_reg_entry {
+ 	/* Op1 = 0, CRn = 0, CRm = 4 */
+ 	ARM64_FTR_REG(SYS_ID_AA64PFR0_EL1, ftr_id_aa64pfr0),
+ 	ARM64_FTR_REG(SYS_ID_AA64PFR1_EL1, ftr_id_aa64pfr1),
+-	ARM64_FTR_REG(SYS_ID_AA64ZFR0_EL1, ftr_raz),
++	ARM64_FTR_REG(SYS_ID_AA64ZFR0_EL1, ftr_id_aa64zfr0),
+ 
+ 	/* Op1 = 0, CRn = 0, CRm = 5 */
+ 	ARM64_FTR_REG(SYS_ID_AA64DFR0_EL1, ftr_id_aa64dfr0),
+@@ -1580,6 +1589,12 @@ static const struct arm64_cpu_capabilities arm64_elf_hwcaps[] = {
+ 	HWCAP_CAP(SYS_ID_AA64MMFR2_EL1, ID_AA64MMFR2_AT_SHIFT, FTR_UNSIGNED, 1, CAP_HWCAP, KERNEL_HWCAP_USCAT),
+ #ifdef CONFIG_ARM64_SVE
+ 	HWCAP_CAP(SYS_ID_AA64PFR0_EL1, ID_AA64PFR0_SVE_SHIFT, FTR_UNSIGNED, ID_AA64PFR0_SVE, CAP_HWCAP, KERNEL_HWCAP_SVE),
++	HWCAP_CAP(SYS_ID_AA64ZFR0_EL1, ID_AA64ZFR0_SVEVER_SHIFT, FTR_UNSIGNED, ID_AA64ZFR0_SVEVER_SVE2, CAP_HWCAP, KERNEL_HWCAP_SVE2),
++	HWCAP_CAP(SYS_ID_AA64ZFR0_EL1, ID_AA64ZFR0_AES_SHIFT, FTR_UNSIGNED, ID_AA64ZFR0_AES, CAP_HWCAP, KERNEL_HWCAP_SVEAES),
++	HWCAP_CAP(SYS_ID_AA64ZFR0_EL1, ID_AA64ZFR0_AES_SHIFT, FTR_UNSIGNED, ID_AA64ZFR0_AES_PMULL, CAP_HWCAP, KERNEL_HWCAP_SVEPMULL),
++	HWCAP_CAP(SYS_ID_AA64ZFR0_EL1, ID_AA64ZFR0_BITPERM_SHIFT, FTR_UNSIGNED, ID_AA64ZFR0_BITPERM, CAP_HWCAP, KERNEL_HWCAP_SVEBITPERM),
++	HWCAP_CAP(SYS_ID_AA64ZFR0_EL1, ID_AA64ZFR0_SHA3_SHIFT, FTR_UNSIGNED, ID_AA64ZFR0_SHA3, CAP_HWCAP, KERNEL_HWCAP_SVESHA3),
++	HWCAP_CAP(SYS_ID_AA64ZFR0_EL1, ID_AA64ZFR0_SM4_SHIFT, FTR_UNSIGNED, ID_AA64ZFR0_SM4, CAP_HWCAP, KERNEL_HWCAP_SVESM4),
+ #endif
+ 	HWCAP_CAP(SYS_ID_AA64PFR1_EL1, ID_AA64PFR1_SSBS_SHIFT, FTR_UNSIGNED, ID_AA64PFR1_SSBS_PSTATE_INSNS, CAP_HWCAP, KERNEL_HWCAP_SSBS),
+ 	{},
+diff --git a/arch/arm64/kernel/cpuinfo.c b/arch/arm64/kernel/cpuinfo.c
+index bfe3bb8f05fe..c8e4ddd23f0c 100644
+--- a/arch/arm64/kernel/cpuinfo.c
++++ b/arch/arm64/kernel/cpuinfo.c
+@@ -82,6 +82,16 @@ static const char *const hwcap_str[] = {
+ 	"ilrcpc",
+ 	"flagm",
+ 	"ssbs",
++	"sb",
++	"paca",
++	"pacg",
++	"dcpodp",
++	"sve2",
++	"sveaes",
++	"svepmull",
++	"svebitperm",
++	"svesha3",
++	"svesm4",
+ 	NULL
+ };
+ 
+-- 
+2.25.1
+

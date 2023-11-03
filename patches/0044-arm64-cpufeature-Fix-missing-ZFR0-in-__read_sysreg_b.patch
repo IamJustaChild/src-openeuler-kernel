@@ -1,0 +1,55 @@
+From 9f8dff634365e7bfa0c764ccd31b54a4f0992bc8 Mon Sep 17 00:00:00 2001
+From: Dave Martin <Dave.Martin@arm.com>
+Date: Mon, 3 Jun 2019 16:35:02 +0100
+Subject: [PATCH openEuler-20.03-LTS-SP4 3/4] arm64: cpufeature: Fix missing
+ ZFR0 in __read_sysreg_by_encoding()
+
+mainline inclusion
+from mainline-v5.2-rc4
+commit 78ed70bf3a923f1965e3c19f544677d418397108
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8B82O
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=78ed70bf3a923f1965e3c19f544677d418397108
+
+--------------------------------
+
+In commit 06a916feca2b ("arm64: Expose SVE2 features for
+userspace"), new hwcaps are added that are detected via fields in
+the SVE-specific ID register ID_AA64ZFR0_EL1.
+
+In order to check compatibility of secondary cpus with the hwcaps
+established at boot, the cpufeatures code uses
+__read_sysreg_by_encoding() to read this ID register based on the
+sys_reg field of the arm64_elf_hwcaps[] table.
+
+This leads to a kernel splat if an hwcap uses an ID register that
+__read_sysreg_by_encoding() doesn't explicitly handle, as now
+happens when exercising cpu hotplug on an SVE2-capable platform.
+
+So fix it by adding the required case in there.
+
+Fixes: 06a916feca2b ("arm64: Expose SVE2 features for userspace")
+Signed-off-by: Dave Martin <Dave.Martin@arm.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Yu Liao <liaoyu15@huawei.com>
+---
+ arch/arm64/kernel/cpufeature.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
+index 4f384bbd86c7..8e7473df2660 100644
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -828,6 +828,7 @@ static u64 __read_sysreg_by_encoding(u32 sys_id)
+ 
+ 	read_sysreg_case(SYS_ID_AA64PFR0_EL1);
+ 	read_sysreg_case(SYS_ID_AA64PFR1_EL1);
++	read_sysreg_case(SYS_ID_AA64ZFR0_EL1);
+ 	read_sysreg_case(SYS_ID_AA64DFR0_EL1);
+ 	read_sysreg_case(SYS_ID_AA64DFR1_EL1);
+ 	read_sysreg_case(SYS_ID_AA64MMFR0_EL1);
+-- 
+2.25.1
+
