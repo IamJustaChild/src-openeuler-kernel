@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0233
+Release: %{hulkrelease}.0234
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -831,6 +831,17 @@ fi
 %endif
 
 %changelog
+
+* Mon Nov 6 2023 Jiang Yi <jiangyi38@hisilicon.com> - 4.19.90-2311.1.0.0234
+- spi: hisi-kunpeng: Fix the debugfs directory name incorrect
+- spi: hisi-kunpeng: Add debugfs support
+- spi: hisi-kunpeng: Fix Woverflow warning on conversion
+- spi: Add HiSilicon SPI Controller Driver for Kunpeng SoCs
+- Documentation: devres: add missing SPI helper
+- spi: <linux/spi/spi.h>: add missing struct kernel-doc entry
+- spi: Fix use-after-free with devm_spi_alloc_*
+- spi: Introduce device-managed SPI controller allocation
+- spi: core: allow reporting the effectivly used speed_hz for a transfer
 
 * Fri Nov 3 2023 Yu Liao <liaoyu15@huawei.com> - 4.19.90-2310.4.0.0233
 - arm64: HWCAP: add support for AT_HWCAP2
