@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0231
+Release: %{hulkrelease}.0232
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -831,6 +831,9 @@ fi
 %endif
 
 %changelog
+
+* Thu Nov 2 2023 hongrongxuan <hongrongxuan@huawei.com> - 4.19.90-2311.1.0.0232
+- remove linux-kernel-test.patch
 
 * Wed Nov 1 2023 hongrongxuan <hongrongxuan@huawei.com> - 4.19.90-2311.1.0.0231
 - perf/smmuv3: Add MODULE_ALIAS for module auto loading
