@@ -1,6 +1,6 @@
-From 1ef781fd83faa590bceb482cb7d4e31a00ed7eb1 Mon Sep 17 00:00:00 2001
+From cd778763fc94f0b2c0c6c9bb4dce22e67dd459a2 Mon Sep 17 00:00:00 2001
 From: zhangyu <zhangyu4@kylinos.cn>
-Date: Fri, 3 Nov 2023 09:43:53 +0800
+Date: Fri, 3 Nov 2023 17:06:46 +0800
 Subject: [PATCH] patch-4.19.90-2203.3.0-rt103
 
 ---
@@ -7547,14 +7547,14 @@ index 803c61f66..ee1191bfe 100644
  
  SYSCALL_DEFINE1(userfaultfd, int, flags)
 diff --git a/include/asm-generic/percpu.h b/include/asm-generic/percpu.h
-index 1817a8415..942d64c04 100644
+index 1817a8415..9d5d51167 100644
 --- a/include/asm-generic/percpu.h
 +++ b/include/asm-generic/percpu.h
 @@ -5,6 +5,7 @@
  #include <linux/compiler.h>
  #include <linux/threads.h>
  #include <linux/percpu-defs.h>
-+#include <linux/irqflags.h>
++//#include <linux/irqflags.h>
  
  #ifdef CONFIG_SMP
  
