@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0232
+Release: %{hulkrelease}.0233
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -831,6 +831,11 @@ fi
 %endif
 
 %changelog
+
+* Fri Nov 3 2023 Yu Liao <liaoyu15@huawei.com> - 4.19.90-2310.4.0.0233
+- arm64: HWCAP: add support for AT_HWCAP2
+- arm64: Expose SVE2 features for userspace
+- arm64: cpufeature: Fix missing ZFR0 in __read_sysreg_by_encoding()
 
 * Thu Nov 2 2023 hongrongxuan <hongrongxuan@huawei.com> - 4.19.90-2311.1.0.0232
 - remove linux-kernel-test.patch
