@@ -1,0 +1,83 @@
+From 6d25c7fd1b39c93662e8094519b55f5b577def79 Mon Sep 17 00:00:00 2001
+From: Wei Li <liwei391@huawei.com>
+Date: Fri, 24 Jul 2020 15:11:11 +0800
+Subject: [PATCH 3/7] perf tools: No need to cache the PMUs in ARM SPE auxtrace
+ init routine
+
+mainline inclusion
+from mainline-v5.9-rc1
+commit 3e43d79da1dc9731aee24d8b3e8059a4d2297bfc
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8DP81
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=3e43d79da1dc9731aee24d8b3e8059a4d2297bfc
+
+----------------------------------------------------------------------------
+
+- auxtrace_record__init() is called only once, so there is no point in
+  using a static variable to cache the results of
+  find_all_arm_spe_pmus(), make it local and free the results after use.
+
+- Another reason is, even though SPE is micro-architecture dependent,
+  but so far it only supports "statistical-profiling-extension-v1" and
+  we have no chance to use multiple SPE's PMU events in Perf command.
+
+So remove the useless check code to make it clear.
+
+Signed-off-by: Wei Li <liwei391@huawei.com>
+Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Hanjun Guo <guohanjun@huawei.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Kim Phillips <kim.phillips@arm.com>
+Cc: Leo Yan <leo.yan@linaro.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Mike Leach <mike.leach@linaro.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Suzuki Poulouse <suzuki.poulose@arm.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Link: http://lore.kernel.org/lkml/20200724071111.35593-3-liwei391@huawei.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ tools/perf/arch/arm/util/auxtrace.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
+
+diff --git a/tools/perf/arch/arm/util/auxtrace.c b/tools/perf/arch/arm/util/auxtrace.c
+index b9d471a0babd..acf3b01ff912 100644
+--- a/tools/perf/arch/arm/util/auxtrace.c
++++ b/tools/perf/arch/arm/util/auxtrace.c
+@@ -55,17 +55,15 @@ struct auxtrace_record
+ 	struct perf_evsel *evsel;
+ 	bool found_etm = false;
+ 	struct perf_pmu *found_spe = NULL;
+-	static struct perf_pmu **arm_spe_pmus = NULL;
+-	static int nr_spes = 0;
++	struct perf_pmu **arm_spe_pmus = NULL;
++	int nr_spes = 0;
+ 	int i = 0;
+ 
+ 	if (!evlist)
+ 		return NULL;
+ 
+ 	cs_etm_pmu = perf_pmu__find(CORESIGHT_ETM_PMU_NAME);
+-
+-	if (!arm_spe_pmus)
+-		arm_spe_pmus = find_all_arm_spe_pmus(&nr_spes, err);
++	arm_spe_pmus = find_all_arm_spe_pmus(&nr_spes, err);
+ 
+ 	evlist__for_each_entry(evlist, evsel) {
+ 		if (cs_etm_pmu &&
+@@ -82,6 +80,7 @@ struct auxtrace_record
+ 			}
+ 		}
+ 	}
++	free(arm_spe_pmus);
+ 
+ 	if (found_etm && found_spe) {
+ 		pr_err("Concurrent ARM Coresight ETM and SPE operation not currently supported\n");
+-- 
+2.27.0
+

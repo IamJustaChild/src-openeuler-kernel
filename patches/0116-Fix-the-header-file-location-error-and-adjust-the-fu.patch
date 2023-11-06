@@ -1,0 +1,62 @@
+From 73ebe810ed48cfe846ad739db1587e6ad81eb84e Mon Sep 17 00:00:00 2001
+From: Wangming Shao <shaowangming@h-partners.com>
+Date: Tue, 8 Nov 2022 18:12:23 +0800
+Subject: [PATCH 7/7] Fix the header file location error and adjust the
+ function and structure version.
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8DP81
+
+-------------------------------------------------------------------
+
+Fixed the header file location error.
+Rectify the missing member and function name errors in the structure.
+
+Signed-off-by: Wangming Shao <shaowangming@h-partners.com>
+Reviewed-by: Yicong Yang <yangyicong@huawei.com>
+Reviewed-by: Yang Jihong <yangjihong1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	tools/perf/arch/arm/util/auxtrace.c
+	tools/perf/arch/arm64/util/hisi-ptt.c
+---
+ tools/perf/arch/arm/util/auxtrace.c | 5 +++--
+ tools/perf/arch/arm/util/pmu.c      | 2 +-
+ 2 files changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/tools/perf/arch/arm/util/auxtrace.c b/tools/perf/arch/arm/util/auxtrace.c
+index aedd3432325b..552233cb0cef 100644
+--- a/tools/perf/arch/arm/util/auxtrace.c
++++ b/tools/perf/arch/arm/util/auxtrace.c
+@@ -9,9 +9,10 @@
+ #include <linux/coresight-pmu.h>
+ #include <api/fs/fs.h>
+ 
+-#include "../../util/auxtrace.h"
++#include "../../../util/auxtrace.h"
++#include "../../../util/debug.h"
+ #include "../../util/evlist.h"
+-#include "../../util/pmu.h"
++#include "../../../util/pmu.h"
+ #include "cs-etm.h"
+ #include "arm-spe.h"
+ #include "hisi-ptt.h"
+diff --git a/tools/perf/arch/arm/util/pmu.c b/tools/perf/arch/arm/util/pmu.c
+index 59a2d7ac152d..711e77e792a2 100644
+--- a/tools/perf/arch/arm/util/pmu.c
++++ b/tools/perf/arch/arm/util/pmu.c
+@@ -11,7 +11,7 @@
+ #include "cs-etm.h"
+ #include "arm-spe.h"
+ #include "hisi-ptt.h"
+-#include "../../util/pmu.h"
++#include "../../../util/pmu.h"
+ 
+ struct perf_event_attr
+ *perf_pmu__get_default_config(struct perf_pmu *pmu __maybe_unused)
+-- 
+2.27.0
+
