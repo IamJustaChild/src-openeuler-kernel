@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0236
+Release: %{hulkrelease}.0237
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -835,6 +835,24 @@ fi
 %endif
 
 %changelog
+
+* Thu Nov 9 2023 Jiang Yi <jiangyi38@hisilicon.com> - 4.19.90-2311.1.0.0237
+- sched:Open the kernel configuration for cluster.
+- scheduler: Disable cluster scheduling by default
+- scheduler: Add boot time enabling/disabling of cluster scheduling
+- scheduler: Add runtime knob sysctl_sched_cluster
+- sched/topology, arch/arm64: Rebuild the sched_domain hierarchy when the CPU capacity changes
+- sched/topology, drivers/base/arch_topology: Rebuild the sched_domain hierarchy when capacities change
+- sysctl: add a new register_sysctl_init() interface
+- scheduler: Create SDTL_SKIP flag to skip topology level
+- sched/fair: Scan cluster before scanning LLC in wake-up path
+- sched: Add per_cpu cluster domain info and cpus_share_lowest_cache API
+- arch_topology: Make cluster topology span at least SMT CPUs
+- arch_topology: Limit span of cpu_clustergroup_mask()
+- topology: Remove unused cpu_cluster_mask()
+- topology/sysfs: export cluster attributes only if an architectures has support
+- sched: Add cluster scheduler level in core and related Kconfig for ARM64
+- topology: Represent clusters of CPUs within a die
 
 * Wed Nov 8 2023 Yu Liao <liaoyu15@huawei.com> - 4.19.90-2311.1.0.0236
 - kernel.spec: skip check patches that from linux master or stable
