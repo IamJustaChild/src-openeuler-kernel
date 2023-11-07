@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0234
+Release: %{hulkrelease}.0235
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -57,8 +57,7 @@ Source2001: cpupower.config
 Source9000: apply-patches
 Source9001: guards
 Source9002: series.conf
-Source9003: patches
-#Source9998: patches.tar.bz2
+Source9998: patches.tar.gz
 %endif
 
 #BuildRequires:
@@ -222,6 +221,9 @@ package or when debugging this package.\
 
 %setup -q -n kernel-%{version} -c
 
+%if 0%{?with_patch}
+tar -zvxf %{SOURCE9998}
+%endif
 
 mv kernel linux-%{KernelVer}
 cd linux-%{KernelVer}
@@ -230,7 +232,6 @@ cd linux-%{KernelVer}
 cp %{SOURCE9000} .
 cp %{SOURCE9001} .
 cp %{SOURCE9002} .
-cp %{SOURCE9003} . -r
 
 if [ ! -d patches ];then
     mv ../patches .
@@ -831,6 +832,9 @@ fi
 %endif
 
 %changelog
+
+* Tue Nov 7 2023 Luo Shengwei <luoshengwei@huawei.com> - 4.19.90-2311.1.0.0235
+- spec: fix the problem that patches are not packaged in src.rpm
 
 * Mon Nov 6 2023 Jiang Yi <jiangyi38@hisilicon.com> - 4.19.90-2311.1.0.0234
 - spi: hisi-kunpeng: Fix the debugfs directory name incorrect
