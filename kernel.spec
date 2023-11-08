@@ -61,6 +61,13 @@ Source9003: patches
 #Source9998: patches.tar.bz2
 %endif
 
+Patch0001: 0001-nfs_add_api_to_support_enfs_registe_and_handle_mount_option.patch
+Patch0002: 0002-sunrpc_add_api_to_support_enfs_registe_and_create_multipath_then_dispatch_IO.patch
+Patch0003: 0003-add_enfs_module_for_nfs_mount_option.patch
+Patch0004: 0004-add_enfs_module_for_sunrpc_multipatch.patch
+Patch0005: 0005-add_enfs_module_for_sunrpc_failover_and_configure.patch
+Patch0006: 0006-add_enfs_compile_option.patch
+
 #BuildRequires:
 BuildRequires: module-init-tools, patch >= 2.5.4, bash >= 2.03, tar
 BuildRequires: bzip2, xz, findutils, gzip, m4, perl, make >= 3.78, diffutils, gawk
@@ -279,6 +286,12 @@ Checkpatches series.conf %{_builddir}/kernel-%{version}/linux-%{KernelVer}
 Applypatches series.conf %{_builddir}/kernel-%{version}/linux-%{KernelVer}
 %endif
 
+%patch0001 -p1
+%patch0002 -p1
+%patch0003 -p1
+%patch0004 -p1
+%patch0005 -p1
+%patch0006 -p1
 touch .scmversion
 
 find . \( -name "*.orig" -o -name "*~" \) -exec rm -f {} \; >/dev/null
@@ -839,6 +852,9 @@ fi
 - perf tools: No need to cache the PMUs in ARM SPE auxtrace init routine
 - perf tools: Fix record failure when mixed with ARM SPE event
 - perf pmu: Move EVENT_SOURCE_DEVICE_PATH to PMU header file
+
+* Tue Nov 7 2023  mingqian218472 <hangmingqian.zhang@huawei.com> - 4.19.90-2311.1.0.0235
+- Add feature for nfs client support multipath
 
 * Mon Nov 6 2023 Jiang Yi <jiangyi38@hisilicon.com> - 4.19.90-2311.1.0.0234
 - spi: hisi-kunpeng: Fix the debugfs directory name incorrect
