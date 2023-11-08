@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2311.1.0
+%global hulkrelease 2311.2.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0224
+Release: %{hulkrelease}.0225
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,71 @@ fi
 %endif
 
 %changelog
+
+* Wed Nov 08 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2311.2.0.0225
+- !2793  handle uninitialized numa nodes gracefully.
+- !2789 linux-4.19.y inclusion
+- arch/x86/mm/numa: Do not initialize nodes twice
+- mm: handle uninitialized numa nodes gracefully
+- mm, memory_hotplug: make arch_alloc_nodedata independent on CONFIG_MEMORY_HOTPLUG
+- !2713  Fix netfilter conntrack
+- !2651  sched/membarrier: fix missing local execution of ipi_sync_rq_state()
+- tcp: fix delayed ACKs for MSS boundary condition
+- tcp: fix quick-ack counting to count actual ACKs of new data
+- ipv4, ipv6: Fix handling of transhdrlen in __ip{,6}_append_data()
+- team: fix null-ptr-deref when team device type is changed
+- af_unix: Fix data race around sk->sk_err.
+- af_unix: Fix data-races around sk->sk_shutdown.
+- af_unix: Fix data-race around unix_tot_inflight.
+- af_unix: Fix data-races around user->unix_inflight.
+- net: ipv6/addrconf: avoid integer underflow in ipv6_create_tempaddr
+- net: read sk->sk_family once in sk_mc_loop()
+- skbuff: skb_segment, Call zero copy functions before using skbuff frags
+- igmp: limit igmpv3_newpack() packet size to IP_MAX_MTU
+- tcp: tcp_enter_quickack_mode() should be static
+- net: Avoid address overwrite in kernel_connect
+- md/raid1: fix error: ISO C90 forbids mixed declarations
+- md: raid1: fix potential OOB in raid1_remove_disk()
+- ACPICA: Add AML_NO_OPERAND_RESOLVE flag to Timer
+- autofs: fix memory leak of waitqueues in autofs_catatonic_mode
+- pstore/ram: Check start of empty przs during init
+- scsi: iscsi: Add strlen() check in iscsi_if_set{_host}_param()
+- fs: Fix error checking for d_hash_and_lookup()
+- !2767  crypto: hisilicon/qm - alloc reserve buffer to set and get xqc
+- crypto: hisilicon/qm - alloc reserve buffer to set and get xqc
+- !2760  fs: lockd: avoid possible wrong NULL parameter
+- !2164 Net: ethernet: Support 3snic 3s9xx network card
+- !2605 add CONFIG_NGBE for Wangxun 1G NIC for aarch64
+- !1873 [openEuler-1.0-LTS] Add Phytium hda driver support
+- !2564 [openEuler-1.0-LTS] Add Phytium i2c driver support
+- !2636  kernel/trace: Fix do not unregister tracepoints when register sched_migrate_task fail
+- fs: lockd: avoid possible wrong NULL parameter
+- !2754  Sync LTS patches for openEuler-1.0-LTS
+- !2758  crypto: hisilicon - qm obtain the mailbox config at one time
+- crypto: hisilicon - qm obtain the mailbox config at one time
+- regmap: rbtree: Fix wrong register marked as in-cache when creating new node
+- regmap: rbtree: Use alloc_flags for memory allocations
+- !2730  PCI/IOV: Add pci_sriov_numvfs_lock to support enable pci sriov concurrently
+- !2722  net: sched: sch_qfq: Use non-work-conserving warning handler
+- !2650  sched/cpuacct: Fix charge cpuacct.usage_sys
+- PCI/IOV: Add pci_sriov_numvfs_lock to support enable pci sriov concurrently
+- net: sched: sch_qfq: Use non-work-conserving warning handler
+- arm64: config: add CONFIG_NGBE for Wangxun 1G NIC
+- netfilter: conntrack: fix infinite loop on rmmod
+- netfilter: conntrack: do not auto-delete clash entries on reply
+- netfilter: conntrack: allow insertion of clashing entries
+- netfilter: conntrack: split resolve_clash function
+- netfilter: conntrack: place confirm-bit setting in a helper
+- netfilter: conntrack: remove two args from resolve_clash
+- netfilter: conntrack: tell compiler to not inline nf_ct_resolve_clash
+- sched/membarrier: fix missing local execution of ipi_sync_rq_state()
+- sched/cpuacct: Fix charge cpuacct.usage_sys
+- kernel/trace: Fix do not unregister tracepoints when register sched_migrate_task fail
+- hda: add phytium hda driver
+- hda: add phytium hda driver document
+- i2c: add Phytium i2c driver
+- i2c: add phytium i2c driver DT binding docs
+- Net: ethernet: Support 3snic 3s9xx network card
 
 * Tue Oct 31 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2311.1.0.0224
 - !2609  Fix CVE-2023-5717
