@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0234
+Release: %{hulkrelease}.0235
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -831,6 +831,14 @@ fi
 %endif
 
 %changelog
+* Mon Nov 6 2023 YunYi Yang <yangyunyi2@huawei.com> - 4.19.90-2311.1.0.0235
+- Fix the header file location error and adjust the function and structure version.
+- perf auxtrace arm64: Add support for parsing HiSilicon PCIe Trace packet
+- perf auxtrace arm64: Add support for HiSilicon PCIe Tune and Trace device driver
+- perf auxtrace arm: Refactor event list iteration in auxtrace_record__init()
+- perf tools: No need to cache the PMUs in ARM SPE auxtrace init routine
+- perf tools: Fix record failure when mixed with ARM SPE event
+- perf pmu: Move EVENT_SOURCE_DEVICE_PATH to PMU header file
 
 * Mon Nov 6 2023 Jiang Yi <jiangyi38@hisilicon.com> - 4.19.90-2311.1.0.0234
 - spi: hisi-kunpeng: Fix the debugfs directory name incorrect
