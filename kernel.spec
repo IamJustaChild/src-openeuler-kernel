@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0235
+Release: %{hulkrelease}.0236
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -247,6 +247,10 @@ Checkpatches() {
 
   set +e
   while read patch; do
+    if head -n 10 $PATCH_DIR/$patch | grep -q "mainline inclusion\|stable inclusion"; then
+      continue
+    fi
+
     output=$(scripts/checkpatch.pl --ignore $ignores_for_main $PATCH_DIR/$patch)
     if echo "$output" | grep -q "ERROR:"; then
       echo "checkpatch $patch failed"
@@ -831,6 +835,10 @@ fi
 %endif
 
 %changelog
+
+* Wed Nov 8 2023 Yu Liao <liaoyu15@huawei.com> - 4.19.90-2311.1.0.0236
+- kernel.spec: skip check patches that from linux master or stable
+
 * Mon Nov 6 2023 YunYi Yang <yangyunyi2@huawei.com> - 4.19.90-2311.1.0.0235
 - Fix the header file location error and adjust the function and structure version.
 - perf auxtrace arm64: Add support for parsing HiSilicon PCIe Trace packet
