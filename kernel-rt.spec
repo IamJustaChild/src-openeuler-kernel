@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .34.0
-%global pkg_release         .64
+%global maintenance_release .53.0
+%global pkg_release         .65
 %global rt_release          .rt62
 
 %define with_debuginfo 1
@@ -54,14 +54,15 @@ Source11: x509.genkey
 Source12: extra_certificates
 # openEuler RPM PGP certificates:
 # 1. openeuler <openeuler@compass-ci.com>
-Source13: RPM-GPG-KEY-openEuler-22.03-SP1
+Source13: RPM-GPG-KEY-openEuler-compass-ci
 # 2. private OBS <defaultkey@localobs>
-Source14: RPM-GPG-KEY-openEuler-22.03
+Source14: RPM-GPG-KEY-openEuler-localobs
 Source15: process_pgp_certs.sh
 
 %if 0%{?with_kabichk}
 Source18: check-kabi
 Source20: Module.kabi_aarch64
+Source21: Module.kabi_x86_64
 %endif
 
 Source200: mkgrub-menu-aarch64.sh
@@ -103,7 +104,7 @@ BuildRequires: audit-libs-devel
 BuildRequires: pciutils-devel gettext
 BuildRequires: rpm-build, elfutils
 BuildRequires: numactl-devel python3-devel glibc-static python3-docutils
-BuildRequires: perl-generators perl(Carp) libunwind-devel gtk2-devel libbabeltrace-devel java-1.8.0-openjdk perl-devel
+BuildRequires: perl-generators perl(Carp) libunwind-devel gtk2-devel libbabeltrace-devel java-1.8.0-openjdk java-1.8.0-openjdk-devel perl-devel
 AutoReq: no
 AutoProv: yes
 
@@ -897,6 +898,9 @@ fi
 %endif
 
 %changelog
+* Fri Novl0 10 2023 kylin-zhanghyu <zhangyu4@kylinos.cn> - 5.10.0-136.53.0.65
+- update Kernel-rt:preempt-RT to openEuler 5.10.0-136.53.0
+
 * Wed April 10 2023 kylin-lzhanghyu <zhangyu4@kylinos.cn> - 5.10.0-136.34.0.64
 - update Kernel-rt:preempt-RT to openEuler 5.10.0-136.34.0
 
@@ -1923,7 +1927,7 @@ fi
 - ext4: fix bug_on in start_this_handle during umount filesystem
 - ext4: fix use-after-free in ext4_search_dir
 - KVM: s390: Return error on SIDA memop on normal guest
-- fs-writeback: writeback_sb_inodes：Recalculate 'wrote' according skipped pages
+- fs-writeback: writeback_sb_inodes锛歊ecalculate 'wrote' according skipped pages
 - ubi: fastmap: Fix high cpu usage of ubi_bgt by making sure wl_pool not empty
 - perf c2c: Update documentation for display option 'all'
 - perf c2c: Sort on all cache hit for load operations
@@ -5206,7 +5210,7 @@ fi
 - RDMA/mlx4: Return missed an error if device doesn't support steering
 - scsi: csiostor: Uninitialized data in csio_ln_vnp_read_cbfn()
 - power: supply: max17040: fix null-ptr-deref in max17040_probe()
-- power: supply: rt5033_battery: Change voltage values to µV
+- power: supply: rt5033_battery: Change voltage values to 碌V
 - usb: gadget: hid: fix error code in do_config()
 - serial: 8250_dw: Drop wrong use of ACPI_PTR()
 - powerpc: fix unbalanced node refcount in check_kvm_guest()
