@@ -1,0 +1,86 @@
+From 5a898b8919815faf58618a42a600d117e631bc83 Mon Sep 17 00:00:00 2001
+From: Jiri Olsa <jolsa@kernel.org>
+Date: Sat, 25 Jul 2020 14:19:58 +0200
+Subject: [PATCH 087/201] perf tools: Allow r0x<HEX> event syntax
+
+mainline inclusion
+from mainline-v5.9-rc1
+commit c33cdf541181fae3dbcfbd79e40b11b0efe8c3d8
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=c33cdf541181fae3dbcfbd79e40b11b0efe8c3d8
+
+----------------------------------------------------------------------
+
+Add support to specify raw event with 'r0<HEX>' syntax within pmu term
+syntax like:
+
+  -e cpu/r0xdead/
+
+It will be used to specify raw events in cases where they conflict with
+real pmu terms, like 'read', which is valid raw event syntax, but also a
+possible pmu term name as reported by Jin Yao.
+
+Reported-by: Jin Yao <yao.jin@linux.intel.com>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Acked-by: Ian Rogers <irogers@google.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Michael Petlan <mpetlan@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Thomas Richter <tmricht@linux.ibm.com>
+Link: http://lore.kernel.org/lkml/20200725121959.1181869-1-jolsa@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ tools/perf/Documentation/perf-list.txt | 1 +
+ tools/perf/tests/parse-events.c        | 5 +++++
+ tools/perf/util/parse-events.l         | 1 +
+ 3 files changed, 7 insertions(+)
+
+diff --git a/tools/perf/Documentation/perf-list.txt b/tools/perf/Documentation/perf-list.txt
+index b040247d4cb8..d8671953e992 100644
+--- a/tools/perf/Documentation/perf-list.txt
++++ b/tools/perf/Documentation/perf-list.txt
+@@ -120,6 +120,7 @@ It's also possible to use pmu syntax:
+ 
+  perf record -e r1a8 -a sleep 1
+  perf record -e cpu/r1a8/ ...
++ perf record -e cpu/r0x1a8/ ...
+ 
+ You should refer to the processor specific documentation for getting these
+ details. Some of them are referenced in the SEE ALSO section below.
+diff --git a/tools/perf/tests/parse-events.c b/tools/perf/tests/parse-events.c
+index b379368b6d62..95cdc0d01a19 100644
+--- a/tools/perf/tests/parse-events.c
++++ b/tools/perf/tests/parse-events.c
+@@ -1766,6 +1766,11 @@ static struct evlist_test test__events_pmu[] = {
+ 		.check = test__checkevent_raw_pmu,
+ 		.id    = 4,
+ 	},
++	{
++		.name  = "software/r0x1a/",
++		.check = test__checkevent_raw_pmu,
++		.id    = 4,
++	},
+ };
+ 
+ struct terms_test {
+diff --git a/tools/perf/util/parse-events.l b/tools/perf/util/parse-events.l
+index 3719ab1fefb9..e7f00b5c123d 100644
+--- a/tools/perf/util/parse-events.l
++++ b/tools/perf/util/parse-events.l
+@@ -283,6 +283,7 @@ no-inherit		{ return term(yyscanner, PARSE_EVENTS__TERM_TYPE_NOINHERIT); }
+ overwrite		{ return term(yyscanner, PARSE_EVENTS__TERM_TYPE_OVERWRITE); }
+ no-overwrite		{ return term(yyscanner, PARSE_EVENTS__TERM_TYPE_NOOVERWRITE); }
+ r{num_raw_hex}		{ return raw(yyscanner); }
++r0x{num_raw_hex}	{ return raw(yyscanner); }
+ ,			{ return ','; }
+ "/"			{ BEGIN(INITIAL); return '/'; }
+ {name_minus}		{ return str(yyscanner, PE_NAME); }
+-- 
+2.27.0
+

@@ -1,0 +1,48 @@
+From 05ef3cb8a048bcc5eb4a16faae5e192a521a240c Mon Sep 17 00:00:00 2001
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
+Date: Thu, 4 Jul 2019 12:20:21 -0300
+Subject: [PATCH 019/201] perf metricgroup: Add missing list_del_init() when
+ flushing egroups list
+
+mainline inclusion
+from mainline-v5.3-rc1
+commit acc7bfb3db9744c4a18c96fd6536069e8647cb11
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=acc7bfb3db9744c4a18c96fd6536069e8647cb11
+
+------------------------------------------------------------------------
+
+So that at the end each of the entries have its list node struct cleared
+and the egroup list head ends emptied.
+
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Link: https://lkml.kernel.org/n/tip-dxzj1ah350fy9ec0xbhb15b6@git.kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+
+  Conflicts:
+	tools/perf/util/metricgroup.c
+---
+ tools/perf/util/metricgroup.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/tools/perf/util/metricgroup.c b/tools/perf/util/metricgroup.c
+index dae3779d4fef..4c6ecda3e7ac 100644
+--- a/tools/perf/util/metricgroup.c
++++ b/tools/perf/util/metricgroup.c
+@@ -504,6 +504,7 @@ static void metricgroup__free_egroups(struct list_head *group_list)
+ 		for (i = 0; i < eg->idnum; i++)
+ 			free((char *)eg->ids[i]);
+ 		free(eg->ids);
++		list_del_init(&eg->nd);
+ 		free(eg);
+ 	}
+ }
+-- 
+2.27.0
+

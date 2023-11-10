@@ -1,0 +1,168 @@
+From 47526f62bdbb2725486d3cefc73222bc243dda4f Mon Sep 17 00:00:00 2001
+From: Jin Yao <yao.jin@linux.intel.com>
+Date: Thu, 1 Jul 2021 14:42:53 +0800
+Subject: [PATCH 165/201] perf tools: Fix pattern matching for same substring
+ in different PMU type
+
+mainline inclusion
+from mainline-v5.14-rc1
+commit c47a5599eda324bacdacd125227a0925d6c50fbe
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=c47a5599eda324bacdacd125227a0925d6c50fbe
+
+----------------------------------------------------------------------
+
+Some different PMU types may have the same substring. For example, on
+Icelake server we have PMU types "uncore_imc" and
+"uncore_imc_free_running". Both PMU types have the substring
+"uncore_imc".  But the parser wrongly thinks they are the same PMU type.
+
+We enable an imc event,
+perf stat -e uncore_imc/event=0xe3/ -a -- sleep 1
+
+Perf actually expands the event to:
+
+  uncore_imc_0/event=0xe3/
+  uncore_imc_1/event=0xe3/
+  uncore_imc_2/event=0xe3/
+  uncore_imc_3/event=0xe3/
+  uncore_imc_4/event=0xe3/
+  uncore_imc_5/event=0xe3/
+  uncore_imc_6/event=0xe3/
+  uncore_imc_7/event=0xe3/
+  uncore_imc_free_running_0/event=0xe3/
+  uncore_imc_free_running_1/event=0xe3/
+  uncore_imc_free_running_3/event=0xe3/
+  uncore_imc_free_running_4/event=0xe3/
+
+That's because the "uncore_imc_free_running" matches the
+pattern "uncore_imc*".
+
+Now we check that the last characters of PMU name is '_<digit>'.
+
+For example, for pattern "uncore_imc*", "uncore_imc_0" is parsed ok, but
+"uncore_imc_free_running_0" fails.
+
+Fixes: b2b9d3a3f0211c5d ("perf pmu: Support wildcards on pmu name in dynamic pmu events")
+Signed-off-by: Jin Yao <yao.jin@linux.intel.com>
+Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Agustin Vega-Frias <agustinv@codeaurora.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/20210701064253.1175-1-yao.jin@linux.intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+
+ Conflicts:
+	tools/perf/util/parse-events.y
+	tools/perf/util/pmu.c
+	tools/perf/util/pmu.h
+---
+ tools/perf/util/parse-events.y |  2 +-
+ tools/perf/util/pmu.c          | 36 +++++++++++++++++++++++++++++++++-
+ tools/perf/util/pmu.h          |  2 ++
+ 3 files changed, 38 insertions(+), 2 deletions(-)
+
+diff --git a/tools/perf/util/parse-events.y b/tools/perf/util/parse-events.y
+index f03da974770c..f870a209f931 100644
+--- a/tools/perf/util/parse-events.y
++++ b/tools/perf/util/parse-events.y
+@@ -261,7 +261,7 @@ PE_NAME opt_pmu_config
+ 			if (!strncmp(name, "uncore_", 7) &&
+ 			    strncmp($1, "uncore_", 7))
+ 				name += 7;
+-			if (!fnmatch(pattern, name, 0)) {
++			if (!perf_pmu__match(pattern, name, $1)) {
+ 				if (parse_events_copy_term_list(orig_terms, &terms)) {
+ 					free(pattern);
+ 					YYABORT;
+diff --git a/tools/perf/util/pmu.c b/tools/perf/util/pmu.c
+index c924e68a368f..a31ce1613161 100644
+--- a/tools/perf/util/pmu.c
++++ b/tools/perf/util/pmu.c
+@@ -1,6 +1,7 @@
+ // SPDX-License-Identifier: GPL-2.0
+ #include <linux/list.h>
+ #include <linux/compiler.h>
++#include <ctype.h>
+ #include <sys/types.h>
+ #include <errno.h>
+ #include <fcntl.h>
+@@ -14,6 +15,7 @@
+ #include <locale.h>
+ #include <regex.h>
+ #include "util.h"
++#include <fnmatch.h>
+ #include "pmu.h"
+ #include "parse-events.h"
+ #include "cpumap.h"
+@@ -768,6 +770,27 @@ struct pmu_events_map *__weak pmu_events_map__find(void)
+ 	return perf_pmu__find_map(NULL);
+ }
+ 
++static bool perf_pmu__valid_suffix(char *pmu_name, char *tok)
++{
++	char *p;
++
++	if (strncmp(pmu_name, tok, strlen(tok)))
++		return false;
++
++	p = pmu_name + strlen(tok);
++	if (*p == 0)
++		return true;
++
++	if (*p != '_')
++		return false;
++
++	++p;
++	if (*p == 0 || !isdigit(*p))
++		return false;
++
++	return true;
++}
++
+ bool pmu_uncore_alias_match(const char *pmu_name, const char *name)
+ {
+ 	char *tmp = NULL, *tok, *str;
+@@ -796,7 +819,7 @@ bool pmu_uncore_alias_match(const char *pmu_name, const char *name)
+ 	 */
+ 	for (; tok; name += strlen(tok), tok = strtok_r(NULL, ",", &tmp)) {
+ 		name = strstr(name, tok);
+-		if (!name) {
++		if (!name || !perf_pmu__valid_suffix((char *)name, tok)) {
+ 			res = false;
+ 			goto out;
+ 		}
+@@ -1716,3 +1739,14 @@ int perf_pmu__scan_file(struct perf_pmu *pmu, const char *name, const char *fmt,
+ 	va_end(args);
+ 	return ret;
+ }
++
++int perf_pmu__match(char *pattern, char *name, char *tok)
++{
++	if (fnmatch(pattern, name, 0))
++		return -1;
++
++	if (tok && !perf_pmu__valid_suffix(name, tok))
++		return -1;
++
++	return 0;
++}
+diff --git a/tools/perf/util/pmu.h b/tools/perf/util/pmu.h
+index 2da3d2016245..118a2871e717 100644
+--- a/tools/perf/util/pmu.h
++++ b/tools/perf/util/pmu.h
+@@ -111,4 +111,6 @@ typedef int (*pmu_sys_event_iter_fn)(struct pmu_event *pe, void *data);
+ void pmu_for_each_sys_event(pmu_sys_event_iter_fn fn, void *data);
+ int perf_pmu__convert_scale(const char *scale, char **end, double *sval);
+ 
++int perf_pmu__match(char *pattern, char *name, char *tok);
++
+ #endif /* __PMU_H */
+-- 
+2.27.0
+

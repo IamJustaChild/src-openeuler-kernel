@@ -1,0 +1,245 @@
+From fa1f49e0b6617cf5aced9fc888b8182498aba72e Mon Sep 17 00:00:00 2001
+From: Jiri Olsa <jolsa@kernel.org>
+Date: Sun, 19 Jul 2020 20:13:11 +0200
+Subject: [PATCH 116/201] perf metric: Add referenced metrics to hash data
+
+mainline inclusion
+from mainline-v5.9-rc1
+commit 83de0b7d535deeffcbea2f1c3defce912e0206a7
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=83de0b7d535deeffcbea2f1c3defce912e0206a7
+
+----------------------------------------------------------------------
+
+Adding referenced metrics to the parsing context so they can be resolved
+during the metric processing.
+
+Adding expr__add_ref function to store referenced metrics into parse
+context.
+
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Reviewed-by: Kajol Jain <kjain@linux.ibm.com>
+Acked-by: Ian Rogers <irogers@google.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: John Garry <john.garry@huawei.com>
+Cc: Michael Petlan <mpetlan@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Paul Clarke <pc@us.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Link: http://lore.kernel.org/lkml/20200719181320.785305-11-jolsa@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+
+  Conflicts:
+	tools/perf/util/expr.c
+	tools/perf/util/stat-shadow.c
+---
+ tools/perf/util/expr.c        | 54 +++++++++++++++++++++++++++++++++++
+ tools/perf/util/expr.h        | 13 ++++++++-
+ tools/perf/util/stat-shadow.c | 20 +++++++++----
+ 3 files changed, 80 insertions(+), 7 deletions(-)
+
+diff --git a/tools/perf/util/expr.c b/tools/perf/util/expr.c
+index 5f7e606a2a95..b5d0542792a0 100644
+--- a/tools/perf/util/expr.c
++++ b/tools/perf/util/expr.c
+@@ -1,10 +1,14 @@
+ // SPDX-License-Identifier: GPL-2.0
+ #include <stdbool.h>
+ #include <assert.h>
++#include "metricgroup.h"
++#include "debug.h"
+ #include "expr.h"
+ #include "expr-bison.h"
+ #include "expr-flex.h"
+ #include <linux/kernel.h>
++#include "util.h"
++#include <ctype.h>
+ 
+ #ifdef PARSER_DEBUG
+ extern int expr_debug;
+@@ -60,6 +64,7 @@ int expr__add_id_val(struct expr_parse_ctx *ctx, const char *id, double val)
+ 	if (!data_ptr)
+ 		return -ENOMEM;
+ 	data_ptr->val = val;
++	data_ptr->is_ref = false;
+ 
+ 	ret = hashmap__set(&ctx->ids, id, data_ptr,
+ 			   (const void **)&old_key, (void **)&old_data);
+@@ -70,6 +75,55 @@ int expr__add_id_val(struct expr_parse_ctx *ctx, const char *id, double val)
+ 	return ret;
+ }
+ 
++int expr__add_ref(struct expr_parse_ctx *ctx, struct metric_ref *ref)
++{
++	struct expr_id_data *data_ptr = NULL, *old_data = NULL;
++	char *old_key = NULL;
++	char *name, *p;
++	int ret;
++
++	data_ptr = zalloc(sizeof(*data_ptr));
++	if (!data_ptr)
++		return -ENOMEM;
++
++	name = strdup(ref->metric_name);
++	if (!name) {
++		free(data_ptr);
++		return -ENOMEM;
++	}
++
++	/*
++	 * The jevents tool converts all metric expressions
++	 * to lowercase, including metric references, hence
++	 * we need to add lowercase name for metric, so it's
++	 * properly found.
++	 */
++	for (p = name; *p; p++)
++		*p = tolower(*p);
++
++	/*
++	 * Intentionally passing just const char pointers,
++	 * originally from 'struct pmu_event' object.
++	 * We don't need to change them, so there's no
++	 * need to create our own copy.
++	 */
++	data_ptr->ref.metric_name = ref->metric_name;
++	data_ptr->ref.metric_expr = ref->metric_expr;
++	data_ptr->is_ref = true;
++
++	ret = hashmap__set(&ctx->ids, name, data_ptr,
++			   (const void **)&old_key, (void **)&old_data);
++	if (ret)
++		free(data_ptr);
++
++	pr_debug2("adding ref metric %s: %s\n",
++		  ref->metric_name, ref->metric_expr);
++
++	free(old_key);
++	free(old_data);
++	return ret;
++}
++
+ int expr__get_id(struct expr_parse_ctx *ctx, const char *id,
+ 		 struct expr_id_data **data)
+ {
+diff --git a/tools/perf/util/expr.h b/tools/perf/util/expr.h
+index 2462abd0ac65..81d04ff7f857 100644
+--- a/tools/perf/util/expr.h
++++ b/tools/perf/util/expr.h
+@@ -11,12 +11,22 @@
+ #include "util/hashmap.h"
+ //#endif
+ 
++struct metric_ref;
++
+ struct expr_parse_ctx {
+ 	struct hashmap ids;
+ };
+ 
+ struct expr_id_data {
+-	double	val;
++	union {
++		double val;
++		struct {
++			const char *metric_name;
++			const char *metric_expr;
++		} ref;
++	};
++
++	bool is_ref;
+ };
+ 
+ struct expr_scanner_ctx {
+@@ -29,6 +39,7 @@ void expr__ctx_clear(struct expr_parse_ctx *ctx);
+ void expr__del_id(struct expr_parse_ctx *ctx, const char *id);
+ int expr__add_id(struct expr_parse_ctx *ctx, const char *id);
+ int expr__add_id_val(struct expr_parse_ctx *ctx, const char *id, double val);
++int expr__add_ref(struct expr_parse_ctx *ctx, struct metric_ref *ref);
+ int expr__get_id(struct expr_parse_ctx *ctx, const char *id,
+ 		 struct expr_id_data **data);
+ int expr__parse(double *final_val, struct expr_parse_ctx *ctx,
+diff --git a/tools/perf/util/stat-shadow.c b/tools/perf/util/stat-shadow.c
+index 403f20c67c28..48a2a58e282f 100644
+--- a/tools/perf/util/stat-shadow.c
++++ b/tools/perf/util/stat-shadow.c
+@@ -731,13 +731,14 @@ static void print_smi_cost(struct perf_stat_config *config,
+ }
+ 
+ static int prepare_metric(struct perf_evsel **metric_events,
++			  struct metric_ref *metric_refs,
+ 			  struct expr_parse_ctx *pctx,
+ 			  int cpu,
+ 			  struct runtime_stat *st)
+ {
+ 	double scale;
+ 	char *n, *pn;
+-	int i;
++	int i, j, ret;
+ 
+ 	expr__ctx_init(pctx);
+ 	for (i = 0; metric_events[i]; i++) {
+@@ -778,12 +779,19 @@ static int prepare_metric(struct perf_evsel **metric_events,
+ 			expr__add_id_val(pctx, n, avg_stats(stats)*scale);
+ 	}
+ 
++	for (j = 0; metric_refs && metric_refs[j].metric_name; j++) {
++		ret = expr__add_ref(pctx, &metric_refs[j]);
++		if (ret)
++			return ret;
++	}
++
+ 	return i;
+ }
+ 
+ static void generic_metric(struct perf_stat_config *config,
+ 			   const char *metric_expr,
+ 			   struct perf_evsel **metric_events,
++			   struct metric_ref *metric_refs,
+ 			   char *name,
+ 			   const char *metric_name,
+ 			   const char *metric_unit,
+@@ -798,7 +806,7 @@ static void generic_metric(struct perf_stat_config *config,
+ 	int i;
+ 	void *ctxp = out->ctx;
+ 
+-	i = prepare_metric(metric_events, &pctx, cpu, st);
++	i = prepare_metric(metric_events, metric_refs, &pctx, cpu, st);
+ 	if (i < 0)
+ 		return;
+ 
+@@ -844,7 +852,7 @@ double test_generic_metric(struct metric_expr *mexp, int cpu, struct runtime_sta
+ 	struct expr_parse_ctx pctx;
+ 	double ratio;
+ 
+-	if (prepare_metric(mexp->metric_events, &pctx, cpu, st) < 0)
++	if (prepare_metric(mexp->metric_events, mexp->metric_refs, &pctx, cpu, st) < 0)
+ 		return 0.;
+ 
+ 	if (expr__parse(&ratio, &pctx, mexp->metric_expr, 1))
+@@ -1064,8 +1072,8 @@ void perf_stat__print_shadow_stats(struct perf_stat_config *config,
+ 		else
+ 			print_metric(config, ctxp, NULL, NULL, name, 0);
+ 	} else if (evsel->metric_expr) {
+-		generic_metric(config, evsel->metric_expr, evsel->metric_events, evsel->name,
+-				evsel->metric_name, NULL, 1, cpu, out, st);
++		generic_metric(config, evsel->metric_expr, evsel->metric_events, NULL,
++				evsel->name, evsel->metric_name, NULL, 1, cpu, out, st);
+ 	} else if (runtime_stat_n(st, STAT_NSECS, 0, cpu) != 0) {
+ 		char unit = 'M';
+ 		char unit_buf[10];
+@@ -1093,7 +1101,7 @@ void perf_stat__print_shadow_stats(struct perf_stat_config *config,
+ 			if (num++ > 0)
+ 				out->new_line(config, ctxp);
+ 			generic_metric(config, mexp->metric_expr, mexp->metric_events,
+-					evsel->name, mexp->metric_name,
++					mexp->metric_refs, evsel->name, mexp->metric_name,
+ 					mexp->metric_unit, mexp->runtime, cpu, out, st);
+ 		}
+ 	}
+-- 
+2.27.0
+

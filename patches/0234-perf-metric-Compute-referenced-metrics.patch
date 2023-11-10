@@ -1,0 +1,140 @@
+From 7a617e7a27cc595f8eb1063b50210bbc70073a1b Mon Sep 17 00:00:00 2001
+From: Jiri Olsa <jolsa@kernel.org>
+Date: Sun, 19 Jul 2020 20:13:12 +0200
+Subject: [PATCH 117/201] perf metric: Compute referenced metrics
+
+mainline inclusion
+from mainline-v5.9-rc1
+commit 4ea2896715e6743ea79426106f3d078d78a80f9f
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=4ea2896715e6743ea79426106f3d078d78a80f9f
+
+----------------------------------------------------------------------
+
+Adding computation (expr__parse call) of referenced metric at
+the point when it needs to be resolved during the parent metric
+computation.
+
+Once the inner metric is computed, the result is stored and
+used if there's another usage of that metric.
+
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Reviewed-by: Kajol Jain <kjain@linux.ibm.com>
+Acked-by: Ian Rogers <irogers@google.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: John Garry <john.garry@huawei.com>
+Cc: Michael Petlan <mpetlan@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Paul Clarke <pc@us.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Link: http://lore.kernel.org/lkml/20200719181320.785305-12-jolsa@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ tools/perf/util/expr.c | 31 +++++++++++++++++++++++++++++++
+ tools/perf/util/expr.h |  3 +++
+ tools/perf/util/expr.y |  4 ++--
+ 3 files changed, 36 insertions(+), 2 deletions(-)
+
+diff --git a/tools/perf/util/expr.c b/tools/perf/util/expr.c
+index b5d0542792a0..c03ed6d9b0ac 100644
+--- a/tools/perf/util/expr.c
++++ b/tools/perf/util/expr.c
+@@ -109,6 +109,7 @@ int expr__add_ref(struct expr_parse_ctx *ctx, struct metric_ref *ref)
+ 	 */
+ 	data_ptr->ref.metric_name = ref->metric_name;
+ 	data_ptr->ref.metric_expr = ref->metric_expr;
++	data_ptr->ref.counted = false;
+ 	data_ptr->is_ref = true;
+ 
+ 	ret = hashmap__set(&ctx->ids, name, data_ptr,
+@@ -130,6 +131,34 @@ int expr__get_id(struct expr_parse_ctx *ctx, const char *id,
+ 	return hashmap__find(&ctx->ids, id, (void **)data) ? 0 : -1;
+ }
+ 
++int expr__resolve_id(struct expr_parse_ctx *ctx, const char *id,
++		     struct expr_id_data **datap)
++{
++	struct expr_id_data *data;
++
++	if (expr__get_id(ctx, id, datap) || !*datap) {
++		pr_debug("%s not found\n", id);
++		return -1;
++	}
++
++	data = *datap;
++
++	pr_debug2("lookup: is_ref %d, counted %d, val %f: %s\n",
++		  data->is_ref, data->ref.counted, data->val, id);
++
++	if (data->is_ref && !data->ref.counted) {
++		data->ref.counted = true;
++		pr_debug("processing metric: %s ENTRY\n", id);
++		if (expr__parse(&data->val, ctx, data->ref.metric_expr, 1)) {
++			pr_debug("%s failed to count\n", id);
++			return -1;
++		}
++		pr_debug("processing metric: %s EXIT: %f\n", id, data->val);
++	}
++
++	return 0;
++}
++
+ void expr__del_id(struct expr_parse_ctx *ctx, const char *id)
+ {
+ 	struct expr_id_data *old_val = NULL;
+@@ -170,6 +199,8 @@ __expr__parse(double *val, struct expr_parse_ctx *ctx, const char *expr,
+ 	void *scanner;
+ 	int ret;
+ 
++	pr_debug2("parsing metric: %s\n", expr);
++
+ 	ret = expr_lex_init_extra(&scanner_ctx, &scanner);
+ 	if (ret)
+ 		return ret;
+diff --git a/tools/perf/util/expr.h b/tools/perf/util/expr.h
+index 81d04ff7f857..9ed208d93418 100644
+--- a/tools/perf/util/expr.h
++++ b/tools/perf/util/expr.h
+@@ -23,6 +23,7 @@ struct expr_id_data {
+ 		struct {
+ 			const char *metric_name;
+ 			const char *metric_expr;
++			bool counted;
+ 		} ref;
+ 	};
+ 
+@@ -42,6 +43,8 @@ int expr__add_id_val(struct expr_parse_ctx *ctx, const char *id, double val);
+ int expr__add_ref(struct expr_parse_ctx *ctx, struct metric_ref *ref);
+ int expr__get_id(struct expr_parse_ctx *ctx, const char *id,
+ 		 struct expr_id_data **data);
++int expr__resolve_id(struct expr_parse_ctx *ctx, const char *id,
++		     struct expr_id_data **datap);
+ int expr__parse(double *final_val, struct expr_parse_ctx *ctx,
+ 		const char *expr, int runtime);
+ int expr__find_other(const char *expr, const char *one,
+diff --git a/tools/perf/util/expr.y b/tools/perf/util/expr.y
+index 207dd371fed2..02703a874893 100644
+--- a/tools/perf/util/expr.y
++++ b/tools/perf/util/expr.y
+@@ -77,11 +77,11 @@ expr:	  NUMBER
+ 	| ID			{
+ 					struct expr_id_data *data;
+ 
+-					if (expr__get_id(ctx, $1, &data) || !data) {
+-						pr_debug("%s not found\n", $1);
++					if (expr__resolve_id(ctx, $1, &data)) {
+ 						free($1);
+ 						YYABORT;
+ 					}
++
+ 					$$ = data->val;
+ 					free($1);
+ 				}
+-- 
+2.27.0
+

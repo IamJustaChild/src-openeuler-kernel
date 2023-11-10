@@ -1,0 +1,86 @@
+From f1fc7419be0aca70f081ffac6569ac60c861b1c9 Mon Sep 17 00:00:00 2001
+From: John Garry <john.garry@huawei.com>
+Date: Tue, 19 Jan 2021 18:04:15 +0800
+Subject: [PATCH 199/201] perf metricgroup: Fix system PMU metrics
+
+mainline inclusion
+from mainline-v5.11-rc5
+commit 3d6e79ee9e8f8c6604312382c2be1d1bd1cffc9e
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=3d6e79ee9e8f8c6604312382c2be1d1bd1cffc9e
+
+----------------------------------------------------------------------
+
+Joakim reports that getting "perf stat" for multiple system PMU metrics
+segfaults:
+
+  $ perf stat -a -I 1000 -M imx8mm_ddr_write.all,imx8mm_ddr_write.all
+  Segmentation fault
+  $
+
+While the same works without issue for a single metric.
+
+The logic in metricgroup__add_metric_sys_event_iter() is broken, in that
+add_metric() @m argument should be NULL for each new metric. Fix by not
+passing a holder for that, and rather make local in
+metricgroup__add_metric_sys_event_iter().
+
+Fixes: be335ec28efa ("perf metricgroup: Support adding metrics for system PMUs")
+Reported-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Kajol Jain <kjain@linux.ibm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: linuxarm@openeuler.org
+Link: https://lore.kernel.org/r/1611050655-44020-1-git-send-email-john.garry@huawei.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ tools/perf/util/metricgroup.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/tools/perf/util/metricgroup.c b/tools/perf/util/metricgroup.c
+index 523123ec1bd2..bc0aa1b7938b 100644
+--- a/tools/perf/util/metricgroup.c
++++ b/tools/perf/util/metricgroup.c
+@@ -772,7 +772,6 @@ int __weak arch_get_runtimeparam(struct pmu_event *pe __maybe_unused)
+ struct metricgroup_add_iter_data {
+ 	struct list_head *metric_list;
+ 	const char *metric;
+-	struct metric **m;
+ 	struct expr_ids *ids;
+ 	int *ret;
+ 	bool *has_match;
+@@ -1065,12 +1064,13 @@ static int metricgroup__add_metric_sys_event_iter(struct pmu_event *pe,
+ 						  void *data)
+ {
+ 	struct metricgroup_add_iter_data *d = data;
++	struct metric *m = NULL;
+ 	int ret;
+ 
+ 	if (!match_pe_metric(pe, d->metric))
+ 		return 0;
+ 
+-	ret = add_metric(d->metric_list, pe, d->metric_no_group, d->m, NULL, d->ids);
++	ret = add_metric(d->metric_list, pe, d->metric_no_group, &m, NULL, d->ids);
+ 	if (ret)
+ 		goto out;
+ 
+@@ -1123,7 +1123,6 @@ static int metricgroup__add_metric(const char *metric, bool metric_no_group,
+ 				.metric_list = &list,
+ 				.metric = metric,
+ 				.metric_no_group = metric_no_group,
+-				.m = &m,
+ 				.ids = &ids,
+ 				.has_match = &has_match,
+ 				.ret = &ret,
+-- 
+2.27.0
+

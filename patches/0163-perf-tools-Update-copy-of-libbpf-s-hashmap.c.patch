@@ -1,0 +1,81 @@
+From 4585d686a89dbea92f4d25ad72f249079bc17205 Mon Sep 17 00:00:00 2001
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
+Date: Wed, 18 Nov 2020 08:32:33 -0300
+Subject: [PATCH 046/201] perf tools: Update copy of libbpf's hashmap.c
+
+mainline inclusion
+from mainline-v5.10-rc6
+commit 3b13eaf0ba1d5ab59368e23ff5e5350f51c1a352
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=3b13eaf0ba1d5ab59368e23ff5e5350f51c1a352
+
+------------------------------------------------------------------------
+
+To pick the changes in:
+
+  7a078d2d18801bba ("libbpf, hashmap: Fix undefined behavior in hash_bits")
+
+That don't entail any changes in tools/perf.
+
+This addresses this perf build warning:
+
+  Warning: Kernel ABI header at 'tools/perf/util/hashmap.h' differs from latest version at 'tools/lib/bpf/hashmap.h'
+  diff -u tools/perf/util/hashmap.h tools/lib/bpf/hashmap.h
+
+Not a kernel ABI, its just that this uses the mechanism in place for
+checking kernel ABI files drift.
+
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ tools/perf/util/hashmap.h | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
+
+diff --git a/tools/perf/util/hashmap.h b/tools/perf/util/hashmap.h
+index e0af36b0e5d8..6a3c3d8bb4ab 100644
+--- a/tools/perf/util/hashmap.h
++++ b/tools/perf/util/hashmap.h
+@@ -15,6 +15,9 @@
+ static inline size_t hash_bits(size_t h, int bits)
+ {
+ 	/* shuffle bits and return requested number of upper bits */
++	if (bits == 0)
++		return 0;
++
+ #if (__SIZEOF_SIZE_T__ == __SIZEOF_LONG_LONG__)
+ 	/* LP64 case */
+ 	return (h * 11400714819323198485llu) >> (__SIZEOF_LONG_LONG__ * 8 - bits);
+@@ -162,17 +165,17 @@ bool hashmap__find(const struct hashmap *map, const void *key, void **value);
+  * @key: key to iterate entries for
+  */
+ #define hashmap__for_each_key_entry(map, cur, _key)			    \
+-	for (cur = ({ size_t bkt = hash_bits(map->hash_fn((_key), map->ctx),\
+-					     map->cap_bits);		    \
+-		     map->buckets ? map->buckets[bkt] : NULL; });	    \
++	for (cur = map->buckets						    \
++		     ? map->buckets[hash_bits(map->hash_fn((_key), map->ctx), map->cap_bits)] \
++		     : NULL;						    \
+ 	     cur;							    \
+ 	     cur = cur->next)						    \
+ 		if (map->equal_fn(cur->key, (_key), map->ctx))
+ 
+ #define hashmap__for_each_key_entry_safe(map, cur, tmp, _key)		    \
+-	for (cur = ({ size_t bkt = hash_bits(map->hash_fn((_key), map->ctx),\
+-					     map->cap_bits);		    \
+-		     cur = map->buckets ? map->buckets[bkt] : NULL; });	    \
++	for (cur = map->buckets						    \
++		     ? map->buckets[hash_bits(map->hash_fn((_key), map->ctx), map->cap_bits)] \
++		     : NULL;						    \
+ 	     cur && ({ tmp = cur->next; true; });			    \
+ 	     cur = tmp)							    \
+ 		if (map->equal_fn(cur->key, (_key), map->ctx))
+-- 
+2.27.0
+

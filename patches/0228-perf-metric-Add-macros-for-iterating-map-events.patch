@@ -1,0 +1,148 @@
+From d70bea294fb0ca6361e9dd4b661e837c13257e63 Mon Sep 17 00:00:00 2001
+From: Jiri Olsa <jolsa@kernel.org>
+Date: Sun, 19 Jul 2020 20:13:06 +0200
+Subject: [PATCH 111/201] perf metric: Add macros for iterating map events
+
+mainline inclusion
+from mainline-v5.9-rc1
+commit 5c5f5e835f7e40e74f4a8370abb32647b11c3366
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=5c5f5e835f7e40e74f4a8370abb32647b11c3366
+
+----------------------------------------------------------------------
+
+Adding following macros to iterate events and metric:
+
+  map_for_each_event(__pe, __idx, __map)
+    - iterates over all pmu_events_map events
+
+  map_for_each_metric(__pe, __idx, __map, __metric)
+    - iterates over all metrics that match __metric argument
+
+and use it in metricgroup__add_metric function. Macros will be be used
+from other places in following changes.
+
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Reviewed-by: Kajol Jain <kjain@linux.ibm.com>
+Acked-by: Ian Rogers <irogers@google.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: John Garry <john.garry@huawei.com>
+Cc: Michael Petlan <mpetlan@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Paul Clarke <pc@us.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Link: http://lore.kernel.org/lkml/20200719181320.785305-6-jolsa@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ tools/perf/util/metricgroup.c | 77 ++++++++++++++++++-----------------
+ 1 file changed, 40 insertions(+), 37 deletions(-)
+
+diff --git a/tools/perf/util/metricgroup.c b/tools/perf/util/metricgroup.c
+index 43f08a1e51ae..f6e725c6062c 100644
+--- a/tools/perf/util/metricgroup.c
++++ b/tools/perf/util/metricgroup.c
+@@ -621,6 +621,17 @@ static int __metricgroup__add_metric(struct list_head *group_list,
+ 	return 0;
+ }
+ 
++#define map_for_each_event(__pe, __idx, __map)				\
++	for (__idx = 0, __pe = &__map->table[__idx];			\
++	     __pe->name || __pe->metric_group || __pe->metric_name;	\
++	     __pe = &__map->table[++__idx])
++
++#define map_for_each_metric(__pe, __idx, __map, __metric)		\
++	map_for_each_event(__pe, __idx, __map)				\
++		if (__pe->metric_expr &&				\
++		    (match_metric(__pe->metric_group, __metric) ||	\
++		     match_metric(__pe->metric_name, __metric)))
++
+ static int metricgroup__add_metric(const char *metric, bool metric_no_group,
+ 				   struct strbuf *events,
+ 				   struct list_head *group_list,
+@@ -631,49 +642,41 @@ static int metricgroup__add_metric(const char *metric, bool metric_no_group,
+ 	int i, ret;
+ 	bool has_match = false;
+ 
+-	for (i = 0; ; i++) {
+-		pe = &map->table[i];
+-
+-		if (!pe->name && !pe->metric_group && !pe->metric_name) {
+-			/* End of pmu events. */
+-			if (!has_match)
+-				return -EINVAL;
+-			break;
+-		}
+-		if (!pe->metric_expr)
+-			continue;
+-		if (match_metric(pe->metric_group, metric) ||
+-		    match_metric(pe->metric_name, metric)) {
+-			has_match = true;
+-			pr_debug("metric expr %s for %s\n", pe->metric_expr, pe->metric_name);
+-
+-			if (!strstr(pe->metric_expr, "?")) {
+-				ret = __metricgroup__add_metric(group_list,
+-								pe,
+-								metric_no_group,
+-								1);
+-				if (ret)
+-					return ret;
+-			} else {
+-				int j, count;
++	map_for_each_metric(pe, i, map, metric) {
++		pr_debug("metric expr %s for %s\n", pe->metric_expr, pe->metric_name);
++		has_match = true;
++
++		if (!strstr(pe->metric_expr, "?")) {
++			ret = __metricgroup__add_metric(group_list,
++							pe,
++							metric_no_group,
++							1);
++			if (ret)
++				return ret;
++		} else {
++			int j, count;
+ 
+-				count = arch_get_runtimeparam();
++			count = arch_get_runtimeparam();
+ 
+-				/* This loop is added to create multiple
+-				 * events depend on count value and add
+-				 * those events to group_list.
+-				 */
++			/* This loop is added to create multiple
++			 * events depend on count value and add
++			 * those events to group_list.
++			 */
+ 
+-				for (j = 0; j < count; j++) {
+-					ret = __metricgroup__add_metric(
+-						group_list, pe,
+-						metric_no_group, j);
+-					if (ret)
+-						return ret;
+-				}
++			for (j = 0; j < count; j++) {
++				ret = __metricgroup__add_metric(
++					group_list, pe,
++					metric_no_group, j);
++				if (ret)
++					return ret;
+ 			}
+ 		}
+ 	}
++
++	/* End of pmu events. */
++	if (!has_match)
++		return -EINVAL;
++
+ 	list_for_each_entry(eg, group_list, nd) {
+ 		if (events->len > 0)
+ 			strbuf_addf(events, ",");
+-- 
+2.27.0
+

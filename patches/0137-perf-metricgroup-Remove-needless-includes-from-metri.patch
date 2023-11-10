@@ -1,0 +1,89 @@
+From dfb7c7fcf8833337c750f07a2f876f5f22e1f1be Mon Sep 17 00:00:00 2001
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
+Date: Wed, 21 Aug 2019 10:54:14 -0300
+Subject: [PATCH 020/201] perf metricgroup: Remove needless includes from
+ metricgroup.h
+
+mainline inclusion
+from mainline-v5.4-rc1
+commit 0b8026e8fb0ea3893caa2f1924a2c15fcf6760b3
+category: cleanup
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=0b8026e8fb0ea3893caa2f1924a2c15fcf6760b3
+
+------------------------------------------------------------------------
+
+There we need just some struct forward declarations, do that instead and
+add the includes needed by metricgroup.c.
+
+That should help with needless rebuilds when changing the removed
+headers from metricgroup.h.
+
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Link: https://lkml.kernel.org/n/tip-1fkskjws6imir2hhztqhdyb0@git.kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+
+  Conflicts:
+	tools/perf/util/metricgroup.c
+	tools/perf/util/metricgroup.h
+---
+ tools/perf/util/metricgroup.c |  3 ++-
+ tools/perf/util/metricgroup.h | 13 ++++++++-----
+ 2 files changed, 10 insertions(+), 6 deletions(-)
+
+diff --git a/tools/perf/util/metricgroup.c b/tools/perf/util/metricgroup.c
+index 4c6ecda3e7ac..503cd543de9c 100644
+--- a/tools/perf/util/metricgroup.c
++++ b/tools/perf/util/metricgroup.c
+@@ -16,17 +16,18 @@
+ 
+ #include "metricgroup.h"
+ #include "evlist.h"
++#include "evsel.h"
+ #include "strbuf.h"
+ #include "pmu.h"
+ #include "expr.h"
+ #include "rblist.h"
+ #include <string.h>
+-#include <stdbool.h>
+ #include <errno.h>
+ #include "pmu-events/pmu-events.h"
+ #include "strlist.h"
+ #include <assert.h>
+ #include <ctype.h>
++#include <subcmd/parse-options.h>
+ 
+ struct metric_event *metricgroup__lookup(struct rblist *metric_events,
+ 					 struct perf_evsel *evsel,
+diff --git a/tools/perf/util/metricgroup.h b/tools/perf/util/metricgroup.h
+index 5c52097a5c63..b5d785f37073 100644
+--- a/tools/perf/util/metricgroup.h
++++ b/tools/perf/util/metricgroup.h
+@@ -1,11 +1,14 @@
++// SPDX-License-Identifier: GPL-2.0-only
+ #ifndef METRICGROUP_H
+ #define METRICGROUP_H 1
+ 
+-#include "linux/list.h"
+-#include "rblist.h"
+-#include <subcmd/parse-options.h>
+-#include "evlist.h"
+-#include "strbuf.h"
++#include <linux/list.h>
++#include <linux/rbtree.h>
++#include <stdbool.h>
++
++struct perf_evsel;
++struct option;
++struct rblist;
+ 
+ struct metric_event {
+ 	struct rb_node nd;
+-- 
+2.27.0
+

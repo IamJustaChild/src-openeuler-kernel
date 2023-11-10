@@ -1,0 +1,255 @@
+From 83d5f9550b4823ef28e1fef8d122a641a1607534 Mon Sep 17 00:00:00 2001
+From: Jiri Olsa <jolsa@kernel.org>
+Date: Tue, 2 Jun 2020 23:47:40 +0200
+Subject: [PATCH 119/201] perf tests: Add parse metric test for ipc metric
+
+mainline inclusion
+from mainline-v5.9-rc1
+commit acf71b05d1a19726594a8436ba9d8af871941e6c
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=acf71b05d1a19726594a8436ba9d8af871941e6c
+
+----------------------------------------------------------------------
+
+Adding new test that process metrics code and checks the expected
+results. Starting with easy ipc metric.
+
+Committer testing:
+
+  # perf test "Parse and process metrics"
+  67: Parse and process metrics                             : Ok
+  #
+  # perf test -v "Parse and process metrics"
+  67: Parse and process metrics                             :
+  --- start ---
+  test child forked, pid 103402
+  metric expr inst_retired.any / cpu_clk_unhalted.thread for IPC
+  found event inst_retired.any
+  found event cpu_clk_unhalted.thread
+  adding {inst_retired.any,cpu_clk_unhalted.thread}:W
+  test child finished with 0
+  ---- end ----
+  Parse and process metrics: Ok
+  #
+
+Had to fix it to initialize that 'struct value' array sentinel with a
+named initializer to fix the build with some versions of clang:
+
+  tests/parse-metric.c:135:7: error: missing field 'val' initializer [-Werror,-Wmissing-field-initializers]
+                { 0 },
+
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Acked-by: Ian Rogers <irogers@google.com>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Michael Petlan <mpetlan@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Link: http://lore.kernel.org/lkml/20200602214741.1218986-13-jolsa@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ tools/perf/tests/Build          |   1 +
+ tools/perf/tests/builtin-test.c |   4 +
+ tools/perf/tests/parse-metric.c | 145 ++++++++++++++++++++++++++++++++
+ tools/perf/tests/tests.h        |   1 +
+ 4 files changed, 151 insertions(+)
+ create mode 100644 tools/perf/tests/parse-metric.c
+
+diff --git a/tools/perf/tests/Build b/tools/perf/tests/Build
+index d28758661fb7..da2249118b6f 100644
+--- a/tools/perf/tests/Build
++++ b/tools/perf/tests/Build
+@@ -51,6 +51,7 @@ perf-y += clang.o
+ perf-y += unit_number__scnprintf.o
+ perf-y += mem2node.o
+ perf-y += demangle-java-test.o
++perf-y += parse-metric.o
+ 
+ $(OUTPUT)tests/llvm-src-base.c: tests/bpf-script-example.c tests/Build
+ 	$(call rule_mkdir)
+diff --git a/tools/perf/tests/builtin-test.c b/tools/perf/tests/builtin-test.c
+index b4b1e34aaef4..ef1cbbba848f 100644
+--- a/tools/perf/tests/builtin-test.c
++++ b/tools/perf/tests/builtin-test.c
+@@ -294,6 +294,10 @@ static struct test generic_tests[] = {
+ 		.desc = "Demangle Java",
+ 		.func = test__demangle_java,
+ 	},
++	{
++		.desc = "Parse and process metrics",
++		.func = test__parse_metric,
++	},
+ 	{
+ 		.func = NULL,
+ 	},
+diff --git a/tools/perf/tests/parse-metric.c b/tools/perf/tests/parse-metric.c
+new file mode 100644
+index 000000000000..77a2199c2a85
+--- /dev/null
++++ b/tools/perf/tests/parse-metric.c
+@@ -0,0 +1,145 @@
++// SPDX-License-Identifier: GPL-2.0
++#include <linux/compiler.h>
++#include <string.h>
++#include "cpumap.h"
++#include "evlist.h"
++#include "metricgroup.h"
++#include "tests.h"
++#include "pmu-events/pmu-events.h"
++#include "evlist.h"
++#include "rblist.h"
++#include "debug.h"
++#include "expr.h"
++#include "stat.h"
++
++static struct pmu_event pme_test[] = {
++{
++	.metric_expr	= "inst_retired.any / cpu_clk_unhalted.thread",
++	.metric_name	= "IPC",
++},
++};
++
++static struct pmu_events_map map = {
++	.cpuid		= "test",
++	.version	= "1",
++	.type		= "core",
++	.table		= pme_test,
++};
++
++struct value {
++	const char	*event;
++	u64		 val;
++};
++
++static u64 find_value(const char *name, struct value *values)
++{
++	struct value *v = values;
++
++	while (v->event) {
++		if (!strcmp(name, v->event))
++			return v->val;
++		v++;
++	};
++	return 0;
++}
++
++static void load_runtime_stat(struct runtime_stat *st, struct perf_evlist *evlist,
++			      struct value *vals)
++{
++	struct perf_evsel *evsel;
++	u64 count;
++
++	evlist__for_each_entry(evlist, evsel) {
++		count = find_value(evsel->name, vals);
++		perf_stat__update_shadow_stats(evsel, count, 0, st);
++	}
++}
++
++static double compute_single(struct rblist *metric_events, struct perf_evlist *evlist,
++			     struct runtime_stat *st)
++{
++	struct perf_evsel *evsel = perf_evlist__first(evlist);
++	struct metric_event *me;
++
++	me = metricgroup__lookup(metric_events, evsel, false);
++	if (me != NULL) {
++		struct metric_expr *mexp;
++
++		mexp = list_first_entry(&me->head, struct metric_expr, nd);
++		return test_generic_metric(mexp, 0, st);
++	}
++	return 0.;
++}
++
++static int compute_metric(const char *name, struct value *vals, double *ratio)
++{
++	struct rblist metric_events = {
++		.nr_entries = 0,
++	};
++	struct cpu_map *cpus;
++	struct runtime_stat st;
++	struct perf_evlist *evlist;
++	int err;
++
++	/*
++	 * We need to prepare evlist for stat mode running on CPU 0
++	 * because that's where all the stats are going to be created.
++	 */
++	evlist = perf_evlist__new();
++	if (!evlist)
++		return -ENOMEM;
++
++	cpus = cpu_map__new("0");
++	if (!cpus)
++		return -ENOMEM;
++
++	perf_evlist__set_maps(evlist, cpus, NULL);
++
++	/* Parse the metric into metric_events list. */
++	err = metricgroup__parse_groups_test(evlist, &map, name,
++					     false, false,
++					     &metric_events);
++
++	TEST_ASSERT_VAL("failed to parse metric", err == 0);
++
++	if (perf_evlist__alloc_stats(evlist, false))
++		return -1;
++
++	/* Load the runtime stats with given numbers for events. */
++	runtime_stat__init(&st);
++	load_runtime_stat(&st, evlist, vals);
++
++	/* And execute the metric */
++	*ratio = compute_single(&metric_events, evlist, &st);
++
++	/* ... clenup. */
++	metricgroup__rblist_exit(&metric_events);
++	runtime_stat__exit(&st);
++	perf_evlist__free_stats(evlist);
++	cpu_map__put(cpus);
++	perf_evlist__delete(evlist);
++	return 0;
++}
++
++static int test_ipc(void)
++{
++	double ratio;
++	struct value vals[] = {
++		{ .event = "inst_retired.any",        .val = 300 },
++		{ .event = "cpu_clk_unhalted.thread", .val = 200 },
++		{ .event = NULL, },
++	};
++
++	TEST_ASSERT_VAL("failed to compute metric",
++			compute_metric("IPC", vals, &ratio) == 0);
++
++	TEST_ASSERT_VAL("IPC failed, wrong ratio",
++			ratio == 1.5);
++	return 0;
++}
++
++int test__parse_metric(struct test *test __maybe_unused, int subtest __maybe_unused)
++{
++	TEST_ASSERT_VAL("IPC failed", test_ipc() == 0);
++	return 0;
++}
+diff --git a/tools/perf/tests/tests.h b/tools/perf/tests/tests.h
+index 897ca3e7812c..506e9aa59bae 100644
+--- a/tools/perf/tests/tests.h
++++ b/tools/perf/tests/tests.h
+@@ -110,6 +110,7 @@ int test__clang_subtest_get_nr(void);
+ int test__unit_number__scnprint(struct test *test, int subtest);
+ int test__mem2node(struct test *t, int subtest);
+ int test__demangle_java(struct test *test, int subtest);
++int test__parse_metric(struct test *test, int subtest);
+ 
+ bool test__bp_signal_is_supported(void);
+ 
+-- 
+2.27.0
+

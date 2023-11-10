@@ -1,0 +1,69 @@
+From 74604ca3049109ef42ef4ed352b712f47de6898f Mon Sep 17 00:00:00 2001
+From: Kajol Jain <kjain@linux.ibm.com>
+Date: Thu, 2 Apr 2020 02:03:38 +0530
+Subject: [PATCH 063/201] perf tests expr: Added test for runtime param in
+ metric expression
+
+mainline inclusion
+from mainline-v5.8-rc1
+commit 9022608ec5babbb0fa631234098d52895e7e34d8
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=9022608ec5babbb0fa631234098d52895e7e34d8
+
+----------------------------------------------------------------------
+
+Added test case for parsing  "?" in metric expression.
+
+Signed-off-by: Kajol Jain <kjain@linux.ibm.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Anju T Sudhakar <anju@linux.vnet.ibm.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jin Yao <yao.jin@linux.intel.com>
+Cc: Joe Mario <jmario@redhat.com>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
+Cc: Mamatha Inamdar <mamatha4@linux.vnet.ibm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Michael Petlan <mpetlan@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Paul Mackerras <paulus@ozlabs.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+Cc: Sukadev Bhattiprolu <sukadev@linux.vnet.ibm.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: linuxppc-dev@lists.ozlabs.org
+Link: http://lore.kernel.org/lkml/20200401203340.31402-6-kjain@linux.ibm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ tools/perf/tests/expr.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/tools/perf/tests/expr.c b/tools/perf/tests/expr.c
+index e7706d93b9fe..d7f74094f935 100644
+--- a/tools/perf/tests/expr.c
++++ b/tools/perf/tests/expr.c
+@@ -57,6 +57,14 @@ int test__expr(struct test *t __maybe_unused, int subtest __maybe_unused)
+ 	TEST_ASSERT_VAL("find other", !strcmp(other[2], "BOZO"));
+ 	TEST_ASSERT_VAL("find other", other[3] == NULL);
+ 
++	TEST_ASSERT_VAL("find other",
++			expr__find_other("EVENT1\\,param\\=?@ + EVENT2\\,param\\=?@", NULL,
++				   &other, &num_other, 3) == 0);
++	TEST_ASSERT_VAL("find other", num_other == 2);
++	TEST_ASSERT_VAL("find other", !strcmp(other[0], "EVENT1,param=3/"));
++	TEST_ASSERT_VAL("find other", !strcmp(other[1], "EVENT2,param=3/"));
++	TEST_ASSERT_VAL("find other", other[2] == NULL);
++
+ 	for (i = 0; i < num_other; i++)
+ 		free((void *)other[i]);
+ 	free((void *)other);
+-- 
+2.27.0
+

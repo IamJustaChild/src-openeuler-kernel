@@ -1,0 +1,139 @@
+From fe1c9c5f4018c7d629164e2d3932a88e1d5d0f51 Mon Sep 17 00:00:00 2001
+From: Jiri Olsa <jolsa@kernel.org>
+Date: Sun, 19 Jul 2020 20:13:15 +0200
+Subject: [PATCH 122/201] perf metric: Add DCache_L2 to metric parse test
+
+mainline inclusion
+from mainline-v5.9-rc1
+commit 5a606f3b9c85ea024a8071765a523c85df93c454
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=5a606f3b9c85ea024a8071765a523c85df93c454
+
+----------------------------------------------------------------------
+
+Adding test that compute DCache_L2 metrics with other related metrics in it.
+
+Committer notes:
+
+Fixed up this:
+
+  tests/parse-metric.c:285:7: error: missing field 'val' initializer [-Werror,-Wmissing-field-initializers]
+                  { 0 },
+                      ^
+
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Reviewed-by: Kajol Jain <kjain@linux.ibm.com>
+Acked-by: Ian Rogers <irogers@google.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: John Garry <john.garry@huawei.com>
+Cc: Michael Petlan <mpetlan@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Paul Clarke <pc@us.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Link: http://lore.kernel.org/lkml/20200719181320.785305-15-jolsa@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ tools/perf/tests/parse-metric.c | 71 +++++++++++++++++++++++++++++++++
+ 1 file changed, 71 insertions(+)
+
+diff --git a/tools/perf/tests/parse-metric.c b/tools/perf/tests/parse-metric.c
+index 09170f0d1107..2df9ecae4179 100644
+--- a/tools/perf/tests/parse-metric.c
++++ b/tools/perf/tests/parse-metric.c
+@@ -34,6 +34,27 @@ static struct pmu_event pme_test[] = {
+ 	.metric_expr	= "(dcache_miss_cpi + icache_miss_cycles)",
+ 	.metric_name	= "cache_miss_cycles",
+ },
++{
++	.metric_expr	= "l2_rqsts.demand_data_rd_hit + l2_rqsts.pf_hit + l2_rqsts.rfo_hit",
++	.metric_name	= "DCache_L2_All_Hits",
++},
++{
++	.metric_expr	= "max(l2_rqsts.all_demand_data_rd - l2_rqsts.demand_data_rd_hit, 0) + "
++			  "l2_rqsts.pf_miss + l2_rqsts.rfo_miss",
++	.metric_name	= "DCache_L2_All_Miss",
++},
++{
++	.metric_expr	= "dcache_l2_all_hits + dcache_l2_all_miss",
++	.metric_name	= "DCache_L2_All",
++},
++{
++	.metric_expr	= "d_ratio(dcache_l2_all_hits, dcache_l2_all)",
++	.metric_name	= "DCache_L2_Hits",
++},
++{
++	.metric_expr	= "d_ratio(dcache_l2_all_miss, dcache_l2_all)",
++	.metric_name	= "DCache_L2_Misses",
++},
+ };
+ 
+ static struct pmu_events_map map = {
+@@ -192,10 +213,60 @@ static int test_cache_miss_cycles(void)
+ 	return 0;
+ }
+ 
++
++/*
++ * DCache_L2_All_Hits = l2_rqsts.demand_data_rd_hit + l2_rqsts.pf_hit + l2_rqsts.rfo_hi
++ * DCache_L2_All_Miss = max(l2_rqsts.all_demand_data_rd - l2_rqsts.demand_data_rd_hit, 0) +
++ *                      l2_rqsts.pf_miss + l2_rqsts.rfo_miss
++ * DCache_L2_All      = dcache_l2_all_hits + dcache_l2_all_miss
++ * DCache_L2_Hits     = d_ratio(dcache_l2_all_hits, dcache_l2_all)
++ * DCache_L2_Misses   = d_ratio(dcache_l2_all_miss, dcache_l2_all)
++ *
++ * l2_rqsts.demand_data_rd_hit = 100
++ * l2_rqsts.pf_hit             = 200
++ * l2_rqsts.rfo_hi             = 300
++ * l2_rqsts.all_demand_data_rd = 400
++ * l2_rqsts.pf_miss            = 500
++ * l2_rqsts.rfo_miss           = 600
++ *
++ * DCache_L2_All_Hits = 600
++ * DCache_L2_All_Miss = MAX(400 - 100, 0) + 500 + 600 = 1400
++ * DCache_L2_All      = 600 + 1400  = 2000
++ * DCache_L2_Hits     = 600 / 2000  = 0.3
++ * DCache_L2_Misses   = 1400 / 2000 = 0.7
++ */
++static int test_dcache_l2(void)
++{
++	double ratio;
++	struct value vals[] = {
++		{ .event = "l2_rqsts.demand_data_rd_hit", .val = 100 },
++		{ .event = "l2_rqsts.pf_hit",             .val = 200 },
++		{ .event = "l2_rqsts.rfo_hit",            .val = 300 },
++		{ .event = "l2_rqsts.all_demand_data_rd", .val = 400 },
++		{ .event = "l2_rqsts.pf_miss",            .val = 500 },
++		{ .event = "l2_rqsts.rfo_miss",           .val = 600 },
++		{ .event = NULL, },
++	};
++
++	TEST_ASSERT_VAL("failed to compute metric",
++			compute_metric("DCache_L2_Hits", vals, &ratio) == 0);
++
++	TEST_ASSERT_VAL("DCache_L2_Hits failed, wrong ratio",
++			ratio == 0.3);
++
++	TEST_ASSERT_VAL("failed to compute metric",
++			compute_metric("DCache_L2_Misses", vals, &ratio) == 0);
++
++	TEST_ASSERT_VAL("DCache_L2_Misses failed, wrong ratio",
++			ratio == 0.7);
++	return 0;
++}
++
+ int test__parse_metric(struct test *test __maybe_unused, int subtest __maybe_unused)
+ {
+ 	TEST_ASSERT_VAL("IPC failed", test_ipc() == 0);
+ 	TEST_ASSERT_VAL("frontend failed", test_frontend() == 0);
+ 	TEST_ASSERT_VAL("cache_miss_cycles failed", test_cache_miss_cycles() == 0);
++	TEST_ASSERT_VAL("DCache_L2 failed", test_dcache_l2() == 0);
+ 	return 0;
+ }
+-- 
+2.27.0
+

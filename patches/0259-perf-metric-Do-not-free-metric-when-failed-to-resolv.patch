@@ -1,0 +1,77 @@
+From 8789980267b2e5f42aeeef63d9a5a53fcc531c84 Mon Sep 17 00:00:00 2001
+From: Namhyung Kim <namhyung@kernel.org>
+Date: Tue, 15 Sep 2020 12:18:17 +0900
+Subject: [PATCH 142/201] perf metric: Do not free metric when failed to
+ resolve
+
+mainline inclusion
+from mainline-v5.9-rc6
+commit 6f47ed6cd12a0ea9b55b19b5d6e4a3b490a97bdf
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=6f47ed6cd12a0ea9b55b19b5d6e4a3b490a97bdf
+
+----------------------------------------------------------------------
+
+It's dangerous to free the original metric when it's called from
+resolve_metric() as it's already in the metric_list and might have other
+resources too.  Instead, it'd better let them bail out and be released
+properly at the later stage.
+
+So add a check when it's called from metricgroup__add_metric() and
+release it.  Also make sure that mp is set properly.
+
+Fixes: 83de0b7d535de ("perf metric: Collect referenced metrics in struct metric_ref_node")
+Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Link: http://lore.kernel.org/lkml/20200915031819.386559-10-namhyung@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ tools/perf/util/metricgroup.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/tools/perf/util/metricgroup.c b/tools/perf/util/metricgroup.c
+index c7fe63714cfe..0e33f3f82478 100644
+--- a/tools/perf/util/metricgroup.c
++++ b/tools/perf/util/metricgroup.c
+@@ -680,7 +680,6 @@ static int __add_metric(struct list_head *metric_list,
+ 		m->has_constraint = metric_no_group || metricgroup__has_constraint(pe);
+ 		INIT_LIST_HEAD(&m->metric_refs);
+ 		m->metric_refs_cnt = 0;
+-		*mp = m;
+ 
+ 		parent = expr_ids__alloc(ids);
+ 		if (!parent) {
+@@ -693,6 +692,7 @@ static int __add_metric(struct list_head *metric_list,
+ 			free(m);
+ 			return -ENOMEM;
+ 		}
++		*mp = m;
+ 	} else {
+ 		/*
+ 		 * We got here for the referenced metric, via the
+@@ -727,8 +727,11 @@ static int __add_metric(struct list_head *metric_list,
+ 	 * all the metric's IDs and add it to the parent context.
+ 	 */
+ 	if (expr__find_other(pe->metric_expr, NULL, &m->pctx, runtime) < 0) {
+-		expr__ctx_clear(&m->pctx);
+-		free(m);
++		if (m->metric_refs_cnt == 0) {
++			expr__ctx_clear(&m->pctx);
++			free(m);
++			*mp = NULL;
++		}
+ 		return -EINVAL;
+ 	}
+ 
+-- 
+2.27.0
+

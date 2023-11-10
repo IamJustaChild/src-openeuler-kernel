@@ -1,0 +1,112 @@
+From 363546e8528e51f0fc5040c0ace71277bcc02a9c Mon Sep 17 00:00:00 2001
+From: Jiri Olsa <jolsa@kernel.org>
+Date: Tue, 2 Jun 2020 23:47:41 +0200
+Subject: [PATCH 120/201] perf tests: Add parse metric test for frontend metric
+
+mainline inclusion
+from mainline-v5.9-rc1
+commit 98461d9dc115a2ef555ad114866e8acdc6377aaa
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=98461d9dc115a2ef555ad114866e8acdc6377aaa
+
+----------------------------------------------------------------------
+
+Adding new metric test for frontend metric. It's stolen from x86 pmu
+events.
+
+Committer testing:
+
+  # perf test "Parse and process metrics"
+  67: Parse and process metrics                             : Ok
+  # perf test -v "Parse and process metrics"
+  #
+  67: Parse and process metrics                             :
+  --- start ---
+  test child forked, pid 104881
+  metric expr inst_retired.any / cpu_clk_unhalted.thread for IPC
+  found event inst_retired.any
+  found event cpu_clk_unhalted.thread
+  adding {inst_retired.any,cpu_clk_unhalted.thread}:W
+  metric expr idq_uops_not_delivered.core / (4 * (( ( cpu_clk_unhalted.thread / 2 ) * ( 1 + cpu_clk_unhalted.one_thread_active / cpu_clk_unhalted.ref_xclk ) ))) for Frontend_Bound_SMT
+  found event cpu_clk_unhalted.one_thread_active
+  found event cpu_clk_unhalted.ref_xclk
+  found event idq_uops_not_delivered.core
+  found event cpu_clk_unhalted.thread
+  adding {cpu_clk_unhalted.one_thread_active,cpu_clk_unhalted.ref_xclk,idq_uops_not_delivered.core,cpu_clk_unhalted.thread}:W
+  test child finished with 0
+  ---- end ----
+  Parse and process metrics: Ok
+  #
+
+Had to fix it to initialize that 'struct value' array sentinel with a
+named initializer to fix the build with some versions of clang:
+
+  tests/parse-metric.c:154:7: error: missing field 'val' initializer [-Werror,-Wmissing-field-initializers]
+                { 0 },
+
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Acked-by: Ian Rogers <irogers@google.com>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Michael Petlan <mpetlan@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Link: http://lore.kernel.org/lkml/20200602214741.1218986-14-jolsa@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ tools/perf/tests/parse-metric.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+
+diff --git a/tools/perf/tests/parse-metric.c b/tools/perf/tests/parse-metric.c
+index 77a2199c2a85..79145cfc4b00 100644
+--- a/tools/perf/tests/parse-metric.c
++++ b/tools/perf/tests/parse-metric.c
+@@ -17,6 +17,11 @@ static struct pmu_event pme_test[] = {
+ 	.metric_expr	= "inst_retired.any / cpu_clk_unhalted.thread",
+ 	.metric_name	= "IPC",
+ },
++{
++	.metric_expr	= "idq_uops_not_delivered.core / (4 * (( ( cpu_clk_unhalted.thread / 2 ) * "
++			  "( 1 + cpu_clk_unhalted.one_thread_active / cpu_clk_unhalted.ref_xclk ) )))",
++	.metric_name	= "Frontend_Bound_SMT",
++},
+ };
+ 
+ static struct pmu_events_map map = {
+@@ -138,8 +143,28 @@ static int test_ipc(void)
+ 	return 0;
+ }
+ 
++static int test_frontend(void)
++{
++	double ratio;
++	struct value vals[] = {
++		{ .event = "idq_uops_not_delivered.core",        .val = 300 },
++		{ .event = "cpu_clk_unhalted.thread",            .val = 200 },
++		{ .event = "cpu_clk_unhalted.one_thread_active", .val = 400 },
++		{ .event = "cpu_clk_unhalted.ref_xclk",          .val = 600 },
++		{ .event = NULL, },
++	};
++
++	TEST_ASSERT_VAL("failed to compute metric",
++			compute_metric("Frontend_Bound_SMT", vals, &ratio) == 0);
++
++	TEST_ASSERT_VAL("Frontend_Bound_SMT failed, wrong ratio",
++			ratio == 0.45);
++	return 0;
++}
++
+ int test__parse_metric(struct test *test __maybe_unused, int subtest __maybe_unused)
+ {
+ 	TEST_ASSERT_VAL("IPC failed", test_ipc() == 0);
++	TEST_ASSERT_VAL("frontend failed", test_frontend() == 0);
+ 	return 0;
+ }
+-- 
+2.27.0
+

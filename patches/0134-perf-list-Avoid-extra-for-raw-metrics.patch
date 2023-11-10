@@ -1,0 +1,43 @@
+From 936090e8e295cd14a5ac086baba7123ec345de95 Mon Sep 17 00:00:00 2001
+From: Andi Kleen <ak@linux.intel.com>
+Date: Fri, 28 Jun 2019 15:07:36 -0700
+Subject: [PATCH 017/201] perf list: Avoid extra : for --raw metrics
+
+mainline inclusion
+from mainline-v5.3-rc1
+commit 9c344d15f5783260f57c711f3fce72dd744bebe2
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=9c344d15f5783260f57c711f3fce72dd744bebe2
+
+----------------------------------------------------------------------
+
+When printing the metrics raw, don't print : after the metricgroups.
+This helps the command line completion to complete those too.
+
+Signed-off-by: Andi Kleen <ak@linux.intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Link: http://lkml.kernel.org/r/20190628220737.13259-2-andi@firstfloor.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ tools/perf/util/metricgroup.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/perf/util/metricgroup.c b/tools/perf/util/metricgroup.c
+index 27552a0b990a..90c22757ca9d 100644
+--- a/tools/perf/util/metricgroup.c
++++ b/tools/perf/util/metricgroup.c
+@@ -388,7 +388,7 @@ void metricgroup__print(bool metrics, bool metricgroups, char *filter,
+ 		struct mep *me = container_of(node, struct mep, nd);
+ 
+ 		if (metricgroups)
+-			printf("%s%s%s", me->name, metrics ? ":" : "", raw ? " " : "\n");
++			printf("%s%s%s", me->name, metrics && !raw ? ":" : "", raw ? " " : "\n");
+ 		if (metrics)
+ 			metricgroup__print_strlist(me->metrics, raw);
+ 		next = rb_next(node);
+-- 
+2.27.0
+

@@ -1,0 +1,99 @@
+From f44426297c25f55c7f153f1fc6acb2285263d62a Mon Sep 17 00:00:00 2001
+From: Jiri Olsa <jolsa@kernel.org>
+Date: Sun, 19 Jul 2020 20:13:14 +0200
+Subject: [PATCH 121/201] perf metric: Add cache_miss_cycles to metric parse
+ test
+
+mainline inclusion
+from mainline-v5.9-rc1
+commit 55f30d68397df7d67367a0643d9dea7cbbcda061
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=55f30d68397df7d67367a0643d9dea7cbbcda061
+
+----------------------------------------------------------------------
+
+Adding test that compute metric with other metrics in it.
+  cache_miss_cycles = metric:dcache_miss_cpi + metric:icache_miss_cycles
+
+Committer notes:
+
+Fixed up initializer to cope with:
+
+  tests/parse-metric.c:242:7: error: missing field 'val' initializer [-Werror,-Wmissing-field-initializers]
+                  { 0 },
+
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Reviewed-by: Kajol Jain <kjain@linux.ibm.com>
+Acked-by: Ian Rogers <irogers@google.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: John Garry <john.garry@huawei.com>
+Cc: Michael Petlan <mpetlan@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Paul Clarke <pc@us.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Link: http://lore.kernel.org/lkml/20200719181320.785305-14-jolsa@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ tools/perf/tests/parse-metric.c | 31 +++++++++++++++++++++++++++++++
+ 1 file changed, 31 insertions(+)
+
+diff --git a/tools/perf/tests/parse-metric.c b/tools/perf/tests/parse-metric.c
+index 79145cfc4b00..09170f0d1107 100644
+--- a/tools/perf/tests/parse-metric.c
++++ b/tools/perf/tests/parse-metric.c
+@@ -22,6 +22,18 @@ static struct pmu_event pme_test[] = {
+ 			  "( 1 + cpu_clk_unhalted.one_thread_active / cpu_clk_unhalted.ref_xclk ) )))",
+ 	.metric_name	= "Frontend_Bound_SMT",
+ },
++{
++	.metric_expr	= "l1d\\-loads\\-misses / inst_retired.any",
++	.metric_name	= "dcache_miss_cpi",
++},
++{
++	.metric_expr	= "l1i\\-loads\\-misses / inst_retired.any",
++	.metric_name	= "icache_miss_cycles",
++},
++{
++	.metric_expr	= "(dcache_miss_cpi + icache_miss_cycles)",
++	.metric_name	= "cache_miss_cycles",
++},
+ };
+ 
+ static struct pmu_events_map map = {
+@@ -162,9 +174,28 @@ static int test_frontend(void)
+ 	return 0;
+ }
+ 
++static int test_cache_miss_cycles(void)
++{
++	double ratio;
++	struct value vals[] = {
++		{ .event = "l1d-loads-misses",  .val = 300 },
++		{ .event = "l1i-loads-misses",  .val = 200 },
++		{ .event = "inst_retired.any",  .val = 400 },
++		{ .event = NULL, },
++	};
++
++	TEST_ASSERT_VAL("failed to compute metric",
++			compute_metric("cache_miss_cycles", vals, &ratio) == 0);
++
++	TEST_ASSERT_VAL("cache_miss_cycles failed, wrong ratio",
++			ratio == 1.25);
++	return 0;
++}
++
+ int test__parse_metric(struct test *test __maybe_unused, int subtest __maybe_unused)
+ {
+ 	TEST_ASSERT_VAL("IPC failed", test_ipc() == 0);
+ 	TEST_ASSERT_VAL("frontend failed", test_frontend() == 0);
++	TEST_ASSERT_VAL("cache_miss_cycles failed", test_cache_miss_cycles() == 0);
+ 	return 0;
+ }
+-- 
+2.27.0
+
