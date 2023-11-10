@@ -1,0 +1,45 @@
+From f76bfab8a90882a39a703816d055e626dd753187 Mon Sep 17 00:00:00 2001
+From: YunYi Yang <yangyunyi2@huawei.com>
+Date: Mon, 28 Aug 2023 15:44:43 +0800
+Subject: [PATCH 122/256] fix kabi broken due to change of struct device_link
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F803
+
+----------------------------------------------------------------------------
+
+Commit ("driver core: Expose device link details in
+sysfs") changes the struct device_link, so we need to fix kabi broken
+problem.
+
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ include/linux/device.h | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/include/linux/device.h b/include/linux/device.h
+index 686ff535b75b..18552235be04 100644
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -1094,7 +1094,6 @@ struct device_link {
+ 	struct list_head s_node;
+ 	struct device *consumer;
+ 	struct list_head c_node;
+-	struct device link_dev;
+ 	enum device_link_state status;
+ 	u32 flags;
+ 	refcount_t rpm_active;
+@@ -1103,6 +1102,9 @@ struct device_link {
+ 	struct rcu_head rcu_head;
+ #endif
+ 	bool supplier_preactivated; /* Owned by consumer probe. */
++#ifndef __GENKSYMS__
++	struct device link_dev;
++#endif
+ };
+ 
+ static inline struct device *kobj_to_dev(struct kobject *kobj)
+-- 
+2.27.0
+

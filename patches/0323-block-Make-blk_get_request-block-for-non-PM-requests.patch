@@ -1,0 +1,185 @@
+From 4796e523839030190bf766ac77d598d1d3680493 Mon Sep 17 00:00:00 2001
+From: Bart Van Assche <bvanassche@acm.org>
+Date: Wed, 26 Sep 2018 14:01:09 -0700
+Subject: [PATCH 005/256] block: Make blk_get_request() block for non-PM
+ requests while suspended
+
+mainline inclusion
+from mainline-v4.20-rc1
+commit 7cedffec8e759480f7f7a9be9cd0d7ebf0aafff2
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=7cedffec8e759480f7f7a9be9cd0d7ebf0aafff2
+
+----------------------------------------------------------------------
+
+Instead of allowing requests that are not power management requests
+to enter the queue in runtime suspended status (RPM_SUSPENDED), make
+the blk_get_request() caller block. This change fixes a starvation
+issue: it is now guaranteed that power management requests will be
+executed no matter how many blk_get_request() callers are waiting.
+For blk-mq, instead of maintaining the q->nr_pending counter, rely
+on q->q_usage_counter. Call pm_runtime_mark_last_busy() every time a
+request finishes instead of only if the queue depth drops to zero.
+
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Cc: Jianchao Wang <jianchao.w.wang@oracle.com>
+Cc: Hannes Reinecke <hare@suse.com>
+Cc: Johannes Thumshirn <jthumshirn@suse.de>
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ block/blk-core.c | 37 ++++++++-----------------------------
+ block/blk-pm.c   | 44 +++++++++++++++++++++++++++++++++++++++-----
+ 2 files changed, 47 insertions(+), 34 deletions(-)
+
+diff --git a/block/blk-core.c b/block/blk-core.c
+index 20a23cb3c323..fe3553382b0e 100644
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -3069,30 +3069,6 @@ void blk_account_io_done(struct request *req, u64 now)
+ 	}
+ }
+ 
+-#ifdef CONFIG_PM
+-/*
+- * Don't process normal requests when queue is suspended
+- * or in the process of suspending/resuming
+- */
+-static bool blk_pm_allow_request(struct request *rq)
+-{
+-	switch (rq->q->rpm_status) {
+-	case RPM_RESUMING:
+-	case RPM_SUSPENDING:
+-		return rq->rq_flags & RQF_PM;
+-	case RPM_SUSPENDED:
+-		return false;
+-	default:
+-		return true;
+-	}
+-}
+-#else
+-static bool blk_pm_allow_request(struct request *rq)
+-{
+-	return true;
+-}
+-#endif
+-
+ void blk_account_io_start(struct request *rq, bool new_io)
+ {
+ 	struct hd_struct *part;
+@@ -3129,11 +3105,14 @@ static struct request *elv_next_request(struct request_queue *q)
+ 
+ 	while (1) {
+ 		list_for_each_entry(rq, &q->queue_head, queuelist) {
+-			if (blk_pm_allow_request(rq))
+-				return rq;
+-
+-			if (rq->rq_flags & RQF_SOFTBARRIER)
+-				break;
++#ifdef CONFIG_PM
++			/*
++			 * If a request gets queued in state RPM_SUSPENDED
++			 * then that's a kernel bug.
++			 */
++			WARN_ON_ONCE(q->rpm_status == RPM_SUSPENDED);
++#endif
++			return rq;
+ 		}
+ 
+ 		/*
+diff --git a/block/blk-pm.c b/block/blk-pm.c
+index 9b636960d285..972fbc656846 100644
+--- a/block/blk-pm.c
++++ b/block/blk-pm.c
+@@ -1,8 +1,11 @@
+ // SPDX-License-Identifier: GPL-2.0
+ 
++#include <linux/blk-mq.h>
+ #include <linux/blk-pm.h>
+ #include <linux/blkdev.h>
+ #include <linux/pm_runtime.h>
++#include "blk-mq.h"
++#include "blk-mq-tag.h"
+ 
+ /**
+  * blk_pm_runtime_init - Block layer runtime PM initialization routine
+@@ -68,14 +71,40 @@ int blk_pre_runtime_suspend(struct request_queue *q)
+ 	if (!q->dev)
+ 		return ret;
+ 
++	WARN_ON_ONCE(q->rpm_status != RPM_ACTIVE);
++
++	/*
++	 * Increase the pm_only counter before checking whether any
++	 * non-PM blk_queue_enter() calls are in progress to avoid that any
++	 * new non-PM blk_queue_enter() calls succeed before the pm_only
++	 * counter is decreased again.
++	 */
++	blk_set_pm_only(q);
++	ret = -EBUSY;
++	/* Switch q_usage_counter from per-cpu to atomic mode. */
++	blk_freeze_queue_start(q);
++	/*
++	 * Wait until atomic mode has been reached. Since that
++	 * involves calling call_rcu(), it is guaranteed that later
++	 * blk_queue_enter() calls see the pm-only state. See also
++	 * http://lwn.net/Articles/573497/.
++	 */
++	percpu_ref_switch_to_atomic_sync(&q->q_usage_counter);
++	if (percpu_ref_is_zero(&q->q_usage_counter))
++		ret = 0;
++	/* Switch q_usage_counter back to per-cpu mode. */
++	blk_mq_unfreeze_queue(q);
++
+ 	spin_lock_irq(q->queue_lock);
+-	if (q->nr_pending) {
+-		ret = -EBUSY;
++	if (ret < 0)
+ 		pm_runtime_mark_last_busy(q->dev);
+-	} else {
++	else
+ 		q->rpm_status = RPM_SUSPENDING;
+-	}
+ 	spin_unlock_irq(q->queue_lock);
++
++	if (ret)
++		blk_clear_pm_only(q);
++
+ 	return ret;
+ }
+ EXPORT_SYMBOL(blk_pre_runtime_suspend);
+@@ -106,6 +135,9 @@ void blk_post_runtime_suspend(struct request_queue *q, int err)
+ 		pm_runtime_mark_last_busy(q->dev);
+ 	}
+ 	spin_unlock_irq(q->queue_lock);
++
++	if (err)
++		blk_clear_pm_only(q);
+ }
+ EXPORT_SYMBOL(blk_post_runtime_suspend);
+ 
+@@ -153,13 +185,15 @@ void blk_post_runtime_resume(struct request_queue *q, int err)
+ 	spin_lock_irq(q->queue_lock);
+ 	if (!err) {
+ 		q->rpm_status = RPM_ACTIVE;
+-		__blk_run_queue(q);
+ 		pm_runtime_mark_last_busy(q->dev);
+ 		pm_request_autosuspend(q->dev);
+ 	} else {
+ 		q->rpm_status = RPM_SUSPENDED;
+ 	}
+ 	spin_unlock_irq(q->queue_lock);
++
++	if (!err)
++		blk_clear_pm_only(q);
+ }
+ EXPORT_SYMBOL(blk_post_runtime_resume);
+ 
+-- 
+2.27.0
+

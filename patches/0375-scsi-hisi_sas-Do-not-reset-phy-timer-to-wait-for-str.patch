@@ -1,0 +1,54 @@
+From 670c3284c21c895ea549ad00a5a82552ae476514 Mon Sep 17 00:00:00 2001
+From: Luo Jiaxing <luojiaxing@huawei.com>
+Date: Fri, 15 May 2020 22:13:42 +0800
+Subject: [PATCH 057/256] scsi: hisi_sas: Do not reset phy timer to wait for
+ stray phy up
+
+mainline inclusion
+from mainline-v5.8-rc1
+commit e16b9ed61e078d836a0f24a82080cf29d7539c7e
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EKNE
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=e16b9ed61e078d836a0f24a82080cf29d7539c7e
+
+----------------------------------------------------------------------
+
+We found out that after phy up, the hardware reports another oob interrupt
+but did not follow a phy up interrupt:
+
+oob ready -> phy up -> DEV found -> oob read -> wait phy up -> timeout
+
+We run link reset when wait phy up timeout, and it send a normal disk into
+reset processing. So we made some circumvention action in the code, so that
+this abnormal oob interrupt will not start the timer to wait for phy up.
+
+Link: https://lore.kernel.org/r/1589552025-165012-2-git-send-email-john.garry@huawei.com
+Signed-off-by: Luo Jiaxing <luojiaxing@huawei.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/hisi_sas/hisi_sas_main.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index 87d5c745ad0f..037ab14e40ce 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -917,8 +917,11 @@ void hisi_sas_phy_oob_ready(struct hisi_hba *hisi_hba, int phy_no)
+ 	struct hisi_sas_phy *phy = &hisi_hba->phy[phy_no];
+ 	struct device *dev = hisi_hba->dev;
+ 
++	dev_dbg(dev, "phy%d OOB ready\n", phy_no);
++	if (phy->phy_attached)
++		return;
++
+ 	if (!timer_pending(&phy->timer)) {
+-		dev_dbg(dev, "phy%d OOB ready\n", phy_no);
+ 		phy->timer.expires = jiffies + HISI_SAS_WAIT_PHYUP_TIMEOUT * HZ;
+ 		add_timer(&phy->timer);
+ 	}
+-- 
+2.27.0
+

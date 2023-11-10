@@ -1,0 +1,125 @@
+From e00477f935f3153cd027ef985725b12b52250e61 Mon Sep 17 00:00:00 2001
+From: Chandrakanth Patil <chandrakanth.patil@broadcom.com>
+Date: Tue, 25 Jun 2019 16:34:34 +0530
+Subject: [PATCH 132/256] scsi: megaraid_sas: Use high IOPS queues based on IO
+ workload
+
+mainline inclusion
+from mainline-v5.3-rc1
+commit f39e5e52c5b5407173d87b03a6385fbe6ccf1026
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F7ZR
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=f39e5e52c5b5407173d87b03a6385fbe6ccf1026
+
+----------------------------------------------------------------------
+
+The driver will use round-robin method for IO submission in batches within
+the high IOPS queues when the number of in-flight ios on the target device
+is larger than 8. Otherwise the driver will use low latency reply queues.
+
+Signed-off-by: Kashyap Desai <kashyap.desai@broadcom.com>
+Signed-off-by: Chandrakanth Patil <chandrakanth.patil@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/megaraid/megaraid_sas.h        |  3 +++
+ drivers/scsi/megaraid/megaraid_sas_fp.c     |  1 +
+ drivers/scsi/megaraid/megaraid_sas_fusion.c | 21 +++++++++++++++++++--
+ drivers/scsi/megaraid/megaraid_sas_fusion.h |  1 +
+ 4 files changed, 24 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/scsi/megaraid/megaraid_sas.h b/drivers/scsi/megaraid/megaraid_sas.h
+index 0fad3b9ec9a3..46374bcae3af 100644
+--- a/drivers/scsi/megaraid/megaraid_sas.h
++++ b/drivers/scsi/megaraid/megaraid_sas.h
+@@ -2150,6 +2150,8 @@ enum MR_PD_TYPE {
+ 
+ /*Aero performance parameters*/
+ #define MR_HIGH_IOPS_QUEUE_COUNT	8
++#define MR_DEVICE_HIGH_IOPS_DEPTH	8
++#define MR_HIGH_IOPS_BATCH_COUNT	16
+ 
+ struct megasas_instance {
+ 
+@@ -2257,6 +2259,7 @@ struct megasas_instance {
+ 	atomic_t sge_holes_type2;
+ 	atomic_t sge_holes_type3;
+ 	atomic64_t total_io_count;
++	atomic64_t high_iops_outstanding;
+ 
+ 	struct megasas_instance_template *instancet;
+ 	struct tasklet_struct isr_tasklet;
+diff --git a/drivers/scsi/megaraid/megaraid_sas_fp.c b/drivers/scsi/megaraid/megaraid_sas_fp.c
+index a33628550425..b259ac9473b9 100644
+--- a/drivers/scsi/megaraid/megaraid_sas_fp.c
++++ b/drivers/scsi/megaraid/megaraid_sas_fp.c
+@@ -968,6 +968,7 @@ MR_BuildRaidContext(struct megasas_instance *instance,
+ 	stripSize = 1 << raid->stripeShift;
+ 	stripe_mask = stripSize-1;
+ 
++	io_info->data_arms = raid->rowDataSize;
+ 
+ 	/*
+ 	 * calculate starting row and stripe, and number of strips and rows
+diff --git a/drivers/scsi/megaraid/megaraid_sas_fusion.c b/drivers/scsi/megaraid/megaraid_sas_fusion.c
+index 9d43af44abd2..67a938d2d451 100644
+--- a/drivers/scsi/megaraid/megaraid_sas_fusion.c
++++ b/drivers/scsi/megaraid/megaraid_sas_fusion.c
+@@ -2641,6 +2641,7 @@ megasas_build_ldio_fusion(struct megasas_instance *instance,
+ 	io_info.r1_alt_dev_handle = MR_DEVHANDLE_INVALID;
+ 	scsi_buff_len = scsi_bufflen(scp);
+ 	io_request->DataLength = cpu_to_le32(scsi_buff_len);
++	io_info.data_arms = 1;
+ 
+ 	if (scp->sc_data_direction == PCI_DMA_FROMDEVICE)
+ 		io_info.isRead = 1;
+@@ -2661,7 +2662,15 @@ megasas_build_ldio_fusion(struct megasas_instance *instance,
+ 			fp_possible = (io_info.fpOkForIo > 0) ? true : false;
+ 	}
+ 
+-	if (instance->msix_load_balance)
++	if (instance->balanced_mode &&
++		atomic_read(&scp->device->device_busy) >
++		(io_info.data_arms * MR_DEVICE_HIGH_IOPS_DEPTH))
++		cmd->request_desc->SCSIIO.MSIxIndex =
++			mega_mod64((atomic64_add_return(1,
++				&instance->high_iops_outstanding) /
++				MR_HIGH_IOPS_BATCH_COUNT),
++				instance->low_latency_index_start);
++	else if (instance->msix_load_balance)
+ 		cmd->request_desc->SCSIIO.MSIxIndex =
+ 			(mega_mod64(atomic64_add_return(1,
+ 						&instance->total_io_count),
+@@ -2996,7 +3005,15 @@ megasas_build_syspd_fusion(struct megasas_instance *instance,
+ 
+ 	cmd->request_desc->SCSIIO.DevHandle = io_request->DevHandle;
+ 
+-	if (instance->msix_load_balance)
++	if (instance->balanced_mode &&
++		atomic_read(&scmd->device->device_busy) >
++		MR_DEVICE_HIGH_IOPS_DEPTH)
++		cmd->request_desc->SCSIIO.MSIxIndex =
++			mega_mod64((atomic64_add_return(1,
++				&instance->high_iops_outstanding) /
++				MR_HIGH_IOPS_BATCH_COUNT),
++				instance->low_latency_index_start);
++	else if (instance->msix_load_balance)
+ 		cmd->request_desc->SCSIIO.MSIxIndex =
+ 			(mega_mod64(atomic64_add_return(1,
+ 						&instance->total_io_count),
+diff --git a/drivers/scsi/megaraid/megaraid_sas_fusion.h b/drivers/scsi/megaraid/megaraid_sas_fusion.h
+index 68517cb7342b..c734d6139fb5 100644
+--- a/drivers/scsi/megaraid/megaraid_sas_fusion.h
++++ b/drivers/scsi/megaraid/megaraid_sas_fusion.h
+@@ -952,6 +952,7 @@ struct IO_REQUEST_INFO {
+ 	u8  pd_after_lb;
+ 	u16 r1_alt_dev_handle; /* raid 1/10 only */
+ 	bool ra_capable;
++	u8 data_arms;
+ };
+ 
+ struct MR_LD_TARGET_SYNC {
+-- 
+2.27.0
+

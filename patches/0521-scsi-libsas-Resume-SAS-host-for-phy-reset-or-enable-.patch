@@ -1,0 +1,73 @@
+From 894592185e3517669a22988a1cda342bf24b2dae Mon Sep 17 00:00:00 2001
+From: Xiang Chen <chenxiang66@hisilicon.com>
+Date: Thu, 3 Nov 2022 18:49:28 +0800
+Subject: [PATCH 203/256] scsi: libsas: Resume SAS host for phy reset or enable
+ via sysfs
+
+mainline inclusion
+from mainline-v6.0-rc1
+commit 1e82e4627a795aa33af0309c8f526df09abad188
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F803
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=1e82e4627a795aa33af0309c8f526df09abad188
+
+----------------------------------------------------------------------
+
+Currently if a phy reset or enable phy is issued via sysfs when controller
+is suspended, those operations will be ignored as SAS_HA_REGISTERED is
+cleared. If RPM is enabled then we may aggressively suspend automatically.
+In this case it may be difficult to enable or reset a phy via sysfs, so
+resume the host in these scenarios.
+
+Link: https://lore.kernel.org/r/1657823002-139010-6-git-send-email-john.garry@huawei.com
+Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: xiabing <xiabing12@h-partners.com>
+Reviewed-by: Jason Yan <yanaijie@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/libsas/sas_init.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/scsi/libsas/sas_init.c b/drivers/scsi/libsas/sas_init.c
+index 2c875f9c07a0..a2d449385504 100644
+--- a/drivers/scsi/libsas/sas_init.c
++++ b/drivers/scsi/libsas/sas_init.c
+@@ -551,6 +551,7 @@ static int queue_phy_reset(struct sas_phy *phy, int hard_reset)
+ 	if (!d)
+ 		return -ENOMEM;
+ 
++	pm_runtime_get_sync(ha->dev);
+ 	/* libsas workqueue coordinates ata-eh reset with discovery */
+ 	mutex_lock(&d->event_lock);
+ 	d->reset_result = 0;
+@@ -564,6 +565,7 @@ static int queue_phy_reset(struct sas_phy *phy, int hard_reset)
+ 	if (rc == 0)
+ 		rc = d->reset_result;
+ 	mutex_unlock(&d->event_lock);
++	pm_runtime_put_sync(ha->dev);
+ 
+ 	return rc;
+ }
+@@ -578,6 +580,7 @@ static int queue_phy_enable(struct sas_phy *phy, int enable)
+ 	if (!d)
+ 		return -ENOMEM;
+ 
++	pm_runtime_get_sync(ha->dev);
+ 	/* libsas workqueue coordinates ata-eh reset with discovery */
+ 	mutex_lock(&d->event_lock);
+ 	d->enable_result = 0;
+@@ -591,6 +594,7 @@ static int queue_phy_enable(struct sas_phy *phy, int enable)
+ 	if (rc == 0)
+ 		rc = d->enable_result;
+ 	mutex_unlock(&d->event_lock);
++	pm_runtime_put_sync(ha->dev);
+ 
+ 	return rc;
+ }
+-- 
+2.27.0
+

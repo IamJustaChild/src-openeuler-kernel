@@ -1,0 +1,162 @@
+From c929316a2aa2c05a57c8e63e75564d19e278fb8a Mon Sep 17 00:00:00 2001
+From: Sudeep Holla <sudeep.holla@arm.com>
+Date: Thu, 14 Feb 2019 18:29:10 +0000
+Subject: [PATCH 118/256] PM / core: Add support to skip power management in
+ device/driver model
+
+mainline inclusion
+from mainline-v5.1-rc1
+commit 85945c28b5a888043cb2b54f880d80d8915f21f5
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F803
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=85945c28b5a888043cb2b54f880d80d8915f21f5
+
+----------------------------------------------------------------------
+
+All device objects in the driver model contain fields that control the
+handling of various power management activities. However, it's not
+always useful. There are few instances where pseudo devices are added
+to the model just to take advantage of many other features like
+kobjects, udev events, and so on. One such example is cpu devices and
+their caches.
+
+The sysfs for the cpu caches are managed by adding devices with cpu
+as the parent in cpu_device_create() when secondary cpu is brought
+online. Generally when the secondary CPUs are hotplugged back in as part
+of resume from suspend-to-ram, we call cpu_device_create() from the cpu
+hotplug state machine while the cpu device associated with that CPU is
+not yet ready to be resumed as the device_resume() call happens bit
+later. It's not really needed to set the flag is_prepared for cpu
+devices as they are mostly pseudo device and hotplug framework deals
+with state machine and not managed through the cpu device.
+
+This often results in annoying warning when resuming:
+Enabling non-boot CPUs ...
+CPU1: Booted secondary processor
+ cache: parent cpu1 should not be sleeping
+CPU1 is up
+CPU2: Booted secondary processor
+ cache: parent cpu2 should not be sleeping
+CPU2 is up
+.... and so on.
+
+So in order to fix these kind of errors, we could just completely avoid
+doing any power management related initialisations and operations if
+they are not used by these devices.
+
+Add no_pm flags to indicate that the device doesn't require any sort of
+PM activities and all of them can be completely skipped. We can use the
+same flag to also avoid adding not used *power* sysfs entries for these
+devices. For now, lets use this for cpu cache devices.
+
+Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Tested-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/base/cpu.c         |  1 +
+ drivers/base/power/main.c  |  7 +++++++
+ drivers/base/power/sysfs.c |  6 ++++++
+ include/linux/device.h     | 10 ++++++++++
+ include/linux/pm.h         |  1 +
+ 5 files changed, 25 insertions(+)
+
+diff --git a/drivers/base/cpu.c b/drivers/base/cpu.c
+index c16b58adbdfe..68d45e2e2cd4 100644
+--- a/drivers/base/cpu.c
++++ b/drivers/base/cpu.c
+@@ -420,6 +420,7 @@ __cpu_device_create(struct device *parent, void *drvdata,
+ 	dev->parent = parent;
+ 	dev->groups = groups;
+ 	dev->release = device_create_release;
++	device_set_pm_not_required(dev);
+ 	dev_set_drvdata(dev, drvdata);
+ 
+ 	retval = kobject_set_name_vargs(&dev->kobj, fmt, args);
+diff --git a/drivers/base/power/main.c b/drivers/base/power/main.c
+index fe7506aae13c..6dbc19de3ac6 100644
+--- a/drivers/base/power/main.c
++++ b/drivers/base/power/main.c
+@@ -123,6 +123,10 @@ void device_pm_unlock(void)
+  */
+ void device_pm_add(struct device *dev)
+ {
++	/* Skip PM setup/initialization. */
++	if (device_pm_not_required(dev))
++		return;
++
+ 	pr_debug("PM: Adding info for %s:%s\n",
+ 		 dev->bus ? dev->bus->name : "No Bus", dev_name(dev));
+ 	device_pm_check_callbacks(dev);
+@@ -141,6 +145,9 @@ void device_pm_add(struct device *dev)
+  */
+ void device_pm_remove(struct device *dev)
+ {
++	if (device_pm_not_required(dev))
++		return;
++
+ 	pr_debug("PM: Removing info for %s:%s\n",
+ 		 dev->bus ? dev->bus->name : "No Bus", dev_name(dev));
+ 	complete_all(&dev->power.completion);
+diff --git a/drivers/base/power/sysfs.c b/drivers/base/power/sysfs.c
+index 63375f80e241..c3aaa3229998 100644
+--- a/drivers/base/power/sysfs.c
++++ b/drivers/base/power/sysfs.c
+@@ -681,6 +681,10 @@ int dpm_sysfs_add(struct device *dev)
+ {
+ 	int rc;
+ 
++	/* No need to create PM sysfs if explicitly disabled. */
++	if (device_pm_not_required(dev))
++		return 0;
++
+ 	rc = sysfs_create_group(&dev->kobj, &pm_attr_group);
+ 	if (rc)
+ 		return rc;
+@@ -760,6 +764,8 @@ void rpm_sysfs_remove(struct device *dev)
+ 
+ void dpm_sysfs_remove(struct device *dev)
+ {
++	if (device_pm_not_required(dev))
++		return;
+ 	sysfs_unmerge_group(&dev->kobj, &pm_qos_latency_tolerance_attr_group);
+ 	dev_pm_qos_constraints_destroy(dev);
+ 	rpm_sysfs_remove(dev);
+diff --git a/include/linux/device.h b/include/linux/device.h
+index 44a3dd381f55..cd389ed014fa 100644
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -1202,6 +1202,16 @@ static inline bool device_async_suspend_enabled(struct device *dev)
+ 	return !!dev->power.async_suspend;
+ }
+ 
++static inline bool device_pm_not_required(struct device *dev)
++{
++	return dev->power.no_pm;
++}
++
++static inline void device_set_pm_not_required(struct device *dev)
++{
++	dev->power.no_pm = true;
++}
++
+ static inline void dev_pm_syscore_device(struct device *dev, bool val)
+ {
+ #ifdef CONFIG_PM_SLEEP
+diff --git a/include/linux/pm.h b/include/linux/pm.h
+index e723b78d8357..e573f956ed8b 100644
+--- a/include/linux/pm.h
++++ b/include/linux/pm.h
+@@ -591,6 +591,7 @@ struct dev_pm_info {
+ 	bool			is_suspended:1;	/* Ditto */
+ 	bool			is_noirq_suspended:1;
+ 	bool			is_late_suspended:1;
++	bool			no_pm:1;
+ 	bool			early_init:1;	/* Owned by the PM core */
+ 	bool			direct_complete:1;	/* Owned by the PM core */
+ 	u32			driver_flags;
+-- 
+2.27.0
+

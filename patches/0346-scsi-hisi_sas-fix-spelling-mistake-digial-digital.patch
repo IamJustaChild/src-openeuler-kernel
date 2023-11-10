@@ -1,0 +1,45 @@
+From f532b6321c64f9d52a6f6dc9e24badff7b359388 Mon Sep 17 00:00:00 2001
+From: Colin Ian King <colin.king@canonical.com>
+Date: Mon, 16 Sep 2019 10:17:06 +0100
+Subject: [PATCH 028/256] scsi: hisi_sas: fix spelling mistake "digial" ->
+ "digital"
+
+mainline inclusion
+from mainline-v5.5-rc1
+commit b1000fcca1760d3e81f0943f0ca8b9be3ed3b999
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EKNE
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=b1000fcca1760d3e81f0943f0ca8b9be3ed3b999
+
+----------------------------------------------------------------------
+
+There is a spelling mistake in literal string. Fix it.
+
+Link: https://lore.kernel.org/r/20190916091706.32268-1-colin.king@canonical.com
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/hisi_sas/hisi_sas_main.c
+---
+ drivers/scsi/hisi_sas/hisi_sas_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index 6e49a91aa492..4e1bdfa370d9 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -3182,7 +3182,7 @@ static struct {
+ 	int		value;
+ 	char		*name;
+ } hisi_sas_debugfs_loop_modes[] = {
+-	{ HISI_SAS_BIST_LOOPBACK_MODE_DIGITAL,		"digial" },
++	{ HISI_SAS_BIST_LOOPBACK_MODE_DIGITAL,		"digital" },
+ 	{ HISI_SAS_BIST_LOOPBACK_MODE_SERDES,		"serdes" },
+ 	{ HISI_SAS_BIST_LOOPBACK_MODE_REMOTE,	"remote" },
+ };
+-- 
+2.27.0
+

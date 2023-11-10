@@ -1,0 +1,86 @@
+From 289d9d2a64eeea383aed68c81a3a7aaa16a2d0fe Mon Sep 17 00:00:00 2001
+From: Xiang Chen <chenxiang66@hisilicon.com>
+Date: Fri, 2 Oct 2020 22:30:36 +0800
+Subject: [PATCH 110/256] scsi: hisi_sas: Add device link between SCSI devices
+ and hisi_hba
+
+mainline inclusion
+from mainline-v5.10-rc1
+commit 16fd4a7c5917097e9a3da03b39a92381eee40724
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8F81U
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=16fd4a7c5917097e9a3da03b39a92381eee40724
+
+----------------------------------------------------------------------
+
+Runtime PM of SCSI devices is already supported in SCSI layer, we can
+suspend/resume every SCSI device separately. But if there is no link
+between hisi_hba and SCSI devices or SCSI targets it will cause issues if
+the controller is suspended while SCSI devices are still resuming.  Only
+when all the SCSI devices under the controller are suspended, the
+controller can be suspended. Add the device link between SCSI devices
+and the controller.
+
+Link: https://lore.kernel.org/r/1601649038-25534-6-git-send-email-john.garry@huawei.com
+Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+---
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 29 +++++++++++++++++++++++++-
+ 1 file changed, 28 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index 8e3f25d6a669..71e3a77c8725 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -3098,6 +3098,33 @@ static ssize_t intr_coal_count_store(struct device *dev,
+ }
+ static DEVICE_ATTR_RW(intr_coal_count);
+ 
++static int slave_configure_v3_hw(struct scsi_device *sdev)
++{
++	struct Scsi_Host *shost = dev_to_shost(&sdev->sdev_gendev);
++	struct domain_device *ddev = sdev_to_domain_dev(sdev);
++	struct hisi_hba *hisi_hba = shost_priv(shost);
++	struct device *dev = hisi_hba->dev;
++	int ret = sas_slave_configure(sdev);
++
++	if (ret)
++		return ret;
++	if (!dev_is_sata(ddev))
++		sas_change_queue_depth(sdev, 64);
++
++	if (sdev->type == TYPE_ENCLOSURE)
++		return 0;
++
++	if (!device_link_add(&sdev->sdev_gendev, dev,
++			     DL_FLAG_PM_RUNTIME | DL_FLAG_RPM_ACTIVE)) {
++		if (pm_runtime_enabled(dev)) {
++			dev_info(dev, "add device link failed, disable runtime PM for the host\n");
++			pm_runtime_disable(dev);
++		}
++	}
++
++	return 0;
++}
++
+ static const struct hisi_sas_debugfs_reg_lu debugfs_port_reg_lu[] = {
+ 	HISI_SAS_DEBUGFS_REG(PHY_CFG),
+ 	HISI_SAS_DEBUGFS_REG(HARD_PHY_LINKRATE),
+@@ -3486,7 +3513,7 @@ static struct scsi_host_template sht_v3_hw = {
+ 	.module			= THIS_MODULE,
+ 	.queuecommand		= sas_queuecommand,
+ 	.target_alloc		= sas_target_alloc,
+-	.slave_configure	= hisi_sas_slave_configure,
++	.slave_configure	= slave_configure_v3_hw,
+ 	.scan_finished		= hisi_sas_scan_finished,
+ 	.scan_start		= hisi_sas_scan_start,
+ 	.map_queues		= hisi_sas_map_queues,
+-- 
+2.27.0
+

@@ -1,0 +1,121 @@
+From fb5c594b57a6071005d40bf0ade439c8f8f34a9f Mon Sep 17 00:00:00 2001
+From: Jens Axboe <axboe@kernel.dk>
+Date: Wed, 29 Aug 2018 10:36:56 -0600
+Subject: [PATCH 059/256] block: add REQ_HIPRI and inherit it from IOCB_HIPRI
+
+mainline inclusion
+from mainline-v5.0-rc1
+commit d1e36282b0bbd5de6a9c4d5275e94ef3b3438f48
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8F7ZR
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=d1e36282b0bbd5de6a9c4d5275e94ef3b3438f48
+
+----------------------------------------------------------------------
+
+We use IOCB_HIPRI to poll for IO in the caller instead of scheduling.
+This information is not available for (or after) IO submission. The
+driver may make different queue choices based on the type of IO, so
+make the fact that we will poll for this IO known to the lower layers
+as well.
+
+Reviewed-by: Hannes Reinecke <hare@suse.com>
+Reviewed-by: Keith Busch <keith.busch@intel.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ fs/block_dev.c            | 2 ++
+ fs/direct-io.c            | 2 ++
+ fs/iomap.c                | 9 ++++++++-
+ include/linux/blk_types.h | 4 +++-
+ 4 files changed, 15 insertions(+), 2 deletions(-)
+
+diff --git a/fs/block_dev.c b/fs/block_dev.c
+index e072d1ef16ef..03bfa4b9bff1 100644
+--- a/fs/block_dev.c
++++ b/fs/block_dev.c
+@@ -253,6 +253,8 @@ __blkdev_direct_IO_simple(struct kiocb *iocb, struct iov_iter *iter,
+ 		bio.bi_opf = dio_bio_write_op(iocb);
+ 		task_io_account_write(ret);
+ 	}
++	if (iocb->ki_flags & IOCB_HIPRI)
++		bio.bi_opf |= REQ_HIPRI;
+ 
+ 	if (iocb->ki_flags & IOCB_NOWAIT)
+ 		bio.bi_opf |= REQ_NOWAIT;
+diff --git a/fs/direct-io.c b/fs/direct-io.c
+index ec7c7d1c0329..29ed7852ac3a 100644
+--- a/fs/direct-io.c
++++ b/fs/direct-io.c
+@@ -1267,6 +1267,8 @@ do_blockdev_direct_IO(struct kiocb *iocb, struct inode *inode,
+ 	} else {
+ 		dio->op = REQ_OP_READ;
+ 	}
++	if (iocb->ki_flags & IOCB_HIPRI)
++		dio->op_flags |= REQ_HIPRI;
+ 
+ 	/*
+ 	 * For AIO O_(D)SYNC writes we need to defer completions to a workqueue
+diff --git a/fs/iomap.c b/fs/iomap.c
+index 7078add7bbf9..5801deb814cd 100644
+--- a/fs/iomap.c
++++ b/fs/iomap.c
+@@ -1599,6 +1599,7 @@ iomap_dio_zero(struct iomap_dio *dio, struct iomap *iomap, loff_t pos,
+ 		unsigned len)
+ {
+ 	struct page *page = ZERO_PAGE(0);
++	int flags = REQ_SYNC | REQ_IDLE;
+ 	struct bio *bio;
+ 
+ 	bio = bio_alloc(GFP_KERNEL, 1);
+@@ -1607,9 +1608,12 @@ iomap_dio_zero(struct iomap_dio *dio, struct iomap *iomap, loff_t pos,
+ 	bio->bi_private = dio;
+ 	bio->bi_end_io = iomap_dio_bio_end_io;
+ 
++	if (dio->iocb->ki_flags & IOCB_HIPRI)
++		flags |= REQ_HIPRI;
++
+ 	get_page(page);
+ 	__bio_add_page(bio, page, len, 0);
+-	bio_set_op_attrs(bio, REQ_OP_WRITE, REQ_SYNC | REQ_IDLE);
++	bio_set_op_attrs(bio, REQ_OP_WRITE, flags);
+ 
+ 	atomic_inc(&dio->ref);
+ 	return submit_bio(bio);
+@@ -1715,6 +1719,9 @@ iomap_dio_bio_actor(struct inode *inode, loff_t pos, loff_t length,
+ 				bio_set_pages_dirty(bio);
+ 		}
+ 
++		if (dio->iocb->ki_flags & IOCB_HIPRI)
++			bio->bi_opf |= REQ_HIPRI;
++
+ 		iov_iter_advance(dio->submit.iter, n);
+ 
+ 		dio->size += n;
+diff --git a/include/linux/blk_types.h b/include/linux/blk_types.h
+index 8075b9955bb3..32c6e0c098d1 100644
+--- a/include/linux/blk_types.h
++++ b/include/linux/blk_types.h
+@@ -331,6 +331,8 @@ enum req_flag_bits {
+ 	/* command specific flags for REQ_OP_WRITE_ZEROES: */
+ 	__REQ_NOUNMAP,		/* do not free blocks when zeroing */
+ 
++	__REQ_HIPRI,
++
+ 	/* for driver use */
+ 	__REQ_DRV,
+ 	__REQ_SWAP,		/* swapping request. */
+@@ -351,8 +353,8 @@ enum req_flag_bits {
+ #define REQ_RAHEAD		(1ULL << __REQ_RAHEAD)
+ #define REQ_BACKGROUND		(1ULL << __REQ_BACKGROUND)
+ #define REQ_NOWAIT		(1ULL << __REQ_NOWAIT)
+-
+ #define REQ_NOUNMAP		(1ULL << __REQ_NOUNMAP)
++#define REQ_HIPRI		(1ULL << __REQ_HIPRI)
+ 
+ #define REQ_DRV			(1ULL << __REQ_DRV)
+ #define REQ_SWAP		(1ULL << __REQ_SWAP)
+-- 
+2.27.0
+

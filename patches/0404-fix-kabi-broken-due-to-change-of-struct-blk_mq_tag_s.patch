@@ -1,0 +1,51 @@
+From aab5346ed031f55b56350fd854a5e6f71c1dac3c Mon Sep 17 00:00:00 2001
+From: YunYi Yang <yangyunyi2@huawei.com>
+Date: Fri, 25 Aug 2023 15:48:05 +0800
+Subject: [PATCH 086/256] fix kabi broken due to change of struct
+ blk_mq_tag_set
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F7ZR
+
+----------------------------------------------------------------------------
+
+Commit ("blk-mq: Facilitate a shared sbitmap per tagset")
+changes the struct blk_mq_tag_set, so we need to fix kabi broken problem.
+
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ include/linux/blk-mq.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/include/linux/blk-mq.h b/include/linux/blk-mq.h
+index e1daabd15659..847d2c725348 100644
+--- a/include/linux/blk-mq.h
++++ b/include/linux/blk-mq.h
+@@ -128,8 +128,6 @@ struct blk_mq_tag_set {
+ 	unsigned int		flags;		/* BLK_MQ_F_* */
+ 	void			*driver_data;
+ 
+-	struct sbitmap_queue	__bitmap_tags;
+-	struct sbitmap_queue	__breserved_tags;
+ 	struct blk_mq_tags	**tags;
+ 
+ 	struct mutex		tag_list_lock;
+@@ -137,11 +135,13 @@ struct blk_mq_tag_set {
+ 
+ #ifndef __GENKSYMS__
+ 	unsigned int            nr_maps;        /* nr entries in map[] */
++	struct sbitmap_queue    __bitmap_tags;
++	struct sbitmap_queue    __breserved_tags;
+ #else
+ 	KABI_RESERVE(1)
+-#endif
+ 	KABI_RESERVE(2)
+ 	KABI_RESERVE(3)
++#endif
+ 	KABI_RESERVE(4)
+ 	KABI_RESERVE(5)
+ 	KABI_RESERVE(6)
+-- 
+2.27.0
+

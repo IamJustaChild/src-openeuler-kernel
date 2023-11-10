@@ -1,0 +1,71 @@
+From 00f5871a8fa812d989a9bb3a47ab65dab7a000a9 Mon Sep 17 00:00:00 2001
+From: "Ahmed S. Darwish" <a.darwish@linutronix.de>
+Date: Tue, 3 Aug 2021 14:47:36 +0800
+Subject: [PATCH 153/256] scsi: libsas: Pass gfp_t flags to event notifiers
+
+mainline inclusion
+from mainline-v5.12-rc1
+commit 19a39831ff99f88ea8d01a2b6716084f14752529
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EKNE
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=19a39831ff99f88ea8d01a2b6716084f14752529
+
+----------------------------------------------------------------------
+
+Use the new libsas event notifiers API, which requires callers to
+explicitly pass the gfp_t memory allocation flags.
+
+Context analysis:
+
+  - sas_enable_revalidation(): process, acquires mutex
+  - sas_resume_ha(): process, calls wait_event_timeout()
+
+Link: https://lore.kernel.org/r/20210118100955.1761652-9-a.darwish@linutronix.de
+Cc: Jason Yan <yanaijie@huawei.com>
+Reviewed-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Ahmed S. Darwish <a.darwish@linutronix.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reviewed-by: Ouyangdelong <ouyangdelong@huawei.com>
+Signed-off-by: Nifujia <nifujia1@hisilicon.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/libsas/sas_event.c
+---
+ drivers/scsi/libsas/sas_event.c | 3 ++-
+ drivers/scsi/libsas/sas_init.c  | 3 ++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/scsi/libsas/sas_event.c b/drivers/scsi/libsas/sas_event.c
+index 21b020f958b8..4bd200cc294b 100644
+--- a/drivers/scsi/libsas/sas_event.c
++++ b/drivers/scsi/libsas/sas_event.c
+@@ -126,7 +126,8 @@ void sas_enable_revalidation(struct sas_ha_struct *ha)
+ 
+ 		sas_phy = container_of(port->phy_list.next, struct asd_sas_phy,
+ 				port_phy_el);
+-		ha->notify_port_event(sas_phy, PORTE_BROADCAST_RCVD);
++		sas_notify_port_event_gfp(sas_phy,
++				PORTE_BROADCAST_RCVD, GFP_KERNEL);
+ 	}
+ 	mutex_unlock(&ha->disco_mutex);
+ }
+diff --git a/drivers/scsi/libsas/sas_init.c b/drivers/scsi/libsas/sas_init.c
+index 1fcb8347901b..556f29233872 100644
+--- a/drivers/scsi/libsas/sas_init.c
++++ b/drivers/scsi/libsas/sas_init.c
+@@ -427,7 +427,8 @@ void sas_resume_ha(struct sas_ha_struct *ha)
+ 
+ 		if (phy->suspended) {
+ 			dev_warn(&phy->phy->dev, "resume timeout\n");
+-			sas_notify_phy_event(phy, PHYE_RESUME_TIMEOUT);
++			sas_notify_phy_event_gfp(phy, PHYE_RESUME_TIMEOUT,
++						 GFP_KERNEL);
+ 		}
+ 	}
+ 
+-- 
+2.27.0
+

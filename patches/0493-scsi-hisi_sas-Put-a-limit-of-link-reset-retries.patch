@@ -1,0 +1,90 @@
+From a59b3e69ff539a0a7ac689ee6487d1bbeeaadc0f Mon Sep 17 00:00:00 2001
+From: Luo Jiaxing <luojiaxing@huawei.com>
+Date: Tue, 3 Aug 2021 14:48:01 +0800
+Subject: [PATCH 175/256] scsi: hisi_sas: Put a limit of link reset retries
+
+mainline inclusion
+from mainline-v5.14-rc1
+commit 366da0da1f5fe4e7e702f5864a557e57f485431f
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F82P
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=366da0da1f5fe4e7e702f5864a557e57f485431f
+
+----------------------------------------------------------------------
+
+If an OOB event is received but the phy still fails to come up, a link
+reset will be issued repeatedly at an interval of 20s until the phy comes
+up.
+
+Set a limit for link reset issue retries to avoid printing the timeout
+message endlessly.
+
+Link: https://lore.kernel.org/r/1623058179-80434-2-git-send-email-john.garry@huawei.com
+Signed-off-by: Luo Jiaxing <luojiaxing@huawei.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reviewed-by: Ouyangdelong <ouyangdelong@huawei.com>
+Signed-off-by: Nifujia <nifujia1@hisilicon.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/hisi_sas/hisi_sas.h      |  1 +
+ drivers/scsi/hisi_sas/hisi_sas_main.c | 15 +++++++++++++--
+ 2 files changed, 14 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas.h b/drivers/scsi/hisi_sas/hisi_sas.h
+index d42a7782d525..1fce72c2244f 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas.h
++++ b/drivers/scsi/hisi_sas/hisi_sas.h
+@@ -204,6 +204,7 @@ struct hisi_sas_phy {
+ 	enum sas_linkrate	maximum_linkrate;
+ 	u32		code_error_count;
+ 	int enable;
++	int wait_phyup_cnt;
+ 	atomic_t down_cnt;
+ 
+ 	/* Trace FIFO */
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index 41eaebe635f2..eba87f528d19 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -876,6 +876,7 @@ static void hisi_sas_phyup_work(struct work_struct *work)
+ 	struct asd_sas_phy *sas_phy = &phy->sas_phy;
+ 	int phy_no = sas_phy->id;
+ 
++	phy->wait_phyup_cnt = 0;
+ 	if (phy->identify.target_port_protocols == SAS_PROTOCOL_SSP)
+ 		hisi_hba->hw->sl_notify_ssp(hisi_hba, phy_no);
+ 	hisi_sas_bytes_dmaed(hisi_hba, phy_no, GFP_KERNEL);
+@@ -918,6 +919,8 @@ static void hisi_sas_wait_phyup_timedout(struct timer_list *t)
+ 	hisi_sas_notify_phy_event(phy, HISI_PHYE_LINK_RESET);
+ }
+ 
++#define HISI_SAS_WAIT_PHYUP_RETRIES	10
++
+ void hisi_sas_phy_oob_ready(struct hisi_hba *hisi_hba, int phy_no)
+ {
+ 	struct hisi_sas_phy *phy = &hisi_hba->phy[phy_no];
+@@ -928,8 +931,16 @@ void hisi_sas_phy_oob_ready(struct hisi_hba *hisi_hba, int phy_no)
+ 		return;
+ 
+ 	if (!timer_pending(&phy->timer)) {
+-		phy->timer.expires = jiffies + HISI_SAS_WAIT_PHYUP_TIMEOUT * HZ;
+-		add_timer(&phy->timer);
++		if (phy->wait_phyup_cnt < HISI_SAS_WAIT_PHYUP_RETRIES) {
++			phy->wait_phyup_cnt++;
++			phy->timer.expires = jiffies +
++					     HISI_SAS_WAIT_PHYUP_TIMEOUT * HZ;
++			add_timer(&phy->timer);
++		} else {
++			dev_warn(dev, "phy%d failed to come up %d times, giving up\n",
++				 phy_no, phy->wait_phyup_cnt);
++			phy->wait_phyup_cnt = 0;
++		}
+ 	}
+ }
+ EXPORT_SYMBOL_GPL(hisi_sas_phy_oob_ready);
+-- 
+2.27.0
+

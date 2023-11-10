@@ -1,0 +1,44 @@
+From 964fbaacc84bc16a624a8d40204975ef14c01372 Mon Sep 17 00:00:00 2001
+From: Luo Jiaxing <luojiaxing@huawei.com>
+Date: Fri, 6 Sep 2019 20:55:25 +0800
+Subject: [PATCH 023/256] scsi: hisi_sas: add debugfs auto-trigger for internal
+ abort time out
+
+mainline inclusion
+from mainline-v5.4-rc1
+commit 7105e68afaec062c0329910a491e57c9f3a82bef
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F808
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=7105e68afaec062c0329910a491e57c9f3a82bef
+
+----------------------------------------------------------------------
+
+This trigger is add at _hisi_sas_internal_task_abort()
+
+Link: https://lore.kernel.org/r/1567774537-20003-2-git-send-email-john.garry@huawei.com
+Signed-off-by: Luo Jiaxing <luojiaxing@huawei.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/hisi_sas/hisi_sas_main.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index ce6fe08cf18b..bb8d872958c1 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -2132,6 +2132,9 @@ _hisi_sas_internal_task_abort(struct hisi_hba *hisi_hba,
+ 
+ 	/* Internal abort timed out */
+ 	if ((task->task_state_flags & SAS_TASK_STATE_ABORTED)) {
++		if (hisi_sas_debugfs_enable && hisi_hba->debugfs_itct)
++			queue_work(hisi_hba->wq, &hisi_hba->debugfs_work);
++
+ 		if (!(task->task_state_flags & SAS_TASK_STATE_DONE)) {
+ 			struct hisi_sas_slot *slot = task->lldd_task;
+ 
+-- 
+2.27.0
+

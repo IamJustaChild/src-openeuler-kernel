@@ -1,0 +1,68 @@
+From 7f010bd7a129e583ace6e23fc79a96becb4bb115 Mon Sep 17 00:00:00 2001
+From: Hannes Reinecke <hare@suse.de>
+Date: Wed, 19 Aug 2020 23:20:20 +0800
+Subject: [PATCH 080/256] blk-mq: Rename blk_mq_update_tag_set_depth()
+
+mainline inclusion
+from mainline-v5.10-rc1
+commit 655ac30094da0d724ce66161f15675d30da89cd8
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F7ZR
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=655ac30094da0d724ce66161f15675d30da89cd8
+
+----------------------------------------------------------------------
+
+The function does not set the depth, but rather transitions from
+shared to non-shared queues and vice versa.
+
+So rename it to blk_mq_update_tag_set_shared() to better reflect
+its purpose.
+
+[jpg: take out some unrelated changes in blk_mq_init_bitmap_tags()]
+
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Tested-by: Douglas Gilbert <dgilbert@interlog.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ block/blk-mq.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index 376136165299..feb7cfc52c1c 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -2688,8 +2688,8 @@ static void queue_set_hctx_shared(struct request_queue *q, bool shared)
+ 	}
+ }
+ 
+-static void blk_mq_update_tag_set_depth(struct blk_mq_tag_set *set,
+-					bool shared)
++static void blk_mq_update_tag_set_shared(struct blk_mq_tag_set *set,
++					 bool shared)
+ {
+ 	struct request_queue *q;
+ 
+@@ -2712,7 +2712,7 @@ static void blk_mq_del_queue_tag_set(struct request_queue *q)
+ 		/* just transitioned to unshared */
+ 		set->flags &= ~BLK_MQ_F_TAG_QUEUE_SHARED;
+ 		/* update existing queue */
+-		blk_mq_update_tag_set_depth(set, false);
++		blk_mq_update_tag_set_shared(set, false);
+ 	}
+ 	mutex_unlock(&set->tag_list_lock);
+ 	INIT_LIST_HEAD(&q->tag_set_list);
+@@ -2730,7 +2730,7 @@ static void blk_mq_add_queue_tag_set(struct blk_mq_tag_set *set,
+ 	    !(set->flags & BLK_MQ_F_TAG_QUEUE_SHARED)) {
+ 		set->flags |= BLK_MQ_F_TAG_QUEUE_SHARED;
+ 		/* update existing queue */
+-		blk_mq_update_tag_set_depth(set, true);
++		blk_mq_update_tag_set_shared(set, true);
+ 	}
+ 	if (set->flags & BLK_MQ_F_TAG_QUEUE_SHARED)
+ 		queue_set_hctx_shared(q, true);
+-- 
+2.27.0
+

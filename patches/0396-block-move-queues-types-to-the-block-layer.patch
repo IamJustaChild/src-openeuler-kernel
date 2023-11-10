@@ -1,0 +1,174 @@
+From 5b706e22e480b90de0ec298c4080499823788e5a Mon Sep 17 00:00:00 2001
+From: Christoph Hellwig <hch@lst.de>
+Date: Sun, 2 Dec 2018 17:46:16 +0100
+Subject: [PATCH 078/256] block: move queues types to the block layer
+
+mainline inclusion
+from mainline-v5.0-rc1
+commit e20ba6e1da029136ded295f33076483d65ddf50a
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F7ZR
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=e20ba6e1da029136ded295f33076483d65ddf50a
+
+----------------------------------------------------------------------
+
+Having another indirect all in the fast path doesn't really help
+in our post-spectre world.  Also having too many queue type is just
+going to create confusion, so I'd rather manage them centrally.
+
+Note that the queue type naming and ordering changes a bit - the
+first index now is the default queue for everything not explicitly
+marked, the optional ones are read and poll queues.
+
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/nvme/host/pci.c
+	include/linux/blk-mq.h
+---
+ block/blk-mq-sysfs.c    |  9 ++++++++-
+ block/blk-mq.h          | 21 ++++++++++++---------
+ drivers/nvme/host/pci.c |  4 +++-
+ include/linux/blk-mq.h  | 17 ++++++-----------
+ 4 files changed, 29 insertions(+), 22 deletions(-)
+
+diff --git a/block/blk-mq-sysfs.c b/block/blk-mq-sysfs.c
+index 9de1131cb959..ed5488565676 100644
+--- a/block/blk-mq-sysfs.c
++++ b/block/blk-mq-sysfs.c
+@@ -184,9 +184,16 @@ static ssize_t blk_mq_hw_sysfs_cpus_show(struct blk_mq_hw_ctx *hctx, char *page)
+ 	return pos + ret;
+ }
+ 
++static const char *const hctx_types[] = {
++	[HCTX_TYPE_DEFAULT]	= "default",
++	[HCTX_TYPE_READ]	= "read",
++	[HCTX_TYPE_POLL]	= "poll",
++};
++
+ static ssize_t blk_mq_hw_sysfs_type_show(struct blk_mq_hw_ctx *hctx, char *page)
+ {
+-	return sprintf(page, "%u\n", hctx->type);
++	BUILD_BUG_ON(ARRAY_SIZE(hctx_types) != HCTX_MAX_TYPES);
++	return sprintf(page, "%s\n", hctx_types[hctx->type]);
+ }
+ 
+ static struct attribute *default_ctx_attrs[] = {
+diff --git a/block/blk-mq.h b/block/blk-mq.h
+index a7bfffcbd301..53db914ad7fd 100644
+--- a/block/blk-mq.h
++++ b/block/blk-mq.h
+@@ -90,16 +90,14 @@ extern int blk_mq_hw_queue_to_node(struct blk_mq_queue_map *qmap, unsigned int);
+ /*
+  * blk_mq_map_queue_type() - map (hctx_type,cpu) to hardware queue
+  * @q: request queue
+- * @hctx_type: the hctx type index
++ * @type: the hctx type index
+  * @cpu: CPU
+  */
+ static inline struct blk_mq_hw_ctx *blk_mq_map_queue_type(struct request_queue *q,
+-							  unsigned int hctx_type,
++							  enum hctx_type type,
+ 							  unsigned int cpu)
+ {
+-	struct blk_mq_tag_set *set = q->tag_set;
+-
+-	return q->queue_hw_ctx[set->map[hctx_type].mq_map[cpu]];
++	return q->queue_hw_ctx[q->tag_set->map[type].mq_map[cpu]];
+ }
+ 
+ /*
+@@ -112,12 +110,17 @@ static inline struct blk_mq_hw_ctx *blk_mq_map_queue(struct request_queue *q,
+ 						     unsigned int flags,
+ 						     unsigned int cpu)
+ {
+-	int hctx_type = 0;
++	enum hctx_type type = HCTX_TYPE_DEFAULT;
++
++	if (q->tag_set->nr_maps > HCTX_TYPE_POLL &&
++	    ((flags & REQ_HIPRI) && test_bit(QUEUE_FLAG_POLL, &q->queue_flags)))
++		type = HCTX_TYPE_POLL;
+ 
+-	if (q->mq_ops->rq_flags_to_type)
+-		hctx_type = q->mq_ops->rq_flags_to_type(q, flags);
++	else if (q->tag_set->nr_maps > HCTX_TYPE_READ &&
++		 ((flags & REQ_OP_MASK) == REQ_OP_READ))
++		type = HCTX_TYPE_READ;
+ 
+-	return blk_mq_map_queue_type(q, hctx_type, cpu);
++	return blk_mq_map_queue_type(q, type, cpu);
+ }
+ 
+ /*
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index d373a0b7957e..20582873a605 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -457,7 +457,8 @@ static int nvme_pci_map_queues(struct blk_mq_tag_set *set)
+ {
+ 	struct nvme_dev *dev = set->driver_data;
+ 
+-	return blk_mq_pci_map_queues_by_qmap(&set->map[0], to_pci_dev(dev->dev),
++	return blk_mq_pci_map_queues_by_qmap(&set->map[HCTX_TYPE_DEFAULT],
++			to_pci_dev(dev->dev),
+ 			dev->num_vecs > 1 ? 1 /* admin queue */ : 0);
+ }
+ 
+@@ -2065,6 +2066,7 @@ static int nvme_dev_add(struct nvme_dev *dev)
+ 	if (!dev->ctrl.tagset) {
+ 		dev->tagset.ops = &nvme_mq_ops;
+ 		dev->tagset.nr_hw_queues = dev->online_queues - 1;
++		dev->tagset.nr_maps = HCTX_MAX_TYPES;
+ 		dev->tagset.timeout = NVME_IO_TIMEOUT;
+ 		dev->tagset.numa_node = dev_to_node(dev->dev);
+ 		dev->tagset.queue_depth = min_t(unsigned int, dev->q_depth,
+diff --git a/include/linux/blk-mq.h b/include/linux/blk-mq.h
+index 61f1391eade6..b0200a1e1f84 100644
+--- a/include/linux/blk-mq.h
++++ b/include/linux/blk-mq.h
+@@ -98,8 +98,12 @@ struct blk_mq_queue_map {
+ 	unsigned int queue_offset;
+ };
+ 
+-enum {
+-	HCTX_MAX_TYPES = 2,
++enum hctx_type {
++	HCTX_TYPE_DEFAULT,	/* all I/O not otherwise accounted for */
++	HCTX_TYPE_READ,		/* just for READ I/O */
++	HCTX_TYPE_POLL,		/* polled I/O of any kind */
++
++	HCTX_MAX_TYPES,
+ };
+ 
+ struct blk_mq_tag_set {
+@@ -146,8 +150,6 @@ struct blk_mq_queue_data {
+ 
+ typedef blk_status_t (queue_rq_fn)(struct blk_mq_hw_ctx *,
+ 		const struct blk_mq_queue_data *);
+-/* takes rq->cmd_flags as input, returns a hardware type index */
+-typedef int (rq_flags_to_type_fn)(struct request_queue *, unsigned int);
+ typedef bool (get_budget_fn)(struct blk_mq_hw_ctx *);
+ typedef void (put_budget_fn)(struct blk_mq_hw_ctx *);
+ typedef enum blk_eh_timer_return (timeout_fn)(struct request *, bool);
+@@ -231,14 +233,7 @@ struct blk_mq_ops {
+ 	void (*show_rq)(struct seq_file *m, struct request *rq);
+ #endif
+ 
+-#ifndef __GENKSYMS__
+-	/*
+-	 * Return a queue map type for the given request/bio flags
+-	 */
+-	rq_flags_to_type_fn      * rq_flags_to_type;
+-#else
+ 	KABI_RESERVE(1)
+-#endif
+ 	KABI_RESERVE(2)
+ 	KABI_RESERVE(3)
+ 	KABI_RESERVE(4)
+-- 
+2.27.0
+

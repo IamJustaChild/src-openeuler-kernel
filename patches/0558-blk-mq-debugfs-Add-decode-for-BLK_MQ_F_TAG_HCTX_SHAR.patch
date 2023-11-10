@@ -1,0 +1,50 @@
+From ee03df3b38d35a47440b31e810da5a23bcac005d Mon Sep 17 00:00:00 2001
+From: John Garry <john.garry@huawei.com>
+Date: Fri, 8 Jan 2021 16:55:37 +0800
+Subject: [PATCH 240/256] blk-mq-debugfs: Add decode for
+ BLK_MQ_F_TAG_HCTX_SHARED
+
+mainline inclusion
+from mainline-v5.11-rc3
+commit 02f938e9fed1681791605ca8b96c2d9da9355f6a
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8F7ZR
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=02f938e9fed1681791605ca8b96c2d9da9355f6a
+
+----------------------------------------------------------------------
+
+Showing the hctx flags for when BLK_MQ_F_TAG_HCTX_SHARED is set gives
+something like:
+
+root@debian:/home/john# more /sys/kernel/debug/block/sda/hctx0/flags
+alloc_policy=FIFO SHOULD_MERGE|TAG_QUEUE_SHARED|3
+
+Add the decoding for that flag.
+
+Fixes: 32bc15afed04b ("blk-mq: Facilitate a shared sbitmap per tagset")
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	block/blk-mq-debugfs.c
+---
+ block/blk-mq-debugfs.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/block/blk-mq-debugfs.c b/block/blk-mq-debugfs.c
+index 8fb54b625e41..e9cdcc266938 100644
+--- a/block/blk-mq-debugfs.c
++++ b/block/blk-mq-debugfs.c
+@@ -255,6 +255,7 @@ static const char *const hctx_flag_name[] = {
+ 	HCTX_FLAG_NAME(SG_MERGE),
+ 	HCTX_FLAG_NAME(BLOCKING),
+ 	HCTX_FLAG_NAME(NO_SCHED),
++	HCTX_FLAG_NAME(TAG_HCTX_SHARED),
+ };
+ #undef HCTX_FLAG_NAME
+ 
+-- 
+2.27.0
+

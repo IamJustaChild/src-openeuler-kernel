@@ -1,0 +1,53 @@
+From 940cc74337b8f5525fe9b5cc6659ec1b5372c29a Mon Sep 17 00:00:00 2001
+From: Ming Lei <ming.lei@redhat.com>
+Date: Wed, 16 Jan 2019 19:08:15 +0800
+Subject: [PATCH 236/256] block: don't lose track of REQ_INTEGRITY flag
+
+mainline inclusion
+from mainline-v5.0-rc3
+commit 7809167da5c86fd6bf309b33dee7a797e263342f
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8F7ZR
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=7809167da5c86fd6bf309b33dee7a797e263342f
+
+----------------------------------------------------------------------
+
+We need to pass bio->bi_opf after bio intergrity preparing, otherwise
+the flag of REQ_INTEGRITY may not be set on the allocated request, then
+breaks block integrity.
+
+Fixes: f9afca4d367b ("blk-mq: pass in request/bio flags to queue mapping")
+Cc: Hannes Reinecke <hare@suse.com>
+Cc: Keith Busch <keith.busch@intel.com>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ block/blk-mq.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index bec2190a64dd..2f65e1625a8d 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -1979,7 +1979,7 @@ static blk_qc_t blk_mq_make_request(struct request_queue *q, struct bio *bio)
+ {
+ 	const int is_sync = op_is_sync(bio->bi_opf);
+ 	const int is_flush_fua = op_is_flush(bio->bi_opf);
+-	struct blk_mq_alloc_data data = { .flags = 0, .cmd_flags = bio->bi_opf };
++	struct blk_mq_alloc_data data = { .flags = 0};
+ 	struct request *rq;
+ 	unsigned int request_count = 0;
+ 	struct blk_plug *plug;
+@@ -2007,6 +2007,7 @@ static blk_qc_t blk_mq_make_request(struct request_queue *q, struct bio *bio)
+ 
+ 	rq_qos_throttle(q, bio, NULL);
+ 
++	data.cmd_flags = bio->bi_opf;
+ 	rq = blk_mq_get_request(q, bio, &data);
+ 	if (unlikely(!rq)) {
+ 		rq_qos_cleanup(q, bio);
+-- 
+2.27.0
+

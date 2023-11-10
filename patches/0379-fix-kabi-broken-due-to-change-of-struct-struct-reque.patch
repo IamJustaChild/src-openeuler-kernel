@@ -1,0 +1,38 @@
+From 5e10cda50f2aa7e22cdc0af41ba16bbfc9c086f4 Mon Sep 17 00:00:00 2001
+From: YunYi Yang <yangyunyi2@huawei.com>
+Date: Sat, 16 Sep 2023 22:28:14 +0800
+Subject: [PATCH 061/256] fix kabi broken due to change of struct struct
+ request_queue
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F7ZR
+
+----------------------------------------------------------------------------
+
+Commit ("blk-mq: kill q->mq_map") changes the
+struct request_queue, so we need to fix kabi broken problem.
+
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ include/linux/blkdev.h | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
+index 36d914d81463..74cb02947a18 100644
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -487,6 +487,10 @@ struct request_queue {
+ 
+ 	const struct blk_mq_ops	*mq_ops;
+ 
++#ifdef __GENKSYMS__
++	unsigned int		*mq_map;
++#endif
++
+ 	/* sw queues */
+ 	struct blk_mq_ctx __percpu	*queue_ctx;
+ 	unsigned int		nr_queues;
+-- 
+2.27.0
+

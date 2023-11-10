@@ -1,0 +1,87 @@
+From ce50dac7d351cfa6d04645851a489ab3ae3f8ea4 Mon Sep 17 00:00:00 2001
+From: Xiang Chen <chenxiang66@hisilicon.com>
+Date: Fri, 2 Oct 2020 22:30:33 +0800
+Subject: [PATCH 107/256] scsi: hisi_sas: Switch to new framework to support
+ suspend and resume
+
+mainline inclusion
+from mainline-v5.10-rc1
+commit 6c459ea1542b8937779cbeefb2b1cc77a554c29c
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F81U
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=6c459ea1542b8937779cbeefb2b1cc77a554c29c
+
+----------------------------------------------------------------------
+
+For v3 hw we will add support for runtime PM which is only supported in new
+framework. Legacy PM support and new framework are not allowed to be used
+together. Switch to new framework to support suspend and resume.
+
+Link: https://lore.kernel.org/r/1601649038-25534-3-git-send-email-john.garry@huawei.com
+Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index 6b64fd9baa76..4bfeb925499e 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -3791,8 +3791,9 @@ enum {
+ 	hip08,
+ };
+ 
+-static int hisi_sas_v3_suspend(struct pci_dev *pdev, pm_message_t state)
++static int suspend_v3_hw(struct device *device)
+ {
++	struct pci_dev *pdev = to_pci_dev(device);
+ 	struct sas_ha_struct *sha = pci_get_drvdata(pdev);
+ 	struct hisi_hba *hisi_hba = sha->lldd_ha;
+ 	struct device *dev = hisi_hba->dev;
+@@ -3823,7 +3824,7 @@ static int hisi_sas_v3_suspend(struct pci_dev *pdev, pm_message_t state)
+ 
+ 	hisi_sas_init_mem(hisi_hba);
+ 
+-	device_state = pci_choose_state(pdev, state);
++	device_state = pci_choose_state(pdev, PMSG_SUSPEND);
+ 	dev_warn(dev, "entering operating state [D%d]\n",
+ 			device_state);
+ 	pci_save_state(pdev);
+@@ -3836,8 +3837,9 @@ static int hisi_sas_v3_suspend(struct pci_dev *pdev, pm_message_t state)
+ 	return 0;
+ }
+ 
+-static int hisi_sas_v3_resume(struct pci_dev *pdev)
++static int resume_v3_hw(struct device *device)
+ {
++	struct pci_dev *pdev = to_pci_dev(device);
+ 	struct sas_ha_struct *sha = pci_get_drvdata(pdev);
+ 	struct hisi_hba *hisi_hba = sha->lldd_ha;
+ 	struct Scsi_Host *shost = hisi_hba->shost;
+@@ -3885,14 +3887,17 @@ static const struct pci_error_handlers hisi_sas_err_handler = {
+ 	.reset_done	= hisi_sas_reset_done_v3_hw,
+ };
+ 
++static const struct dev_pm_ops hisi_sas_v3_pm_ops = {
++	SET_SYSTEM_SLEEP_PM_OPS(suspend_v3_hw, resume_v3_hw)
++};
++
+ static struct pci_driver sas_v3_pci_driver = {
+ 	.name		= DRV_NAME,
+ 	.id_table	= sas_v3_pci_table,
+ 	.probe		= hisi_sas_v3_probe,
+ 	.remove		= hisi_sas_v3_remove,
+-	.suspend	= hisi_sas_v3_suspend,
+-	.resume		= hisi_sas_v3_resume,
+ 	.err_handler	= &hisi_sas_err_handler,
++	.driver.pm	= &hisi_sas_v3_pm_ops,
+ };
+ 
+ module_pci_driver(sas_v3_pci_driver);
+-- 
+2.27.0
+

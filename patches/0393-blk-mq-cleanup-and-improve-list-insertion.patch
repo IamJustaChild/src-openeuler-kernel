@@ -1,0 +1,140 @@
+From 81a15060ddbf690026648c51d33c1930c5c68358 Mon Sep 17 00:00:00 2001
+From: Jens Axboe <axboe@kernel.dk>
+Date: Tue, 30 Oct 2018 11:31:51 -0600
+Subject: [PATCH 075/256] blk-mq: cleanup and improve list insertion
+
+mainline inclusion
+from mainline-v5.0-rc1
+commit 67cae4c948a5311121905a2a8740c50daf7f6478
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F7ZR
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=67cae4c948a5311121905a2a8740c50daf7f6478
+
+----------------------------------------------------------------------
+
+It's somewhat strange to have a list insertion function that
+relies on the fact that the caller has mapped things correctly.
+Pass in the hardware queue directly for insertion, which makes
+for a much cleaner interface and implementation.
+
+Reviewed-by: Keith Busch <keith.busch@intel.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Hannes Reinecke <hare@suse.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ block/blk-mq-sched.c | 10 ++--------
+ block/blk-mq-sched.h |  2 +-
+ block/blk-mq.c       | 25 ++++++++++++++-----------
+ 3 files changed, 17 insertions(+), 20 deletions(-)
+
+diff --git a/block/blk-mq-sched.c b/block/blk-mq-sched.c
+index 436163e863d8..9bf39bb94935 100644
+--- a/block/blk-mq-sched.c
++++ b/block/blk-mq-sched.c
+@@ -502,18 +502,12 @@ void blk_mq_sched_insert_request(struct request *rq, bool at_head,
+ 		blk_mq_run_hw_queue(hctx, async);
+ }
+ 
+-void blk_mq_sched_insert_requests(struct request_queue *q,
++void blk_mq_sched_insert_requests(struct blk_mq_hw_ctx *hctx,
+ 				  struct blk_mq_ctx *ctx,
+ 				  struct list_head *list, bool run_queue_async)
+ {
+-	struct blk_mq_hw_ctx *hctx;
+ 	struct elevator_queue *e;
+-	struct request *rq;
+-
+-	/* For list inserts, requests better be on the same hw queue */
+-	rq = list_first_entry(list, struct request, queuelist);
+-	hctx = rq->mq_hctx;
+-
++	struct request_queue *q = hctx->queue;
+ 	/*
+ 	 * blk_mq_sched_insert_requests() is called from flush plug
+ 	 * context only, and hold one usage counter to prevent queue
+diff --git a/block/blk-mq-sched.h b/block/blk-mq-sched.h
+index c81a26e7b620..69bfdf7c09f7 100644
+--- a/block/blk-mq-sched.h
++++ b/block/blk-mq-sched.h
+@@ -21,7 +21,7 @@ void blk_mq_sched_restart(struct blk_mq_hw_ctx *hctx);
+ 
+ void blk_mq_sched_insert_request(struct request *rq, bool at_head,
+ 				 bool run_queue, bool async);
+-void blk_mq_sched_insert_requests(struct request_queue *q,
++void blk_mq_sched_insert_requests(struct blk_mq_hw_ctx *hctx,
+ 				  struct blk_mq_ctx *ctx,
+ 				  struct list_head *list, bool run_queue_async);
+ 
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index 4eff753282dc..e684adf7abdd 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -1764,11 +1764,12 @@ static int plug_ctx_cmp(void *priv, struct list_head *a, struct list_head *b)
+ 
+ void blk_mq_flush_plug_list(struct blk_plug *plug, bool from_schedule)
+ {
++	struct blk_mq_hw_ctx *this_hctx;
+ 	struct blk_mq_ctx *this_ctx;
+ 	struct request_queue *this_q;
+ 	struct request *rq;
+ 	LIST_HEAD(list);
+-	LIST_HEAD(ctx_list);
++	LIST_HEAD(rq_list);
+ 	unsigned int depth;
+ 
+ 	list_splice_init(&plug->mq_list, &list);
+@@ -1776,6 +1777,7 @@ void blk_mq_flush_plug_list(struct blk_plug *plug, bool from_schedule)
+ 	list_sort(NULL, &list, plug_ctx_cmp);
+ 
+ 	this_q = NULL;
++	this_hctx = NULL;
+ 	this_ctx = NULL;
+ 	depth = 0;
+ 
+@@ -1783,30 +1785,31 @@ void blk_mq_flush_plug_list(struct blk_plug *plug, bool from_schedule)
+ 		rq = list_entry_rq(list.next);
+ 		list_del_init(&rq->queuelist);
+ 		BUG_ON(!rq->q);
+-		if (rq->mq_ctx != this_ctx) {
+-			if (this_ctx) {
++		if (rq->mq_hctx != this_hctx || rq->mq_ctx != this_ctx) {
++			if (this_hctx) {
+ 				trace_block_unplug(this_q, depth, !from_schedule);
+-				blk_mq_sched_insert_requests(this_q, this_ctx,
+-								&ctx_list,
++				blk_mq_sched_insert_requests(this_hctx, this_ctx,
++								&rq_list,
+ 								from_schedule);
+ 			}
+ 
+-			this_ctx = rq->mq_ctx;
+ 			this_q = rq->q;
++			this_ctx = rq->mq_ctx;
++			this_hctx = rq->mq_hctx;
+ 			depth = 0;
+ 		}
+ 
+ 		depth++;
+-		list_add_tail(&rq->queuelist, &ctx_list);
++		list_add_tail(&rq->queuelist, &rq_list);
+ 	}
+ 
+ 	/*
+-	 * If 'this_ctx' is set, we know we have entries to complete
+-	 * on 'ctx_list'. Do those.
++	 * If 'this_hctx' is set, we know we have entries to complete
++	 * on 'rq_list'. Do those.
+ 	 */
+-	if (this_ctx) {
++	if (this_hctx) {
+ 		trace_block_unplug(this_q, depth, !from_schedule);
+-		blk_mq_sched_insert_requests(this_q, this_ctx, &ctx_list,
++		blk_mq_sched_insert_requests(this_hctx, this_ctx, &rq_list,
+ 						from_schedule);
+ 	}
+ }
+-- 
+2.27.0
+

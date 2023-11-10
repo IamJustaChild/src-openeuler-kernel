@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0239
+Release: %{hulkrelease}.0240
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -836,6 +836,263 @@ fi
 %endif
 
 %changelog
+* Fri Nov 10 2023 YunYi Yang <yangyunyi2@huawei.com> - 4.19.90-2311.1.0.0240
+- driver core: Fix possible memory leak in device_link_add()
+- driver core: Reject pointless SYNC_STATE_ONLY device links
+- driver core: Prevent warning when removing a device link from unregistered consumer
+- driver core: Fix device link device name collision
+- driver core: platform: Add extra error check in devm_platform_get_irqs_affinity()
+- driver core: Fix device_pm_lock() locking for device links
+- driver core: Update device link status correctly for SYNC_STATE_ONLY links
+- genirq: Take the proposed affinity at face value if force==true
+- genirq/irqdesc: Fix double increment in alloc_descs()
+- genirq: Fix the kerneldoc comment for struct irq_affinity_desc
+- x86/vector: Remove warning on managed interrupt migration
+- scsi: pm80xx: Replace open coded check with dev_is_expander()
+- scsi: megaraid_sas: Enable msix_load_balance for Invader and later controllers
+- scsi: block: Fix a race in the runtime power management code
+- blk-mq-debugfs: Show active requests per queue for shared tags
+- blk-mq: plug request for shared sbitmap
+- blk-mq-debugfs: Add decode for BLK_MQ_F_TAG_HCTX_SHARED
+- blk-mq: docs: add kernel-doc description for a new struct member
+- blk-mq: Keep set->nr_hw_queues and set->map[].nr_queues in sync
+- block: Fix blk_mq_*_map_queues() kernel-doc headers
+- block: don't lose track of REQ_INTEGRITY flag
+- scsi: block: pm: Always set request queue runtime active in blk_post_runtime_resume()
+- scsi: block: pm: Simplify resume handling
+- scsi: hisi_sas_v3_hw: Remove extra function calls for runtime pm
+- scsi: hisi_sas_v3_hw: Don't use PCI helper functions
+- scsi: sd: try more retries of START_STOP when resuming scsi device
+- scsi: hisi_sas: Check usage count only when the runtime PM status is RPM_SUSPENDING
+- scsi: hisi_sas: Work around build failure in suspend function
+- scsi: hisi_sas: Block requests before take debugfs snapshot
+- scsi: hisi_sas: Add slave_destroy interface for v3 hw
+- scsi: hisi_sas: Configure the initialization registers according to HBA model
+- scsi: hisi_sas: Increase debugfs_dump_index after dump is completed
+- scsi: sd: Update DIX config every time sd_revalidate_disk() is called
+- scsi: sd: Reorganize DIF/DIX code to avoid calling revalidate twice
+- scsi: hisi_sas: Ensure all enabled PHYs up during controller reset
+- scsi: hisi_sas: Exit suspending state when usage count is greater than 0
+- scsi: hisi_sas: Set a port invalid only if there are no devices attached when refreshing port id
+- scsi: libsas: Do not export sas_ata_wait_after_reset()
+- scsi: hisi_sas: Fix SATA devices missing issue during I_T nexus reset
+- scsi: libsas: Add smp_ata_check_ready_type()
+- Revert "scsi: hisi_sas: Disable SATA disk phy for severe I_T nexus reset failure"
+- Disable-SATA-disk-phy-for-severe-I_T-nexus reset failure
+- scsi: libsas: Grab the ATA port lock in sas_ata_device_link_abort()
+- scsi: libsas: Add sas_ata_device_link_abort()
+- scsi: libsas: Update SATA dev FIS in sas_ata_task_done()
+- scsi: hisi_sas: Use abort task set to reset SAS disks when discovered
+- scsi: hisi_sas: Undo RPM resume for failed notify phy event for v3 HW
+- scsi: hisi_sas: Fix rescan after deleting a disk
+- scsi: hisi_sas: Use sas_ata_wait_after_reset() in IT nexus reset
+- scsi: libsas: Refactor sas_ata_hard_reset()
+- scsi: hisi_sas: Modify v3 HW SSP underflow error processing
+- scsi: hisi_sas: Fix phyup timeout on FPGA
+- scsi: hisi_sas: Prevent parallel controller reset and control phy command
+- scsi: libsas: Resume SAS host for phy reset or enable via sysfs
+- blk-mq: Fix blk_mq_tagset_busy_iter() for shared tags
+- irqchip/gic-v3: Always trust the managed affinity provided by the core code
+- genirq: Always limit the affinity to online CPUs
+- genirq, sched/isolation: Isolate from handling managed interrupts
+- genirq/msi: Shutdown managed interrupts with unsatifiable affinities
+- scsi: hisi_sas: Limit users changing debugfs BIST count value
+- scsi: hisi_sas: Use autosuspend for the host controller
+- scsi: libsas: Keep host active while processing events
+- scsi: hisi_sas: Keep controller active between ISR of phyup and the event being processed
+- scsi: libsas: Defer works of new phys during suspend
+- scsi: libsas: Refactor sas_queue_deferred_work()
+- scsi: libsas: Add flag SAS_HA_RESUMING
+- scsi: libsas: Resume host while sending SMP I/Os
+- scsi: hisi_sas: Add more logs for runtime suspend/resume
+- scsi: libsas: Insert PORTE_BROADCAST_RCVD event for resuming host
+- scsi: libsas: aic94xx: hisi_sas: mvsas: pm8001: Use dev_is_expander()
+- scsi: mvsas: Add spin_lock/unlock() to protect asd_sas_port->phy_list
+- scsi: hisi_sas: Fix some issues related to asd_sas_port->phy_list
+- scsi: libsas: Add spin_lock/unlock() to protect asd_sas_port->phy_list
+- scsi: libsas: Don't always drain event workqueue for HA resume
+- scsi: hisi_sas: Wait for phyup in hisi_sas_control_phy()
+- scsi: hisi_sas: Initialise devices in .slave_alloc callback
+- scsi: libsas: Export sas_phy_enable()
+- scsi: hisi_sas: Speed up error handling when internal abort timeout occurs
+- scsi: hisi_sas: Reset controller for internal abort timeout
+- scsi: hisi_sas: Include HZ in timer macros
+- scsi: hisi_sas: Run I_T nexus resets in parallel for clear nexus reset
+- scsi: hisi_sas: Put a limit of link reset retries
+- scsi: hisi_sas: Print SATA device SAS address for soft reset failure
+- scsi: hisi_sas: Warn in v3 hw channel interrupt handler when status reg cleared
+- scsi: hisi_sas: Directly snapshot registers when executing a reset
+- scsi: hisi_sas: Call sas_unregister_ha() to roll back if .hw_init() fails
+- scsi: hisi_sas: Print SAS address for v3 hw erroneous completion print
+- scsi: hisi_sas: Add trace FIFO debugfs support
+- scsi: hisi_sas: Enable debugfs support by default
+- scsi: hisi_sas: Don't check .nr_hw_queues in hisi_sas_task_prep()
+- scsi: hisi_sas: Remove deferred probe check in hisi_sas_v2_probe()
+- scsi: libsas: Remove temporarily-added _gfp() API variants
+- scsi: mvsas: Switch back to original libsas event notifiers
+- scsi: isci: Switch back to original libsas event notifiers
+- scsi: libsas: Switch back to original event notifiers API
+- scsi: pm80xx: Switch back to original libsas event notifiers
+- scsi: aic94xx: Switch back to original libsas event notifiers
+- scsi: hisi_sas: Switch back to original libsas event notifiers
+- fix kabi broken due to change of struct sas_ha_struct
+- scsi: libsas: Add gfp_t flags parameter to event notifications
+- scsi: hisi_sas: Pass gfp_t flags to libsas event notifiers
+- scsi: aic94xx: Pass gfp_t flags to libsas event notifiers
+- scsi: pm80xx: Pass gfp_t flags to libsas event notifiers
+- scsi: libsas: Pass gfp_t flags to event notifiers
+- scsi: isci: Pass gfp_t flags in isci_port_bc_change_received()
+- scsi: isci: Pass gfp_t flags in isci_port_link_up()
+- scsi: isci: Pass gfp_t flags in isci_port_link_down()
+- scsi: mvsas: Pass gfp_t flags to libsas event notifiers
+- scsi: libsas: Introduce a _gfp() variant of event notifiers
+- scsi: hisi_sas: Remove auto_affine_msi_experimental module_param
+- scsi: hisi_sas: Expose HW queues for v2 hw
+- driver core: platform: Add devm_platform_get_irqs_affinity()
+- genirq/affinity: Add irq_update_affinity_desc()
+- genirq/affinity: Add is_managed to struct irq_affinity_desc
+- resource: Add irqresource_disabled()
+- fix kabi broken due to change of struct msi_desc
+- genirq/core: Introduce struct irq_affinity_desc
+- scsi: hisi_sas: use threaded irq to process CQ interrupts
+- scsi: hisi_sas: Remove preemptible()
+- scsi: hisi_sas: Move debugfs code to v3 hw driver
+- scsi: hisi_sas: Reduce some indirection in v3 hw driver
+- scsi: megaraid_sas: Added support for shared host tagset for cpuhotplug
+- scsi: megaraid_sas: Use Block layer API to check SCSI device in-flight IO requests
+- scsi: megaraid_sas: Introduce various Aero performance modes
+- scsi: megaraid_sas: Use high IOPS queues based on IO workload
+- scsi: megaraid_sas: Enable coalescing for high IOPS queues
+- scsi: megaraid_sas: Add support for High IOPS queues
+- scsi: megaraid_sas: RAID1 PCI bandwidth limit algorithm is applicable for only Ventura
+- scsi: megaraid_sas: Load balance completions across all MSI-X
+- scsi: megaraid_sas: Introduce new Aero adapter type
+- scsi: megaraid_sas: Rename scratch_pad registers
+- fix kabi broken due to change of struct dev_link
+- drivers: base: Fix device link removal
+- driver core: Fix sleeping in invalid context during device link deletion
+- fix kabi broken due to change of struct device_link
+- driver core: Expose device link details in sysfs
+- driver core: Add device link support for SYNC_STATE_ONLY flag
+- fix kabi broken due to change of struct dev_pm_info
+- PM / core: Add support to skip power management in device/driver model
+- scsi: hisi_sas: Fix up probe error handling for v3 hw
+- scsi: hisi_sas: Select a suitable queue for internal I/Os
+- PM: runtime: Resume the device earlier in __device_release_driver()
+- PM: runtime: Drop pm_runtime_clean_up_links()
+- PM: runtime: Drop runtime PM references to supplier on link removal
+- scsi: hisi_sas: Stop using queue #0 always for v2 hw
+- scsi: hisi_sas: Recover PHY state according to the status before reset
+- scsi: hisi_sas: Add device link between SCSI devices and hisi_hba
+- scsi: hisi_sas: Add check for methods _PS0 and _PR0
+- scsi: hisi_sas: Add controller runtime PM support for v3 hw
+- scsi: hisi_sas: Switch to new framework to support suspend and resume
+- scsi: hisi_sas: Use hisi_hba->cq_nvecs for calling calling synchronize_irq()
+- PM: runtime: Remove link state checks in rpm_get/put_supplier()
+- scsi: hisi_sas: Code style cleanup
+- scsi: hisi_sas: Add missing newlines
+- scsi: hisi_sas: Add BIST support for fixed code pattern
+- scsi: hisi_sas: Add BIST support for phy FFE
+- scsi: hisi_sas: Make phy index variable name consistent
+- scsi: hisi_sas: Do not modify upper fields of PROG_PHY_LINK_RATE reg
+- scsi: hisi_sas: Modify macro name for OOB phy linkrate
+- scsi: scsi_debug: Support host tagset
+- scsi: scsi_debug: Support hostwide tags
+- scsi: hisi_sas: Switch v3 hw to MQ
+- scsi: core: Show nr_hw_queues in sysfs
+- fix kabi broken due to change of struct scsi_host_template and Scsi_Host
+- scsi: Add host and host template flag 'host_tagset'
+- fix kabi broken due to change of struct blk_mq_tag_set
+- blk-mq: Record active_queues_shared_sbitmap per tag_set for when using shared sbitmap
+- fix kabi broken due to change of struct request_queue
+- blk-mq: Record nr_active_requests per queue for when using shared sbitmap
+- blk-mq: Relocate hctx_may_queue()
+- fix kabi broken due to change of struct blk_mq_tag_set
+- blk-mq: Facilitate a shared sbitmap per tagset
+- fix kabi broken due to change of struct blk_mq_tags
+- blk-mq: Use pointers for blk_mq_tags bitmap tags
+- blk-mq: Pass flags for tag init/free
+- blk-mq: Free tags in blk_mq_init_tags() upon error
+- blk-mq: Rename blk_mq_update_tag_set_depth()
+- blk-mq: Rename BLK_MQ_F_TAG_SHARED as BLK_MQ_F_TAG_QUEUE_SHARED
+- block: move queues types to the block layer
+- blk-mq: initial support for multiple queue maps
+- blk-mq: improve plug list sorting
+- blk-mq: cleanup and improve list insertion
+- fix kabi broken due to change of struct request
+- blk-mq: cache request hardware queue mapping
+- blk-mq: separate number of hardware queues from nr_cpu_ids
+- fix kabi broken due to change of struct blk_mq_tag_set and blk_mq_ops
+- blk-mq: support multiple hctx maps
+- blk-mq: add 'type' attribute to the sysfs hctx directory
+- fix kabi broken due to change of struct blk_mq_hw_ctx and blk_mq_ctx
+- blk-mq: allow software queue to map to multiple hardware queues
+- fix kabi broken due to change of struct blk_mq_alloc_data
+- blk-mq: pass in request/bio flags to queue mapping
+- blk-mq: provide dummy blk_mq_map_queue_type() helper
+- fix kabi broken due to change of function blk_mq_map_queues and blk_mq_pci_map_queues
+- blk-mq: abstract out queue map
+- fix kabi broken due to change of struct struct request_queue
+- blk-mq: kill q->mq_map
+- block: add REQ_HIPRI and inherit it from IOCB_HIPRI
+- scsi: hisi_sas: Remove one kerneldoc comment
+- scsi: hisi_sas: Do not reset phy timer to wait for stray phy up
+- scsi: hisi_sas: Stop returning error code from slot_complete_vX_hw()
+- scsi: hisi_sas: Add SAS_RAS_INTR0 to debugfs register name list
+- scsi: hisi_sas: Modify the commit information for DSM method
+- scsi: hisi_sas: Display proc_name in sysfs
+- scsi: hisi_sas: Fix build error without SATA_HOST
+- scsi: hisi_sas: Use dev_err() in read_iost_itct_cache_v3_hw()
+- scsi: hisi_sas: Rename hisi_sas_cq.pci_irq_mask
+- scsi: hisi_sas: Add prints for v3 hw interrupt converge and automatic affinity
+- scsi: hisi_sas: Modify the file permissions of trigger_dump to write only
+- scsi: hisi_sas: Replace magic number when handle channel interrupt
+- scsi: hisi_sas: Stop converting a bool into a bool
+- scsi: hisi_sas: Return directly if init hardware failed
+- scsi: hisi_sas: Record the phy down event in debugfs
+- scsi: hisi_sas: Delete the debugfs folder of hisi_sas when the probe fails
+- scsi: hisi_sas: Add ability to have multiple debugfs dumps
+- scsi: hisi_sas: Add module parameter for debugfs dump count
+- scsi: hisi_sas: Allocate memory for multiple dumps of debugfs
+- scsi: hisi_sas: Add debugfs file structure for ITCT cache
+- scsi: hisi_sas: Add debugfs file structure for IOST cache
+- scsi: hisi_sas: Add debugfs file structure for ITCT
+- scsi: hisi_sas: Add debugfs file structure for IOST
+- scsi: hisi_sas: Add debugfs file structure for port
+- scsi: hisi_sas: Add debugfs file structure for registers
+- scsi: hisi_sas: Add debugfs file structure for DQ
+- scsi: hisi_sas: Add debugfs file structure for CQ
+- scsi: hisi_sas: Add timestamp for a debugfs dump
+- scsi: hisi_sas: Don't create debugfs dump folder twice
+- scsi: hisi_sas: Make three functions static
+- scsi: hisi_sas: fix spelling mistake "digial" -> "digital"
+- scsi: hisi_sas: Add hisi_sas_debugfs_alloc() to centralise allocation
+- scsi: hisi_sas: Remove some unused function arguments
+- scsi: hisi_sas: Remove redundant work declaration
+- scsi: hisi_sas: Remove hisi_sas_hw.slot_complete
+- scsi: hisi_sas: add debugfs auto-trigger for internal abort time out
+- scsi: hisi_sas: use devm_platform_ioremap_resource() to simplify code
+- scsi: hisi_sas: remove set but not used variable 'irq_value'
+- scsi: hisi_sas: Remove some unnecessary code
+- scsi: hisi_sas: Modify return type of debugfs functions
+- scsi: hisi_sas: Drop free_irq() when devm_request_irq() failed
+- scsi: hisi_sas: Drop SMP resp frame DMA mapping
+- scsi: hisi_sas: Drop kmap_atomic() in SMP command completion
+- scsi: hisi_sas: Snapshot AXI and RAS register at debugfs
+- scsi: hisi_sas: Snapshot HW cache of IOST and ITCT at debugfs
+- scsi: hisi_sas: Fix pointer usage error in show debugfs IOST/ITCT
+- scsi: hisi_sas: Make max IPTT count equal for all hw revisions
+- scsi: hisi_sas: Some misc tidy-up
+- scsi: hisi_sas: Use pci_irq_get_affinity() for v3 hw as experimental
+- scsi: hisi_sas: Fix losing directly attached disk when hot-plug
+- scsi: hisi_sas: Fix type casting and missing static qualifier in debugfs code
+- scsi: hisi_sas: No need to check return value of debugfs_create functions
+- blk-mq: Enable support for runtime power management
+- block: Make blk_get_request() block for non-PM requests while suspended
+- block: Allow unfreezing of a queue while requests are in progress
+- block: Schedule runtime resume earlier
+- block: Split blk_pm_add_request() and blk_pm_put_request()
+- block: Move power management code into a new source file
 
 * Fri Nov 10 2023 hongrongxuan <hongrongxuan@huawei.com> - 4.19.90-2311.1.0.0239
 - perf metricgroup: Fix find_evsel_group() event selector

@@ -1,0 +1,81 @@
+From 3331cbab9720ca36413a5e6a501ae78b8a043abc Mon Sep 17 00:00:00 2001
+From: Bart Van Assche <bvanassche@acm.org>
+Date: Thu, 30 May 2019 17:00:49 -0700
+Subject: [PATCH 237/256] block: Fix blk_mq_*_map_queues() kernel-doc headers
+
+mainline inclusion
+from mainline-v5.2-rc3
+commit 0542cd57d266074114d70791ab245e18f750cd32
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F7ZR
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=0542cd57d266074114d70791ab245e18f750cd32
+
+----------------------------------------------------------------------
+
+This patch avoids that the kernel-doc script complains about these
+function headers when building with W=1.
+
+Cc: Hannes Reinecke <hare@suse.com>
+Cc: Keith Busch <keith.busch@intel.com>
+Fixes: ed76e329d74a ("blk-mq: abstract out queue map") # v5.0.
+Fixes: e42b3867de4b ("blk-mq-rdma: pass in queue map to blk_mq_rdma_map_queues") # v5.0.
+Reviewed-by: Chaitanya Kulkarni <chiatanya.kulkarni@wdc.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	block/blk-mq-pci.c
+---
+ block/blk-mq-pci.c    | 2 +-
+ block/blk-mq-rdma.c   | 4 ++--
+ block/blk-mq-virtio.c | 4 ++--
+ 3 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/block/blk-mq-pci.c b/block/blk-mq-pci.c
+index 04b5f6a1fa20..e92b584de006 100644
+--- a/block/blk-mq-pci.c
++++ b/block/blk-mq-pci.c
+@@ -47,7 +47,7 @@ EXPORT_SYMBOL_GPL(blk_mq_pci_map_queues_by_qmap);
+ 
+ /**
+  * blk_mq_pci_map_queues - provide a default queue mapping for PCI device
+- * @set:	tagset to provide the mapping for
++ * @qmap:	CPU to hardware queue map.
+  * @pdev:	PCI device associated with @set.
+  * @offset:	Offset to use for the pci irq vector
+  *
+diff --git a/block/blk-mq-rdma.c b/block/blk-mq-rdma.c
+index 7a7690023484..5f6623f2b2c0 100644
+--- a/block/blk-mq-rdma.c
++++ b/block/blk-mq-rdma.c
+@@ -16,8 +16,8 @@
+ 
+ /**
+  * blk_mq_rdma_map_queues - provide a default queue mapping for rdma device
+- * @set:	tagset to provide the mapping for
+- * @dev:	rdma device associated with @set.
++ * @map:	CPU to hardware queue map.
++ * @dev:	rdma device to provide a mapping for.
+  * @first_vec:	first interrupt vectors to use for queues (usually 0)
+  *
+  * This function assumes the rdma device @dev has at least as many available
+diff --git a/block/blk-mq-virtio.c b/block/blk-mq-virtio.c
+index b67d52e4cddf..79c44d687ff3 100644
+--- a/block/blk-mq-virtio.c
++++ b/block/blk-mq-virtio.c
+@@ -19,8 +19,8 @@
+ 
+ /**
+  * blk_mq_virtio_map_queues - provide a default queue mapping for virtio device
+- * @set:	tagset to provide the mapping for
+- * @vdev:	virtio device associated with @set.
++ * @qmap:	CPU to hardware queue map.
++ * @vdev:	virtio device to provide a mapping for.
+  * @first_vec:	first interrupt vectors to use for queues (usually 0)
+  *
+  * This function assumes the virtio device @vdev has at least as many available
+-- 
+2.27.0
+

@@ -1,0 +1,49 @@
+From ab91af014dedda1e562dc76fcb4dc6f433fc939b Mon Sep 17 00:00:00 2001
+From: John Garry <john.garry@huawei.com>
+Date: Thu, 16 Mar 2023 20:21:40 +0800
+Subject: [PATCH 212/256] scsi: libsas: Update SATA dev FIS in
+ sas_ata_task_done()
+
+mainline inclusion
+from mainline-v6.2-rc1
+commit cc22efbec0110181725b1f5f6778155a2e352522
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F82P
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=cc22efbec0110181725b1f5f6778155a2e352522
+
+----------------------------------------------------------------------
+
+In sas_ata_task_done(), for commands which complete with error we set the
+SATA dev FIS status field with ATA_ERR. In ata_eh_analyze_tf() this would
+be interpreted as a HSM error. Set ATA_DRDY, which will lead libata to
+judge as a device error, which is a safer bet.
+
+Signed-off-by: John Garry <john.garry@huawei.com>
+Link: https://lore.kernel.org/r/1665998435-199946-9-git-send-email-john.garry@huawei.com
+Reviewed-by: Niklas Cassel <niklas.cassel@wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: xiabing <xiabing12@h-partners.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/libsas/sas_ata.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/scsi/libsas/sas_ata.c b/drivers/scsi/libsas/sas_ata.c
+index 93b1554f6757..0cadbdcc4369 100644
+--- a/drivers/scsi/libsas/sas_ata.c
++++ b/drivers/scsi/libsas/sas_ata.c
+@@ -161,8 +161,8 @@ static void sas_ata_task_done(struct sas_task *task)
+ 				qc->flags |= ATA_QCFLAG_FAILED;
+ 			}
+ 
+-			dev->sata_dev.fis[3] = 0x04; /* status err */
+-			dev->sata_dev.fis[2] = ATA_ERR;
++			dev->sata_dev.fis[2] = ATA_ERR | ATA_DRDY; /* tf status */
++			dev->sata_dev.fis[3] = ATA_ABORTED; /* tf error */
+ 		}
+ 	}
+ 
+-- 
+2.27.0
+

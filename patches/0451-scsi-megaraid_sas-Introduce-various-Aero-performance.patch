@@ -1,0 +1,283 @@
+From e8e9a87843ec51b5a8bcc12180361593cd0a9513 Mon Sep 17 00:00:00 2001
+From: Chandrakanth Patil <chandrakanth.patil@broadcom.com>
+Date: Tue, 25 Jun 2019 16:34:35 +0530
+Subject: [PATCH 133/256] scsi: megaraid_sas: Introduce various Aero
+ performance modes
+
+mainline inclusion
+from mainline-v5.3-rc1
+commit 299ee42615e3f5f10dc8604b995368bd05c6a687
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F7ZR
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=299ee42615e3f5f10dc8604b995368bd05c6a687
+
+----------------------------------------------------------------------
+
+For Aero adapters, driver provides three different performance modes
+controlled through module parameter named 'perf_mode'. Below are those
+performance modes:
+
+ 0: Balanced - Additional high IOPS reply queues will be enabled along with
+    low latency queues. Interrupt coalescing will be enabled only for these
+    high IOPS reply queues.
+
+ 1: IOPS - No additional high IOPS queues are enabled. Interrupt coalescing
+    will be enabled on all reply queues.
+
+ 2: Latency - No additional high IOPS queues are enabled. Interrupt
+    coalescing will be disabled on all reply queues. This is a legacy
+    behavior similar to Ventura & Invader Series.
+
+Default performance mode settings:
+
+ - Performance mode set to 'Balanced', if Aero controller is working in
+   16GT/s PCIe speed.
+
+ - Performance mode will be set to 'Latency' mode for all other cases.
+
+Through module parameter 'perf_mode', user can override default performance
+mode to desired one.
+
+Captured some performance numbers with these performance modes.  4k Random
+Read IO performance numbers on 24 SAS SSD drives for above three
+performance modes. Performance data is from Intel Skylake and HGST SS300
+(drive model SDLL1DLR400GCCA1).
+
+IOPS:
+ -----------------------------------------------------------------------
+  |perf_mode    | qd = 1 | qd = 64 |   note                             |
+  |-------------|--------|---------|-------------------------------------
+  |balanced     |  259K  |  3061k  | Provides max performance numbers   |
+  |             |        |         | both on lower QD workload &        |
+  |             |        |         | also on higher QD workload         |
+  |-------------|--------|---------|-------------------------------------
+  |iops         |  220K  |  3100k  | Provides max performance numbers   |
+  |             |        |         | only on higher QD workload.        |
+  |-------------|--------|---------|-------------------------------------
+  |latency      |  246k  |  2226k  | Provides good performance numbers  |
+  |             |        |         | only on lower QD worklaod.         |
+  -----------------------------------------------------------------------
+
+Average Latency:
+  -----------------------------------------------------
+  |perf_mode    |  qd = 1      |    qd = 64           |
+  |-------------|--------------|----------------------|
+  |balanced     |  92.05 usec  |    501.12 usec       |
+  |-------------|--------------|----------------------|
+  |iops         |  108.40 usec |    498.10 usec       |
+  |-------------|--------------|----------------------|
+  |latency      |  97.10 usec  |    689.26 usec       |
+  -----------------------------------------------------
+
+Signed-off-by: Sumit Saxena <sumit.saxena@broadcom.com>
+Signed-off-by: Chandrakanth Patil <chandrakanth.patil@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/megaraid/megaraid_sas_base.c
+---
+ drivers/scsi/megaraid/megaraid_sas.h        | 14 ++++-
+ drivers/scsi/megaraid/megaraid_sas_base.c   | 62 +++++++++++++++++++--
+ drivers/scsi/megaraid/megaraid_sas_fusion.c | 23 +++++---
+ 3 files changed, 85 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/scsi/megaraid/megaraid_sas.h b/drivers/scsi/megaraid/megaraid_sas.h
+index 46374bcae3af..3311d1adca2f 100644
+--- a/drivers/scsi/megaraid/megaraid_sas.h
++++ b/drivers/scsi/megaraid/megaraid_sas.h
+@@ -2153,6 +2153,18 @@ enum MR_PD_TYPE {
+ #define MR_DEVICE_HIGH_IOPS_DEPTH	8
+ #define MR_HIGH_IOPS_BATCH_COUNT	16
+ 
++enum MR_PERF_MODE {
++	MR_BALANCED_PERF_MODE		= 0,
++	MR_IOPS_PERF_MODE		= 1,
++	MR_LATENCY_PERF_MODE		= 2,
++};
++
++#define MEGASAS_PERF_MODE_2STR(mode) \
++		((mode) == MR_BALANCED_PERF_MODE ? "Balanced" : \
++		 (mode) == MR_IOPS_PERF_MODE ? "IOPS" : \
++		 (mode) == MR_LATENCY_PERF_MODE ? "Latency" : \
++		 "Unknown")
++
+ struct megasas_instance {
+ 
+ 	unsigned int *reply_map;
+@@ -2325,7 +2337,7 @@ struct megasas_instance {
+ 	u8 task_abort_tmo;
+ 	u8 max_reset_tmo;
+ 	u8  low_latency_index_start;
+-	bool balanced_mode;
++	int perf_mode;
+ };
+ struct MR_LD_VF_MAP {
+ 	u32 size;
+diff --git a/drivers/scsi/megaraid/megaraid_sas_base.c b/drivers/scsi/megaraid/megaraid_sas_base.c
+index 35850ba8f071..d81e4c1a1f02 100644
+--- a/drivers/scsi/megaraid/megaraid_sas_base.c
++++ b/drivers/scsi/megaraid/megaraid_sas_base.c
+@@ -106,6 +106,18 @@ unsigned int scmd_timeout = MEGASAS_DEFAULT_CMD_TIMEOUT;
+ module_param(scmd_timeout, int, S_IRUGO);
+ MODULE_PARM_DESC(scmd_timeout, "scsi command timeout (10-90s), default 90s. See megasas_reset_timer.");
+ 
++int perf_mode = -1;
++module_param(perf_mode, int, 0444);
++MODULE_PARM_DESC(perf_mode, "Performance mode (only for Aero adapters), options:\n\t\t"
++		"0 - balanced: High iops and low latency queues are allocated &\n\t\t"
++		"interrupt coalescing is enabled only on high iops queues\n\t\t"
++		"1 - iops: High iops queues are not allocated &\n\t\t"
++		"interrupt coalescing is enabled on all queues\n\t\t"
++		"2 - latency: High iops queues are not allocated &\n\t\t"
++		"interrupt coalescing is disabled on all queues\n\t\t"
++		"default mode is 'balanced'"
++		);
++
+ MODULE_LICENSE("GPL");
+ MODULE_VERSION(MEGASAS_VERSION);
+ MODULE_AUTHOR("megaraidlinux.pdl@avagotech.com");
+@@ -5070,7 +5082,7 @@ megasas_setup_irqs_ioapic(struct megasas_instance *instance)
+ 				__func__, __LINE__);
+ 		return -1;
+ 	}
+-	instance->balanced_mode = false;
++	instance->perf_mode = MR_LATENCY_PERF_MODE;
+ 	instance->low_latency_index_start = 0;
+ 	return 0;
+ }
+@@ -5259,11 +5271,12 @@ megasas_alloc_irq_vectors(struct megasas_instance *instance)
+ 
+ 	i = __megasas_alloc_irq_vectors(instance);
+ 
+-	if (instance->balanced_mode && (i != instance->msix_vectors)) {
++	if ((instance->perf_mode == MR_BALANCED_PERF_MODE) &
++	    (i != instance->msix_vectors)) {
+ 		if (instance->msix_vectors)
+ 			pci_free_irq_vectors(instance->pdev);
+ 		/* Disable Balanced IOPS mode and try realloc vectors */
+-		instance->balanced_mode = false;
++		instance->perf_mode = MR_LATENCY_PERF_MODE;
+ 		instance->low_latency_index_start = 1;
+ 		num_msix_req = num_online_cpus() +
+ 					instance->low_latency_index_start;
+@@ -5307,6 +5320,7 @@ static int megasas_init_fw(struct megasas_instance *instance)
+ 	bool do_adp_reset = true;
+ 	bool intr_coalescing;
+ 	unsigned int num_msix_req;
++	u16 lnksta, speed;
+ 
+ 	fusion = instance->ctrl_context;
+ 
+@@ -5498,11 +5512,47 @@ static int megasas_init_fw(struct megasas_instance *instance)
+ 		if (intr_coalescing &&
+ 			(num_online_cpus() >= MR_HIGH_IOPS_QUEUE_COUNT) &&
+ 			(instance->msix_vectors == MEGASAS_MAX_MSIX_QUEUES))
+-			instance->balanced_mode = true;
++			instance->perf_mode = MR_BALANCED_PERF_MODE;
+ 		else
+-			instance->balanced_mode = false;
++			instance->perf_mode = MR_LATENCY_PERF_MODE;
++
++
++		if (instance->adapter_type == AERO_SERIES) {
++			pcie_capability_read_word(instance->pdev,
++						  PCI_EXP_LNKSTA,
++						  &lnksta);
++			speed = lnksta & PCI_EXP_LNKSTA_CLS;
++
++			/*
++			 * For Aero, if PCIe link speed is <16 GT/s, then driver
++			 * should operate in latency perf mode and enable R1 PCI
++			 * bandwidth algorithm
++			 */
++			if (speed < 0x4) {
++				instance->perf_mode = MR_LATENCY_PERF_MODE;
++				fusion->pcie_bw_limitation = true;
++			}
++
++			/*
++			 * Performance mode settings provided through module
++			 * parameter-perf_mode will take affect only for:
++			 * 1. Aero family of adapters.
++			 * 2. When user sets module parameter- perf_mode in
++			 *    range of 0-2.
++			 */
++			if ((perf_mode >= MR_BALANCED_PERF_MODE) &&
++				(perf_mode <= MR_LATENCY_PERF_MODE))
++				instance->perf_mode = perf_mode;
++			/*
++			 * If intr coalescing is not supported by controller FW,
++			 * then IOPS and Balanced modes are not feasible.
++			 */
++			if (!intr_coalescing)
++				instance->perf_mode = MR_LATENCY_PERF_MODE;
++
++		}
+ 
+-		if (instance->balanced_mode)
++		if (instance->perf_mode == MR_BALANCED_PERF_MODE)
+ 			instance->low_latency_index_start =
+ 				MR_HIGH_IOPS_QUEUE_COUNT;
+ 		else
+diff --git a/drivers/scsi/megaraid/megaraid_sas_fusion.c b/drivers/scsi/megaraid/megaraid_sas_fusion.c
+index 67a938d2d451..145c379e9424 100644
+--- a/drivers/scsi/megaraid/megaraid_sas_fusion.c
++++ b/drivers/scsi/megaraid/megaraid_sas_fusion.c
+@@ -1017,10 +1017,10 @@ megasas_ioc_init_fusion(struct megasas_instance *instance)
+ 
+ 	if ((instance->low_latency_index_start ==
+ 		MR_HIGH_IOPS_QUEUE_COUNT) && cur_intr_coalescing)
+-		instance->balanced_mode = true;
++		instance->perf_mode = MR_BALANCED_PERF_MODE;
+ 
+-	dev_info(&instance->pdev->dev, "Balanced mode :%s\n",
+-		instance->balanced_mode ? "Yes" : "No");
++	dev_info(&instance->pdev->dev, "Performance mode :%s\n",
++		MEGASAS_PERF_MODE_2STR(instance->perf_mode));
+ 
+ 	instance->fw_sync_cache_support = (scratch_pad_1 &
+ 		MR_CAN_HANDLE_SYNC_CACHE_OFFSET) ? 1 : 0;
+@@ -1111,9 +1111,18 @@ megasas_ioc_init_fusion(struct megasas_instance *instance)
+ 	 * Each bit in replyqueue_mask represents one group of MSI-x vectors
+ 	 * (each group has 8 vectors)
+ 	 */
+-	if (instance->balanced_mode)
++	switch (instance->perf_mode) {
++	case MR_BALANCED_PERF_MODE:
+ 		init_frame->replyqueue_mask =
+-		       cpu_to_le16(~(~0 << instance->low_latency_index_start / 8));
++			cpu_to_le16(~(~0 <<
++			instance->low_latency_index_start/8));
++		break;
++	case MR_IOPS_PERF_MODE:
++		init_frame->replyqueue_mask =
++		       cpu_to_le16(~(~0 << instance->msix_vectors/8));
++		break;
++	}
++
+ 
+ 	req_desc.u.low = cpu_to_le32(lower_32_bits(cmd->frame_phys_addr));
+ 	req_desc.u.high = cpu_to_le32(upper_32_bits(cmd->frame_phys_addr));
+@@ -2662,7 +2671,7 @@ megasas_build_ldio_fusion(struct megasas_instance *instance,
+ 			fp_possible = (io_info.fpOkForIo > 0) ? true : false;
+ 	}
+ 
+-	if (instance->balanced_mode &&
++	if ((instance->perf_mode == MR_BALANCED_PERF_MODE) &&
+ 		atomic_read(&scp->device->device_busy) >
+ 		(io_info.data_arms * MR_DEVICE_HIGH_IOPS_DEPTH))
+ 		cmd->request_desc->SCSIIO.MSIxIndex =
+@@ -3005,7 +3014,7 @@ megasas_build_syspd_fusion(struct megasas_instance *instance,
+ 
+ 	cmd->request_desc->SCSIIO.DevHandle = io_request->DevHandle;
+ 
+-	if (instance->balanced_mode &&
++	if ((instance->perf_mode == MR_BALANCED_PERF_MODE) &&
+ 		atomic_read(&scmd->device->device_busy) >
+ 		MR_DEVICE_HIGH_IOPS_DEPTH)
+ 		cmd->request_desc->SCSIIO.MSIxIndex =
+-- 
+2.27.0
+

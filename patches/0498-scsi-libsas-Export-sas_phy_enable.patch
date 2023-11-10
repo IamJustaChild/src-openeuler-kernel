@@ -1,0 +1,73 @@
+From 822430cb8c763a5da5c155de93bf40085c760a17 Mon Sep 17 00:00:00 2001
+From: nifujia <nifujia1@hisilicon.com>
+Date: Tue, 18 Jan 2022 21:23:42 +0800
+Subject: [PATCH 180/256] scsi: libsas: Export sas_phy_enable()
+
+mainline inclusion
+from mainline-v5.16-rc1
+commit 00aeaf329a3a1ea3d3606fefa1d29f69f828bd21
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F803
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=00aeaf329a3a1ea3d3606fefa1d29f69f828bd21
+
+----------------------------------------------------------------------
+
+Export sas_phy_enable() so LLDDs can directly use it to control remote phys.
+
+We already do this for companion function sas_phy_reset().
+
+Link: https://lore.kernel.org/r/1634041588-74824-4-git-send-email-john.garry@huawei.com
+Signed-off-by: Luo Jiaxing <luojiaxing@huawei.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reviewed-by: Ouyangdelong <ouyangdelong@huawei.com>
+Signed-off-by: Nifujia <nifujia1@hisilicon.com>
+Reviewed-by: Jason Yan <yanaijie@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	include/scsi/libsas.h
+---
+ drivers/scsi/libsas/sas_init.c | 3 ++-
+ include/scsi/libsas.h          | 1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/scsi/libsas/sas_init.c b/drivers/scsi/libsas/sas_init.c
+index 87bebd171652..f25fcea471a6 100644
+--- a/drivers/scsi/libsas/sas_init.c
++++ b/drivers/scsi/libsas/sas_init.c
+@@ -275,7 +275,7 @@ static int transport_sas_phy_reset(struct sas_phy *phy, int hard_reset)
+ 	}
+ }
+ 
+-static int sas_phy_enable(struct sas_phy *phy, int enable)
++int sas_phy_enable(struct sas_phy *phy, int enable)
+ {
+ 	int ret;
+ 	enum phy_func cmd;
+@@ -307,6 +307,7 @@ static int sas_phy_enable(struct sas_phy *phy, int enable)
+ 	}
+ 	return ret;
+ }
++EXPORT_SYMBOL_GPL(sas_phy_enable);
+ 
+ int sas_phy_reset(struct sas_phy *phy, int hard_reset)
+ {
+diff --git a/include/scsi/libsas.h b/include/scsi/libsas.h
+index be8ad849dfcd..ce2c9426d103 100644
+--- a/include/scsi/libsas.h
++++ b/include/scsi/libsas.h
+@@ -684,6 +684,7 @@ extern void sas_suspend_ha(struct sas_ha_struct *sas_ha);
+ int sas_set_phy_speed(struct sas_phy *phy,
+ 		      struct sas_phy_linkrates *rates);
+ int sas_phy_reset(struct sas_phy *phy, int hard_reset);
++int sas_phy_enable(struct sas_phy *phy, int enable);
+ extern int sas_queuecommand(struct Scsi_Host * ,struct scsi_cmnd *);
+ extern int sas_target_alloc(struct scsi_target *);
+ extern int sas_slave_configure(struct scsi_device *);
+-- 
+2.27.0
+

@@ -1,0 +1,268 @@
+From 93c5378d9b730a6f1449bbaccd37aa6bd28a96e4 Mon Sep 17 00:00:00 2001
+From: Jens Axboe <axboe@kernel.dk>
+Date: Mon, 29 Oct 2018 15:06:13 -0600
+Subject: [PATCH 073/256] blk-mq: cache request hardware queue mapping
+
+mainline inclusion
+from mainline-v5.0-rc1
+commit ea4f995ee8b8f0578b3319949f2edd5d812fdb0a
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F7ZR
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=ea4f995ee8b8f0578b3319949f2edd5d812fdb0a
+
+----------------------------------------------------------------------
+
+We call blk_mq_map_queue() a lot, at least two times for each
+request per IO, sometimes more. Since we now have an indirect
+call as well in that function. cache the mapping so we don't
+have to re-call blk_mq_map_queue() for the same request
+multiple times.
+
+Reviewed-by: Keith Busch <keith.busch@intel.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Hannes Reinecke <hare@suse.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	block/blk-flush.c
+	block/blk-mq-debugfs.c
+	block/blk-mq-tag.c
+	block/blk-mq.c
+---
+ block/blk-flush.c      | 14 +++++---------
+ block/blk-mq-debugfs.c |  5 ++---
+ block/blk-mq-sched.c   |  6 ++----
+ block/blk-mq-tag.c     |  4 +---
+ block/blk-mq.c         | 22 +++++++++-------------
+ block/blk-mq.h         |  5 +----
+ include/linux/blkdev.h |  1 +
+ 7 files changed, 21 insertions(+), 36 deletions(-)
+
+diff --git a/block/blk-flush.c b/block/blk-flush.c
+index 5fca033cd830..4676e3812f30 100644
+--- a/block/blk-flush.c
++++ b/block/blk-flush.c
+@@ -250,7 +250,7 @@ static void flush_end_io(struct request *flush_rq, blk_status_t error)
+ 			fq->rq_status = BLK_STS_OK;
+ 		}
+ 
+-		hctx = blk_mq_map_queue(q, flush_rq->cmd_flags, flush_rq->mq_ctx->cpu);
++		hctx = flush_rq->mq_hctx;
+ 		if (!q->elevator) {
+ 			blk_mq_tag_set_rq(hctx, flush_rq->tag, fq->orig_rq);
+ 			flush_rq->tag = -1;
+@@ -358,16 +358,14 @@ static bool blk_kick_flush(struct request_queue *q, struct blk_flush_queue *fq,
+ 	 * just for cheating put/get driver tag.
+ 	 */
+ 	if (q->mq_ops) {
+-		struct blk_mq_hw_ctx *hctx;
+-
+ 		flush_rq->mq_ctx = first_rq->mq_ctx;
++		flush_rq->mq_hctx = first_rq->mq_hctx;
+ 
+ 		if (!q->elevator) {
+ 			fq->orig_rq = first_rq;
+ 			flush_rq->tag = first_rq->tag;
+-			hctx = blk_mq_map_queue(q, first_rq->cmd_flags,
+-						first_rq->mq_ctx->cpu);
+-			blk_mq_tag_set_rq(hctx, first_rq->tag, flush_rq);
++			blk_mq_tag_set_rq(flush_rq->mq_hctx,
++					  first_rq->tag, flush_rq);
+ 		} else {
+ 			flush_rq->internal_tag = first_rq->internal_tag;
+ 		}
+@@ -437,13 +435,11 @@ static void flush_data_end_io(struct request *rq, blk_status_t error)
+ static void mq_flush_data_end_io(struct request *rq, blk_status_t error)
+ {
+ 	struct request_queue *q = rq->q;
+-	struct blk_mq_hw_ctx *hctx;
++	struct blk_mq_hw_ctx *hctx = rq->mq_hctx;
+ 	struct blk_mq_ctx *ctx = rq->mq_ctx;
+ 	unsigned long flags;
+ 	struct blk_flush_queue *fq = blk_get_flush_queue(q, ctx);
+ 
+-	hctx = blk_mq_map_queue(q, rq->cmd_flags, ctx->cpu);
+-
+ 	if (q->elevator) {
+ 		WARN_ON(rq->tag < 0);
+ 		blk_mq_put_driver_tag_hctx(hctx, rq);
+diff --git a/block/blk-mq-debugfs.c b/block/blk-mq-debugfs.c
+index 2ca8509f887b..ff2328464826 100644
+--- a/block/blk-mq-debugfs.c
++++ b/block/blk-mq-debugfs.c
+@@ -430,10 +430,9 @@ struct show_busy_params {
+ static void hctx_show_busy_rq(struct request *rq, void *data, bool reserved)
+ {
+ 	const struct show_busy_params *params = data;
+-	struct blk_mq_hw_ctx *hctx;
+ 
+-	hctx = blk_mq_map_queue(rq->q, rq->cmd_flags, rq->mq_ctx->cpu);
+-	if (hctx == params->hctx && blk_mq_rq_state(rq) != MQ_RQ_IDLE)
++	if (rq->mq_hctx == params->hctx &&
++	    blk_mq_rq_state(rq) != MQ_RQ_IDLE)
+ 		__blk_mq_debugfs_rq_show(params->m,
+ 					 list_entry_rq(&rq->queuelist));
+ }
+diff --git a/block/blk-mq-sched.c b/block/blk-mq-sched.c
+index e9f531d5b0f9..436163e863d8 100644
+--- a/block/blk-mq-sched.c
++++ b/block/blk-mq-sched.c
+@@ -449,9 +449,7 @@ void blk_mq_sched_insert_request(struct request *rq, bool at_head,
+ 	struct request_queue *q = rq->q;
+ 	struct elevator_queue *e = q->elevator;
+ 	struct blk_mq_ctx *ctx = rq->mq_ctx;
+-	struct blk_mq_hw_ctx *hctx;
+-
+-	hctx = blk_mq_map_queue(q, rq->cmd_flags, ctx->cpu);
++	struct blk_mq_hw_ctx *hctx = rq->mq_hctx;
+ 
+ 	/* flush rq in flush machinery need to be dispatched directly */
+ 	if (!(rq->rq_flags & RQF_FLUSH_SEQ) && op_is_flush(rq->cmd_flags)) {
+@@ -514,7 +512,7 @@ void blk_mq_sched_insert_requests(struct request_queue *q,
+ 
+ 	/* For list inserts, requests better be on the same hw queue */
+ 	rq = list_first_entry(list, struct request, queuelist);
+-	hctx = blk_mq_map_queue(q, rq->cmd_flags, ctx->cpu);
++	hctx = rq->mq_hctx;
+ 
+ 	/*
+ 	 * blk_mq_sched_insert_requests() is called from flush plug
+diff --git a/block/blk-mq-tag.c b/block/blk-mq-tag.c
+index fbd61a765088..fa713873bbb0 100644
+--- a/block/blk-mq-tag.c
++++ b/block/blk-mq-tag.c
+@@ -526,12 +526,10 @@ int blk_mq_tag_update_depth(struct blk_mq_hw_ctx *hctx,
+ u32 blk_mq_unique_tag(struct request *rq)
+ {
+ 	struct request_queue *q = rq->q;
+-	struct blk_mq_hw_ctx *hctx;
+ 	int hwq = 0;
+ 
+ 	if (q->mq_ops) {
+-		hctx = blk_mq_map_queue(q, rq->cmd_flags, rq->mq_ctx->cpu);
+-		hwq = hctx->queue_num;
++		hwq = rq->mq_hctx->queue_num;
+ 	}
+ 
+ 	return (hwq << BLK_MQ_UNIQUE_TAG_BITS) |
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index ef03b048d607..4eff753282dc 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -359,6 +359,7 @@ static struct request *blk_mq_rq_ctx_init(struct blk_mq_alloc_data *data,
+ 	/* csd/requeue_work/fifo_time is initialized before use */
+ 	rq->q = data->q;
+ 	rq->mq_ctx = data->ctx;
++	rq->mq_hctx = data->hctx;
+ 	rq->rq_flags = rq_flags;
+ 	rq->cpu = -1;
+ 	rq->cmd_flags = op;
+@@ -536,10 +537,11 @@ static void __blk_mq_free_request(struct request *rq)
+ {
+ 	struct request_queue *q = rq->q;
+ 	struct blk_mq_ctx *ctx = rq->mq_ctx;
+-	struct blk_mq_hw_ctx *hctx = blk_mq_map_queue(q, rq->cmd_flags, ctx->cpu);
++	struct blk_mq_hw_ctx *hctx = rq->mq_hctx;
+ 	const int sched_tag = rq->internal_tag;
+ 
+ 	blk_pm_mark_last_busy(rq);
++	rq->mq_hctx = NULL;
+ 	if (rq->tag != -1)
+ 		blk_mq_put_tag(hctx, hctx->tags, ctx, rq->tag);
+ 	if (sched_tag != -1)
+@@ -553,7 +555,7 @@ void blk_mq_free_request(struct request *rq)
+ 	struct request_queue *q = rq->q;
+ 	struct elevator_queue *e = q->elevator;
+ 	struct blk_mq_ctx *ctx = rq->mq_ctx;
+-	struct blk_mq_hw_ctx *hctx = blk_mq_map_queue(q, rq->cmd_flags, ctx->cpu);
++	struct blk_mq_hw_ctx *hctx = rq->mq_hctx;
+ 
+ 	if (rq->rq_flags & RQF_ELVPRIV) {
+ 		if (e && e->type->ops.mq.finish_request)
+@@ -1060,7 +1062,7 @@ bool blk_mq_get_driver_tag(struct request *rq)
+ {
+ 	struct blk_mq_alloc_data data = {
+ 		.q = rq->q,
+-		.hctx = blk_mq_map_queue(rq->q, rq->cmd_flags, rq->mq_ctx->cpu),
++		.hctx = rq->mq_hctx,
+ 		.flags = BLK_MQ_REQ_NOWAIT,
+ 		.cmd_flags = rq->cmd_flags,
+ 	};
+@@ -1244,7 +1246,7 @@ bool blk_mq_dispatch_rq_list(struct request_queue *q, struct list_head *list,
+ 
+ 		rq = list_first_entry(list, struct request, queuelist);
+ 
+-		hctx = blk_mq_map_queue(rq->q, rq->cmd_flags, rq->mq_ctx->cpu);
++		hctx = rq->mq_hctx;
+ 		if (!got_budget && !blk_mq_get_dispatch_budget(hctx)) {
+ 			blk_mq_put_driver_tag(rq);
+ 			no_budget_avail = true;
+@@ -1716,9 +1718,7 @@ void __blk_mq_insert_request(struct blk_mq_hw_ctx *hctx, struct request *rq,
+ void blk_mq_request_bypass_insert(struct request *rq, bool at_head,
+ 				bool run_queue)
+ {
+-	struct blk_mq_ctx *ctx = rq->mq_ctx;
+-	struct blk_mq_hw_ctx *hctx = blk_mq_map_queue(rq->q, rq->cmd_flags,
+-							ctx->cpu);
++	struct blk_mq_hw_ctx *hctx = rq->mq_hctx;
+ 
+ 	spin_lock(&hctx->lock);
+ 	if (at_head)
+@@ -1933,9 +1933,7 @@ blk_status_t blk_mq_request_issue_directly(struct request *rq)
+ 	blk_status_t ret;
+ 	int srcu_idx;
+ 	blk_qc_t unused_cookie;
+-	struct blk_mq_ctx *ctx = rq->mq_ctx;
+-	struct blk_mq_hw_ctx *hctx = blk_mq_map_queue(rq->q, rq->cmd_flags,
+-							ctx->cpu);
++	struct blk_mq_hw_ctx *hctx = rq->mq_hctx;
+ 
+ 	hctx_lock(hctx, &srcu_idx);
+ 	ret = __blk_mq_try_issue_directly(hctx, rq, &unused_cookie, true);
+@@ -2066,9 +2064,7 @@ static blk_qc_t blk_mq_make_request(struct request_queue *q, struct bio *bio)
+ 		blk_mq_put_ctx(data.ctx);
+ 
+ 		if (same_queue_rq) {
+-			data.hctx = blk_mq_map_queue(q,
+-					same_queue_rq->cmd_flags,
+-					same_queue_rq->mq_ctx->cpu);
++			data.hctx = same_queue_rq->mq_hctx;
+ 			blk_mq_try_issue_directly(data.hctx, same_queue_rq,
+ 					&cookie);
+ 		}
+diff --git a/block/blk-mq.h b/block/blk-mq.h
+index 85ef48e858db..a7bfffcbd301 100644
+--- a/block/blk-mq.h
++++ b/block/blk-mq.h
+@@ -242,13 +242,10 @@ static inline void blk_mq_put_driver_tag_hctx(struct blk_mq_hw_ctx *hctx,
+ 
+ static inline void blk_mq_put_driver_tag(struct request *rq)
+ {
+-	struct blk_mq_hw_ctx *hctx;
+-
+ 	if (rq->tag == -1 || rq->internal_tag == -1)
+ 		return;
+ 
+-	hctx = blk_mq_map_queue(rq->q, rq->cmd_flags, rq->mq_ctx->cpu);
+-	__blk_mq_put_driver_tag(hctx, rq);
++	__blk_mq_put_driver_tag(rq->mq_hctx, rq);
+ }
+ 
+ static inline void blk_mq_clear_mq_map(struct blk_mq_queue_map *qmap)
+diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
+index 74cb02947a18..ff73fbc87b32 100644
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -159,6 +159,7 @@ enum mq_rq_state {
+ struct request {
+ 	struct request_queue *q;
+ 	struct blk_mq_ctx *mq_ctx;
++	struct blk_mq_hw_ctx *mq_hctx;
+ 
+ 	int cpu;
+ 	unsigned int cmd_flags;		/* op and common flags */
+-- 
+2.27.0
+

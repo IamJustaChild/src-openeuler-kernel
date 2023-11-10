@@ -1,0 +1,48 @@
+From 79f2e8a2790fb9b34d56abf3bd0170eacebe1bc6 Mon Sep 17 00:00:00 2001
+From: Marc Zyngier <maz@kernel.org>
+Date: Wed, 6 Jul 2022 18:05:39 +0800
+Subject: [PATCH 201/256] irqchip/gic-v3: Always trust the managed affinity
+ provided by the core code
+
+mainline inclusion
+from mainline-v5.19-rc1
+commit 3f893a5962d31c0164efdbf6174ed0784f1d7603
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EKNE
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=3f893a5962d31c0164efdbf6174ed0784f1d7603
+
+----------------------------------------------------------------------
+
+Now that the core code has been fixed to always give us an affinity
+that only includes online CPUs, directly use this affinity when
+computing a target CPU.
+
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/20220405185040.206297-4-maz@kernel.org
+Signed-off-by: Chen Jiahao <chenjiahao16@huawei.com>
+Reviewed-by: Zhang Jianhua <chris.zjh@huawei.com>
+Reviewed-by: Liao Chang <liaochang1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/irqchip/irq-gic-v3-its.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/irqchip/irq-gic-v3-its.c b/drivers/irqchip/irq-gic-v3-its.c
+index 463a77cef8a3..71e1689a32e7 100644
+--- a/drivers/irqchip/irq-gic-v3-its.c
++++ b/drivers/irqchip/irq-gic-v3-its.c
+@@ -1274,7 +1274,7 @@ static int its_select_cpu(struct irq_data *d,
+ 
+ 		cpu = cpumask_pick_least_loaded(d, tmpmask);
+ 	} else {
+-		cpumask_and(tmpmask, irq_data_get_affinity_mask(d), cpu_online_mask);
++		cpumask_copy(tmpmask, aff_mask);
+ 
+ 		/* If we cannot cross sockets, limit the search to that node */
+ 		if ((its_dev->its->flags & ITS_FLAGS_WORKAROUND_CAVIUM_23144) &&
+-- 
+2.27.0
+
