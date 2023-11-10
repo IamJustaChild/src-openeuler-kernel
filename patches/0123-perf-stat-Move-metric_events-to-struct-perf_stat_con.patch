@@ -1,0 +1,117 @@
+From 4eb984aff402a0421d7656d7c81d3c83d82521d3 Mon Sep 17 00:00:00 2001
+From: Jiri Olsa <jolsa@kernel.org>
+Date: Thu, 30 Aug 2018 08:32:51 +0200
+Subject: [PATCH 006/201] perf stat: Move 'metric_events' to 'struct
+ perf_stat_config'
+
+mainline inclusion
+from mainline-v4.20-rc1
+commit d0192fdba09a8901db133fe5a1fcd22d40fcf545
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=d0192fdba09a8901db133fe5a1fcd22d40fcf545
+
+--------------------------------------------------------------------
+
+Move the static variable 'metric_events' to 'struct perf_stat_config',
+so that it can be passed around and used outside 'perf stat' command.
+
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <andi@firstfloor.org>
+Cc: David Ahern <dsahern@gmail.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lkml.kernel.org/r/20180830063252.23729-43-jolsa@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+
+ Conflict:
+	tools/perf/builtin-stat.c
+	tools/perf/util/stat.h
+---
+ tools/perf/builtin-stat.c | 10 ++++------
+ tools/perf/util/stat.h    | 17 +++++++++--------
+ 2 files changed, 13 insertions(+), 14 deletions(-)
+
+diff --git a/tools/perf/builtin-stat.c b/tools/perf/builtin-stat.c
+index 651fef3c92de..da1e60029ff1 100644
+--- a/tools/perf/builtin-stat.c
++++ b/tools/perf/builtin-stat.c
+@@ -137,8 +137,6 @@ static const char *smi_cost_attrs = {
+ 
+ static struct perf_evlist	*evsel_list;
+ 
+-static struct rblist		 metric_events;
+-
+ static struct target target = {
+ 	.uid	= UINT_MAX,
+ };
+@@ -1230,7 +1228,7 @@ static void printout(struct perf_stat_config *config, int id, int nr,
+ 
+ 	perf_stat__print_shadow_stats(config, counter, uval,
+ 				first_shadow_cpu(counter, id),
+-				&out, &metric_events, st);
++				&out, &config->metric_events, st);
+ 	if (!csv_output && !metric_only) {
+ 		print_noise(config, counter, noise);
+ 		print_running(config, run, ena);
+@@ -1669,7 +1667,7 @@ static void print_metric_headers(struct perf_stat_config *config,
+ 		perf_stat__print_shadow_stats(config, counter, 0,
+ 					      0,
+ 					      &out,
+-					      &metric_events,
++					      &config->metric_events,
+ 					      &rt_stat);
+ 	}
+ 	fputc('\n', config->output);
+@@ -1989,7 +1987,7 @@ static int parse_metric_groups(const struct option *opt,
+ 			       const char *str,
+ 			       int unset __maybe_unused)
+ {
+-	return metricgroup__parse_groups(opt, str, &metric_events);
++	return metricgroup__parse_groups(opt, str, &stat_config.metric_events);
+ }
+ 
+ static struct option stat_options[] = {
+@@ -2445,7 +2443,7 @@ static int add_default_attributes(void)
+ 			struct option opt = { .value = &evsel_list };
+ 
+ 			return metricgroup__parse_groups(&opt, "transaction",
+-							 &metric_events);
++							 &stat_config.metric_events);
+ 		}
+ 
+ 		if (pmu_have_event("cpu", "cycles-ct") &&
+diff --git a/tools/perf/util/stat.h b/tools/perf/util/stat.h
+index c223bbb81d13..8a7d8425acf8 100644
+--- a/tools/perf/util/stat.h
++++ b/tools/perf/util/stat.h
+@@ -85,14 +85,15 @@ struct runtime_stat {
+ };
+ 
+ struct perf_stat_config {
+-	enum aggr_mode	aggr_mode;
+-	bool		scale;
+-	FILE		*output;
+-	unsigned int	interval;
+-	unsigned int	timeout;
+-	int		times;
+-	struct runtime_stat *stats;
+-	int		stats_num;
++	enum aggr_mode		aggr_mode;
++	bool			scale;
++	FILE			*output;
++	unsigned int		interval;
++	unsigned int		timeout;
++	int			times;
++	struct 			runtime_stat *stats;
++	int			stats_num;
++	struct rblist		metric_events;
+ };
+ 
+ void update_stats(struct stats *stats, u64 val);
+-- 
+2.27.0
+

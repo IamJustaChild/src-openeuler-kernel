@@ -1,0 +1,105 @@
+From 744525c9170deae41ba87831a8288f84041b1625 Mon Sep 17 00:00:00 2001
+From: Andi Kleen <ak@linux.intel.com>
+Date: Tue, 26 Mar 2019 15:18:20 -0700
+Subject: [PATCH 009/201] perf stat: Revert checks for duration_time
+
+mainline inclusion
+from mainline-v5.2-rc1
+commit c2b3c170db610896e4e633cba2135045333811c2
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=c2b3c170db610896e4e633cba2135045333811c2
+
+----------------------------------------------------------------------
+
+This reverts e864c5ca145e ("perf stat: Hide internal duration_time
+counter") but doing it manually since the code has now moved to a
+different file.
+
+The next patch will properly implement duration_time as a full event, so
+no need to hide it anymore.
+
+Signed-off-by: Andi Kleen <ak@linux.intel.com>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Link: http://lkml.kernel.org/r/20190326221823.11518-2-andi@firstfloor.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+
+  Conflicts:
+	tools/perf/builtin-stat.c
+---
+ tools/perf/builtin-stat.c | 17 -----------------
+ 1 file changed, 17 deletions(-)
+
+diff --git a/tools/perf/builtin-stat.c b/tools/perf/builtin-stat.c
+index da1e60029ff1..e45fc66426e2 100644
+--- a/tools/perf/builtin-stat.c
++++ b/tools/perf/builtin-stat.c
+@@ -206,11 +206,6 @@ static struct perf_stat_config stat_config = {
+ 	.scale		= true,
+ };
+ 
+-static bool is_duration_time(struct perf_evsel *evsel)
+-{
+-	return !strcmp(evsel->name, "duration_time");
+-}
+-
+ static inline void diff_timespec(struct timespec *r, struct timespec *a,
+ 				 struct timespec *b)
+ {
+@@ -1385,8 +1380,6 @@ static void print_aggr(struct perf_stat_config *config,
+ 		ad.id = id = aggr_map->map[s];
+ 		first = true;
+ 		evlist__for_each_entry(evsel_list, counter) {
+-			if (is_duration_time(counter))
+-				continue;
+ 
+ 			ad.val = ad.ena = ad.run = 0;
+ 			ad.nr = 0;
+@@ -1599,8 +1592,6 @@ static void print_no_aggr_metric(struct perf_stat_config *config,
+ 		if (prefix)
+ 			fputs(prefix, config->output);
+ 		evlist__for_each_entry(evsel_list, counter) {
+-			if (is_duration_time(counter))
+-				continue;
+ 			if (first) {
+ 				aggr_printout(config, counter, cpu, 0);
+ 				first = false;
+@@ -1656,8 +1647,6 @@ static void print_metric_headers(struct perf_stat_config *config,
+ 
+ 	/* Print metrics headers only */
+ 	evlist__for_each_entry(evsel_list, counter) {
+-		if (is_duration_time(counter))
+-			continue;
+ 		os.evsel = counter;
+ 		out.ctx = &os;
+ 		out.print_metric = print_metric_header;
+@@ -1879,15 +1868,11 @@ perf_evlist__print_counters(struct perf_evlist *evlist,
+ 		break;
+ 	case AGGR_THREAD:
+ 		evlist__for_each_entry(evlist, counter) {
+-			if (is_duration_time(counter))
+-				continue;
+ 			print_aggr_thread(config, counter, prefix);
+ 		}
+ 		break;
+ 	case AGGR_GLOBAL:
+ 		evlist__for_each_entry(evlist, counter) {
+-			if (is_duration_time(counter))
+-				continue;
+ 			print_counter_aggr(config, counter, prefix);
+ 		}
+ 		if (metric_only)
+@@ -1898,8 +1883,6 @@ perf_evlist__print_counters(struct perf_evlist *evlist,
+ 			print_no_aggr_metric(config, prefix);
+ 		else {
+ 			evlist__for_each_entry(evlist, counter) {
+-				if (is_duration_time(counter))
+-					continue;
+ 				print_counter(config, counter, prefix);
+ 			}
+ 		}
+-- 
+2.27.0
+

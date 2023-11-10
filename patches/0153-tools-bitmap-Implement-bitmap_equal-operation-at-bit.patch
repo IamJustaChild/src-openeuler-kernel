@@ -1,0 +1,118 @@
+From b91e36590cb2508bff91771222eb811dfde5ee77 Mon Sep 17 00:00:00 2001
+From: Alexey Budankov <alexey.budankov@linux.intel.com>
+Date: Tue, 3 Dec 2019 14:43:33 +0300
+Subject: [PATCH 036/201] tools bitmap: Implement bitmap_equal() operation at
+ bitmap API
+
+mainline inclusion
+from mainline-v5.6-rc1
+commit 8812ad412f851216d6c39488a7e563ccc5c604cc
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=8812ad412f851216d6c39488a7e563ccc5c604cc
+
+-----------------------------------------------------------
+
+Extend tools bitmap API with bitmap_equal() implementation.
+
+The implementation has been derived from the kernel.
+
+Extend tools bitmap API with bitmap_free() implementation for symmetry
+with bitmap_alloc() function.
+
+Signed-off-by: Alexey Budankov <alexey.budankov@linux.intel.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/43757993-0b28-d8af-a6c7-ede12e3a6877@linux.intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+
+ Conflicts:
+	tools/include/linux/bitmap.h
+---
+ tools/include/linux/bitmap.h | 30 ++++++++++++++++++++++++++++++
+ tools/lib/bitmap.c           | 15 +++++++++++++++
+ 2 files changed, 45 insertions(+)
+
+diff --git a/tools/include/linux/bitmap.h b/tools/include/linux/bitmap.h
+index e63662db131b..682a3f88db87 100644
+--- a/tools/include/linux/bitmap.h
++++ b/tools/include/linux/bitmap.h
+@@ -15,6 +15,8 @@ void __bitmap_or(unsigned long *dst, const unsigned long *bitmap1,
+ 		 const unsigned long *bitmap2, int bits);
+ int __bitmap_and(unsigned long *dst, const unsigned long *bitmap1,
+ 		 const unsigned long *bitmap2, unsigned int bits);
++int __bitmap_equal(const unsigned long *bitmap1,
++		   const unsigned long *bitmap2, unsigned int bits);
+ 
+ #define BITMAP_FIRST_WORD_MASK(start) (~0UL << ((start) & (BITS_PER_LONG - 1)))
+ 
+@@ -122,6 +124,15 @@ static inline unsigned long *bitmap_alloc(int nbits)
+ 	return calloc(1, BITS_TO_LONGS(nbits) * sizeof(unsigned long));
+ }
+ 
++/*
++ * bitmap_free - Free bitmap
++ * @bitmap: pointer to bitmap
++ */
++static inline void bitmap_free(unsigned long *bitmap)
++{
++	free(bitmap);
++}
++
+ /*
+  * bitmap_scnprintf - print bitmap list into buffer
+  * @bitmap: bitmap
+@@ -147,4 +158,23 @@ static inline int bitmap_and(unsigned long *dst, const unsigned long *src1,
+ 	return __bitmap_and(dst, src1, src2, nbits);
+ }
+ 
++#ifdef __LITTLE_ENDIAN
++#define BITMAP_MEM_ALIGNMENT 8
++#else
++#define BITMAP_MEM_ALIGNMENT (8 * sizeof(unsigned long))
++#endif
++#define BITMAP_MEM_MASK (BITMAP_MEM_ALIGNMENT - 1)
++#define IS_ALIGNED(x, a) (((x) & ((typeof(x))(a) - 1)) == 0)
++
++static inline int bitmap_equal(const unsigned long *src1,
++			const unsigned long *src2, unsigned int nbits)
++{
++	if (small_const_nbits(nbits))
++		return !((*src1 ^ *src2) & BITMAP_LAST_WORD_MASK(nbits));
++	if (__builtin_constant_p(nbits & BITMAP_MEM_MASK) &&
++	    IS_ALIGNED(nbits, BITMAP_MEM_ALIGNMENT))
++		return !memcmp(src1, src2, nbits / 8);
++	return __bitmap_equal(src1, src2, nbits);
++}
++
+ #endif /* _PERF_BITOPS_H */
+diff --git a/tools/lib/bitmap.c b/tools/lib/bitmap.c
+index 38748b0e342f..e4a0db44d615 100644
+--- a/tools/lib/bitmap.c
++++ b/tools/lib/bitmap.c
+@@ -73,3 +73,18 @@ int __bitmap_and(unsigned long *dst, const unsigned long *bitmap1,
+ 			   BITMAP_LAST_WORD_MASK(bits));
+ 	return result != 0;
+ }
++
++int __bitmap_equal(const unsigned long *bitmap1,
++		const unsigned long *bitmap2, unsigned int bits)
++{
++	unsigned int k, lim = bits/BITS_PER_LONG;
++	for (k = 0; k < lim; ++k)
++		if (bitmap1[k] != bitmap2[k])
++			return 0;
++
++	if (bits % BITS_PER_LONG)
++		if ((bitmap1[k] ^ bitmap2[k]) & BITMAP_LAST_WORD_MASK(bits))
++			return 0;
++
++	return 1;
++}
+-- 
+2.27.0
+

@@ -1,0 +1,100 @@
+From aa1a1e03838793bba152e39f27bffbf05d03b143 Mon Sep 17 00:00:00 2001
+From: Ian Rogers <irogers@google.com>
+Date: Fri, 1 May 2020 10:33:27 -0700
+Subject: [PATCH 074/201] perf expr: Parse numbers as doubles
+
+mainline inclusion
+from mainline-v5.8-rc1
+commit 7db2fd0b211394be8b4c7caadc943d0d7ca86357
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=7db2fd0b211394be8b4c7caadc943d0d7ca86357
+
+----------------------------------------------------------------------
+
+This is expected in expr.y and metrics use floating point values such as
+x86 broadwell IFetch_Line_Utilization.
+
+Fixes: 26226a97724d (perf expr: Move expr lexer to flex)
+Signed-off-by: Ian Rogers <irogers@google.com>
+Tested-by: Kajol Jain <kjain@linux.ibm.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Haiyan Song <haiyanx.song@intel.com>
+Cc: Jin Yao <yao.jin@linux.intel.com>
+Cc: John Garry <john.garry@huawei.com>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Leo Yan <leo.yan@linaro.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Paul Clarke <pc@us.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Stephane Eranian <eranian@google.com>
+Link: http://lore.kernel.org/lkml/20200501173333.227162-7-irogers@google.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ tools/perf/util/expr.l | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/tools/perf/util/expr.l b/tools/perf/util/expr.l
+index 73db6a9ef97e..ceab11bea6f9 100644
+--- a/tools/perf/util/expr.l
++++ b/tools/perf/util/expr.l
+@@ -10,12 +10,12 @@
+ char *expr_get_text(yyscan_t yyscanner);
+ YYSTYPE *expr_get_lval(yyscan_t yyscanner);
+ 
+-static int __value(YYSTYPE *yylval, char *str, int base, int token)
++static double __value(YYSTYPE *yylval, char *str, int token)
+ {
+-	u64 num;
++	double num;
+ 
+ 	errno = 0;
+-	num = strtoull(str, NULL, base);
++	num = strtod(str, NULL);
+ 	if (errno)
+ 		return EXPR_ERROR;
+ 
+@@ -23,12 +23,12 @@ static int __value(YYSTYPE *yylval, char *str, int base, int token)
+ 	return token;
+ }
+ 
+-static int value(yyscan_t scanner, int base)
++static int value(yyscan_t scanner)
+ {
+ 	YYSTYPE *yylval = expr_get_lval(scanner);
+ 	char *text = expr_get_text(scanner);
+ 
+-	return __value(yylval, text, base, NUMBER);
++	return __value(yylval, text, NUMBER);
+ }
+ 
+ /*
+@@ -81,7 +81,7 @@ static int str(yyscan_t scanner, int token, int runtime)
+ }
+ %}
+ 
+-number		[0-9]+
++number		[0-9]*\.?[0-9]+
+ 
+ sch		[-,=]
+ spec		\\{sch}
+@@ -105,7 +105,7 @@ min		{ return MIN; }
+ if		{ return IF; }
+ else		{ return ELSE; }
+ #smt_on		{ return SMT_ON; }
+-{number}	{ return value(yyscanner, 10); }
++{number}	{ return value(yyscanner); }
+ {symbol}	{ return str(yyscanner, ID, sctx->runtime); }
+ "|"		{ return '|'; }
+ "^"		{ return '^'; }
+-- 
+2.27.0
+

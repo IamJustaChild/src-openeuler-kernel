@@ -1,0 +1,125 @@
+From a2ceca18eb350e991b34f4aac6512293e0a9d707 Mon Sep 17 00:00:00 2001
+From: Kan Liang <kan.liang@linux.intel.com>
+Date: Mon, 24 Feb 2020 13:59:21 -0800
+Subject: [PATCH 048/201] perf metricgroup: Factor out
+ metricgroup__add_metric_weak_group()
+
+mainline inclusion
+from mainline-v5.7-rc1
+commit f742634ab47f59160a85ddc502418556b21953c2
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=f742634ab47f59160a85ddc502418556b21953c2
+
+----------------------------------------------------------------------
+
+Factor out metricgroup__add_metric_weak_group() which add metrics into a
+weak group. The change can improve code readability. Because following
+patch will introduce a function which add standalone metrics.
+
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Jin Yao <yao.jin@linux.intel.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+Link: http://lore.kernel.org/lkml/1582581564-184429-3-git-send-email-kan.liang@linux.intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ tools/perf/util/metricgroup.c | 57 ++++++++++++++++++++---------------
+ 1 file changed, 33 insertions(+), 24 deletions(-)
+
+diff --git a/tools/perf/util/metricgroup.c b/tools/perf/util/metricgroup.c
+index 9f6b0b0f7b59..8951c6f6593b 100644
+--- a/tools/perf/util/metricgroup.c
++++ b/tools/perf/util/metricgroup.c
+@@ -420,13 +420,42 @@ void metricgroup__print(bool metrics, bool metricgroups, char *filter,
+ 	strlist__delete(metriclist);
+ }
+ 
++static void metricgroup__add_metric_weak_group(struct strbuf *events,
++					       const char **ids,
++					       int idnum)
++{
++	bool no_group = false;
++	int i;
++
++	for (i = 0; i < idnum; i++) {
++		pr_debug("found event %s\n", ids[i]);
++		/*
++		 * Duration time maps to a software event and can make
++		 * groups not count. Always use it outside a
++		 * group.
++		 */
++		if (!strcmp(ids[i], "duration_time")) {
++			if (i > 0)
++				strbuf_addf(events, "}:W,");
++			strbuf_addf(events, "duration_time");
++			no_group = true;
++			continue;
++		}
++		strbuf_addf(events, "%s%s",
++			i == 0 || no_group ? "{" : ",",
++			ids[i]);
++		no_group = false;
++	}
++	if (!no_group)
++		strbuf_addf(events, "}:W");
++}
++
+ static int metricgroup__add_metric(const char *metric, struct strbuf *events,
+ 				   struct list_head *group_list)
+ {
+ 	struct pmu_events_map *map = perf_pmu__find_map(NULL);
+ 	struct pmu_event *pe;
+-	int ret = -EINVAL;
+-	int i, j;
++	int i, ret = -EINVAL;
+ 
+ 	if (!map)
+ 		return 0;
+@@ -443,7 +472,6 @@ static int metricgroup__add_metric(const char *metric, struct strbuf *events,
+ 			const char **ids;
+ 			int idnum;
+ 			struct egroup *eg;
+-			bool no_group = false;
+ 
+ 			pr_debug("metric expr %s for %s\n", pe->metric_expr, pe->metric_name);
+ 
+@@ -452,27 +480,8 @@ static int metricgroup__add_metric(const char *metric, struct strbuf *events,
+ 				continue;
+ 			if (events->len > 0)
+ 				strbuf_addf(events, ",");
+-			for (j = 0; j < idnum; j++) {
+-				pr_debug("found event %s\n", ids[j]);
+-				/*
+-				 * Duration time maps to a software event and can make
+-				 * groups not count. Always use it outside a
+-				 * group.
+-				 */
+-				if (!strcmp(ids[j], "duration_time")) {
+-					if (j > 0)
+-						strbuf_addf(events, "}:W,");
+-					strbuf_addf(events, "duration_time");
+-					no_group = true;
+-					continue;
+-				}
+-				strbuf_addf(events, "%s%s",
+-					j == 0 || no_group ? "{" : ",",
+-					ids[j]);
+-				no_group = false;
+-			}
+-			if (!no_group)
+-				strbuf_addf(events, "}:W");
++
++			metricgroup__add_metric_weak_group(events, ids, idnum);
+ 
+ 			eg = malloc(sizeof(struct egroup));
+ 			if (!eg) {
+-- 
+2.27.0
+

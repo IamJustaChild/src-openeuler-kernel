@@ -1,0 +1,91 @@
+From c7bcaf433a7e4de4f6eee77264e719792e7c14bd Mon Sep 17 00:00:00 2001
+From: Jiri Olsa <jolsa@kernel.org>
+Date: Sun, 19 Jul 2020 20:13:17 +0200
+Subject: [PATCH 124/201] perf metric: Make compute_single function more
+ precise
+
+mainline inclusion
+from mainline-v5.9-rc1
+commit b81ef466ace6bf9bfd7e63a4c2bc89721ee0d495
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=b81ef466ace6bf9bfd7e63a4c2bc89721ee0d495
+
+----------------------------------------------------------------------
+
+So far compute_single function relies on the fact, that there's only
+single metric defined within evlist in all tests. In following patch we
+will add test for metric group, so we need to be able to compute metric
+by given name.
+
+Adding the name argument to compute_single and iterating evlist and
+evsel's expression to find the given metric.
+
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: John Garry <john.garry@huawei.com>
+Cc: Kajol Jain <kjain@linux.ibm.com>
+Cc: Michael Petlan <mpetlan@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Paul Clarke <pc@us.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Link: http://lore.kernel.org/lkml/20200719181320.785305-17-jolsa@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+
+  Conflicts:
+	tools/perf/tests/parse-metric.c
+---
+ tools/perf/tests/parse-metric.c | 22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
+
+diff --git a/tools/perf/tests/parse-metric.c b/tools/perf/tests/parse-metric.c
+index fde9129eb3be..f8c58f7f8e55 100644
+--- a/tools/perf/tests/parse-metric.c
++++ b/tools/perf/tests/parse-metric.c
+@@ -106,17 +106,21 @@ static void load_runtime_stat(struct runtime_stat *st, struct perf_evlist *evlis
+ }
+ 
+ static double compute_single(struct rblist *metric_events, struct perf_evlist *evlist,
+-			     struct runtime_stat *st)
++			     struct runtime_stat *st, const char *name)
+ {
+-	struct perf_evsel *evsel = perf_evlist__first(evlist);
++	struct metric_expr *mexp;
+ 	struct metric_event *me;
++	struct perf_evsel *evsel;
+ 
+-	me = metricgroup__lookup(metric_events, evsel, false);
+-	if (me != NULL) {
+-		struct metric_expr *mexp;
+-
+-		mexp = list_first_entry(&me->head, struct metric_expr, nd);
+-		return test_generic_metric(mexp, 0, st);
++	evlist__for_each_entry(evlist, evsel) {
++		me = metricgroup__lookup(metric_events, evsel, false);
++		if (me != NULL) {
++			list_for_each_entry (mexp, &me->head, nd) {
++				if (strcmp(mexp->metric_name, name))
++					continue;
++				return test_generic_metric(mexp, 0, st);
++			}
++		}
+ 	}
+ 	return 0.;
+ }
+@@ -160,7 +164,7 @@ static int compute_metric(const char *name, struct value *vals, double *ratio)
+ 	load_runtime_stat(&st, evlist, vals);
+ 
+ 	/* And execute the metric */
+-	*ratio = compute_single(&metric_events, evlist, &st);
++	*ratio = compute_single(&metric_events, evlist, &st, name);
+ 
+ 	/* ... clenup. */
+ 	metricgroup__rblist_exit(&metric_events);
+-- 
+2.27.0
+

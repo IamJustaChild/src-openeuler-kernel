@@ -1,0 +1,174 @@
+From 77464e0f1abfaedecccf7a69a07938f6b1f2f040 Mon Sep 17 00:00:00 2001
+From: John Garry <john.garry@huawei.com>
+Date: Wed, 7 Apr 2021 18:32:47 +0800
+Subject: [PATCH 147/201] perf pmu: Add pmu_events_map__find() function to find
+ the common PMU map for the system
+
+mainline inclusion
+from mainline-v5.13-rc1
+commit e126bef55f1dfb44440d632f9aae66af3240a435
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=e126bef55f1dfb44440d632f9aae66af3240a435
+
+----------------------------------------------------------------------
+
+Add a function to find the common PMU map for the system.
+
+For arm64, a special variant is added. This is because arm64 supports
+heterogeneous CPU systems. As such, it cannot be guaranteed that the
+cpumap is same for all CPUs. So in case of heterogeneous systems, don't
+return a cpumap.
+
+Reviewed-by: Kajol Jain <kjain@linux.ibm.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Tested-by: Paul A. Clarke <pc@us.ibm.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Leo Yan <leo.yan@linaro.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Shaokun Zhang <zhangshaokun@hisilicon.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linuxarm@huawei.com
+Link: https://lore.kernel.org/r/1617791570-165223-4-git-send-email-john.garry@huawei.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+
+  Conflicts:
+	tools/perf/arch/arm64/util/Build
+	tools/perf/util/metricgroup.c
+---
+ tools/perf/arch/arm64/util/Build |  1 +
+ tools/perf/arch/arm64/util/pmu.c | 25 +++++++++++++++++++++++++
+ tools/perf/tests/pmu-events.c    |  2 +-
+ tools/perf/util/metricgroup.c    |  6 +++---
+ tools/perf/util/pmu.c            |  5 +++++
+ tools/perf/util/pmu.h            |  1 +
+ 6 files changed, 36 insertions(+), 4 deletions(-)
+ create mode 100644 tools/perf/arch/arm64/util/pmu.c
+
+diff --git a/tools/perf/arch/arm64/util/Build b/tools/perf/arch/arm64/util/Build
+index 393b9895c247..4d8b90987f2d 100644
+--- a/tools/perf/arch/arm64/util/Build
++++ b/tools/perf/arch/arm64/util/Build
+@@ -1,5 +1,6 @@
+ libperf-y += header.o
+ libperf-y += tsc.o
++libperf-y += pmu.o
+ libperf-y += sym-handling.o
+ libperf-y += kvm-stat.o
+ libperf-$(CONFIG_DWARF)     += dwarf-regs.o
+diff --git a/tools/perf/arch/arm64/util/pmu.c b/tools/perf/arch/arm64/util/pmu.c
+new file mode 100644
+index 000000000000..d3259d61ca75
+--- /dev/null
++++ b/tools/perf/arch/arm64/util/pmu.c
+@@ -0,0 +1,25 @@
++// SPDX-License-Identifier: GPL-2.0
++
++#include "../../util/cpumap.h"
++#include "../../util/pmu.h"
++
++struct pmu_events_map *pmu_events_map__find(void)
++{
++	struct perf_pmu *pmu = NULL;
++
++	while ((pmu = perf_pmu__scan(pmu))) {
++		if (!is_pmu_core(pmu->name))
++			continue;
++
++		/*
++		 * The cpumap should cover all CPUs. Otherwise, some CPUs may
++		 * not support some events or have different event IDs.
++		 */
++		if (pmu->cpus->nr != cpu__max_cpu())
++			return NULL;
++
++		return perf_pmu__find_map(pmu);
++	}
++
++	return NULL;
++}
+diff --git a/tools/perf/tests/pmu-events.c b/tools/perf/tests/pmu-events.c
+index cde921bb8e0a..bc7d75f24d59 100644
+--- a/tools/perf/tests/pmu-events.c
++++ b/tools/perf/tests/pmu-events.c
+@@ -521,7 +521,7 @@ static int resolve_metric_simple(struct expr_parse_ctx *pctx,
+ 
+ static int test_parsing(void)
+ {
+-	struct pmu_events_map *cpus_map = perf_pmu__find_map(NULL);
++	struct pmu_events_map *cpus_map = pmu_events_map__find();
+ 	struct pmu_events_map *map;
+ 	struct pmu_event *pe;
+ 	int i, j, k;
+diff --git a/tools/perf/util/metricgroup.c b/tools/perf/util/metricgroup.c
+index 21418ad88cb5..ac27441a0e28 100644
+--- a/tools/perf/util/metricgroup.c
++++ b/tools/perf/util/metricgroup.c
+@@ -499,7 +499,7 @@ static void metricgroup__print_strlist(struct strlist *metrics, bool raw)
+ void metricgroup__print(bool metrics, bool metricgroups, char *filter,
+ 			bool raw, bool details)
+ {
+-	struct pmu_events_map *map = perf_pmu__find_map(NULL);
++	struct pmu_events_map *map = pmu_events_map__find();
+ 	struct pmu_event *pe;
+ 	int i;
+ 	struct rblist groups;
+@@ -1124,7 +1124,7 @@ int metricgroup__parse_groups(const struct option *opt,
+ 			      struct rblist *metric_events)
+ {
+ 	struct perf_evlist *perf_evlist = *(struct perf_evlist **)opt->value;
+-	struct pmu_events_map *map = perf_pmu__find_map(NULL);
++	struct pmu_events_map *map = pmu_events_map__find();
+ 
+ 	if (!map)
+ 		return 0;
+@@ -1146,7 +1146,7 @@ int metricgroup__parse_groups_test(struct perf_evlist *evlist,
+ 
+ bool metricgroup__has_metric(const char *metric)
+ {
+-	struct pmu_events_map *map = perf_pmu__find_map(NULL);
++	struct pmu_events_map *map = pmu_events_map__find();
+ 	struct pmu_event *pe;
+ 	int i;
+ 
+diff --git a/tools/perf/util/pmu.c b/tools/perf/util/pmu.c
+index 6f646252a18b..b8594a6c0c23 100644
+--- a/tools/perf/util/pmu.c
++++ b/tools/perf/util/pmu.c
+@@ -747,6 +747,11 @@ struct pmu_events_map *perf_pmu__find_map(struct perf_pmu *pmu)
+ 	return map;
+ }
+ 
++struct pmu_events_map *__weak pmu_events_map__find(void)
++{
++	return perf_pmu__find_map(NULL);
++}
++
+ bool pmu_uncore_alias_match(const char *pmu_name, const char *name)
+ {
+ 	char *tmp = NULL, *tok, *str;
+diff --git a/tools/perf/util/pmu.h b/tools/perf/util/pmu.h
+index aeb7bce2ab87..b440053bf4e7 100644
+--- a/tools/perf/util/pmu.h
++++ b/tools/perf/util/pmu.h
+@@ -102,6 +102,7 @@ void pmu_add_cpu_aliases_map(struct list_head *head, struct perf_pmu *pmu,
+ 			     struct pmu_events_map *map);
+ 
+ struct pmu_events_map *perf_pmu__find_map(struct perf_pmu *pmu);
++struct pmu_events_map *pmu_events_map__find(void);
+ bool pmu_uncore_alias_match(const char *pmu_name, const char *name);
+ void perf_pmu_free_alias(struct perf_pmu_alias *alias);
+ 
+-- 
+2.27.0
+

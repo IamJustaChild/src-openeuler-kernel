@@ -1,0 +1,133 @@
+From 052632aaedcbfdcac4e2a397dcfbb6fad817b24b Mon Sep 17 00:00:00 2001
+From: Kajol Jain <kjain@linux.ibm.com>
+Date: Thu, 2 Apr 2020 02:03:36 +0530
+Subject: [PATCH 061/201] perf metrictroup: Split the metricgroup__add_metric
+ function
+
+mainline inclusion
+from mainline-v5.8-rc1
+commit 47352aba40035ab3fdc50dd03a94456feabed7d8
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=47352aba40035ab3fdc50dd03a94456feabed7d8
+
+----------------------------------------------------------------------
+
+This patch refactors metricgroup__add_metric function where some part of
+it move to function metricgroup__add_metric_param.  No logic change.
+
+Signed-off-by: Kajol Jain <kjain@linux.ibm.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Anju T Sudhakar <anju@linux.vnet.ibm.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jin Yao <yao.jin@linux.intel.com>
+Cc: Joe Mario <jmario@redhat.com>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
+Cc: Mamatha Inamdar <mamatha4@linux.vnet.ibm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Michael Petlan <mpetlan@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Paul Mackerras <paulus@ozlabs.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+Cc: Sukadev Bhattiprolu <sukadev@linux.vnet.ibm.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: linuxppc-dev@lists.ozlabs.org
+Link: http://lore.kernel.org/lkml/20200401203340.31402-4-kjain@linux.ibm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ tools/perf/util/metricgroup.c | 60 ++++++++++++++++++++---------------
+ 1 file changed, 35 insertions(+), 25 deletions(-)
+
+diff --git a/tools/perf/util/metricgroup.c b/tools/perf/util/metricgroup.c
+index 4baa9f2040ec..792fecca72e0 100644
+--- a/tools/perf/util/metricgroup.c
++++ b/tools/perf/util/metricgroup.c
+@@ -495,6 +495,39 @@ static bool metricgroup__has_constraint(struct pmu_event *pe)
+ 	return false;
+ }
+ 
++static int __metricgroup__add_metric(struct strbuf *events,
++			struct list_head *group_list, struct pmu_event *pe)
++{
++
++	const char **ids;
++	int idnum;
++	struct egroup *eg;
++
++	if (expr__find_other(pe->metric_expr, NULL, &ids, &idnum) < 0)
++		return -EINVAL;
++
++	if (events->len > 0)
++		strbuf_addf(events, ",");
++
++	if (metricgroup__has_constraint(pe))
++		metricgroup__add_metric_non_group(events, ids, idnum);
++	else
++		metricgroup__add_metric_weak_group(events, ids, idnum);
++
++	eg = malloc(sizeof(*eg));
++	if (!eg)
++		return -ENOMEM;
++
++	eg->ids = ids;
++	eg->idnum = idnum;
++	eg->metric_name = pe->metric_name;
++	eg->metric_expr = pe->metric_expr;
++	eg->metric_unit = pe->unit;
++	list_add_tail(&eg->nd, group_list);
++
++	return 0;
++}
++
+ static int metricgroup__add_metric(const char *metric, struct strbuf *events,
+ 				   struct list_head *group_list)
+ {
+@@ -514,35 +547,12 @@ static int metricgroup__add_metric(const char *metric, struct strbuf *events,
+ 			continue;
+ 		if (match_metric(pe->metric_group, metric) ||
+ 		    match_metric(pe->metric_name, metric)) {
+-			const char **ids;
+-			int idnum;
+-			struct egroup *eg;
+ 
+ 			pr_debug("metric expr %s for %s\n", pe->metric_expr, pe->metric_name);
+ 
+-			if (expr__find_other(pe->metric_expr,
+-					     NULL, &ids, &idnum) < 0)
+-				continue;
+-			if (events->len > 0)
+-				strbuf_addf(events, ",");
+-
+-			if (metricgroup__has_constraint(pe))
+-				metricgroup__add_metric_non_group(events, ids, idnum);
+-			else
+-				metricgroup__add_metric_weak_group(events, ids, idnum);
+-
+-			eg = malloc(sizeof(struct egroup));
+-			if (!eg) {
+-				ret = -ENOMEM;
++			ret = __metricgroup__add_metric(events,	group_list, pe);
++			if (ret == -ENOMEM)
+ 				break;
+-			}
+-			eg->ids = ids;
+-			eg->idnum = idnum;
+-			eg->metric_name = pe->metric_name;
+-			eg->metric_expr = pe->metric_expr;
+-			eg->metric_unit = pe->unit;
+-			list_add_tail(&eg->nd, group_list);
+-			ret = 0;
+ 		}
+ 	}
+ 	return ret;
+-- 
+2.27.0
+

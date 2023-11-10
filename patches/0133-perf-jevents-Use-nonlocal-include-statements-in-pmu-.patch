@@ -1,0 +1,60 @@
+From ae0acec647f86efed2ac7a8d94852efc4136e8ed Mon Sep 17 00:00:00 2001
+From: Luke Mujica <lukemujica@google.com>
+Date: Tue, 25 Jun 2019 10:31:22 -0700
+Subject: [PATCH 016/201] perf jevents: Use nonlocal include statements in
+ pmu-events.c
+
+mainline inclusion
+from mainline-v5.3-rc1
+commit 06c642c0e9fceafd16b1a4c80d44b1c09e282215
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=06c642c0e9fceafd16b1a4c80d44b1c09e282215
+
+----------------------------------------------------------------------
+
+Change pmu-events.c to not use local include statements. The code that
+creates the include statements for pmu-events.c is in jevents.c.
+
+pmu-events.c is a generated file, and for build systems that put
+generated files in a separate directory, include statements with local
+pathing cannot find non-generated files.
+
+Signed-off-by: Luke Mujica <lukemujica@google.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Numfor Mbiziwo-Tiapo <nums@google.com>
+Cc: Stephane Eranian <eranian@google.com>
+Link: https://lkml.kernel.org/n/tip-prgnwmaoo1pv9zz4vnv1bjaj@git.kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ tools/perf/pmu-events/jevents.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/tools/perf/pmu-events/jevents.c b/tools/perf/pmu-events/jevents.c
+index 1209d0feaeb5..55c8bf2b0b32 100644
+--- a/tools/perf/pmu-events/jevents.c
++++ b/tools/perf/pmu-events/jevents.c
+@@ -849,7 +849,7 @@ static void create_empty_mapping(const char *output_file)
+ 		_Exit(1);
+ 	}
+ 
+-	fprintf(outfp, "#include \"../../pmu-events/pmu-events.h\"\n");
++	fprintf(outfp, "#include \"pmu-events/pmu-events.h\"\n");
+ 	print_mapping_table_prefix(outfp);
+ 	print_mapping_table_suffix(outfp);
+ 	fclose(outfp);
+@@ -1103,7 +1103,7 @@ int main(int argc, char *argv[])
+ 	}
+ 
+ 	/* Include pmu-events.h first */
+-	fprintf(eventsfp, "#include \"../../pmu-events/pmu-events.h\"\n");
++	fprintf(eventsfp, "#include \"pmu-events/pmu-events.h\"\n");
+ 
+ 	/*
+ 	 * The mapfile allows multiple CPUids to point to the same JSON file,
+-- 
+2.27.0
+
