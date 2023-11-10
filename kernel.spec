@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0239
+Release: %{hulkrelease}.0240
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -836,6 +836,80 @@ fi
 %endif
 
 %changelog
+
+* Fri Nov 10 2023 lixiaodong <lixiaodong67@huawei.com> - 4.19.90-2311.1.0.0240
+- net: hns3: Fix for multicast failure
+- net: hns3: Fix for loopback selftest failed problem
+- net: hns3: Fix ping exited problem when doing lp selftest
+- net: hns3: Preserve vlan 0 in hardware table
+- net: hns3: Only update mac configuation when necessary
+- net: hns3: fix compile warning without CONFIG_RFS_ACCEL
+- net: hns3: reject unsupported coalescing params
+- net: hns3: clear port base VLAN when unload PF
+- net/hns: Remove custom driver version in favour of global one
+- net: hns3: add UDP segmentation offload support
+- net: hns3: initialize the message content in hclge_get_link_mode()
+- net: hns3: add support for TX hardware checksum offload
+- net: hns3: remove the shaper param magic number
+- net: hns3: refactor out hclge_get_rss_tuple()
+- net: hns3: add support for imp-controlled PHYs
+- net: hns3: add get/set pause parameters support for imp-controlled PHYs
+- net: hns3: add ioctl support for imp-controlled PHYs
+- net: hns3: add phy loopback support for imp-controlled PHYs
+- net: hns3: use HCLGE_VPORT_STATE_PROMISC_CHANGE to replace HCLGE_STATE_PROMISC_CHANGED
+- net: hns3: add a separate error handling task
+- net: hns3: add the RAS compatibility adaptation solution
+- net: hns3: refactor dev capability and dev spec of debugfs
+- net: hns3: add support for PTP
+- net: hns3: minor refactor related to desc_cb handling
+- net: hns3: support dma_map_sg() for multi frags skb
+- net: hns3: use bounce buffer when rx page can not be reused
+- docs: ethtool: Add two link extended substates of bad signal integrity
+- net: hns3: modify mac statistics update process for compatibility
+- net: hns3: add support pause/pfc durations for mac statistics
+- net: hns3: modify functions of converting speed ability to ethtool link mode
+- ethtool: set device ring sizes with RINGS_SET request
+- ethtool: provide ring sizes with RINGS_GET request
+- ethtool: helper functions for netlink interface
+- ethtool: introduce ethtool netlink interface
+- ethtool: provide link mode names as a string set
+- ethtool: move string arrays into common file
+- ethtool: move to its own directory
+- ethtool: add support to set/get tx copybreak buf size via ethtool
+- net: hns3: add support to set/get tx copybreak buf size via ethtool for hns3 driver
+- ethtool: add support to set/get rx buf len via ethtool
+- ethtool: extend ringparam setting/getting API with rx_buf_len
+- net: hns3: remove the way to set tx spare buf via module parameter
+- net: hns3: add support to set/get rx buf len via ethtool for hns3 driver
+- net: hns3: add querying and setting fec llrs mode from firmware
+- net: hns3: add querying fec ability from firmware
+- net: hns3: fix software vlan talbe of vlan 0 inconsistent with hardware
+- net: hns3: handle empty unknown interrupt for VF
+- net: hns3: add support for TX push mode
+- net: hns3: add support for external loopback test
+- net: hns3: net: hns3: add querying and setting fec off mode from firmware
+- net: hns3: add extend interface support for read and write phy register
+- net: hns3: add support set led
+- net: hns3: add support set mac state
+- net: hns3: add support detect port wire type
+- net: hns3: add support PF provides customized interfaces to detect port faults.
+- net: hns3: add support disable nic clock
+- net: hns3: add support config and query serdes lane status
+- net: hns3: add supports configure optical module enable
+- net: hns3: add support query the presence of optical module
+- net: hns3: disbable pfc en before the reset
+- net: hns3: support set pfc pause trans time
+- net: hns3: add support query port ext information
+- net: hns3: add support to get/set 1d torus param
+- net: hns3: add supports fast reporting of faulty nodes
+- net: hns3: add support configuring function-level interrupt affinity
+- net: hns3: add support clear mac statistics
+- net: hns3: refactor VF cmdq init and uninit APIs with new common APIs
+- net: hns3: refactor PF cmdq init and uninit APIs with new common APIs
+- net: hns3: create common cmdq init and uninit APIs
+- net: hns3: refactor VF cmdq resource APIs with new common APIs
+- net: hns3: refactor PF cmdq resource APIs with new common APIs
+- net: hns3: create common cmdq resource allocate/free/query APIs
 
 * Fri Nov 10 2023 hongrongxuan <hongrongxuan@huawei.com> - 4.19.90-2311.1.0.0239
 - perf metricgroup: Fix find_evsel_group() event selector

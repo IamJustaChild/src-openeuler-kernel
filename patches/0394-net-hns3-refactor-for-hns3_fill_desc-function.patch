@@ -1,0 +1,159 @@
+From aebe82f26e4739bd96a84735267c0b52efe86114 Mon Sep 17 00:00:00 2001
+From: Yunsheng Lin <linyunsheng@huawei.com>
+Date: Sat, 24 Jul 2021 15:45:22 +0800
+Subject: [PATCH 076/268] net: hns3: refactor for hns3_fill_desc() function
+
+mainline inclusion
+from mainline-v5.14-rc1
+commit 8677d78c3d860c156ccd335e2b97728298c2cbb1
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMUR
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=8677d78c3d860c156ccd335e2b97728298c2cbb1
+
+----------------------------------------------------------------------
+
+Factor out hns3_fill_desc() so that it can be reused in the
+tx bounce supporting.
+
+Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ .../net/ethernet/hisilicon/hns3/hns3_enet.c   | 87 ++++++++++---------
+ 1 file changed, 48 insertions(+), 39 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index 6f3465df40ca..3ca646e15345 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -1131,39 +1131,14 @@ static int hns3_fill_skb_desc(struct hns3_enet_ring *ring,
+ 	return 0;
+ }
+ 
+-static int hns3_fill_desc(struct hns3_enet_ring *ring, void *priv,
+-			  unsigned int size, unsigned int type)
++static int hns3_fill_desc(struct hns3_enet_ring *ring, dma_addr_t dma,
++			  unsigned int size)
+ {
+ #define HNS3_LIKELY_BD_NUM	1
+ 
+-	struct hns3_desc_cb *desc_cb = &ring->desc_cb[ring->next_to_use];
+ 	struct hns3_desc *desc = &ring->desc[ring->next_to_use];
+-	struct device *dev = ring_to_dev(ring);
+-	struct skb_frag_struct *frag;
+ 	unsigned int frag_buf_num;
+ 	int k, sizeoflast;
+-	dma_addr_t dma;
+-
+-	if (type & (DESC_TYPE_FRAGLIST_SKB | DESC_TYPE_SKB)) {
+-		struct sk_buff *skb = (struct sk_buff *)priv;
+-
+-		dma = dma_map_single(dev, skb->data, size, DMA_TO_DEVICE);
+-	} else {
+-		frag = (struct skb_frag_struct *)priv;
+-		dma = skb_frag_dma_map(dev, frag, 0, size, DMA_TO_DEVICE);
+-	}
+-
+-	if (unlikely(dma_mapping_error(dev, dma))) {
+-		u64_stats_update_begin(&ring->syncp);
+-		ring->stats.sw_err_cnt++;
+-		u64_stats_update_end(&ring->syncp);
+-		return -ENOMEM;
+-	}
+-
+-	desc_cb->priv = priv;
+-	desc_cb->length = size;
+-	desc_cb->dma = dma;
+-	desc_cb->type = type;
+ 
+ 	if (likely(size <= HNS3_MAX_BD_SIZE)) {
+ 		desc->addr = cpu_to_le64(dma);
+@@ -1199,6 +1174,47 @@ static int hns3_fill_desc(struct hns3_enet_ring *ring, void *priv,
+ 	return frag_buf_num;
+ }
+ 
++static int hns3_map_and_fill_desc(struct hns3_enet_ring *ring, void *priv,
++				  unsigned int type)
++{
++	struct hns3_desc_cb *desc_cb = &ring->desc_cb[ring->next_to_use];
++	struct device *dev = ring_to_dev(ring);
++	unsigned int size;
++	dma_addr_t dma;
++
++	if (type & (DESC_TYPE_FRAGLIST_SKB | DESC_TYPE_SKB)) {
++		struct sk_buff *skb = (struct sk_buff *)priv;
++
++		size = skb_headlen(skb);
++		if (!size)
++			return 0;
++
++		dma = dma_map_single(dev, skb->data, size, DMA_TO_DEVICE);
++	} else {
++		struct skb_frag_struct *frag = (struct skb_frag_struct *)priv;
++
++		size = skb_frag_size(frag);
++		if (!size)
++			return 0;
++
++		dma = skb_frag_dma_map(dev, frag, 0, size, DMA_TO_DEVICE);
++	}
++
++	if (unlikely(dma_mapping_error(dev, dma))) {
++		u64_stats_update_begin(&ring->syncp);
++		ring->stats.sw_err_cnt++;
++		u64_stats_update_end(&ring->syncp);
++		return -ENOMEM;
++	}
++
++	desc_cb->priv = priv;
++	desc_cb->length = size;
++	desc_cb->dma = dma;
++	desc_cb->type = type;
++
++	return hns3_fill_desc(ring, dma, size);
++}
++
+ static unsigned int hns3_skb_bd_num(struct sk_buff *skb, unsigned int *bd_size,
+ 				    unsigned int bd_num)
+ {
+@@ -1443,26 +1459,19 @@ static void hns3_clear_desc(struct hns3_enet_ring *ring, int next_to_use_orig)
+ static int hns3_fill_skb_to_desc(struct hns3_enet_ring *ring,
+ 				 struct sk_buff *skb, unsigned int type)
+ {
+-	unsigned int size = skb_headlen(skb);
+ 	struct sk_buff *frag_skb;
+ 	int i, ret, bd_num = 0;
+ 
+-	if (size) {
+-		ret = hns3_fill_desc(ring, skb, size, type);
+-		if (unlikely(ret < 0))
+-			return ret;
++	ret = hns3_map_and_fill_desc(ring, skb, type);
++	if (unlikely(ret < 0))
++		return ret;
+ 
+-		bd_num += ret;
+-	}
++	bd_num += ret;
+ 
+ 	for (i = 0; i < skb_shinfo(skb)->nr_frags; i++) {
+ 		struct skb_frag_struct *frag = &skb_shinfo(skb)->frags[i];
+ 
+-		size = skb_frag_size(frag);
+-		if (!size)
+-			continue;
+-
+-		ret = hns3_fill_desc(ring, frag, size, DESC_TYPE_PAGE);
++		ret = hns3_map_and_fill_desc(ring, frag, DESC_TYPE_PAGE);
+ 		if (unlikely(ret < 0))
+ 			return ret;
+ 
+-- 
+2.34.1
+

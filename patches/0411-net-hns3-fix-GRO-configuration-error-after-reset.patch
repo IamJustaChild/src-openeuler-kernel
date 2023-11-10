@@ -1,0 +1,193 @@
+From bfb4b15ff0a5cb0e7435e53ccceae10f4ab6a810 Mon Sep 17 00:00:00 2001
+From: Yufeng Mo <moyufeng@huawei.com>
+Date: Fri, 10 Sep 2021 20:00:06 +0800
+Subject: [PATCH 093/268] net: hns3: fix GRO configuration error after reset
+
+mainline inclusion
+from mainline-v5.14
+commit 3462207d2d684658d97499ca77c00c9ac7c87ea8
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMYT
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=3462207d2d684658d97499ca77c00c9ac7c87ea8
+
+----------------------------------------------------------------------
+
+The GRO configuration is enabled by default after reset. This
+is incorrect and should be restored to the user-configured value.
+So this restoration is added during reset initialization.
+
+Signed-off-by: Yufeng Mo <moyufeng@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ .../hisilicon/hns3/hns3pf/hclge_main.c        | 18 +++++++++++++-----
+ .../hisilicon/hns3/hns3pf/hclge_main.h        |  1 +
+ .../hisilicon/hns3/hns3vf/hclgevf_main.c      | 19 ++++++++++++++-----
+ .../hisilicon/hns3/hns3vf/hclgevf_main.h      |  2 ++
+ 4 files changed, 30 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 480519de4992..e8937e67ea47 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -1483,6 +1483,7 @@ static int hclge_configure(struct hclge_dev *hdev)
+ 	hdev->tm_info.hw_pfc_map = 0;
+ 	hdev->wanted_umv_size = cfg.umv_space;
+ 	hdev->tx_spare_buf_size = cfg.tx_spare_buf_size;
++	hdev->gro_en = true;
+ 	if (cfg.vlan_fliter_cap == HCLGE_VLAN_FLTR_CAN_MDF)
+ 		hnae3_set_bit(ae_dev->flag,
+ 			      HNAE3_DEV_SUPPORT_VLAN_FLTR_MDF_B, 1);
+@@ -1553,7 +1554,7 @@ static int hclge_config_tso(struct hclge_dev *hdev, u16 tso_mss_min,
+ 	return hclge_cmd_send(&hdev->hw, &desc, 1);
+ }
+ 
+-static int hclge_config_gro(struct hclge_dev *hdev, bool en)
++static int hclge_config_gro(struct hclge_dev *hdev)
+ {
+ 	struct hclge_cfg_gro_status_cmd *req;
+ 	struct hclge_desc desc;
+@@ -1565,7 +1566,7 @@ static int hclge_config_gro(struct hclge_dev *hdev, bool en)
+ 	hclge_cmd_setup_basic_desc(&desc, HCLGE_OPC_GRO_GENERIC_CONFIG, false);
+ 	req = (struct hclge_cfg_gro_status_cmd *)desc.data;
+ 
+-	req->gro_en = en ? 1 : 0;
++	req->gro_en = hdev->gro_en ? 1 : 0;
+ 
+ 	ret = hclge_cmd_send(&hdev->hw, &desc, 1);
+ 	if (ret)
+@@ -10753,7 +10754,7 @@ static int hclge_init_ae_dev(struct hnae3_ae_dev *ae_dev)
+ 		goto err_mdiobus_unreg;
+ 	}
+ 
+-	ret = hclge_config_gro(hdev, true);
++	ret = hclge_config_gro(hdev);
+ 	if (ret)
+ 		goto err_mdiobus_unreg;
+ 
+@@ -11128,7 +11129,7 @@ static int hclge_reset_ae_dev(struct hnae3_ae_dev *ae_dev)
+ 		return ret;
+ 	}
+ 
+-	ret = hclge_config_gro(hdev, true);
++	ret = hclge_config_gro(hdev);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -11871,8 +11872,15 @@ static int hclge_gro_en(struct hnae3_handle *handle, bool enable)
+ {
+ 	struct hclge_vport *vport = hclge_get_vport(handle);
+ 	struct hclge_dev *hdev = vport->back;
++	bool gro_en_old = hdev->gro_en;
++	int ret;
++
++	hdev->gro_en = enable;
++	ret = hclge_config_gro(hdev);
++	if (ret)
++		hdev->gro_en = gro_en_old;
+ 
+-	return hclge_config_gro(hdev, enable);
++	return ret;
+ }
+ 
+ static void hclge_sync_promisc_mode(struct hclge_dev *hdev)
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+index e04488bb7278..eda3120be294 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+@@ -876,6 +876,7 @@ struct hclge_dev {
+ 	unsigned long fd_bmap[BITS_TO_LONGS(MAX_FD_FILTER_NUM)];
+ 	enum HCLGE_FD_ACTIVE_RULE_TYPE fd_active_type;
+ 	u8 fd_en;
++	bool gro_en;
+ 
+ 	u16 wanted_umv_size;
+ 	/* max available unicast mac vlan space */
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+index 4cab9c19031a..edaac904b991 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+@@ -2431,6 +2431,8 @@ static int hclgevf_configure(struct hclgevf_dev *hdev)
+ {
+ 	int ret;
+ 
++	hdev->gro_en = true;
++
+ 	ret = hclgevf_get_basic_info(hdev);
+ 	if (ret)
+ 		return ret;
+@@ -2492,7 +2494,7 @@ static int hclgevf_init_roce_base_info(struct hclgevf_dev *hdev)
+ 	return 0;
+ }
+ 
+-static int hclgevf_config_gro(struct hclgevf_dev *hdev, bool en)
++static int hclgevf_config_gro(struct hclgevf_dev *hdev)
+ {
+ 	struct hclgevf_cfg_gro_status_cmd *req;
+ 	struct hclgevf_desc desc;
+@@ -2505,7 +2507,7 @@ static int hclgevf_config_gro(struct hclgevf_dev *hdev, bool en)
+ 				     false);
+ 	req = (struct hclgevf_cfg_gro_status_cmd *)desc.data;
+ 
+-	req->gro_en = en ? 1 : 0;
++	req->gro_en = hdev->gro_en ? 1 : 0;
+ 
+ 	ret = hclgevf_cmd_send(&hdev->hw, &desc, 1);
+ 	if (ret)
+@@ -3181,7 +3183,7 @@ static int hclgevf_reset_hdev(struct hclgevf_dev *hdev)
+ 		return ret;
+ 	}
+ 
+-	ret = hclgevf_config_gro(hdev, true);
++	ret = hclgevf_config_gro(hdev);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -3260,7 +3262,7 @@ static int hclgevf_init_hdev(struct hclgevf_dev *hdev)
+ 	if (ret)
+ 		goto err_config;
+ 
+-	ret = hclgevf_config_gro(hdev, true);
++	ret = hclgevf_config_gro(hdev);
+ 	if (ret)
+ 		goto err_config;
+ 
+@@ -3505,8 +3507,15 @@ void hclgevf_update_speed_duplex(struct hclgevf_dev *hdev, u32 speed,
+ static int hclgevf_gro_en(struct hnae3_handle *handle, bool enable)
+ {
+ 	struct hclgevf_dev *hdev = hclgevf_ae_get_hdev(handle);
++	bool gro_en_old = hdev->gro_en;
++	int ret;
+ 
+-	return hclgevf_config_gro(hdev, enable);
++	hdev->gro_en = enable;
++	ret = hclgevf_config_gro(hdev);
++	if (ret)
++		hdev->gro_en = gro_en_old;
++
++	return ret;
+ }
+ 
+ static void hclgevf_get_media_type(struct hnae3_handle *handle, u8 *media_type,
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h
+index e75e1b437585..fd83b80ed913 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h
+@@ -306,6 +306,8 @@ struct hclgevf_dev {
+ 	u16 *vector_status;
+ 	int *vector_irq;
+ 
++	bool gro_en;
++
+ 	unsigned long vlan_del_fail_bmap[BITS_TO_LONGS(VLAN_N_VID)];
+ 
+ 	struct hclgevf_mac_table_cfg mac_table;
+-- 
+2.34.1
+

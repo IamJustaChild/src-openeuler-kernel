@@ -1,0 +1,115 @@
+From 7b71b2be6b24c156eff5086d6d22cfc61facc1af Mon Sep 17 00:00:00 2001
+From: Guangbin Huang <huangguangbin2@huawei.com>
+Date: Tue, 28 Sep 2021 11:52:03 +0800
+Subject: [PATCH 101/268] net: hns3: refactor function hclge_parse_capability()
+
+mainline inclusion
+from mainline-v5.15-rc1
+commit e1d93bc6ef3bf497675f9ac2b35b79c48577b970
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMYT
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=e1d93bc6ef3bf497675f9ac2b35b79c48577b970
+
+----------------------------------------------------------------------
+
+The function hclge_parse_capability() uses too many if statement, and
+it may add more in the future. To improve code readability, maintainability
+and simplicity, refactor this function by using a bit mapping array of IMP
+capabilities and driver capabilities.
+
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c
+---
+ .../hisilicon/hns3/hns3pf/hclge_cmd.c         | 43 ++++++++++---------
+ .../hisilicon/hns3/hns3pf/hclge_cmd.h         |  6 +++
+ 2 files changed, 28 insertions(+), 21 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c
+index 26e9d03da720..1471330ee5d9 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c
+@@ -373,33 +373,34 @@ static void hclge_set_default_capability(struct hclge_dev *hdev)
+ 	set_bit(HNAE3_DEV_SUPPORT_FEC_B, ae_dev->caps);
+ }
+ 
++const struct hclge_caps_bit_map hclge_cmd_caps_bit_map0[] = {
++	{HCLGE_CAP_UDP_GSO_B, HNAE3_DEV_SUPPORT_UDP_GSO_B},
++	{HCLGE_CAP_PTP_B, HNAE3_DEV_SUPPORT_PTP_B},
++	{HCLGE_CAP_INT_QL_B, HNAE3_DEV_SUPPORT_INT_QL_B},
++	{HCLGE_CAP_TQP_TXRX_INDEP_B, HNAE3_DEV_SUPPORT_TQP_TXRX_INDEP_B},
++	{HCLGE_CAP_HW_TX_CSUM_B, HNAE3_DEV_SUPPORT_HW_TX_CSUM_B},
++	{HCLGE_CAP_UDP_TUNNEL_CSUM_B, HNAE3_DEV_SUPPORT_UDP_TUNNEL_CSUM_B},
++	{HCLGE_CAP_FD_FORWARD_TC_B, HNAE3_DEV_SUPPORT_FD_FORWARD_TC_B},
++	{HCLGE_CAP_FEC_B, HNAE3_DEV_SUPPORT_FEC_B},
++	{HCLGE_CAP_PAUSE_B, HNAE3_DEV_SUPPORT_PAUSE_B},
++	{HCLGE_CAP_PHY_IMP_B, HNAE3_DEV_SUPPORT_PHY_IMP_B},
++	{HCLGE_CAP_RAS_IMP_B, HNAE3_DEV_SUPPORT_RAS_IMP_B},
++	{HCLGE_CAP_RXD_ADV_LAYOUT_B, HNAE3_DEV_SUPPORT_RXD_ADV_LAYOUT_B},
++	{HCLGE_CAP_PORT_VLAN_BYPASS_B, HNAE3_DEV_SUPPORT_PORT_VLAN_BYPASS_B},
++	{HCLGE_CAP_PORT_VLAN_BYPASS_B, HNAE3_DEV_SUPPORT_VLAN_FLTR_MDF_B},
++};
++
+ static void hclge_parse_capability(struct hclge_dev *hdev,
+ 				   struct hclge_query_version_cmd *cmd)
+ {
+ 	struct hnae3_ae_dev *ae_dev = pci_get_drvdata(hdev->pdev);
+-	u32 caps;
++	u32 caps, i;
+ 
+ 	caps = __le32_to_cpu(cmd->caps[0]);
+-	if (hnae3_get_bit(caps, HCLGE_CAP_UDP_GSO_B))
+-		set_bit(HNAE3_DEV_SUPPORT_UDP_GSO_B, ae_dev->caps);
+-	if (hnae3_get_bit(caps, HCLGE_CAP_PTP_B))
+-		set_bit(HNAE3_DEV_SUPPORT_PTP_B, ae_dev->caps);
+-	if (hnae3_get_bit(caps, HCLGE_CAP_INT_QL_B))
+-		set_bit(HNAE3_DEV_SUPPORT_INT_QL_B, ae_dev->caps);
+-	if (hnae3_get_bit(caps, HCLGE_CAP_TQP_TXRX_INDEP_B))
+-		set_bit(HNAE3_DEV_SUPPORT_TQP_TXRX_INDEP_B, ae_dev->caps);
+-	if (hnae3_get_bit(caps, HCLGE_CAP_HW_TX_CSUM_B))
+-		set_bit(HNAE3_DEV_SUPPORT_HW_TX_CSUM_B, ae_dev->caps);
+-	if (hnae3_get_bit(caps, HCLGE_CAP_PHY_IMP_B))
+-		set_bit(HNAE3_DEV_SUPPORT_PHY_IMP_B, ae_dev->caps);
+-	if (hnae3_get_bit(caps, HCLGE_CAP_RAS_IMP_B))
+-		set_bit(HNAE3_DEV_SUPPORT_RAS_IMP_B, ae_dev->caps);
+-	if (hnae3_get_bit(caps, HCLGE_CAP_RXD_ADV_LAYOUT_B))
+-		set_bit(HNAE3_DEV_SUPPORT_RXD_ADV_LAYOUT_B, ae_dev->caps);
+-	if (hnae3_get_bit(caps, HCLGE_CAP_PORT_VLAN_BYPASS_B)) {
+-		set_bit(HNAE3_DEV_SUPPORT_PORT_VLAN_BYPASS_B, ae_dev->caps);
+-		set_bit(HNAE3_DEV_SUPPORT_VLAN_FLTR_MDF_B, ae_dev->caps);
+-	}
++	for (i = 0; i < ARRAY_SIZE(hclge_cmd_caps_bit_map0); i++)
++		if (hnae3_get_bit(caps, hclge_cmd_caps_bit_map0[i].imp_bit))
++			set_bit(hclge_cmd_caps_bit_map0[i].local_bit,
++				ae_dev->caps);
+ }
+ 
+ static enum hclge_cmd_status
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+index 71aaca36e5ea..578217ff9706 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+@@ -1229,6 +1229,12 @@ struct hclge_phy_reg_cmd {
+ 	u8 rsv1[18];
+ };
+ 
++/* capabilities bits map between imp firmware and local driver */
++struct hclge_caps_bit_map {
++	u16 imp_bit;
++	u16 local_bit;
++};
++
+ int hclge_cmd_init(struct hclge_dev *hdev);
+ static inline void hclge_write_reg(void __iomem *base, u32 reg, u32 value)
+ {
+-- 
+2.34.1
+

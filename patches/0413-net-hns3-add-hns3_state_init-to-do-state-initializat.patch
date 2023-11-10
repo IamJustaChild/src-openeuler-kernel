@@ -1,0 +1,115 @@
+From 768c9d5406a53511b330abb4230fed51be669005 Mon Sep 17 00:00:00 2001
+From: Huazhong Tan <tanhuazhong@huawei.com>
+Date: Tue, 28 Sep 2021 11:51:55 +0800
+Subject: [PATCH 095/268] net: hns3: add hns3_state_init() to do state
+ initialization
+
+mainline inclusion
+from mainline-v5.15-rc1
+commit c511dfff4b655685d7341962a76d9a340150e0ac
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMYT
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=c511dfff4b655685d7341962a76d9a340150e0ac
+
+----------------------------------------------------------------------
+
+To improve the readability and maintainability, add hns3_state_init() to
+initialize the state, and this new function will be used to add more state
+initialization in the future.
+
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+---
+ drivers/net/ethernet/hisilicon/hns3/hnae3.h   |  3 +++
+ .../net/ethernet/hisilicon/hns3/hns3_enet.c   | 27 +++++++++++++------
+ .../net/ethernet/hisilicon/hns3/hns3_enet.h   |  2 ++
+ 3 files changed, 24 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3.h b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+index 96ffce35a756..c6bbe2874f83 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+@@ -144,6 +144,9 @@ enum HNAE3_DEV_CAP_BITS {
+ #define hnae3_dev_stash_supported(hdev) \
+ 	test_bit(HNAE3_DEV_SUPPORT_STASH_B, (hdev)->ae_dev->caps)
+ 
++#define hnae3_ae_dev_rxd_adv_layout_supported(ae_dev) \
++	test_bit(HNAE3_DEV_SUPPORT_RXD_ADV_LAYOUT_B, (ae_dev)->caps)
++
+ enum HNAE3_PF_CAP_BITS {
+ 	HNAE3_PF_SUPPORT_VLAN_FLTR_MDF_B = 0,
+ };
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index 046c696df091..72f26221ee6c 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -4681,10 +4681,27 @@ static void hns3_state_uninit(struct hnae3_handle *handle)
+ 	clear_bit(HNS3_NIC_STATE_INITED, &priv->state);
+ }
+ 
++static void hns3_state_init(struct hnae3_handle *handle)
++{
++	struct hnae3_ae_dev *ae_dev = pci_get_drvdata(handle->pdev);
++	struct net_device *netdev = handle->kinfo.netdev;
++	struct hns3_nic_priv *priv = netdev_priv(netdev);
++
++	set_bit(HNS3_NIC_STATE_INITED, &priv->state);
++
++	if (ae_dev->dev_version >= HNAE3_DEVICE_VERSION_V3)
++		set_bit(HNAE3_PFLAG_LIMIT_PROMISC, &handle->supported_pflags);
++
++	if (test_bit(HNAE3_DEV_SUPPORT_HW_TX_CSUM_B, ae_dev->caps))
++		set_bit(HNS3_NIC_STATE_HW_TX_CSUM_ENABLE, &priv->state);
++
++	if (hnae3_ae_dev_rxd_adv_layout_supported(ae_dev))
++		set_bit(HNS3_NIC_STATE_RXD_ADV_LAYOUT_ENABLE, &priv->state);
++}
++
+ static int hns3_client_init(struct hnae3_handle *handle)
+ {
+ 	struct pci_dev *pdev = handle->pdev;
+-	struct hnae3_ae_dev *ae_dev = pci_get_drvdata(pdev);
+ 	u16 alloc_tqps, max_rss_size;
+ 	struct hns3_nic_priv *priv;
+ 	struct net_device *netdev;
+@@ -4783,13 +4800,7 @@ static int hns3_client_init(struct hnae3_handle *handle)
+ 	netdev->max_mtu = HNS3_MAX_MTU;
+ #endif
+ 
+-	if (test_bit(HNAE3_DEV_SUPPORT_HW_TX_CSUM_B, ae_dev->caps))
+-		set_bit(HNS3_NIC_STATE_HW_TX_CSUM_ENABLE, &priv->state);
+-
+-	set_bit(HNS3_NIC_STATE_INITED, &priv->state);
+-
+-	if (ae_dev->dev_version >= HNAE3_DEVICE_VERSION_V3)
+-		set_bit(HNAE3_PFLAG_LIMIT_PROMISC, &handle->supported_pflags);
++	hns3_state_init(handle);
+ 
+ 	ret = register_netdev(netdev);
+ 	if (ret) {
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
+index 416c0c44b11d..3df794363632 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
+@@ -19,6 +19,8 @@ enum hns3_nic_state {
+ 	HNS3_NIC_STATE_SERVICE_SCHED,
+ 	HNS3_NIC_STATE2_RESET_REQUESTED,
+ 	HNS3_NIC_STATE_HW_TX_CSUM_ENABLE,
++	HNS3_NIC_STATE_RXD_ADV_LAYOUT_ENABLE,
++	HNS3_NIC_STATE_TX_PUSH_ENABLE,
+ 	HNS3_NIC_STATE_MAX
+ };
+ 
+-- 
+2.34.1
+

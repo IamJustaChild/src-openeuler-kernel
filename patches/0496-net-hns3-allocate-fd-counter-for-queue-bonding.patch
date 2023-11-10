@@ -1,0 +1,150 @@
+From 2fd36f412dac0ceea2b79723280d3dac7a22fcc3 Mon Sep 17 00:00:00 2001
+From: Jian Shen <shenjian15@huawei.com>
+Date: Wed, 30 Nov 2022 18:23:34 +0800
+Subject: [PATCH 178/268] net: hns3: allocate fd counter for queue bonding
+
+driver inclusion
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN3D
+
+----------------------------------------------------------------------
+
+For the fd rule of queue bonding is created by hardware
+automatically, the driver needs to specify the fd counter
+for each function, then it's available to query how many
+times the queue bonding fd rules hit.
+
+Signed-off-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: Jiantao Xiao <xiaojiantao1@h-partners.com>
+Reviewed-by: Yue Haibing <yuehaibing@huawei.com>
+Reviewed-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ .../hisilicon/hns3/hns3pf/hclge_cmd.h         | 13 ++++
+ .../hisilicon/hns3/hns3pf/hclge_main.c        | 64 +++++++++++--------
+ 2 files changed, 52 insertions(+), 25 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+index d06307c0199e..71cf6ad71427 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+@@ -246,6 +246,7 @@ enum hclge_opcode_type {
+ 	HCLGE_OPC_FD_CNT_OP		= 0x1205,
+ 	HCLGE_OPC_FD_USER_DEF_OP	= 0x1207,
+ 	HCLGE_OPC_FD_QB_CTRL		= 0x1210,
++	HCLGE_OPC_FD_QB_AD_OP		= 0x1211,
+ 
+ 	/* MDIO command */
+ 	HCLGE_OPC_MDIO_CONFIG		= 0x1900,
+@@ -1115,6 +1116,18 @@ struct hclge_fd_qb_cfg_cmd {
+ 	u8 rsv[22];
+ };
+ 
++#define HCLGE_FD_QB_AD_RULE_ID_VLD_B	0
++#define HCLGE_FD_QB_AD_COUNTER_VLD_B	1
++struct hclge_fd_qb_ad_cmd {
++	u8 vf_id;
++	u8 rsv1;
++	u8 ad_sel;
++	u8 rsv2;
++	__le16 hit_rule_id;
++	u8 counter_id;
++	u8 rsv3[17];
++};
++
+ #define HCLGE_FD_USER_DEF_OFT_S		0
+ #define HCLGE_FD_USER_DEF_OFT_M		GENMASK(14, 0)
+ #define HCLGE_FD_USER_DEF_EN_B		15
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index c6bebf2a9e31..970012a36c14 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -4540,6 +4540,40 @@ static void hclge_update_vport_alive(struct hclge_dev *hdev)
+ 	}
+ }
+ 
++static int hclge_set_fd_qb_counter(struct hclge_dev *hdev, u8 vf_id)
++{
++	struct hclge_fd_qb_ad_cmd *req;
++	struct hclge_desc desc;
++	int ret;
++
++	hclge_cmd_setup_basic_desc(&desc, HCLGE_OPC_FD_QB_AD_OP, false);
++	req = (struct hclge_fd_qb_ad_cmd *)desc.data;
++	req->vf_id = vf_id;
++	hnae3_set_bit(req->ad_sel, HCLGE_FD_QB_AD_COUNTER_VLD_B, 1);
++	req->counter_id = vf_id % hdev->fd_cfg.cnt_num[HCLGE_FD_STAGE_1];
++	ret = hclge_cmd_send(&hdev->hw, &desc, 1);
++	if (ret)
++		dev_warn(&hdev->pdev->dev,
++			 "failed to set qb counter for vport %u, ret = %d.\n",
++			 vf_id, ret);
++	return ret;
++}
++
++static void hclge_init_fd_qb_counter(struct hclge_dev *hdev)
++{
++	int ret;
++	u16 i;
++
++	if (!test_bit(HNAE3_DEV_SUPPORT_QB_B, hdev->ae_dev->caps))
++		return;
++
++	for (i = 0; i < hdev->num_alloc_vport; i++) {
++		ret = hclge_set_fd_qb_counter(hdev, i);
++		if (ret)
++			return;
++	}
++}
++
+ static int hclge_set_fd_qb(struct hclge_dev *hdev, u8 vf_id, bool enable)
+ {
+ 	struct hclge_fd_qb_cfg_cmd *req;
+@@ -4628,31 +4662,6 @@ static int hclge_sync_vf_qb_mode(struct hclge_vport *vport)
+ 	return ret;
+ }
+ 
+-static int hclge_disable_fd_qb_mode(struct hclge_dev *hdev)
+-{
+-	struct hnae3_ae_dev *ae_dev = hdev->ae_dev;
+-	struct hclge_vport *vport;
+-	int ret;
+-	u16 i;
+-
+-	if (!test_bit(HNAE3_DEV_SUPPORT_QB_B, ae_dev->caps) ||
+-	    !test_bit(HCLGE_STATE_HW_QB_ENABLE, &hdev->state))
+-		return 0;
+-
+-	ret = hclge_set_fd_qb(hdev, 0, false);
+-	if (ret)
+-		return ret;
+-
+-	clear_bit(HCLGE_STATE_HW_QB_ENABLE, &hdev->state);
+-
+-	for (i = 1; i < hdev->num_alloc_vport; i++) {
+-		vport = &hdev->vport[i];
+-		set_bit(HCLGE_VPORT_STATE_QB_CHANGE, &vport->state);
+-	}
+-
+-	return 0;
+-}
+-
+ static void hclge_sync_fd_qb_mode(struct hclge_dev *hdev)
+ {
+ 	struct hnae3_ae_dev *ae_dev = hdev->ae_dev;
+@@ -5743,6 +5752,11 @@ static int hclge_init_fd_config(struct hclge_dev *hdev)
+ 	if (ret)
+ 		return ret;
+ 
++	if (!hdev->fd_cfg.cnt_num[HCLGE_FD_STAGE_1])
++		hdev->fd_cfg.cnt_num[HCLGE_FD_STAGE_1] = 1;
++
++	hclge_init_fd_qb_counter(hdev);
++
+ 	return hclge_set_fd_key_config(hdev, HCLGE_FD_STAGE_1);
+ }
+ 
+-- 
+2.34.1
+

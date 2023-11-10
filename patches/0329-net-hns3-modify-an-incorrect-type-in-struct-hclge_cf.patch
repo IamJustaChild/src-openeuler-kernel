@@ -1,0 +1,59 @@
+From 235e2439919790fe01c2faad087fc9a4460bf080 Mon Sep 17 00:00:00 2001
+From: Huazhong Tan <tanhuazhong@huawei.com>
+Date: Thu, 28 May 2020 21:48:12 +0800
+Subject: [PATCH 011/268] net: hns3: modify an incorrect type in struct
+ hclge_cfg_gro_status_cmd
+
+mainline inclusion
+from mainline-v5.8-rc1
+commit 639d84d0c4281e6d8814bb2cc230bfe7ccf5019d
+category: cleanup
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EJ0A
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=639d84d0c4281e6d8814bb2cc230bfe7ccf5019d
+
+--------------------------------
+
+Modify field .gro_en in struct hclge_cfg_gro_status_cmd to u8
+according to the UM, otherwise, it will overwrite the reserved
+byte which may be used for other purpose.
+
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h  | 4 ++--
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+index 013292889601..aacb75eb8ea8 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+@@ -918,8 +918,8 @@ struct hclge_cfg_tso_status_cmd {
+ 
+ #define HCLGE_GRO_EN_B		0
+ struct hclge_cfg_gro_status_cmd {
+-	__le16 gro_en;
+-	u8 rsv[22];
++	u8 gro_en;
++	u8 rsv[23];
+ };
+ 
+ #define HCLGE_TSO_MSS_MIN	256
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 65af9a80f17e..e0ab39ae5c91 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -1493,7 +1493,7 @@ static int hclge_config_gro(struct hclge_dev *hdev, bool en)
+ 	hclge_cmd_setup_basic_desc(&desc, HCLGE_OPC_GRO_GENERIC_CONFIG, false);
+ 	req = (struct hclge_cfg_gro_status_cmd *)desc.data;
+ 
+-	req->gro_en = cpu_to_le16(en ? 1 : 0);
++	req->gro_en = en ? 1 : 0;
+ 
+ 	ret = hclge_cmd_send(&hdev->hw, &desc, 1);
+ 	if (ret)
+-- 
+2.34.1
+

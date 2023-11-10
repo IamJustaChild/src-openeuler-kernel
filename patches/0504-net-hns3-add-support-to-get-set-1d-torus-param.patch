@@ -1,0 +1,373 @@
+From 079de8c9298439eb23f0c113ba1734335888a7d9 Mon Sep 17 00:00:00 2001
+From: Hao Chen <chenhao418@huawei.com>
+Date: Thu, 16 Mar 2023 17:14:05 +0800
+Subject: [PATCH 186/268] net: hns3: add support to get/set 1d torus param
+
+driver inclusion
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN3D
+CVE: NA
+
+----------------------------------------------------------------------
+
+Two network ports on a single chip can be physically connected to form
+a 1d torus topology. TCP/UDP and RDMA communication between chip nodes
+can be implemented without switches.The patch provide interfaces for
+getting/setting 1d torus param.
+
+Signed-off-by: Hao Chen <chenhao418@huawei.com>
+Signed-off-by: Tian Jiang <jiangtian6@h-partners.com>
+Signed-off-by: Jiantao Xiao <xiaojiantao1@h-partners.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h
+---
+ .../hns3/hns3_common/hclge_comm_cmd.h         |   1 +
+ .../net/ethernet/hisilicon/hns3/hns3_ext.c    |  19 ++
+ .../net/ethernet/hisilicon/hns3/hns3_ext.h    |   4 +
+ .../hisilicon/hns3/hns3pf/hclge_ext.c         | 194 ++++++++++++++++++
+ .../hisilicon/hns3/hns3pf/hclge_ext.h         |  29 +++
+ .../hisilicon/hns3/hns3pf/hclge_main.h        |   1 +
+ 6 files changed, 248 insertions(+)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h
+index 05b8252c2522..8f07dc44b30a 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h
+@@ -204,4 +204,5 @@ void hclge_comm_free_cmd_desc(struct hclge_comm_cmq_ring *ring);
+ void hclge_comm_cmd_setup_basic_desc(struct hclge_desc *desc,
+ 				     enum hclge_opcode_type opcode,
+ 				     bool is_read);
++void hclge_comm_cmd_reuse_desc(struct hclge_desc *desc, bool is_read);
+ #endif
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
+index 08ef05d76b57..1e1b1fb81f17 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
+@@ -186,3 +186,22 @@ int nic_set_notify_pkt_start(struct net_device *ndev)
+ 				  NULL, 0);
+ }
+ EXPORT_SYMBOL(nic_set_notify_pkt_start);
++
++int nic_set_torus_param(struct net_device *ndev,
++			struct hnae3_torus_param *param)
++{
++	if (!param || (param->enable != 0 && param->enable != 1))
++		return -EINVAL;
++
++	return nic_invoke_pri_ops(ndev, HNAE3_EXT_OPC_SET_TORUS_PARAM,
++				  param, sizeof(*param));
++}
++EXPORT_SYMBOL(nic_set_torus_param);
++
++int nic_get_torus_param(struct net_device *ndev,
++			struct hnae3_torus_param *param)
++{
++	return nic_invoke_pri_ops(ndev, HNAE3_EXT_OPC_GET_TORUS_PARAM,
++				  param, sizeof(*param));
++}
++EXPORT_SYMBOL(nic_get_torus_param);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+index ec661b400f20..1a8573efa642 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+@@ -15,4 +15,8 @@ int nic_set_cpu_affinity(struct net_device *ndev, cpumask_t *affinity_mask);
+ int nic_set_notify_pkt_param(struct net_device *ndev,
+ 			     struct hnae3_notify_pkt_param *param);
+ int nic_set_notify_pkt_start(struct net_device *ndev);
++int nic_set_torus_param(struct net_device *ndev,
++			struct hnae3_torus_param *param);
++int nic_get_torus_param(struct net_device *ndev,
++			struct hnae3_torus_param *param);
+ #endif
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+index ba612b21a8ee..8097f7079760 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+@@ -17,6 +17,16 @@ static nic_event_fn_t nic_event_call;
+  */
+ static DEFINE_MUTEX(hclge_nic_event_lock);
+ 
++void hclge_comm_cmd_reuse_desc(struct hclge_desc *desc, bool is_read)
++{
++	desc->flag = cpu_to_le16(HCLGE_COMM_CMD_FLAG_NO_INTR |
++				 HCLGE_COMM_CMD_FLAG_IN);
++	if (is_read)
++		desc->flag |= cpu_to_le16(HCLGE_COMM_CMD_FLAG_WR);
++	else
++		desc->flag &= cpu_to_le16(~HCLGE_COMM_CMD_FLAG_WR);
++}
++
+ static int hclge_clean_stats64(struct hclge_dev *hdev, void *data,
+ 			       size_t length)
+ {
+@@ -117,6 +127,185 @@ static int hclge_set_notify_packet_start(struct hclge_dev *hdev,
+ 	return ret;
+ }
+ 
++static int hclge_torus_cfg_switch(struct hclge_dev *hdev, bool is_rocee,
++				  bool enabled)
++{
++	struct hclge_mac_vlan_switch_cmd *req;
++	struct hclge_desc desc;
++	int ret;
++
++	hclge_cmd_setup_basic_desc(&desc, HCLGE_OPC_CONFIG_SWITCH_PARAM, true);
++	req = (struct hclge_mac_vlan_switch_cmd *)desc.data;
++	req->roce_sel = is_rocee ? 1 : 0;
++	/* set 0 to let firmware choose current function */
++	req->func_id = 0;
++	ret = hclge_cmd_send(&hdev->hw, &desc, 1);
++	if (ret) {
++		dev_err(&hdev->pdev->dev,
++			"failed to get switch param, ret = %d\n", ret);
++		return ret;
++	}
++
++	hnae3_set_bit(req->switch_param, HCLGE_SWITCH_ALW_LPBK_B, 1);
++	hnae3_set_bit(req->switch_param, HCLGE_SWITCH_ALW_LCL_LPBK_B, 0);
++	hnae3_set_bit(req->switch_param, HCLGE_SWITCH_ANTI_SPOOF_B, enabled);
++	if (!is_rocee)
++		hnae3_set_bit(req->switch_param, HCLGE_SWITCH_ALW_DST_OVRD_B,
++			      enabled);
++
++	hclge_comm_cmd_reuse_desc(&desc, false);
++	ret = hclge_cmd_send(&hdev->hw, &desc, 1);
++	if (ret)
++		dev_err(&hdev->pdev->dev,
++			"failed to set switch param, ret = %d\n", ret);
++
++	return ret;
++}
++
++static int hclge_torus_cfg_vlan_filter(struct hclge_dev *hdev,
++				       bool enabled)
++{
++	struct hclge_vlan_filter_ctrl_cmd *req;
++	struct hclge_desc desc;
++	int ret;
++
++	hclge_cmd_setup_basic_desc(&desc, HCLGE_OPC_CONFIG_VLAN_FILTER, true);
++	req = (struct hclge_vlan_filter_ctrl_cmd *)desc.data;
++	req->vlan_type = HCLGE_FILTER_TYPE_PORT;
++	ret = hclge_cmd_send(&hdev->hw, &desc, 1);
++	if (ret) {
++		dev_err(&hdev->pdev->dev,
++			"failed to get torus vlan filter, ret = %d\n", ret);
++		return ret;
++	}
++
++	hnae3_set_bit(req->vlan_fe, HCLGE_VLAN_FE_NIC_INGRESS, !enabled);
++	hnae3_set_bit(req->vlan_fe, HCLGE_VLAN_FE_ROCEE_INGRESS, !enabled);
++	req->vlan_type = HCLGE_FILTER_TYPE_PORT;
++
++	hclge_comm_cmd_reuse_desc(&desc, false);
++	ret = hclge_cmd_send(&hdev->hw, &desc, 1);
++	if (ret)
++		dev_err(&hdev->pdev->dev,
++			"failed to set torus vlan filter, ret = %d\n", ret);
++
++	return ret;
++}
++
++static int hclge_torus_cfg(struct hclge_dev *hdev,
++			   struct hnae3_torus_param *param)
++{
++	struct hclge_torus_cfg_cmd *req;
++	struct hclge_desc desc;
++	u32 lan_fwd_tc_cfg = 0;
++	u32 lan_port_pair = 0;
++	int ret;
++
++	hclge_cmd_setup_basic_desc(&desc, HCLGE_OPC_CONFIG_1D_TORUS, true);
++	req = (struct hclge_torus_cfg_cmd *)desc.data;
++	ret = hclge_cmd_send(&hdev->hw, &desc, 1);
++	if (ret) {
++		dev_err(&hdev->pdev->dev,
++			"failed to get torus config, ret = %d\n", ret);
++		return ret;
++	}
++
++	req->lan_port_pair = cpu_to_le32(param->mac_id &
++					 HCLGE_TORUS_MAC_ID_MASK);
++	hnae3_set_bit(lan_port_pair, HCLGE_UC_LAN_PAIR_EN, 1);
++	hnae3_set_bit(lan_port_pair, HCLGE_MC_BC_LAN_PAIR_EN, 1);
++	hnae3_set_bit(lan_port_pair, HCLGE_LLDP_LAN_PAIR_EN, 1);
++	hnae3_set_bit(lan_port_pair, HCLGE_TC2VLANPRI_MAPPING_EN, 1);
++	hnae3_set_bit(lan_port_pair, HCLGE_TORUS_LPBK_DROP_EN, 1);
++	if (param->enable)
++		req->lan_port_pair |= cpu_to_le32(lan_port_pair);
++
++	if (!param->is_node0) {
++		req->lan_fwd_tc_cfg &= cpu_to_le32(~HCLGE_TORUS_TC1_DROP_EN);
++		lan_fwd_tc_cfg &= ~HCLGE_TOURS_TCX_MAP_TCY_MASK;
++		lan_fwd_tc_cfg |= HCLGE_TOURS_TCX_MAP_TCY_INIT &
++				  HCLGE_TOURS_TCX_MAP_TCY_MASK;
++		req->lan_fwd_tc_cfg |= cpu_to_le32(lan_fwd_tc_cfg);
++	} else {
++		req->lan_fwd_tc_cfg |= cpu_to_le32(HCLGE_TORUS_TC1_DROP_EN);
++		lan_fwd_tc_cfg &= ~HCLGE_TOURS_TCX_MAP_TCY_MASK;
++		lan_fwd_tc_cfg |= HCLGE_TOURS_TCX_MAP_TCY_NODE0_INIT &
++				  HCLGE_TOURS_TCX_MAP_TCY_MASK;
++		req->lan_fwd_tc_cfg |= cpu_to_le32(lan_fwd_tc_cfg);
++	}
++
++	req->torus_en = cpu_to_le32(param->enable);
++	hclge_comm_cmd_reuse_desc(&desc, false);
++	ret = hclge_cmd_send(&hdev->hw, &desc, 1);
++	if (ret)
++		dev_err(&hdev->pdev->dev, "failed to set torus, ret = %d\n",
++			ret);
++
++	return ret;
++}
++
++static int hclge_set_torus_param(struct hclge_dev *hdev, void *data,
++				 size_t length)
++{
++	struct hnae3_torus_param *param = (struct hnae3_torus_param *)data;
++	int ret;
++
++	if (length != sizeof(struct hnae3_torus_param))
++		return -EINVAL;
++
++	ret = hclge_torus_cfg_switch(hdev, false, !!param->enable);
++	if (ret) {
++		dev_err(&hdev->pdev->dev,
++			"failed to config nic switch param, ret = %d\n", ret);
++		return ret;
++	}
++
++	ret = hclge_torus_cfg_switch(hdev, true, !!param->enable);
++	if (ret) {
++		dev_err(&hdev->pdev->dev,
++			"failed to config roce switch param, ret = %d\n", ret);
++		return ret;
++	}
++
++	ret = hclge_torus_cfg_vlan_filter(hdev, !!param->enable);
++	if (ret)
++		return ret;
++
++	ret = hclge_torus_cfg(hdev, param);
++	if (ret)
++		return ret;
++
++	hdev->torus_param = *param;
++	return 0;
++}
++
++static int hclge_get_torus_param(struct hclge_dev *hdev, void *data,
++				 size_t length)
++{
++	struct hnae3_torus_param *param = (struct hnae3_torus_param *)data;
++	struct hclge_torus_cfg_cmd *req;
++	struct hclge_desc desc;
++	int ret;
++
++	if (length != sizeof(struct hnae3_torus_param))
++		return -EINVAL;
++
++	hclge_cmd_setup_basic_desc(&desc, HCLGE_OPC_CONFIG_1D_TORUS, true);
++	req = (struct hclge_torus_cfg_cmd *)desc.data;
++	ret = hclge_cmd_send(&hdev->hw, &desc, 1);
++	if (ret) {
++		dev_err(&hdev->pdev->dev,
++			"failed to get torus param, ret = %d\n", ret);
++		return ret;
++	}
++
++	param->mac_id =
++		le32_to_cpu(req->lan_port_pair) & HCLGE_TORUS_MAC_ID_MASK;
++	param->enable = le32_to_cpu(req->torus_en);
++
++	return 0;
++}
++
+ static void hclge_ext_resotre_config(struct hclge_dev *hdev)
+ {
+ 	if (hdev->reset_type != HNAE3_IMP_RESET &&
+@@ -126,6 +315,9 @@ static void hclge_ext_resotre_config(struct hclge_dev *hdev)
+ 	if (hdev->notify_param.init)
+ 		hclge_set_notify_packet_para(hdev, &hdev->notify_param,
+ 					     sizeof(hdev->notify_param));
++
++	hclge_set_torus_param(hdev, &hdev->torus_param,
++			      sizeof(hdev->torus_param));
+ }
+ 
+ static int hclge_set_reset_task(struct hclge_dev *hdev, void *data,
+@@ -268,6 +460,8 @@ static const hclge_priv_ops_fn hclge_ext_func_arr[] = {
+ 	[HNAE3_EXT_OPC_CLEAN_STATS64] = hclge_clean_stats64,
+ 	[HNAE3_EXT_OPC_SET_NOTIFY_PARAM] = hclge_set_notify_packet_para,
+ 	[HNAE3_EXT_OPC_SET_NOTIFY_START] = hclge_set_notify_packet_start,
++	[HNAE3_EXT_OPC_SET_TORUS_PARAM] = hclge_set_torus_param,
++	[HNAE3_EXT_OPC_GET_TORUS_PARAM] = hclge_get_torus_param,
+ };
+ 
+ int hclge_ext_ops_handle(struct hnae3_handle *handle, int opcode,
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h
+index ce8fc17741fc..abdb00e78fc3 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h
+@@ -10,6 +10,23 @@
+ #define HCLGE_NOTIFY_PARA_CFG_PKT_NUM_M		GENMASK(5, 2)
+ #define HCLGE_NOTIFY_PARA_CFG_PKT_NUM_S		2
+ 
++#define HCLGE_TORUS_MAC_ID_MASK 0x3
++#define HCLGE_TOURS_TCX_MAP_TCY_INIT 0x1c6144
++#define HCLGE_TOURS_TCX_MAP_TCY_NODE0_INIT 0x1c6141
++
++#define HCLGE_VLAN_FE_NIC_INGRESS 0
++#define HCLGE_VLAN_FE_ROCEE_INGRESS 2
++
++#define HCLGE_TORUS_LPBK_DROP_EN 20
++#define HCLGE_TC2VLANPRI_MAPPING_EN 19
++#define HCLGE_LLDP_LAN_PAIR_EN 18
++#define HCLGE_MC_BC_LAN_PAIR_EN 17
++#define HCLGE_UC_LAN_PAIR_EN 16
++
++#define HCLGE_TORUS_TC1_DROP_EN BIT(26)
++
++#define HCLGE_TOURS_TCX_MAP_TCY_MASK 0x1c71c7
++
+ struct hclge_pfc_storm_para_cmd {
+ 	__le32 dir;
+ 	__le32 enable;
+@@ -29,8 +46,20 @@ struct hclge_notify_pkt_param_cmd {
+ 	u8 rsv[21];
+ };
+ 
++struct hclge_torus_cfg_cmd {
++	u8 rsv[4];
++	__le32 lan_port_pair;
++	__le32 lan_fwd_tc_cfg;
++	__le32 pause_time_out;
++	__le32 pause_time_out_en;
++	__le32 torus_en;
++};
++
+ enum hclge_ext_opcode_type {
++	HCLGE_OPC_CONFIG_SWITCH_PARAM = 0x1033,
++	HCLGE_OPC_CONFIG_VLAN_FILTER = 0x1100,
+ 	HCLGE_OPC_SET_NOTIFY_PKT = 0x180A,
++	HCLGE_OPC_CONFIG_1D_TORUS = 0x2300,
+ 	HCLGE_OPC_CFG_PAUSE_STORM_PARA = 0x7019,
+ };
+ 
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+index 647b0ca14e1c..7a505d1195ef 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+@@ -944,6 +944,7 @@ struct hclge_dev {
+ 	struct irq_affinity_notify affinity_notify;
+ 	struct hclge_ptp *ptp;
+ 	struct hnae3_notify_pkt_param notify_param;
++	struct hnae3_torus_param torus_param;
+ };
+ 
+ /* VPort level vlan tag configuration for TX direction */
+-- 
+2.34.1
+

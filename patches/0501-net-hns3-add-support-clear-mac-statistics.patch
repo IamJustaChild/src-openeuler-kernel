@@ -1,0 +1,170 @@
+From a89778067d56c193824a0ad54eb5866a89432211 Mon Sep 17 00:00:00 2001
+From: shaojijie <shaojijie@huawei.com>
+Date: Thu, 16 Mar 2023 10:32:30 +0800
+Subject: [PATCH 183/268] net: hns3: add support clear mac statistics
+
+driver inclusion
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN3D
+CVE: NA
+
+----------------------------------------------------------------------
+
+Some scenes use the standard tools ethtool and ifconfig to query traffic
+statistics in a specified period.To facilitate calculation, the driver
+needs to clear the original statistics first. The patch provides an
+customized interface for clearing MAC statistics.
+
+Signed-off-by: shaojijie <shaojijie@huawei.com>
+Signed-off-by: Jiantao Xiao <xiaojiantao1@h-partners.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h
+	drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
+	drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+---
+ .../net/ethernet/hisilicon/hns3/hnae3_ext.h   | 31 ++++++++++++++
+ .../net/ethernet/hisilicon/hns3/hns3_ext.c    | 40 +++++++++++++++++++
+ .../net/ethernet/hisilicon/hns3/hns3_ext.h    |  1 +
+ .../hisilicon/hns3/hns3pf/hclge_ext.c         | 17 ++++++++
+ 4 files changed, 89 insertions(+)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h b/drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h
+index 0b1fa53dfb41..1cb43732bf3c 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h
+@@ -28,5 +28,36 @@ enum hnae3_event_type_custom {
+ enum hnae3_ext_opcode {
+ 	HNAE3_EXT_OPC_RESET,
+ 	HNAE3_EXT_OPC_EVENT_CALLBACK,
++	HNAE3_EXT_OPC_GET_PFC_STORM_PARA,
++	HNAE3_EXT_OPC_SET_PFC_STORM_PARA,
++	HNAE3_EXT_OPC_SET_NOTIFY_PARAM,
++	HNAE3_EXT_OPC_SET_NOTIFY_START,
++	HNAE3_EXT_OPC_SET_TORUS_PARAM,
++	HNAE3_EXT_OPC_GET_TORUS_PARAM,
++	HNAE3_EXT_OPC_CLEAN_STATS64,
++};
++
++struct hnae3_pfc_storm_para {
++	u32 dir;
++	u32 enable;
++	u32 period_ms;
++	u32 times;
++	u32 recovery_period_ms;
++};
++
++struct hnae3_notify_pkt_param {
++	/* inter-packet gap of sending, the unit is one cycle of clock */
++	u32 ipg;
++	u16 num;     /* packet number of sending */
++	u8 enable;   /* send enable, 0=Disable, 1=Enable */
++	/* initialization flag, product does not need to set value */
++	u8 init;
++	u8 data[64]; /* note packet data */
++};
++
++struct hnae3_torus_param {
++	u32 enable;       /* 1d torus mode enable */
++	u32 mac_id;       /* export mac id of port */
++	u8 is_node0;      /* if current node is node0 */
+ };
+ #endif
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
+index 34aadd10feb8..19ecd73e740c 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
+@@ -74,3 +74,43 @@ void nic_chip_recover_handler(struct net_device *ndev,
+ 			   &event_t, sizeof(event_t));
+ }
+ EXPORT_SYMBOL(nic_chip_recover_handler);
++
++int nic_clean_stats64(struct net_device *ndev, struct rtnl_link_stats64 *stats)
++{
++	struct hnae3_knic_private_info *kinfo;
++	struct hns3_enet_ring *ring;
++	struct hns3_nic_priv *priv;
++	struct hnae3_handle *h;
++	int i, ret;
++
++	priv = netdev_priv(ndev);
++	h = hns3_get_handle(ndev);
++	kinfo = &h->kinfo;
++
++	rtnl_lock();
++	if (!test_bit(HNS3_NIC_STATE_INITED, &priv->state) ||
++	    test_bit(HNS3_NIC_STATE_RESETTING, &priv->state)) {
++		ret = -EBUSY;
++		goto end_unlock;
++	}
++
++	ret = nic_invoke_pri_ops(ndev, HNAE3_EXT_OPC_CLEAN_STATS64,
++				 NULL, 0);
++	if (ret)
++		goto end_unlock;
++
++	for (i = 0; i < kinfo->num_tqps; i++) {
++		ring = &priv->ring[i];
++		memset(&ring->stats, 0, sizeof(struct ring_stats));
++		ring = &priv->ring[i + kinfo->num_tqps];
++		memset(&ring->stats, 0, sizeof(struct ring_stats));
++	}
++
++	memset(&ndev->stats, 0, sizeof(struct net_device_stats));
++	netdev_info(ndev, "clean stats succ\n");
++
++end_unlock:
++	rtnl_unlock();
++	return ret;
++}
++EXPORT_SYMBOL(nic_clean_stats64);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+index ce92a666db17..18c3d514ebf1 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+@@ -10,4 +10,5 @@
+ int nic_netdev_match_check(struct net_device *netdev);
+ void nic_chip_recover_handler(struct net_device *ndev,
+ 			      enum hnae3_event_type_custom event_t);
++int nic_clean_stats64(struct net_device *ndev, struct rtnl_link_stats64 *stats);
+ #endif
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+index 52c7f5085cfb..a79451ef44d0 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+@@ -17,6 +17,22 @@ static nic_event_fn_t nic_event_call;
+  */
+ static DEFINE_MUTEX(hclge_nic_event_lock);
+ 
++static int hclge_clean_stats64(struct hclge_dev *hdev, void *data,
++			       size_t length)
++{
++	struct hnae3_knic_private_info *kinfo;
++	struct hclge_tqp *tqp;
++	int i;
++
++	kinfo = &hdev->vport[0].nic.kinfo;
++	for (i = 0; i < kinfo->num_tqps; i++) {
++		tqp = container_of(kinfo->tqp[i], struct hclge_tqp, q);
++		memset(&tqp->tqp_stats, 0, sizeof(struct hlcge_tqp_stats));
++	}
++	memset(&hdev->mac_stats, 0, sizeof(struct hclge_mac_stats));
++	return 0;
++}
++
+ static int hclge_set_reset_task(struct hclge_dev *hdev, void *data,
+ 				size_t length)
+ {
+@@ -153,6 +169,7 @@ void hclge_ext_reset_end(struct hclge_dev *hdev, bool done)
+ static const hclge_priv_ops_fn hclge_ext_func_arr[] = {
+ 	[HNAE3_EXT_OPC_RESET] = hclge_set_reset_task,
+ 	[HNAE3_EXT_OPC_EVENT_CALLBACK] = hclge_nic_call_event,
++	[HNAE3_EXT_OPC_CLEAN_STATS64] = hclge_clean_stats64,
+ };
+ 
+ int hclge_ext_ops_handle(struct hnae3_handle *handle, int opcode,
+-- 
+2.34.1
+

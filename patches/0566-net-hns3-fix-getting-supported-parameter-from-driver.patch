@@ -1,0 +1,45 @@
+From 6c9a8f093c06806ffbd05e4f88b95a43371bac52 Mon Sep 17 00:00:00 2001
+From: Hao Lan <lanhao@huawei.com>
+Date: Fri, 9 Dec 2022 10:54:46 +0800
+Subject: [PATCH 248/268] net: hns3: fix getting supported parameter from
+ driver in hclge_set_wol
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN49
+CVE: NA
+
+----------------------------------------------------------------------
+
+The driver should use the supported parameter got from firmware,
+not from user,to validate the wol mode.
+
+Fixes: c3c5f044b7dc ("net: hns3: support wake on lan configuration and query")
+Signed-off-by: Hao Lan <lanhao@huawei.com>
+Signed-off-by: Jiantao Xiao <xiaojiantao1@h-partners.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index a18a9ffba130..5b4014d808cb 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -11760,12 +11760,10 @@ static int hclge_set_wol(struct hnae3_handle *handle,
+ 	struct hclge_vport *vport = hclge_get_vport(handle);
+ 	struct hclge_dev *hdev = vport->back;
+ 	struct hclge_wol_info *wol_info = &hdev->hw.mac.wol;
+-	u32 wol_supported;
+ 	u32 wol_mode;
+ 
+-	wol_supported = hclge_wol_mode_from_ethtool(wol->supported);
+ 	wol_mode = hclge_wol_mode_from_ethtool(wol->wolopts);
+-	if (wol_mode & ~wol_supported)
++	if (wol_mode & ~wol_info->wol_support_mode)
+ 		return -EINVAL;
+ 
+ 	wol_info->wol_current_mode = wol_mode;
+-- 
+2.34.1
+

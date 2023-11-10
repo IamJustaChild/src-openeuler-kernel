@@ -1,0 +1,100 @@
+From d687e23a975c15902dba36fbea4ebec6a29eb4f3 Mon Sep 17 00:00:00 2001
+From: Jiantao Xiao <xiaojiantao1@h-partners.com>
+Date: Thu, 16 Mar 2023 14:44:35 +0800
+Subject: [PATCH 184/268] net: hns3: add support configuring function-level
+ interrupt affinity
+
+driver inclusion
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN3D
+CVE: NA
+
+----------------------------------------------------------------------
+
+The patch provides a customized interface for configuring the interrupt
+affinity of the hns3 network port.
+
+Signed-off-by: Jiantao Xiao <xiaojiantao1@h-partners.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ .../net/ethernet/hisilicon/hns3/hns3_ext.c    | 56 +++++++++++++++++++
+ .../net/ethernet/hisilicon/hns3/hns3_ext.h    |  1 +
+ 2 files changed, 57 insertions(+)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
+index 19ecd73e740c..4af709b1dc40 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
+@@ -114,3 +114,59 @@ int nic_clean_stats64(struct net_device *ndev, struct rtnl_link_stats64 *stats)
+ 	return ret;
+ }
+ EXPORT_SYMBOL(nic_clean_stats64);
++
++int nic_set_cpu_affinity(struct net_device *ndev, cpumask_t *affinity_mask)
++{
++	struct hns3_enet_tqp_vector *tqp_vector;
++	struct hns3_nic_priv *priv;
++	int ret = 0;
++	u16 i;
++
++	if (!ndev || !affinity_mask) {
++		netdev_err(ndev,
++			   "Invalid input param when set ethernet cpu affinity\n");
++		return -EINVAL;
++	}
++
++	if (nic_netdev_match_check(ndev))
++		return -ENODEV;
++
++	priv = netdev_priv(ndev);
++	rtnl_lock();
++	if (!test_bit(HNS3_NIC_STATE_INITED, &priv->state) ||
++	    test_bit(HNS3_NIC_STATE_RESETTING, &priv->state)) {
++		ret = -EBUSY;
++		goto err_unlock;
++	}
++
++	for (i = 0; i < priv->vector_num; i++) {
++		tqp_vector = &priv->tqp_vector[i];
++		if (tqp_vector->irq_init_flag != HNS3_VECTOR_INITED)
++			continue;
++
++		tqp_vector->affinity_mask = *affinity_mask;
++
++		ret = irq_set_affinity_hint(tqp_vector->vector_irq, NULL);
++		if (ret) {
++			netdev_err(ndev,
++				   "failed to reset affinity hint, ret = %d\n", ret);
++			goto err_unlock;
++		}
++
++		ret = irq_set_affinity_hint(tqp_vector->vector_irq,
++					    &tqp_vector->affinity_mask);
++		if (ret) {
++			netdev_err(ndev,
++				   "failed to set affinity hint, ret = %d\n", ret);
++			goto err_unlock;
++		}
++	}
++
++	netdev_info(ndev, "set nic cpu affinity %*pb succeed\n",
++		    cpumask_pr_args(affinity_mask));
++
++err_unlock:
++	rtnl_unlock();
++	return ret;
++}
++EXPORT_SYMBOL(nic_set_cpu_affinity);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+index 18c3d514ebf1..c0d943050922 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+@@ -11,4 +11,5 @@ int nic_netdev_match_check(struct net_device *netdev);
+ void nic_chip_recover_handler(struct net_device *ndev,
+ 			      enum hnae3_event_type_custom event_t);
+ int nic_clean_stats64(struct net_device *ndev, struct rtnl_link_stats64 *stats);
++int nic_set_cpu_affinity(struct net_device *ndev, cpumask_t *affinity_mask);
+ #endif
+-- 
+2.34.1
+

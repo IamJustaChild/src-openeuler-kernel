@@ -1,0 +1,188 @@
+From ee4f2909551a9520cf866833a6f8cace898cdb82 Mon Sep 17 00:00:00 2001
+From: Leon Romanovsky <leonro@nvidia.com>
+Date: Sat, 21 Aug 2021 17:00:42 +0800
+Subject: [PATCH 210/268] net: hns3: remove always exist devlink pointer check
+
+mainline inclusion
+from mainline-v5.15-rc1
+commit a1fcb106ae97cc34cc8101efafb89eaa837be009
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN49
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=a1fcb106ae97cc34cc8101efafb89eaa837be009
+
+----------------------------------------------------------------------
+
+The devlink pointer always exists after hclge_devlink_init() succeed.
+Remove that check together with NULL setting after release and ensure
+that devlink_register is last command prior to call to devlink_reload_enable().
+
+Fixes: b741269b2759 ("net: hns3: add support for registering devlink for PF")
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+(fix conflicts: interface devlink_register adapt)
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_devlink.c
+	drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_devlink.c
+---
+ .../hisilicon/hns3/hns3pf/hclge_devlink.c     |  8 ++---
+ .../hisilicon/hns3/hns3vf/hclgevf_devlink.c   |  8 ++---
+ include/net/devlink.h                         |  5 +++
+ net/core/devlink.c                            | 36 +++++++++++++++++++
+ 4 files changed, 47 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_devlink.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_devlink.c
+index 03b822b0a8e7..3a0be591112e 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_devlink.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_devlink.c
+@@ -22,6 +22,7 @@ int hclge_devlink_init(struct hclge_dev *hdev)
+ 
+ 	priv = devlink_priv(devlink);
+ 	priv->hdev = hdev;
++	hdev->devlink = devlink;
+ 
+ 	ret = devlink_register(devlink, &pdev->dev);
+ 	if (ret) {
+@@ -30,7 +31,7 @@ int hclge_devlink_init(struct hclge_dev *hdev)
+ 		goto out_reg_fail;
+ 	}
+ 
+-	hdev->devlink = devlink;
++	devlink_reload_enable(devlink);
+ 
+ 	return 0;
+ 
+@@ -43,12 +44,9 @@ void hclge_devlink_uninit(struct hclge_dev *hdev)
+ {
+ 	struct devlink *devlink = hdev->devlink;
+ 
+-	if (!devlink)
+-		return;
++	devlink_reload_disable(devlink);
+ 
+ 	devlink_unregister(devlink);
+ 
+ 	devlink_free(devlink);
+-
+-	hdev->devlink = NULL;
+ }
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_devlink.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_devlink.c
+index 55337a975981..a2495ebbea02 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_devlink.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_devlink.c
+@@ -22,6 +22,7 @@ int hclgevf_devlink_init(struct hclgevf_dev *hdev)
+ 
+ 	priv = devlink_priv(devlink);
+ 	priv->hdev = hdev;
++	hdev->devlink = devlink;
+ 
+ 	ret = devlink_register(devlink, &pdev->dev);
+ 	if (ret) {
+@@ -30,7 +31,7 @@ int hclgevf_devlink_init(struct hclgevf_dev *hdev)
+ 		goto out_reg_fail;
+ 	}
+ 
+-	hdev->devlink = devlink;
++	devlink_reload_enable(devlink);
+ 
+ 	return 0;
+ 
+@@ -43,12 +44,9 @@ void hclgevf_devlink_uninit(struct hclgevf_dev *hdev)
+ {
+ 	struct devlink *devlink = hdev->devlink;
+ 
+-	if (!devlink)
+-		return;
++	devlink_reload_disable(devlink);
+ 
+ 	devlink_unregister(devlink);
+ 
+ 	devlink_free(devlink);
+-
+-	hdev->devlink = NULL;
+ }
+diff --git a/include/net/devlink.h b/include/net/devlink.h
+index 99efc156a309..669c3cb59fcf 100644
+--- a/include/net/devlink.h
++++ b/include/net/devlink.h
+@@ -35,6 +35,9 @@ struct devlink {
+ 	struct device *dev;
+ 	possible_net_t _net;
+ 	struct mutex lock;
++	u8 reload_failed:1,
++	   reload_enabled:1,
++	   registered:1;
+ 	char priv[0] __aligned(NETDEV_ALIGN);
+ };
+ 
+@@ -477,6 +480,8 @@ struct ib_device;
+ struct devlink *devlink_alloc(const struct devlink_ops *ops, size_t priv_size);
+ int devlink_register(struct devlink *devlink, struct device *dev);
+ void devlink_unregister(struct devlink *devlink);
++void devlink_reload_enable(struct devlink *devlink);
++void devlink_reload_disable(struct devlink *devlink);
+ void devlink_free(struct devlink *devlink);
+ int devlink_port_register(struct devlink *devlink,
+ 			  struct devlink_port *devlink_port,
+diff --git a/net/core/devlink.c b/net/core/devlink.c
+index 6ad095264896..c9b36811529d 100644
+--- a/net/core/devlink.c
++++ b/net/core/devlink.c
+@@ -3900,12 +3900,48 @@ EXPORT_SYMBOL_GPL(devlink_register);
+ void devlink_unregister(struct devlink *devlink)
+ {
+ 	mutex_lock(&devlink_mutex);
++	WARN_ON(devlink->reload_enabled);
+ 	devlink_notify(devlink, DEVLINK_CMD_DEL);
+ 	list_del(&devlink->list);
+ 	mutex_unlock(&devlink_mutex);
+ }
+ EXPORT_SYMBOL_GPL(devlink_unregister);
+ 
++/**
++ *	devlink_reload_enable - Enable reload of devlink instance
++ *
++ *	@devlink: devlink
++ *
++ *	Should be called at end of device initialization
++ *	process when reload operation is supported.
++ */
++void devlink_reload_enable(struct devlink *devlink)
++{
++	mutex_lock(&devlink_mutex);
++	devlink->reload_enabled = true;
++	mutex_unlock(&devlink_mutex);
++}
++EXPORT_SYMBOL_GPL(devlink_reload_enable);
++
++/**
++ *	devlink_reload_disable - Disable reload of devlink instance
++ *
++ *	@devlink: devlink
++ *
++ *	Should be called at the beginning of device cleanup
++ *	process when reload operation is supported.
++ */
++void devlink_reload_disable(struct devlink *devlink)
++{
++	mutex_lock(&devlink_mutex);
++	/* Mutex is taken which ensures that no reload operation is in
++	 * progress while setting up forbidded flag.
++	 */
++	devlink->reload_enabled = false;
++	mutex_unlock(&devlink_mutex);
++}
++EXPORT_SYMBOL_GPL(devlink_reload_disable);
++
+ /**
+  *	devlink_free - Free devlink instance resources
+  *
+-- 
+2.34.1
+

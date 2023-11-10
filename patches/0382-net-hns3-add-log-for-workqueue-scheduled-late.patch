@@ -1,0 +1,143 @@
+From b649ff28f38f9584ca079df57e5bf87d00ee8bfe Mon Sep 17 00:00:00 2001
+From: Yufeng Mo <moyufeng@huawei.com>
+Date: Wed, 24 Nov 2021 09:06:51 +0800
+Subject: [PATCH 064/268] net: hns3: add log for workqueue scheduled late
+
+mainline inclusion
+from mainline-v5.17-rc1
+commit d9069dab207534d9f6f41993ee78a651733becea
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMUR
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=d9069dab207534d9f6f41993ee78a651733becea
+
+--------------------------------
+
+When the mbx or reset message arrives, the driver is informed
+through an interrupt. This task can be processed only after
+the workqueue is scheduled. In some cases, this workqueue
+scheduling takes a long time. As a result, the mbx or reset
+service task cannot be processed in time. So add some warning
+message to improve debugging efficiency for this case.
+
+Signed-off-by: Yufeng Mo <moyufeng@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+---
+ .../net/ethernet/hisilicon/hns3/hclge_mbx.h   |  3 +++
+ .../hisilicon/hns3/hns3pf/hclge_main.c        | 25 ++++++++++++++-----
+ .../hisilicon/hns3/hns3pf/hclge_main.h        |  2 ++
+ .../hisilicon/hns3/hns3pf/hclge_mbx.c         |  8 ++++++
+ 4 files changed, 32 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h b/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
+index 5ab56fd90738..bfd6f19aa65a 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
+@@ -81,6 +81,9 @@ enum hclge_mbx_tbl_cfg_subcode {
+ #define HCLGE_MBX_MAX_RESP_DATA_SIZE	8U
+ #define HCLGE_MBX_MAX_RING_CHAIN_PARAM_NUM	4
+ 
++#define HCLGE_RESET_SCHED_TIMEOUT	(3 * HZ)
++#define HCLGE_MBX_SCHED_TIMEOUT	(HZ / 2)
++
+ struct hclge_ring_chain_param {
+ 	u8 ring_type;
+ 	u8 tqp_index;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 0ec52f603fc5..062572b2f779 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -2740,16 +2740,20 @@ static int hclge_mac_init(struct hclge_dev *hdev)
+ static void hclge_mbx_task_schedule(struct hclge_dev *hdev)
+ {
+ 	if (!test_bit(HCLGE_STATE_REMOVING, &hdev->state) &&
+-	    !test_and_set_bit(HCLGE_STATE_MBX_SERVICE_SCHED, &hdev->state))
++	    !test_and_set_bit(HCLGE_STATE_MBX_SERVICE_SCHED, &hdev->state)) {
++		hdev->last_mbx_scheduled = jiffies;
+ 		mod_delayed_work(hclge_wq, &hdev->service_task, 0);
++	}
+ }
+ 
+ static void hclge_reset_task_schedule(struct hclge_dev *hdev)
+ {
+ 	if (!test_bit(HCLGE_STATE_REMOVING, &hdev->state) &&
+ 	    test_bit(HCLGE_STATE_SERVICE_INITED, &hdev->state) &&
+-	    !test_and_set_bit(HCLGE_STATE_RST_SERVICE_SCHED, &hdev->state))
++	    !test_and_set_bit(HCLGE_STATE_RST_SERVICE_SCHED, &hdev->state)) {
++		hdev->last_rst_scheduled = jiffies;
+ 		mod_delayed_work(hclge_wq, &hdev->service_task, 0);
++	}
+ }
+ 
+ static void hclge_errhand_task_schedule(struct hclge_dev *hdev)
+@@ -3556,6 +3560,13 @@ static void hclge_mailbox_service_task(struct hclge_dev *hdev)
+ 	    test_and_set_bit(HCLGE_STATE_MBX_HANDLING, &hdev->state))
+ 		return;
+ 
++	if (time_is_before_jiffies(hdev->last_mbx_scheduled +
++				   HCLGE_MBX_SCHED_TIMEOUT))
++		dev_warn(&hdev->pdev->dev,
++			 "mbx service task is scheduled after %ums on cpu%u!\n",
++			 jiffies_to_msecs(jiffies - hdev->last_mbx_scheduled),
++			 smp_processor_id());
++
+ 	hclge_mbx_handler(hdev);
+ 
+ 	clear_bit(HCLGE_STATE_MBX_HANDLING, &hdev->state);
+@@ -4185,10 +4196,12 @@ static void hclge_reset_service_task(struct hclge_dev *hdev)
+ 	if (!test_and_clear_bit(HCLGE_STATE_RST_SERVICE_SCHED, &hdev->state))
+ 		return;
+ 
+-	if (test_and_clear_bit(HNAE3_UNKNOWN_RESET, &hdev->reset_request)) {
+-		hclge_misc_err_recovery(hdev);
+-		return;
+-	}
++	if (time_is_before_jiffies(hdev->last_rst_scheduled +
++				   HCLGE_RESET_SCHED_TIMEOUT))
++		dev_warn(&hdev->pdev->dev,
++			 "reset service task is scheduled after %ums on cpu%u!\n",
++			 jiffies_to_msecs(jiffies - hdev->last_rst_scheduled),
++			 smp_processor_id());
+ 
+ 	down(&hdev->reset_sem);
+ 	set_bit(HCLGE_STATE_RST_HANDLING, &hdev->state);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+index ffe21f617a63..c8eb73b58326 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+@@ -858,6 +858,8 @@ struct hclge_dev {
+ 	u16 hclge_fd_rule_num;
+ 	unsigned long serv_processed_cnt;
+ 	unsigned long last_serv_processed;
++	unsigned long last_rst_scheduled;
++	unsigned long last_mbx_scheduled;
+ 	unsigned long fd_bmap[BITS_TO_LONGS(MAX_FD_FILTER_NUM)];
+ 	enum HCLGE_FD_ACTIVE_RULE_TYPE fd_active_type;
+ 	u8 fd_en;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
+index ff283ac443e5..841c9b0c9fe4 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
+@@ -951,6 +951,14 @@ void hclge_mbx_handler(struct hclge_dev *hdev)
+ 		if (hnae3_get_bit(req->mbx_need_resp, HCLGE_MBX_NEED_RESP_B) &&
+ 		    req->msg.code < HCLGE_MBX_GET_VF_FLR_STATUS) {
+ 			resp_msg.status = ret;
++			if (time_is_before_jiffies(hdev->last_mbx_scheduled +
++						   HCLGE_MBX_SCHED_TIMEOUT))
++				dev_warn(&hdev->pdev->dev,
++					 "resp vport%u mbx(%u,%u) late\n",
++					 req->mbx_src_vfid,
++					 req->msg.code,
++					 req->msg.subcode);
++
+ 			hclge_gen_resp_to_vf(vport, req, &resp_msg);
+ 		}
+ 
+-- 
+2.34.1
+

@@ -1,0 +1,73 @@
+From 3422c524d2008f12819087593a41ac3bd3931899 Mon Sep 17 00:00:00 2001
+From: Jian Shen <shenjian15@huawei.com>
+Date: Thu, 18 Nov 2021 20:44:32 +0800
+Subject: [PATCH 128/268] net: hns3: don't rollback when destroy mqprio fail
+
+mainline inclusion
+from mainline-v5.15-rc4
+commit d82650be60ee92e7486f755f5387023278aa933f
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMYT
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=d82650be60ee92e7486f755f5387023278aa933f
+
+----------------------------------------------------------------------
+
+For destroy mqprio is irreversible in stack, so it's unnecessary
+to rollback the tc configuration when destroy mqprio failed.
+Otherwise, it may cause the configuration being inconsistent
+between driver and netstack.
+
+As the failure is usually caused by reset, and the driver will
+restore the configuration after reset, so it can keep the
+configuration being consistent between driver and hardware.
+
+Fixes: 5a5c90917467 ("net: hns3: add support for tc mqprio offload")
+Signed-off-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
+---
+ .../hisilicon/hns3/hns3pf/hclge_dcb.c         | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
+index 188daf75be32..d748c6404436 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
+@@ -525,13 +525,18 @@ static int hclge_setup_tc(struct hnae3_handle *h,
+ 	return hclge_notify_init_up(hdev);
+ 
+ err_out:
+-	/* roll-back */
+-	memcpy(&kinfo->tc_info, &old_tc_info, sizeof(old_tc_info));
+-	if (hclge_config_tc(hdev, &kinfo->tc_info))
+-		dev_err(&hdev->pdev->dev,
+-			"failed to roll back tc configuration\n");
+-
+-	(void)hclge_notify_init_up(hdev);
++	if (!tc) {
++		dev_warn(&hdev->pdev->dev,
++			 "failed to destroy mqprio, will active after reset, ret = %d\n",
++			 ret);
++	} else {
++		/* roll-back */
++		memcpy(&kinfo->tc_info, &old_tc_info, sizeof(old_tc_info));
++		if (hclge_config_tc(hdev, &kinfo->tc_info))
++			dev_err(&hdev->pdev->dev,
++				"failed to roll back tc configuration\n");
++	}
++	hclge_notify_init_up(hdev);
+ 
+ 	return ret;
+ }
+-- 
+2.34.1
+

@@ -1,0 +1,61 @@
+From ea91a9e7456099301924ce6e110ebaa9bb3a950a Mon Sep 17 00:00:00 2001
+From: Jian Shen <shenjian15@huawei.com>
+Date: Tue, 27 Jul 2021 15:10:37 +0800
+Subject: [PATCH 085/268] net: hns3: fix rx VLAN offload state inconsistent
+ issue
+
+mainline inclusion
+from mainline-v5.14-rc3
+commit bbfd4506f962e7e6fff8f37f017154a3c3791264
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMUR
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=bbfd4506f962e7e6fff8f37f017154a3c3791264
+
+----------------------------------------------------------------------
+
+Currently, VF doesn't enable rx VLAN offload when initializating,
+and PF does it for VFs. If user disable the rx VLAN offload for
+VF with ethtool -K, and reload the VF driver, it may cause the
+rx VLAN offload state being inconsistent between hardware and
+software.
+
+Fixes it by enabling rx VLAN offload when VF initializing.
+
+Fixes: e2cb1dec9779 ("net: hns3: Add HNS3 VF HCL(Hardware Compatibility Layer) Support")
+Signed-off-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ .../net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c  | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+index d58b4e4780a8..4cab9c19031a 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+@@ -2569,6 +2569,16 @@ static int hclgevf_rss_init_hw(struct hclgevf_dev *hdev)
+ 
+ static int hclgevf_init_vlan_config(struct hclgevf_dev *hdev)
+ {
++	struct hnae3_handle *nic = &hdev->nic;
++	int ret;
++
++	ret = hclgevf_en_hw_strip_rxvtag(nic, true);
++	if (ret) {
++		dev_err(&hdev->pdev->dev,
++			"failed to enable rx vlan offload, ret = %d\n", ret);
++		return ret;
++	}
++
+ 	return hclgevf_set_vlan_filter(&hdev->nic, htons(ETH_P_8021Q), 0,
+ 				       false);
+ }
+-- 
+2.34.1
+

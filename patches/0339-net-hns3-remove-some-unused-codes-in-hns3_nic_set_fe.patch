@@ -1,0 +1,53 @@
+From 5edf6687e835e1f3e0104d52e5fb7abe29b2cabe Mon Sep 17 00:00:00 2001
+From: Huazhong Tan <tanhuazhong@huawei.com>
+Date: Sat, 30 May 2020 09:08:32 +0800
+Subject: [PATCH 021/268] net: hns3: remove some unused codes in
+ hns3_nic_set_features()
+
+mainline inclusion
+from mainline-v5.8-rc1
+commit 996aade998ac0e9f6f0bf09531c32f1106d9d559
+category: cleanup
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EJ0A
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=996aade998ac0e9f6f0bf09531c32f1106d9d559
+
+--------------------------------
+
+NETIF_F_HW_VLAN_CTAG_FILTER is not set in netdev->hw_feature for
+the HNS3 driver, so the handler of NETIF_F_HW_VLAN_CTAG_FILTER
+in hns3_nic_set_features() won't be called, remove it.
+
+Reported-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 8 --------
+ 1 file changed, 8 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index 384ee4606051..8279aa124ac9 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -1596,14 +1596,6 @@ static int hns3_nic_set_features(struct net_device *netdev,
+ 	}
+ #endif
+ 
+-	if ((changed & NETIF_F_HW_VLAN_CTAG_FILTER) &&
+-	    h->ae_algo->ops->enable_vlan_filter) {
+-		enable = !!(features & NETIF_F_HW_VLAN_CTAG_FILTER);
+-		ret = h->ae_algo->ops->enable_vlan_filter(h, enable);
+-		if (ret)
+-			return ret;
+-	}
+-
+ 	if ((changed & NETIF_F_HW_VLAN_CTAG_RX) &&
+ 	    h->ae_algo->ops->enable_hw_strip_rxvtag) {
+ 		enable = !!(features & NETIF_F_HW_VLAN_CTAG_RX);
+-- 
+2.34.1
+

@@ -1,0 +1,53 @@
+From cfbc59b0c04c6129cf03b6cc7c3b2781d3c68496 Mon Sep 17 00:00:00 2001
+From: Jie Wang <wangjie125@huawei.com>
+Date: Thu, 18 Nov 2021 20:44:50 +0800
+Subject: [PATCH 139/268] net: hns3: fix data endian problem of some functions
+ of debugfs
+
+mainline inclusion
+from mainline-v5.15
+commit 2a21dab594a98c338c4bfbc31864cbca15888549
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMYT
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=2a21dab594a98c338c4bfbc31864cbca15888549
+
+----------------------------------------------------------------------
+
+The member data in struct hclge_desc is type of __le32, it needs endian
+conversion before using it, and some functions of debugfs didn't do that,
+so this patch fixes it.
+
+Fixes: c0ebebb9ccc1 ("net: hns3: Add "dcb register" status information query function")
+Signed-off-by: Jie Wang <wangjie125@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_debugfs.c
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_debugfs.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_debugfs.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_debugfs.c
+index 6d03af2597b3..985e6677ea27 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_debugfs.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_debugfs.c
+@@ -521,7 +521,8 @@ static int hclge_dbg_dump_dcb_port(struct hclge_dev *hdev, char *buf, int len,
+ 
+ 	req.bitmap = (u8)le32_to_cpu(desc.data[1]);
+ 
+-	*pos += scnprintf(buf + *pos, len - *pos, "port_mask: %#x\n", req.bit0);
++	*pos += scnprintf(buf + *pos, len - *pos, "port_mask: %#x\n",
++			 req.bit0);
+ 	*pos += scnprintf(buf + *pos, len - *pos, "port_shaping_pass: %#x\n",
+ 			 req.bit1);
+ 
+-- 
+2.34.1
+

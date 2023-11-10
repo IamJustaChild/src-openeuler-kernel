@@ -1,0 +1,74 @@
+From 2c8458525606c4164ab50ac58eb4004c25e7f893 Mon Sep 17 00:00:00 2001
+From: Jie Wang <wangjie125@huawei.com>
+Date: Thu, 28 Jul 2022 16:49:48 +0800
+Subject: [PATCH 224/268] net: hns3: refactor hclge_update_desc_vfid for
+ extension
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN49
+CVE: NA
+
+----------------------------------------------------------------------
+
+Now, hclge_update_desc_vfid is used to set vf bitmap for batch operations.
+But it used fixed description index, so it is hard to extend for more
+scenario.
+
+So this patch refactor description index in the function for reuse.
+
+Fixes: a90bb9a5ea1d ("net: hns3: Cleanup for endian issue in hns3 driver")
+Signed-off-by: Jie Wang <wangjie125@huawei.com>
+(cherry picked from commit 417e0f6b3c4624a400f8741d1ef6713817bc62f8)
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ .../net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index ecc792a57c23..2b644db7f9d6 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -8341,16 +8341,16 @@ static int hclge_update_desc_vfid(struct hclge_desc *desc, int vfid, bool clr)
+ 		word_num = vfid / 32;
+ 		bit_num  = vfid % 32;
+ 		if (clr)
+-			desc[1].data[word_num] &= cpu_to_le32(~(1 << bit_num));
++			desc[0].data[word_num] &= cpu_to_le32(~(1 << bit_num));
+ 		else
+-			desc[1].data[word_num] |= cpu_to_le32(1 << bit_num);
++			desc[0].data[word_num] |= cpu_to_le32(1 << bit_num);
+ 	} else {
+ 		word_num = (vfid - HCLGE_VF_NUM_IN_FIRST_DESC) / 32;
+ 		bit_num  = vfid % 32;
+ 		if (clr)
+-			desc[2].data[word_num] &= cpu_to_le32(~(1 << bit_num));
++			desc[1].data[word_num] &= cpu_to_le32(~(1 << bit_num));
+ 		else
+-			desc[2].data[word_num] |= cpu_to_le32(1 << bit_num);
++			desc[1].data[word_num] |= cpu_to_le32(1 << bit_num);
+ 	}
+ 
+ 	return 0;
+@@ -8824,7 +8824,7 @@ int hclge_add_mc_addr_common(struct hclge_vport *vport,
+ 		memset(desc[1].data, 0, sizeof(desc[0].data));
+ 		memset(desc[2].data, 0, sizeof(desc[0].data));
+ 	}
+-	status = hclge_update_desc_vfid(desc, vport->vport_id, false);
++	status = hclge_update_desc_vfid(&desc[1], vport->vport_id, false);
+ 	if (status)
+ 		return status;
+ 	status = hclge_add_mac_vlan_tbl(vport, &req, desc);
+@@ -8869,7 +8869,8 @@ int hclge_rm_mc_addr_common(struct hclge_vport *vport,
+ 	status = hclge_lookup_mc_mac_vlan_tbl(vport, &req, desc);
+ 	if (!status) {
+ 		/* This mac addr exist, remove this handle's VFID for it */
+-		status = hclge_update_desc_vfid(desc, vport->vport_id, true);
++		status = hclge_update_desc_vfid(&desc[1], vport->vport_id,
++						true);
+ 		if (status)
+ 			return status;
+ 
+-- 
+2.34.1
+

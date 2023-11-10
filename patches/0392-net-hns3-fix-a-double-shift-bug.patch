@@ -1,0 +1,56 @@
+From f579094f49c090d498b256a842508c9b502faa25 Mon Sep 17 00:00:00 2001
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Date: Sat, 24 Jul 2021 15:45:20 +0800
+Subject: [PATCH 074/268] net: hns3: fix a double shift bug
+
+mainline inclusion
+from mainline-v5.14-rc1
+commit 956c3ae411b2746c5018e0454909eb8c662b31ef
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMUR
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=956c3ae411b2746c5018e0454909eb8c662b31ef
+
+----------------------------------------------------------------------
+
+These flags are used to set and test bits like this:
+
+	if (!test_bit(HCLGE_PTP_FLAG_TX_EN, &ptp->flags) ||
+
+The issue is that test_bit() takes a bit number like 1, but we are
+passing BIT(1) instead and it's testing BIT(BIT(1)).  This does not
+cause a problem because it is always done consistently and the bit
+values are very small.
+
+Fixes: 0bf5eb788512 ("net: hns3: add support for PTP")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ptp.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ptp.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ptp.h
+index b3ca7afdaaa6..5a202b775471 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ptp.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ptp.h
+@@ -43,9 +43,9 @@
+ #define HCLGE_PTP_SEC_H_OFFSET		32u
+ #define HCLGE_PTP_SEC_L_MASK		GENMASK(31, 0)
+ 
+-#define HCLGE_PTP_FLAG_EN		BIT(0)
+-#define HCLGE_PTP_FLAG_TX_EN		BIT(1)
+-#define HCLGE_PTP_FLAG_RX_EN		BIT(2)
++#define HCLGE_PTP_FLAG_EN		0
++#define HCLGE_PTP_FLAG_TX_EN		1
++#define HCLGE_PTP_FLAG_RX_EN		2
+ 
+ struct hclge_ptp {
+ 	struct hclge_dev *hdev;
+-- 
+2.34.1
+

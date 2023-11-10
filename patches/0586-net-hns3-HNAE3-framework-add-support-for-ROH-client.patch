@@ -1,0 +1,424 @@
+From b71d63ef25c3fd91cc7e8a797a754636bce56259 Mon Sep 17 00:00:00 2001
+From: Ke Chen <chenke54@huawei.com>
+Date: Mon, 7 Nov 2022 19:53:01 +0800
+Subject: [PATCH 268/268] net: hns3: HNAE3 framework add support for ROH client
+
+driver inclusion
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I5WKYW
+
+-----------------------------------------------------------------------
+
+HNAE3 framework supports ROH clients to register with HNAE3
+devices and their associated operations.
+
+The ROH driver works as a client at the HNAE layer. The NIC
+driver needs to provide some necessary information, such as
+the vector base address, and suppor the registration of the
+ROH client.
+
+This patch also supports roh device IDs in the hns3 and hclge
+modules.
+
+Signed-off-by: Yufeng Mo <moyufeng@huawei.com>
+Signed-off-by: Ke Chen <chenke54@huawei.com>
+Reviewed-by: Gang Zhang <gang.zhang@huawei.com>
+Reviewed-by: Yefeng Yan <yanyefeng@huawei.com>
+Reviewed-by: Jingchao Dai <daijingchao1@huawei.com>
+Reviewed-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hnae3.c   |  10 +-
+ drivers/net/ethernet/hisilicon/hns3/hnae3.h   |  13 ++-
+ .../net/ethernet/hisilicon/hns3/hns3_enet.c   |  20 +++-
+ .../hisilicon/hns3/hns3pf/hclge_cmd.h         |   4 +-
+ .../hisilicon/hns3/hns3pf/hclge_debugfs.c     |   2 +
+ .../hisilicon/hns3/hns3pf/hclge_main.c        | 104 +++++++++++++++++-
+ .../hisilicon/hns3/hns3pf/hclge_main.h        |   4 +
+ .../hisilicon/hns3/hns3vf/hclgevf_main.c      |   4 +-
+ 8 files changed, 150 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3.c b/drivers/net/ethernet/hisilicon/hns3/hnae3.c
+index a90921bd07e7..945200a3b02c 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3.c
+@@ -40,7 +40,8 @@ static DEFINE_MUTEX(hnae3_common_lock);
+ static bool hnae3_client_match(enum hnae3_client_type client_type)
+ {
+ 	if (client_type == HNAE3_CLIENT_KNIC ||
+-	    client_type == HNAE3_CLIENT_ROCE)
++	    client_type == HNAE3_CLIENT_ROCE ||
++	    client_type == HNAE3_CLIENT_ROH)
+ 		return true;
+ 
+ 	return false;
+@@ -60,6 +61,9 @@ void hnae3_set_client_init_flag(struct hnae3_client *client,
+ 	case HNAE3_CLIENT_ROCE:
+ 		hnae3_set_bit(ae_dev->flag, HNAE3_ROCE_CLIENT_INITED_B, inited);
+ 		break;
++	case HNAE3_CLIENT_ROH:
++		hnae3_set_bit(ae_dev->flag, HNAE3_ROH_CLIENT_INITED_B, inited);
++		break;
+ 	default:
+ 		break;
+ 	}
+@@ -80,6 +84,10 @@ static int hnae3_get_client_init_flag(struct hnae3_client *client,
+ 		inited = hnae3_get_bit(ae_dev->flag,
+ 				       HNAE3_ROCE_CLIENT_INITED_B);
+ 		break;
++	case HNAE3_CLIENT_ROH:
++		inited = hnae3_get_bit(ae_dev->flag,
++				       HNAE3_ROH_CLIENT_INITED_B);
++		break;
+ 	default:
+ 		break;
+ 	}
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3.h b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+index 041472a69bbd..99cb5df69969 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+@@ -55,8 +55,8 @@
+ #define HNAE3_DEV_ID_200G_RDMA			0xA228
+ #define HNAE3_DEV_ID_200G_ROH			0xA22C
+ #define HNAE3_DEV_ID_400G_ROH			0xA22D
+-#define HNAE3_DEV_ID_100G_VF			0xA22E
+-#define HNAE3_DEV_ID_100G_RDMA_DCB_PFC_VF	0xA22F
++#define HNAE3_DEV_ID_VF				0xA22E
++#define HNAE3_DEV_ID_RDMA_DCB_PFC_VF		0xA22F
+ 
+ #define HNAE3_CLASS_NAME_SIZE 16
+ 
+@@ -69,6 +69,7 @@
+ #define HNAE3_KNIC_CLIENT_INITED_B		0x3
+ #define HNAE3_UNIC_CLIENT_INITED_B		0x4
+ #define HNAE3_ROCE_CLIENT_INITED_B		0x5
++#define HNAE3_ROH_CLIENT_INITED_B		0x6
+ 
+ #define HNAE3_DEV_SUPPORT_ROCE_DCB_BITS (BIT(HNAE3_DEV_SUPPORT_DCB_B) | \
+ 		BIT(HNAE3_DEV_SUPPORT_ROCE_B))
+@@ -231,6 +232,7 @@ enum hnae3_loop {
+ enum hnae3_client_type {
+ 	HNAE3_CLIENT_KNIC,
+ 	HNAE3_CLIENT_ROCE,
++	HNAE3_CLIENT_ROH,
+ };
+ 
+ enum hnae3_mac_type {
+@@ -916,6 +918,12 @@ struct hnae3_roce_private_info {
+ 	unsigned long state;
+ };
+ 
++struct hnae3_roh_private_info {
++	struct net_device *netdev;
++	void __iomem *roh_io_base;
++	int base_vector;
++};
++
+ #define HNAE3_SUPPORT_APP_LOOPBACK    BIT(0)
+ #define HNAE3_SUPPORT_PHY_LOOPBACK    BIT(1)
+ #define HNAE3_SUPPORT_SERDES_SERIAL_LOOPBACK	BIT(2)
+@@ -951,6 +959,7 @@ struct hnae3_handle {
+ 		struct net_device *netdev; /* first member */
+ 		struct hnae3_knic_private_info kinfo;
+ 		struct hnae3_roce_private_info rinfo;
++		struct hnae3_roh_private_info rohinfo;
+ 	};
+ 
+ 	u32 numa_node_mask;	/* for multi-chip support */
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index 644d76278cc7..16b27f1f7290 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -91,8 +91,16 @@ const struct pci_device_id hns3_pci_tbl[] = {
+ 	 HNAE3_DEV_SUPPORT_ROCE_DCB_BITS},
+ 	{PCI_VDEVICE(HUAWEI, HNAE3_DEV_ID_100G_RDMA_MACSEC),
+ 	 HNAE3_DEV_SUPPORT_ROCE_DCB_BITS},
+-	{PCI_VDEVICE(HUAWEI, HNAE3_DEV_ID_100G_VF), 0},
+-	{PCI_VDEVICE(HUAWEI, HNAE3_DEV_ID_100G_RDMA_DCB_PFC_VF),
++	 {PCI_VDEVICE(HUAWEI, HNAE3_DEV_ID_100G_ROH),
++	 HNAE3_DEV_SUPPORT_ROCE_DCB_BITS},
++	{PCI_VDEVICE(HUAWEI, HNAE3_DEV_ID_200G_RDMA),
++	 HNAE3_DEV_SUPPORT_ROCE_DCB_BITS},
++	{PCI_VDEVICE(HUAWEI, HNAE3_DEV_ID_200G_ROH),
++	 HNAE3_DEV_SUPPORT_ROCE_DCB_BITS},
++	{PCI_VDEVICE(HUAWEI, HNAE3_DEV_ID_400G_ROH),
++	 HNAE3_DEV_SUPPORT_ROCE_DCB_BITS},
++	{PCI_VDEVICE(HUAWEI, HNAE3_DEV_ID_VF), 0},
++	{PCI_VDEVICE(HUAWEI, HNAE3_DEV_ID_RDMA_DCB_PFC_VF),
+ 	 HNAE3_DEV_SUPPORT_ROCE_DCB_BITS},
+ 	/* required last entry */
+ 	{0,}
+@@ -2764,9 +2772,13 @@ bool hns3_is_phys_func(struct pci_dev *pdev)
+ 	case HNAE3_DEV_ID_50GE_RDMA:
+ 	case HNAE3_DEV_ID_50GE_RDMA_MACSEC:
+ 	case HNAE3_DEV_ID_100G_RDMA_MACSEC:
++	case HNAE3_DEV_ID_100G_ROH:
++	case HNAE3_DEV_ID_200G_RDMA:
++	case HNAE3_DEV_ID_200G_ROH:
++	case HNAE3_DEV_ID_400G_ROH:
+ 		return true;
+-	case HNAE3_DEV_ID_100G_VF:
+-	case HNAE3_DEV_ID_100G_RDMA_DCB_PFC_VF:
++	case HNAE3_DEV_ID_VF:
++	case HNAE3_DEV_ID_RDMA_DCB_PFC_VF:
+ 		return false;
+ 	default:
+ 		dev_warn(&pdev->dev, "un-recognized pci device-id %u",
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+index 16ba7e0d8d71..d7887e49c109 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+@@ -180,7 +180,9 @@ struct hclge_pf_res_cmd {
+ 	__le16 pf_own_fun_number;
+ 	__le16 tx_buf_size;
+ 	__le16 dv_buf_size;
+-	__le32 rsv[2];
++	__le16 ext_tqp_num;
++	__le16 pf_intr_vector_number_roh;
++	u8 rsv[4];
+ };
+ 
+ #define HCLGE_CFG_OFFSET_S	0
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_debugfs.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_debugfs.c
+index cf3bbfa2bac5..4d927e327c23 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_debugfs.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_debugfs.c
+@@ -1935,6 +1935,8 @@ static int hclge_dbg_dump_interrupt(struct hclge_dev *hdev, char *buf, int len)
+ 			 hdev->num_nic_msi);
+ 	pos += scnprintf(buf + pos, len - pos, "num_roce_msi: %u\n",
+ 			 hdev->num_roce_msi);
++	pos += scnprintf(buf + pos, len - pos, "num_roh_msi: %u\n",
++			 hdev->num_roh_msi);
+ 	pos += scnprintf(buf + pos, len - pos, "num_msi_used: %u\n",
+ 			 hdev->num_msi_used);
+ 	pos += scnprintf(buf + pos, len - pos, "num_msi_left: %u\n",
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 827d0e63ac1c..bcc28501475d 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -89,7 +89,10 @@ static const struct pci_device_id ae_algo_pci_tbl[] = {
+ 	{PCI_VDEVICE(HUAWEI, HNAE3_DEV_ID_50GE_RDMA), 0},
+ 	{PCI_VDEVICE(HUAWEI, HNAE3_DEV_ID_50GE_RDMA_MACSEC), 0},
+ 	{PCI_VDEVICE(HUAWEI, HNAE3_DEV_ID_100G_RDMA_MACSEC), 0},
++	{PCI_VDEVICE(HUAWEI, HNAE3_DEV_ID_100G_ROH), 0},
+ 	{PCI_VDEVICE(HUAWEI, HNAE3_DEV_ID_200G_RDMA), 0},
++	{PCI_VDEVICE(HUAWEI, HNAE3_DEV_ID_200G_ROH), 0},
++	{PCI_VDEVICE(HUAWEI, HNAE3_DEV_ID_400G_ROH), 0},
+ 	/* required last entry */
+ 	{0, }
+ };
+@@ -1036,11 +1039,14 @@ static int hclge_query_pf_resource(struct hclge_dev *hdev)
+ 	if (hnae3_dev_roce_supported(hdev)) {
+ 		hdev->num_roce_msi =
+ 			le16_to_cpu(req->pf_intr_vector_number_roce);
++		hdev->num_roh_msi =
++			le16_to_cpu(req->pf_intr_vector_number_roh);
+ 
+ 		/* PF should have NIC vectors and Roce vectors,
+ 		 * NIC vectors are queued before Roce vectors.
+ 		 */
+-		hdev->num_msi = hdev->num_nic_msi + hdev->num_roce_msi;
++		hdev->num_msi = hdev->num_nic_msi + hdev->num_roce_msi +
++				hdev->num_roh_msi;
+ 	} else {
+ 		hdev->num_msi = hdev->num_nic_msi;
+ 	}
+@@ -2646,6 +2652,25 @@ static int hclge_init_roce_base_info(struct hclge_vport *vport)
+ 	return 0;
+ }
+ 
++static int hclge_init_roh_base_info(struct hclge_vport *vport)
++{
++	struct hnae3_handle *roh = &vport->roh;
++	struct hnae3_handle *nic = &vport->nic;
++	struct hclge_dev *hdev = vport->back;
++
++	if (hdev->num_msi < hdev->num_nic_msi + hdev->num_roce_msi +
++		hdev->num_roh_msi)
++		return -EINVAL;
++
++	roh->rohinfo.netdev = nic->kinfo.netdev;
++	roh->rohinfo.roh_io_base = hdev->hw.hw.io_base;
++
++	roh->pdev = nic->pdev;
++	roh->ae_algo = nic->ae_algo;
++
++	return 0;
++}
++
+ static int hclge_init_msi(struct hclge_dev *hdev)
+ {
+ 	struct pci_dev *pdev = hdev->pdev;
+@@ -5009,6 +5034,8 @@ struct hclge_vport *hclge_get_vport(struct hnae3_handle *handle)
+ 		return container_of(handle, struct hclge_vport, nic);
+ 	else if (handle->client->type == HNAE3_CLIENT_ROCE)
+ 		return container_of(handle, struct hclge_vport, roce);
++	else if (handle->client->type == HNAE3_CLIENT_ROH)
++		return container_of(handle, struct hclge_vport, roh);
+ 	else
+ 		return container_of(handle, struct hclge_vport, nic);
+ }
+@@ -11323,6 +11350,47 @@ static int hclge_init_roce_client_instance(struct hnae3_ae_dev *ae_dev,
+ 	return ret;
+ }
+ 
++static int hclge_init_roh_client_instance(struct hnae3_ae_dev *ae_dev,
++					  struct hclge_vport *vport)
++{
++	struct hclge_dev *hdev = ae_dev->priv;
++	struct hnae3_client *client;
++	int rst_cnt;
++	int ret;
++
++	if (!hdev->roh_client || !hdev->nic_client)
++		return 0;
++
++	client = hdev->roh_client;
++	ret = hclge_init_roh_base_info(vport);
++	if (ret)
++		return ret;
++
++	rst_cnt = hdev->rst_stats.reset_cnt;
++	ret = client->ops->init_instance(&vport->roh);
++	if (ret)
++		return ret;
++
++	if (test_bit(HCLGE_STATE_RST_HANDLING, &hdev->state) ||
++	    rst_cnt != hdev->rst_stats.reset_cnt) {
++		ret = -EBUSY;
++		goto init_roh_err;
++	}
++
++	set_bit(HCLGE_STATE_ROH_REGISTERED, &hdev->state);
++	hnae3_set_client_init_flag(client, ae_dev, 1);
++
++	return 0;
++
++init_roh_err:
++	while (test_bit(HCLGE_STATE_RST_HANDLING, &hdev->state))
++		msleep(HCLGE_WAIT_RESET_DONE);
++
++	hdev->roh_client->ops->uninit_instance(&vport->roh, 0);
++
++	return ret;
++}
++
+ static int hclge_init_client_instance(struct hnae3_client *client,
+ 				      struct hnae3_ae_dev *ae_dev)
+ {
+@@ -11338,6 +11406,14 @@ static int hclge_init_client_instance(struct hnae3_client *client,
+ 		if (ret)
+ 			goto clear_nic;
+ 
++		ret = hclge_init_roh_client_instance(ae_dev, vport);
++		if (ret) {
++			dev_err(&hdev->pdev->dev,
++				"failed to init roh client, ret = %d\n", ret);
++			hdev->roh_client = NULL;
++			vport->roh.client = NULL;
++		}
++
+ 		ret = hclge_init_roce_client_instance(ae_dev, vport);
+ 		if (ret)
+ 			goto clear_roce;
+@@ -11353,6 +11429,15 @@ static int hclge_init_client_instance(struct hnae3_client *client,
+ 		if (ret)
+ 			goto clear_roce;
+ 
++		break;
++	case HNAE3_CLIENT_ROH:
++		hdev->roh_client = client;
++		vport->roh.client = client;
++
++		ret = hclge_init_roh_client_instance(ae_dev, vport);
++		if (ret)
++			goto clear_roh;
++
+ 		break;
+ 	default:
+ 		return -EINVAL;
+@@ -11368,6 +11453,10 @@ static int hclge_init_client_instance(struct hnae3_client *client,
+ 	hdev->roce_client = NULL;
+ 	vport->roce.client = NULL;
+ 	return ret;
++clear_roh:
++	hdev->roh_client = NULL;
++	vport->roh.client = NULL;
++	return ret;
+ }
+ 
+ static void hclge_uninit_client_instance(struct hnae3_client *client,
+@@ -11376,6 +11465,19 @@ static void hclge_uninit_client_instance(struct hnae3_client *client,
+ 	struct hclge_dev *hdev = ae_dev->priv;
+ 	struct hclge_vport *vport = &hdev->vport[0];
+ 
++	if (hdev->roh_client && (client->type == HNAE3_CLIENT_ROH ||
++				 client->type == HNAE3_CLIENT_KNIC)) {
++		clear_bit(HCLGE_STATE_ROH_REGISTERED, &hdev->state);
++		while (test_bit(HCLGE_STATE_RST_HANDLING, &hdev->state))
++			msleep(HCLGE_WAIT_RESET_DONE);
++
++		hdev->roh_client->ops->uninit_instance(&vport->roh, 0);
++		hdev->roh_client = NULL;
++		vport->roh.client = NULL;
++	}
++	if (client->type == HNAE3_CLIENT_ROH)
++		return;
++
+ 	if (hdev->roce_client) {
+ 		clear_bit(HCLGE_STATE_ROCE_REGISTERED, &hdev->state);
+ 		while (test_bit(HCLGE_STATE_RST_HANDLING, &hdev->state))
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+index 067eb8dcde51..2311dc45ff6e 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+@@ -217,6 +217,7 @@ enum HCLGE_DEV_STATE {
+ 	HCLGE_STATE_REMOVING,
+ 	HCLGE_STATE_NIC_REGISTERED,
+ 	HCLGE_STATE_ROCE_REGISTERED,
++	HCLGE_STATE_ROH_REGISTERED,
+ 	HCLGE_STATE_SERVICE_INITED,
+ 	HCLGE_STATE_RST_SERVICE_SCHED,
+ 	HCLGE_STATE_RST_HANDLING,
+@@ -910,6 +911,7 @@ struct hclge_dev {
+ 	int *vector_irq;
+ 	u16 num_nic_msi;	/* Num of nic vectors for this PF */
+ 	u16 num_roce_msi;	/* Num of roce vectors for this PF */
++	u16 num_roh_msi;	/* Num of roh vectors for this PF */
+ 
+ 	unsigned long service_timer_period;
+ 	unsigned long service_timer_previous;
+@@ -926,6 +928,7 @@ struct hclge_dev {
+ 
+ 	struct hnae3_client *nic_client;
+ 	struct hnae3_client *roce_client;
++	struct hnae3_client *roh_client;
+ 
+ #define HCLGE_FLAG_MAIN			BIT(0)
+ #define HCLGE_FLAG_DCB_CAPABLE		BIT(1)
+@@ -1085,6 +1088,7 @@ struct hclge_vport {
+ 	struct hclge_dev *back;  /* Back reference to associated dev */
+ 	struct hnae3_handle nic;
+ 	struct hnae3_handle roce;
++	struct hnae3_handle roh;
+ 
+ 	unsigned long state;
+ 	unsigned long need_notify;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+index 271321f02a0e..22f8dfe86df8 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+@@ -24,8 +24,8 @@ static struct hnae3_ae_algo ae_algovf;
+ static struct workqueue_struct *hclgevf_wq;
+ 
+ static const struct pci_device_id ae_algovf_pci_tbl[] = {
+-	{PCI_VDEVICE(HUAWEI, HNAE3_DEV_ID_100G_VF), 0},
+-	{PCI_VDEVICE(HUAWEI, HNAE3_DEV_ID_100G_RDMA_DCB_PFC_VF), 0},
++	{PCI_VDEVICE(HUAWEI, HNAE3_DEV_ID_VF), 0},
++	{PCI_VDEVICE(HUAWEI, HNAE3_DEV_ID_RDMA_DCB_PFC_VF), 0},
+ 	/* required last entry */
+ 	{0, }
+ };
+-- 
+2.34.1
+

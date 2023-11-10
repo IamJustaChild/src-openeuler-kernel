@@ -1,0 +1,284 @@
+From 60ce465e2b583142fc9bd1ffc30b8a182beac260 Mon Sep 17 00:00:00 2001
+From: Hao Lan <lanhao@huawei.com>
+Date: Wed, 26 Apr 2023 17:40:13 +0800
+Subject: [PATCH 251/268] net: hns3: sync linux kernel hns3 wol to openeuler
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN49
+CVE: NA
+
+----------------------------------------------------------------------
+
+After the wol is commit to the linux community,
+the code is different from the openEuler.
+This patch synchronizes the kernel differences to the openEuler.
+
+Signed-off-by: Hao Lan <lanhao@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ .../net/ethernet/hisilicon/hns3/hns3_enet.h   |  6 ++
+ .../ethernet/hisilicon/hns3/hns3_ethtool.c    | 12 +--
+ .../hisilicon/hns3/hns3pf/hclge_cmd.h         | 11 ---
+ .../hisilicon/hns3/hns3pf/hclge_debugfs.c     | 16 ++--
+ .../hisilicon/hns3/hns3pf/hclge_main.c        | 95 ++++---------------
+ 5 files changed, 41 insertions(+), 99 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
+index 36342762f85d..19670ff928ce 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
+@@ -689,6 +689,12 @@ static inline unsigned int hns3_page_order(struct hns3_enet_ring *ring)
+ #define hns3_get_handle(ndev) \
+ 	(((struct hns3_nic_priv *)netdev_priv(ndev))->ae_handle)
+ 
++#define hns3_get_ae_dev(handle) \
++	(pci_get_drvdata((handle)->pdev))
++
++#define hns3_get_ops(handle) \
++	((handle)->ae_algo->ops)
++
+ #define hns3_gl_usec_to_reg(int_gl) ((int_gl) >> 1)
+ #define hns3_gl_round_down(int_gl) round_down(int_gl, 2)
+ 
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+index 5b813388cf7e..30df999bd87e 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+@@ -1994,10 +1994,10 @@ static int hns3_get_link_ext_state(struct net_device *netdev,
+ static void hns3_get_wol(struct net_device *netdev, struct ethtool_wolinfo *wol)
+ {
+ 	struct hnae3_handle *handle = hns3_get_handle(netdev);
+-	struct hnae3_ae_dev *ae_dev = pci_get_drvdata(handle->pdev);
+-	const struct hnae3_ae_ops *ops = handle->ae_algo->ops;
++	const struct hnae3_ae_ops *ops = hns3_get_ops(handle);
++	struct hnae3_ae_dev *ae_dev = hns3_get_ae_dev(handle);
+ 
+-	if (!hnae3_ae_dev_wol_supported(ae_dev) || !ops->get_wol)
++	if (!hnae3_ae_dev_wol_supported(ae_dev))
+ 		return;
+ 
+ 	ops->get_wol(handle, wol);
+@@ -2007,10 +2007,10 @@ static int hns3_set_wol(struct net_device *netdev,
+ 			struct ethtool_wolinfo *wol)
+ {
+ 	struct hnae3_handle *handle = hns3_get_handle(netdev);
+-	struct hnae3_ae_dev *ae_dev = pci_get_drvdata(handle->pdev);
+-	const struct hnae3_ae_ops *ops = handle->ae_algo->ops;
++	const struct hnae3_ae_ops *ops = hns3_get_ops(handle);
++	struct hnae3_ae_dev *ae_dev = hns3_get_ae_dev(handle);
+ 
+-	if (!hnae3_ae_dev_wol_supported(ae_dev) || !ops->set_wol)
++	if (!hnae3_ae_dev_wol_supported(ae_dev))
+ 		return -EOPNOTSUPP;
+ 
+ 	return ops->set_wol(handle, wol);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+index 3773a9ff6301..16ba7e0d8d71 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+@@ -936,17 +936,6 @@ struct hclge_phy_reg_cmd {
+ };
+ 
+ int hclge_cmd_init(struct hclge_dev *hdev);
+-enum HCLGE_WOL_MODE {
+-	HCLGE_WOL_PHY           = BIT(0),
+-	HCLGE_WOL_UNICAST       = BIT(1),
+-	HCLGE_WOL_MULTICAST     = BIT(2),
+-	HCLGE_WOL_BROADCAST     = BIT(3),
+-	HCLGE_WOL_ARP           = BIT(4),
+-	HCLGE_WOL_MAGIC         = BIT(5),
+-	HCLGE_WOL_MAGICSECURED  = BIT(6),
+-	HCLGE_WOL_FILTER        = BIT(7),
+-	HCLGE_WOL_DISABLE       = 0,
+-};
+ 
+ struct hclge_wol_cfg_cmd {
+ 	__le32 wake_on_lan_mode;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_debugfs.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_debugfs.c
+index 862efe4cce85..32f4245dfd6d 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_debugfs.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_debugfs.c
+@@ -2483,29 +2483,29 @@ static int hclge_dbg_dump_umv_info(struct hclge_dev *hdev, char *buf, int len)
+ 
+ static void hclge_dump_wol_mode(u32 mode, char *buf, int len, int *pos)
+ {
+-	if (mode & HCLGE_WOL_PHY)
++	if (mode & WAKE_PHY)
+ 		*pos += scnprintf(buf + *pos, len - *pos, "  [p]phy\n");
+ 
+-	if (mode & HCLGE_WOL_UNICAST)
++	if (mode & WAKE_UCAST)
+ 		*pos += scnprintf(buf + *pos, len - *pos, "  [u]unicast\n");
+ 
+-	if (mode & HCLGE_WOL_MULTICAST)
++	if (mode & WAKE_MCAST)
+ 		*pos += scnprintf(buf + *pos, len - *pos, "  [m]multicast\n");
+ 
+-	if (mode & HCLGE_WOL_BROADCAST)
++	if (mode & WAKE_BCAST)
+ 		*pos += scnprintf(buf + *pos, len - *pos, "  [b]broadcast\n");
+ 
+-	if (mode & HCLGE_WOL_ARP)
++	if (mode & WAKE_ARP)
+ 		*pos += scnprintf(buf + *pos, len - *pos, "  [a]arp\n");
+ 
+-	if (mode & HCLGE_WOL_MAGIC)
++	if (mode & WAKE_MAGIC)
+ 		*pos += scnprintf(buf + *pos, len - *pos, "  [g]magic\n");
+ 
+-	if (mode & HCLGE_WOL_MAGICSECURED)
++	if (mode & WAKE_MAGICSECURE)
+ 		*pos += scnprintf(buf + *pos, len - *pos,
+ 				 "  [s]magic secured\n");
+ 
+-	if (mode & HCLGE_WOL_FILTER)
++	if (mode & WAKE_FILTER)
+ 		*pos += scnprintf(buf + *pos, len - *pos, "  [f]filter\n");
+ }
+ 
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 989cb20a72d0..17468e2b8bc2 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -11586,69 +11586,15 @@ static void hclge_clear_hw_resource(struct hclge_dev *hdev)
+ 			 "clear hw resource incomplete, ret = %d\n", ret);
+ }
+ 
+-static __u32 hclge_wol_mode_to_ethtool(u32 mode)
++static struct hclge_wol_info *hclge_get_wol_info(struct hnae3_handle *handle)
+ {
+-	__u32 ret = 0;
+-
+-	if (mode & HCLGE_WOL_PHY)
+-		ret |= WAKE_PHY;
+-
+-	if (mode & HCLGE_WOL_UNICAST)
+-		ret |= WAKE_UCAST;
+-
+-	if (mode & HCLGE_WOL_MULTICAST)
+-		ret |= WAKE_MCAST;
+-
+-	if (mode & HCLGE_WOL_BROADCAST)
+-		ret |= WAKE_BCAST;
+-
+-	if (mode & HCLGE_WOL_ARP)
+-		ret |= WAKE_ARP;
+-
+-	if (mode & HCLGE_WOL_MAGIC)
+-		ret |= WAKE_MAGIC;
+-
+-	if (mode & HCLGE_WOL_MAGICSECURED)
+-		ret |= WAKE_MAGICSECURE;
+-
+-	if (mode & HCLGE_WOL_FILTER)
+-		ret |= WAKE_FILTER;
+-
+-	return ret;
+-}
+-
+-static u32 hclge_wol_mode_from_ethtool(__u32 mode)
+-{
+-	u32 ret = HCLGE_WOL_DISABLE;
+-
+-	if (mode & WAKE_PHY)
+-		ret |= HCLGE_WOL_PHY;
+-
+-	if (mode & WAKE_UCAST)
+-		ret |= HCLGE_WOL_UNICAST;
+-
+-	if (mode & WAKE_MCAST)
+-		ret |= HCLGE_WOL_MULTICAST;
+-
+-	if (mode & WAKE_BCAST)
+-		ret |= HCLGE_WOL_BROADCAST;
+-
+-	if (mode & WAKE_ARP)
+-		ret |= HCLGE_WOL_ARP;
+-
+-	if (mode & WAKE_MAGIC)
+-		ret |= HCLGE_WOL_MAGIC;
+-
+-	if (mode & WAKE_MAGICSECURE)
+-		ret |= HCLGE_WOL_MAGICSECURED;
+-
+-	if (mode & WAKE_FILTER)
+-		ret |= HCLGE_WOL_FILTER;
++	struct hclge_vport *vport = hclge_get_vport(handle);
+ 
+-	return ret;
++	return &vport->back->hw.mac.wol;
+ }
+ 
+-int hclge_get_wol_supported_mode(struct hclge_dev *hdev, u32 *wol_supported)
++int hclge_get_wol_supported_mode(struct hclge_dev *hdev,
++				 u32 *wol_supported)
+ {
+ 	struct hclge_query_wol_supported_cmd *wol_supported_cmd;
+ 	struct hclge_desc desc;
+@@ -11733,7 +11679,7 @@ static int hclge_init_wol(struct hclge_dev *hdev)
+ 	ret = hclge_get_wol_supported_mode(hdev,
+ 					   &wol_info->wol_support_mode);
+ 	if (ret) {
+-		wol_info->wol_support_mode = HCLGE_WOL_DISABLE;
++		wol_info->wol_support_mode = 0;
+ 		return ret;
+ 	}
+ 
+@@ -11743,38 +11689,39 @@ static int hclge_init_wol(struct hclge_dev *hdev)
+ static void hclge_get_wol(struct hnae3_handle *handle,
+ 			  struct ethtool_wolinfo *wol)
+ {
+-	struct hclge_vport *vport = hclge_get_vport(handle);
+-	struct hclge_dev *hdev = vport->back;
+-	struct hclge_wol_info *wol_info = &hdev->hw.mac.wol;
++	struct hclge_wol_info *wol_info = hclge_get_wol_info(handle);
+ 
+-	wol->supported = hclge_wol_mode_to_ethtool(wol_info->wol_support_mode);
+-	wol->wolopts =
+-		hclge_wol_mode_to_ethtool(wol_info->wol_current_mode);
+-	if (wol_info->wol_current_mode & HCLGE_WOL_MAGICSECURED)
+-		memcpy(&wol->sopass, wol_info->wol_sopass, SOPASS_MAX);
++	wol->supported = wol_info->wol_support_mode;
++	wol->wolopts = wol_info->wol_current_mode;
++	if (wol_info->wol_current_mode & WAKE_MAGICSECURE)
++		memcpy(wol->sopass, wol_info->wol_sopass, SOPASS_MAX);
+ }
+ 
+ static int hclge_set_wol(struct hnae3_handle *handle,
+ 			 struct ethtool_wolinfo *wol)
+ {
++	struct hclge_wol_info *wol_info = hclge_get_wol_info(handle);
+ 	struct hclge_vport *vport = hclge_get_vport(handle);
+-	struct hclge_dev *hdev = vport->back;
+-	struct hclge_wol_info *wol_info = &hdev->hw.mac.wol;
+ 	u32 wol_mode;
++	int ret;
+ 
+-	wol_mode = hclge_wol_mode_from_ethtool(wol->wolopts);
++	wol_mode = wol->wolopts;
+ 	if (wol_mode & ~wol_info->wol_support_mode)
+ 		return -EINVAL;
+ 
+ 	wol_info->wol_current_mode = wol_mode;
+-	if (wol_mode & HCLGE_WOL_MAGICSECURED) {
+-		memcpy(wol_info->wol_sopass, &wol->sopass, SOPASS_MAX);
++	if (wol_mode & WAKE_MAGICSECURE) {
++		memcpy(wol_info->wol_sopass, wol->sopass, SOPASS_MAX);
+ 		wol_info->wol_sopass_size = SOPASS_MAX;
+ 	} else {
+ 		wol_info->wol_sopass_size = 0;
+ 	}
+ 
+-	return hclge_set_wol_cfg(hdev, wol_info);
++	ret = hclge_set_wol_cfg(vport->back, wol_info);
++	if (ret)
++		wol_info->wol_current_mode = 0;
++
++	return ret;
+ }
+ 
+ static int hclge_init_ae_dev(struct hnae3_ae_dev *ae_dev)
+-- 
+2.34.1
+

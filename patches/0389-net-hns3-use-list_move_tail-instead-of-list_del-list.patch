@@ -1,0 +1,67 @@
+From 8fc4e8abda9687de1822df845ee9ea0cc505b521 Mon Sep 17 00:00:00 2001
+From: Baokun Li <libaokun1@huawei.com>
+Date: Sat, 24 Jul 2021 15:45:16 +0800
+Subject: [PATCH 071/268] net: hns3: use list_move_tail instead of
+ list_del/list_add_tail in hclgevf_main.c
+
+mainline inclusion
+from mainline-v5.14-rc1
+commit 49768ce98c2c1766619dfd6d157dd87826738fa7
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMUR
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=49768ce98c2c1766619dfd6d157dd87826738fa7
+
+----------------------------------------------------------------------
+
+Using list_move_tail() instead of list_del() + list_add_tail() in hclgevf_main.c.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ .../net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c    | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+index b9a1b8032c5c..74d2aef34315 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+@@ -1515,8 +1515,7 @@ static void hclgevf_sync_from_add_list(struct list_head *add_list,
+ 			kfree(mac_node);
+ 		} else if (mac_node->state == HCLGEVF_MAC_ACTIVE) {
+ 			mac_node->state = HCLGEVF_MAC_TO_DEL;
+-			list_del(&mac_node->node);
+-			list_add_tail(&mac_node->node, mac_list);
++			list_move_tail(&mac_node->node, mac_list);
+ 		} else {
+ 			list_del(&mac_node->node);
+ 			kfree(mac_node);
+@@ -1541,8 +1540,7 @@ static void hclgevf_sync_from_del_list(struct list_head *del_list,
+ 			list_del(&mac_node->node);
+ 			kfree(mac_node);
+ 		} else {
+-			list_del(&mac_node->node);
+-			list_add_tail(&mac_node->node, mac_list);
++			list_move_tail(&mac_node->node, mac_list);
+ 		}
+ 	}
+ }
+@@ -1578,8 +1576,7 @@ static void hclgevf_sync_mac_list(struct hclgevf_dev *hdev,
+ 	list_for_each_entry_safe(mac_node, tmp, list, node) {
+ 		switch (mac_node->state) {
+ 		case HCLGEVF_MAC_TO_DEL:
+-			list_del(&mac_node->node);
+-			list_add_tail(&mac_node->node, &tmp_del_list);
++			list_move_tail(&mac_node->node, &tmp_del_list);
+ 			break;
+ 		case HCLGEVF_MAC_TO_ADD:
+ 			new_node = kzalloc(sizeof(*new_node), GFP_ATOMIC);
+-- 
+2.34.1
+

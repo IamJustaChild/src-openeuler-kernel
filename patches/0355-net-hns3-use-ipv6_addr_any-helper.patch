@@ -1,0 +1,74 @@
+From 7fbc8c268682d044347f911c7df4723ff237809b Mon Sep 17 00:00:00 2001
+From: Jiaran Zhang <zhangjiaran@huawei.com>
+Date: Sat, 24 Jul 2021 15:43:36 +0800
+Subject: [PATCH 037/268] net: hns3: use ipv6_addr_any() helper
+
+mainline inclusion
+from mainline-v5.12-rc1-dontuse
+commit eaede835675cbae3b84309255f81e9a5e1b502a2
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMQV
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=eaede835675cbae3b84309255f81e9a5e1b502a2
+
+----------------------------------------------------------------------
+
+Use common ipv6_addr_any() to determine if an addr is ipv6 any addr.
+
+Signed-off-by: Jiaran Zhang <zhangjiaran@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ .../net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index a7fa93715f73..f4421e6861cb 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -13,6 +13,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/if_vlan.h>
+ #include <linux/crash_dump.h>
++#include <net/ipv6.h>
+ #include <net/rtnetlink.h>
+ #include "kcompat.h"
+ #include "hclge_cmd.h"
+@@ -5426,12 +5427,10 @@ static int hclge_fd_check_tcpip6_tuple(struct ethtool_tcpip6_spec *spec,
+ 		BIT(INNER_IP_TOS);
+ 
+ 	/* check whether src/dst ip address used */
+-	if (!spec->ip6src[0] && !spec->ip6src[1] &&
+-	    !spec->ip6src[2] && !spec->ip6src[3])
++	if (ipv6_addr_any((struct in6_addr *)spec->ip6src))
+ 		*unused_tuple |= BIT(INNER_SRC_IP);
+ 
+-	if (!spec->ip6dst[0] && !spec->ip6dst[1] &&
+-	    !spec->ip6dst[2] && !spec->ip6dst[3])
++	if (ipv6_addr_any((struct in6_addr *)spec->ip6dst))
+ 		*unused_tuple |= BIT(INNER_DST_IP);
+ 
+ 	if (!spec->psrc)
+@@ -5456,12 +5455,10 @@ static int hclge_fd_check_ip6_tuple(struct ethtool_usrip6_spec *spec,
+ 		BIT(INNER_IP_TOS) | BIT(INNER_SRC_PORT) | BIT(INNER_DST_PORT);
+ 
+ 	/* check whether src/dst ip address used */
+-	if (!spec->ip6src[0] && !spec->ip6src[1] &&
+-	    !spec->ip6src[2] && !spec->ip6src[3])
++	if (ipv6_addr_any((struct in6_addr *)spec->ip6src))
+ 		*unused_tuple |= BIT(INNER_SRC_IP);
+ 
+-	if (!spec->ip6dst[0] && !spec->ip6dst[1] &&
+-	    !spec->ip6dst[2] && !spec->ip6dst[3])
++	if (ipv6_addr_any((struct in6_addr *)spec->ip6dst))
+ 		*unused_tuple |= BIT(INNER_DST_IP);
+ 
+ 	if (!spec->l4_proto)
+-- 
+2.34.1
+

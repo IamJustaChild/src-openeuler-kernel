@@ -1,0 +1,370 @@
+From 8a65d0ad5bd7d2c33f5f8d17d26a5b36fea799fb Mon Sep 17 00:00:00 2001
+From: Hao Lan <lanhao@huawei.com>
+Date: Tue, 6 Sep 2022 17:12:22 +0800
+Subject: [PATCH 221/268] net: hns3: add querying fec statistics
+
+mainline inclusion
+from mainline-v6.1-rc1
+commit 2cb343b9d3e59db0836045ff1dd67dfd15066697
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN49
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=2cb343b9d3e59db0836045ff1dd67dfd15066697
+
+--------------------------------
+
+FEC statistics can be used to check the transmission quality of links.
+This patch implements the get_fec_stats callback of ethtool_ops to support
+querying FEC statistics by command "ethtool -I --show-fec eth0".
+
+Signed-off-by: Hao Lan <lanhao@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hnae3.h
+	drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.c
+	drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h
+	drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+---
+ drivers/net/ethernet/hisilicon/hns3/hnae3.h   |   4 +
+ .../ethernet/hisilicon/hns3/hns3_ethtool.c    |  14 ++
+ .../hisilicon/hns3/hns3pf/hclge_cmd.h         |  15 ++
+ .../hisilicon/hns3/hns3pf/hclge_main.c        | 156 ++++++++++++++++++
+ .../hisilicon/hns3/hns3pf/hclge_main.h        |  22 +++
+ 5 files changed, 211 insertions(+)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3.h b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+index ecfc13415882..b353b0b1915b 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+@@ -182,6 +182,8 @@ enum HNAE3_DEV_CAP_BITS {
+ 
+ #define hnae3_ae_dev_lane_num_supported(ae_dev) \
+ 	test_bit(HNAE3_DEV_SUPPORT_LANE_NUM_B, (ae_dev)->caps)
++#define hnae3_ae_dev_fec_stats_supported(ae_dev) \
++	test_bit(HNAE3_DEV_SUPPORT_FEC_STATS_B, (ae_dev)->caps)
+ 
+ enum HNAE3_PF_CAP_BITS {
+ 	HNAE3_PF_SUPPORT_VLAN_FLTR_MDF_B = 0,
+@@ -619,6 +621,8 @@ struct hnae3_ae_ops {
+ 	void (*get_media_type)(struct hnae3_handle *handle, u8 *media_type,
+ 			       u8 *module_type);
+ 	int (*check_port_speed)(struct hnae3_handle *handle, u32 speed);
++	void (*get_fec_stats)(struct hnae3_handle *handle,
++			      struct ethtool_fec_stats *fec_stats);
+ 	void (*get_fec)(struct hnae3_handle *handle, u8 *fec_ability,
+ 			u8 *fec_mode);
+ 	int (*set_fec)(struct hnae3_handle *handle, u32 fec_mode);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+index 9353539036d9..5b813388cf7e 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+@@ -1582,6 +1582,19 @@ static void hns3_set_msglevel(struct net_device *netdev, u32 msg_level)
+ 	h->msg_enable = msg_level;
+ }
+ 
++static void hns3_get_fec_stats(struct net_device *netdev,
++			       struct ethtool_fec_stats *fec_stats)
++{
++	struct hnae3_handle *handle = hns3_get_handle(netdev);
++	struct hnae3_ae_dev *ae_dev = pci_get_drvdata(handle->pdev);
++	const struct hnae3_ae_ops *ops = handle->ae_algo->ops;
++
++	if (!hnae3_ae_dev_fec_stats_supported(ae_dev) || !ops->get_fec_stats)
++		return;
++
++	ops->get_fec_stats(handle, fec_stats);
++}
++
+ /* Translate local fec value into ethtool value. */
+ static unsigned int loc_to_eth_fec(u8 loc_fec)
+ {
+@@ -2069,6 +2082,7 @@ static const struct ethtool_ops hns3_ethtool_ops = {
+ 	.set_msglevel = hns3_set_msglevel,
+ 	.get_fecparam = hns3_get_fecparam,
+ 	.set_fecparam = hns3_set_fecparam,
++	.get_fec_stats = hns3_get_fec_stats,
+ 	.get_module_info = hns3_get_module_info,
+ 	.get_module_eeprom = hns3_get_module_eeprom,
+ 	.get_priv_flags = hns3_get_priv_flags,
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+index 296facdda4c9..ef1b6d90bd75 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+@@ -122,6 +122,7 @@ enum hclge_opcode_type {
+ 	HCLGE_OPC_MAC_TNL_INT_EN	= 0x0311,
+ 	HCLGE_OPC_CLEAR_MAC_TNL_INT	= 0x0312,
+ 	HCLGE_OPC_COMMON_LOOPBACK       = 0x0315,
++	HCLGE_OPC_QUERY_FEC_STATS       = 0x0316,
+ 	HCLGE_OPC_CONFIG_FEC_MODE	= 0x031A,
+ 	/* check sum command */
+ 	HCLGE_OPC_CFG_CHECKSUM_EN       = 0x0601,
+@@ -727,6 +728,20 @@ struct hclge_config_fec_cmd {
+ 	u8 rsv[22];
+ };
+ 
++#define HCLGE_FEC_STATS_CMD_NUM 4
++
++struct hclge_query_fec_stats_cmd {
++	/* fec rs mode total stats */
++	__le32 rs_fec_corr_blocks;
++	__le32 rs_fec_uncorr_blocks;
++	__le32 rs_fec_error_blocks;
++	/* fec base-r mode per lanes stats */
++	u8 base_r_lane_num;
++	u8 rsv[3];
++	__le32 base_r_fec_corr_blocks;
++	__le32 base_r_fec_uncorr_blocks;
++};
++
+ #define HCLGE_MAC_UPLINK_PORT		0x100
+ 
+ struct hclge_config_max_frm_size_cmd {
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 5cb599ca53ea..ecc792a57c23 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -72,6 +72,7 @@ static void hclge_sync_mac_table(struct hclge_dev *hdev);
+ static void hclge_restore_hw_table(struct hclge_dev *hdev);
+ static void hclge_sync_promisc_mode(struct hclge_dev *hdev);
+ static void hclge_reset_end(struct hnae3_handle *handle, bool done);
++static void hclge_update_fec_stats(struct hclge_dev *hdev);
+ 
+ static struct hnae3_ae_algo ae_algo;
+ 
+@@ -777,6 +778,8 @@ static void hclge_update_stats_for_all(struct hclge_dev *hdev)
+ 		}
+ 	}
+ 
++	hclge_update_fec_stats(hdev);
++
+ 	status = hclge_mac_update_stats(hdev);
+ 	if (status)
+ 		dev_err(&hdev->pdev->dev,
+@@ -2834,6 +2837,157 @@ static int hclge_halt_autoneg(struct hnae3_handle *handle, bool halt)
+ 	return 0;
+ }
+ 
++static void hclge_parse_fec_stats_lanes(struct hclge_dev *hdev,
++					struct hclge_desc *desc, u32 desc_len)
++{
++	u32 lane_size = HCLGE_FEC_STATS_MAX_LANES * 2;
++	u32 desc_index = 0;
++	u32 data_index = 0;
++	u32 i;
++
++	for (i = 0; i < lane_size; i++) {
++		if (data_index >= HCLGE_DESC_DATA_LEN) {
++			desc_index++;
++			data_index = 0;
++		}
++
++		if (desc_index >= desc_len)
++			return;
++
++		hdev->fec_stats.per_lanes[i] +=
++			le32_to_cpu(desc[desc_index].data[data_index]);
++		data_index++;
++	}
++}
++
++static void hclge_parse_fec_stats(struct hclge_dev *hdev,
++				  struct hclge_desc *desc, u32 desc_len)
++{
++	struct hclge_query_fec_stats_cmd *req;
++
++	req = (struct hclge_query_fec_stats_cmd *)desc[0].data;
++
++	hdev->fec_stats.base_r_lane_num = req->base_r_lane_num;
++	hdev->fec_stats.rs_corr_blocks +=
++		le32_to_cpu(req->rs_fec_corr_blocks);
++	hdev->fec_stats.rs_uncorr_blocks +=
++		le32_to_cpu(req->rs_fec_uncorr_blocks);
++	hdev->fec_stats.rs_error_blocks +=
++		le32_to_cpu(req->rs_fec_error_blocks);
++	hdev->fec_stats.base_r_corr_blocks +=
++		le32_to_cpu(req->base_r_fec_corr_blocks);
++	hdev->fec_stats.base_r_uncorr_blocks +=
++		le32_to_cpu(req->base_r_fec_uncorr_blocks);
++
++	hclge_parse_fec_stats_lanes(hdev, &desc[1], desc_len - 1);
++}
++
++static int hclge_update_fec_stats_hw(struct hclge_dev *hdev)
++{
++	struct hclge_desc desc[HCLGE_FEC_STATS_CMD_NUM];
++	int ret;
++	u32 i;
++
++	for (i = 0; i < HCLGE_FEC_STATS_CMD_NUM; i++) {
++		hclge_cmd_setup_basic_desc(&desc[i], HCLGE_OPC_QUERY_FEC_STATS,
++					   true);
++		if (i != (HCLGE_FEC_STATS_CMD_NUM - 1))
++			desc[i].flag |= cpu_to_le16(HCLGE_COMM_CMD_FLAG_NEXT);
++	}
++
++	ret = hclge_cmd_send(&hdev->hw, desc, HCLGE_FEC_STATS_CMD_NUM);
++	if (ret)
++		return ret;
++
++	hclge_parse_fec_stats(hdev, desc, HCLGE_FEC_STATS_CMD_NUM);
++
++	return 0;
++}
++
++static void hclge_update_fec_stats(struct hclge_dev *hdev)
++{
++	struct hnae3_ae_dev *ae_dev = pci_get_drvdata(hdev->pdev);
++	int ret;
++
++	if (!hnae3_ae_dev_fec_stats_supported(ae_dev) ||
++	    test_and_set_bit(HCLGE_STATE_FEC_STATS_UPDATING, &hdev->state))
++		return;
++
++	ret = hclge_update_fec_stats_hw(hdev);
++	if (ret)
++		dev_err(&hdev->pdev->dev,
++			"failed to update fec stats, ret = %d\n", ret);
++
++	clear_bit(HCLGE_STATE_FEC_STATS_UPDATING, &hdev->state);
++}
++
++static void hclge_get_fec_stats_total(struct hclge_dev *hdev,
++				      struct ethtool_fec_stats *fec_stats)
++{
++	fec_stats->corrected_blocks.total = hdev->fec_stats.rs_corr_blocks;
++	fec_stats->uncorrectable_blocks.total =
++		hdev->fec_stats.rs_uncorr_blocks;
++}
++
++static void hclge_get_fec_stats_lanes(struct hclge_dev *hdev,
++				      struct ethtool_fec_stats *fec_stats)
++{
++	u32 i;
++
++	if (hdev->fec_stats.base_r_lane_num == 0 ||
++	    hdev->fec_stats.base_r_lane_num > HCLGE_FEC_STATS_MAX_LANES) {
++		dev_err(&hdev->pdev->dev,
++			"fec stats lane number(%llu) is invalid\n",
++			hdev->fec_stats.base_r_lane_num);
++		return;
++	}
++
++	for (i = 0; i < hdev->fec_stats.base_r_lane_num; i++) {
++		fec_stats->corrected_blocks.lanes[i] =
++			hdev->fec_stats.base_r_corr_per_lanes[i];
++		fec_stats->uncorrectable_blocks.lanes[i] =
++			hdev->fec_stats.base_r_uncorr_per_lanes[i];
++	}
++}
++
++static void hclge_comm_get_fec_stats(struct hclge_dev *hdev,
++				     struct ethtool_fec_stats *fec_stats)
++{
++	u32 fec_mode = hdev->hw.mac.fec_mode;
++
++	switch (fec_mode) {
++	case BIT(HNAE3_FEC_RS):
++	case BIT(HNAE3_FEC_LLRS):
++		hclge_get_fec_stats_total(hdev, fec_stats);
++		break;
++	case BIT(HNAE3_FEC_BASER):
++		hclge_get_fec_stats_lanes(hdev, fec_stats);
++		break;
++	default:
++		dev_err(&hdev->pdev->dev,
++			"fec stats is not supported by current fec mode(0x%x)\n",
++			fec_mode);
++		break;
++	}
++}
++
++static void hclge_get_fec_stats(struct hnae3_handle *handle,
++				struct ethtool_fec_stats *fec_stats)
++{
++	struct hclge_vport *vport = hclge_get_vport(handle);
++	struct hclge_dev *hdev = vport->back;
++	u32 fec_mode = hdev->hw.mac.fec_mode;
++
++	if (fec_mode == BIT(HNAE3_FEC_NONE) ||
++	    fec_mode == BIT(HNAE3_FEC_AUTO) ||
++	    fec_mode == BIT(HNAE3_FEC_USER_DEF))
++		return;
++
++	hclge_update_fec_stats(hdev);
++
++	hclge_comm_get_fec_stats(hdev, fec_stats);
++}
++
+ static int hclge_set_fec_hw(struct hclge_dev *hdev, u32 fec_mode)
+ {
+ 	struct hclge_config_fec_cmd *req;
+@@ -11820,6 +11974,7 @@ static int hclge_init_ae_dev(struct hnae3_ae_dev *ae_dev)
+ static void hclge_stats_clear(struct hclge_dev *hdev)
+ {
+ 	memset(&hdev->mac_stats, 0, sizeof(hdev->mac_stats));
++	memset(&hdev->fec_stats, 0, sizeof(hdev->fec_stats));
+ }
+ 
+ static int hclge_set_mac_spoofchk(struct hclge_dev *hdev, int vf, bool enable)
+@@ -13051,6 +13206,7 @@ struct hnae3_ae_ops hclge_ops = {
+ 	.cfg_mac_speed_dup_h = hclge_cfg_mac_speed_dup_h,
+ 	.get_media_type = hclge_get_media_type,
+ 	.check_port_speed = hclge_check_port_speed,
++	.get_fec_stats = hclge_get_fec_stats,
+ 	.get_fec = hclge_get_fec,
+ 	.set_fec = hclge_set_fec,
+ 	.get_rss_key_size = hclge_get_rss_key_size,
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+index 00b4d476efe8..e2a041114926 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+@@ -246,6 +246,7 @@ enum HCLGE_DEV_STATE {
+ 	HCLGE_STATE_HW_QB_ENABLE,
+ 	HCLGE_STATE_PTP_EN,
+ 	HCLGE_STATE_PTP_TX_HANDLING,
++	HCLGE_STATE_FEC_STATS_UPDATING,
+ 	HCLGE_STATE_MAX
+ };
+ 
+@@ -553,6 +554,26 @@ struct hclge_mac_stats {
+ 
+ #define HCLGE_STATS_TIMER_INTERVAL	300UL
+ 
++/* fec stats ,opcode id: 0x0316 */
++#define HCLGE_FEC_STATS_MAX_LANES	8
++struct hclge_fec_stats {
++	/* fec rs mode total stats */
++	u64 rs_corr_blocks;
++	u64 rs_uncorr_blocks;
++	u64 rs_error_blocks;
++	/* fec base-r mode per lanes stats */
++	u64 base_r_lane_num;
++	u64 base_r_corr_blocks;
++	u64 base_r_uncorr_blocks;
++	union {
++		struct {
++			u64 base_r_corr_per_lanes[HCLGE_FEC_STATS_MAX_LANES];
++			u64 base_r_uncorr_per_lanes[HCLGE_FEC_STATS_MAX_LANES];
++		};
++		u64 per_lanes[HCLGE_FEC_STATS_MAX_LANES * 2];
++	};
++};
++
+ struct hclge_vlan_type_cfg {
+ 	u16 rx_ot_fst_vlan_type;
+ 	u16 rx_ot_sec_vlan_type;
+@@ -842,6 +863,7 @@ struct hclge_dev {
+ 	struct hclge_hw hw;
+ 	struct hclge_misc_vector misc_vector;
+ 	struct hclge_mac_stats mac_stats;
++	struct hclge_fec_stats fec_stats;
+ 	unsigned long state;
+ 	unsigned long flr_state;
+ 	unsigned long last_reset_time;
+-- 
+2.34.1
+

@@ -1,0 +1,61 @@
+From 3ae68d25997b660ee7609b76a42deea2fab6873f Mon Sep 17 00:00:00 2001
+From: Jie Wang <wangjie125@huawei.com>
+Date: Tue, 6 Jun 2023 15:12:20 +0800
+Subject: [PATCH 232/268] net: hns3: add wait until mac link down
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN49
+CVE: NA
+
+----------------------------------------------------------------------
+
+In some configure flow of hns3 driver, for example, change mtu, it will
+disable MAC through firmware before configuration. But firmware disables
+MAC asynchronously. The rx traffic may be not stopped in this case.
+
+So fixes it by waiting until mac link is down.
+
+Fixes: a9775bb64aa7 ("net: hns3: fix set and get link ksettings issue")
+Signed-off-by: Jie Wang <wangjie125@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ .../net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c  | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 0f180546a4d2..6dd6ff86a2d8 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -7698,6 +7698,8 @@ static void hclge_enable_fd(struct hnae3_handle *handle, bool enable)
+ 
+ int hclge_cfg_mac_mode(struct hclge_dev *hdev, bool enable)
+ {
++#define HCLGE_LINK_STATUS_WAIT_CNT  3
++
+ 	struct hclge_desc desc;
+ 	struct hclge_config_mac_mode_cmd *req =
+ 		(struct hclge_config_mac_mode_cmd *)desc.data;
+@@ -7722,11 +7724,17 @@ int hclge_cfg_mac_mode(struct hclge_dev *hdev, bool enable)
+ 	req->txrx_pad_fcs_loop_en = cpu_to_le32(loop_en);
+ 
+ 	ret = hclge_cmd_send(&hdev->hw, &desc, 1);
+-	if (ret)
++	if (ret) {
+ 		dev_err(&hdev->pdev->dev, "failed to %s mac, ret = %d.\n",
+ 			enable ? "enable" : "disable", ret);
++		return ret;
++	}
+ 
+-	return ret;
++	if (!enable)
++		hclge_mac_link_status_wait(hdev, HCLGE_LINK_STATUS_DOWN,
++					   HCLGE_LINK_STATUS_WAIT_CNT);
++
++	return 0;
+ }
+ 
+ static int hclge_config_switch_param(struct hclge_dev *hdev, int vfid,
+-- 
+2.34.1
+

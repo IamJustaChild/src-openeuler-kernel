@@ -1,0 +1,128 @@
+From db462fe92a37cfabd1fe29f9f0f4e46dd8fb7130 Mon Sep 17 00:00:00 2001
+From: Leon Romanovsky <leonro@mellanox.com>
+Date: Sun, 19 Apr 2020 17:18:48 +0300
+Subject: [PATCH 005/268] net/hns: Remove custom driver version in favour of
+ global one
+
+mainline inclusion
+from mainline-v5.8-rc1
+commit cad99e506887e257ce8bce826ec25f7854b7e69a
+category: cleanup
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EJ0A
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=cad99e506887e257ce8bce826ec25f7854b7e69a
+
+--------------------------------
+
+Use globally defined kernel version instead of custom driver variant.
+
+Reported-by: Borislav Petkov <bp@suse.de>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+	drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.c           | 7 ++-----
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.h           | 4 ----
+ drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c        | 4 ----
+ .../ethernet/hisilicon/hns3/hns3_extension/hns3_enet_it.c | 8 +++-----
+ 4 files changed, 5 insertions(+), 18 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index 6c474df3e5c4..384ee4606051 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -14,7 +14,6 @@
+ #include <linux/aer.h>
+ #include <linux/skbuff.h>
+ #include <linux/sctp.h>
+-#include <linux/vermagic.h>
+ #include <net/gre.h>
+ #include <net/ip6_checksum.h>
+ #include <net/pkt_cls.h>
+@@ -43,9 +42,8 @@
+ 
+ static void hns3_clear_all_ring(struct hnae3_handle *h, bool force);
+ 
+-const char hns3_driver_name[] = "hns3";
+-char hns3_driver_version[] = VERMAGIC_STRING;
+-const char hns3_driver_string[] =
++static const char hns3_driver_name[] = "hns3";
++static const char hns3_driver_string[] =
+ 			"Hisilicon Ethernet Network Driver for Hip08 Family";
+ const char hns3_copyright[] = "Copyright (c) 2017 Huawei Corporation.";
+ struct hnae3_client client;
+@@ -4847,4 +4845,3 @@ MODULE_DESCRIPTION("HNS3: Hisilicon Ethernet Driver");
+ MODULE_AUTHOR("Huawei Tech. Co., Ltd.");
+ MODULE_LICENSE("GPL");
+ MODULE_ALIAS("pci:hns-nic");
+-MODULE_VERSION(HNS3_MOD_VERSION);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
+index 19f83dfb32aa..ac1659c18b16 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
+@@ -8,10 +8,6 @@
+ 
+ #include "hnae3.h"
+ 
+-#define HNS3_MOD_VERSION "23.7.1"
+-
+-extern char hns3_driver_version[];
+-
+ enum hns3_nic_state {
+ 	HNS3_NIC_STATE_TESTING,
+ 	HNS3_NIC_STATE_RESETTING,
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+index cfd35b5f14b7..11480bb99055 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+@@ -562,10 +562,6 @@ static void hns3_get_drvinfo(struct net_device *netdev,
+ 		return;
+ 	}
+ 
+-	strncpy(drvinfo->version, hns3_driver_version,
+-		sizeof(drvinfo->version));
+-	drvinfo->version[sizeof(drvinfo->version) - 1] = '\0';
+-
+ 	strncpy(drvinfo->driver, h->pdev->driver->name,
+ 		sizeof(drvinfo->driver));
+ 	drvinfo->driver[sizeof(drvinfo->driver) - 1] = '\0';
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_extension/hns3_enet_it.c b/drivers/net/ethernet/hisilicon/hns3/hns3_extension/hns3_enet_it.c
+index a6a724da0548..9a4ac499fbb2 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_extension/hns3_enet_it.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_extension/hns3_enet_it.c
+@@ -12,7 +12,6 @@
+ #include "hns3_enet_it.h"
+ #include "hns3_enet.h"
+ 
+-extern const char hns3_driver_string[];
+ extern const char hns3_copyright[];
+ 
+ #ifdef CONFIG_IT_VALIDATION
+@@ -21,7 +20,9 @@ extern struct net_device_ops hns3_nic_netdev_ops;
+ extern const struct hnae3_client_ops client_ops;
+ extern struct hnae3_client client;
+ extern struct pci_driver hns3_driver;
+-extern const char hns3_driver_name[];
++static const char hns3_driver_name[] = "hns3";
++static const char hns3_driver_string[] =
++			"Hisilicon Ethernet Network Driver for Hip08 Family";
+ 
+ #if (KERNEL_VERSION(4, 19, 0) > LINUX_VERSION_CODE)
+ u16 hns3_nic_select_queue_it(struct net_device *ndev, struct sk_buff *skb,
+@@ -51,9 +52,6 @@ static int __init hns3_init_module_it(void)
+ 	pr_info("%s: %s - version\n", hns3_driver_name, hns3_driver_string);
+ 	pr_info("%s: %s\n", hns3_driver_name, hns3_copyright);
+ 
+-	strncpy(hns3_driver_version, HNS3_MOD_VERSION,
+-		strlen(hns3_driver_version));
+-
+ 	client.type = HNAE3_CLIENT_KNIC;
+ 	snprintf(client.name, HNAE3_CLIENT_NAME_LENGTH, "%s", hns3_driver_name);
+ 
+-- 
+2.34.1
+

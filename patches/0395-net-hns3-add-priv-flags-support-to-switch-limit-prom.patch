@@ -1,0 +1,382 @@
+From c6fce52650affce9540867329ab34a582c5957e8 Mon Sep 17 00:00:00 2001
+From: Jian Shen <shenjian15@huawei.com>
+Date: Sun, 6 Dec 2020 12:06:14 +0800
+Subject: [PATCH 077/268] net: hns3: add priv flags support to switch limit
+ promisc mode
+
+mainline inclusion
+from mainline-v5.11-rc1
+commit 5e7414cdf1abea7e2fc19a3190aa7b0d0b1e629d
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMUR
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=5e7414cdf1abea7e2fc19a3190aa7b0d0b1e629d
+
+--------------------------------
+
+Currently, the tx unicast promisc is always enabled when promisc
+mode on. If tx unicast promisc on, a function will receive all
+unicast packet from other functions belong to the same port.
+Add a ethtool private flag to control whether enable tx
+unicast promisc. Then the function is able to filter the
+unknown unicast packets from other function.
+
+Signed-off-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hnae3.h
+	drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+	drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
+---
+ .../net/ethernet/hisilicon/hns3/hclge_mbx.h   |  1 +
+ drivers/net/ethernet/hisilicon/hns3/hnae3.h   | 10 +++
+ .../net/ethernet/hisilicon/hns3/hns3_enet.c   |  3 +
+ .../ethernet/hisilicon/hns3/hns3_ethtool.c    | 86 +++++++++++++++++++
+ .../hisilicon/hns3/hns3pf/hclge_cmd.h         | 17 ++--
+ .../hisilicon/hns3/hns3pf/hclge_main.c        | 10 +--
+ .../hisilicon/hns3/hns3pf/hclge_mbx.c         |  6 ++
+ .../hisilicon/hns3/hns3vf/hclgevf_main.c      |  7 ++
+ 8 files changed, 127 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h b/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
+index bfd6f19aa65a..5a13eea2742d 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
+@@ -122,6 +122,7 @@ struct hclge_vf_to_pf_msg {
+ 			u8 en_bc;
+ 			u8 en_uc;
+ 			u8 en_mc;
++			u8 en_limit_promisc;
+ 		};
+ 		struct {
+ 			u8 vector_id;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3.h b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+index 0683d2957522..2c584e756b64 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+@@ -856,6 +856,11 @@ struct hnae3_unic_private_info {
+ #define HNAE3_MPE		(HNAE3_USER_MPE | HNAE3_OVERFLOW_MPE)
+ #define HNAE3_OVERFLOW_UMPE	(HNAE3_OVERFLOW_UPE | HNAE3_OVERFLOW_MPE)
+ 
++enum hnae3_pflag {
++	HNAE3_PFLAG_LIMIT_PROMISC,
++	HNAE3_PFLAG_MAX
++};
++
+ struct hnae3_handle {
+ 	struct hnae3_client *client;
+ 	struct pci_dev *pdev;
+@@ -888,6 +893,11 @@ struct hnae3_handle {
+ 	/* for sysfs */
+ 	struct kobject *kobj;
+ #endif
++
++#ifndef __GENKSYMS__
++	unsigned long supported_pflags;
++	unsigned long priv_flags;
++#endif
+ };
+ 
+ #define hnae3_set_field(origin, mask, shift, val) \
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index 3ca646e15345..7600a2e4a645 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -4371,6 +4371,9 @@ static int hns3_client_init(struct hnae3_handle *handle)
+ 
+ 	set_bit(HNS3_NIC_STATE_INITED, &priv->state);
+ 
++	if (ae_dev->dev_version >= HNAE3_DEVICE_VERSION_V3)
++		set_bit(HNAE3_PFLAG_LIMIT_PROMISC, &handle->supported_pflags);
++
+ 	ret = register_netdev(netdev);
+ 	if (ret) {
+ 		dev_err(priv->dev, "probe register netdev fail!\n");
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+index c42c6163ac80..ae22adfe5740 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+@@ -22,6 +22,11 @@ struct hns3_sfp_type {
+ 	u8 ext_type;
+ };
+ 
++struct hns3_pflag_desc {
++	char name[ETH_GSTRING_LEN];
++	void (*handler)(struct net_device *netdev, bool enable);
++};
++
+ /* tqp related stats */
+ #define HNS3_TQP_STAT(_string, _member)	{			\
+ 	.stats_string = _string,				\
+@@ -65,6 +70,8 @@ static const struct hns3_stats hns3_rxq_stats[] = {
+ 	HNS3_TQP_STAT("non_reuse_pg", non_reuse_pg),
+ };
+ 
++#define HNS3_PRIV_FLAGS_LEN ARRAY_SIZE(hns3_priv_flags)
++
+ #define HNS3_RXQ_STATS_COUNT ARRAY_SIZE(hns3_rxq_stats)
+ 
+ #define HNS3_TQP_STATS_COUNT (HNS3_TXQ_STATS_COUNT + HNS3_RXQ_STATS_COUNT)
+@@ -408,6 +415,23 @@ static void hns3_self_test(struct net_device *ndev,
+ 		netdev_info(ndev, "self test end\n");
+ }
+ 
++static void hns3_update_limit_promisc_mode(struct net_device *netdev,
++					   bool enable)
++{
++	struct hnae3_handle *handle = hns3_get_handle(netdev);
++
++	if (enable)
++		set_bit(HNAE3_PFLAG_LIMIT_PROMISC, &handle->priv_flags);
++	else
++		clear_bit(HNAE3_PFLAG_LIMIT_PROMISC, &handle->priv_flags);
++
++	hns3_request_update_promisc_mode(handle);
++}
++
++static const struct hns3_pflag_desc hns3_priv_flags[HNAE3_PFLAG_MAX] = {
++	{ "limit_promisc",	hns3_update_limit_promisc_mode }
++};
++
+ static int hns3_get_sset_count(struct net_device *netdev, int stringset)
+ {
+ 	struct hnae3_handle *h = hns3_get_handle(netdev);
+@@ -424,6 +448,9 @@ static int hns3_get_sset_count(struct net_device *netdev, int stringset)
+ 	case ETH_SS_TEST:
+ 		return ops->get_sset_count(h, stringset);
+ 
++	case ETH_SS_PRIV_FLAGS:
++		return HNAE3_PFLAG_MAX;
++
+ 	default:
+ 		return -EOPNOTSUPP;
+ 	}
+@@ -477,6 +504,7 @@ static void hns3_get_strings(struct net_device *netdev, u32 stringset, u8 *data)
+ 	struct hnae3_handle *h = hns3_get_handle(netdev);
+ 	const struct hnae3_ae_ops *ops = h->ae_algo->ops;
+ 	char *buff = (char *)data;
++	int i;
+ 
+ 	if (!ops->get_strings)
+ 		return;
+@@ -489,6 +517,13 @@ static void hns3_get_strings(struct net_device *netdev, u32 stringset, u8 *data)
+ 	case ETH_SS_TEST:
+ 		ops->get_strings(h, stringset, data);
+ 		break;
++	case ETH_SS_PRIV_FLAGS:
++		for (i = 0; i < HNS3_PRIV_FLAGS_LEN; i++) {
++			snprintf(buff, ETH_GSTRING_LEN, "%s",
++				 hns3_priv_flags[i].name);
++			buff += ETH_GSTRING_LEN;
++		}
++		break;
+ 	default:
+ 		break;
+ 	}
+@@ -1522,6 +1557,53 @@ static int hns3_get_module_eeprom(struct net_device *netdev,
+ 	return ops->get_module_eeprom(handle, ee->offset, ee->len, data);
+ }
+ 
++static u32 hns3_get_priv_flags(struct net_device *netdev)
++{
++	struct hnae3_handle *handle = hns3_get_handle(netdev);
++
++	return handle->priv_flags;
++}
++
++static int hns3_check_priv_flags(struct hnae3_handle *h, u32 changed)
++{
++	u32 i;
++
++	for (i = 0; i < HNAE3_PFLAG_MAX; i++)
++		if ((changed & BIT(i)) && !test_bit(i, &h->supported_pflags)) {
++			netdev_err(h->netdev, "%s is unsupported\n",
++				   hns3_priv_flags[i].name);
++			return -EOPNOTSUPP;
++		}
++
++	return 0;
++}
++
++static int hns3_set_priv_flags(struct net_device *netdev, u32 pflags)
++{
++	struct hnae3_handle *handle = hns3_get_handle(netdev);
++	u32 changed = pflags ^ handle->priv_flags;
++	int ret;
++	u32 i;
++
++	ret = hns3_check_priv_flags(handle, changed);
++	if (ret)
++		return ret;
++
++	for (i = 0; i < HNAE3_PFLAG_MAX; i++) {
++		if (changed & BIT(i)) {
++			bool enable = !(handle->priv_flags & BIT(i));
++
++			if (enable)
++				handle->priv_flags |= BIT(i);
++			else
++				handle->priv_flags &= ~BIT(i);
++			hns3_priv_flags[i].handler(netdev, enable);
++		}
++	}
++
++	return 0;
++}
++
+ #define HNS3_ETHTOOL_COALESCE	(ETHTOOL_COALESCE_USECS |		\
+ 				 ETHTOOL_COALESCE_USE_ADAPTIVE |	\
+ 				 ETHTOOL_COALESCE_RX_USECS_HIGH |	\
+@@ -1563,6 +1645,8 @@ static const struct ethtool_ops hns3vf_ethtool_ops = {
+ 	.get_link = hns3_get_link,
+ 	.get_msglevel = hns3_get_msglevel,
+ 	.set_msglevel = hns3_set_msglevel,
++	.get_priv_flags = hns3_get_priv_flags,
++	.set_priv_flags = hns3_set_priv_flags,
+ };
+ 
+ static const struct ethtool_ops hns3_ethtool_ops = {
+@@ -1599,6 +1683,8 @@ static const struct ethtool_ops hns3_ethtool_ops = {
+ 	.set_fecparam = hns3_set_fecparam,
+ 	.get_module_info = hns3_get_module_info,
+ 	.get_module_eeprom = hns3_get_module_eeprom,
++	.get_priv_flags = hns3_get_priv_flags,
++	.set_priv_flags = hns3_set_priv_flags,
+ 	.get_ts_info = hns3_get_ts_info,
+ };
+ 
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+index 4d89efaf4aed..ba10e18ddb7e 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+@@ -599,23 +599,24 @@ struct hclge_link_status_cmd {
+ 	u8 rsv[23];
+ };
+ 
++#define HCLGE_PROMISC_TX_EN_B	BIT(4)
++#define HCLGE_PROMISC_RX_EN_B	BIT(5)
++#define HCLGE_PROMISC_EN_B	1
++#define HCLGE_PROMISC_EN_ALL   0x7
++#define HCLGE_PROMISC_EN_UC    0x1
++#define HCLGE_PROMISC_EN_MC    0x2
++#define HCLGE_PROMISC_EN_BC    0x4
++
+ struct hclge_promisc_param {
+ 	u8 vf_id;
+ 	u8 enable;
+ };
+ 
+-#define HCLGE_PROMISC_TX_EN_B	BIT(4)
+-#define HCLGE_PROMISC_RX_EN_B	BIT(5)
+-#define HCLGE_PROMISC_EN_B	1
+-#define HCLGE_PROMISC_EN_ALL	0x7
+-#define HCLGE_PROMISC_EN_UC	0x1
+-#define HCLGE_PROMISC_EN_MC	0x2
+-#define HCLGE_PROMISC_EN_BC	0x4
+ struct hclge_promisc_cfg_cmd {
+ 	u8 flag;
+ 	u8 vf_id;
+ 	__le16 rsv0;
+-	u8 rsv1[20];
++	u8 rsv1[21];
+ };
+ 
+ enum hclge_promisc_type {
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index d4db7a84f279..d46a1d31c701 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -5109,20 +5109,20 @@ static int hclge_cmd_set_promisc_mode(struct hclge_dev *hdev,
+ 	 * send command to fireware in revision(0x20).
+ 	 */
+ 	req->flag = (param->enable << HCLGE_PROMISC_EN_B) |
+-		HCLGE_PROMISC_TX_EN_B | HCLGE_PROMISC_RX_EN_B;
++		    HCLGE_PROMISC_TX_EN_B | HCLGE_PROMISC_RX_EN_B;
+ 
+ 	ret = hclge_cmd_send(&hdev->hw, &desc, 1);
+ 	if (ret)
+ 		dev_err(&hdev->pdev->dev,
+-			"Set vport %d promisc mode fail, ret = %d.\n",
+-			param->vf_id, ret);
++		       "failed to set vport %d promisc mode, ret = %d.\n",
++		       param->vf_id, ret);
+ 
+ 	return ret;
+ }
+ 
+ static void hclge_promisc_param_init(struct hclge_promisc_param *param,
+-				     bool en_uc, bool en_mc, bool en_bc,
+-				     int vport_id)
++				    bool en_uc, bool en_mc, bool en_bc,
++				    int vport_id)
+ {
+ 	if (!param)
+ 		return;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
+index 841c9b0c9fe4..a9dd7d0601ab 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
+@@ -327,11 +327,17 @@ static void hclge_set_vf_promisc_mode(struct hclge_vport *vport,
+ 				      struct hclge_mbx_vf_to_pf_cmd *req)
+ {
+ 	struct hclge_dev *hdev = vport->back;
++	struct hnae3_handle *handle = &vport->nic;
+ 
+ 	vport->vf_info.request_uc_en = req->msg.en_uc;
+ 	vport->vf_info.request_mc_en = req->msg.en_mc;
+ 	vport->vf_info.request_bc_en = req->msg.en_bc;
+ 
++	if (req->msg.en_limit_promisc)
++		set_bit(HNAE3_PFLAG_LIMIT_PROMISC, &handle->priv_flags);
++	else
++		clear_bit(HNAE3_PFLAG_LIMIT_PROMISC, &handle->priv_flags);
++
+ 	set_bit(HCLGE_VPORT_STATE_PROMISC_CHANGE, &vport->state);
+ 	hclge_task_schedule(hdev, 0);
+ }
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+index db292ca270b8..d58b4e4780a8 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+@@ -15,6 +15,9 @@
+ #define HCLGEVF_RESET_MAX_FAIL_CNT	5
+ 
+ static int hclgevf_reset_hdev(struct hclgevf_dev *hdev);
++static void hclgevf_task_schedule(struct hclgevf_dev *hdev,
++				  unsigned long delay);
++
+ static struct hnae3_ae_algo ae_algovf;
+ 
+ static struct workqueue_struct *hclgevf_wq;
+@@ -1177,6 +1180,7 @@ static int hclgevf_cmd_set_promisc_mode(struct hclgevf_dev *hdev,
+ 					bool en_uc_pmc, bool en_mc_pmc,
+ 					bool en_bc_pmc)
+ {
++	struct hnae3_handle *handle = &hdev->nic;
+ 	struct hclge_vf_to_pf_msg send_msg;
+ 	int ret;
+ 
+@@ -1185,6 +1189,8 @@ static int hclgevf_cmd_set_promisc_mode(struct hclgevf_dev *hdev,
+ 	send_msg.en_bc = en_bc_pmc ? 1 : 0;
+ 	send_msg.en_uc = en_uc_pmc ? 1 : 0;
+ 	send_msg.en_mc = en_mc_pmc ? 1 : 0;
++	send_msg.en_limit_promisc = test_bit(HNAE3_PFLAG_LIMIT_PROMISC,
++					     &handle->priv_flags) ? 1 : 0;
+ 
+ 	ret = hclgevf_send_mbx_msg(hdev, &send_msg, false, NULL, 0);
+ 	if (ret)
+@@ -1211,6 +1217,7 @@ static void hclgevf_request_update_promisc_mode(struct hnae3_handle *handle)
+ 	struct hclgevf_dev *hdev = hclgevf_ae_get_hdev(handle);
+ 
+ 	set_bit(HCLGEVF_STATE_PROMISC_CHANGED, &hdev->state);
++	hclgevf_task_schedule(hdev, 0);
+ }
+ 
+ static void hclgevf_sync_promisc_mode(struct hclgevf_dev *hdev)
+-- 
+2.34.1
+
