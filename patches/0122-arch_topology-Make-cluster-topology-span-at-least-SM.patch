@@ -1,0 +1,72 @@
+From 91cf59f2bfe15ac0cdcb0da47c286000f7859469 Mon Sep 17 00:00:00 2001
+From: Yicong Yang <yangyicong@hisilicon.com>
+Date: Mon, 5 Sep 2022 20:26:15 +0800
+Subject: [PATCH 122/132] arch_topology: Make cluster topology span at least
+ SMT CPUs
+
+mainline inclusion
+from mainline-v6.0-rc5
+commit 5ac251c8a05ce074e5efac779debf82a15d870a3
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I88UKS
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=5ac251c8a05ce074e5efac779debf82a15d870a3
+
+----------------------------------------------------------------------
+
+Currently cpu_clustergroup_mask() will return CPU mask if cluster span more
+or the same CPUs as cpu_coregroup_mask(). This will result topology borken
+on non-Cluster SMT machines when building with CONFIG_SCHED_CLUSTER=y.
+
+Test with:
+qemu-system-aarch64 -enable-kvm -machine virt \
+ -net none \
+ -cpu host \
+ -bios ./QEMU_EFI.fd \
+ -m 2G \
+ -smp 48,sockets=2,cores=12,threads=2 \
+ -kernel $Image \
+ -initrd $Rootfs \
+ -nographic
+ -append "rdinit=init console=ttyAMA0 sched_verbose loglevel=8"
+
+We'll get below error:
+[    3.084568] BUG: arch topology borken
+[    3.084570]      the SMT domain not a subset of the CLS domain
+
+Since cluster is a level higher than SMT, fix this by making cluster
+spans at least SMT CPUs.
+
+Fixes: bfcc4397435d ("arch_topology: Limit span of cpu_clustergroup_mask()")
+Cc: Sudeep Holla <sudeep.holla@arm.com>
+Cc: Vincent Guittot <vincent.guittot@linaro.org>
+Cc: Ionela Voinescu <ionela.voinescu@arm.com>
+Cc: Greg KH <gregkh@linuxfoundation.org>
+Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
+Link: https://lore.kernel.org/r/20220905122615.12946-1-yangyicong@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+Conflicts:
+	drivers/base/arch_topology.c
+
+Signed-off-by: Jiang Yi <jiangyi38@hisilicon.com>
+---
+ arch/arm64/kernel/topology.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm64/kernel/topology.c b/arch/arm64/kernel/topology.c
+index b76c92b6ac14..46f58120392c 100644
+--- a/arch/arm64/kernel/topology.c
++++ b/arch/arm64/kernel/topology.c
+@@ -238,7 +238,7 @@ const struct cpumask *cpu_clustergroup_mask(int cpu)
+ 	 */
+ 	if (cpumask_subset(cpu_coregroup_mask(cpu),
+ 			   &cpu_topology[cpu].cluster_sibling))
+-		return get_cpu_mask(cpu);
++		return topology_sibling_cpumask(cpu);
+ 
+ 	return &cpu_topology[cpu].cluster_sibling;
+ }
+-- 
+2.23.0
+
