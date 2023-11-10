@@ -1,0 +1,62 @@
+From e0638186c3cbeb3b1dbc0cf5873bab9f891cea8a Mon Sep 17 00:00:00 2001
+From: Jiaran Zhang <zhangjiaran@huawei.com>
+Date: Tue, 19 Oct 2021 22:16:28 +0800
+Subject: [PATCH 266/268] net: hns3: Add configuration of TM QCN error event
+
+mainline inclusion
+from mainline-v5.15-rc7
+commit 60484103d5c387df49bd60de4b16c88022747048
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN49
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=60484103d5c387df49bd60de4b16c88022747048
+
+--------------------------------
+
+Add configuration of interrupt type and fifo interrupt enable of TM QCN
+error event if enabled, otherwise this event will not be reported when
+there is error.
+
+Fixes: d914971df022 ("net: hns3: remove redundant query in hclge_config_tm_hw_err_int()")
+Signed-off-by: Jiaran Zhang <zhangjiaran@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c | 5 ++++-
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.h | 2 ++
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c
+index 68b53d4020f7..263e60f5fe80 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c
+@@ -1572,8 +1572,11 @@ static int hclge_config_tm_hw_err_int(struct hclge_dev *hdev, bool en)
+ 
+ 	/* configure TM QCN hw errors */
+ 	hclge_cmd_setup_basic_desc(&desc, HCLGE_TM_QCN_MEM_INT_CFG, false);
+-	if (en)
++	desc.data[0] = cpu_to_le32(HCLGE_TM_QCN_ERR_INT_TYPE);
++	if (en) {
++		desc.data[0] |= cpu_to_le32(HCLGE_TM_QCN_FIFO_INT_EN);
+ 		desc.data[1] = cpu_to_le32(HCLGE_TM_QCN_MEM_ERR_INT_EN);
++	}
+ 
+ 	ret = hclge_cmd_send(&hdev->hw, &desc, 1);
+ 	if (ret)
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.h
+index f36d73cd3abd..2e3b33423cda 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.h
+@@ -53,6 +53,8 @@
+ #define HCLGE_PPP_MPF_ECC_ERR_INT3_EN	0x003F
+ #define HCLGE_PPP_MPF_ECC_ERR_INT3_EN_MASK	0x003F
+ #define HCLGE_TM_SCH_ECC_ERR_INT_EN	0x3
++#define HCLGE_TM_QCN_ERR_INT_TYPE	0x29
++#define HCLGE_TM_QCN_FIFO_INT_EN	0xFFFF00
+ #define HCLGE_TM_QCN_MEM_ERR_INT_EN	0xFFFFFF
+ #define HCLGE_NCSI_ERR_INT_EN	0x3
+ #define HCLGE_NCSI_ERR_INT_TYPE	0x9
+-- 
+2.34.1
+

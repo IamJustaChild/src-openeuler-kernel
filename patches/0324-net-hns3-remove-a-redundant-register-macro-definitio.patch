@@ -1,0 +1,95 @@
+From 9c269c2d725496997391d87a01f5fc11c05c441d Mon Sep 17 00:00:00 2001
+From: Huazhong Tan <tanhuazhong@huawei.com>
+Date: Sat, 9 May 2020 17:27:37 +0800
+Subject: [PATCH 006/268] net: hns3: remove a redundant register macro
+ definition
+
+mainline inclusion
+from mainline-v5.8-rc1
+commit 5705b45155c404a1eb2ccc92e95851cfa21d4f37
+category: cleanup
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EJ0A
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=5705b45155c404a1eb2ccc92e95851cfa21d4f37
+
+--------------------------------
+
+HCLGE_MISC_VECTOR_INT_STS and HCLGE_VECTOR_PF_OTHER_INT_STS_REG
+both represent the misc interrupt status register(0x20800), so
+removes HCLGE_VECTOR_PF_OTHER_INT_STS_REG and replaces it with
+HCLGE_MISC_VECTOR_INT_STS.
+
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+---
+ .../net/ethernet/hisilicon/hns3/hns3pf/hclge_err.h  |  1 -
+ .../net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 13 +++++--------
+ 2 files changed, 5 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.h
+index 67e972a25f47..fcaf4f472379 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.h
+@@ -19,7 +19,6 @@
+ #define HCLGE_RAS_REG_NFE_MASK   0xFF00
+ #define HCLGE_RAS_REG_ROCEE_ERR_MASK   0x3000000
+ 
+-#define HCLGE_VECTOR0_PF_OTHER_INT_STS_REG   0x20800
+ #define HCLGE_VECTOR0_REG_MSIX_MASK   0x1FF00
+ 
+ #define HCLGE_IMP_TCM_ECC_ERR_INT_EN	0xFFFF0000
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index fa19e8514710..b405a9d7f365 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -3039,13 +3039,11 @@ static int hclge_set_vf_link_state(struct hnae3_handle *handle, int vf,
+ 
+ static u32 hclge_check_event_cause(struct hclge_dev *hdev, u32 *clearval)
+ {
+-	u32 rst_src_reg, cmdq_src_reg, msix_src_reg;
++	u32 cmdq_src_reg, msix_src_reg;
+ 
+ 	/* fetch the events from their corresponding regs */
+-	rst_src_reg = hclge_read_dev(&hdev->hw, HCLGE_MISC_VECTOR_INT_STS);
+ 	cmdq_src_reg = hclge_read_dev(&hdev->hw, HCLGE_VECTOR0_CMDQ_SRC_REG);
+-	msix_src_reg = hclge_read_dev(&hdev->hw,
+-				      HCLGE_VECTOR0_PF_OTHER_INT_STS_REG);
++	msix_src_reg = hclge_read_dev(&hdev->hw, HCLGE_MISC_VECTOR_INT_STS);
+ 
+ 	/* Assumption: If by any chance reset and mailbox events are reported
+ 	 * together then we will only process reset event in this go and will
+@@ -3055,7 +3053,7 @@ static u32 hclge_check_event_cause(struct hclge_dev *hdev, u32 *clearval)
+ 	 *
+ 	 * check for vector0 reset event sources
+ 	 */
+-	if (BIT(HCLGE_VECTOR0_IMPRESET_INT_B) & rst_src_reg) {
++	if (BIT(HCLGE_VECTOR0_IMPRESET_INT_B) & msix_src_reg) {
+ 		dev_info(&hdev->pdev->dev, "IMP reset interrupt\n");
+ 		set_bit(HNAE3_IMP_RESET, &hdev->reset_pending);
+ 		set_bit(HCLGE_STATE_CMD_DISABLE, &hdev->state);
+@@ -3064,7 +3062,7 @@ static u32 hclge_check_event_cause(struct hclge_dev *hdev, u32 *clearval)
+ 		return HCLGE_VECTOR0_EVENT_RST;
+ 	}
+ 
+-	if (BIT(HCLGE_VECTOR0_GLOBALRESET_INT_B) & rst_src_reg) {
++	if (BIT(HCLGE_VECTOR0_GLOBALRESET_INT_B) & msix_src_reg) {
+ 		dev_info(&hdev->pdev->dev, "global reset interrupt\n");
+ 		set_bit(HCLGE_STATE_CMD_DISABLE, &hdev->state);
+ 		set_bit(HNAE3_GLOBAL_RESET, &hdev->reset_pending);
+@@ -3998,8 +3996,7 @@ static void hclge_misc_err_recovery(struct hclge_dev *hdev)
+ 	struct device *dev = &hdev->pdev->dev;
+ 	u32 msix_sts_reg;
+ 
+-	msix_sts_reg = hclge_read_dev(&hdev->hw,
+-				      HCLGE_VECTOR0_PF_OTHER_INT_STS_REG);
++	msix_sts_reg = hclge_read_dev(&hdev->hw, HCLGE_MISC_VECTOR_INT_STS);
+ 
+ 	if (msix_sts_reg & HCLGE_VECTOR0_REG_MSIX_MASK) {
+ 		if (hclge_handle_hw_msix_error(hdev,
+-- 
+2.34.1
+

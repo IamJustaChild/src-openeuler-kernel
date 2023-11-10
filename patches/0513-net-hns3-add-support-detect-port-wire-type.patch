@@ -1,0 +1,127 @@
+From baf604922152c5af11798c903e0b977942e8d4b2 Mon Sep 17 00:00:00 2001
+From: shaojijie <shaojijie@huawei.com>
+Date: Fri, 21 Apr 2023 16:29:12 +0800
+Subject: [PATCH 195/268] net: hns3: add support detect port wire type
+
+driver inclusion
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN3D
+CVE: NA
+
+----------------------------------------------------------------------
+
+This patch add support to get port wire type.
+
+Signed-off-by: shaojijie <shaojijie@huawei.com>
+Signed-off-by: Jiantao Xiao <xiaojiantao1@h-partners.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+---
+ drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h    |  1 +
+ drivers/net/ethernet/hisilicon/hns3/hns3_ext.c     |  7 +++++++
+ drivers/net/ethernet/hisilicon/hns3/hns3_ext.h     |  1 +
+ .../net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c | 14 ++++++++++++++
+ .../ethernet/hisilicon/hns3/hns3pf/hclge_main.c    |  4 ++--
+ .../ethernet/hisilicon/hns3/hns3pf/hclge_main.h    |  2 ++
+ 6 files changed, 27 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h b/drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h
+index 51913618bcba..e326267d9d2e 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h
+@@ -46,6 +46,7 @@ enum hnae3_ext_opcode {
+ 	HNAE3_EXT_OPC_SET_PFC_TIME,
+ 	HNAE3_EXT_OPC_GET_HILINK_REF_LOS,
+ 	HNAE3_EXT_OPC_GET_PORT_FAULT_STATUS,
++	HNAE3_EXT_OPC_GET_PORT_TYPE,
+ };
+ 
+ struct hnae3_pfc_storm_para {
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
+index d4a171938d21..7e0048a7a37a 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
+@@ -396,3 +396,10 @@ int nic_get_port_fault_status(struct net_device *ndev,
+ 	return 0;
+ }
+ EXPORT_SYMBOL(nic_get_port_fault_status);
++
++int nic_get_port_wire_type(struct net_device *ndev, u32 *wire_type)
++{
++	return nic_invoke_pri_ops(ndev, HNAE3_EXT_OPC_GET_PORT_TYPE,
++				  wire_type, sizeof(*wire_type));
++}
++EXPORT_SYMBOL(nic_get_port_wire_type);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+index 555c8d0dcef1..baa3cda8b671 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+@@ -53,4 +53,5 @@ int nic_disable_clock(struct net_device *ndev);
+ int nic_set_pfc_time_cfg(struct net_device *ndev, u16 time);
+ int nic_get_port_fault_status(struct net_device *ndev,
+ 			      u32 fault_type, u32 *status);
++int nic_get_port_wire_type(struct net_device *ndev, u32 *wire_type);
+ #endif
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+index d89c31cc5491..eac784e243f5 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+@@ -592,6 +592,19 @@ static int hclge_get_port_fault_status(struct hclge_dev *hdev, void *data,
+ 	return 0;
+ }
+ 
++static int hclge_get_port_wire_type(struct hclge_dev *hdev, void *data,
++				    size_t length)
++{
++	u8 module_type;
++
++	if (length != sizeof(u32))
++		return -EINVAL;
++
++	hclge_get_media_type(&hdev->vport[0].nic, NULL, &module_type);
++	*(u32 *)data = module_type;
++	return 0;
++}
++
+ static void hclge_ext_resotre_config(struct hclge_dev *hdev)
+ {
+ 	if (hdev->reset_type != HNAE3_IMP_RESET &&
+@@ -759,6 +772,7 @@ static const hclge_priv_ops_fn hclge_ext_func_arr[] = {
+ 	[HNAE3_EXT_OPC_DISABLE_CLOCK] = hclge_disable_nic_clock,
+ 	[HNAE3_EXT_OPC_GET_HILINK_REF_LOS] = hclge_get_hilink_ref_los,
+ 	[HNAE3_EXT_OPC_GET_PORT_FAULT_STATUS] = hclge_get_port_fault_status,
++	[HNAE3_EXT_OPC_GET_PORT_TYPE] = hclge_get_port_wire_type,
+ };
+ 
+ int hclge_ext_ops_handle(struct hnae3_handle *handle, int opcode,
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 47c526b5271b..4e7f16f2c0b1 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -10660,8 +10660,8 @@ static void hclge_get_ksettings_an_result(struct hnae3_handle *handle,
+ 		*auto_neg = hdev->hw.mac.autoneg;
+ }
+ 
+-static void hclge_get_media_type(struct hnae3_handle *handle, u8 *media_type,
+-				 u8 *module_type)
++void hclge_get_media_type(struct hnae3_handle *handle, u8 *media_type,
++			  u8 *module_type)
+ {
+ 	struct hclge_vport *vport = hclge_get_vport(handle);
+ 	struct hclge_dev *hdev = vport->back;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+index 71ca13a29b51..e22702108846 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+@@ -1174,4 +1174,6 @@ int hclge_get_wol_cfg(struct hclge_dev *hdev, u32 *mode);
+ struct hclge_vport *hclge_get_vf_vport(struct hclge_dev *hdev, int vf);
+ void hclge_reset_task_schedule(struct hclge_dev *hdev);
+ void hclge_reset_event(struct pci_dev *pdev, struct hnae3_handle *handle);
++void hclge_get_media_type(struct hnae3_handle *handle, u8 *media_type,
++			  u8 *module_type);
+ #endif
+-- 
+2.34.1
+

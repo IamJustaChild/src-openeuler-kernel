@@ -1,0 +1,80 @@
+From a122239d5ccd3d40221c343d9b19620189cc9741 Mon Sep 17 00:00:00 2001
+From: Yunsheng Lin <linyunsheng@huawei.com>
+Date: Mon, 15 Nov 2021 19:48:01 +0800
+Subject: [PATCH 125/268] net: hns3: fix the max tx size according to user
+ manual
+
+mainline inclusion
+from mainline-v5.15-rc7
+commit adfb7b4966c0c4c63a791f202b8b3837b07a9ece
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMYT
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=adfb7b4966c0c4c63a791f202b8b3837b07a9ece
+
+--------------------------------
+
+commit adfb7b4966c0c4c63a791f202b8b3837b07a9ece upstream.
+
+Currently the max tx size supported by the hw is calculated by
+using the max BD num supported by the hw. According to the hw
+user manual, the max tx size is fixed value for both non-TSO and
+TSO skb.
+
+This patch updates the max tx size according to the manual.
+
+Fixes: 8ae10cfb5089("net: hns3: support tx-scatter-gather-fraglist feature")
+Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Chen Jun <chenjun102@huawei.com>
+Acked-by: Weilong Chen <chenweilong@huawei.com>
+
+Signed-off-by: Chen Jun <chenjun102@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+	drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 3 ++-
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.h | 7 ++-----
+ 2 files changed, 4 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index 5b4553743987..b0699bffb22a 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -1559,7 +1559,8 @@ void hns3_shinfo_pack(struct skb_shared_info *shinfo, __u32 *size)
+ 		size[i] = skb_frag_size(&shinfo->frags[i]);
+ }
+ 
+-static int hns3_skb_linearize(struct hns3_enet_ring *ring, struct sk_buff *skb,
++static int hns3_skb_linearize(struct hns3_enet_ring *ring,
++			      struct sk_buff *skb,
+ 			      unsigned int bd_num)
+ {
+ 	/* 'bd_num == UINT_MAX' means the skb' fraglist has a
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
+index 2dd652fe4514..b082f0fa7064 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
+@@ -185,11 +185,8 @@ enum hns3_nic_state {
+ #define HNS3_MAX_BD_SIZE			65535
+ #define HNS3_MAX_NON_TSO_BD_NUM			8U
+ #define HNS3_MAX_TSO_BD_NUM			63U
+-#define HNS3_MAX_TSO_SIZE \
+-	(HNS3_MAX_BD_SIZE * HNS3_MAX_TSO_BD_NUM)
+-
+-#define HNS3_MAX_NON_TSO_SIZE \
+-	(HNS3_MAX_BD_SIZE * HNS3_MAX_NON_TSO_BD_NUM)
++#define HNS3_MAX_TSO_SIZE			1048576U
++#define HNS3_MAX_NON_TSO_SIZE			9728U
+ 
+ #define HNS3_VECTOR_GL0_OFFSET			0x100
+ #define HNS3_VECTOR_GL1_OFFSET			0x200
+-- 
+2.34.1
+

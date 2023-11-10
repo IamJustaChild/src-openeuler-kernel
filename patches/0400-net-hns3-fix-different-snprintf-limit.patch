@@ -1,0 +1,58 @@
+From a71d4190932484734973a0828b8709344cb73bb4 Mon Sep 17 00:00:00 2001
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Date: Sat, 24 Jul 2021 15:45:29 +0800
+Subject: [PATCH 082/268] net: hns3: fix different snprintf() limit
+
+mainline inclusion
+from mainline-v5.14-rc1
+commit faebad853455b7126450c1690f7c31e048213543
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMUR
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=faebad853455b7126450c1690f7c31e048213543
+
+----------------------------------------------------------------------
+
+This patch doesn't affect runtime at all, it's just a correctness issue.
+
+The ptp->info.name[] buffer has 16 characters but the snprintf() limit
+was capped at 32 characters.  Fortunately, HCLGE_DRIVER_NAME is "hclge"
+which isn't close to 16 characters so we're fine.
+
+Fixes: 0bf5eb788512 ("net: hns3: add support for PTP")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ptp.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ptp.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ptp.c
+index b3eb8f109dbb..3b1f84502e36 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ptp.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ptp.c
+@@ -415,8 +415,6 @@ int hclge_ptp_get_ts_info(struct hnae3_handle *handle,
+ 
+ static int hclge_ptp_create_clock(struct hclge_dev *hdev)
+ {
+-#define HCLGE_PTP_NAME_LEN	32
+-
+ 	struct hclge_ptp *ptp;
+ 
+ 	ptp = devm_kzalloc(&hdev->pdev->dev, sizeof(*ptp), GFP_KERNEL);
+@@ -424,7 +422,7 @@ static int hclge_ptp_create_clock(struct hclge_dev *hdev)
+ 		return -ENOMEM;
+ 
+ 	ptp->hdev = hdev;
+-	snprintf(ptp->info.name, HCLGE_PTP_NAME_LEN, "%s",
++	snprintf(ptp->info.name, sizeof(ptp->info.name), "%s",
+ 		 HCLGE_DRIVER_NAME);
+ 	ptp->info.owner = THIS_MODULE;
+ 	ptp->info.max_adj = HCLGE_PTP_CYCLE_ADJ_MAX;
+-- 
+2.34.1
+

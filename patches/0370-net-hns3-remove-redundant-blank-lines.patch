@@ -1,0 +1,206 @@
+From 5f589bc50d4fc48bde1bd9e4b904b778abce5332 Mon Sep 17 00:00:00 2001
+From: Peng Li <lipeng321@huawei.com>
+Date: Sat, 24 Jul 2021 15:44:00 +0800
+Subject: [PATCH 052/268] net: hns3: remove redundant blank lines
+
+mainline inclusion
+from mainline-v5.13-rc1
+commit c0127115ee2329dd57a65dceb139ec7cc39f48c7
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMQV
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=c0127115ee2329dd57a65dceb139ec7cc39f48c7
+
+----------------------------------------------------------------------
+
+Remove some redundant blank lines.
+
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.c           | 5 -----
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c    | 1 -
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c    | 2 --
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c   | 5 -----
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h   | 2 +-
+ drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.c  | 1 -
+ drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c | 2 --
+ 7 files changed, 1 insertion(+), 17 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index d2284ce2c250..b78f2fe7f39c 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -1234,7 +1234,6 @@ static unsigned int hns3_tx_bd_num(struct sk_buff *skb, unsigned int *bd_size,
+ 		return UINT_MAX;
+ 
+ 	bd_num = hns3_skb_bd_num(skb, bd_size, bd_num);
+-
+ 	if (!skb_has_frag_list(skb) || bd_num > HNS3_MAX_TSO_BD_NUM)
+ 		return bd_num;
+ 
+@@ -2940,7 +2939,6 @@ static void hns3_rx_checksum(struct hns3_enet_ring *ring, struct sk_buff *skb,
+ 					  HNS3_RXD_L3ID_S);
+ 		l4_type = hnae3_get_field(l234info, HNS3_RXD_L4ID_M,
+ 					  HNS3_RXD_L4ID_S);
+-
+ 		/* Can checksum ipv4 or ipv6 + UDP/TCP/SCTP packets */
+ 		if ((l3_type == HNS3_L3_TYPE_IPV4 ||
+ 		     l3_type == HNS3_L3_TYPE_IPV6) &&
+@@ -3282,7 +3280,6 @@ static int hns3_handle_rx_bd(struct hns3_enet_ring *ring)
+ 
+ 	if (!skb) {
+ 		bd_base_info = le32_to_cpu(desc->rx.bd_base_info);
+-
+ 		/* Check valid BD */
+ 		if (unlikely(!(bd_base_info & BIT(HNS3_RXD_VLD_B))))
+ 			return -ENXIO;
+@@ -3547,7 +3544,6 @@ static int hns3_nic_common_poll(struct napi_struct *napi, int budget)
+ 	hns3_for_each_ring(ring, tqp_vector->rx_group) {
+ 		int rx_cleaned = hns3_clean_rx_ring(ring, rx_budget,
+ 						    hns3_rx_skb);
+-
+ 		if (rx_cleaned >= rx_budget)
+ 			clean_complete = false;
+ 
+@@ -4021,7 +4017,6 @@ static void hns3_init_ring_hw(struct hns3_enet_ring *ring)
+ 			       hns3_buf_size2type(ring->buf_size));
+ 		hns3_write_dev(q, HNS3_RING_RX_RING_BD_NUM_REG,
+ 			       ring->desc_num / 8 - 1);
+-
+ 	} else {
+ 		hns3_write_dev(q, HNS3_RING_TX_RING_BASEADDR_L_REG,
+ 			       (u32)dma);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c
+index c4d30bcc8fa3..7646e510c0e7 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c
+@@ -379,7 +379,6 @@ static void hclge_parse_capability(struct hclge_dev *hdev,
+ 	u32 caps;
+ 
+ 	caps = __le32_to_cpu(cmd->caps[0]);
+-
+ 	if (hnae3_get_bit(caps, HCLGE_CAP_UDP_GSO_B))
+ 		set_bit(HNAE3_DEV_SUPPORT_UDP_GSO_B, ae_dev->caps);
+ 	if (hnae3_get_bit(caps, HCLGE_CAP_PTP_B))
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c
+index 9265243fbb84..7d72e30d0d16 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c
+@@ -1498,7 +1498,6 @@ hclge_log_and_clear_rocee_ras_error(struct hclge_dev *hdev)
+ 	}
+ 
+ 	status = le32_to_cpu(desc[0].data[0]);
+-
+ 	if (status & HCLGE_ROCEE_AXI_ERR_INT_MASK) {
+ 		if (status & HCLGE_ROCEE_RERR_INT_MASK)
+ 			dev_err(dev, "ROCEE RAS AXI rresp error\n");
+@@ -1651,7 +1650,6 @@ pci_ers_result_t hclge_handle_hw_ras_error(struct hnae3_ae_dev *ae_dev)
+ 	}
+ 
+ 	status = hclge_read_dev(&hdev->hw, HCLGE_RAS_PF_OTHER_INT_STS_REG);
+-
+ 	if (status & HCLGE_RAS_REG_NFE_MASK ||
+ 	    status & HCLGE_RAS_REG_ROCEE_ERR_MASK)
+ 		ae_dev->hw_err_reset_req = 0;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 5885e1181517..6c2960df62a6 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -527,7 +527,6 @@ int hclge_mac_update_stats(struct hclge_dev *hdev)
+ 	int ret;
+ 
+ 	ret = hclge_mac_query_reg_num(hdev, &desc_num);
+-
+ 	/* The firmware supports the new statistics acquisition method */
+ 	if (!ret)
+ 		ret = hclge_mac_update_stats_complete(hdev, desc_num);
+@@ -758,7 +757,6 @@ static int hclge_get_sset_count(struct hnae3_handle *handle, int stringset)
+ 			count += 1;
+ 			handle->flags |= HNAE3_SUPPORT_PHY_LOOPBACK;
+ 		}
+-
+ 	} else if (stringset == ETH_SS_STATS) {
+ 		count = ARRAY_SIZE(g_mac_stats_string) +
+ 			hclge_tqps_get_sset_count(handle, stringset);
+@@ -2113,7 +2111,6 @@ static int hclge_only_alloc_priv_buff(struct hclge_dev *hdev,
+ 			COMPENSATE_HALF_MPS_NUM * half_mps;
+ 	min_rx_priv = round_up(min_rx_priv, HCLGE_BUF_SIZE_UNIT);
+ 	rx_priv = round_down(rx_priv, HCLGE_BUF_SIZE_UNIT);
+-
+ 	if (rx_priv < min_rx_priv)
+ 		return false;
+ 
+@@ -7860,7 +7857,6 @@ int hclge_add_mc_addr_common(struct hclge_vport *vport,
+ 	if (status)
+ 		return status;
+ 	status = hclge_add_mac_vlan_tbl(vport, &req, desc);
+-
+ 	/* if already overflow, not to print each time */
+ 	if (status == -ENOSPC &&
+ 	    !(vport->overflow_promisc_flags & HNAE3_OVERFLOW_MPE)) {
+@@ -7912,7 +7908,6 @@ int hclge_rm_mc_addr_common(struct hclge_vport *vport,
+ 		else
+ 			/* Not all the vfid is zero, update the vfid */
+ 			status = hclge_add_mac_vlan_tbl(vport, &req, desc);
+-
+ 	} else if (status == -ENOENT) {
+ 		status = 0;
+ 	}
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+index ac88f2dd9f3b..56a7c6a3e1d9 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+@@ -946,7 +946,7 @@ struct hclge_vport {
+ 
+ 	u8  rss_hash_key[HCLGE_RSS_KEY_SIZE]; /* User configured hash keys */
+ 	/* User configured lookup table entries */
+-	u8  rss_indirection_tbl[HCLGE_RSS_IND_TBL_SIZE];
++	u16 *rss_indirection_tbl;
+ 	int rss_algo;		/* User configured hash algorithm */
+ 	/* User configured rss tuple sets */
+ 	struct hclge_rss_tuple_cfg rss_tuple_sets;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.c
+index 9430334e1c22..67d44d21814e 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.c
+@@ -365,7 +365,6 @@ static void hclgevf_parse_capability(struct hclgevf_dev *hdev,
+ 	u32 caps;
+ 
+ 	caps = __le32_to_cpu(cmd->caps[0]);
+-
+ 	if (hnae3_get_bit(caps, HCLGEVF_CAP_UDP_GSO_B))
+ 		set_bit(HNAE3_DEV_SUPPORT_UDP_GSO_B, ae_dev->caps);
+ 	if (hnae3_get_bit(caps, HCLGEVF_CAP_INT_QL_B))
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+index eed608ebe0a6..9368e6ab8310 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+@@ -487,7 +487,6 @@ void hclgevf_update_link_status(struct hclgevf_dev *hdev, int link_state)
+ 
+ 	link_state =
+ 		test_bit(HCLGEVF_STATE_DOWN, &hdev->state) ? 0 : link_state;
+-
+ 	if (link_state != hdev->hw.mac.link) {
+ 		hdev->hw.mac.link = link_state;
+ 		client->ops->link_status_change(handle, !!link_state);
+@@ -2352,7 +2351,6 @@ static enum hclgevf_evt_cause hclgevf_check_evt_cause(struct hclgevf_dev *hdev,
+ 	/* fetch the events from their corresponding regs */
+ 	cmdq_stat_reg = hclgevf_read_dev(&hdev->hw,
+ 					 HCLGEVF_VECTOR0_CMDQ_STATE_REG);
+-
+ 	if (BIT(HCLGEVF_VECTOR0_RST_INT_B) & cmdq_stat_reg) {
+ 		rst_ing_reg = hclgevf_read_dev(&hdev->hw, HCLGEVF_RST_ING);
+ 		dev_info(&hdev->pdev->dev,
+-- 
+2.34.1
+

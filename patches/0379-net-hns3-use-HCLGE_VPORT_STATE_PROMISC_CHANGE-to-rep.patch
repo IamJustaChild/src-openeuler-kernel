@@ -1,0 +1,125 @@
+From 9679715db89bbb0c06d672a5c6611e5ed79645c2 Mon Sep 17 00:00:00 2001
+From: Jian Shen <shenjian15@huawei.com>
+Date: Sat, 24 Jul 2021 15:44:58 +0800
+Subject: [PATCH 061/268] net: hns3: use HCLGE_VPORT_STATE_PROMISC_CHANGE to
+ replace HCLGE_STATE_PROMISC_CHANGED
+
+mainline inclusion
+from mainline-v5.14-rc1
+commit 4e2471f7b6ef5a564cd05bc5fb9f3ce71b7b7942
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMUR
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=4e2471f7b6ef5a564cd05bc5fb9f3ce71b7b7942
+
+----------------------------------------------------------------------
+
+Currently, PF is using HCLGE_STATE_PROMISC_CHANGED to indicate
+need synchronize the promisc mode for itself, and using flag
+HCLGE_VPORT_STATE_PROMISC_CHANGE for its VF. To keep consistent,
+remove flag HCLGE_STATE_PROMISC_CHANGED, and use flag
+HCLGE_VPORT_STATE_PROMISC_CHANGE instead.
+
+Signed-off-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+---
+ .../hisilicon/hns3/hns3pf/hclge_main.c        | 21 ++++++++++---------
+ .../hisilicon/hns3/hns3pf/hclge_main.h        |  4 +++-
+ 2 files changed, 14 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 3b4b1c8be8a3..9634927949f9 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -5077,9 +5077,8 @@ static int hclge_set_promisc_mode(struct hnae3_handle *handle, bool en_uc_pmc,
+ static void hclge_request_update_promisc_mode(struct hnae3_handle *handle)
+ {
+ 	struct hclge_vport *vport = hclge_get_vport(handle);
+-	struct hclge_dev *hdev = vport->back;
+ 
+-	set_bit(HCLGE_STATE_PROMISC_CHANGED, &hdev->state);
++	set_bit(HCLGE_VPORT_STATE_PROMISC_CHANGE, &vport->state);
+ }
+ 
+ static int hclge_get_fd_mode(struct hclge_dev *hdev, u8 *fd_mode)
+@@ -7266,6 +7265,8 @@ int hclge_vport_start(struct hclge_vport *vport)
+ {
+ 	struct hclge_dev *hdev = vport->back;
+ 
++	set_bit(HCLGE_VPORT_STATE_ALIVE, &vport->state);
++	set_bit(HCLGE_VPORT_STATE_PROMISC_CHANGE, &vport->state);
+ 	vport->last_active_jiffies = jiffies;
+ 	set_bit(HCLGE_VPORT_STATE_START, &vport->state);
+ 	set_bit(HCLGE_VPORT_STATE_ALIVE, &vport->state);
+@@ -9305,8 +9306,7 @@ static void hclge_restore_hw_table(struct hclge_dev *hdev)
+ 	hclge_restore_mac_table_common(vport);
+ 	hclge_restore_vport_port_base_vlan_config(hdev);
+ 	hclge_restore_vport_vlan_table(vport);
+-	set_bit(HCLGE_STATE_PROMISC_CHANGED, &hdev->state);
+-
++	set_bit(HCLGE_STATE_FD_USER_DEF_CHANGED, &hdev->state);
+ 	hclge_restore_fd_entries(handle);
+ }
+ 
+@@ -11030,7 +11030,7 @@ static int hclge_reset_ae_dev(struct hnae3_ae_dev *ae_dev)
+ 		return ret;
+ 	}
+ 
+-	set_bit(HCLGE_STATE_PROMISC_CHANGED, &hdev->state);
++	set_bit(HCLGE_VPORT_STATE_PROMISC_CHANGE, &hdev->state);
+ 
+ 	/* Log and clear the hw errors those already occurred */
+ 	hclge_handle_all_hns_hw_errors(ae_dev);
+@@ -11745,18 +11745,19 @@ static void hclge_sync_promisc_mode(struct hclge_dev *hdev)
+ 	int i;
+ 
+ 	if (vport->last_promisc_flags != vport->overflow_promisc_flags) {
+-		set_bit(HCLGE_STATE_PROMISC_CHANGED, &hdev->state);
++		set_bit(HCLGE_VPORT_STATE_PROMISC_CHANGE, &vport->state);
+ 		vport->last_promisc_flags = vport->overflow_promisc_flags;
+ 	}
+ 
+-	if (test_bit(HCLGE_STATE_PROMISC_CHANGED, &hdev->state)) {
++	if (test_bit(HCLGE_VPORT_STATE_PROMISC_CHANGE, &vport->state)) {
+ 		tmp_flags = handle->netdev_flags | vport->last_promisc_flags;
+ 		ret = hclge_set_promisc_mode(handle, tmp_flags & HNAE3_UPE,
+ 					     tmp_flags & HNAE3_MPE);
+ 		if (!ret) {
+-			clear_bit(HCLGE_STATE_PROMISC_CHANGED, &hdev->state);
+-			set_bit(HCLGE_VPORT_STATE_VLAN_FLTR_CHANGE,
+-				&vport->state);
++			clear_bit(HCLGE_VPORT_STATE_PROMISC_CHANGE,
++				  &vport->state);
++			hclge_enable_vlan_filter(handle,
++						 tmp_flags & HNAE3_VLAN_FLTR);
+ 		}
+ 	}
+ 
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+index 56a7c6a3e1d9..97916f0fdf50 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+@@ -220,8 +220,10 @@ enum HCLGE_DEV_STATE {
+ 	HCLGE_STATE_STATISTICS_UPDATING,
+ 	HCLGE_STATE_CMD_DISABLE,
+ 	HCLGE_STATE_LINK_UPDATING,
+-	HCLGE_STATE_PROMISC_CHANGED,
+ 	HCLGE_STATE_RST_FAIL,
++	HCLGE_STATE_FD_TBL_CHANGED,
++	HCLGE_STATE_FD_CLEAR_ALL,
++	HCLGE_STATE_FD_USER_DEF_CHANGED,
+ 	HCLGE_STATE_MAX
+ };
+ 
+-- 
+2.34.1
+

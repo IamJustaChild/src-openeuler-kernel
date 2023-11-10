@@ -1,0 +1,381 @@
+From 20c0bf0b63735282934d110ebb1d940e28161f37 Mon Sep 17 00:00:00 2001
+From: Guangbin Huang <huangguangbin2@huawei.com>
+Date: Tue, 28 Sep 2021 11:52:05 +0800
+Subject: [PATCH 103/268] net: hns3: add new function hclge_get_speed_bit()
+
+mainline inclusion
+from mainline-v5.15-rc1
+commit aec35aecc3ccc822b358e2594ff70ff54245261e
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMYT
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=aec35aecc3ccc822b358e2594ff70ff54245261e
+
+----------------------------------------------------------------------
+
+Currently, function hclge_check_port_speed() uses switch/case statement
+to get speed bit according to speed. To reuse this part of code and
+improve code readability and maintainability, add a new function
+hclge_get_speed_bit() to get speed bit according to map relationship
+of speed and speed bit defined in array speed_bit_map.
+
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+---
+ drivers/net/ethernet/hisilicon/hns3/hnae3.h   |   4 +
+ .../hisilicon/hns3/hns3pf/hclge_cmd.h         |   2 +
+ .../hisilicon/hns3/hns3pf/hclge_main.c        | 100 +++++++++++-------
+ .../hisilicon/hns3/hns3pf/hclge_main.h        |   8 +-
+ include/uapi/linux/ethtool.h                  |  41 ++++++-
+ 5 files changed, 116 insertions(+), 39 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3.h b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+index c6bbe2874f83..7f9d3ed5fae6 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+@@ -50,6 +50,10 @@
+ #define HNAE3_DEV_ID_50GE_RDMA			0xA224
+ #define HNAE3_DEV_ID_50GE_RDMA_MACSEC		0xA225
+ #define HNAE3_DEV_ID_100G_RDMA_MACSEC		0xA226
++#define HNAE3_DEV_ID_100G_ROH			0xA227
++#define HNAE3_DEV_ID_200G_RDMA			0xA228
++#define HNAE3_DEV_ID_200G_ROH			0xA22C
++#define HNAE3_DEV_ID_400G_ROH			0xA22D
+ #define HNAE3_DEV_ID_100G_VF			0xA22E
+ #define HNAE3_DEV_ID_100G_RDMA_DCB_PFC_VF	0xA22F
+ 
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+index 578217ff9706..d17c85959507 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+@@ -535,6 +535,8 @@ struct hclge_pf_res_cmd {
+ #define HCLGE_CFG_RSS_SIZE_M	GENMASK(31, 24)
+ #define HCLGE_CFG_SPEED_ABILITY_S	0
+ #define HCLGE_CFG_SPEED_ABILITY_M	GENMASK(7, 0)
++#define HCLGE_CFG_SPEED_ABILITY_EXT_S	10
++#define HCLGE_CFG_SPEED_ABILITY_EXT_M	GENMASK(15, 10)
+ #define HCLGE_CFG_VLAN_FLTR_CAP_S	8
+ #define HCLGE_CFG_VLAN_FLTR_CAP_M	GENMASK(9, 8)
+ #define HCLGE_CFG_UMV_TBL_SPACE_S	16
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 31fc09b28592..2e1639eeae4d 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -80,6 +80,7 @@ static const struct pci_device_id ae_algo_pci_tbl[] = {
+ 	{PCI_VDEVICE(HUAWEI, HNAE3_DEV_ID_50GE_RDMA), 0},
+ 	{PCI_VDEVICE(HUAWEI, HNAE3_DEV_ID_50GE_RDMA_MACSEC), 0},
+ 	{PCI_VDEVICE(HUAWEI, HNAE3_DEV_ID_100G_RDMA_MACSEC), 0},
++	{PCI_VDEVICE(HUAWEI, HNAE3_DEV_ID_200G_RDMA), 0},
+ 	/* required last entry */
+ 	{0, }
+ };
+@@ -976,41 +977,43 @@ static int hclge_parse_speed(u8 speed_cmd, u32 *speed)
+ 	return 0;
+ }
+ 
++static const struct hclge_speed_bit_map speed_bit_map[] = {
++	{HCLGE_MAC_SPEED_10M, HCLGE_SUPPORT_10M_BIT},
++	{HCLGE_MAC_SPEED_100M, HCLGE_SUPPORT_100M_BIT},
++	{HCLGE_MAC_SPEED_1G, HCLGE_SUPPORT_1G_BIT},
++	{HCLGE_MAC_SPEED_10G, HCLGE_SUPPORT_10G_BIT},
++	{HCLGE_MAC_SPEED_25G, HCLGE_SUPPORT_25G_BIT},
++	{HCLGE_MAC_SPEED_40G, HCLGE_SUPPORT_40G_BIT},
++	{HCLGE_MAC_SPEED_50G, HCLGE_SUPPORT_50G_BIT},
++	{HCLGE_MAC_SPEED_100G, HCLGE_SUPPORT_100G_BIT},
++	{HCLGE_MAC_SPEED_200G, HCLGE_SUPPORT_200G_BIT},
++};
++
++static int hclge_get_speed_bit(u32 speed, u32 *speed_bit)
++{
++	u16 i;
++
++	for (i = 0; i < ARRAY_SIZE(speed_bit_map); i++) {
++		if (speed == speed_bit_map[i].speed) {
++			*speed_bit = speed_bit_map[i].speed_bit;
++			return 0;
++		}
++	}
++
++	return -EINVAL;
++}
++
+ static int hclge_check_port_speed(struct hnae3_handle *handle, u32 speed)
+ {
+ 	struct hclge_vport *vport = hclge_get_vport(handle);
+ 	struct hclge_dev *hdev = vport->back;
+ 	u32 speed_ability = hdev->hw.mac.speed_ability;
+ 	u32 speed_bit = 0;
++	int ret;
+ 
+-	switch (speed) {
+-	case HCLGE_MAC_SPEED_10M:
+-		speed_bit = HCLGE_SUPPORT_10M_BIT;
+-		break;
+-	case HCLGE_MAC_SPEED_100M:
+-		speed_bit = HCLGE_SUPPORT_100M_BIT;
+-		break;
+-	case HCLGE_MAC_SPEED_1G:
+-		speed_bit = HCLGE_SUPPORT_1G_BIT;
+-		break;
+-	case HCLGE_MAC_SPEED_10G:
+-		speed_bit = HCLGE_SUPPORT_10G_BIT;
+-		break;
+-	case HCLGE_MAC_SPEED_25G:
+-		speed_bit = HCLGE_SUPPORT_25G_BIT;
+-		break;
+-	case HCLGE_MAC_SPEED_40G:
+-		speed_bit = HCLGE_SUPPORT_40G_BIT;
+-		break;
+-	case HCLGE_MAC_SPEED_50G:
+-		speed_bit = HCLGE_SUPPORT_50G_BIT;
+-		break;
+-	case HCLGE_MAC_SPEED_100G:
+-		speed_bit = HCLGE_SUPPORT_100G_BIT;
+-		break;
+-	default:
+-		return -EINVAL;
+-	}
++	ret = hclge_get_speed_bit(speed, &speed_bit);
++	if (ret)
++		return ret;
+ 
+ 	if (speed_bit & speed_ability)
+ 		return 0;
+@@ -1019,7 +1022,7 @@ static int hclge_check_port_speed(struct hnae3_handle *handle, u32 speed)
+ }
+ 
+ #ifdef HAVE_ETHTOOL_CONVERT_U32_AND_LINK_MODE
+-static void hclge_convert_setting_sr(struct hclge_mac *mac, u8 speed_ability)
++static void hclge_convert_setting_sr(struct hclge_mac *mac, u16 speed_ability)
+ {
+ 	if (speed_ability & HCLGE_SUPPORT_10G_BIT)
+ 		linkmode_set_bit(ETHTOOL_LINK_MODE_10000baseSR_Full_BIT,
+@@ -1036,9 +1039,12 @@ static void hclge_convert_setting_sr(struct hclge_mac *mac, u8 speed_ability)
+ 	if (speed_ability & HCLGE_SUPPORT_100G_BIT)
+ 		linkmode_set_bit(ETHTOOL_LINK_MODE_100000baseSR4_Full_BIT,
+ 				 mac->supported);
++	if (speed_ability & HCLGE_SUPPORT_200G_BIT)
++		linkmode_set_bit(ETHTOOL_LINK_MODE_200000baseSR4_Full_BIT,
++				 mac->supported);
+ }
+ 
+-static void hclge_convert_setting_lr(struct hclge_mac *mac, u8 speed_ability)
++static void hclge_convert_setting_lr(struct hclge_mac *mac, u16 speed_ability)
+ {
+ 	if (speed_ability & HCLGE_SUPPORT_10G_BIT)
+ 		linkmode_set_bit(ETHTOOL_LINK_MODE_10000baseLR_Full_BIT,
+@@ -1052,9 +1058,13 @@ static void hclge_convert_setting_lr(struct hclge_mac *mac, u8 speed_ability)
+ 	if (speed_ability & HCLGE_SUPPORT_100G_BIT)
+ 		linkmode_set_bit(ETHTOOL_LINK_MODE_100000baseLR4_ER4_Full_BIT,
+ 				 mac->supported);
++	if (speed_ability & HCLGE_SUPPORT_200G_BIT)
++		linkmode_set_bit(
++			ETHTOOL_LINK_MODE_200000baseLR4_ER4_FR4_Full_BIT,
++			mac->supported);
+ }
+ 
+-static void hclge_convert_setting_cr(struct hclge_mac *mac, u8 speed_ability)
++static void hclge_convert_setting_cr(struct hclge_mac *mac, u16 speed_ability)
+ {
+ 	if (speed_ability & HCLGE_SUPPORT_10G_BIT)
+ 		linkmode_set_bit(ETHTOOL_LINK_MODE_10000baseCR_Full_BIT,
+@@ -1071,9 +1081,12 @@ static void hclge_convert_setting_cr(struct hclge_mac *mac, u8 speed_ability)
+ 	if (speed_ability & HCLGE_SUPPORT_100G_BIT)
+ 		linkmode_set_bit(ETHTOOL_LINK_MODE_100000baseCR4_Full_BIT,
+ 				 mac->supported);
++	if (speed_ability & HCLGE_SUPPORT_200G_BIT)
++		linkmode_set_bit(ETHTOOL_LINK_MODE_200000baseCR4_Full_BIT,
++				 mac->supported);
+ }
+ 
+-static void hclge_convert_setting_kr(struct hclge_mac *mac, u8 speed_ability)
++static void hclge_convert_setting_kr(struct hclge_mac *mac, u16 speed_ability)
+ {
+ 	if (speed_ability & HCLGE_SUPPORT_1G_BIT)
+ 		linkmode_set_bit(ETHTOOL_LINK_MODE_1000baseKX_Full_BIT,
+@@ -1093,6 +1106,9 @@ static void hclge_convert_setting_kr(struct hclge_mac *mac, u8 speed_ability)
+ 	if (speed_ability & HCLGE_SUPPORT_100G_BIT)
+ 		linkmode_set_bit(ETHTOOL_LINK_MODE_100000baseKR4_Full_BIT,
+ 				 mac->supported);
++	if (speed_ability & HCLGE_SUPPORT_200G_BIT)
++		linkmode_set_bit(ETHTOOL_LINK_MODE_200000baseKR4_Full_BIT,
++				 mac->supported);
+ }
+ 
+ static void hclge_convert_setting_fec(struct hclge_mac *mac)
+@@ -1119,6 +1135,7 @@ static void hclge_convert_setting_fec(struct hclge_mac *mac)
+ 			BIT(HNAE3_FEC_AUTO);
+ 		break;
+ 	case HCLGE_MAC_SPEED_100G:
++	case HCLGE_MAC_SPEED_200G:
+ 		linkmode_set_bit(ETHTOOL_LINK_MODE_FEC_RS_BIT, mac->supported);
+ 		mac->fec_ability = BIT(HNAE3_FEC_RS) | BIT(HNAE3_FEC_AUTO);
+ 		break;
+@@ -1130,7 +1147,7 @@ static void hclge_convert_setting_fec(struct hclge_mac *mac)
+ #endif
+ 
+ static void hclge_parse_fiber_link_mode(struct hclge_dev *hdev,
+-					u8 speed_ability)
++					u16 speed_ability)
+ {
+ #ifdef HAVE_ETHTOOL_CONVERT_U32_AND_LINK_MODE
+ 	struct hclge_mac *mac = &hdev->hw.mac;
+@@ -1165,7 +1182,7 @@ static void hclge_parse_fiber_link_mode(struct hclge_dev *hdev,
+ }
+ 
+ static void hclge_parse_backplane_link_mode(struct hclge_dev *hdev,
+-					    u8 speed_ability)
++					    u16 speed_ability)
+ {
+ 	struct hclge_mac *mac = &hdev->hw.mac;
+ 
+@@ -1186,7 +1203,7 @@ static void hclge_parse_backplane_link_mode(struct hclge_dev *hdev,
+ }
+ 
+ static void hclge_parse_copper_link_mode(struct hclge_dev *hdev,
+-					 u8 speed_ability)
++					 u16 speed_ability)
+ {
+ 	unsigned long *supported = hdev->hw.mac.supported;
+ 
+@@ -1216,7 +1233,7 @@ static void hclge_parse_copper_link_mode(struct hclge_dev *hdev,
+ 	linkmode_set_bit(ETHTOOL_LINK_MODE_Asym_Pause_BIT, supported);
+ }
+ 
+-static void hclge_parse_link_mode(struct hclge_dev *hdev, u8 speed_ability)
++static void hclge_parse_link_mode(struct hclge_dev *hdev, u16 speed_ability)
+ {
+ 	u8 media_type = hdev->hw.mac.media_type;
+ 
+@@ -1228,8 +1245,11 @@ static void hclge_parse_link_mode(struct hclge_dev *hdev, u8 speed_ability)
+ 		hclge_parse_backplane_link_mode(hdev, speed_ability);
+ }
+ 
+-static u32 hclge_get_max_speed(u8 speed_ability)
++static u32 hclge_get_max_speed(u16 speed_ability)
+ {
++	if (speed_ability & HCLGE_SUPPORT_200G_BIT)
++		return HCLGE_MAC_SPEED_200G;
++
+ 	if (speed_ability & HCLGE_SUPPORT_100G_BIT)
+ 		return HCLGE_MAC_SPEED_100G;
+ 
+@@ -1260,9 +1280,11 @@ static u32 hclge_get_max_speed(u8 speed_ability)
+ static void hclge_parse_cfg(struct hclge_cfg *cfg, struct hclge_desc *desc)
+ {
+ #define HCLGE_TX_SPARE_SIZE_UNIT		4096
++#define SPEED_ABILITY_EXT_SHIFT                 8
+ 
+ 	struct hclge_cfg_param_cmd *req;
+ 	u64 mac_addr_tmp_high;
++	u16 speed_ability_ext;
+ 	u64 mac_addr_tmp;
+ 	unsigned int i;
+ 
+@@ -1308,6 +1330,10 @@ static void hclge_parse_cfg(struct hclge_cfg *cfg, struct hclge_desc *desc)
+ 	cfg->speed_ability = hnae3_get_field(__le32_to_cpu(req->param[1]),
+ 					     HCLGE_CFG_SPEED_ABILITY_M,
+ 					     HCLGE_CFG_SPEED_ABILITY_S);
++	speed_ability_ext = hnae3_get_field(__le32_to_cpu(req->param[1]),
++					    HCLGE_CFG_SPEED_ABILITY_EXT_M,
++					    HCLGE_CFG_SPEED_ABILITY_EXT_S);
++	cfg->speed_ability |= speed_ability_ext << SPEED_ABILITY_EXT_SHIFT;
+ 
+ 	cfg->vlan_fliter_cap = hnae3_get_field(__le32_to_cpu(req->param[1]),
+ 					       HCLGE_CFG_VLAN_FLTR_CAP_M,
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+index 5889bd069a69..0bf287e403b3 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+@@ -208,6 +208,7 @@ enum HLCGE_PORT_TYPE {
+ #define HCLGE_SUPPORT_40G_BIT		BIT(5)
+ #define HCLGE_SUPPORT_100M_BIT		BIT(6)
+ #define HCLGE_SUPPORT_10M_BIT		BIT(7)
++#define HCLGE_SUPPORT_200G_BIT         BIT(8)
+ #define HCLGE_SUPPORT_GE \
+ 	(HCLGE_SUPPORT_1G_BIT | HCLGE_SUPPORT_100M_BIT | HCLGE_SUPPORT_10M_BIT)
+ 
+@@ -385,7 +386,7 @@ struct hclge_cfg {
+ 	u8 default_speed;
+ 	u32 numa_node_map;
+ 	u32 tx_spare_buf_size;
+-	u8 speed_ability;
++	u16 speed_ability;
+ 	u16 umv_space;
+ };
+ 
+@@ -1012,6 +1013,11 @@ struct hclge_vport {
+ #endif
+ };
+ 
++struct hclge_speed_bit_map {
++	u32 speed;
++	u32 speed_bit;
++};
++
+ int hclge_set_vport_promisc_mode(struct hclge_vport *vport, bool en_uc_pmc,
+ 				 bool en_mc_pmc, bool en_bc_pmc);
+ int hclge_add_uc_addr_common(struct hclge_vport *vport,
+diff --git a/include/uapi/linux/ethtool.h b/include/uapi/linux/ethtool.h
+index 43ac4af42346..5985c5a72046 100644
+--- a/include/uapi/linux/ethtool.h
++++ b/include/uapi/linux/ethtool.h
+@@ -1529,7 +1529,46 @@ enum ethtool_link_mode_bit_indices {
+ 	ETHTOOL_LINK_MODE_FEC_NONE_BIT	= 49,
+ 	ETHTOOL_LINK_MODE_FEC_RS_BIT	= 50,
+ 	ETHTOOL_LINK_MODE_FEC_BASER_BIT	= 51,
+-
++	ETHTOOL_LINK_MODE_50000baseKR_Full_BIT		 = 52,
++	ETHTOOL_LINK_MODE_50000baseSR_Full_BIT		 = 53,
++	ETHTOOL_LINK_MODE_50000baseCR_Full_BIT		 = 54,
++	ETHTOOL_LINK_MODE_50000baseLR_ER_FR_Full_BIT	 = 55,
++	ETHTOOL_LINK_MODE_50000baseDR_Full_BIT		 = 56,
++	ETHTOOL_LINK_MODE_100000baseKR2_Full_BIT	 = 57,
++	ETHTOOL_LINK_MODE_100000baseSR2_Full_BIT	 = 58,
++	ETHTOOL_LINK_MODE_100000baseCR2_Full_BIT	 = 59,
++	ETHTOOL_LINK_MODE_100000baseLR2_ER2_FR2_Full_BIT = 60,
++	ETHTOOL_LINK_MODE_100000baseDR2_Full_BIT	 = 61,
++	ETHTOOL_LINK_MODE_200000baseKR4_Full_BIT	 = 62,
++	ETHTOOL_LINK_MODE_200000baseSR4_Full_BIT	 = 63,
++	ETHTOOL_LINK_MODE_200000baseLR4_ER4_FR4_Full_BIT = 64,
++	ETHTOOL_LINK_MODE_200000baseDR4_Full_BIT	 = 65,
++	ETHTOOL_LINK_MODE_200000baseCR4_Full_BIT	 = 66,
++	ETHTOOL_LINK_MODE_100baseT1_Full_BIT		 = 67,
++	ETHTOOL_LINK_MODE_1000baseT1_Full_BIT		 = 68,
++	ETHTOOL_LINK_MODE_400000baseKR8_Full_BIT	 = 69,
++	ETHTOOL_LINK_MODE_400000baseSR8_Full_BIT	 = 70,
++	ETHTOOL_LINK_MODE_400000baseLR8_ER8_FR8_Full_BIT = 71,
++	ETHTOOL_LINK_MODE_400000baseDR8_Full_BIT	 = 72,
++	ETHTOOL_LINK_MODE_400000baseCR8_Full_BIT	 = 73,
++	ETHTOOL_LINK_MODE_FEC_LLRS_BIT			 = 74,
++	ETHTOOL_LINK_MODE_100000baseKR_Full_BIT		 = 75,
++	ETHTOOL_LINK_MODE_100000baseSR_Full_BIT		 = 76,
++	ETHTOOL_LINK_MODE_100000baseLR_ER_FR_Full_BIT	 = 77,
++	ETHTOOL_LINK_MODE_100000baseCR_Full_BIT		 = 78,
++	ETHTOOL_LINK_MODE_100000baseDR_Full_BIT		 = 79,
++	ETHTOOL_LINK_MODE_200000baseKR2_Full_BIT	 = 80,
++	ETHTOOL_LINK_MODE_200000baseSR2_Full_BIT	 = 81,
++	ETHTOOL_LINK_MODE_200000baseLR2_ER2_FR2_Full_BIT = 82,
++	ETHTOOL_LINK_MODE_200000baseDR2_Full_BIT	 = 83,
++	ETHTOOL_LINK_MODE_200000baseCR2_Full_BIT	 = 84,
++	ETHTOOL_LINK_MODE_400000baseKR4_Full_BIT	 = 85,
++	ETHTOOL_LINK_MODE_400000baseSR4_Full_BIT	 = 86,
++	ETHTOOL_LINK_MODE_400000baseLR4_ER4_FR4_Full_BIT = 87,
++	ETHTOOL_LINK_MODE_400000baseDR4_Full_BIT	 = 88,
++	ETHTOOL_LINK_MODE_400000baseCR4_Full_BIT	 = 89,
++	ETHTOOL_LINK_MODE_100baseFX_Half_BIT		 = 90,
++	ETHTOOL_LINK_MODE_100baseFX_Full_BIT		 = 91,
+ 	/* Last allowed bit for __ETHTOOL_LINK_MODE_LEGACY_MASK is bit
+ 	 * 31. Please do NOT define any SUPPORTED_* or ADVERTISED_*
+ 	 * macro for bits > 31. The only way to use indices > 31 is to
+-- 
+2.34.1
+

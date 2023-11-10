@@ -1,0 +1,108 @@
+From 7b2cc496af44fe17ff4402c0cf502bfec114cb87 Mon Sep 17 00:00:00 2001
+From: Jiantao Xiao <xiaojiantao1@h-partners.com>
+Date: Fri, 31 Mar 2023 16:25:49 +0800
+Subject: [PATCH 189/268] net: hns3: disbable pfc en before the reset
+
+driver inclusion
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN3D
+CVE: NA
+
+----------------------------------------------------------------------
+
+To prevent the system from abnormally sending PFC frames after an
+abnormal reset. If the reset type is not imp reset or global reset,
+the system notifies the firmware to disable pfc before the reset.
+
+Signed-off-by: shaojijie <shaojijie@huawei.com>
+Signed-off-by: Jiantao Xiao <xiaojiantao1@h-partners.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+---
+ .../ethernet/hisilicon/hns3/hns3pf/hclge_ext.c    |  1 +
+ .../ethernet/hisilicon/hns3/hns3pf/hclge_main.c   | 15 +++++++++------
+ .../net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c |  4 ++--
+ .../net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h |  5 +++++
+ 4 files changed, 17 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+index 0f4eff899e94..801737b11732 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+@@ -590,6 +590,7 @@ static const hclge_priv_ops_fn hclge_ext_func_arr[] = {
+ 	[HNAE3_EXT_OPC_GET_PORT_EXT_ID_INFO] = hclge_get_extend_port_id_info,
+ 	[HNAE3_EXT_OPC_GET_PORT_EXT_NUM_INFO] = hclge_get_extend_port_num_info,
+ 	[HNAE3_EXT_OPC_GET_PORT_NUM] = hclge_get_port_num,
++	[HNAE3_EXT_OPC_SET_PFC_TIME] = hclge_set_pause_trans_time,
+ };
+ 
+ int hclge_ext_ops_handle(struct hnae3_handle *handle, int opcode,
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 3779181b8f59..47c526b5271b 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -7790,12 +7790,15 @@ static void hclge_ae_stop(struct hnae3_handle *handle)
+ 	/* If it is not PF reset or FLR, the firmware will disable the MAC,
+ 	 * so it only need to stop phy here.
+ 	 */
+-	if (test_bit(HCLGE_STATE_RST_HANDLING, &hdev->state) &&
+-	    hdev->reset_type != HNAE3_FUNC_RESET &&
+-	    hdev->reset_type != HNAE3_FLR_RESET) {
+-		hclge_mac_stop_phy(hdev);
+-		hclge_update_link_status(hdev);
+-		return;
++	if (test_bit(HCLGE_STATE_RST_HANDLING, &hdev->state)) {
++		hclge_pfc_pause_en_cfg(hdev, HCLGE_PFC_TX_RX_DISABLE,
++				       HCLGE_PFC_DISABLE);
++		if (hdev->reset_type != HNAE3_FUNC_RESET &&
++		    hdev->reset_type != HNAE3_FLR_RESET) {
++			hclge_mac_stop_phy(hdev);
++			hclge_update_link_status(hdev);
++			return;
++		}
+ 	}
+ 
+ 	hclge_reset_tqp(handle);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
+index ca93919ed817..b535f3dd842b 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
+@@ -171,8 +171,8 @@ int hclge_mac_pause_en_cfg(struct hclge_dev *hdev, bool tx, bool rx)
+ 	return hclge_cmd_send(&hdev->hw, &desc, 1);
+ }
+ 
+-static int hclge_pfc_pause_en_cfg(struct hclge_dev *hdev, u8 tx_rx_bitmap,
+-				  u8 pfc_bitmap)
++int hclge_pfc_pause_en_cfg(struct hclge_dev *hdev, u8 tx_rx_bitmap,
++			   u8 pfc_bitmap)
+ {
+ 	struct hclge_desc desc;
+ 	struct hclge_pfc_en_cmd *pfc = (struct hclge_pfc_en_cmd *)desc.data;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h
+index 34eb52d3d7ee..98d0f871ee61 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h
+@@ -134,6 +134,9 @@ struct hclge_bp_to_qs_map_cmd {
+ 	u32 rsvd1;
+ };
+ 
++#define HCLGE_PFC_DISABLE	0
++#define HCLGE_PFC_TX_RX_DISABLE	0
++
+ struct hclge_pfc_en_cmd {
+ 	u8 tx_rx_en_bitmap;
+ 	u8 pri_en_bitmap;
+@@ -192,6 +195,8 @@ void hclge_tm_pfc_info_update(struct hclge_dev *hdev);
+ int hclge_tm_dwrr_cfg(struct hclge_dev *hdev);
+ int hclge_tm_init_hw(struct hclge_dev *hdev, bool init);
+ int hclge_mac_pause_en_cfg(struct hclge_dev *hdev, bool tx, bool rx);
++int hclge_pfc_pause_en_cfg(struct hclge_dev *hdev, u8 tx_rx_bitmap,
++			   u8 pfc_bitmap);
+ int hclge_pause_param_cfg(struct hclge_dev *hdev, const u8 *addr,
+ 			  u8 pause_trans_gap, u16 pause_trans_time);
+ int hclge_pause_addr_cfg(struct hclge_dev *hdev, const u8 *mac_addr);
+-- 
+2.34.1
+

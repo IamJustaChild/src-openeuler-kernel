@@ -1,0 +1,67 @@
+From af163f573388a18a08677432046ab2fbf7439b55 Mon Sep 17 00:00:00 2001
+From: Guojia Liao <liaoguojia@huawei.com>
+Date: Sat, 24 Jul 2021 15:44:07 +0800
+Subject: [PATCH 055/268] net: hns3: split out hclge_tm_vport_tc_info_update()
+
+mainline inclusion
+from mainline-v5.13-rc1
+commit b1261897b0902d870c483fb006a9443723a3d58b
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMQV
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=b1261897b0902d870c483fb006a9443723a3d58b
+
+----------------------------------------------------------------------
+
+hclge_tm_vport_tc_info_update() is bloated, so split it into
+separate functions for readability and maintainability.
+
+Signed-off-by: Guojia Liao <liaoguojia@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
+index be641288651f..c92d084bb798 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
+@@ -597,12 +597,11 @@ static u16 hclge_vport_get_tqp_num(struct hclge_vport *vport)
+ 	return sum;
+ }
+ 
+-static void hclge_tm_vport_tc_info_update(struct hclge_vport *vport)
++static void hclge_tm_update_kinfo_rss_size(struct hclge_vport *vport)
+ {
+ 	struct hnae3_knic_private_info *kinfo = &vport->nic.kinfo;
+ 	struct hclge_dev *hdev = vport->back;
+ 	u16 max_rss_size;
+-	u8 i;
+ 
+ 	/* TC configuration is shared by PF/VF in one port, only allow
+ 	 * one tc for VF for simplicity. VF's vport_id is non zero.
+@@ -626,7 +625,15 @@ static void hclge_tm_vport_tc_info_update(struct hclge_vport *vport)
+ 		/* Set to the maximum specification value (max_rss_size). */
+ 		kinfo->rss_size = max_rss_size;
+ 	}
++}
++
++static void hclge_tm_vport_tc_info_update(struct hclge_vport *vport)
++{
++	struct hnae3_knic_private_info *kinfo = &vport->nic.kinfo;
++	struct hclge_dev *hdev = vport->back;
++	u8 i;
+ 
++	hclge_tm_update_kinfo_rss_size(vport);
+ 	kinfo->num_tqps = hclge_vport_get_tqp_num(vport);
+ 	vport->dwrr = 100;  /* 100 percent as init */
+ 	vport->alloc_rss_size = kinfo->rss_size;
+-- 
+2.34.1
+

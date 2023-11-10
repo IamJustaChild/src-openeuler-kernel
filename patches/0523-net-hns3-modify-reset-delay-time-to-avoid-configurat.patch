@@ -1,0 +1,46 @@
+From e5c7da63311a9b723780e33c8c9c23e46e44cd7e Mon Sep 17 00:00:00 2001
+From: Jie Wang <wangjie125@huawei.com>
+Date: Mon, 3 Apr 2023 14:11:07 +0800
+Subject: [PATCH 205/268] net: hns3: modify reset delay time to avoid
+ configuration timeout
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN49
+CVE: NA
+
+----------------------------------------------------------------------
+
+Currently the vf function reset needs to delay 5000ms for stack recovery.
+This is too long for product configurations and cause configuration
+failures. According to the tests, 500ms delay is enough for reset process
+except PF FLR. So this patch adapts this delay in these scenarios.
+
+Signed-off-by: Jie Wang <wangjie125@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+index 8bd2d8019425..ee76384bdf3f 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+@@ -1904,7 +1904,10 @@ static int hclgevf_reset_wait(struct hclgevf_dev *hdev)
+ 	 * might happen in case reset assertion was made by PF. Yes, this also
+ 	 * means we might end up waiting bit more even for VF reset.
+ 	 */
+-	msleep(500);
++	if (hdev->reset_type == HNAE3_VF_FULL_RESET)
++		msleep(5000);
++	else
++		msleep(500);
+ 
+ 	return 0;
+ }
+-- 
+2.34.1
+

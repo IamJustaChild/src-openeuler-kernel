@@ -1,0 +1,41 @@
+From f38968ed91f63e71c5ff5431902ea1e6e4ebad02 Mon Sep 17 00:00:00 2001
+From: Huazhong Tan <tanhuazhong@huawei.com>
+Date: Sat, 30 May 2020 09:08:28 +0800
+Subject: [PATCH 018/268] net: hns3: remove an unused macro hclge_is_csq
+
+mainline inclusion
+from mainline-v5.8-rc1
+commit d62805087e7fbbd7582403b972dd75581256e585
+category: cleanup
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EJ0A
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=d62805087e7fbbd7582403b972dd75581256e585
+
+--------------------------------
+
+Macro hclge_is_csq defined in hcgle_cmd.c has not been used,
+so remove it.
+
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c
+index 16262eb39605..55bdfd95a0fd 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c
+@@ -12,8 +12,6 @@
+ #include "hnae3.h"
+ #include "hclge_main.h"
+ 
+-#define hclge_is_csq(ring) ((ring)->flag & HCLGE_TYPE_CSQ)
+-
+ #define cmq_ring_to_dev(ring)   (&(ring)->dev->pdev->dev)
+ 
+ static int hclge_ring_space(struct hclge_cmq_ring *ring)
+-- 
+2.34.1
+

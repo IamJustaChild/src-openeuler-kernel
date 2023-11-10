@@ -1,0 +1,245 @@
+From 30f449cda2a734b80610dd5963a16a62920cfe4f Mon Sep 17 00:00:00 2001
+From: Yunsheng Lin <linyunsheng@huawei.com>
+Date: Sat, 24 Jul 2021 15:45:27 +0800
+Subject: [PATCH 081/268] net: hns3: use bounce buffer when rx page can not be
+ reused
+
+mainline inclusion
+from mainline-v5.14-rc1
+commit 99f6b5fb5f63cf69c6e56bba8e5492c98c521a63
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMUR
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=99f6b5fb5f63cf69c6e56bba8e5492c98c521a63
+
+----------------------------------------------------------------------
+
+Currently rx page will be reused to receive future packet when
+the stack releases the previous skb quickly. If the old page
+can not be reused, a new page will be allocated and mapped,
+which comsumes a lot of cpu when IOMMU is in the strict mode,
+especially when the application and irq/NAPI happens to run on
+the same cpu.
+
+So allocate a new frag to memcpy the data to avoid the costly
+IOMMU unmapping/mapping operation, and add "frag_alloc_err"
+and "frag_alloc" stats in "ethtool -S ethX" cmd.
+
+The throughput improves above 50% when running single thread of
+iperf using TCP when IOMMU is in strict mode and iperf shares the
+same cpu with irq/NAPI(rx_copybreak = 2048 and mtu = 1500).
+
+Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
+	drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+---
+ .../ethernet/hisilicon/hns3/hns3_debugfs.c    |  4 +-
+ .../net/ethernet/hisilicon/hns3/hns3_enet.c   | 67 ++++++++++++++-----
+ .../net/ethernet/hisilicon/hns3/hns3_enet.h   |  4 ++
+ .../ethernet/hisilicon/hns3/hns3_ethtool.c    | 12 ++++
+ 4 files changed, 71 insertions(+), 16 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c b/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
+index 6b2179516fff..91a063ec9105 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
+@@ -442,7 +442,8 @@ static const struct hns3_dbg_item rx_queue_info_items[] = {
+ 	{ "TAIL", 2 },
+ 	{ "HEAD", 2 },
+ 	{ "FBDNUM", 2 },
+-	{ "PKTNUM", 5 },
++	{ "PKTNUM", 2 },
++	{ "COPYBREAK", 2 },
+ 	{ "RING_EN", 2 },
+ 	{ "RX_RING_EN", 2 },
+ 	{ "BASE_ADDR", 10 },
+@@ -474,6 +475,7 @@ static void hns3_dump_rx_queue_info(struct hns3_enet_ring *ring,
+ 
+ 	sprintf(result[j++], "%6u", readl_relaxed(ring->tqp->io_base +
+ 		HNS3_RING_RX_RING_PKTNUM_RECORD_REG));
++	sprintf(result[j++], "%9u", ring->rx_copybreak);
+ 
+ 	sprintf(result[j++], "%7s", readl_relaxed(ring->tqp->io_base +
+ 		HNS3_RING_EN_REG) ? "on" : "off");
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index 5bb5b8a5e5a0..046c696df091 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -3226,39 +3226,76 @@ static void hns3_nic_reuse_page(struct sk_buff *skb, int i,
+ 				struct hns3_desc_cb *desc_cb)
+ {
+ 	struct hns3_desc *desc = &ring->desc[ring->next_to_clean];
++	u32 frag_offset = desc_cb->page_offset + pull_len;
+ 	int size = le16_to_cpu(desc->rx.size);
+ 	u32 truesize = hns3_buf_size(ring);
++	u32 frag_size = size - pull_len;
++	bool reused;
+ 
+-	desc_cb->pagecnt_bias--;
+-	skb_add_rx_frag(skb, i, desc_cb->priv, desc_cb->page_offset + pull_len,
+-			size - pull_len, truesize);
+-
+-	/* Avoid re-using remote pages, or the stack is still using the page
+-	 * when page_offset rollback to zero, flag default unreuse
+-	 */
+ 	if (unlikely(!hns3_page_is_reusable(desc_cb->priv)) ||
+ 	    (!desc_cb->page_offset && !hns3_can_reuse_page(desc_cb))) {
+ 		__page_frag_cache_drain(desc_cb->priv, desc_cb->pagecnt_bias);
+ 		return;
+ 	}
+ 
+-	/* Move offset up to the next cache line */
+-	desc_cb->page_offset += truesize;
++	reused = hns3_can_reuse_page(desc_cb);
+ 
+-	if (desc_cb->page_offset + truesize <= hns3_page_size(ring)) {
+-		desc_cb->reuse_flag = 1;
+-	} else if (hns3_can_reuse_page(desc_cb)) {
++	/* Rx page can be reused when:
++	 * 1. Rx page is only owned by the driver when page_offset
++	 *    is zero, which means 0 @ truesize will be used by
++	 *    stack after skb_add_rx_frag() is called, and the rest
++	 *    of rx page can be reused by driver.
++	 * Or
++	 * 2. Rx page is only owned by the driver when page_offset
++	 *    is non-zero, which means page_offset @ truesize will
++	 *    be used by stack after skb_add_rx_frag() is called,
++	 *    and 0 @ truesize can be reused by driver.
++	 */
++	if ((!desc_cb->page_offset && reused) ||
++	    ((desc_cb->page_offset + truesize + truesize) <=
++	     hns3_page_size(ring) && desc_cb->page_offset)) {
++		desc_cb->page_offset += truesize;
+ 		desc_cb->reuse_flag = 1;
++	} else if (desc_cb->page_offset && reused) {
+ 		desc_cb->page_offset = 0;
+-	} else if (desc_cb->pagecnt_bias) {
+-		__page_frag_cache_drain(desc_cb->priv, desc_cb->pagecnt_bias);
++		desc_cb->reuse_flag = 1;
++	} else if (frag_size <= ring->rx_copybreak) {
++		void *frag = napi_alloc_frag(frag_size);
++
++		if (unlikely(!frag)) {
++			u64_stats_update_begin(&ring->syncp);
++			ring->stats.frag_alloc_err++;
++			u64_stats_update_end(&ring->syncp);
++
++			hns3_rl_err(ring_to_netdev(ring),
++				    "failed to allocate rx frag\n");
++			goto out;
++		}
++
++		desc_cb->reuse_flag = 1;
++		memcpy(frag, desc_cb->buf + frag_offset, frag_size);
++		skb_add_rx_frag(skb, i, virt_to_page(frag),
++				offset_in_page(frag), frag_size, frag_size);
++
++		u64_stats_update_begin(&ring->syncp);
++		ring->stats.frag_alloc++;
++		u64_stats_update_end(&ring->syncp);
+ 		return;
+ 	}
+ 
++out:
++	desc_cb->pagecnt_bias--;
++
+ 	if (unlikely(!desc_cb->pagecnt_bias)) {
+ 		page_ref_add(desc_cb->priv, USHRT_MAX);
+ 		desc_cb->pagecnt_bias = USHRT_MAX;
+ 	}
++
++	skb_add_rx_frag(skb, i, desc_cb->priv, frag_offset,
++			frag_size, truesize);
++
++	if (unlikely(!desc_cb->reuse_flag))
++		__page_frag_cache_drain(desc_cb->priv, desc_cb->pagecnt_bias);
+ }
+ 
+ static int hns3_gro_complete(struct sk_buff *skb, u32 l234info)
+@@ -4335,7 +4372,7 @@ static void hns3_ring_get_cfg(struct hnae3_queue *q, struct hns3_nic_priv *priv,
+ 		ring = &priv->ring[q->tqp_index + queue_num];
+ 		desc_num = priv->ae_handle->kinfo.num_rx_desc;
+ 		ring->queue_index = q->tqp_index;
+-		ring->io_base = q->io_base;
++		ring->rx_copybreak = priv->rx_copybreak;
+ 	}
+ 
+ 	hnae3_set_bit(ring->flag, HNAE3_RING_TYPE_B, ring_type);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
+index d9a0fa3e8308..d7238d0744f3 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
+@@ -416,6 +416,8 @@ struct ring_stats {
+ 			u64 l3l4_csum_err;
+ 			u64 rx_multicast;
+ 			u64 non_reuse_pg;
++			u64 frag_alloc_err;
++			u64 frag_alloc;
+ 		};
+ 	};
+ };
+@@ -467,6 +469,7 @@ struct hns3_enet_ring {
+ 		/* for Rx ring */
+ 		struct {
+ 			u32 pull_len;   /* memcpy len for current rx packet */
++			u32 rx_copybreak;
+ 			u32 frag_num;
+ 			/* first buffer address for current packet */
+ 			unsigned char *va;
+@@ -553,6 +556,7 @@ struct hns3_nic_priv {
+ 	struct hns3_enet_coalesce tx_coal;
+ 	struct hns3_enet_coalesce rx_coal;
+ 	u32 tx_copybreak;
++	u32 rx_copybreak;
+ };
+ 
+ union l3_hdr_info {
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+index 18627c510617..8d73f15be8d6 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+@@ -74,6 +74,8 @@ static const struct hns3_stats hns3_rxq_stats[] = {
+ 	HNS3_TQP_STAT("l3l4_csum_err", l3l4_csum_err),
+ 	HNS3_TQP_STAT("multicast", rx_multicast),
+ 	HNS3_TQP_STAT("non_reuse_pg", non_reuse_pg),
++	HNS3_TQP_STAT("frag_alloc_err", frag_alloc_err),
++	HNS3_TQP_STAT("frag_alloc", frag_alloc),
+ };
+ 
+ #define HNS3_PRIV_FLAGS_LEN ARRAY_SIZE(hns3_priv_flags)
+@@ -1622,6 +1624,9 @@ static int hns3_get_tunable(struct net_device *netdev,
+ 		/* all the tx rings have the same tx_copybreak */
+ 		*(u32 *)data = priv->tx_copybreak;
+ 		break;
++	case ETHTOOL_RX_COPYBREAK:
++		*(u32 *)data = priv->rx_copybreak;
++		break;
+ 	default:
+ 		ret = -EOPNOTSUPP;
+ 		break;
+@@ -1645,6 +1650,13 @@ static int hns3_set_tunable(struct net_device *netdev,
+ 		for (i = 0; i < h->kinfo.num_tqps; i++)
+ 			priv->ring[i].tx_copybreak = priv->tx_copybreak;
+ 
++		break;
++	case ETHTOOL_RX_COPYBREAK:
++		priv->rx_copybreak = *(u32 *)data;
++
++		for (i = h->kinfo.num_tqps; i < h->kinfo.num_tqps * 2; i++)
++			priv->ring[i].rx_copybreak = priv->rx_copybreak;
++
+ 		break;
+ 	default:
+ 		ret = -EOPNOTSUPP;
+-- 
+2.34.1
+

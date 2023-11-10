@@ -1,0 +1,49 @@
+From 439248c88fd27297b1c187006428535fa4efdb23 Mon Sep 17 00:00:00 2001
+From: Huazhong Tan <tanhuazhong@huawei.com>
+Date: Sat, 24 Jul 2021 15:44:25 +0800
+Subject: [PATCH 057/268] net: hns3: cleanup inappropriate spaces in struct
+ hlcgevf_tqp_stats
+
+mainline inclusion
+from mainline-v5.13-rc1
+commit 8ed64dbe0bdf39479772896b2b4e5cbbdf89f086
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMQV
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=8ed64dbe0bdf39479772896b2b4e5cbbdf89f086
+
+----------------------------------------------------------------------
+
+Modify some inappropriate spaces in comments of struct
+hlcgevf_tqp_stats.
+
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h
+index a35bbfd93384..e75e1b437585 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h
+@@ -175,9 +175,9 @@ struct hclgevf_hw {
+ 
+ /* TQP stats */
+ struct hlcgevf_tqp_stats {
+-	/* query_tqp_tx_queue_statistics ,opcode id:  0x0B03 */
++	/* query_tqp_tx_queue_statistics, opcode id: 0x0B03 */
+ 	u64 rcb_tx_ring_pktnum_rcd; /* 32bit */
+-	/* query_tqp_rx_queue_statistics ,opcode id:  0x0B13 */
++	/* query_tqp_rx_queue_statistics, opcode id: 0x0B13 */
+ 	u64 rcb_rx_ring_pktnum_rcd; /* 32bit */
+ };
+ 
+-- 
+2.34.1
+

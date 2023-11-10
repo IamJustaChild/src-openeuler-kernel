@@ -1,0 +1,46 @@
+From e839b9221aca3467ab76ccee2050dcf578ddeb86 Mon Sep 17 00:00:00 2001
+From: Hao Chen <chenhao288@hisilicon.com>
+Date: Tue, 28 Sep 2021 11:52:14 +0800
+Subject: [PATCH 111/268] net: hnss3: use max() to simplify code
+
+mainline inclusion
+from mainline-v5.15-rc1
+commit 38b99e1ede3280f0e286071956bd8632737be57b
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMYT
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=38b99e1ede3280f0e286071956bd8632737be57b
+
+----------------------------------------------------------------------
+
+Replace the "? :" statement wich max() to simplify code.
+
+Signed-off-by: Hao Chen <chenhao288@hisilicon.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index 72f26221ee6c..f02b976a89bc 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -675,8 +675,7 @@ static u32 hns3_tx_spare_space(struct hns3_enet_ring *ring)
+ 	/* The free tx buffer is divided into two part, so pick the
+ 	 * larger one.
+ 	 */
+-	return (ntc > (tx_spare->len - ntu) ? ntc :
+-			(tx_spare->len - ntu)) - 1;
++	return max(ntc, tx_spare->len - ntu) - 1;
+ }
+ 
+ static void hns3_tx_spare_update(struct hns3_enet_ring *ring)
+-- 
+2.34.1
+

@@ -1,0 +1,68 @@
+From 5ffd0ecccb7cd0c07fcfd8bf4b183a9cee0fffd0 Mon Sep 17 00:00:00 2001
+From: Yunsheng Lin <linyunsheng@huawei.com>
+Date: Tue, 21 Jul 2020 19:03:52 +0800
+Subject: [PATCH 255/268] net: hns3: fix for not calculating TX BD send size
+ correctly
+
+mainline inclusion
+from mainline-v5.8-rc7
+commit 48ae74c9d89f827b39b5c07a1f02fc13637a3cd6
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN49
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=48ae74c9d89f827b39b5c07a1f02fc13637a3cd6
+
+--------------------------------
+
+With GRO and fraglist support, the SKB can be aggregated to
+a total size of 65535, and when that SKB is forwarded through
+a bridge, the size of the SKB may be pushed to exceed the size
+of 65535 when br_dev_queue_push_xmit() is called.
+
+The max send size of BD supported by the HW is 65535, when a SKB
+with a headlen of over 65535 is sent to the driver, the driver
+needs to use multi BD to send the linear data, and the send size
+of the last BD is calculated incorrectly by the driver who is
+using '&' operation, which causes a TX error.
+
+Use '%' operation to fix this problem.
+
+Fixes: 3fe13ed95dd3 ("net: hns3: avoid mult + div op in critical data path")
+Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 2 +-
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.h | 2 --
+ 2 files changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index 56dbad4f85a6..43bd0c4b6108 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -1468,7 +1468,7 @@ static int hns3_fill_desc(struct hns3_enet_ring *ring, dma_addr_t dma,
+ 	}
+ 
+ 	frag_buf_num = (size + HNS3_MAX_BD_SIZE - 1) >> HNS3_MAX_BD_SIZE_OFFSET;
+-	sizeoflast = size & HNS3_TX_LAST_SIZE_M;
++	sizeoflast = size % HNS3_MAX_BD_SIZE;
+ 	sizeoflast = sizeoflast ? sizeoflast : HNS3_MAX_BD_SIZE;
+ 
+ 	/* When frag size is bigger than hardware limit, split this frag */
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
+index 19670ff928ce..6bee2971eb3f 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
+@@ -185,8 +185,6 @@ enum hns3_nic_state {
+ #define HNS3_TXD_MSS_M				(0x3fff << HNS3_TXD_MSS_S)
+ #define HNS3_TXD_HW_CS_B			14
+ 
+-#define HNS3_TX_LAST_SIZE_M                    0xffff
+-
+ #define HNS3_VECTOR_TX_IRQ			BIT_ULL(0)
+ #define HNS3_VECTOR_RX_IRQ			BIT_ULL(1)
+ 
+-- 
+2.34.1
+

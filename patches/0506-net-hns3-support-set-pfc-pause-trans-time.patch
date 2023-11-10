@@ -1,0 +1,247 @@
+From 9befea85904693a31a389b95dcd7bcee9e961af6 Mon Sep 17 00:00:00 2001
+From: Jiantao Xiao <xiaojiantao1@h-partners.com>
+Date: Tue, 28 Mar 2023 21:49:32 +0800
+Subject: [PATCH 188/268] net: hns3: support set pfc pause trans time
+
+driver inclusion
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN3D
+CVE: NA
+
+----------------------------------------------------------------------
+
+The patch provides a customized interface to modify the pause trans time
+and retains the configured parameters.
+
+Signed-off-by: shaojijie <shaojijie@huawei.com>
+Signed-off-by: Jiantao Xiao <xiaojiantao1@h-partners.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h
+	drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
+	drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+---
+ .../net/ethernet/hisilicon/hns3/hnae3_ext.h   |  6 ++
+ .../net/ethernet/hisilicon/hns3/hns3_ext.c    | 57 +++++++++++++++++++
+ .../net/ethernet/hisilicon/hns3/hns3_ext.h    |  7 +++
+ .../hisilicon/hns3/hns3pf/hclge_ext.c         | 37 ++++++++++++
+ .../hisilicon/hns3/hns3pf/hclge_main.h        |  1 +
+ .../ethernet/hisilicon/hns3/hns3pf/hclge_tm.c |  7 ++-
+ .../ethernet/hisilicon/hns3/hns3pf/hclge_tm.h |  2 +
+ 7 files changed, 114 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h b/drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h
+index baf9dfba872d..5f1302488a1c 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h
+@@ -38,6 +38,12 @@ enum hnae3_ext_opcode {
+ 	HNAE3_EXT_OPC_GET_PORT_EXT_ID_INFO,
+ 	HNAE3_EXT_OPC_GET_PORT_EXT_NUM_INFO,
+ 	HNAE3_EXT_OPC_GET_PORT_NUM,
++	HNAE3_EXT_OPC_GET_PRESENT,
++	HNAE3_EXT_OPC_SET_SFP_STATE,
++	HNAE3_EXT_OPC_DISABLE_LANE,
++	HNAE3_EXT_OPC_GET_LANE_STATUS,
++	HNAE3_EXT_OPC_DISABLE_CLOCK,
++	HNAE3_EXT_OPC_SET_PFC_TIME,
+ };
+ 
+ struct hnae3_pfc_storm_para {
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
+index 889bef7bdb82..9683099efb9c 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
+@@ -316,3 +316,60 @@ int nic_get_port_num_per_chip(struct net_device *ndev, u32 *port_num)
+ 	return nic_get_port_num_of_die(ndev, port_num);
+ }
+ EXPORT_SYMBOL(nic_get_port_num_per_chip);
++
++int nic_set_tx_timeout(struct net_device *ndev, int tx_timeout)
++{
++	if (nic_netdev_match_check(ndev))
++		return -ENODEV;
++
++	if (tx_timeout <= 0)
++		return -EINVAL;
++
++	ndev->watchdog_timeo = tx_timeout;
++
++	return 0;
++}
++EXPORT_SYMBOL(nic_set_tx_timeout);
++
++int nic_get_sfp_present(struct net_device *ndev, int *present)
++{
++	return nic_invoke_pri_ops(ndev, HNAE3_EXT_OPC_GET_PRESENT,
++				  present, sizeof(*present));
++}
++EXPORT_SYMBOL(nic_get_sfp_present);
++
++int nic_set_sfp_state(struct net_device *ndev, bool en)
++{
++	u32 state = en ? 1 : 0;
++
++	return nic_invoke_pri_ops(ndev, HNAE3_EXT_OPC_SET_SFP_STATE,
++				  &state, sizeof(state));
++}
++EXPORT_SYMBOL(nic_set_sfp_state);
++
++int nic_disable_net_lane(struct net_device *ndev)
++{
++	return nic_invoke_pri_ops(ndev, HNAE3_EXT_OPC_DISABLE_LANE, NULL, 0);
++}
++EXPORT_SYMBOL(nic_disable_net_lane);
++
++int nic_get_net_lane_status(struct net_device *ndev, u32 *status)
++{
++	return nic_invoke_pri_ops(ndev, HNAE3_EXT_OPC_GET_LANE_STATUS,
++				  status, sizeof(*status));
++}
++EXPORT_SYMBOL(nic_get_net_lane_status);
++
++int nic_disable_clock(struct net_device *ndev)
++{
++	return nic_invoke_pri_ops(ndev, HNAE3_EXT_OPC_DISABLE_CLOCK,
++				  NULL, 0);
++}
++EXPORT_SYMBOL(nic_disable_clock);
++
++int nic_set_pfc_time_cfg(struct net_device *ndev, u16 time)
++{
++	return nic_invoke_pri_ops(ndev, HNAE3_EXT_OPC_SET_PFC_TIME,
++				  &time, sizeof(time));
++}
++EXPORT_SYMBOL(nic_set_pfc_time_cfg);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+index 239293ace01e..0f9d6683825e 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+@@ -32,4 +32,11 @@ int nic_get_chip_num(struct net_device *ndev, u32 *chip_num);
+ int nic_get_io_die_num(struct net_device *ndev, u32 *io_die_num);
+ int nic_get_port_num_of_die(struct net_device *ndev, u32 *port_num);
+ int nic_get_port_num_per_chip(struct net_device *ndev, u32 *port_num);
++int nic_set_tx_timeout(struct net_device *ndev, int tx_timeout);
++int nic_get_sfp_present(struct net_device *ndev, int *present);
++int nic_set_sfp_state(struct net_device *ndev, bool en);
++int nic_disable_net_lane(struct net_device *ndev);
++int nic_get_net_lane_status(struct net_device *ndev, u32 *status);
++int nic_disable_clock(struct net_device *ndev);
++int nic_set_pfc_time_cfg(struct net_device *ndev, u16 time);
+ #endif
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+index 635f66dc37b1..0f4eff899e94 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+@@ -6,6 +6,7 @@
+ #include "hnae3_ext.h"
+ #include "hclge_cmd.h"
+ #include "hclge_ext.h"
++#include "hclge_tm.h"
+ 
+ #define HCLGE_RESET_MAX_FAIL_CNT 5
+ 
+@@ -394,6 +395,42 @@ static int hclge_get_port_num(struct hclge_dev *hdev, void *data,
+ 	return 0;
+ }
+ 
++static int hclge_set_pause_trans_time(struct hclge_dev *hdev, void *data,
++				      size_t length)
++{
++	struct hclge_cfg_pause_param_cmd *pause_param;
++	struct hclge_desc desc;
++	u16 pause_trans_time;
++	int ret;
++
++	if (length != sizeof(u16))
++		return -EINVAL;
++
++	pause_param = (struct hclge_cfg_pause_param_cmd *)desc.data;
++	ret = hclge_get_info_from_cmd(hdev, &desc, 1, HCLGE_OPC_CFG_MAC_PARA);
++	if (ret) {
++		dev_err(&hdev->pdev->dev,
++			"failed to get pause cfg info, ret = %d\n", ret);
++		return ret;
++	}
++
++	pause_trans_time = *(u16 *)data;
++	if (pause_trans_time == le16_to_cpu(pause_param->pause_trans_time))
++		return 0;
++
++	ret = hclge_pause_param_cfg(hdev, pause_param->mac_addr,
++				    pause_param->pause_trans_gap,
++				    pause_trans_time);
++	if (ret) {
++		dev_err(&hdev->pdev->dev,
++			"failed to set pause trans time, ret = %d\n", ret);
++		return ret;
++	}
++
++	hdev->tm_info.pause_time = pause_trans_time;
++	return 0;
++}
++
+ static void hclge_ext_resotre_config(struct hclge_dev *hdev)
+ {
+ 	if (hdev->reset_type != HNAE3_IMP_RESET &&
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+index 7a505d1195ef..71ca13a29b51 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+@@ -421,6 +421,7 @@ struct hclge_tm_info {
+ 	enum hclge_fc_mode fc_mode;
+ 	u8 hw_pfc_map; /* Allow for packet drop or not on this TC */
+ 	u8 pfc_en;	/* PFC enabled or not for user priority */
++	u16 pause_time;
+ };
+ 
+ /* max number of mac statistics on each version */
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
+index 48382bfc84f6..ca93919ed817 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
+@@ -185,8 +185,8 @@ static int hclge_pfc_pause_en_cfg(struct hclge_dev *hdev, u8 tx_rx_bitmap,
+ 	return hclge_cmd_send(&hdev->hw, &desc, 1);
+ }
+ 
+-static int hclge_pause_param_cfg(struct hclge_dev *hdev, const u8 *addr,
+-				 u8 pause_trans_gap, u16 pause_trans_time)
++int hclge_pause_param_cfg(struct hclge_dev *hdev, const u8 *addr,
++			  u8 pause_trans_gap, u16 pause_trans_time)
+ {
+ 	struct hclge_cfg_pause_param_cmd *pause_param;
+ 	struct hclge_desc desc;
+@@ -1307,7 +1307,7 @@ static int hclge_pause_param_setup_hw(struct hclge_dev *hdev)
+ 
+ 	return hclge_pause_param_cfg(hdev, mac->mac_addr,
+ 				     HCLGE_DEFAULT_PAUSE_TRANS_GAP,
+-				     HCLGE_DEFAULT_PAUSE_TRANS_TIME);
++				     hdev->tm_info.pause_time);
+ }
+ 
+ static int hclge_pfc_setup_hw(struct hclge_dev *hdev)
+@@ -1494,6 +1494,7 @@ int hclge_tm_schd_init(struct hclge_dev *hdev)
+ 	/* fc_mode is HCLGE_FC_FULL on reset */
+ 	hdev->tm_info.fc_mode = HCLGE_FC_FULL;
+ 	hdev->fc_mode_last_time = hdev->tm_info.fc_mode;
++	hdev->tm_info.pause_time = HCLGE_DEFAULT_PAUSE_TRANS_TIME;
+ 
+ 	if (hdev->tx_sch_mode != HCLGE_FLAG_TC_BASE_SCH_MODE &&
+ 	    hdev->tm_info.num_pg != 1)
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h
+index 8abb89beaae1..34eb52d3d7ee 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h
+@@ -192,6 +192,8 @@ void hclge_tm_pfc_info_update(struct hclge_dev *hdev);
+ int hclge_tm_dwrr_cfg(struct hclge_dev *hdev);
+ int hclge_tm_init_hw(struct hclge_dev *hdev, bool init);
+ int hclge_mac_pause_en_cfg(struct hclge_dev *hdev, bool tx, bool rx);
++int hclge_pause_param_cfg(struct hclge_dev *hdev, const u8 *addr,
++			  u8 pause_trans_gap, u16 pause_trans_time);
+ int hclge_pause_addr_cfg(struct hclge_dev *hdev, const u8 *mac_addr);
+ void hclge_pfc_rx_stats_get(struct hclge_dev *hdev, u64 *stats);
+ void hclge_pfc_tx_stats_get(struct hclge_dev *hdev, u64 *stats);
+-- 
+2.34.1
+

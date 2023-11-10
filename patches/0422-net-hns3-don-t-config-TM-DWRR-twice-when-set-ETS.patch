@@ -1,0 +1,56 @@
+From 8c913e2bb13282bf11dc47334db078b021733598 Mon Sep 17 00:00:00 2001
+From: Guangbin Huang <huangguangbin2@huawei.com>
+Date: Tue, 28 Sep 2021 11:52:06 +0800
+Subject: [PATCH 104/268] net: hns3: don't config TM DWRR twice when set ETS
+
+mainline inclusion
+from mainline-v5.15-rc1
+commit 7f2f8cf6ef668c1c745e229023f98663f47aa702
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMYT
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=7f2f8cf6ef668c1c745e229023f98663f47aa702
+
+----------------------------------------------------------------------
+
+The function hclge_tm_dwrr_cfg() will be called twice in function
+hclge_ieee_setets() when map_changed is true, the calling flow is
+hclge_ieee_setets()
+    hclge_map_update()
+    |   hclge_tm_schd_setup_hw()
+    |       hclge_tm_dwrr_cfg()
+    hclge_notify_init_up()
+    hclge_tm_dwrr_cfg()
+
+It is no need to call hclge_tm_dwrr_cfg() twice actually, so just
+return after calling hclge_notify_init_up().
+
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
+index 636f8dd996ac..72963ddc3103 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
+@@ -239,9 +239,7 @@ static int hclge_ieee_setets(struct hnae3_handle *h, struct ieee_ets *ets)
+ 		if (ret)
+ 			goto err_out;
+ 
+-		ret = hclge_notify_init_up(hdev);
+-		if (ret)
+-			return ret;
++		return hclge_notify_init_up(hdev);
+ 	}
+ 
+ 	return hclge_tm_dwrr_cfg(hdev);
+-- 
+2.34.1
+

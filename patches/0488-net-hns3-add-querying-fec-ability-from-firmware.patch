@@ -1,0 +1,140 @@
+From 2d27cf1da9b6eab69a9b1edf0b443ba00f75d2e4 Mon Sep 17 00:00:00 2001
+From: Guangbin Huang <huangguangbin2@huawei.com>
+Date: Tue, 11 Oct 2022 23:14:12 +0800
+Subject: [PATCH 170/268] net: hns3: add querying fec ability from firmware
+
+mainline inclusion
+from mainline-v6.0-rc2
+commit eaf83ae59e18a3480afe222daf9537d58165e052
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN3D
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=eaf83ae59e18
+
+----------------------------------------------------------------------
+
+For some new devices, driver can queries fec ability from firmware to
+decide which FEC mode can be supported.
+
+If devices of old version which not support querying fec ability, driver
+sets fixed ability according to current speed.
+
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jiantao Xiao <xiaojiantao1@h-partners.com>
+Reviewed-by: Jian Shen <shenjian15@huawei.com>
+Reviewed-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+---
+ .../hisilicon/hns3/hns3pf/hclge_cmd.h         |  3 +-
+ .../hisilicon/hns3/hns3pf/hclge_main.c        | 33 ++++++++++++++-----
+ 2 files changed, 26 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+index 52e8f318fd96..991d6de9009c 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+@@ -694,7 +694,8 @@ struct hclge_sfp_info_cmd {
+ 	u8 autoneg_ability; /* whether support autoneg */
+ 	__le32 speed_ability; /* speed ability for current media */
+ 	__le32 module_type;
+-	u8 rsv[8];
++	u8 fec_ability;
++	u8 rsv[7];
+ };
+ 
+ #define HCLGE_MAC_CFG_FEC_AUTO_EN_B	0
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 7ae0194bcda2..330483b99c01 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -1072,6 +1072,19 @@ static int hclge_check_port_speed(struct hnae3_handle *handle, u32 speed)
+ 	return -EINVAL;
+ }
+ 
++static void hclge_update_fec_support(struct hclge_mac *mac)
++{
++	linkmode_clear_bit(ETHTOOL_LINK_MODE_FEC_BASER_BIT, mac->supported);
++	linkmode_clear_bit(ETHTOOL_LINK_MODE_FEC_RS_BIT, mac->supported);
++
++	if (mac->fec_ability & BIT(HNAE3_FEC_BASER))
++		linkmode_set_bit(ETHTOOL_LINK_MODE_FEC_BASER_BIT,
++				 mac->supported);
++	if (mac->fec_ability & BIT(HNAE3_FEC_RS))
++		linkmode_set_bit(ETHTOOL_LINK_MODE_FEC_RS_BIT,
++				 mac->supported);
++}
++
+ static void hclge_convert_setting_sr(u16 speed_ability,
+ 				     unsigned long *link_mode)
+ {
+@@ -1170,36 +1183,33 @@ static void hclge_convert_setting_kr(u16 speed_ability,
+ 
+ static void hclge_convert_setting_fec(struct hclge_mac *mac)
+ {
+-	linkmode_clear_bit(ETHTOOL_LINK_MODE_FEC_BASER_BIT, mac->supported);
+-	linkmode_clear_bit(ETHTOOL_LINK_MODE_FEC_RS_BIT, mac->supported);
++/* If firmware has reported fec_ability, don't need to convert by speed */
++	if (mac->fec_ability)
++		goto out;
+ 
+ 	switch (mac->speed) {
+ 	case HCLGE_MAC_SPEED_10G:
+ 	case HCLGE_MAC_SPEED_40G:
+-		linkmode_set_bit(ETHTOOL_LINK_MODE_FEC_BASER_BIT,
+-				 mac->supported);
+ 		mac->fec_ability =
+ 			BIT(HNAE3_FEC_BASER) | BIT(HNAE3_FEC_AUTO);
+ 		break;
+ 	case HCLGE_MAC_SPEED_25G:
+ 	case HCLGE_MAC_SPEED_50G:
+-		linkmode_set_bit(ETHTOOL_LINK_MODE_FEC_BASER_BIT,
+-				 mac->supported);
+-		linkmode_set_bit(ETHTOOL_LINK_MODE_FEC_RS_BIT,
+-				 mac->supported);
+ 		mac->fec_ability =
+ 			BIT(HNAE3_FEC_BASER) | BIT(HNAE3_FEC_RS) |
+ 			BIT(HNAE3_FEC_AUTO);
+ 		break;
+ 	case HCLGE_MAC_SPEED_100G:
+ 	case HCLGE_MAC_SPEED_200G:
+-		linkmode_set_bit(ETHTOOL_LINK_MODE_FEC_RS_BIT, mac->supported);
+ 		mac->fec_ability = BIT(HNAE3_FEC_RS) | BIT(HNAE3_FEC_AUTO);
+ 		break;
+ 	default:
+ 		mac->fec_ability = 0;
+ 		break;
+ 	}
++
++out:
++	hclge_update_fec_support(mac);
+ }
+ 
+ static void hclge_parse_fiber_link_mode(struct hclge_dev *hdev,
+@@ -3166,6 +3176,7 @@ static int hclge_get_sfp_info(struct hclge_dev *hdev, struct hclge_mac *mac)
+ 			mac->fec_mode = 0;
+ 		else
+ 			mac->fec_mode = BIT(resp->active_fec);
++		mac->fec_ability = resp->fec_ability;
+ 	} else {
+ 		mac->speed_type = QUERY_SFP_SPEED;
+ 	}
+@@ -11049,6 +11060,10 @@ static int hclge_init_ae_dev(struct hnae3_ae_dev *ae_dev)
+ 	if (ret)
+ 		goto err_mdiobus_unreg;
+ 
++	ret = hclge_update_port_info(hdev);
++	if (ret)
++		goto err_mdiobus_unreg;
++
+ 	INIT_KFIFO(hdev->mac_tnl_log);
+ 
+ 	hclge_dcb_ops_set(hdev);
+-- 
+2.34.1
+

@@ -1,0 +1,212 @@
+From 3589bece90124e76b64ff5ce091179a9308d3b12 Mon Sep 17 00:00:00 2001
+From: Yufeng Mo <moyufeng@huawei.com>
+Date: Mon, 26 Jul 2021 10:47:02 +0800
+Subject: [PATCH 208/268] net: hns3: add support for registering devlink for PF
+
+mainline inclusion
+from mainline-v5.15-rc1
+commit b741269b275953786832805df329851299ab4de7
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN49
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=b741269b275953786832805df329851299ab4de7
+
+--------------------------------
+
+Add devlink register support for HNS3 ethernet PF driver.
+
+Signed-off-by: Yufeng Mo <moyufeng@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/Kconfig
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/Makefile
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+---
+ drivers/net/ethernet/hisilicon/hns3/Makefile  |  3 +-
+ .../ethernet/hisilicon/hns3/hns3pf/Makefile   |  2 +-
+ .../hisilicon/hns3/hns3pf/hclge_devlink.c     | 54 +++++++++++++++++++
+ .../hisilicon/hns3/hns3pf/hclge_devlink.h     | 15 ++++++
+ .../hisilicon/hns3/hns3pf/hclge_main.c        | 10 +++-
+ .../hisilicon/hns3/hns3pf/hclge_main.h        |  2 +
+ 6 files changed, 83 insertions(+), 3 deletions(-)
+ create mode 100644 drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_devlink.c
+ create mode 100644 drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_devlink.h
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/Makefile b/drivers/net/ethernet/hisilicon/hns3/Makefile
+index 8a9c53f86dce..1ac32d60dfe5 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/Makefile
++++ b/drivers/net/ethernet/hisilicon/hns3/Makefile
+@@ -39,7 +39,8 @@ HCLGE_OBJ = 	hns3pf/hclge_main.o \
+ 			hns3pf/hclge_sysfs.o \
+ 			hns3pf/hclge_mbx.o \
+ 			hns3pf/hclge_err.o \
+-			hns3pf/hclge_ptp.o
++			hns3pf/hclge_ptp.o \
++			hns3pf/hclge_devlink.o
+ 
+ 
+ HCLGE_OBJ_IT_MAIN	=	hns3_extension/hns3pf/hclge_main_it.o \
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/Makefile b/drivers/net/ethernet/hisilicon/hns3/hns3pf/Makefile
+index 14541e98407f..9a2f6e5da89b 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/Makefile
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/Makefile
+@@ -7,6 +7,6 @@ ccflags-y := -I $(srctree)/drivers/net/ethernet/hisilicon/hns3
+ ccflags-y += -I $(srctree)/$(src)
+ 
+ obj-$(CONFIG_HNS3_HCLGE) += hclge.o
+-hclge-objs = hclge_main.o hclge_cmd.o hclge_mdio.o hclge_tm.o hclge_mbx.o hclge_debugfs.o hclge_err.o
++hclge-objs = hclge_main.o hclge_cmd.o hclge_mdio.o hclge_tm.o hclge_mbx.o hclge_err.o hclge_debugfs.o hclge_ptp.o hclge_devlink.o
+ 
+ hclge-$(CONFIG_HNS3_DCB) += hclge_dcb.o
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_devlink.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_devlink.c
+new file mode 100644
+index 000000000000..03b822b0a8e7
+--- /dev/null
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_devlink.c
+@@ -0,0 +1,54 @@
++// SPDX-License-Identifier: GPL-2.0+
++/* Copyright (c) 2021 Hisilicon Limited. */
++
++#include <net/devlink.h>
++
++#include "hclge_devlink.h"
++
++static const struct devlink_ops hclge_devlink_ops = {
++};
++
++int hclge_devlink_init(struct hclge_dev *hdev)
++{
++	struct pci_dev *pdev = hdev->pdev;
++	struct hclge_devlink_priv *priv;
++	struct devlink *devlink;
++	int ret;
++
++	devlink = devlink_alloc(&hclge_devlink_ops,
++				sizeof(struct hclge_devlink_priv));
++	if (!devlink)
++		return -ENOMEM;
++
++	priv = devlink_priv(devlink);
++	priv->hdev = hdev;
++
++	ret = devlink_register(devlink, &pdev->dev);
++	if (ret) {
++		dev_err(&pdev->dev, "failed to register devlink, ret = %d\n",
++			ret);
++		goto out_reg_fail;
++	}
++
++	hdev->devlink = devlink;
++
++	return 0;
++
++out_reg_fail:
++	devlink_free(devlink);
++	return ret;
++}
++
++void hclge_devlink_uninit(struct hclge_dev *hdev)
++{
++	struct devlink *devlink = hdev->devlink;
++
++	if (!devlink)
++		return;
++
++	devlink_unregister(devlink);
++
++	devlink_free(devlink);
++
++	hdev->devlink = NULL;
++}
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_devlink.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_devlink.h
+new file mode 100644
+index 000000000000..918be04507a5
+--- /dev/null
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_devlink.h
+@@ -0,0 +1,15 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/* Copyright (c) 2021 Hisilicon Limited. */
++
++#ifndef __HCLGE_DEVLINK_H
++#define __HCLGE_DEVLINK_H
++
++#include "hclge_main.h"
++
++struct hclge_devlink_priv {
++	struct hclge_dev *hdev;
++};
++
++int hclge_devlink_init(struct hclge_dev *hdev);
++void hclge_devlink_uninit(struct hclge_dev *hdev);
++#endif
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index de5c85415865..e838d68607c9 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -26,6 +26,7 @@
+ #include "hclge_tm.h"
+ #include "hclge_err.h"
+ #include "hnae3.h"
++#include "hclge_devlink.h"
+ 
+ #define HCLGE_NAME			"hclge"
+ 
+@@ -11602,10 +11603,14 @@ static int hclge_init_ae_dev(struct hnae3_ae_dev *ae_dev)
+ 	if (ret)
+ 		goto out;
+ 
++	ret = hclge_devlink_init(hdev);
++	if (ret)
++		goto err_pci_uninit;
++
+ 	/* Firmware command queue initialize */
+ 	ret = hclge_cmd_queue_init(hdev);
+ 	if (ret)
+-		goto err_pci_uninit;
++		goto err_devlink_uninit;
+ 
+ 	/* Firmware command initialize */
+ 	ret = hclge_cmd_init(hdev);
+@@ -11793,6 +11798,8 @@ static int hclge_init_ae_dev(struct hnae3_ae_dev *ae_dev)
+ 	pci_free_irq_vectors(pdev);
+ err_cmd_uninit:
+ 	hclge_cmd_uninit(hdev);
++err_devlink_uninit:
++	hclge_devlink_uninit(hdev);
+ err_pci_uninit:
+ 	pcim_iounmap(pdev, hdev->hw.io_base);
+ 	pci_clear_master(pdev);
+@@ -12189,6 +12196,7 @@ static void hclge_uninit_ae_dev(struct hnae3_ae_dev *ae_dev)
+ 
+ 	hclge_cmd_uninit(hdev);
+ 	hclge_misc_irq_uninit(hdev);
++	hclge_devlink_uninit(hdev);
+ 	hclge_pci_uninit(hdev);
+ 	hclge_uninit_vport_vlan_table(hdev);
+ 	mutex_destroy(&hdev->vport_lock);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+index 155a1719e195..ad9c1f2fb7ce 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+@@ -8,6 +8,7 @@
+ #include <linux/phy.h>
+ #include <linux/if_vlan.h>
+ #include <linux/kfifo.h>
++#include <net/devlink.h>
+ 
+ #include "hclge_cmd.h"
+ #include "hclge_ptp.h"
+@@ -962,6 +963,7 @@ struct hclge_dev {
+ 	struct hclge_ptp *ptp;
+ 	struct hnae3_notify_pkt_param notify_param;
+ 	struct hnae3_torus_param torus_param;
++	struct devlink *devlink;
+ };
+ 
+ /* VPort level vlan tag configuration for TX direction */
+-- 
+2.34.1
+

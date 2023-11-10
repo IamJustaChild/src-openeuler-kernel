@@ -1,0 +1,304 @@
+From 79cfc032a4b9a2e5fd1963ddc35644c1ddb5cdce Mon Sep 17 00:00:00 2001
+From: Jie Wang <wangjie125@huawei.com>
+Date: Wed, 12 Jan 2022 15:16:48 +0800
+Subject: [PATCH 165/268] net: hns3: use struct hclge_desc to replace
+ hclgevf_desc in VF cmdq module
+
+mainline inclusion
+from mainline-v5.17-rc1
+commit 6befad603d79be43cfece9f41309e5cc9546beba
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN3D
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=6befad603d79be43cfece9f41309e5cc9546beba
+
+----------------------------------------------------------------------
+
+This patch use new common struct hclge_desc to replace struct hclgevf_desc
+in VF cmdq module and then delete the old struct hclgevf_desc.
+
+Signed-off-by: Jie Wang <wangjie125@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Jian Shen <shenjian15@huawei.com>
+Reviewed-by: Yue Haibing <yuehaibing@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+---
+ .../hisilicon/hns3/hns3vf/hclgevf_cmd.c       | 22 +++++++++----------
+ .../hisilicon/hns3/hns3vf/hclgevf_cmd.h       | 15 ++++---------
+ .../hisilicon/hns3/hns3vf/hclgevf_main.c      | 22 +++++++++----------
+ .../hisilicon/hns3/hns3vf/hclgevf_mbx.c       |  4 ++--
+ 4 files changed, 28 insertions(+), 35 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.c
+index 12b241c0db0a..b0fc21fe3c82 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.c
+@@ -138,7 +138,7 @@ static void hclgevf_cmd_clear_regs(struct hclgevf_hw *hw)
+ 
+ static int hclgevf_alloc_cmd_desc(struct hclgevf_cmq_ring *ring)
+ {
+-	int size = ring->desc_num * sizeof(struct hclgevf_desc);
++	int size = ring->desc_num * sizeof(struct hclge_desc);
+ 
+ 	ring->desc = dma_zalloc_coherent(cmq_ring_to_dev(ring),
+ 					 size, &ring->desc_dma_addr,
+@@ -151,7 +151,7 @@ static int hclgevf_alloc_cmd_desc(struct hclgevf_cmq_ring *ring)
+ 
+ static void hclgevf_free_cmd_desc(struct hclgevf_cmq_ring *ring)
+ {
+-	int size  = ring->desc_num * sizeof(struct hclgevf_desc);
++	int size  = ring->desc_num * sizeof(struct hclge_desc);
+ 
+ 	if (ring->desc) {
+ 		dma_free_coherent(cmq_ring_to_dev(ring), size,
+@@ -179,10 +179,10 @@ static int hclgevf_alloc_cmd_queue(struct hclgevf_dev *hdev, int ring_type)
+ 	return ret;
+ }
+ 
+-void hclgevf_cmd_setup_basic_desc(struct hclgevf_desc *desc,
++void hclgevf_cmd_setup_basic_desc(struct hclge_desc *desc,
+ 				  enum hclgevf_opcode_type opcode, bool is_read)
+ {
+-	memset(desc, 0, sizeof(struct hclgevf_desc));
++	memset(desc, 0, sizeof(struct hclge_desc));
+ 	desc->opcode = cpu_to_le16(opcode);
+ 	desc->flag = cpu_to_le16(HCLGEVF_CMD_FLAG_NO_INTR |
+ 				 HCLGEVF_CMD_FLAG_IN);
+@@ -198,9 +198,9 @@ struct vf_errcode {
+ };
+ 
+ static void hclgevf_cmd_copy_desc(struct hclgevf_hw *hw,
+-				  struct hclgevf_desc *desc, int num)
++				  struct hclge_desc *desc, int num)
+ {
+-	struct hclgevf_desc *desc_to_use;
++	struct hclge_desc *desc_to_use;
+ 	int handle = 0;
+ 
+ 	while (handle < num) {
+@@ -240,7 +240,7 @@ static int hclgevf_cmd_convert_err_code(u16 desc_ret)
+ }
+ 
+ static int hclgevf_cmd_check_retval(struct hclgevf_hw *hw,
+-				    struct hclgevf_desc *desc, int num, int ntc)
++				    struct hclge_desc *desc, int num, int ntc)
+ {
+ 	u16 opcode, desc_ret;
+ 	int handle;
+@@ -263,7 +263,7 @@ static int hclgevf_cmd_check_retval(struct hclgevf_hw *hw,
+ }
+ 
+ static int hclgevf_cmd_check_result(struct hclgevf_hw *hw,
+-				    struct hclgevf_desc *desc, int num, int ntc)
++				    struct hclge_desc *desc, int num, int ntc)
+ {
+ 	struct hclgevf_dev *hdev = (struct hclgevf_dev *)hw->hdev;
+ 	bool is_completed = false;
+@@ -307,7 +307,7 @@ static int hclgevf_cmd_check_result(struct hclgevf_hw *hw,
+  * This is the main send command for command queue, it
+  * sends the queue, cleans the queue, etc
+  */
+-int hclgevf_cmd_send(struct hclgevf_hw *hw, struct hclgevf_desc *desc, int num)
++int hclgevf_cmd_send(struct hclgevf_hw *hw, struct hclge_desc *desc, int num)
+ {
+ 	struct hclgevf_dev *hdev = (struct hclgevf_dev *)hw->hdev;
+ 	struct hclgevf_cmq_ring *csq = &hw->cmq.csq;
+@@ -384,7 +384,7 @@ static int hclgevf_cmd_query_version_and_capability(struct hclgevf_dev *hdev)
+ {
+ 	struct hnae3_ae_dev *ae_dev = pci_get_drvdata(hdev->pdev);
+ 	struct hclgevf_query_version_cmd *resp;
+-	struct hclgevf_desc desc;
++	struct hclge_desc desc;
+ 	int status;
+ 
+ 	resp = (struct hclgevf_query_version_cmd *)desc.data;
+@@ -448,7 +448,7 @@ int hclgevf_cmd_queue_init(struct hclgevf_dev *hdev)
+ static int hclgevf_firmware_compat_config(struct hclgevf_dev *hdev, bool en)
+ {
+ 	struct hclgevf_firmware_compat_cmd *req;
+-	struct hclgevf_desc desc;
++	struct hclge_desc desc;
+ 	u32 compat = 0;
+ 
+ 	hclgevf_cmd_setup_basic_desc(&desc, HCLGEVF_OPC_IMP_COMPAT_CFG, false);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.h
+index 6d0540c15487..96a41f0e2991 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.h
+@@ -6,6 +6,7 @@
+ #include <linux/io.h>
+ #include <linux/types.h>
+ #include "hnae3.h"
++#include "hclge_comm_cmd.h"
+ 
+ #define HCLGEVF_CMDQ_TX_TIMEOUT		30000
+ #define HCLGEVF_CMDQ_CLEAR_WAIT_TIME	200
+@@ -21,14 +22,6 @@ struct hclgevf_firmware_compat_cmd {
+ 	u8 rsv[20];
+ };
+ 
+-struct hclgevf_desc {
+-	__le16 opcode;
+-	__le16 flag;
+-	__le16 retval;
+-	__le16 rsv;
+-	__le32 data[6];
+-};
+-
+ struct hclgevf_desc_cb {
+ 	dma_addr_t dma;
+ 	void *va;
+@@ -37,7 +30,7 @@ struct hclgevf_desc_cb {
+ 
+ struct hclgevf_cmq_ring {
+ 	dma_addr_t desc_dma_addr;
+-	struct hclgevf_desc *desc;
++	struct hclge_desc *desc;
+ 	struct hclgevf_desc_cb *desc_cb;
+ 	struct hclgevf_dev  *dev;
+ 	u32 head;
+@@ -326,8 +319,8 @@ int hclgevf_cmd_init(struct hclgevf_dev *hdev);
+ void hclgevf_cmd_uninit(struct hclgevf_dev *hdev);
+ int hclgevf_cmd_queue_init(struct hclgevf_dev *hdev);
+ 
+-int hclgevf_cmd_send(struct hclgevf_hw *hw, struct hclgevf_desc *desc, int num);
+-void hclgevf_cmd_setup_basic_desc(struct hclgevf_desc *desc,
++int hclgevf_cmd_send(struct hclgevf_hw *hw, struct hclge_desc *desc, int num);
++void hclgevf_cmd_setup_basic_desc(struct hclge_desc *desc,
+ 				  enum hclgevf_opcode_type opcode,
+ 				  bool is_read);
+ #endif
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+index 2457feb0e95f..ffac4a4aa66a 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+@@ -105,7 +105,7 @@ static int hclgevf_tqps_update_stats(struct hnae3_handle *handle)
+ {
+ 	struct hnae3_knic_private_info *kinfo = &handle->kinfo;
+ 	struct hclgevf_dev *hdev = hclgevf_ae_get_hdev(handle);
+-	struct hclgevf_desc desc;
++	struct hclge_desc desc;
+ 	struct hclgevf_tqp *tqp;
+ 	int status;
+ 	int i;
+@@ -593,7 +593,7 @@ static int hclgevf_set_rss_algo_key(struct hclgevf_dev *hdev,
+ {
+ 	struct hclgevf_rss_config_cmd *req;
+ 	unsigned int key_offset = 0;
+-	struct hclgevf_desc desc;
++	struct hclge_desc desc;
+ 	int key_counts;
+ 	int key_size;
+ 	int ret;
+@@ -642,7 +642,7 @@ static int hclgevf_set_rss_indir_table(struct hclgevf_dev *hdev)
+ {
+ 	const u8 *indir = hdev->rss_cfg.rss_indirection_tbl;
+ 	struct hclgevf_rss_indirection_table_cmd *req;
+-	struct hclgevf_desc desc;
++	struct hclge_desc desc;
+ 	int status;
+ 	int i, j;
+ 
+@@ -677,7 +677,7 @@ static int hclgevf_set_rss_tc_mode(struct hclgevf_dev *hdev,  u16 rss_size)
+ 	u16 tc_offset[HCLGEVF_MAX_TC_NUM];
+ 	u16 tc_valid[HCLGEVF_MAX_TC_NUM];
+ 	u16 tc_size[HCLGEVF_MAX_TC_NUM];
+-	struct hclgevf_desc desc;
++	struct hclge_desc desc;
+ 	u16 roundup_size;
+ 	unsigned int i;
+ 	int status;
+@@ -889,7 +889,7 @@ static int hclgevf_set_rss_tuple(struct hnae3_handle *handle,
+ 	struct hclgevf_dev *hdev = hclgevf_ae_get_hdev(handle);
+ 	struct hclgevf_rss_cfg *rss_cfg = &hdev->rss_cfg;
+ 	struct hclgevf_rss_input_tuple_cmd *req;
+-	struct hclgevf_desc desc;
++	struct hclge_desc desc;
+ 	u8 tuple_sets;
+ 	int ret;
+ 
+@@ -1039,7 +1039,7 @@ static int hclgevf_set_rss_input_tuple(struct hclgevf_dev *hdev,
+ 				       struct hclgevf_rss_cfg *rss_cfg)
+ {
+ 	struct hclgevf_rss_input_tuple_cmd *req;
+-	struct hclgevf_desc desc;
++	struct hclge_desc desc;
+ 	int ret;
+ 
+ 	hclgevf_cmd_setup_basic_desc(&desc, HCLGEVF_OPC_RSS_INPUT_TUPLE, false);
+@@ -1238,7 +1238,7 @@ static int hclgevf_tqp_enable_cmd_send(struct hclgevf_dev *hdev, u16 tqp_id,
+ 				       u16 stream_id, bool enable)
+ {
+ 	struct hclgevf_cfg_com_tqp_queue_cmd *req;
+-	struct hclgevf_desc desc;
++	struct hclge_desc desc;
+ 
+ 	req = (struct hclgevf_cfg_com_tqp_queue_cmd *)desc.data;
+ 
+@@ -2498,7 +2498,7 @@ static int hclgevf_init_roce_base_info(struct hclgevf_dev *hdev)
+ static int hclgevf_config_gro(struct hclgevf_dev *hdev)
+ {
+ 	struct hclgevf_cfg_gro_status_cmd *req;
+-	struct hclgevf_desc desc;
++	struct hclge_desc desc;
+ 	int ret;
+ 
+ 	if (!hnae3_dev_gro_supported(hdev))
+@@ -3034,7 +3034,7 @@ static void hclgevf_pci_uninit(struct hclgevf_dev *hdev)
+ static int hclgevf_query_vf_resource(struct hclgevf_dev *hdev)
+ {
+ 	struct hclgevf_query_res_cmd *req;
+-	struct hclgevf_desc desc;
++	struct hclge_desc desc;
+ 	int ret;
+ 
+ 	hclgevf_cmd_setup_basic_desc(&desc, HCLGEVF_OPC_QUERY_VF_RSRC, true);
+@@ -3096,7 +3096,7 @@ static void hclgevf_set_default_dev_specs(struct hclgevf_dev *hdev)
+ }
+ 
+ static void hclgevf_parse_dev_specs(struct hclgevf_dev *hdev,
+-				    struct hclgevf_desc *desc)
++				    struct hclge_desc *desc)
+ {
+ 	struct hnae3_ae_dev *ae_dev = pci_get_drvdata(hdev->pdev);
+ 	struct hclgevf_dev_specs_0_cmd *req0;
+@@ -3115,7 +3115,7 @@ static void hclgevf_parse_dev_specs(struct hclgevf_dev *hdev,
+ 
+ static int hclgevf_query_dev_specs(struct hclgevf_dev *hdev)
+ {
+-	struct hclgevf_desc desc[HCLGEVF_QUERY_DEV_SPECS_BD_NUM];
++	struct hclge_desc desc[HCLGEVF_QUERY_DEV_SPECS_BD_NUM];
+ 	int ret;
+ 	int i;
+ 
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c
+index 510d9826e998..5e43289d714a 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c
+@@ -122,7 +122,7 @@ int hclgevf_send_mbx_msg(struct hclgevf_dev *hdev,
+ 			 u8 *resp_data, u16 resp_len)
+ {
+ 	struct hclge_mbx_vf_to_pf_cmd *req;
+-	struct hclgevf_desc desc;
++	struct hclge_desc desc;
+ 	int status;
+ 
+ 	req = (struct hclge_mbx_vf_to_pf_cmd *)desc.data;
+@@ -238,7 +238,7 @@ void hclgevf_mbx_handler(struct hclgevf_dev *hdev)
+ {
+ 	struct hclge_mbx_pf_to_vf_cmd *req;
+ 	struct hclgevf_cmq_ring *crq;
+-	struct hclgevf_desc *desc;
++	struct hclge_desc *desc;
+ 	u16 flag;
+ 
+ 	crq = &hdev->hw.cmq.crq;
+-- 
+2.34.1
+

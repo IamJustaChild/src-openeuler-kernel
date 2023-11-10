@@ -1,0 +1,61 @@
+From 3b5b110024e122cc3578d8b5e3a581cee79175ab Mon Sep 17 00:00:00 2001
+From: Huazhong Tan <tanhuazhong@huawei.com>
+Date: Thu, 28 May 2020 21:48:11 +0800
+Subject: [PATCH 010/268] net: hns3: refactor hclge_query_bd_num_cmd_send()
+
+mainline inclusion
+from mainline-v5.8-rc1
+commit 5caa039f320d023fb2a40c8c7ededfca3ce85501
+category: cleanup
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EJ0A
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=5caa039f320d023fb2a40c8c7ededfca3ce85501
+
+--------------------------------
+
+In order to improve code maintainability and readability, rewrite
+the process of BDs' initialization in hclge_query_bd_num_cmd_send().
+
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ .../hisilicon/hns3/hns3pf/hclge_main.c        | 21 +++++++++++--------
+ 1 file changed, 12 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index cc2be3366409..65af9a80f17e 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -11115,16 +11115,19 @@ static int hclge_get_64_bit_regs(struct hclge_dev *hdev, u32 regs_num,
+ 
+ int hclge_query_bd_num_cmd_send(struct hclge_dev *hdev, struct hclge_desc *desc)
+ {
+-	/*prepare 4 commands to query DFX BD number*/
+-	hclge_cmd_setup_basic_desc(&desc[0], HCLGE_OPC_DFX_BD_NUM, true);
+-	desc[0].flag |= cpu_to_le16(HCLGE_CMD_FLAG_NEXT);
+-	hclge_cmd_setup_basic_desc(&desc[1], HCLGE_OPC_DFX_BD_NUM, true);
+-	desc[1].flag |= cpu_to_le16(HCLGE_CMD_FLAG_NEXT);
+-	hclge_cmd_setup_basic_desc(&desc[2], HCLGE_OPC_DFX_BD_NUM, true);
+-	desc[2].flag |= cpu_to_le16(HCLGE_CMD_FLAG_NEXT);
+-	hclge_cmd_setup_basic_desc(&desc[3], HCLGE_OPC_DFX_BD_NUM, true);
++	int i;
++
++	/* initialize command BD except the last one */
++	for (i = 0; i < HCLGE_GET_DFX_REG_TYPE_CNT - 1; i++) {
++		hclge_cmd_setup_basic_desc(&desc[i], HCLGE_OPC_DFX_BD_NUM,
++					   true);
++		desc[i].flag |= cpu_to_le16(HCLGE_CMD_FLAG_NEXT);
++	}
++
++	/* initialize the last command BD */
++	hclge_cmd_setup_basic_desc(&desc[i], HCLGE_OPC_DFX_BD_NUM, true);
+ 
+-	return hclge_cmd_send(&hdev->hw, desc, 4);
++	return hclge_cmd_send(&hdev->hw, desc, HCLGE_GET_DFX_REG_TYPE_CNT);
+ }
+ 
+ static int hclge_get_dfx_reg_bd_num(struct hclge_dev *hdev,
+-- 
+2.34.1
+

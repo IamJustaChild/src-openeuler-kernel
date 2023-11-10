@@ -1,0 +1,111 @@
+From da5c5d5c51cbdc6befd49bebf04f95b8a538d62a Mon Sep 17 00:00:00 2001
+From: Miroslav Lichvar <mlichvar@redhat.com>
+Date: Fri, 9 Nov 2018 11:14:45 +0100
+Subject: [PATCH 253/268] ptp: deprecate gettime64() in favor of gettimex64()
+
+mainline inclusion
+from mainline-v5.0-rc1
+commit 916444df305ef5b8a7d824aac7dd2aeba3a4db3b
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN49
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=916444df305ef5b8a7d824aac7dd2aeba3a4db3b
+
+--------------------------------
+
+When a driver provides gettimex64(), use it in the PTP_SYS_OFFSET ioctl
+and POSIX clock's gettime() instead of gettime64(). Drivers should
+provide only one of the functions.
+
+Cc: Richard Cochran <richardcochran@gmail.com>
+Cc: Jacob Keller <jacob.e.keller@intel.com>
+Signed-off-by: Miroslav Lichvar <mlichvar@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 7 +++++--
+ drivers/ptp/ptp_chardev.c                       | 5 ++++-
+ drivers/ptp/ptp_clock.c                         | 5 ++++-
+ include/linux/ptp_clock_kernel.h                | 2 ++
+ 4 files changed, 15 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index 5b7bf29f0934..56dbad4f85a6 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -2054,7 +2054,8 @@ netdev_tx_t hns3_nic_net_xmit(struct sk_buff *skb, struct net_device *netdev)
+ 	struct hns3_enet_ring *ring = &priv->ring[skb->queue_mapping];
+ 	struct hns3_desc_cb *desc_cb = &ring->desc_cb[ring->next_to_use];
+ 	struct netdev_queue *dev_queue;
+-	int pre_ntu, ret;
++	int pre_ntu, next_to_use_head;
++	int ret;
+ 
+ 	/* Hardware can only handle short frames above 32 bytes */
+ 	if (skb_put_padto(skb, HNS3_MIN_TX_LEN)) {
+@@ -2119,6 +2120,9 @@ netdev_tx_t hns3_nic_net_xmit(struct sk_buff *skb, struct net_device *netdev)
+ 
+ 	return NETDEV_TX_OK;
+ 
++fill_err:
++	hns3_clear_desc(ring, next_to_use_head);
++
+ out_err_tx_ok:
+ 	dev_kfree_skb_any(skb);
+ 	hns3_tx_doorbell(ring, 0, !netdev_xmit_more());
+@@ -4879,7 +4883,6 @@ static void hns3_state_init(struct hnae3_handle *handle)
+ static int hns3_client_init(struct hnae3_handle *handle)
+ {
+ 	struct pci_dev *pdev = handle->pdev;
+-	struct hnae3_ae_dev *ae_dev = pci_get_drvdata(pdev);
+ 	u16 alloc_tqps, max_rss_size;
+ 	struct hns3_nic_priv *priv;
+ 	struct net_device *netdev;
+diff --git a/drivers/ptp/ptp_chardev.c b/drivers/ptp/ptp_chardev.c
+index 796eeffdf93b..28e589b794bb 100644
+--- a/drivers/ptp/ptp_chardev.c
++++ b/drivers/ptp/ptp_chardev.c
+@@ -228,7 +228,10 @@ long ptp_ioctl(struct posix_clock *pc, unsigned int cmd, unsigned long arg)
+ 			pct->sec = ts.tv_sec;
+ 			pct->nsec = ts.tv_nsec;
+ 			pct++;
+-			err = ptp->info->gettime64(ptp->info, &ts);
++			if (ops->gettimex64)
++				err = ops->gettimex64(ops, &ts, NULL);
++			else
++				err = ops->gettime64(ops, &ts);
+ 			if (err)
+ 				goto out;
+ 			pct->sec = ts.tv_sec;
+diff --git a/drivers/ptp/ptp_clock.c b/drivers/ptp/ptp_clock.c
+index e232233beb8f..e865cfdef360 100644
+--- a/drivers/ptp/ptp_clock.c
++++ b/drivers/ptp/ptp_clock.c
+@@ -117,7 +117,10 @@ static int ptp_clock_gettime(struct posix_clock *pc, struct timespec64 *tp)
+ 	struct ptp_clock *ptp = container_of(pc, struct ptp_clock, clock);
+ 	int err;
+ 
+-	err = ptp->info->gettime64(ptp->info, tp);
++	if (ptp->info->gettimex64)
++		err = ptp->info->gettimex64(ptp->info, tp, NULL);
++	else
++		err = ptp->info->gettime64(ptp->info, tp);
+ 	return err;
+ }
+ 
+diff --git a/include/linux/ptp_clock_kernel.h b/include/linux/ptp_clock_kernel.h
+index cd0570c2b501..9d7afc71a2e7 100644
+--- a/include/linux/ptp_clock_kernel.h
++++ b/include/linux/ptp_clock_kernel.h
+@@ -82,6 +82,8 @@ struct ptp_system_timestamp {
+  *            parameter delta: Desired change in nanoseconds.
+  *
+  * @gettime64:  Reads the current time from the hardware clock.
++ *              This method is deprecated.  New drivers should implement
++ *              the @gettimex64 method instead.
+  *              parameter ts: Holds the result.
+  *
+  * @getcrosststamp:  Reads the current time from the hardware clock and
+-- 
+2.34.1
+

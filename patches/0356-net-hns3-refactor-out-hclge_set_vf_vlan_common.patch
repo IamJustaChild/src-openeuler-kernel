@@ -1,0 +1,190 @@
+From 3845cf59d67da6a4877d342fd3af9d3a09a6bbbc Mon Sep 17 00:00:00 2001
+From: Peng Li <lipeng321@huawei.com>
+Date: Sat, 24 Jul 2021 15:43:37 +0800
+Subject: [PATCH 038/268] net: hns3: refactor out hclge_set_vf_vlan_common()
+
+mainline inclusion
+from mainline-v5.12-rc1-dontuse
+commit 88936e320c1a9971b6b78a38e6bf737e43744f5e
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMQV
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=88936e320c1a9971b6b78a38e6bf737e43744f5e
+
+----------------------------------------------------------------------
+
+To improve code readability and maintainability, separate
+the command handling part and the status parsing part from
+bloated hclge_set_vf_vlan_common().
+
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+---
+ .../hisilicon/hns3/hns3pf/hclge_main.c        | 71 ++++++++++++-------
+ .../ethernet/hisilicon/hns3/hns3pf/hclge_tm.c |  1 -
+ include/linux/ethtool.h                       |  2 +
+ 3 files changed, 49 insertions(+), 25 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index f4421e6861cb..e26373b1f38e 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -8447,31 +8447,16 @@ static int hclge_enable_vlan_filter(struct hnae3_handle *handle, bool enable)
+ 	return hclge_enable_vport_vlan_filter(vport, enable);
+ }
+ 
+-static int hclge_set_vf_vlan_common(struct hclge_dev *hdev, u16 vfid,
+-				    bool is_kill, u16 vlan)
++static int hclge_set_vf_vlan_filter_cmd(struct hclge_dev *hdev, u16 vfid,
++					bool is_kill, u16 vlan,
++					struct hclge_desc *desc)
+ {
+-	struct hclge_vport *vport = &hdev->vport[vfid];
+ 	struct hclge_vlan_filter_vf_cfg_cmd *req0;
+ 	struct hclge_vlan_filter_vf_cfg_cmd *req1;
+-	struct hclge_desc desc[2];
+ 	u8 vf_byte_val;
+ 	u8 vf_byte_off;
+ 	int ret;
+ 
+-	/* if vf vlan table is full, firmware will close vf vlan filter, it
+-	 * is unable and unnecessary to add new vlan id to vf vlan filter.
+-	 * If spoof check is enable, and vf vlan is full, it shouldn't add
+-	 * new vlan, because tx packets with these vlan id will be dropped.
+-	 */
+-	if (test_bit(vfid, hdev->vf_vlan_full) && !is_kill) {
+-		if (vport->vf_info.spoofchk && vlan) {
+-			dev_err(&hdev->pdev->dev,
+-				"Can't add vlan due to spoof check is on and vf vlan table is full\n");
+-			return -EPERM;
+-		}
+-		return 0;
+-	}
+-
+ 	hclge_cmd_setup_basic_desc(&desc[0],
+ 				   HCLGE_OPC_VLAN_FILTER_VF_CFG, false);
+ 	hclge_cmd_setup_basic_desc(&desc[1],
+@@ -8501,12 +8486,22 @@ static int hclge_set_vf_vlan_common(struct hclge_dev *hdev, u16 vfid,
+ 		return ret;
+ 	}
+ 
++	return 0;
++}
++
++static int hclge_check_vf_vlan_cmd_status(struct hclge_dev *hdev, u16 vfid,
++					  bool is_kill, struct hclge_desc *desc)
++{
++	struct hclge_vlan_filter_vf_cfg_cmd *req;
++
++	req = (struct hclge_vlan_filter_vf_cfg_cmd *)desc[0].data;
++
+ 	if (!is_kill) {
+ #define HCLGE_VF_VLAN_NO_ENTRY	2
+-		if (!req0->resp_code || req0->resp_code == 1)
++		if (!req->resp_code || req->resp_code == 1)
+ 			return 0;
+ 
+-		if (req0->resp_code == HCLGE_VF_VLAN_NO_ENTRY) {
++		if (req->resp_code == HCLGE_VF_VLAN_NO_ENTRY) {
+ 			set_bit(vfid, hdev->vf_vlan_full);
+ 			dev_warn(&hdev->pdev->dev,
+ 				 "vf vlan table is full, vf vlan filter is disabled\n");
+@@ -8515,10 +8510,10 @@ static int hclge_set_vf_vlan_common(struct hclge_dev *hdev, u16 vfid,
+ 
+ 		dev_err(&hdev->pdev->dev,
+ 			"Add vf vlan filter fail, ret =%u.\n",
+-			req0->resp_code);
++			req->resp_code);
+ 	} else {
+ #define HCLGE_VF_VLAN_DEL_NO_FOUND	1
+-		if (!req0->resp_code)
++		if (!req->resp_code)
+ 			return 0;
+ 
+ 		/* vf vlan filter is disabled when vf vlan table is full,
+@@ -8526,17 +8521,45 @@ static int hclge_set_vf_vlan_common(struct hclge_dev *hdev, u16 vfid,
+ 		 * Just return 0 without warning, avoid massive verbose
+ 		 * print logs when unload.
+ 		 */
+-		if (req0->resp_code == HCLGE_VF_VLAN_DEL_NO_FOUND)
++		if (req->resp_code == HCLGE_VF_VLAN_DEL_NO_FOUND)
+ 			return 0;
+ 
+ 		dev_err(&hdev->pdev->dev,
+ 			"Kill vf vlan filter fail, ret =%u.\n",
+-			req0->resp_code);
++			req->resp_code);
+ 	}
+ 
+ 	return -EIO;
+ }
+ 
++static int hclge_set_vf_vlan_common(struct hclge_dev *hdev, u16 vfid,
++				    bool is_kill, u16 vlan)
++{
++	struct hclge_vport *vport = &hdev->vport[vfid];
++	struct hclge_desc desc[2];
++	int ret;
++
++	/* if vf vlan table is full, firmware will close vf vlan filter, it
++	 * is unable and unnecessary to add new vlan id to vf vlan filter.
++	 * If spoof check is enable, and vf vlan is full, it shouldn't add
++	 * new vlan, because tx packets with these vlan id will be dropped.
++	 */
++	if (test_bit(vfid, hdev->vf_vlan_full) && !is_kill) {
++		if (vport->vf_info.spoofchk && vlan) {
++			dev_err(&hdev->pdev->dev,
++				"Can't add vlan due to spoof check is on and vf vlan table is full\n");
++			return -EPERM;
++		}
++		return 0;
++	}
++
++	ret = hclge_set_vf_vlan_filter_cmd(hdev, vfid, is_kill, vlan, desc);
++	if (ret)
++		return ret;
++
++	return hclge_check_vf_vlan_cmd_status(hdev, vfid, is_kill, desc);
++}
++
+ static int hclge_set_port_vlan_filter(struct hclge_dev *hdev, __be16 proto,
+ 				      u16 vlan_id, bool is_kill)
+ {
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
+index 14e8a93bdc31..be641288651f 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
+@@ -520,7 +520,6 @@ int hclge_tm_qs_shaper_cfg(struct hclge_vport *vport, int max_tx_rate)
+ 	struct hclge_shaper_ir_para ir_para;
+ 	struct hclge_dev *hdev = vport->back;
+ 	struct hclge_desc desc;
+-	u8 ir_b, ir_u, ir_s;
+ 	u32 shaper_para;
+ 	int ret, i;
+ 
+diff --git a/include/linux/ethtool.h b/include/linux/ethtool.h
+index 217f56d2462c..65c244c2dc97 100644
+--- a/include/linux/ethtool.h
++++ b/include/linux/ethtool.h
+@@ -367,7 +367,9 @@ bool ethtool_convert_link_mode_to_legacy_u32(u32 *legacy_u32,
+  * of the generic netdev features interface.
+  */
+ struct ethtool_ops {
++#ifndef __GENKSYMS__
+ 	u32     supported_coalesce_params;
++#endif
+ 	int	(*get_settings)(struct net_device *, struct ethtool_cmd *);
+ 	int	(*set_settings)(struct net_device *, struct ethtool_cmd *);
+ 	void	(*get_drvinfo)(struct net_device *, struct ethtool_drvinfo *);
+-- 
+2.34.1
+

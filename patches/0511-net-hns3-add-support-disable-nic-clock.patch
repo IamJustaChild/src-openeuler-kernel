@@ -1,0 +1,80 @@
+From fe2ad1a50774be3090bbc0d2c574a6f84f006787 Mon Sep 17 00:00:00 2001
+From: Tian Jiang <jiangtian6@h-partners.com>
+Date: Mon, 17 Apr 2023 19:40:57 +0800
+Subject: [PATCH 193/268] net: hns3: add support disable nic clock
+
+driver inclusion
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN3D
+CVE: NA
+
+----------------------------------------------------------------------
+
+The patch disables the clocks of the PPP, PPU, IGU_EGU, ROCE, and
+TM modules by configuring the network subctrl register.
+
+Signed-off-by: Tian Jiang <jiangtian6@h-partners.com>
+Signed-off-by: shaojijie <shaojijie@huawei.com>
+Signed-off-by: Jiantao Xiao <xiaojiantao1@h-partners.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h
+	drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
+	drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+---
+ .../ethernet/hisilicon/hns3/hns3pf/hclge_ext.c | 18 ++++++++++++++++++
+ .../ethernet/hisilicon/hns3/hns3pf/hclge_ext.h |  1 +
+ 2 files changed, 19 insertions(+)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+index b8bdace3245b..2a405fecd5ad 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+@@ -522,6 +522,23 @@ static int hclge_get_net_lane_status(struct hclge_dev *hdev, void *data,
+ 	return 0;
+ }
+ 
++static int hclge_disable_nic_clock(struct hclge_dev *hdev, void *data,
++				   size_t length)
++{
++	struct hclge_desc desc;
++	u32 nic_clock_en = 0;
++	int ret;
++
++	hclge_cmd_setup_basic_desc(&desc, HCLGE_OPC_CONFIG_NIC_CLOCK, false);
++	desc.data[0] = cpu_to_le32(nic_clock_en);
++
++	ret = hclge_cmd_send(&hdev->hw, &desc, 1);
++	if (ret)
++		dev_err(&hdev->pdev->dev,
++			"failed to disable nic clock, ret = %d\n", ret);
++	return ret;
++}
++
+ static void hclge_ext_resotre_config(struct hclge_dev *hdev)
+ {
+ 	if (hdev->reset_type != HNAE3_IMP_RESET &&
+@@ -686,6 +703,7 @@ static const hclge_priv_ops_fn hclge_ext_func_arr[] = {
+ 	[HNAE3_EXT_OPC_SET_SFP_STATE] = hclge_set_sfp_state,
+ 	[HNAE3_EXT_OPC_DISABLE_LANE] = hclge_disable_net_lane,
+ 	[HNAE3_EXT_OPC_GET_LANE_STATUS] = hclge_get_net_lane_status,
++	[HNAE3_EXT_OPC_DISABLE_CLOCK] = hclge_disable_nic_clock,
+ };
+ 
+ int hclge_ext_ops_handle(struct hnae3_handle *handle, int opcode,
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h
+index 06b3d9c494f4..04f9ab5261e8 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h
+@@ -84,6 +84,7 @@ struct hclge_sfp_enable_cmd {
+ };
+ 
+ enum hclge_ext_opcode_type {
++	HCLGE_OPC_CONFIG_NIC_CLOCK = 0x0060,
+ 	HCLGE_OPC_CONFIG_SWITCH_PARAM = 0x1033,
+ 	HCLGE_OPC_CONFIG_VLAN_FILTER = 0x1100,
+ 	HCLGE_OPC_SET_NOTIFY_PKT = 0x180A,
+-- 
+2.34.1
+

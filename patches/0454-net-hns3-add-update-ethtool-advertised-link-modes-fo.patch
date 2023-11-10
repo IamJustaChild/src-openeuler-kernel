@@ -1,0 +1,179 @@
+From 95da88a1abf674bbb3033e9afcdb0b102b772119 Mon Sep 17 00:00:00 2001
+From: Guangbin Huang <huangguangbin2@huawei.com>
+Date: Thu, 18 Nov 2021 20:44:45 +0800
+Subject: [PATCH 136/268] net: hns3: add update ethtool advertised link modes
+ for FIBRE port when autoneg off
+
+mainline inclusion
+from mainline-v5.16-rc1
+commit 6eaed433ee5f607f8b46ed9f15b3aa1112404704
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMYT
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=6eaed433ee5f607f8b46ed9f15b3aa1112404704
+
+----------------------------------------------------------------------
+
+Currently, the ethtool advertised link modes of FIBRE port is cleared to
+zero when autoneg is off, so user can not get the advertised link modes
+info directly from "ethtool <dev>" command.
+
+In order to ameliorate this situation, update data of speeds, fec and pause
+of advertised link modes when autoneg is off.
+
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+---
+ .../hisilicon/hns3/hns3pf/hclge_main.c        | 92 +++++++++++++++++--
+ .../hisilicon/hns3/hns3pf/hclge_main.h        |  9 ++
+ 2 files changed, 94 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 85087927a7f3..2169c60aad03 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -2994,12 +2994,90 @@ static void hclge_update_link_status(struct hclge_dev *hdev)
+ 	clear_bit(HCLGE_STATE_LINK_UPDATING, &hdev->state);
+ }
+ 
+-static void hclge_update_port_capability(struct hclge_mac *mac)
++static void hclge_update_speed_advertising(struct hclge_mac *mac)
+ {
+-#ifdef HAVE_ETHTOOL_CONVERT_U32_AND_LINK_MODE
+-	/* update fec ability by speed */
+-	hclge_convert_setting_fec(mac);
+-#endif
++	u32 speed_ability;
++
++	if (hclge_get_speed_bit(mac->speed, &speed_ability))
++		return;
++
++	switch (mac->module_type) {
++	case HNAE3_MODULE_TYPE_FIBRE_LR:
++		hclge_convert_setting_lr(speed_ability, mac->advertising);
++		break;
++	case HNAE3_MODULE_TYPE_FIBRE_SR:
++	case HNAE3_MODULE_TYPE_AOC:
++		hclge_convert_setting_sr(speed_ability, mac->advertising);
++		break;
++	case HNAE3_MODULE_TYPE_CR:
++		hclge_convert_setting_cr(speed_ability, mac->advertising);
++		break;
++	case HNAE3_MODULE_TYPE_KR:
++		hclge_convert_setting_kr(speed_ability, mac->advertising);
++		break;
++	default:
++		break;
++	}
++}
++
++static void hclge_update_fec_advertising(struct hclge_mac *mac)
++{
++	if (mac->fec_mode & BIT(HNAE3_FEC_RS))
++		linkmode_set_bit(ETHTOOL_LINK_MODE_FEC_RS_BIT,
++				 mac->advertising);
++	else if (mac->fec_mode & BIT(HNAE3_FEC_BASER))
++		linkmode_set_bit(ETHTOOL_LINK_MODE_FEC_BASER_BIT,
++				 mac->advertising);
++	else
++		linkmode_set_bit(ETHTOOL_LINK_MODE_FEC_NONE_BIT,
++				 mac->advertising);
++}
++
++static void hclge_update_pause_advertising(struct hclge_dev *hdev)
++{
++	struct hclge_mac *mac = &hdev->hw.mac;
++	bool rx_en, tx_en;
++
++	switch (hdev->fc_mode_last_time) {
++	case HCLGE_FC_RX_PAUSE:
++		rx_en = true;
++		tx_en = false;
++		break;
++	case HCLGE_FC_TX_PAUSE:
++		rx_en = false;
++		tx_en = true;
++		break;
++	case HCLGE_FC_FULL:
++		rx_en = true;
++		tx_en = true;
++		break;
++	default:
++		rx_en = false;
++		tx_en = false;
++		break;
++	}
++
++	linkmode_mod_bit(ETHTOOL_LINK_MODE_Pause_BIT, mac->advertising, rx_en);
++	linkmode_mod_bit(ETHTOOL_LINK_MODE_Asym_Pause_BIT, mac->advertising,
++			 rx_en ^ tx_en);
++}
++
++static void hclge_update_advertising(struct hclge_dev *hdev)
++{
++	struct hclge_mac *mac = &hdev->hw.mac;
++
++	linkmode_zero(mac->advertising);
++	hclge_update_speed_advertising(mac);
++	hclge_update_fec_advertising(mac);
++	hclge_update_pause_advertising(hdev);
++}
++
++static void hclge_update_port_capability(struct hclge_dev *hdev,
++					 struct hclge_mac *mac)
++{
++	if (hnae3_dev_fec_supported(hdev))
++		hclge_convert_setting_fec(mac);
++
+ 	/* firmware can not identify back plane type, the media type
+ 	 * read from configuration can help deal it
+ 	 */
+@@ -3015,7 +3093,7 @@ static void hclge_update_port_capability(struct hclge_mac *mac)
+ 	} else {
+ 		linkmode_clear_bit(ETHTOOL_LINK_MODE_Autoneg_BIT,
+ 				   mac->supported);
+-		linkmode_zero(mac->advertising);
++		hclge_update_advertising(hdev);
+ 	}
+ }
+ 
+@@ -3253,7 +3331,7 @@ static int hclge_update_port_info(struct hclge_dev *hdev)
+ 
+ 	if (hdev->ae_dev->dev_version >= HNAE3_DEVICE_VERSION_V2) {
+ 		if (mac->speed_type == QUERY_ACTIVE_SPEED) {
+-			hclge_update_port_capability(mac);
++			hclge_update_port_capability(hdev, mac);
+ 			return 0;
+ 		}
+ 		return hclge_cfg_mac_speed_dup(hdev, mac->speed,
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+index ad786ae8ae4a..7acf0f091b40 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+@@ -1069,6 +1069,15 @@ static inline int hclge_get_queue_id(struct hnae3_queue *queue)
+ 	return tqp->index;
+ }
+ 
++static inline void linkmode_mod_bit(int nr, volatile unsigned long *addr,
++				    int set)
++{
++	if (set)
++		linkmode_set_bit(nr, addr);
++	else
++		linkmode_clear_bit(nr, addr);
++}
++
+ static inline bool hclge_is_reset_pending(struct hclge_dev *hdev)
+ {
+ 	return !!hdev->reset_pending;
+-- 
+2.34.1
+

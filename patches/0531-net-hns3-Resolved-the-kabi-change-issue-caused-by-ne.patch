@@ -1,0 +1,39 @@
+From 0d3c17392ccaca019c99bd5a27d71724d262606c Mon Sep 17 00:00:00 2001
+From: Algernon <lixiaodong67@huawei.com>
+Date: Thu, 13 Jul 2023 11:35:28 +0800
+Subject: [PATCH 213/268] net: hns3: Resolved the kabi change issue caused by
+ new members in the devlink structure
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN49
+
+--------------------------------
+
+Fix the addition of reload in the devlink structure_ Failed, reload_ Kabi
+issues caused by enabled and registered members.
+
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ include/net/devlink.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/include/net/devlink.h b/include/net/devlink.h
+index 669c3cb59fcf..a943659a705e 100644
+--- a/include/net/devlink.h
++++ b/include/net/devlink.h
+@@ -35,9 +35,11 @@ struct devlink {
+ 	struct device *dev;
+ 	possible_net_t _net;
+ 	struct mutex lock;
++#ifndef __GENKSYMS__
+ 	u8 reload_failed:1,
+ 	   reload_enabled:1,
+ 	   registered:1;
++#endif
+ 	char priv[0] __aligned(NETDEV_ALIGN);
+ };
+ 
+-- 
+2.34.1
+

@@ -1,0 +1,144 @@
+From 2c52384a8790cdc1f562609e7c8b7be345ca70e9 Mon Sep 17 00:00:00 2001
+From: Guangbin Huang <huangguangbin2@huawei.com>
+Date: Tue, 28 Sep 2021 11:52:12 +0800
+Subject: [PATCH 110/268] net: hns3: refine function hclge_dbg_dump_tm_pri()
+
+mainline inclusion
+from mainline-v5.15-rc1
+commit 04d96139ddb32dd15e5941c303f511a92759a5be
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMYT
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=04d96139ddb32dd15e5941c303f511a92759a5be
+
+----------------------------------------------------------------------
+
+To improve flexibility, simplicity and maintainability to dump info of
+every element of tm priority, add a struct hclge_dbg_item array of tm
+priority and fill string of every data according to this array.
+
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_debugfs.c
+---
+ .../hisilicon/hns3/hns3pf/hclge_cmd.h         |  1 +
+ .../hisilicon/hns3/hns3pf/hclge_debugfs.c     | 70 +++++++++++--------
+ 2 files changed, 43 insertions(+), 28 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+index c06070cfd4bc..770a572003f3 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+@@ -167,6 +167,7 @@ enum hclge_opcode_type {
+ 	HCLGE_OPC_TM_PRI_SCH_MODE_CFG   = 0x0813,
+ 	HCLGE_OPC_TM_QS_SCH_MODE_CFG    = 0x0814,
+ 	HCLGE_OPC_TM_BP_TO_QSET_MAPPING = 0x0815,
++	HCLGE_OPC_TM_NODES		= 0x0816,
+ 	HCLGE_OPC_ETS_TC_WEIGHT		= 0x0843,
+ 	HCLGE_OPC_QSET_DFX_STS		= 0x0844,
+ 	HCLGE_OPC_PRI_DFX_STS		= 0x0845,
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_debugfs.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_debugfs.c
+index 6350ad7353d1..01324fdf397a 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_debugfs.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_debugfs.c
+@@ -890,26 +890,45 @@ static int hclge_dbg_dump_tm_map(struct hclge_dev *hdev, char *buf, int len)
+ 	return 0;
+ }
+ 
++static const struct hclge_dbg_item tm_pri_items[] = {
++	{ "ID", 4 },
++	{ "MODE", 2 },
++	{ "DWRR", 2 },
++	{ "C_IR_B", 2 },
++	{ "C_IR_U", 2 },
++	{ "C_IR_S", 2 },
++	{ "C_BS_B", 2 },
++	{ "C_BS_S", 2 },
++	{ "C_FLAG", 2 },
++	{ "C_RATE(Mbps)", 2 },
++	{ "P_IR_B", 2 },
++	{ "P_IR_U", 2 },
++	{ "P_IR_S", 2 },
++	{ "P_BS_B", 2 },
++	{ "P_BS_S", 2 },
++	{ "P_FLAG", 2 },
++	{ "P_RATE(Mbps)", 0 }
++};
++
+ static int hclge_dbg_dump_tm_pri(struct hclge_dev *hdev, char *buf, int len)
+ {
+-	struct hclge_tm_shaper_para c_shaper_para;
+-	struct hclge_tm_shaper_para p_shaper_para;
+-	u8 pri_num, sch_mode, weight;
+-	char *sch_mode_str;
+-	int pos = 0;
+-	int ret;
+-	u8 i;
++	char data_str[ARRAY_SIZE(tm_pri_items)][HCLGE_DBG_DATA_STR_LEN];
++	struct hclge_tm_shaper_para c_shaper_para, p_shaper_para;
++	char *result[ARRAY_SIZE(tm_pri_items)], *sch_mode_str;
++	char content[HCLGE_DBG_TM_INFO_LEN];
++	u8 pri_num, sch_mode, weight, i, j;
++	int pos, ret;
+ 
+ 	ret = hclge_tm_get_pri_num(hdev, &pri_num);
+ 	if (ret)
+ 		return ret;
+ 
+-	pos += scnprintf(buf + pos, len - pos,
+-			 "ID    MODE  DWRR  C_IR_B  C_IR_U  C_IR_S  C_BS_B  ");
+-	pos += scnprintf(buf + pos, len - pos,
+-			 "C_BS_S  C_FLAG  C_RATE(Mbps)  P_IR_B  P_IR_U  ");
+-	pos += scnprintf(buf + pos, len - pos,
+-			 "P_IR_S  P_BS_B  P_BS_S  P_FLAG  P_RATE(Mbps)\n");
++	for (i = 0; i < ARRAY_SIZE(tm_pri_items); i++)
++		result[i] = &data_str[i][0];
++
++	hclge_dbg_fill_content(content, sizeof(content), tm_pri_items,
++			       NULL, ARRAY_SIZE(tm_pri_items));
++	pos = scnprintf(buf, len, "%s", content);
+ 
+ 	for (i = 0; i < pri_num; i++) {
+ 		ret = hclge_tm_get_pri_sch_mode(hdev, i, &sch_mode);
+@@ -935,21 +954,16 @@ static int hclge_dbg_dump_tm_pri(struct hclge_dev *hdev, char *buf, int len)
+ 		sch_mode_str = sch_mode & HCLGE_TM_TX_SCHD_DWRR_MSK ? "dwrr" :
+ 			       "sp";
+ 
+-		pos += scnprintf(buf + pos, len - pos,
+-				 "%04u  %4s  %3u   %3u     %3u     %3u     ",
+-				 i, sch_mode_str, weight, c_shaper_para.ir_b,
+-				 c_shaper_para.ir_u, c_shaper_para.ir_s);
+-		pos += scnprintf(buf + pos, len - pos,
+-				 "%3u     %3u       %1u     %6u        ",
+-				 c_shaper_para.bs_b, c_shaper_para.bs_s,
+-				 c_shaper_para.flag, c_shaper_para.rate);
+-		pos += scnprintf(buf + pos, len - pos,
+-				 "%3u     %3u     %3u     %3u     %3u       ",
+-				 p_shaper_para.ir_b, p_shaper_para.ir_u,
+-				 p_shaper_para.ir_s, p_shaper_para.bs_b,
+-				 p_shaper_para.bs_s);
+-		pos += scnprintf(buf + pos, len - pos, "%1u     %6u\n",
+-				 p_shaper_para.flag, p_shaper_para.rate);
++		j = 0;
++		sprintf(result[j++], "%04u", i);
++		sprintf(result[j++], "%4s", sch_mode_str);
++		sprintf(result[j++], "%3u", weight);
++		hclge_dbg_fill_shaper_content(&c_shaper_para, result, &j);
++		hclge_dbg_fill_shaper_content(&p_shaper_para, result, &j);
++		hclge_dbg_fill_content(content, sizeof(content), tm_pri_items,
++				       (const char **)result,
++				       ARRAY_SIZE(tm_pri_items));
++		pos += scnprintf(buf + pos, len - pos, "%s", content);
+ 	}
+ 
+ 	return 0;
+-- 
+2.34.1
+

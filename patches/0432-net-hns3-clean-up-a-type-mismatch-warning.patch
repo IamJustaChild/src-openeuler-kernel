@@ -1,0 +1,68 @@
+From bac139a1e217b242fb740a18a3c2e408b7384cda Mon Sep 17 00:00:00 2001
+From: Guojia Liao <liaoguojia@huawei.com>
+Date: Tue, 28 Sep 2021 11:52:17 +0800
+Subject: [PATCH 114/268] net: hns3: clean up a type mismatch warning
+
+mainline inclusion
+from mainline-v5.15-rc1
+commit e79c0e324b011b0288cd411a5b53870a7730f163
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMYT
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=e79c0e324b011b0288cd411a5b53870a7730f163
+
+----------------------------------------------------------------------
+
+abs() returns signed long, which could not convert the type
+as unsigned, and it may cause a mismatch type warning from
+static tools. To fix it, this patch uses an variable to save
+the abs()'s result and does a explicit conversion.
+
+Signed-off-by: Guojia Liao <liaoguojia@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
+---
+ .../ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c | 18 +++++++-----------
+ 1 file changed, 7 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
+index a9dd7d0601ab..07d0aaa0634e 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
+@@ -23,18 +23,14 @@ static const struct errno_respcode_map err_code_map[] = {
+ 
+ static u16 hclge_errno_to_resp(int errno)
+ {
+-#define UNKNOWN_ERR	0xFFFF
++	int resp = abs(errno);
+ 
+-	u32 i;
+-
+-	for (i = 0;
+-	     i < sizeof(err_code_map) / sizeof(struct errno_respcode_map);
+-	     i++) {
+-		if (err_code_map[i].errno == errno)
+-			return err_code_map[i].resp_code;
+-	}
+-
+-	return UNKNOWN_ERR;
++	/* The status for pf to vf msg cmd is u16, constrainted by HW.
++	 * We need to keep the same type with it.
++	 * The intput errno is the stander error code, it's safely to
++	 * use a u16 to store the abs(errno).
++	 */
++	return (u16)resp;
+ }
+ 
+ /* hclge_gen_resp_to_vf: used to generate a synchronous response to VF when PF
+-- 
+2.34.1
+

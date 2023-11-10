@@ -1,0 +1,109 @@
+From 1256d4763574788e92159951e342e6aef3dbd189 Mon Sep 17 00:00:00 2001
+From: Nishad Kamdar <nishadkamdar@gmail.com>
+Date: Sat, 2 Nov 2019 17:14:42 +0530
+Subject: [PATCH 203/268] net: hns3: Use the correct style for SPDX License
+ Identifier
+
+mainline inclusion
+from mainline-v5.4-rc7
+commit 2ef17216d732f40dcd96423384064d542e3ff658
+category cleanup
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN49
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=2ef17216d732f40dcd96423384064d542e3ff658
+--------------------------------
+
+This patch corrects the SPDX License Identifier style in
+header files related to Hisilicon network devices. For C header files
+Documentation/process/license-rules.rst mandates C-like comments
+(opposed to C source files where C++ style should be used)
+
+Changes made by using a script provided by Joe Perches here:
+https://lkml.org/lkml/2019/2/7/46.
+
+Suggested-by: Joe Perches <joe@perches.com>
+Signed-off-by: Nishad Kamdar <nishadkamdar@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hnae3.h             | 2 +-
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.h         | 2 +-
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h  | 2 +-
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.h  | 2 +-
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h | 2 +-
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mdio.h | 2 +-
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h   | 2 +-
+ 7 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3.h b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+index ce45247ac05a..cbfca4bd3115 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+@@ -1,4 +1,4 @@
+-// SPDX-License-Identifier: GPL-2.0+
++/* SPDX-License-Identifier: GPL-2.0+ */
+ // Copyright (c) 2016-2017 Hisilicon Limited.
+ 
+ #ifndef __HNAE3_H
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
+index b71d06ab6dba..74a48d3a61b3 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
+@@ -1,4 +1,4 @@
+-// SPDX-License-Identifier: GPL-2.0+
++/* SPDX-License-Identifier: GPL-2.0+ */
+ // Copyright (c) 2016-2017 Hisilicon Limited.
+ 
+ #ifndef __HNS3_ENET_H
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+index 38b82f87ec76..296facdda4c9 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+@@ -1,4 +1,4 @@
+-// SPDX-License-Identifier: GPL-2.0+
++/* SPDX-License-Identifier: GPL-2.0+ */
+ // Copyright (c) 2016-2017 Hisilicon Limited.
+ 
+ #ifndef __HCLGE_CMD_H
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.h
+index 278f21e02736..b04702e65689 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.h
+@@ -1,4 +1,4 @@
+-// SPDX-License-Identifier: GPL-2.0+
++/* SPDX-License-Identifier: GPL-2.0+ */
+ // Copyright (c) 2016-2017 Hisilicon Limited.
+ 
+ #ifndef __HCLGE_DCB_H__
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+index f100e9ad5842..155a1719e195 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+@@ -1,4 +1,4 @@
+-// SPDX-License-Identifier: GPL-2.0+
++/* SPDX-License-Identifier: GPL-2.0+ */
+ // Copyright (c) 2016-2017 Hisilicon Limited.
+ 
+ #ifndef __HCLGE_MAIN_H
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mdio.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mdio.h
+index 7e019be3816a..fd0e20190b90 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mdio.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mdio.h
+@@ -1,4 +1,4 @@
+-// SPDX-License-Identifier: GPL-2.0+
++/* SPDX-License-Identifier: GPL-2.0+ */
+ // Copyright (c) 2016-2017 Hisilicon Limited.
+ 
+ #ifndef __HCLGE_MDIO_H
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h
+index 98d0f871ee61..b36f19a629b2 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h
+@@ -1,4 +1,4 @@
+-// SPDX-License-Identifier: GPL-2.0+
++/* SPDX-License-Identifier: GPL-2.0+ */
+ // Copyright (c) 2016-2017 Hisilicon Limited.
+ 
+ #ifndef __HCLGE_TM_H
+-- 
+2.34.1
+

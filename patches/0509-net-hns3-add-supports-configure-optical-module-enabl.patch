@@ -1,0 +1,100 @@
+From 03371c2db243c1d3a15f4b2b705c3db9e5013fbf Mon Sep 17 00:00:00 2001
+From: Tian Jiang <jiangtian6@h-partners.com>
+Date: Mon, 17 Apr 2023 14:48:27 +0800
+Subject: [PATCH 191/268] net: hns3: add supports configure optical module
+ enable
+
+driver inclusion
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN3D
+CVE: NA
+
+----------------------------------------------------------------------
+
+The patch provides an interface for enabling or disabling
+the optical module.
+
+Signed-off-by: Tian Jiang <jiangtian6@h-partners.com>
+Signed-off-by: shaojijie <shaojijie@huawei.com>
+Signed-off-by: Jiantao Xiao <xiaojiantao1@h-partners.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h
+	drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
+	drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+---
+ .../hisilicon/hns3/hns3pf/hclge_ext.c         | 25 +++++++++++++++++++
+ .../hisilicon/hns3/hns3pf/hclge_ext.h         |  6 +++++
+ 2 files changed, 31 insertions(+)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+index f63f558327f1..dd595a783b55 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+@@ -454,6 +454,30 @@ static int hclge_get_sfp_present(struct hclge_dev *hdev, void *data,
+ 	return 0;
+ }
+ 
++static int hclge_set_sfp_state(struct hclge_dev *hdev, void *data,
++			       size_t length)
++{
++	struct hclge_sfp_enable_cmd *req;
++	struct hclge_desc desc;
++	u32 state;
++	int ret;
++
++	if (length != sizeof(u32))
++		return -EINVAL;
++
++	state = *(u32 *)data;
++	hclge_cmd_setup_basic_desc(&desc, HCLGE_OPC_SFP_SET_STATUS, false);
++	req = (struct hclge_sfp_enable_cmd *)desc.data;
++	req->sfp_enable = cpu_to_le32(state);
++
++	ret = hclge_cmd_send(&hdev->hw, &desc, 1);
++	if (ret)
++		dev_err(&hdev->pdev->dev,
++			"failed to set sfp state, ret = %d\n", ret);
++
++	return ret;
++}
++
+ static void hclge_ext_resotre_config(struct hclge_dev *hdev)
+ {
+ 	if (hdev->reset_type != HNAE3_IMP_RESET &&
+@@ -615,6 +639,7 @@ static const hclge_priv_ops_fn hclge_ext_func_arr[] = {
+ 	[HNAE3_EXT_OPC_GET_PORT_NUM] = hclge_get_port_num,
+ 	[HNAE3_EXT_OPC_SET_PFC_TIME] = hclge_set_pause_trans_time,
+ 	[HNAE3_EXT_OPC_GET_PRESENT] = hclge_get_sfp_present,
++	[HNAE3_EXT_OPC_SET_SFP_STATE] = hclge_set_sfp_state,
+ };
+ 
+ int hclge_ext_ops_handle(struct hnae3_handle *handle, int opcode,
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h
+index ae6f0afef1f1..607bd1668cdc 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h
+@@ -78,6 +78,11 @@ struct hclge_sfp_present_cmd {
+ 	__le32 rsv[5];
+ };
+ 
++struct hclge_sfp_enable_cmd {
++	__le32 sfp_enable;
++	__le32 rsv[5];
++};
++
+ enum hclge_ext_opcode_type {
+ 	HCLGE_OPC_CONFIG_SWITCH_PARAM = 0x1033,
+ 	HCLGE_OPC_CONFIG_VLAN_FILTER = 0x1100,
+@@ -88,6 +93,7 @@ enum hclge_ext_opcode_type {
+ 	HCLGE_OPC_GET_PORT_NUM = 0x7006,
+ 	HCLGE_OPC_CFG_PAUSE_STORM_PARA = 0x7019,
+ 	HCLGE_OPC_SFP_GET_PRESENT = 0x7101,
++	HCLGE_OPC_SFP_SET_STATUS = 0x7102,
+ };
+ 
+ struct hclge_reset_fail_type_map {
+-- 
+2.34.1
+

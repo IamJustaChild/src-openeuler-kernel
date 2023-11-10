@@ -1,0 +1,166 @@
+From fb4f227240dfbb3a45c14991a7b5521e26d85684 Mon Sep 17 00:00:00 2001
+From: Yunsheng Lin <linyunsheng@huawei.com>
+Date: Sat, 24 Jul 2021 15:45:26 +0800
+Subject: [PATCH 119/268] net: hns3: optimize the rx page reuse handling
+ process
+
+mainline inclusion
+from mainline-v5.14-rc1
+commit fa7711b888f24ee9291d90f8fbdaccfc80ed72c7
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMYT
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=fa7711b888f24ee9291d90f8fbdaccfc80ed72c7
+
+----------------------------------------------------------------------
+
+Current rx page offset only reset to zero when all the below
+conditions are satisfied:
+1. rx page is only owned by driver.
+2. rx page is reusable.
+3. the page offset that is above to be given to the stack has
+reached the end of the page.
+
+If the page offset is over the hns3_buf_size(), it means the
+buffer below the offset of the page is usable when the above
+condition 1 & 2 are satisfied, so page offset can be reset to
+zero instead of increasing the offset. We may be able to always
+reuse the first 4K buffer of a 64K page, which means we can
+limit the hot buffer size as much as possible.
+
+The above optimization is a side effect when refacting the
+rx page reuse handling in order to support the rx copybreak.
+
+Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+---
+ .../net/ethernet/hisilicon/hns3/hns3_enet.c   | 60 +++++++++++--------
+ include/linux/skbuff.h                        | 16 +++++
+ 2 files changed, 50 insertions(+), 26 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index 76bf5fc69e7d..c84a5e942b68 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -3194,7 +3194,35 @@ static bool hns3_page_is_reusable(struct page *page)
+ 
+ static bool hns3_can_reuse_page(struct hns3_desc_cb *cb)
+ {
+-	return (page_count(cb->priv) - cb->pagecnt_bias) == 1;
++	return page_count(cb->priv) == cb->pagecnt_bias;
++}
++
++static int hns3_handle_rx_copybreak(struct sk_buff *skb, int i,
++				    struct hns3_enet_ring *ring,
++				    int pull_len,
++				    struct hns3_desc_cb *desc_cb)
++{
++	struct hns3_desc *desc = &ring->desc[ring->next_to_clean];
++	u32 frag_offset = desc_cb->page_offset + pull_len;
++	int size = le16_to_cpu(desc->rx.size);
++	u32 frag_size = size - pull_len;
++	void *frag = napi_alloc_frag(frag_size);
++
++	if (unlikely(!frag)) {
++		hns3_ring_stats_update(ring, frag_alloc_err);
++
++		hns3_rl_err(ring_to_netdev(ring),
++			    "failed to allocate rx frag\n");
++		return -ENOMEM;
++	}
++
++	desc_cb->reuse_flag = 1;
++	memcpy(frag, desc_cb->buf + frag_offset, frag_size);
++	skb_add_rx_frag(skb, i, virt_to_page(frag),
++			offset_in_page(frag), frag_size, frag_size);
++
++	hns3_ring_stats_update(ring, frag_alloc);
++	return 0;
+ }
+ 
+ static void hns3_nic_reuse_page(struct sk_buff *skb, int i,
+@@ -3206,13 +3234,12 @@ static void hns3_nic_reuse_page(struct sk_buff *skb, int i,
+ 	int size = le16_to_cpu(desc->rx.size);
+ 	u32 truesize = hns3_buf_size(ring);
+ 	u32 frag_size = size - pull_len;
++	int ret = 0;
+ 	bool reused;
+ 
+-	if (unlikely(!hns3_page_is_reusable(desc_cb->priv)) ||
+-	    (!desc_cb->page_offset && !hns3_can_reuse_page(desc_cb))) {
+-		__page_frag_cache_drain(desc_cb->priv, desc_cb->pagecnt_bias);
+-		return;
+-	}
++	/* Avoid re-using remote or pfmem page */
++	if (unlikely(!dev_page_is_reusable(desc_cb->priv)))
++		goto out;
+ 
+ 	reused = hns3_can_reuse_page(desc_cb);
+ 
+@@ -3236,26 +3263,7 @@ static void hns3_nic_reuse_page(struct sk_buff *skb, int i,
+ 		desc_cb->page_offset = 0;
+ 		desc_cb->reuse_flag = 1;
+ 	} else if (frag_size <= ring->rx_copybreak) {
+-		void *frag = napi_alloc_frag(frag_size);
+-
+-		if (unlikely(!frag)) {
+-			u64_stats_update_begin(&ring->syncp);
+-			ring->stats.frag_alloc_err++;
+-			u64_stats_update_end(&ring->syncp);
+-
+-			hns3_rl_err(ring_to_netdev(ring),
+-				    "failed to allocate rx frag\n");
+-			goto out;
+-		}
+-
+-		desc_cb->reuse_flag = 1;
+-		memcpy(frag, desc_cb->buf + frag_offset, frag_size);
+-		skb_add_rx_frag(skb, i, virt_to_page(frag),
+-				offset_in_page(frag), frag_size, frag_size);
+-
+-		u64_stats_update_begin(&ring->syncp);
+-		ring->stats.frag_alloc++;
+-		u64_stats_update_end(&ring->syncp);
++		ret = hns3_handle_rx_copybreak(skb, i, ring, pull_len, desc_cb);
+ 		return;
+ 	}
+ 
+diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
+index b67d42871ee9..bf080a114205 100644
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -2789,6 +2789,22 @@ static inline struct page *dev_alloc_page(void)
+ 	return dev_alloc_pages(0);
+ }
+ 
++/**
++ * dev_page_is_reusable - check whether a page can be reused for network Rx
++ * @page: the page to test
++ *
++ * A page shouldn't be considered for reusing/recycling if it was allocated
++ * under memory pressure or at a distant memory node.
++ *
++ * Returns false if this page should be returned to page allocator, true
++ * otherwise.
++ */
++static inline bool dev_page_is_reusable(struct page *page)
++{
++	return likely(page_to_nid(page) == numa_mem_id() &&
++		      !page_is_pfmemalloc(page));
++}
++
+ /**
+  *	skb_propagate_pfmemalloc - Propagate pfmemalloc if skb is allocated after RX page
+  *	@page: The page that was allocated from skb_alloc_page
+-- 
+2.34.1
+

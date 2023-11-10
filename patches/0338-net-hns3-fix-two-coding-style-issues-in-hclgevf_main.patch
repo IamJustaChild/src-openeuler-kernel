@@ -1,0 +1,53 @@
+From 13f4fb34280d2e2c92e7f8ba8eda9fce4291ca0e Mon Sep 17 00:00:00 2001
+From: Huazhong Tan <tanhuazhong@huawei.com>
+Date: Sat, 30 May 2020 09:08:31 +0800
+Subject: [PATCH 020/268] net: hns3: fix two coding style issues in
+ hclgevf_main.c
+
+mainline inclusion
+from mainline-v5.8-rc1
+commit 2adb8187e5439e5066c9893586e5079e89f9060a
+category: cleanup
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EJ0A
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=2adb8187e5439e5066c9893586e5079e89f9060a
+
+--------------------------------
+
+Remove a redundant blank line in hclgevf_cmd_set_promisc_mode(),
+and fix a reverse xmas tree coding style issue in
+hclgevf_set_rss_tc_mode().
+
+Reported-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+index 0ff126b5d688..c8b7b3ede445 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+@@ -677,8 +677,8 @@ static int hclgevf_set_rss_tc_mode(struct hclgevf_dev *hdev,  u16 rss_size)
+ 	u16 tc_size[HCLGEVF_MAX_TC_NUM];
+ 	struct hclgevf_desc desc;
+ 	u16 roundup_size;
+-	int status;
+ 	unsigned int i;
++	int status;
+ 
+ 	req = (struct hclgevf_rss_tc_mode_cmd *)desc.data;
+ 
+@@ -1171,7 +1171,6 @@ static int hclgevf_cmd_set_promisc_mode(struct hclgevf_dev *hdev,
+ 	send_msg.en_mc = en_mc_pmc ? 1 : 0;
+ 
+ 	ret = hclgevf_send_mbx_msg(hdev, &send_msg, false, NULL, 0);
+-
+ 	if (ret)
+ 		dev_err(&hdev->pdev->dev,
+ 			"Set promisc mode fail, status is %d.\n", ret);
+-- 
+2.34.1
+

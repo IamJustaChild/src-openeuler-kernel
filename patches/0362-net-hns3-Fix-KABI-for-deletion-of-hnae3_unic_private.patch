@@ -1,0 +1,55 @@
+From c7aa853001a92e3cab9f3bc03fba411ef52458fa Mon Sep 17 00:00:00 2001
+From: Algernon <lixiaodong67@huawei.com>
+Date: Tue, 20 Jun 2023 10:40:59 +0800
+Subject: [PATCH 044/268] net:hns3 Fix KABI for deletion of
+ hnae3_unic_private_info in hnae3_handle
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMQV
+
+--------------------------------
+
+Fixed due to removal of hnae3_ Unic_ Private_ Kabi
+changes caused by info structure
+
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hnae3.h | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3.h b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+index eef5f7a5eb63..6d58e1ccec78 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+@@ -776,7 +776,17 @@ struct hnae3_roce_private_info {
+ 	unsigned long instance_state;
+ 	unsigned long state;
+ };
++#ifdef __GENKSYMS__
++struct hnae3_unic_private_info {
++	struct net_device *netdev;
++	u16 rx_buf_len;
++	u16 num_tx_desc;
++	u16 num_rx_desc;
+ 
++	u16 num_tqps;   /* total number of tqps in this handle */
++	struct hnae3_queue **tqp;  /* array base of all TQPs of this instance */
++};
++#endif
+ #define HNAE3_SUPPORT_APP_LOOPBACK    BIT(0)
+ #define HNAE3_SUPPORT_PHY_LOOPBACK    BIT(1)
+ #define HNAE3_SUPPORT_SERDES_SERIAL_LOOPBACK	BIT(2)
+@@ -803,6 +813,9 @@ struct hnae3_handle {
+ 	union {
+ 		struct net_device *netdev; /* first member */
+ 		struct hnae3_knic_private_info kinfo;
++#ifdef __GENKSYMS__
++		struct hnae3_unic_private_info uinfo;
++#endif
+ 		struct hnae3_roce_private_info rinfo;
+ 	};
+ 
+-- 
+2.34.1
+

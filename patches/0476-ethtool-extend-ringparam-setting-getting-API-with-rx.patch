@@ -1,0 +1,2416 @@
+From d49e480c3a1abe9f991afb073fc1c284e45332b9 Mon Sep 17 00:00:00 2001
+From: Hao Chen <chenhao288@hisilicon.com>
+Date: Mon, 27 Dec 2021 19:41:41 +0800
+Subject: [PATCH 158/268] ethtool: extend ringparam setting/getting API with
+ rx_buf_len
+
+mainline inclusion
+from mainline-v5.17-rc1
+commit 7462494408cd3de8b0bc1e79670bf213288501d0
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN3D
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=7462494408cd3de8b0bc1e79670bf213288501d0
+
+----------------------------------------------------------------------
+
+Add two new parameters kernel_ringparam and extack for
+.get_ringparam and .set_ringparam to extend more ring params
+through netlink.
+
+Signed-off-by: Hao Chen <chenhao288@hisilicon.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+(fix conflicts: remove unsupported ethernets and ops)
+(fix conflicts: adapt spnic and txgbe for interface change)
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/amazon/ena/ena_ethtool.c
+	drivers/net/ethernet/freescale/enetc/enetc_ethtool.c
+	drivers/net/ethernet/google/gve/gve_ethtool.c
+	drivers/net/ethernet/intel/iavf/iavf_ethtool.c
+	drivers/net/ethernet/intel/ice/ice_ethtool.c
+	drivers/net/ethernet/intel/igc/igc_ethtool.c
+	drivers/net/ethernet/marvell/octeontx2/nic/otx2_ethtool.c
+	drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
+	drivers/net/ethernet/micrel/ksz884x.c
+	drivers/net/ethernet/pensando/ionic/ionic_ethtool.c
+	drivers/net/ethernet/ramaxel/spnic/spnic_ethtool.c
+	drivers/net/ethernet/sfc/ef100_ethtool.c
+	drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
+	drivers/net/ethernet/ti/am65-cpsw-ethtool.c
+	drivers/net/ethernet/ti/cpsw_ethtool.c
+	drivers/net/ethernet/ti/cpsw_priv.h
+	drivers/net/ethernet/xilinx/ll_temac_main.c
+	drivers/net/ethernet/xilinx/xilinx_axienet_main.c
+	drivers/net/usb/r8152.c
+	drivers/s390/net/qeth_ethtool.c
+	include/linux/ethtool.h
+	net/ethtool/ioctl.c
+	net/ethtool/rings.c
+---
+ arch/um/drivers/vector_kern.c                 |  4 ++-
+ drivers/net/ethernet/3com/typhoon.c           |  4 ++-
+ .../3snic/sssnic/nic/sss_nic_ethtool.c        |  8 ++++--
+ drivers/net/ethernet/amazon/ena/ena_ethtool.c |  4 ++-
+ drivers/net/ethernet/amd/pcnet32.c            |  8 ++++--
+ drivers/net/ethernet/amd/xgbe/xgbe-ethtool.c  | 11 +++++---
+ .../ethernet/aquantia/atlantic/aq_ethtool.c   |  8 ++++--
+ drivers/net/ethernet/atheros/atlx/atl1.c      |  8 ++++--
+ drivers/net/ethernet/broadcom/b44.c           |  8 ++++--
+ drivers/net/ethernet/broadcom/bcm63xx_enet.c  | 25 +++++++++++++------
+ drivers/net/ethernet/broadcom/bnx2.c          |  8 ++++--
+ .../ethernet/broadcom/bnx2x/bnx2x_ethtool.c   |  8 ++++--
+ .../net/ethernet/broadcom/bnxt/bnxt_ethtool.c |  8 ++++--
+ drivers/net/ethernet/broadcom/tg3.c           | 10 ++++++--
+ .../net/ethernet/brocade/bna/bnad_ethtool.c   |  8 ++++--
+ drivers/net/ethernet/cadence/macb_main.c      |  8 ++++--
+ .../ethernet/cavium/liquidio/lio_ethtool.c    | 11 +++++---
+ .../ethernet/cavium/thunder/nicvf_ethtool.c   |  8 ++++--
+ drivers/net/ethernet/chelsio/cxgb/cxgb2.c     |  8 ++++--
+ .../net/ethernet/chelsio/cxgb3/cxgb3_main.c   |  8 ++++--
+ .../ethernet/chelsio/cxgb4/cxgb4_ethtool.c    |  8 ++++--
+ .../ethernet/chelsio/cxgb4vf/cxgb4vf_main.c   |  8 ++++--
+ .../net/ethernet/cisco/enic/enic_ethtool.c    |  8 ++++--
+ drivers/net/ethernet/cortina/gemini.c         |  8 ++++--
+ .../net/ethernet/emulex/benet/be_ethtool.c    |  4 ++-
+ drivers/net/ethernet/ethoc.c                  |  8 ++++--
+ drivers/net/ethernet/faraday/ftgmac100.c      | 14 ++++++++---
+ .../net/ethernet/freescale/gianfar_ethtool.c  | 16 +++++++++---
+ .../net/ethernet/freescale/ucc_geth_ethtool.c |  8 ++++--
+ .../net/ethernet/hisilicon/hns/hns_ethtool.c  |  6 ++++-
+ .../ethernet/hisilicon/hns3/hns3_ethtool.c    |  8 ++++--
+ .../net/ethernet/huawei/hinic/hinic_ethtool.c |  8 ++++--
+ drivers/net/ethernet/ibm/emac/core.c          |  7 ++++--
+ drivers/net/ethernet/ibm/ibmvnic.c            |  8 ++++--
+ drivers/net/ethernet/intel/e100.c             |  8 ++++--
+ .../net/ethernet/intel/e1000/e1000_ethtool.c  |  8 ++++--
+ drivers/net/ethernet/intel/e1000e/ethtool.c   |  8 ++++--
+ .../net/ethernet/intel/fm10k/fm10k_ethtool.c  |  8 ++++--
+ .../net/ethernet/intel/i40e/i40e_ethtool.c    |  8 ++++--
+ .../ethernet/intel/i40evf/i40evf_ethtool.c    |  8 ++++--
+ drivers/net/ethernet/intel/ice/ice_ethtool.c  |  8 ++++--
+ drivers/net/ethernet/intel/igb/igb_ethtool.c  |  8 ++++--
+ drivers/net/ethernet/intel/igbvf/ethtool.c    |  8 ++++--
+ .../net/ethernet/intel/ixgb/ixgb_ethtool.c    |  8 ++++--
+ .../net/ethernet/intel/ixgbe/ixgbe_ethtool.c  |  8 ++++--
+ drivers/net/ethernet/intel/ixgbevf/ethtool.c  |  8 ++++--
+ drivers/net/ethernet/marvell/mv643xx_eth.c    |  8 ++++--
+ drivers/net/ethernet/marvell/mvneta.c         | 14 ++++++++---
+ .../net/ethernet/marvell/mvpp2/mvpp2_main.c   | 14 ++++++++---
+ drivers/net/ethernet/marvell/skge.c           |  8 ++++--
+ drivers/net/ethernet/marvell/sky2.c           |  8 ++++--
+ .../net/ethernet/mellanox/mlx4/en_ethtool.c   |  8 ++++--
+ .../ethernet/mellanox/mlx5/core/en_ethtool.c  |  8 ++++--
+ .../mellanox/mlx5/core/ipoib/ethtool.c        |  8 ++++--
+ drivers/net/ethernet/micrel/ksz884x.c         |  8 ++++--
+ .../net/ethernet/myricom/myri10ge/myri10ge.c  |  4 ++-
+ drivers/net/ethernet/neterion/s2io.c          |  7 ++++--
+ .../ethernet/netronome/nfp/nfp_net_ethtool.c  |  8 ++++--
+ .../net/ethernet/netswift/ngbe/ngbe_ethtool.c |  8 ++++--
+ .../ethernet/netswift/txgbe/txgbe_ethtool.c   |  8 ++++--
+ drivers/net/ethernet/nvidia/forcedeth.c       | 10 ++++++--
+ .../oki-semi/pch_gbe/pch_gbe_ethtool.c        | 12 +++++++--
+ .../net/ethernet/pasemi/pasemi_mac_ethtool.c  |  4 ++-
+ .../qlogic/netxen/netxen_nic_ethtool.c        |  8 ++++--
+ .../net/ethernet/qlogic/qede/qede_ethtool.c   |  8 ++++--
+ .../ethernet/qlogic/qlcnic/qlcnic_ethtool.c   |  8 ++++--
+ .../net/ethernet/qualcomm/emac/emac-ethtool.c |  8 ++++--
+ drivers/net/ethernet/qualcomm/qca_debug.c     |  8 ++++--
+ drivers/net/ethernet/realtek/8139cp.c         |  4 ++-
+ drivers/net/ethernet/renesas/ravb_main.c      |  8 ++++--
+ drivers/net/ethernet/renesas/sh_eth.c         |  8 ++++--
+ drivers/net/ethernet/sfc/ethtool.c            | 14 ++++++++---
+ drivers/net/ethernet/sfc/falcon/ethtool.c     | 14 ++++++++---
+ drivers/net/ethernet/tehuti/tehuti.c          | 12 +++++++--
+ drivers/net/ethernet/ti/cpmac.c               |  8 ++++--
+ drivers/net/ethernet/ti/cpsw.c                |  8 ++++--
+ .../net/ethernet/toshiba/spider_net_ethtool.c |  4 ++-
+ drivers/net/hyperv/netvsc_drv.c               |  8 ++++--
+ drivers/net/virtio_net.c                      |  4 ++-
+ drivers/net/vmxnet3/vmxnet3_ethtool.c         | 10 +++++---
+ drivers/staging/mt7621-eth/ethtool.c          |  8 ++++--
+ include/linux/ethtool.h                       | 10 ++++++--
+ include/linux/netfilter.h                     |  1 +
+ include/linux/phy.h                           |  1 +
+ net/ethtool/ioctl.c                           | 10 +++++---
+ net/ethtool/rings.c                           | 11 +++++---
+ net/mac80211/ethtool.c                        |  8 ++++--
+ 87 files changed, 541 insertions(+), 183 deletions(-)
+
+diff --git a/arch/um/drivers/vector_kern.c b/arch/um/drivers/vector_kern.c
+index 50ee3bb5a63a..973b6486bbba 100644
+--- a/arch/um/drivers/vector_kern.c
++++ b/arch/um/drivers/vector_kern.c
+@@ -1324,7 +1324,9 @@ static void vector_net_get_drvinfo(struct net_device *dev,
+ }
+ 
+ static void vector_get_ringparam(struct net_device *netdev,
+-				struct ethtool_ringparam *ring)
++				 struct ethtool_ringparam *ring,
++				 struct kernel_ethtool_ringparam *kernel_ring,
++				 struct netlink_ext_ack *extack)
+ {
+ 	struct vector_private *vp = netdev_priv(netdev);
+ 
+diff --git a/drivers/net/ethernet/3com/typhoon.c b/drivers/net/ethernet/3com/typhoon.c
+index be823c186517..eb6d1f35c065 100644
+--- a/drivers/net/ethernet/3com/typhoon.c
++++ b/drivers/net/ethernet/3com/typhoon.c
+@@ -1139,7 +1139,9 @@ typhoon_set_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
+ }
+ 
+ static void
+-typhoon_get_ringparam(struct net_device *dev, struct ethtool_ringparam *ering)
++typhoon_get_ringparam(struct net_device *dev, struct ethtool_ringparam *ering,
++		      struct kernel_ethtool_ringparam *kernel_ering,
++		      struct netlink_ext_ack *extack)
+ {
+ 	ering->rx_max_pending = RXENT_ENTRIES;
+ 	ering->tx_max_pending = TXLO_ENTRIES - 1;
+diff --git a/drivers/net/ethernet/3snic/sssnic/nic/sss_nic_ethtool.c b/drivers/net/ethernet/3snic/sssnic/nic/sss_nic_ethtool.c
+index 5aada43de2e3..e3ab11cf6e18 100644
+--- a/drivers/net/ethernet/3snic/sssnic/nic/sss_nic_ethtool.c
++++ b/drivers/net/ethernet/3snic/sssnic/nic/sss_nic_ethtool.c
+@@ -122,7 +122,9 @@ static int sss_nic_nway_reset(struct net_device *netdev)
+ }
+ 
+ static void sss_nic_get_ringparam(struct net_device *netdev,
+-				  struct ethtool_ringparam *ringparam)
++				  struct ethtool_ringparam *ringparam,
++				  struct kernel_ethtool_ringparam *kernel_ring,
++				  struct netlink_ext_ack *extack)
+ {
+ 	struct sss_nic_dev *nic_dev = netdev_priv(netdev);
+ 
+@@ -133,7 +135,9 @@ static void sss_nic_get_ringparam(struct net_device *netdev,
+ }
+ 
+ static int sss_nic_set_ringparam(struct net_device *netdev,
+-				 struct ethtool_ringparam *ringparam)
++				 struct ethtool_ringparam *ringparam,
++				 struct kernel_ethtool_ringparam *kernel_ring,
++				 struct netlink_ext_ack *extack)
+ {
+ 	struct sss_nic_dev *nic_dev = netdev_priv(netdev);
+ 	struct sss_nic_qp_resource qp_res = {0};
+diff --git a/drivers/net/ethernet/amazon/ena/ena_ethtool.c b/drivers/net/ethernet/amazon/ena/ena_ethtool.c
+index 521607bc4393..9eb0667ccb9c 100644
+--- a/drivers/net/ethernet/amazon/ena/ena_ethtool.c
++++ b/drivers/net/ethernet/amazon/ena/ena_ethtool.c
+@@ -442,7 +442,9 @@ static void ena_get_drvinfo(struct net_device *dev,
+ }
+ 
+ static void ena_get_ringparam(struct net_device *netdev,
+-			      struct ethtool_ringparam *ring)
++			      struct ethtool_ringparam *ring,
++			      struct kernel_ethtool_ringparam *kernel_ring,
++			      struct netlink_ext_ack *extack)
+ {
+ 	struct ena_adapter *adapter = netdev_priv(netdev);
+ 	struct ena_ring *tx_ring = &adapter->tx_ring[0];
+diff --git a/drivers/net/ethernet/amd/pcnet32.c b/drivers/net/ethernet/amd/pcnet32.c
+index f5ad12c10934..1586ea779e50 100644
+--- a/drivers/net/ethernet/amd/pcnet32.c
++++ b/drivers/net/ethernet/amd/pcnet32.c
+@@ -872,7 +872,9 @@ static int pcnet32_nway_reset(struct net_device *dev)
+ }
+ 
+ static void pcnet32_get_ringparam(struct net_device *dev,
+-				  struct ethtool_ringparam *ering)
++				  struct ethtool_ringparam *ering,
++				  struct kernel_ethtool_ringparam *kernel_ering,
++				  struct netlink_ext_ack *extack)
+ {
+ 	struct pcnet32_private *lp = netdev_priv(dev);
+ 
+@@ -883,7 +885,9 @@ static void pcnet32_get_ringparam(struct net_device *dev,
+ }
+ 
+ static int pcnet32_set_ringparam(struct net_device *dev,
+-				 struct ethtool_ringparam *ering)
++				 struct ethtool_ringparam *ering,
++				 struct kernel_ethtool_ringparam *kernel_ering,
++				 struct netlink_ext_ack *extack)
+ {
+ 	struct pcnet32_private *lp = netdev_priv(dev);
+ 	unsigned long flags;
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-ethtool.c b/drivers/net/ethernet/amd/xgbe/xgbe-ethtool.c
+index a880f10e3e70..7a0171823032 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-ethtool.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-ethtool.c
+@@ -642,8 +642,11 @@ static int xgbe_get_module_eeprom(struct net_device *netdev,
+ 	return pdata->phy_if.module_eeprom(pdata, eeprom, data);
+ }
+ 
+-static void xgbe_get_ringparam(struct net_device *netdev,
+-			       struct ethtool_ringparam *ringparam)
++static void
++xgbe_get_ringparam(struct net_device *netdev,
++		   struct ethtool_ringparam *ringparam,
++		   struct kernel_ethtool_ringparam *kernel_ringparam,
++		   struct netlink_ext_ack *extack)
+ {
+ 	struct xgbe_prv_data *pdata = netdev_priv(netdev);
+ 
+@@ -654,7 +657,9 @@ static void xgbe_get_ringparam(struct net_device *netdev,
+ }
+ 
+ static int xgbe_set_ringparam(struct net_device *netdev,
+-			      struct ethtool_ringparam *ringparam)
++			      struct ethtool_ringparam *ringparam,
++			      struct kernel_ethtool_ringparam *kernel_ringparam,
++			      struct netlink_ext_ack *extack)
+ {
+ 	struct xgbe_prv_data *pdata = netdev_priv(netdev);
+ 	unsigned int rx, tx;
+diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_ethtool.c b/drivers/net/ethernet/aquantia/atlantic/aq_ethtool.c
+index 08c9fa6ca71f..1ce60ca2e225 100644
+--- a/drivers/net/ethernet/aquantia/atlantic/aq_ethtool.c
++++ b/drivers/net/ethernet/aquantia/atlantic/aq_ethtool.c
+@@ -339,7 +339,9 @@ static int aq_ethtool_set_pauseparam(struct net_device *ndev,
+ }
+ 
+ static void aq_get_ringparam(struct net_device *ndev,
+-			     struct ethtool_ringparam *ring)
++			     struct ethtool_ringparam *ring,
++			     struct kernel_ethtool_ringparam *kernel_ring,
++			     struct netlink_ext_ack *extack)
+ {
+ 	struct aq_nic_s *aq_nic = netdev_priv(ndev);
+ 	struct aq_nic_cfg_s *aq_nic_cfg = aq_nic_get_cfg(aq_nic);
+@@ -352,7 +354,9 @@ static void aq_get_ringparam(struct net_device *ndev,
+ }
+ 
+ static int aq_set_ringparam(struct net_device *ndev,
+-			    struct ethtool_ringparam *ring)
++			    struct ethtool_ringparam *ring,
++			    struct kernel_ethtool_ringparam *kernel_ring,
++			    struct netlink_ext_ack *extack)
+ {
+ 	int err = 0;
+ 	bool ndev_running = false;
+diff --git a/drivers/net/ethernet/atheros/atlx/atl1.c b/drivers/net/ethernet/atheros/atlx/atl1.c
+index b81fbf119bce..d2ad8edb39bc 100644
+--- a/drivers/net/ethernet/atheros/atlx/atl1.c
++++ b/drivers/net/ethernet/atheros/atlx/atl1.c
+@@ -3484,7 +3484,9 @@ static void atl1_get_regs(struct net_device *netdev, struct ethtool_regs *regs,
+ }
+ 
+ static void atl1_get_ringparam(struct net_device *netdev,
+-	struct ethtool_ringparam *ring)
++			       struct ethtool_ringparam *ring,
++			       struct kernel_ethtool_ringparam *kernel_ring,
++			       struct netlink_ext_ack *extack)
+ {
+ 	struct atl1_adapter *adapter = netdev_priv(netdev);
+ 	struct atl1_tpd_ring *txdr = &adapter->tpd_ring;
+@@ -3497,7 +3499,9 @@ static void atl1_get_ringparam(struct net_device *netdev,
+ }
+ 
+ static int atl1_set_ringparam(struct net_device *netdev,
+-	struct ethtool_ringparam *ring)
++			      struct ethtool_ringparam *ring,
++			      struct kernel_ethtool_ringparam *kernel_ring,
++			      struct netlink_ext_ack *extack)
+ {
+ 	struct atl1_adapter *adapter = netdev_priv(netdev);
+ 	struct atl1_tpd_ring *tpdr = &adapter->tpd_ring;
+diff --git a/drivers/net/ethernet/broadcom/b44.c b/drivers/net/ethernet/broadcom/b44.c
+index e445ab724827..f093a7be3ca9 100644
+--- a/drivers/net/ethernet/broadcom/b44.c
++++ b/drivers/net/ethernet/broadcom/b44.c
+@@ -1962,7 +1962,9 @@ static int b44_set_link_ksettings(struct net_device *dev,
+ }
+ 
+ static void b44_get_ringparam(struct net_device *dev,
+-			      struct ethtool_ringparam *ering)
++			      struct ethtool_ringparam *ering,
++			      struct kernel_ethtool_ringparam *kernel_ering,
++			      struct netlink_ext_ack *extack)
+ {
+ 	struct b44 *bp = netdev_priv(dev);
+ 
+@@ -1973,7 +1975,9 @@ static void b44_get_ringparam(struct net_device *dev,
+ }
+ 
+ static int b44_set_ringparam(struct net_device *dev,
+-			     struct ethtool_ringparam *ering)
++			     struct ethtool_ringparam *ering,
++			     struct kernel_ethtool_ringparam *kernel_ering,
++			     struct netlink_ext_ack *extack)
+ {
+ 	struct b44 *bp = netdev_priv(dev);
+ 
+diff --git a/drivers/net/ethernet/broadcom/bcm63xx_enet.c b/drivers/net/ethernet/broadcom/bcm63xx_enet.c
+index 50f8a377596e..9996b57d1201 100644
+--- a/drivers/net/ethernet/broadcom/bcm63xx_enet.c
++++ b/drivers/net/ethernet/broadcom/bcm63xx_enet.c
+@@ -1504,8 +1504,11 @@ static int bcm_enet_set_link_ksettings(struct net_device *dev,
+ 	}
+ }
+ 
+-static void bcm_enet_get_ringparam(struct net_device *dev,
+-				   struct ethtool_ringparam *ering)
++static void
++bcm_enet_get_ringparam(struct net_device *dev,
++		       struct ethtool_ringparam *ering,
++		       struct kernel_ethtool_ringparam *kernel_ering,
++		       struct netlink_ext_ack *extack)
+ {
+ 	struct bcm_enet_priv *priv;
+ 
+@@ -1519,7 +1522,9 @@ static void bcm_enet_get_ringparam(struct net_device *dev,
+ }
+ 
+ static int bcm_enet_set_ringparam(struct net_device *dev,
+-				  struct ethtool_ringparam *ering)
++				  struct ethtool_ringparam *ering,
++				  struct kernel_ethtool_ringparam *kernel_ering,
++				  struct netlink_ext_ack *extack)
+ {
+ 	struct bcm_enet_priv *priv;
+ 	int was_running;
+@@ -2606,8 +2611,11 @@ static void bcm_enetsw_get_ethtool_stats(struct net_device *netdev,
+ 	}
+ }
+ 
+-static void bcm_enetsw_get_ringparam(struct net_device *dev,
+-				     struct ethtool_ringparam *ering)
++static void
++bcm_enetsw_get_ringparam(struct net_device *dev,
++			 struct ethtool_ringparam *ering,
++			 struct kernel_ethtool_ringparam *kernel_ering,
++			 struct netlink_ext_ack *extack)
+ {
+ 	struct bcm_enet_priv *priv;
+ 
+@@ -2622,8 +2630,11 @@ static void bcm_enetsw_get_ringparam(struct net_device *dev,
+ 	ering->tx_pending = priv->tx_ring_size;
+ }
+ 
+-static int bcm_enetsw_set_ringparam(struct net_device *dev,
+-				    struct ethtool_ringparam *ering)
++static int
++bcm_enetsw_set_ringparam(struct net_device *dev,
++			 struct ethtool_ringparam *ering,
++			 struct kernel_ethtool_ringparam *kernel_ering,
++			 struct netlink_ext_ack *extack)
+ {
+ 	struct bcm_enet_priv *priv;
+ 	int was_running;
+diff --git a/drivers/net/ethernet/broadcom/bnx2.c b/drivers/net/ethernet/broadcom/bnx2.c
+index 122fdb80a789..378c5c0f20ed 100644
+--- a/drivers/net/ethernet/broadcom/bnx2.c
++++ b/drivers/net/ethernet/broadcom/bnx2.c
+@@ -7324,7 +7324,9 @@ bnx2_set_coalesce(struct net_device *dev, struct ethtool_coalesce *coal)
+ }
+ 
+ static void
+-bnx2_get_ringparam(struct net_device *dev, struct ethtool_ringparam *ering)
++bnx2_get_ringparam(struct net_device *dev, struct ethtool_ringparam *ering,
++		   struct kernel_ethtool_ringparam *kernel_ering,
++		   struct netlink_ext_ack *extack)
+ {
+ 	struct bnx2 *bp = netdev_priv(dev);
+ 
+@@ -7395,7 +7397,9 @@ bnx2_change_ring_size(struct bnx2 *bp, u32 rx, u32 tx, bool reset_irq)
+ }
+ 
+ static int
+-bnx2_set_ringparam(struct net_device *dev, struct ethtool_ringparam *ering)
++bnx2_set_ringparam(struct net_device *dev, struct ethtool_ringparam *ering,
++		   struct kernel_ethtool_ringparam *kernel_ering,
++		   struct netlink_ext_ack *extack)
+ {
+ 	struct bnx2 *bp = netdev_priv(dev);
+ 	int rc;
+diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_ethtool.c b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_ethtool.c
+index 00f9ed93360c..76560f69b565 100644
+--- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_ethtool.c
++++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_ethtool.c
+@@ -1888,7 +1888,9 @@ static int bnx2x_set_coalesce(struct net_device *dev,
+ }
+ 
+ static void bnx2x_get_ringparam(struct net_device *dev,
+-				struct ethtool_ringparam *ering)
++				struct ethtool_ringparam *ering,
++				struct kernel_ethtool_ringparam *kernel_ering,
++				struct netlink_ext_ack *extack)
+ {
+ 	struct bnx2x *bp = netdev_priv(dev);
+ 
+@@ -1912,7 +1914,9 @@ static void bnx2x_get_ringparam(struct net_device *dev,
+ }
+ 
+ static int bnx2x_set_ringparam(struct net_device *dev,
+-			       struct ethtool_ringparam *ering)
++			       struct ethtool_ringparam *ering,
++			       struct kernel_ethtool_ringparam *kernel_ering,
++			       struct netlink_ext_ack *extack)
+ {
+ 	struct bnx2x *bp = netdev_priv(dev);
+ 
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+index 0a409ba4012a..76af3805c9e8 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+@@ -426,7 +426,9 @@ static void bnxt_get_strings(struct net_device *dev, u32 stringset, u8 *buf)
+ }
+ 
+ static void bnxt_get_ringparam(struct net_device *dev,
+-			       struct ethtool_ringparam *ering)
++			       struct ethtool_ringparam *ering,
++			       struct kernel_ethtool_ringparam *kernel_ering,
++			       struct netlink_ext_ack *extack)
+ {
+ 	struct bnxt *bp = netdev_priv(dev);
+ 
+@@ -440,7 +442,9 @@ static void bnxt_get_ringparam(struct net_device *dev,
+ }
+ 
+ static int bnxt_set_ringparam(struct net_device *dev,
+-			      struct ethtool_ringparam *ering)
++			      struct ethtool_ringparam *ering,
++			      struct kernel_ethtool_ringparam *kernel_ering,
++			      struct netlink_ext_ack *extack)
+ {
+ 	struct bnxt *bp = netdev_priv(dev);
+ 
+diff --git a/drivers/net/ethernet/broadcom/tg3.c b/drivers/net/ethernet/broadcom/tg3.c
+index a12962702611..1d942055aa41 100644
+--- a/drivers/net/ethernet/broadcom/tg3.c
++++ b/drivers/net/ethernet/broadcom/tg3.c
+@@ -12401,7 +12401,10 @@ static int tg3_nway_reset(struct net_device *dev)
+ 	return r;
+ }
+ 
+-static void tg3_get_ringparam(struct net_device *dev, struct ethtool_ringparam *ering)
++static void tg3_get_ringparam(struct net_device *dev,
++			      struct ethtool_ringparam *ering,
++			      struct kernel_ethtool_ringparam *kernel_ering,
++			      struct netlink_ext_ack *extack)
+ {
+ 	struct tg3 *tp = netdev_priv(dev);
+ 
+@@ -12422,7 +12425,10 @@ static void tg3_get_ringparam(struct net_device *dev, struct ethtool_ringparam *
+ 	ering->tx_pending = tp->napi[0].tx_pending;
+ }
+ 
+-static int tg3_set_ringparam(struct net_device *dev, struct ethtool_ringparam *ering)
++static int tg3_set_ringparam(struct net_device *dev,
++			     struct ethtool_ringparam *ering,
++			     struct kernel_ethtool_ringparam *kernel_ering,
++			     struct netlink_ext_ack *extack)
+ {
+ 	struct tg3 *tp = netdev_priv(dev);
+ 	int i, irq_sync = 0, err = 0;
+diff --git a/drivers/net/ethernet/brocade/bna/bnad_ethtool.c b/drivers/net/ethernet/brocade/bna/bnad_ethtool.c
+index 31032de5843b..24c15f6fd990 100644
+--- a/drivers/net/ethernet/brocade/bna/bnad_ethtool.c
++++ b/drivers/net/ethernet/brocade/bna/bnad_ethtool.c
+@@ -410,7 +410,9 @@ bnad_set_coalesce(struct net_device *netdev, struct ethtool_coalesce *coalesce)
+ 
+ static void
+ bnad_get_ringparam(struct net_device *netdev,
+-		   struct ethtool_ringparam *ringparam)
++		   struct ethtool_ringparam *ringparam,
++		   struct kernel_ethtool_ringparam *kernel_ringparam,
++		   struct netlink_ext_ack *extack)
+ {
+ 	struct bnad *bnad = netdev_priv(netdev);
+ 
+@@ -423,7 +425,9 @@ bnad_get_ringparam(struct net_device *netdev,
+ 
+ static int
+ bnad_set_ringparam(struct net_device *netdev,
+-		   struct ethtool_ringparam *ringparam)
++		   struct ethtool_ringparam *ringparam,
++		   struct kernel_ethtool_ringparam *kernel_ringparam,
++		   struct netlink_ext_ack *extack)
+ {
+ 	int i, current_err, err = 0;
+ 	struct bnad *bnad = netdev_priv(netdev);
+diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
+index c2eb18854794..8e338da13231 100644
+--- a/drivers/net/ethernet/cadence/macb_main.c
++++ b/drivers/net/ethernet/cadence/macb_main.c
+@@ -2710,7 +2710,9 @@ static int macb_set_wol(struct net_device *netdev, struct ethtool_wolinfo *wol)
+ }
+ 
+ static void macb_get_ringparam(struct net_device *netdev,
+-			       struct ethtool_ringparam *ring)
++			       struct ethtool_ringparam *ring,
++			       struct kernel_ethtool_ringparam *kernel_ring,
++			       struct netlink_ext_ack *extack)
+ {
+ 	struct macb *bp = netdev_priv(netdev);
+ 
+@@ -2722,7 +2724,9 @@ static void macb_get_ringparam(struct net_device *netdev,
+ }
+ 
+ static int macb_set_ringparam(struct net_device *netdev,
+-			      struct ethtool_ringparam *ring)
++			      struct ethtool_ringparam *ring,
++			      struct kernel_ethtool_ringparam *kernel_ring,
++			      struct netlink_ext_ack *extack)
+ {
+ 	struct macb *bp = netdev_priv(netdev);
+ 	u32 new_rx_size, new_tx_size;
+diff --git a/drivers/net/ethernet/cavium/liquidio/lio_ethtool.c b/drivers/net/ethernet/cavium/liquidio/lio_ethtool.c
+index 8e05afd5e39c..461a3ccf2647 100644
+--- a/drivers/net/ethernet/cavium/liquidio/lio_ethtool.c
++++ b/drivers/net/ethernet/cavium/liquidio/lio_ethtool.c
+@@ -970,7 +970,9 @@ static int lio_set_phys_id(struct net_device *netdev,
+ 
+ static void
+ lio_ethtool_get_ringparam(struct net_device *netdev,
+-			  struct ethtool_ringparam *ering)
++			  struct ethtool_ringparam *ering,
++			  struct kernel_ethtool_ringparam *kernel_ering,
++			  struct netlink_ext_ack *extack)
+ {
+ 	struct lio *lio = GET_LIO(netdev);
+ 	struct octeon_device *oct = lio->oct_dev;
+@@ -1276,8 +1278,11 @@ static int lio_reset_queues(struct net_device *netdev, uint32_t num_qs)
+ 	return 0;
+ }
+ 
+-static int lio_ethtool_set_ringparam(struct net_device *netdev,
+-				     struct ethtool_ringparam *ering)
++static int
++lio_ethtool_set_ringparam(struct net_device *netdev,
++			  struct ethtool_ringparam *ering,
++			  struct kernel_ethtool_ringparam *kernel_ering,
++			  struct netlink_ext_ack *extack)
+ {
+ 	u32 rx_count, tx_count, rx_count_old, tx_count_old;
+ 	struct lio *lio = GET_LIO(netdev);
+diff --git a/drivers/net/ethernet/cavium/thunder/nicvf_ethtool.c b/drivers/net/ethernet/cavium/thunder/nicvf_ethtool.c
+index 92ba958e204e..56fb43f843f7 100644
+--- a/drivers/net/ethernet/cavium/thunder/nicvf_ethtool.c
++++ b/drivers/net/ethernet/cavium/thunder/nicvf_ethtool.c
+@@ -469,7 +469,9 @@ static int nicvf_get_coalesce(struct net_device *netdev,
+ }
+ 
+ static void nicvf_get_ringparam(struct net_device *netdev,
+-				struct ethtool_ringparam *ring)
++				struct ethtool_ringparam *ring,
++				struct kernel_ethtool_ringparam *kernel_ring,
++				struct netlink_ext_ack *extack)
+ {
+ 	struct nicvf *nic = netdev_priv(netdev);
+ 	struct queue_set *qs = nic->qs;
+@@ -481,7 +483,9 @@ static void nicvf_get_ringparam(struct net_device *netdev,
+ }
+ 
+ static int nicvf_set_ringparam(struct net_device *netdev,
+-			       struct ethtool_ringparam *ring)
++			       struct ethtool_ringparam *ring,
++			       struct kernel_ethtool_ringparam *kernel_ring,
++			       struct netlink_ext_ack *extack)
+ {
+ 	struct nicvf *nic = netdev_priv(netdev);
+ 	struct queue_set *qs = nic->qs;
+diff --git a/drivers/net/ethernet/chelsio/cxgb/cxgb2.c b/drivers/net/ethernet/chelsio/cxgb/cxgb2.c
+index 0ccdde366ae1..7235463807cb 100644
+--- a/drivers/net/ethernet/chelsio/cxgb/cxgb2.c
++++ b/drivers/net/ethernet/chelsio/cxgb/cxgb2.c
+@@ -710,7 +710,9 @@ static int set_pauseparam(struct net_device *dev,
+ 	return 0;
+ }
+ 
+-static void get_sge_param(struct net_device *dev, struct ethtool_ringparam *e)
++static void get_sge_param(struct net_device *dev, struct ethtool_ringparam *e,
++			  struct kernel_ethtool_ringparam *kernel_e,
++			  struct netlink_ext_ack *extack)
+ {
+ 	struct adapter *adapter = dev->ml_priv;
+ 	int jumbo_fl = t1_is_T1B(adapter) ? 1 : 0;
+@@ -724,7 +726,9 @@ static void get_sge_param(struct net_device *dev, struct ethtool_ringparam *e)
+ 	e->tx_pending = adapter->params.sge.cmdQ_size[0];
+ }
+ 
+-static int set_sge_param(struct net_device *dev, struct ethtool_ringparam *e)
++static int set_sge_param(struct net_device *dev, struct ethtool_ringparam *e,
++			 struct kernel_ethtool_ringparam *kernel_e,
++			 struct netlink_ext_ack *extack)
+ {
+ 	struct adapter *adapter = dev->ml_priv;
+ 	int jumbo_fl = t1_is_T1B(adapter) ? 1 : 0;
+diff --git a/drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c b/drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c
+index 6be6de0774b6..274e85856c14 100644
+--- a/drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c
++++ b/drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c
+@@ -1951,7 +1951,9 @@ static int set_pauseparam(struct net_device *dev,
+ 	return 0;
+ }
+ 
+-static void get_sge_param(struct net_device *dev, struct ethtool_ringparam *e)
++static void get_sge_param(struct net_device *dev, struct ethtool_ringparam *e,
++			  struct kernel_ethtool_ringparam *kernel_e,
++			  struct netlink_ext_ack *extack)
+ {
+ 	struct port_info *pi = netdev_priv(dev);
+ 	struct adapter *adapter = pi->adapter;
+@@ -1967,7 +1969,9 @@ static void get_sge_param(struct net_device *dev, struct ethtool_ringparam *e)
+ 	e->tx_pending = q->txq_size[0];
+ }
+ 
+-static int set_sge_param(struct net_device *dev, struct ethtool_ringparam *e)
++static int set_sge_param(struct net_device *dev, struct ethtool_ringparam *e,
++			 struct kernel_ethtool_ringparam *kernel_e,
++			 struct netlink_ext_ack *extack)
+ {
+ 	struct port_info *pi = netdev_priv(dev);
+ 	struct adapter *adapter = pi->adapter;
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_ethtool.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_ethtool.c
+index d07230c892a5..1fec31f77191 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_ethtool.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_ethtool.c
+@@ -839,7 +839,9 @@ static int set_pauseparam(struct net_device *dev,
+ 	return 0;
+ }
+ 
+-static void get_sge_param(struct net_device *dev, struct ethtool_ringparam *e)
++static void get_sge_param(struct net_device *dev, struct ethtool_ringparam *e,
++			  struct kernel_ethtool_ringparam *kernel_e,
++			  struct netlink_ext_ack *extack)
+ {
+ 	const struct port_info *pi = netdev_priv(dev);
+ 	const struct sge *s = &pi->adapter->sge;
+@@ -855,7 +857,9 @@ static void get_sge_param(struct net_device *dev, struct ethtool_ringparam *e)
+ 	e->tx_pending = s->ethtxq[pi->first_qset].q.size;
+ }
+ 
+-static int set_sge_param(struct net_device *dev, struct ethtool_ringparam *e)
++static int set_sge_param(struct net_device *dev, struct ethtool_ringparam *e,
++			 struct kernel_ethtool_ringparam *kernel_e,
++			 struct netlink_ext_ack *extack)
+ {
+ 	int i;
+ 	const struct port_info *pi = netdev_priv(dev);
+diff --git a/drivers/net/ethernet/chelsio/cxgb4vf/cxgb4vf_main.c b/drivers/net/ethernet/chelsio/cxgb4vf/cxgb4vf_main.c
+index 972dc7bd721d..b18c579578b5 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4vf/cxgb4vf_main.c
++++ b/drivers/net/ethernet/chelsio/cxgb4vf/cxgb4vf_main.c
+@@ -1551,7 +1551,9 @@ static void cxgb4vf_set_msglevel(struct net_device *dev, u32 msglevel)
+  * first Queue Set.
+  */
+ static void cxgb4vf_get_ringparam(struct net_device *dev,
+-				  struct ethtool_ringparam *rp)
++				  struct ethtool_ringparam *rp,
++				  struct kernel_ethtool_ringparam *kernel_rp,
++				  struct netlink_ext_ack *extack)
+ {
+ 	const struct port_info *pi = netdev_priv(dev);
+ 	const struct sge *s = &pi->adapter->sge;
+@@ -1574,7 +1576,9 @@ static void cxgb4vf_get_ringparam(struct net_device *dev,
+  * device -- after vetting them of course!
+  */
+ static int cxgb4vf_set_ringparam(struct net_device *dev,
+-				 struct ethtool_ringparam *rp)
++				 struct ethtool_ringparam *rp,
++				 struct kernel_ethtool_ringparam *kernel_rp,
++				 struct netlink_ext_ack *extack)
+ {
+ 	const struct port_info *pi = netdev_priv(dev);
+ 	struct adapter *adapter = pi->adapter;
+diff --git a/drivers/net/ethernet/cisco/enic/enic_ethtool.c b/drivers/net/ethernet/cisco/enic/enic_ethtool.c
+index f42f7a6e1559..433d5e0a9aca 100644
+--- a/drivers/net/ethernet/cisco/enic/enic_ethtool.c
++++ b/drivers/net/ethernet/cisco/enic/enic_ethtool.c
+@@ -178,7 +178,9 @@ static void enic_get_strings(struct net_device *netdev, u32 stringset,
+ }
+ 
+ static void enic_get_ringparam(struct net_device *netdev,
+-			       struct ethtool_ringparam *ring)
++			       struct ethtool_ringparam *ring,
++			       struct kernel_ethtool_ringparam *kernel_ring,
++			       struct netlink_ext_ack *extack)
+ {
+ 	struct enic *enic = netdev_priv(netdev);
+ 	struct vnic_enet_config *c = &enic->config;
+@@ -190,7 +192,9 @@ static void enic_get_ringparam(struct net_device *netdev,
+ }
+ 
+ static int enic_set_ringparam(struct net_device *netdev,
+-			      struct ethtool_ringparam *ring)
++			      struct ethtool_ringparam *ring,
++			      struct kernel_ethtool_ringparam *kernel_ring,
++			      struct netlink_ext_ack *extack)
+ {
+ 	struct enic *enic = netdev_priv(netdev);
+ 	struct vnic_enet_config *c = &enic->config;
+diff --git a/drivers/net/ethernet/cortina/gemini.c b/drivers/net/ethernet/cortina/gemini.c
+index 01a212097836..ccda5450fc57 100644
+--- a/drivers/net/ethernet/cortina/gemini.c
++++ b/drivers/net/ethernet/cortina/gemini.c
+@@ -2123,7 +2123,9 @@ static void gmac_get_pauseparam(struct net_device *netdev,
+ }
+ 
+ static void gmac_get_ringparam(struct net_device *netdev,
+-			       struct ethtool_ringparam *rp)
++			       struct ethtool_ringparam *rp,
++			       struct kernel_ethtool_ringparam *kernel_rp,
++			       struct netlink_ext_ack *extack)
+ {
+ 	struct gemini_ethernet_port *port = netdev_priv(netdev);
+ 	union gmac_config0 config0;
+@@ -2142,7 +2144,9 @@ static void gmac_get_ringparam(struct net_device *netdev,
+ }
+ 
+ static int gmac_set_ringparam(struct net_device *netdev,
+-			      struct ethtool_ringparam *rp)
++			      struct ethtool_ringparam *rp,
++			      struct kernel_ethtool_ringparam *kernel_rp,
++			      struct netlink_ext_ack *extack)
+ {
+ 	struct gemini_ethernet_port *port = netdev_priv(netdev);
+ 	int err = 0;
+diff --git a/drivers/net/ethernet/emulex/benet/be_ethtool.c b/drivers/net/ethernet/emulex/benet/be_ethtool.c
+index d1905d50c26c..6dd2bacf8e60 100644
+--- a/drivers/net/ethernet/emulex/benet/be_ethtool.c
++++ b/drivers/net/ethernet/emulex/benet/be_ethtool.c
+@@ -683,7 +683,9 @@ static int be_get_link_ksettings(struct net_device *netdev,
+ }
+ 
+ static void be_get_ringparam(struct net_device *netdev,
+-			     struct ethtool_ringparam *ring)
++			     struct ethtool_ringparam *ring,
++			     struct kernel_ethtool_ringparam *kernel_ring,
++			     struct netlink_ext_ack *extack)
+ {
+ 	struct be_adapter *adapter = netdev_priv(netdev);
+ 
+diff --git a/drivers/net/ethernet/ethoc.c b/drivers/net/ethernet/ethoc.c
+index 60da0499ad66..645180489957 100644
+--- a/drivers/net/ethernet/ethoc.c
++++ b/drivers/net/ethernet/ethoc.c
+@@ -951,7 +951,9 @@ static void ethoc_get_regs(struct net_device *dev, struct ethtool_regs *regs,
+ }
+ 
+ static void ethoc_get_ringparam(struct net_device *dev,
+-				struct ethtool_ringparam *ring)
++				struct ethtool_ringparam *ring,
++				struct kernel_ethtool_ringparam *kernel_ring,
++				struct netlink_ext_ack *extack)
+ {
+ 	struct ethoc *priv = netdev_priv(dev);
+ 
+@@ -967,7 +969,9 @@ static void ethoc_get_ringparam(struct net_device *dev,
+ }
+ 
+ static int ethoc_set_ringparam(struct net_device *dev,
+-			       struct ethtool_ringparam *ring)
++			       struct ethtool_ringparam *ring,
++			       struct kernel_ethtool_ringparam *kernel_ring,
++			       struct netlink_ext_ack *extack)
+ {
+ 	struct ethoc *priv = netdev_priv(dev);
+ 
+diff --git a/drivers/net/ethernet/faraday/ftgmac100.c b/drivers/net/ethernet/faraday/ftgmac100.c
+index e4fc38cbe853..b3405bb1fc82 100644
+--- a/drivers/net/ethernet/faraday/ftgmac100.c
++++ b/drivers/net/ethernet/faraday/ftgmac100.c
+@@ -1166,8 +1166,11 @@ static void ftgmac100_get_drvinfo(struct net_device *netdev,
+ 	strlcpy(info->bus_info, dev_name(&netdev->dev), sizeof(info->bus_info));
+ }
+ 
+-static void ftgmac100_get_ringparam(struct net_device *netdev,
+-				    struct ethtool_ringparam *ering)
++static void
++ftgmac100_get_ringparam(struct net_device *netdev,
++			struct ethtool_ringparam *ering,
++			struct kernel_ethtool_ringparam *kernel_ering,
++			struct netlink_ext_ack *extack)
+ {
+ 	struct ftgmac100 *priv = netdev_priv(netdev);
+ 
+@@ -1178,8 +1181,11 @@ static void ftgmac100_get_ringparam(struct net_device *netdev,
+ 	ering->tx_pending = priv->tx_q_entries;
+ }
+ 
+-static int ftgmac100_set_ringparam(struct net_device *netdev,
+-				   struct ethtool_ringparam *ering)
++static int
++ftgmac100_set_ringparam(struct net_device *netdev,
++			struct ethtool_ringparam *ering,
++			struct kernel_ethtool_ringparam *kernel_ering,
++			struct netlink_ext_ack *extack)
+ {
+ 	struct ftgmac100 *priv = netdev_priv(netdev);
+ 
+diff --git a/drivers/net/ethernet/freescale/gianfar_ethtool.c b/drivers/net/ethernet/freescale/gianfar_ethtool.c
+index 395a5266ea30..9e0e34f37bba 100644
+--- a/drivers/net/ethernet/freescale/gianfar_ethtool.c
++++ b/drivers/net/ethernet/freescale/gianfar_ethtool.c
+@@ -56,9 +56,13 @@ static int gfar_gcoalesce(struct net_device *dev,
+ static int gfar_scoalesce(struct net_device *dev,
+ 			  struct ethtool_coalesce *cvals);
+ static void gfar_gringparam(struct net_device *dev,
+-			    struct ethtool_ringparam *rvals);
++			    struct ethtool_ringparam *rvals,
++			    struct kernel_ethtool_ringparam *kernel_rvals,
++			    struct netlink_ext_ack *extack);
+ static int gfar_sringparam(struct net_device *dev,
+-			   struct ethtool_ringparam *rvals);
++			   struct ethtool_ringparam *rvals,
++			   struct kernel_ethtool_ringparam *kernel_rvals,
++			   struct netlink_ext_ack *extack);
+ static void gfar_gdrvinfo(struct net_device *dev,
+ 			  struct ethtool_drvinfo *drvinfo);
+ 
+@@ -417,7 +421,9 @@ static int gfar_scoalesce(struct net_device *dev,
+  * rx, rx_mini, and rx_jumbo rings are the same size, as mini and
+  * jumbo are ignored by the driver */
+ static void gfar_gringparam(struct net_device *dev,
+-			    struct ethtool_ringparam *rvals)
++			    struct ethtool_ringparam *rvals,
++			    struct kernel_ethtool_ringparam *kernel_rvals,
++			    struct netlink_ext_ack *extack)
+ {
+ 	struct gfar_private *priv = netdev_priv(dev);
+ 	struct gfar_priv_tx_q *tx_queue = NULL;
+@@ -444,7 +450,9 @@ static void gfar_gringparam(struct net_device *dev,
+  * necessary so that we don't mess things up while we're in motion.
+  */
+ static int gfar_sringparam(struct net_device *dev,
+-			   struct ethtool_ringparam *rvals)
++			   struct ethtool_ringparam *rvals,
++			   struct kernel_ethtool_ringparam *kernel_rvals,
++			   struct netlink_ext_ack *extack)
+ {
+ 	struct gfar_private *priv = netdev_priv(dev);
+ 	int err = 0, i;
+diff --git a/drivers/net/ethernet/freescale/ucc_geth_ethtool.c b/drivers/net/ethernet/freescale/ucc_geth_ethtool.c
+index 722b6de24816..dad588ad0ec0 100644
+--- a/drivers/net/ethernet/freescale/ucc_geth_ethtool.c
++++ b/drivers/net/ethernet/freescale/ucc_geth_ethtool.c
+@@ -211,7 +211,9 @@ uec_get_regs(struct net_device *netdev,
+ 
+ static void
+ uec_get_ringparam(struct net_device *netdev,
+-                    struct ethtool_ringparam *ring)
++		  struct ethtool_ringparam *ring,
++		  struct kernel_ethtool_ringparam *kernel_ring,
++		  struct netlink_ext_ack *extack)
+ {
+ 	struct ucc_geth_private *ugeth = netdev_priv(netdev);
+ 	struct ucc_geth_info *ug_info = ugeth->ug_info;
+@@ -230,7 +232,9 @@ uec_get_ringparam(struct net_device *netdev,
+ 
+ static int
+ uec_set_ringparam(struct net_device *netdev,
+-                    struct ethtool_ringparam *ring)
++		  struct ethtool_ringparam *ring,
++		  struct kernel_ethtool_ringparam *kernel_ring,
++		  struct netlink_ext_ack *extack)
+ {
+ 	struct ucc_geth_private *ugeth = netdev_priv(netdev);
+ 	struct ucc_geth_info *ug_info = ugeth->ug_info;
+diff --git a/drivers/net/ethernet/hisilicon/hns/hns_ethtool.c b/drivers/net/ethernet/hisilicon/hns/hns_ethtool.c
+index 8fcb189ed0ba..63fb686c8b1b 100644
+--- a/drivers/net/ethernet/hisilicon/hns/hns_ethtool.c
++++ b/drivers/net/ethernet/hisilicon/hns/hns_ethtool.c
+@@ -663,9 +663,13 @@ static void hns_nic_get_drvinfo(struct net_device *net_dev,
+  * hns_get_ringparam - get ring parameter
+  * @net_dev: net device
+  * @param: ethtool parameter
++ * @kernel_param: ethtool external parameter
++ * @extack: netlink extended ACK report struct
+  */
+ static void hns_get_ringparam(struct net_device *net_dev,
+-			      struct ethtool_ringparam *param)
++			      struct ethtool_ringparam *param,
++			      struct kernel_ethtool_ringparam *kernel_param,
++			      struct netlink_ext_ack *extack)
+ {
+ 	struct hns_nic_priv *priv = netdev_priv(net_dev);
+ 	struct hnae_ae_ops *ops;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+index 8da002d6d0b9..62e599c32329 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+@@ -651,7 +651,9 @@ static u32 hns3_get_link(struct net_device *netdev)
+ }
+ 
+ static void hns3_get_ringparam(struct net_device *netdev,
+-			       struct ethtool_ringparam *param)
++			       struct ethtool_ringparam *param,
++			       struct kernel_ethtool_ringparam *kernel_param,
++			       struct netlink_ext_ack *extack)
+ {
+ 	struct hns3_nic_priv *priv = netdev_priv(netdev);
+ 	struct hnae3_handle *h = priv->ae_handle;
+@@ -1086,7 +1088,9 @@ static int hns3_check_ringparam(struct net_device *ndev,
+ }
+ 
+ static int hns3_set_ringparam(struct net_device *ndev,
+-			      struct ethtool_ringparam *param)
++			      struct ethtool_ringparam *param,
++			      struct kernel_ethtool_ringparam *kernel_param,
++			      struct netlink_ext_ack *extack)
+ {
+ 	struct hns3_nic_priv *priv = netdev_priv(ndev);
+ 	struct hnae3_handle *h = priv->ae_handle;
+diff --git a/drivers/net/ethernet/huawei/hinic/hinic_ethtool.c b/drivers/net/ethernet/huawei/hinic/hinic_ethtool.c
+index 9796f2fa2f06..57cfdeb742db 100644
+--- a/drivers/net/ethernet/huawei/hinic/hinic_ethtool.c
++++ b/drivers/net/ethernet/huawei/hinic/hinic_ethtool.c
+@@ -959,7 +959,9 @@ static int hinic_nway_reset(struct net_device *netdev)
+ }
+ 
+ static void hinic_get_ringparam(struct net_device *netdev,
+-				struct ethtool_ringparam *ring)
++				struct ethtool_ringparam *ring,
++				struct kernel_ethtool_ringparam *kernel_ring,
++				struct netlink_ext_ack *extack)
+ {
+ 	struct hinic_nic_dev *nic_dev = netdev_priv(netdev);
+ 
+@@ -985,7 +987,9 @@ static void hinic_update_qp_depth(struct hinic_nic_dev *nic_dev,
+ }
+ 
+ static int hinic_set_ringparam(struct net_device *netdev,
+-			       struct ethtool_ringparam *ring)
++			       struct ethtool_ringparam *ring,
++			       struct kernel_ethtool_ringparam *kernel_ring,
++			       struct netlink_ext_ack *extack)
+ {
+ 	struct hinic_nic_dev *nic_dev = netdev_priv(netdev);
+ 	u16 new_sq_depth, new_rq_depth;
+diff --git a/drivers/net/ethernet/ibm/emac/core.c b/drivers/net/ethernet/ibm/emac/core.c
+index a96f501813ff..72640ce0627a 100644
+--- a/drivers/net/ethernet/ibm/emac/core.c
++++ b/drivers/net/ethernet/ibm/emac/core.c
+@@ -2118,8 +2118,11 @@ emac_ethtool_set_link_ksettings(struct net_device *ndev,
+ 	return 0;
+ }
+ 
+-static void emac_ethtool_get_ringparam(struct net_device *ndev,
+-				       struct ethtool_ringparam *rp)
++static void
++emac_ethtool_get_ringparam(struct net_device *ndev,
++			   struct ethtool_ringparam *rp,
++			   struct kernel_ethtool_ringparam *kernel_rp,
++			   struct netlink_ext_ack *extack)
+ {
+ 	rp->rx_max_pending = rp->rx_pending = NUM_RX_BUFF;
+ 	rp->tx_max_pending = rp->tx_pending = NUM_TX_BUFF;
+diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
+index 8a1916443235..45688a4c7599 100644
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -2352,7 +2352,9 @@ static u32 ibmvnic_get_link(struct net_device *netdev)
+ }
+ 
+ static void ibmvnic_get_ringparam(struct net_device *netdev,
+-				  struct ethtool_ringparam *ring)
++				  struct ethtool_ringparam *ring,
++				  struct kernel_ethtool_ringparam *kernel_ring,
++				  struct netlink_ext_ack *extack)
+ {
+ 	struct ibmvnic_adapter *adapter = netdev_priv(netdev);
+ 
+@@ -2367,7 +2369,9 @@ static void ibmvnic_get_ringparam(struct net_device *netdev,
+ }
+ 
+ static int ibmvnic_set_ringparam(struct net_device *netdev,
+-				 struct ethtool_ringparam *ring)
++				 struct ethtool_ringparam *ring,
++				 struct kernel_ethtool_ringparam *kernel_ring,
++				 struct netlink_ext_ack *extack)
+ {
+ 	struct ibmvnic_adapter *adapter = netdev_priv(netdev);
+ 
+diff --git a/drivers/net/ethernet/intel/e100.c b/drivers/net/ethernet/intel/e100.c
+index 049add0a2ba2..14302a083b57 100644
+--- a/drivers/net/ethernet/intel/e100.c
++++ b/drivers/net/ethernet/intel/e100.c
+@@ -2545,7 +2545,9 @@ static int e100_set_eeprom(struct net_device *netdev,
+ }
+ 
+ static void e100_get_ringparam(struct net_device *netdev,
+-	struct ethtool_ringparam *ring)
++			       struct ethtool_ringparam *ring,
++			       struct kernel_ethtool_ringparam *kernel_ring,
++			       struct netlink_ext_ack *extack)
+ {
+ 	struct nic *nic = netdev_priv(netdev);
+ 	struct param_range *rfds = &nic->params.rfds;
+@@ -2558,7 +2560,9 @@ static void e100_get_ringparam(struct net_device *netdev,
+ }
+ 
+ static int e100_set_ringparam(struct net_device *netdev,
+-	struct ethtool_ringparam *ring)
++			      struct ethtool_ringparam *ring,
++			      struct kernel_ethtool_ringparam *kernel_ring,
++			      struct netlink_ext_ack *extack)
+ {
+ 	struct nic *nic = netdev_priv(netdev);
+ 	struct param_range *rfds = &nic->params.rfds;
+diff --git a/drivers/net/ethernet/intel/e1000/e1000_ethtool.c b/drivers/net/ethernet/intel/e1000/e1000_ethtool.c
+index 903b0a902cb9..8fc4763575c2 100644
+--- a/drivers/net/ethernet/intel/e1000/e1000_ethtool.c
++++ b/drivers/net/ethernet/intel/e1000/e1000_ethtool.c
+@@ -541,7 +541,9 @@ static void e1000_get_drvinfo(struct net_device *netdev,
+ }
+ 
+ static void e1000_get_ringparam(struct net_device *netdev,
+-				struct ethtool_ringparam *ring)
++				struct ethtool_ringparam *ring,
++				struct kernel_ethtool_ringparam *kernel_ring,
++				struct netlink_ext_ack *extack)
+ {
+ 	struct e1000_adapter *adapter = netdev_priv(netdev);
+ 	struct e1000_hw *hw = &adapter->hw;
+@@ -558,7 +560,9 @@ static void e1000_get_ringparam(struct net_device *netdev,
+ }
+ 
+ static int e1000_set_ringparam(struct net_device *netdev,
+-			       struct ethtool_ringparam *ring)
++			       struct ethtool_ringparam *ring,
++			       struct kernel_ethtool_ringparam *kernel_ring,
++			       struct netlink_ext_ack *extack)
+ {
+ 	struct e1000_adapter *adapter = netdev_priv(netdev);
+ 	struct e1000_hw *hw = &adapter->hw;
+diff --git a/drivers/net/ethernet/intel/e1000e/ethtool.c b/drivers/net/ethernet/intel/e1000e/ethtool.c
+index 02ebf208f48b..d8c9ab0f6c2f 100644
+--- a/drivers/net/ethernet/intel/e1000e/ethtool.c
++++ b/drivers/net/ethernet/intel/e1000e/ethtool.c
+@@ -650,7 +650,9 @@ static void e1000_get_drvinfo(struct net_device *netdev,
+ }
+ 
+ static void e1000_get_ringparam(struct net_device *netdev,
+-				struct ethtool_ringparam *ring)
++				struct ethtool_ringparam *ring,
++				struct kernel_ethtool_ringparam *kernel_ring,
++				struct netlink_ext_ack *extack)
+ {
+ 	struct e1000_adapter *adapter = netdev_priv(netdev);
+ 
+@@ -661,7 +663,9 @@ static void e1000_get_ringparam(struct net_device *netdev,
+ }
+ 
+ static int e1000_set_ringparam(struct net_device *netdev,
+-			       struct ethtool_ringparam *ring)
++			       struct ethtool_ringparam *ring,
++			       struct kernel_ethtool_ringparam *kernel_ring,
++			       struct netlink_ext_ack *extack)
+ {
+ 	struct e1000_adapter *adapter = netdev_priv(netdev);
+ 	struct e1000_ring *temp_tx = NULL, *temp_rx = NULL;
+diff --git a/drivers/net/ethernet/intel/fm10k/fm10k_ethtool.c b/drivers/net/ethernet/intel/fm10k/fm10k_ethtool.c
+index 4895dd83dd08..0eaaf8a11a90 100644
+--- a/drivers/net/ethernet/intel/fm10k/fm10k_ethtool.c
++++ b/drivers/net/ethernet/intel/fm10k/fm10k_ethtool.c
+@@ -504,7 +504,9 @@ static void fm10k_set_msglevel(struct net_device *netdev, u32 data)
+ }
+ 
+ static void fm10k_get_ringparam(struct net_device *netdev,
+-				struct ethtool_ringparam *ring)
++				struct ethtool_ringparam *ring,
++				struct kernel_ethtool_ringparam *kernel_ring,
++				struct netlink_ext_ack *extack)
+ {
+ 	struct fm10k_intfc *interface = netdev_priv(netdev);
+ 
+@@ -519,7 +521,9 @@ static void fm10k_get_ringparam(struct net_device *netdev,
+ }
+ 
+ static int fm10k_set_ringparam(struct net_device *netdev,
+-			       struct ethtool_ringparam *ring)
++			       struct ethtool_ringparam *ring,
++			       struct kernel_ethtool_ringparam *kernel_ring,
++			       struct netlink_ext_ack *extack)
+ {
+ 	struct fm10k_intfc *interface = netdev_priv(netdev);
+ 	struct fm10k_ring *temp_ring;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
+index a6b0f605a7d8..42d81e1dc30f 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
+@@ -1450,7 +1450,9 @@ static void i40e_get_drvinfo(struct net_device *netdev,
+ }
+ 
+ static void i40e_get_ringparam(struct net_device *netdev,
+-			       struct ethtool_ringparam *ring)
++			       struct ethtool_ringparam *ring,
++			       struct kernel_ethtool_ringparam *kernel_ring,
++			       struct netlink_ext_ack *extack)
+ {
+ 	struct i40e_netdev_priv *np = netdev_priv(netdev);
+ 	struct i40e_pf *pf = np->vsi->back;
+@@ -1478,7 +1480,9 @@ static bool i40e_active_tx_ring_index(struct i40e_vsi *vsi, u16 index)
+ }
+ 
+ static int i40e_set_ringparam(struct net_device *netdev,
+-			      struct ethtool_ringparam *ring)
++			      struct ethtool_ringparam *ring,
++			      struct kernel_ethtool_ringparam *kernel_ring,
++			      struct netlink_ext_ack *extack)
+ {
+ 	struct i40e_ring *tx_rings = NULL, *rx_rings = NULL;
+ 	struct i40e_netdev_priv *np = netdev_priv(netdev);
+diff --git a/drivers/net/ethernet/intel/i40evf/i40evf_ethtool.c b/drivers/net/ethernet/intel/i40evf/i40evf_ethtool.c
+index 69efe0aec76a..6fd7ab7edd03 100644
+--- a/drivers/net/ethernet/intel/i40evf/i40evf_ethtool.c
++++ b/drivers/net/ethernet/intel/i40evf/i40evf_ethtool.c
+@@ -349,7 +349,9 @@ static void i40evf_get_drvinfo(struct net_device *netdev,
+  * but the number of rings is not reported.
+  **/
+ static void i40evf_get_ringparam(struct net_device *netdev,
+-				 struct ethtool_ringparam *ring)
++				 struct ethtool_ringparam *ring,
++				 struct kernel_ethtool_ringparam *kernel_ring,
++				 struct netlink_ext_ack *extack)
+ {
+ 	struct i40evf_adapter *adapter = netdev_priv(netdev);
+ 
+@@ -368,7 +370,9 @@ static void i40evf_get_ringparam(struct net_device *netdev,
+  * number of rings is not specified, so all rings get the same settings.
+  **/
+ static int i40evf_set_ringparam(struct net_device *netdev,
+-				struct ethtool_ringparam *ring)
++				struct ethtool_ringparam *ring,
++				struct kernel_ethtool_ringparam *kernel_ring,
++				struct netlink_ext_ack *extack)
+ {
+ 	struct i40evf_adapter *adapter = netdev_priv(netdev);
+ 	u32 new_rx_count, new_tx_count;
+diff --git a/drivers/net/ethernet/intel/ice/ice_ethtool.c b/drivers/net/ethernet/intel/ice/ice_ethtool.c
+index 4c5c87b158f5..68a28858de2d 100644
+--- a/drivers/net/ethernet/intel/ice/ice_ethtool.c
++++ b/drivers/net/ethernet/intel/ice/ice_ethtool.c
+@@ -469,7 +469,9 @@ static int ice_get_rxnfc(struct net_device *netdev, struct ethtool_rxnfc *cmd,
+ }
+ 
+ static void
+-ice_get_ringparam(struct net_device *netdev, struct ethtool_ringparam *ring)
++ice_get_ringparam(struct net_device *netdev, struct ethtool_ringparam *ring,
++		  struct kernel_ethtool_ringparam *kernel_ring,
++		  struct netlink_ext_ack *extack)
+ {
+ 	struct ice_netdev_priv *np = netdev_priv(netdev);
+ 	struct ice_vsi *vsi = np->vsi;
+@@ -487,7 +489,9 @@ ice_get_ringparam(struct net_device *netdev, struct ethtool_ringparam *ring)
+ }
+ 
+ static int
+-ice_set_ringparam(struct net_device *netdev, struct ethtool_ringparam *ring)
++ice_set_ringparam(struct net_device *netdev, struct ethtool_ringparam *ring,
++		  struct kernel_ethtool_ringparam *kernel_ring,
++		  struct netlink_ext_ack *extack)
+ {
+ 	struct ice_ring *tx_rings = NULL, *rx_rings = NULL;
+ 	struct ice_netdev_priv *np = netdev_priv(netdev);
+diff --git a/drivers/net/ethernet/intel/igb/igb_ethtool.c b/drivers/net/ethernet/intel/igb/igb_ethtool.c
+index 2e17625e6c35..556b407169a0 100644
+--- a/drivers/net/ethernet/intel/igb/igb_ethtool.c
++++ b/drivers/net/ethernet/intel/igb/igb_ethtool.c
+@@ -854,7 +854,9 @@ static void igb_get_drvinfo(struct net_device *netdev,
+ }
+ 
+ static void igb_get_ringparam(struct net_device *netdev,
+-			      struct ethtool_ringparam *ring)
++			      struct ethtool_ringparam *ring,
++			      struct kernel_ethtool_ringparam *kernel_ring,
++			      struct netlink_ext_ack *extack)
+ {
+ 	struct igb_adapter *adapter = netdev_priv(netdev);
+ 
+@@ -865,7 +867,9 @@ static void igb_get_ringparam(struct net_device *netdev,
+ }
+ 
+ static int igb_set_ringparam(struct net_device *netdev,
+-			     struct ethtool_ringparam *ring)
++			     struct ethtool_ringparam *ring,
++			     struct kernel_ethtool_ringparam *kernel_ring,
++			     struct netlink_ext_ack *extack)
+ {
+ 	struct igb_adapter *adapter = netdev_priv(netdev);
+ 	struct igb_ring *temp_ring;
+diff --git a/drivers/net/ethernet/intel/igbvf/ethtool.c b/drivers/net/ethernet/intel/igbvf/ethtool.c
+index 3ae358b35227..cf0ec5828f84 100644
+--- a/drivers/net/ethernet/intel/igbvf/ethtool.c
++++ b/drivers/net/ethernet/intel/igbvf/ethtool.c
+@@ -177,7 +177,9 @@ static void igbvf_get_drvinfo(struct net_device *netdev,
+ }
+ 
+ static void igbvf_get_ringparam(struct net_device *netdev,
+-				struct ethtool_ringparam *ring)
++				struct ethtool_ringparam *ring,
++				struct kernel_ethtool_ringparam *kernel_ring,
++				struct netlink_ext_ack *extack)
+ {
+ 	struct igbvf_adapter *adapter = netdev_priv(netdev);
+ 	struct igbvf_ring *tx_ring = adapter->tx_ring;
+@@ -190,7 +192,9 @@ static void igbvf_get_ringparam(struct net_device *netdev,
+ }
+ 
+ static int igbvf_set_ringparam(struct net_device *netdev,
+-			       struct ethtool_ringparam *ring)
++			       struct ethtool_ringparam *ring,
++			       struct kernel_ethtool_ringparam *kernel_ring,
++			       struct netlink_ext_ack *extack)
+ {
+ 	struct igbvf_adapter *adapter = netdev_priv(netdev);
+ 	struct igbvf_ring *temp_ring;
+diff --git a/drivers/net/ethernet/intel/ixgb/ixgb_ethtool.c b/drivers/net/ethernet/intel/ixgb/ixgb_ethtool.c
+index c8c93ac436d4..70d85f25dbda 100644
+--- a/drivers/net/ethernet/intel/ixgb/ixgb_ethtool.c
++++ b/drivers/net/ethernet/intel/ixgb/ixgb_ethtool.c
+@@ -466,7 +466,9 @@ ixgb_get_drvinfo(struct net_device *netdev,
+ 
+ static void
+ ixgb_get_ringparam(struct net_device *netdev,
+-		struct ethtool_ringparam *ring)
++		   struct ethtool_ringparam *ring,
++		   struct kernel_ethtool_ringparam *kernel_ring,
++		   struct netlink_ext_ack *extack)
+ {
+ 	struct ixgb_adapter *adapter = netdev_priv(netdev);
+ 	struct ixgb_desc_ring *txdr = &adapter->tx_ring;
+@@ -480,7 +482,9 @@ ixgb_get_ringparam(struct net_device *netdev,
+ 
+ static int
+ ixgb_set_ringparam(struct net_device *netdev,
+-		struct ethtool_ringparam *ring)
++		   struct ethtool_ringparam *ring,
++		   struct kernel_ethtool_ringparam *kernel_ring,
++		   struct netlink_ext_ack *extack)
+ {
+ 	struct ixgb_adapter *adapter = netdev_priv(netdev);
+ 	struct ixgb_desc_ring *txdr = &adapter->tx_ring;
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_ethtool.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_ethtool.c
+index 73e769212c65..bb43f769b5b9 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_ethtool.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_ethtool.c
+@@ -1017,7 +1017,9 @@ static void ixgbe_get_drvinfo(struct net_device *netdev,
+ }
+ 
+ static void ixgbe_get_ringparam(struct net_device *netdev,
+-				struct ethtool_ringparam *ring)
++				struct ethtool_ringparam *ring,
++				struct kernel_ethtool_ringparam *kernel_ring,
++				struct netlink_ext_ack *extack)
+ {
+ 	struct ixgbe_adapter *adapter = netdev_priv(netdev);
+ 	struct ixgbe_ring *tx_ring = adapter->tx_ring[0];
+@@ -1030,7 +1032,9 @@ static void ixgbe_get_ringparam(struct net_device *netdev,
+ }
+ 
+ static int ixgbe_set_ringparam(struct net_device *netdev,
+-			       struct ethtool_ringparam *ring)
++			       struct ethtool_ringparam *ring,
++			       struct kernel_ethtool_ringparam *kernel_ring,
++			       struct netlink_ext_ack *extack)
+ {
+ 	struct ixgbe_adapter *adapter = netdev_priv(netdev);
+ 	struct ixgbe_ring *temp_ring;
+diff --git a/drivers/net/ethernet/intel/ixgbevf/ethtool.c b/drivers/net/ethernet/intel/ixgbevf/ethtool.c
+index 631c91046f39..6442284c717d 100644
+--- a/drivers/net/ethernet/intel/ixgbevf/ethtool.c
++++ b/drivers/net/ethernet/intel/ixgbevf/ethtool.c
+@@ -231,7 +231,9 @@ static void ixgbevf_get_drvinfo(struct net_device *netdev,
+ }
+ 
+ static void ixgbevf_get_ringparam(struct net_device *netdev,
+-				  struct ethtool_ringparam *ring)
++				  struct ethtool_ringparam *ring,
++				  struct kernel_ethtool_ringparam *kernel_ring,
++				  struct netlink_ext_ack *extack)
+ {
+ 	struct ixgbevf_adapter *adapter = netdev_priv(netdev);
+ 
+@@ -242,7 +244,9 @@ static void ixgbevf_get_ringparam(struct net_device *netdev,
+ }
+ 
+ static int ixgbevf_set_ringparam(struct net_device *netdev,
+-				 struct ethtool_ringparam *ring)
++				 struct ethtool_ringparam *ring,
++				 struct kernel_ethtool_ringparam *kernel_ring,
++				 struct netlink_ext_ack *extack)
+ {
+ 	struct ixgbevf_adapter *adapter = netdev_priv(netdev);
+ 	struct ixgbevf_ring *tx_ring = NULL, *rx_ring = NULL;
+diff --git a/drivers/net/ethernet/marvell/mv643xx_eth.c b/drivers/net/ethernet/marvell/mv643xx_eth.c
+index 59007d6cd36d..f0a1989a477f 100644
+--- a/drivers/net/ethernet/marvell/mv643xx_eth.c
++++ b/drivers/net/ethernet/marvell/mv643xx_eth.c
+@@ -1657,7 +1657,9 @@ mv643xx_eth_set_coalesce(struct net_device *dev, struct ethtool_coalesce *ec)
+ }
+ 
+ static void
+-mv643xx_eth_get_ringparam(struct net_device *dev, struct ethtool_ringparam *er)
++mv643xx_eth_get_ringparam(struct net_device *dev, struct ethtool_ringparam *er,
++			  struct kernel_ethtool_ringparam *kernel_er,
++			  struct netlink_ext_ack *extack)
+ {
+ 	struct mv643xx_eth_private *mp = netdev_priv(dev);
+ 
+@@ -1669,7 +1671,9 @@ mv643xx_eth_get_ringparam(struct net_device *dev, struct ethtool_ringparam *er)
+ }
+ 
+ static int
+-mv643xx_eth_set_ringparam(struct net_device *dev, struct ethtool_ringparam *er)
++mv643xx_eth_set_ringparam(struct net_device *dev, struct ethtool_ringparam *er,
++			  struct kernel_ethtool_ringparam *kernel_er,
++			  struct netlink_ext_ack *extack)
+ {
+ 	struct mv643xx_eth_private *mp = netdev_priv(dev);
+ 
+diff --git a/drivers/net/ethernet/marvell/mvneta.c b/drivers/net/ethernet/marvell/mvneta.c
+index 4313bbb2396f..218e1ba3feca 100644
+--- a/drivers/net/ethernet/marvell/mvneta.c
++++ b/drivers/net/ethernet/marvell/mvneta.c
+@@ -3949,8 +3949,11 @@ static void mvneta_ethtool_get_drvinfo(struct net_device *dev,
+ }
+ 
+ 
+-static void mvneta_ethtool_get_ringparam(struct net_device *netdev,
+-					 struct ethtool_ringparam *ring)
++static void
++mvneta_ethtool_get_ringparam(struct net_device *netdev,
++			     struct ethtool_ringparam *ring,
++			     struct kernel_ethtool_ringparam *kernel_ring,
++			     struct netlink_ext_ack *extack)
+ {
+ 	struct mvneta_port *pp = netdev_priv(netdev);
+ 
+@@ -3960,8 +3963,11 @@ static void mvneta_ethtool_get_ringparam(struct net_device *netdev,
+ 	ring->tx_pending = pp->tx_ring_size;
+ }
+ 
+-static int mvneta_ethtool_set_ringparam(struct net_device *dev,
+-					struct ethtool_ringparam *ring)
++static int
++mvneta_ethtool_set_ringparam(struct net_device *dev,
++			     struct ethtool_ringparam *ring,
++			     struct kernel_ethtool_ringparam *kernel_ring,
++			     struct netlink_ext_ack *extack)
+ {
+ 	struct mvneta_port *pp = netdev_priv(dev);
+ 
+diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+index beb79455adc7..94e64bd8dfb8 100644
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+@@ -3694,8 +3694,11 @@ static void mvpp2_ethtool_get_drvinfo(struct net_device *dev,
+ 		sizeof(drvinfo->bus_info));
+ }
+ 
+-static void mvpp2_ethtool_get_ringparam(struct net_device *dev,
+-					struct ethtool_ringparam *ring)
++static void
++mvpp2_ethtool_get_ringparam(struct net_device *dev,
++			    struct ethtool_ringparam *ring,
++			    struct kernel_ethtool_ringparam *kernel_ring,
++			    struct netlink_ext_ack *extack)
+ {
+ 	struct mvpp2_port *port = netdev_priv(dev);
+ 
+@@ -3705,8 +3708,11 @@ static void mvpp2_ethtool_get_ringparam(struct net_device *dev,
+ 	ring->tx_pending = port->tx_ring_size;
+ }
+ 
+-static int mvpp2_ethtool_set_ringparam(struct net_device *dev,
+-				       struct ethtool_ringparam *ring)
++static int
++mvpp2_ethtool_set_ringparam(struct net_device *dev,
++			    struct ethtool_ringparam *ring,
++			    struct kernel_ethtool_ringparam *kernel_ring,
++			    struct netlink_ext_ack *extack)
+ {
+ 	struct mvpp2_port *port = netdev_priv(dev);
+ 	u16 prev_rx_ring_size = port->rx_ring_size;
+diff --git a/drivers/net/ethernet/marvell/skge.c b/drivers/net/ethernet/marvell/skge.c
+index d6f8a41c3e35..bf700485964b 100644
+--- a/drivers/net/ethernet/marvell/skge.c
++++ b/drivers/net/ethernet/marvell/skge.c
+@@ -504,7 +504,9 @@ static void skge_get_strings(struct net_device *dev, u32 stringset, u8 *data)
+ }
+ 
+ static void skge_get_ring_param(struct net_device *dev,
+-				struct ethtool_ringparam *p)
++				struct ethtool_ringparam *p,
++				struct kernel_ethtool_ringparam *kernel_p,
++				struct netlink_ext_ack *extack)
+ {
+ 	struct skge_port *skge = netdev_priv(dev);
+ 
+@@ -516,7 +518,9 @@ static void skge_get_ring_param(struct net_device *dev,
+ }
+ 
+ static int skge_set_ring_param(struct net_device *dev,
+-			       struct ethtool_ringparam *p)
++			       struct ethtool_ringparam *p,
++			       struct kernel_ethtool_ringparam *kernel_p,
++			       struct netlink_ext_ack *extack)
+ {
+ 	struct skge_port *skge = netdev_priv(dev);
+ 	int err = 0;
+diff --git a/drivers/net/ethernet/marvell/sky2.c b/drivers/net/ethernet/marvell/sky2.c
+index d013f30019b6..f35549ff00e3 100644
+--- a/drivers/net/ethernet/marvell/sky2.c
++++ b/drivers/net/ethernet/marvell/sky2.c
+@@ -4161,7 +4161,9 @@ static unsigned long roundup_ring_size(unsigned long pending)
+ }
+ 
+ static void sky2_get_ringparam(struct net_device *dev,
+-			       struct ethtool_ringparam *ering)
++			       struct ethtool_ringparam *ering,
++			       struct kernel_ethtool_ringparam *kernel_ering,
++			       struct netlink_ext_ack *extack)
+ {
+ 	struct sky2_port *sky2 = netdev_priv(dev);
+ 
+@@ -4173,7 +4175,9 @@ static void sky2_get_ringparam(struct net_device *dev,
+ }
+ 
+ static int sky2_set_ringparam(struct net_device *dev,
+-			      struct ethtool_ringparam *ering)
++			      struct ethtool_ringparam *ering,
++			      struct kernel_ethtool_ringparam *kernel_ering,
++			      struct netlink_ext_ack *extack)
+ {
+ 	struct sky2_port *sky2 = netdev_priv(dev);
+ 
+diff --git a/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c b/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
+index e639a365ac2d..60b64577047f 100644
+--- a/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
++++ b/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
+@@ -1116,7 +1116,9 @@ static void mlx4_en_get_pauseparam(struct net_device *dev,
+ }
+ 
+ static int mlx4_en_set_ringparam(struct net_device *dev,
+-				 struct ethtool_ringparam *param)
++				 struct ethtool_ringparam *param,
++				 struct kernel_ethtool_ringparam *kernel_param,
++				 struct netlink_ext_ack *extack)
+ {
+ 	struct mlx4_en_priv *priv = netdev_priv(dev);
+ 	struct mlx4_en_dev *mdev = priv->mdev;
+@@ -1183,7 +1185,9 @@ static int mlx4_en_set_ringparam(struct net_device *dev,
+ }
+ 
+ static void mlx4_en_get_ringparam(struct net_device *dev,
+-				  struct ethtool_ringparam *param)
++				  struct ethtool_ringparam *param,
++				  struct kernel_ethtool_ringparam *kernel_param,
++				  struct netlink_ext_ack *extack)
+ {
+ 	struct mlx4_en_priv *priv = netdev_priv(dev);
+ 
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
+index a383276eb816..e37d160890e6 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
+@@ -230,7 +230,9 @@ void mlx5e_ethtool_get_ringparam(struct mlx5e_priv *priv,
+ }
+ 
+ static void mlx5e_get_ringparam(struct net_device *dev,
+-				struct ethtool_ringparam *param)
++				struct ethtool_ringparam *param,
++				struct kernel_ethtool_ringparam *kernel_param,
++				struct netlink_ext_ack *extack)
+ {
+ 	struct mlx5e_priv *priv = netdev_priv(dev);
+ 
+@@ -301,7 +303,9 @@ int mlx5e_ethtool_set_ringparam(struct mlx5e_priv *priv,
+ }
+ 
+ static int mlx5e_set_ringparam(struct net_device *dev,
+-			       struct ethtool_ringparam *param)
++			       struct ethtool_ringparam *param,
++			       struct kernel_ethtool_ringparam *kernel_param,
++			       struct netlink_ext_ack *extack)
+ {
+ 	struct mlx5e_priv *priv = netdev_priv(dev);
+ 
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ethtool.c b/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ethtool.c
+index 90cb50fe17fd..a4ebeacf4987 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ethtool.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ethtool.c
+@@ -67,7 +67,9 @@ static void mlx5i_get_ethtool_stats(struct net_device *dev,
+ }
+ 
+ static int mlx5i_set_ringparam(struct net_device *dev,
+-			       struct ethtool_ringparam *param)
++			       struct ethtool_ringparam *param,
++			       struct kernel_ethtool_ringparam *kernel_param,
++			       struct netlink_ext_ack *extack)
+ {
+ 	struct mlx5e_priv *priv = mlx5i_epriv(dev);
+ 
+@@ -75,7 +77,9 @@ static int mlx5i_set_ringparam(struct net_device *dev,
+ }
+ 
+ static void mlx5i_get_ringparam(struct net_device *dev,
+-				struct ethtool_ringparam *param)
++				struct ethtool_ringparam *param,
++				struct kernel_ethtool_ringparam *kernel_param,
++				struct netlink_ext_ack *extack)
+ {
+ 	struct mlx5e_priv *priv = mlx5i_epriv(dev);
+ 
+diff --git a/drivers/net/ethernet/micrel/ksz884x.c b/drivers/net/ethernet/micrel/ksz884x.c
+index ebbdfb908745..73f08f4d87bc 100644
+--- a/drivers/net/ethernet/micrel/ksz884x.c
++++ b/drivers/net/ethernet/micrel/ksz884x.c
+@@ -6404,12 +6404,16 @@ static int netdev_set_pauseparam(struct net_device *dev,
+ /**
+  * netdev_get_ringparam - get tx/rx ring parameters
+  * @dev:	Network device.
+- * @pause:	Ethtool RING settings data structure.
++ * @ring:	Ethtool RING settings data structure.
++ * @kernel_ring:	Ethtool external RING settings data structure.
++ * @extack:	Netlink handle.
+  *
+  * This procedure returns the TX/RX ring settings.
+  */
+ static void netdev_get_ringparam(struct net_device *dev,
+-	struct ethtool_ringparam *ring)
++				 struct ethtool_ringparam *ring,
++				 struct kernel_ethtool_ringparam *kernel_ring,
++				 struct netlink_ext_ack *extack)
+ {
+ 	struct dev_priv *priv = netdev_priv(dev);
+ 	struct dev_info *hw_priv = priv->adapter;
+diff --git a/drivers/net/ethernet/myricom/myri10ge/myri10ge.c b/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
+index 6789eed78ff7..e10eaf884074 100644
+--- a/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
++++ b/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
+@@ -1712,7 +1712,9 @@ myri10ge_set_pauseparam(struct net_device *netdev,
+ 
+ static void
+ myri10ge_get_ringparam(struct net_device *netdev,
+-		       struct ethtool_ringparam *ring)
++		       struct ethtool_ringparam *ring,
++		       struct kernel_ethtool_ringparam *kernel_ring,
++		       struct netlink_ext_ack *extack)
+ {
+ 	struct myri10ge_priv *mgp = netdev_priv(netdev);
+ 
+diff --git a/drivers/net/ethernet/neterion/s2io.c b/drivers/net/ethernet/neterion/s2io.c
+index b8983e73265a..e9a81b9b9164 100644
+--- a/drivers/net/ethernet/neterion/s2io.c
++++ b/drivers/net/ethernet/neterion/s2io.c
+@@ -5453,8 +5453,11 @@ static int s2io_ethtool_set_led(struct net_device *dev,
+ 	return 0;
+ }
+ 
+-static void s2io_ethtool_gringparam(struct net_device *dev,
+-				    struct ethtool_ringparam *ering)
++static void
++s2io_ethtool_gringparam(struct net_device *dev,
++			struct ethtool_ringparam *ering,
++			struct kernel_ethtool_ringparam *kernel_ering,
++			struct netlink_ext_ack *extack)
+ {
+ 	struct s2io_nic *sp = netdev_priv(dev);
+ 	int i, tx_desc_count = 0, rx_desc_count = 0;
+diff --git a/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c b/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
+index 6a79c8e4a7a4..b6e3f97fd199 100644
+--- a/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
++++ b/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
+@@ -384,7 +384,9 @@ nfp_net_set_link_ksettings(struct net_device *netdev,
+ }
+ 
+ static void nfp_net_get_ringparam(struct net_device *netdev,
+-				  struct ethtool_ringparam *ring)
++				  struct ethtool_ringparam *ring,
++				  struct kernel_ethtool_ringparam *kernel_ring,
++				  struct netlink_ext_ack *extack)
+ {
+ 	struct nfp_net *nn = netdev_priv(netdev);
+ 
+@@ -409,7 +411,9 @@ static int nfp_net_set_ring_size(struct nfp_net *nn, u32 rxd_cnt, u32 txd_cnt)
+ }
+ 
+ static int nfp_net_set_ringparam(struct net_device *netdev,
+-				 struct ethtool_ringparam *ring)
++				 struct ethtool_ringparam *ring,
++				 struct kernel_ethtool_ringparam *kernel_ring,
++				 struct netlink_ext_ack *extack)
+ {
+ 	struct nfp_net *nn = netdev_priv(netdev);
+ 	u32 rxd_cnt, txd_cnt;
+diff --git a/drivers/net/ethernet/netswift/ngbe/ngbe_ethtool.c b/drivers/net/ethernet/netswift/ngbe/ngbe_ethtool.c
+index ca389a7ec4ad..1259f10ef76c 100644
+--- a/drivers/net/ethernet/netswift/ngbe/ngbe_ethtool.c
++++ b/drivers/net/ethernet/netswift/ngbe/ngbe_ethtool.c
+@@ -943,7 +943,9 @@ static void ngbe_get_drvinfo(struct net_device *netdev,
+ }
+ 
+ static void ngbe_get_ringparam(struct net_device *netdev,
+-				struct ethtool_ringparam *ring)
++			       struct ethtool_ringparam *ring,
++			       struct kernel_ethtool_ringparam *kernel_ring,
++			       struct netlink_ext_ack *extack)
+ {
+ 	struct ngbe_adapter *adapter = netdev_priv(netdev);
+ 
+@@ -958,7 +960,9 @@ static void ngbe_get_ringparam(struct net_device *netdev,
+ }
+ 
+ static int ngbe_set_ringparam(struct net_device *netdev,
+-			       struct ethtool_ringparam *ring)
++			      struct ethtool_ringparam *ring,
++			      struct kernel_ethtool_ringparam *kernel_ring,
++			      struct netlink_ext_ack *extack)
+ {
+ 	struct ngbe_adapter *adapter = netdev_priv(netdev);
+ 	struct ngbe_ring *temp_ring;
+diff --git a/drivers/net/ethernet/netswift/txgbe/txgbe_ethtool.c b/drivers/net/ethernet/netswift/txgbe/txgbe_ethtool.c
+index 5cb8ef61e04b..841ad55b7d8d 100644
+--- a/drivers/net/ethernet/netswift/txgbe/txgbe_ethtool.c
++++ b/drivers/net/ethernet/netswift/txgbe/txgbe_ethtool.c
+@@ -1055,7 +1055,9 @@ static void txgbe_get_drvinfo(struct net_device *netdev,
+ }
+ 
+ static void txgbe_get_ringparam(struct net_device *netdev,
+-				struct ethtool_ringparam *ring)
++				struct ethtool_ringparam *ring,
++				struct kernel_ethtool_ringparam *kernel_ring,
++				struct netlink_ext_ack *extack)
+ {
+ 	struct txgbe_adapter *adapter = netdev_priv(netdev);
+ 
+@@ -1070,7 +1072,9 @@ static void txgbe_get_ringparam(struct net_device *netdev,
+ }
+ 
+ static int txgbe_set_ringparam(struct net_device *netdev,
+-			       struct ethtool_ringparam *ring)
++			       struct ethtool_ringparam *ring,
++			       struct kernel_ethtool_ringparam *kernel_ring,
++			       struct netlink_ext_ack *extack)
+ {
+ 	struct txgbe_adapter *adapter = netdev_priv(netdev);
+ 	struct txgbe_ring *temp_ring;
+diff --git a/drivers/net/ethernet/nvidia/forcedeth.c b/drivers/net/ethernet/nvidia/forcedeth.c
+index 1d9b0d44ddb6..34bcd5b24f66 100644
+--- a/drivers/net/ethernet/nvidia/forcedeth.c
++++ b/drivers/net/ethernet/nvidia/forcedeth.c
+@@ -4585,7 +4585,10 @@ static int nv_nway_reset(struct net_device *dev)
+ 	return ret;
+ }
+ 
+-static void nv_get_ringparam(struct net_device *dev, struct ethtool_ringparam* ring)
++static void nv_get_ringparam(struct net_device *dev,
++			     struct ethtool_ringparam *ring,
++			     struct kernel_ethtool_ringparam *kernel_ring,
++			     struct netlink_ext_ack *extack)
+ {
+ 	struct fe_priv *np = netdev_priv(dev);
+ 
+@@ -4596,7 +4599,10 @@ static void nv_get_ringparam(struct net_device *dev, struct ethtool_ringparam* r
+ 	ring->tx_pending = np->tx_ring_size;
+ }
+ 
+-static int nv_set_ringparam(struct net_device *dev, struct ethtool_ringparam* ring)
++static int nv_set_ringparam(struct net_device *dev,
++			    struct ethtool_ringparam *ring,
++			    struct kernel_ethtool_ringparam *kernel_ring,
++			    struct netlink_ext_ack *extack)
+ {
+ 	struct fe_priv *np = netdev_priv(dev);
+ 	u8 __iomem *base = get_hwbase(dev);
+diff --git a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_ethtool.c b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_ethtool.c
+index adaa0024adfe..f10d90566a45 100644
+--- a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_ethtool.c
++++ b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_ethtool.c
+@@ -279,9 +279,13 @@ static int pch_gbe_nway_reset(struct net_device *netdev)
+  * pch_gbe_get_ringparam - Report ring sizes
+  * @netdev:  Network interface device structure
+  * @ring:    Ring param structure
++ * @kernel_ring:	Ring external param structure
++ * @extack:	netlink handle
+  */
+ static void pch_gbe_get_ringparam(struct net_device *netdev,
+-					struct ethtool_ringparam *ring)
++				  struct ethtool_ringparam *ring,
++				  struct kernel_ethtool_ringparam *kernel_ring,
++				  struct netlink_ext_ack *extack)
+ {
+ 	struct pch_gbe_adapter *adapter = netdev_priv(netdev);
+ 	struct pch_gbe_tx_ring *txdr = adapter->tx_ring;
+@@ -297,12 +301,16 @@ static void pch_gbe_get_ringparam(struct net_device *netdev,
+  * pch_gbe_set_ringparam - Set ring sizes
+  * @netdev:  Network interface device structure
+  * @ring:    Ring param structure
++ * @kernel_ring:	Ring external param structure
++ * @extack:	netlink handle
+  * Returns
+  *	0:			Successful.
+  *	Negative value:		Failed.
+  */
+ static int pch_gbe_set_ringparam(struct net_device *netdev,
+-					struct ethtool_ringparam *ring)
++				 struct ethtool_ringparam *ring,
++				 struct kernel_ethtool_ringparam *kernel_ring,
++				 struct netlink_ext_ack *extack)
+ {
+ 	struct pch_gbe_adapter *adapter = netdev_priv(netdev);
+ 	struct pch_gbe_tx_ring *txdr, *tx_old;
+diff --git a/drivers/net/ethernet/pasemi/pasemi_mac_ethtool.c b/drivers/net/ethernet/pasemi/pasemi_mac_ethtool.c
+index d0afc2b8f8e3..cd756b37647b 100644
+--- a/drivers/net/ethernet/pasemi/pasemi_mac_ethtool.c
++++ b/drivers/net/ethernet/pasemi/pasemi_mac_ethtool.c
+@@ -80,7 +80,9 @@ pasemi_mac_ethtool_set_msglevel(struct net_device *netdev,
+ 
+ static void
+ pasemi_mac_ethtool_get_ringparam(struct net_device *netdev,
+-				 struct ethtool_ringparam *ering)
++				 struct ethtool_ringparam *ering,
++				 struct kernel_ethtool_ringparam *kernel_ering,
++				 struct netlink_ext_ack *extack)
+ {
+ 	struct pasemi_mac *mac = netdev_priv(netdev);
+ 
+diff --git a/drivers/net/ethernet/qlogic/netxen/netxen_nic_ethtool.c b/drivers/net/ethernet/qlogic/netxen/netxen_nic_ethtool.c
+index 3c1be87cdfa5..f8e93cdc57a6 100644
+--- a/drivers/net/ethernet/qlogic/netxen/netxen_nic_ethtool.c
++++ b/drivers/net/ethernet/qlogic/netxen/netxen_nic_ethtool.c
+@@ -408,7 +408,9 @@ netxen_nic_get_eeprom(struct net_device *dev, struct ethtool_eeprom *eeprom,
+ 
+ static void
+ netxen_nic_get_ringparam(struct net_device *dev,
+-		struct ethtool_ringparam *ring)
++			 struct ethtool_ringparam *ring,
++			 struct kernel_ethtool_ringparam *kernel_ring,
++			 struct netlink_ext_ack *extack)
+ {
+ 	struct netxen_adapter *adapter = netdev_priv(dev);
+ 
+@@ -446,7 +448,9 @@ netxen_validate_ringparam(u32 val, u32 min, u32 max, char *r_name)
+ 
+ static int
+ netxen_nic_set_ringparam(struct net_device *dev,
+-		struct ethtool_ringparam *ring)
++			 struct ethtool_ringparam *ring,
++			 struct kernel_ethtool_ringparam *kernel_ring,
++			 struct netlink_ext_ack *extack)
+ {
+ 	struct netxen_adapter *adapter = netdev_priv(dev);
+ 	u16 max_rcv_desc = MAX_RCV_DESCRIPTORS_10G;
+diff --git a/drivers/net/ethernet/qlogic/qede/qede_ethtool.c b/drivers/net/ethernet/qlogic/qede/qede_ethtool.c
+index 19652cd27ca7..015643bdc276 100644
+--- a/drivers/net/ethernet/qlogic/qede/qede_ethtool.c
++++ b/drivers/net/ethernet/qlogic/qede/qede_ethtool.c
+@@ -842,7 +842,9 @@ static int qede_set_coalesce(struct net_device *dev,
+ }
+ 
+ static void qede_get_ringparam(struct net_device *dev,
+-			       struct ethtool_ringparam *ering)
++			       struct ethtool_ringparam *ering,
++			       struct kernel_ethtool_ringparam *kernel_ering,
++			       struct netlink_ext_ack *extack)
+ {
+ 	struct qede_dev *edev = netdev_priv(dev);
+ 
+@@ -853,7 +855,9 @@ static void qede_get_ringparam(struct net_device *dev,
+ }
+ 
+ static int qede_set_ringparam(struct net_device *dev,
+-			      struct ethtool_ringparam *ering)
++			      struct ethtool_ringparam *ering,
++			      struct kernel_ethtool_ringparam *kernel_ering,
++			      struct netlink_ext_ack *extack)
+ {
+ 	struct qede_dev *edev = netdev_priv(dev);
+ 
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c
+index 3b0adda7cc9c..3dad9c485025 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c
+@@ -633,7 +633,9 @@ qlcnic_get_eeprom(struct net_device *dev, struct ethtool_eeprom *eeprom,
+ 
+ static void
+ qlcnic_get_ringparam(struct net_device *dev,
+-		struct ethtool_ringparam *ring)
++		     struct ethtool_ringparam *ring,
++		     struct kernel_ethtool_ringparam *kernel_ring,
++		     struct netlink_ext_ack *extack)
+ {
+ 	struct qlcnic_adapter *adapter = netdev_priv(dev);
+ 
+@@ -664,7 +666,9 @@ qlcnic_validate_ringparam(u32 val, u32 min, u32 max, char *r_name)
+ 
+ static int
+ qlcnic_set_ringparam(struct net_device *dev,
+-		struct ethtool_ringparam *ring)
++		     struct ethtool_ringparam *ring,
++		     struct kernel_ethtool_ringparam *kernel_ring,
++		     struct netlink_ext_ack *extack)
+ {
+ 	struct qlcnic_adapter *adapter = netdev_priv(dev);
+ 	u16 num_rxd, num_jumbo_rxd, num_txd;
+diff --git a/drivers/net/ethernet/qualcomm/emac/emac-ethtool.c b/drivers/net/ethernet/qualcomm/emac/emac-ethtool.c
+index c8c6231b87f3..ceb9a49a89e6 100644
+--- a/drivers/net/ethernet/qualcomm/emac/emac-ethtool.c
++++ b/drivers/net/ethernet/qualcomm/emac/emac-ethtool.c
+@@ -141,7 +141,9 @@ static int emac_nway_reset(struct net_device *netdev)
+ }
+ 
+ static void emac_get_ringparam(struct net_device *netdev,
+-			       struct ethtool_ringparam *ring)
++			       struct ethtool_ringparam *ring,
++			       struct kernel_ethtool_ringparam *kernel_ring,
++			       struct netlink_ext_ack *extack)
+ {
+ 	struct emac_adapter *adpt = netdev_priv(netdev);
+ 
+@@ -152,7 +154,9 @@ static void emac_get_ringparam(struct net_device *netdev,
+ }
+ 
+ static int emac_set_ringparam(struct net_device *netdev,
+-			      struct ethtool_ringparam *ring)
++			      struct ethtool_ringparam *ring,
++			      struct kernel_ethtool_ringparam *kernel_ring,
++			      struct netlink_ext_ack *extack)
+ {
+ 	struct emac_adapter *adpt = netdev_priv(netdev);
+ 
+diff --git a/drivers/net/ethernet/qualcomm/qca_debug.c b/drivers/net/ethernet/qualcomm/qca_debug.c
+index 51d89c86e60f..90d12cda57fe 100644
+--- a/drivers/net/ethernet/qualcomm/qca_debug.c
++++ b/drivers/net/ethernet/qualcomm/qca_debug.c
+@@ -262,7 +262,9 @@ qcaspi_get_regs(struct net_device *dev, struct ethtool_regs *regs, void *p)
+ }
+ 
+ static void
+-qcaspi_get_ringparam(struct net_device *dev, struct ethtool_ringparam *ring)
++qcaspi_get_ringparam(struct net_device *dev, struct ethtool_ringparam *ring,
++		     struct kernel_ethtool_ringparam *kernel_ring,
++		     struct netlink_ext_ack *extack)
+ {
+ 	struct qcaspi *qca = netdev_priv(dev);
+ 
+@@ -273,7 +275,9 @@ qcaspi_get_ringparam(struct net_device *dev, struct ethtool_ringparam *ring)
+ }
+ 
+ static int
+-qcaspi_set_ringparam(struct net_device *dev, struct ethtool_ringparam *ring)
++qcaspi_set_ringparam(struct net_device *dev, struct ethtool_ringparam *ring,
++		     struct kernel_ethtool_ringparam *kernel_ring,
++		     struct netlink_ext_ack *extack)
+ {
+ 	const struct net_device_ops *ops = dev->netdev_ops;
+ 	struct qcaspi *qca = netdev_priv(dev);
+diff --git a/drivers/net/ethernet/realtek/8139cp.c b/drivers/net/ethernet/realtek/8139cp.c
+index 44f6e4873aad..69b43867dd06 100644
+--- a/drivers/net/ethernet/realtek/8139cp.c
++++ b/drivers/net/ethernet/realtek/8139cp.c
+@@ -1388,7 +1388,9 @@ static void cp_get_drvinfo (struct net_device *dev, struct ethtool_drvinfo *info
+ }
+ 
+ static void cp_get_ringparam(struct net_device *dev,
+-				struct ethtool_ringparam *ring)
++			     struct ethtool_ringparam *ring,
++			     struct kernel_ethtool_ringparam *kernel_ring,
++			     struct netlink_ext_ack *extack)
+ {
+ 	ring->rx_max_pending = CP_RX_RING_SIZE;
+ 	ring->tx_max_pending = CP_TX_RING_SIZE;
+diff --git a/drivers/net/ethernet/renesas/ravb_main.c b/drivers/net/ethernet/renesas/ravb_main.c
+index faaf74073a12..863b8c9fb67c 100644
+--- a/drivers/net/ethernet/renesas/ravb_main.c
++++ b/drivers/net/ethernet/renesas/ravb_main.c
+@@ -1191,7 +1191,9 @@ static void ravb_get_strings(struct net_device *ndev, u32 stringset, u8 *data)
+ }
+ 
+ static void ravb_get_ringparam(struct net_device *ndev,
+-			       struct ethtool_ringparam *ring)
++			       struct ethtool_ringparam *ring,
++			       struct kernel_ethtool_ringparam *kernel_ring,
++			       struct netlink_ext_ack *extack)
+ {
+ 	struct ravb_private *priv = netdev_priv(ndev);
+ 
+@@ -1202,7 +1204,9 @@ static void ravb_get_ringparam(struct net_device *ndev,
+ }
+ 
+ static int ravb_set_ringparam(struct net_device *ndev,
+-			      struct ethtool_ringparam *ring)
++			      struct ethtool_ringparam *ring,
++			      struct kernel_ethtool_ringparam *kernel_ring,
++			      struct netlink_ext_ack *extack)
+ {
+ 	struct ravb_private *priv = netdev_priv(ndev);
+ 	int error;
+diff --git a/drivers/net/ethernet/renesas/sh_eth.c b/drivers/net/ethernet/renesas/sh_eth.c
+index 5e3e6e262ba3..a3ad591214aa 100644
+--- a/drivers/net/ethernet/renesas/sh_eth.c
++++ b/drivers/net/ethernet/renesas/sh_eth.c
+@@ -2298,7 +2298,9 @@ static void sh_eth_get_strings(struct net_device *ndev, u32 stringset, u8 *data)
+ }
+ 
+ static void sh_eth_get_ringparam(struct net_device *ndev,
+-				 struct ethtool_ringparam *ring)
++				 struct ethtool_ringparam *ring,
++				 struct kernel_ethtool_ringparam *kernel_ring,
++				 struct netlink_ext_ack *extack)
+ {
+ 	struct sh_eth_private *mdp = netdev_priv(ndev);
+ 
+@@ -2309,7 +2311,9 @@ static void sh_eth_get_ringparam(struct net_device *ndev,
+ }
+ 
+ static int sh_eth_set_ringparam(struct net_device *ndev,
+-				struct ethtool_ringparam *ring)
++				struct ethtool_ringparam *ring,
++				struct kernel_ethtool_ringparam *kernel_ring,
++				struct netlink_ext_ack *extack)
+ {
+ 	struct sh_eth_private *mdp = netdev_priv(ndev);
+ 	int ret;
+diff --git a/drivers/net/ethernet/sfc/ethtool.c b/drivers/net/ethernet/sfc/ethtool.c
+index 3143588ffd77..6600fd7c0765 100644
+--- a/drivers/net/ethernet/sfc/ethtool.c
++++ b/drivers/net/ethernet/sfc/ethtool.c
+@@ -661,8 +661,11 @@ static int efx_ethtool_set_coalesce(struct net_device *net_dev,
+ 	return 0;
+ }
+ 
+-static void efx_ethtool_get_ringparam(struct net_device *net_dev,
+-				      struct ethtool_ringparam *ring)
++static void
++efx_ethtool_get_ringparam(struct net_device *net_dev,
++			  struct ethtool_ringparam *ring,
++			  struct kernel_ethtool_ringparam *kernel_ring,
++			  struct netlink_ext_ack *extack)
+ {
+ 	struct efx_nic *efx = netdev_priv(net_dev);
+ 
+@@ -672,8 +675,11 @@ static void efx_ethtool_get_ringparam(struct net_device *net_dev,
+ 	ring->tx_pending = efx->txq_entries;
+ }
+ 
+-static int efx_ethtool_set_ringparam(struct net_device *net_dev,
+-				     struct ethtool_ringparam *ring)
++static int
++efx_ethtool_set_ringparam(struct net_device *net_dev,
++			  struct ethtool_ringparam *ring,
++			  struct kernel_ethtool_ringparam *kernel_ring,
++			  struct netlink_ext_ack *extack)
+ {
+ 	struct efx_nic *efx = netdev_priv(net_dev);
+ 	u32 txq_entries;
+diff --git a/drivers/net/ethernet/sfc/falcon/ethtool.c b/drivers/net/ethernet/sfc/falcon/ethtool.c
+index 1ccdb7a82e2a..4e389fe66191 100644
+--- a/drivers/net/ethernet/sfc/falcon/ethtool.c
++++ b/drivers/net/ethernet/sfc/falcon/ethtool.c
+@@ -639,8 +639,11 @@ static int ef4_ethtool_set_coalesce(struct net_device *net_dev,
+ 	return 0;
+ }
+ 
+-static void ef4_ethtool_get_ringparam(struct net_device *net_dev,
+-				      struct ethtool_ringparam *ring)
++static void
++ef4_ethtool_get_ringparam(struct net_device *net_dev,
++			  struct ethtool_ringparam *ring,
++			  struct kernel_ethtool_ringparam *kernel_ring,
++			  struct netlink_ext_ack *extack)
+ {
+ 	struct ef4_nic *efx = netdev_priv(net_dev);
+ 
+@@ -650,8 +653,11 @@ static void ef4_ethtool_get_ringparam(struct net_device *net_dev,
+ 	ring->tx_pending = efx->txq_entries;
+ }
+ 
+-static int ef4_ethtool_set_ringparam(struct net_device *net_dev,
+-				     struct ethtool_ringparam *ring)
++static int
++ef4_ethtool_set_ringparam(struct net_device *net_dev,
++			  struct ethtool_ringparam *ring,
++			  struct kernel_ethtool_ringparam *kernel_ring,
++			  struct netlink_ext_ack *extack)
+ {
+ 	struct ef4_nic *efx = netdev_priv(net_dev);
+ 	u32 txq_entries;
+diff --git a/drivers/net/ethernet/tehuti/tehuti.c b/drivers/net/ethernet/tehuti/tehuti.c
+index dc966ddb6d81..2371acbae33c 100644
+--- a/drivers/net/ethernet/tehuti/tehuti.c
++++ b/drivers/net/ethernet/tehuti/tehuti.c
+@@ -2258,9 +2258,13 @@ static inline int bdx_tx_fifo_size_to_packets(int tx_size)
+  * bdx_get_ringparam - report ring sizes
+  * @netdev
+  * @ring
++ * @kernel_ring
++ * @extack
+  */
+ static void
+-bdx_get_ringparam(struct net_device *netdev, struct ethtool_ringparam *ring)
++bdx_get_ringparam(struct net_device *netdev, struct ethtool_ringparam *ring,
++		  struct kernel_ethtool_ringparam *kernel_ring,
++		  struct netlink_ext_ack *extack)
+ {
+ 	struct bdx_priv *priv = netdev_priv(netdev);
+ 
+@@ -2275,9 +2279,13 @@ bdx_get_ringparam(struct net_device *netdev, struct ethtool_ringparam *ring)
+  * bdx_set_ringparam - set ring sizes
+  * @netdev
+  * @ring
++ * @kernel_ring
++ * @extack
+  */
+ static int
+-bdx_set_ringparam(struct net_device *netdev, struct ethtool_ringparam *ring)
++bdx_set_ringparam(struct net_device *netdev, struct ethtool_ringparam *ring,
++		  struct kernel_ethtool_ringparam *kernel_ring,
++		  struct netlink_ext_ack *extack)
+ {
+ 	struct bdx_priv *priv = netdev_priv(netdev);
+ 	int rx_size = 0;
+diff --git a/drivers/net/ethernet/ti/cpmac.c b/drivers/net/ethernet/ti/cpmac.c
+index 9b8a30bf939b..8989ab2e0274 100644
+--- a/drivers/net/ethernet/ti/cpmac.c
++++ b/drivers/net/ethernet/ti/cpmac.c
+@@ -839,7 +839,9 @@ static int cpmac_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
+ }
+ 
+ static void cpmac_get_ringparam(struct net_device *dev,
+-						struct ethtool_ringparam *ring)
++				struct ethtool_ringparam *ring,
++				struct kernel_ethtool_ringparam *kernel_ring,
++				struct netlink_ext_ack *extack)
+ {
+ 	struct cpmac_priv *priv = netdev_priv(dev);
+ 
+@@ -855,7 +857,9 @@ static void cpmac_get_ringparam(struct net_device *dev,
+ }
+ 
+ static int cpmac_set_ringparam(struct net_device *dev,
+-						struct ethtool_ringparam *ring)
++			       struct ethtool_ringparam *ring,
++			       struct kernel_ethtool_ringparam *kernel_ring,
++			       struct netlink_ext_ack *extack)
+ {
+ 	struct cpmac_priv *priv = netdev_priv(dev);
+ 
+diff --git a/drivers/net/ethernet/ti/cpsw.c b/drivers/net/ethernet/ti/cpsw.c
+index 0b7a3eb06a65..120a38b582c6 100644
+--- a/drivers/net/ethernet/ti/cpsw.c
++++ b/drivers/net/ethernet/ti/cpsw.c
+@@ -2973,7 +2973,9 @@ static int cpsw_nway_reset(struct net_device *ndev)
+ }
+ 
+ static void cpsw_get_ringparam(struct net_device *ndev,
+-			       struct ethtool_ringparam *ering)
++			       struct ethtool_ringparam *ering,
++			       struct kernel_ethtool_ringparam *kernel_ring,
++			       struct netlink_ext_ack *extack)
+ {
+ 	struct cpsw_priv *priv = netdev_priv(ndev);
+ 	struct cpsw_common *cpsw = priv->cpsw;
+@@ -2986,7 +2988,9 @@ static void cpsw_get_ringparam(struct net_device *ndev,
+ }
+ 
+ static int cpsw_set_ringparam(struct net_device *ndev,
+-			      struct ethtool_ringparam *ering)
++			      struct ethtool_ringparam *ering,
++			      struct kernel_ethtool_ringparam *kernel_ring,
++			      struct netlink_ext_ack *extack)
+ {
+ 	struct cpsw_priv *priv = netdev_priv(ndev);
+ 	struct cpsw_common *cpsw = priv->cpsw;
+diff --git a/drivers/net/ethernet/toshiba/spider_net_ethtool.c b/drivers/net/ethernet/toshiba/spider_net_ethtool.c
+index 16bd036d0682..baf46e101955 100644
+--- a/drivers/net/ethernet/toshiba/spider_net_ethtool.c
++++ b/drivers/net/ethernet/toshiba/spider_net_ethtool.c
+@@ -123,7 +123,9 @@ spider_net_ethtool_nway_reset(struct net_device *netdev)
+ 
+ static void
+ spider_net_ethtool_get_ringparam(struct net_device *netdev,
+-				 struct ethtool_ringparam *ering)
++				 struct ethtool_ringparam *ering,
++				 struct kernel_ethtool_ringparam *kernel_ering,
++				 struct netlink_ext_ack *extack)
+ {
+ 	struct spider_net_card *card = netdev_priv(netdev);
+ 
+diff --git a/drivers/net/hyperv/netvsc_drv.c b/drivers/net/hyperv/netvsc_drv.c
+index 0de42e8ec2bb..27c261ed0fc3 100644
+--- a/drivers/net/hyperv/netvsc_drv.c
++++ b/drivers/net/hyperv/netvsc_drv.c
+@@ -1756,7 +1756,9 @@ static void __netvsc_get_ringparam(struct netvsc_device *nvdev,
+ }
+ 
+ static void netvsc_get_ringparam(struct net_device *ndev,
+-				 struct ethtool_ringparam *ring)
++				 struct ethtool_ringparam *ring,
++				 struct kernel_ethtool_ringparam *kernel_ring,
++				 struct netlink_ext_ack *extack)
+ {
+ 	struct net_device_context *ndevctx = netdev_priv(ndev);
+ 	struct netvsc_device *nvdev = rtnl_dereference(ndevctx->nvdev);
+@@ -1768,7 +1770,9 @@ static void netvsc_get_ringparam(struct net_device *ndev,
+ }
+ 
+ static int netvsc_set_ringparam(struct net_device *ndev,
+-				struct ethtool_ringparam *ring)
++				struct ethtool_ringparam *ring,
++				struct kernel_ethtool_ringparam *kernel_ring,
++				struct netlink_ext_ack *extack)
+ {
+ 	struct net_device_context *ndevctx = netdev_priv(ndev);
+ 	struct netvsc_device *nvdev = rtnl_dereference(ndevctx->nvdev);
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index a34f8ca15d73..992c20bbab1a 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -2062,7 +2062,9 @@ static void virtnet_cpu_notif_remove(struct virtnet_info *vi)
+ }
+ 
+ static void virtnet_get_ringparam(struct net_device *dev,
+-				struct ethtool_ringparam *ring)
++				  struct ethtool_ringparam *ring,
++				  struct kernel_ethtool_ringparam *kernel_ring,
++				  struct netlink_ext_ack *extack)
+ {
+ 	struct virtnet_info *vi = netdev_priv(dev);
+ 
+diff --git a/drivers/net/vmxnet3/vmxnet3_ethtool.c b/drivers/net/vmxnet3/vmxnet3_ethtool.c
+index 559db051a500..cc9d7ae6396e 100644
+--- a/drivers/net/vmxnet3/vmxnet3_ethtool.c
++++ b/drivers/net/vmxnet3/vmxnet3_ethtool.c
+@@ -494,10 +494,11 @@ vmxnet3_get_link_ksettings(struct net_device *netdev,
+ 	return 0;
+ }
+ 
+-
+ static void
+ vmxnet3_get_ringparam(struct net_device *netdev,
+-		      struct ethtool_ringparam *param)
++		      struct ethtool_ringparam *param,
++		      struct kernel_ethtool_ringparam *kernel_param,
++		      struct netlink_ext_ack *extack)
+ {
+ 	struct vmxnet3_adapter *adapter = netdev_priv(netdev);
+ 
+@@ -514,10 +515,11 @@ vmxnet3_get_ringparam(struct net_device *netdev,
+ 	param->rx_jumbo_pending = adapter->rx_ring2_size;
+ }
+ 
+-
+ static int
+ vmxnet3_set_ringparam(struct net_device *netdev,
+-		      struct ethtool_ringparam *param)
++		      struct ethtool_ringparam *param,
++		      struct kernel_ethtool_ringparam *kernel_param,
++		      struct netlink_ext_ack *extack)
+ {
+ 	struct vmxnet3_adapter *adapter = netdev_priv(netdev);
+ 	u32 new_tx_ring_size, new_rx_ring_size, new_rx_ring2_size;
+diff --git a/drivers/staging/mt7621-eth/ethtool.c b/drivers/staging/mt7621-eth/ethtool.c
+index 40a7d47be913..bc6cf9941784 100644
+--- a/drivers/staging/mt7621-eth/ethtool.c
++++ b/drivers/staging/mt7621-eth/ethtool.c
+@@ -145,7 +145,9 @@ static u32 mtk_get_link(struct net_device *dev)
+ }
+ 
+ static int mtk_set_ringparam(struct net_device *dev,
+-			     struct ethtool_ringparam *ring)
++			     struct ethtool_ringparam *ring,
++			     struct kernel_ethtool_ringparam *kernel_param,
++			     struct netlink_ext_ack *extack)
+ {
+ 	struct mtk_mac *mac = netdev_priv(dev);
+ 
+@@ -164,7 +166,9 @@ static int mtk_set_ringparam(struct net_device *dev,
+ }
+ 
+ static void mtk_get_ringparam(struct net_device *dev,
+-			      struct ethtool_ringparam *ring)
++			      struct ethtool_ringparam *ring,
++			      struct kernel_ethtool_ringparam *kernel_param,
++			      struct netlink_ext_ack *extack)
+ {
+ 	struct mtk_mac *mac = netdev_priv(dev);
+ 
+diff --git a/include/linux/ethtool.h b/include/linux/ethtool.h
+index 812026982640..929fba1b3a0d 100644
+--- a/include/linux/ethtool.h
++++ b/include/linux/ethtool.h
+@@ -16,6 +16,7 @@
+ #include <linux/kabi.h>
+ #include <linux/bitmap.h>
+ #include <linux/compat.h>
++#include <linux/netlink.h>
+ #include <uapi/linux/ethtool.h>
+ 
+ #ifdef CONFIG_COMPAT
+@@ -247,6 +248,7 @@ bool ethtool_convert_link_mode_to_legacy_u32(u32 *legacy_u32,
+ 	ETHTOOL_COALESCE_TX_MAX_FRAMES_IRQ)
+ #define ETHTOOL_COALESCE_USE_ADAPTIVE					\
+ 	(ETHTOOL_COALESCE_USE_ADAPTIVE_RX | ETHTOOL_COALESCE_USE_ADAPTIVE_TX)
++
+ /**
+  * struct ethtool_ops - optional netdev operations
+  * @supported_coalesce_params: supported types of interrupt coalescing.
+@@ -418,9 +420,13 @@ struct ethtool_ops {
+ 	int	(*get_coalesce)(struct net_device *, struct ethtool_coalesce *);
+ 	int	(*set_coalesce)(struct net_device *, struct ethtool_coalesce *);
+ 	void	(*get_ringparam)(struct net_device *,
+-				 struct ethtool_ringparam *);
++				 struct ethtool_ringparam *,
++				 struct kernel_ethtool_ringparam *,
++				 struct netlink_ext_ack *);
+ 	int	(*set_ringparam)(struct net_device *,
+-				 struct ethtool_ringparam *);
++				 struct ethtool_ringparam *,
++				 struct kernel_ethtool_ringparam *,
++				 struct netlink_ext_ack *);
+ 	void	(*get_pauseparam)(struct net_device *,
+ 				  struct ethtool_pauseparam*);
+ 	int	(*set_pauseparam)(struct net_device *,
+diff --git a/include/linux/netfilter.h b/include/linux/netfilter.h
+index f5763c225dee..80d79d973134 100644
+--- a/include/linux/netfilter.h
++++ b/include/linux/netfilter.h
+@@ -8,6 +8,7 @@
+ #include <linux/if.h>
+ #include <linux/in.h>
+ #include <linux/in6.h>
++#include <linux/netlink.h>
+ #include <linux/wait.h>
+ #include <linux/list.h>
+ #include <linux/static_key.h>
+diff --git a/include/linux/phy.h b/include/linux/phy.h
+index d428623582e5..eca60a5ea6c1 100644
+--- a/include/linux/phy.h
++++ b/include/linux/phy.h
+@@ -21,6 +21,7 @@
+ #include <linux/ethtool.h>
+ #include <linux/linkmode.h>
+ #include <linux/mdio.h>
++#include <linux/netlink.h>
+ #include <linux/mii.h>
+ #include <linux/module.h>
+ #include <linux/timer.h>
+diff --git a/net/ethtool/ioctl.c b/net/ethtool/ioctl.c
+index 4fdfb3e40dea..bd1ccf30e99e 100644
+--- a/net/ethtool/ioctl.c
++++ b/net/ethtool/ioctl.c
+@@ -1643,11 +1643,13 @@ static noinline_for_stack int ethtool_set_coalesce(struct net_device *dev,
+ static int ethtool_get_ringparam(struct net_device *dev, void __user *useraddr)
+ {
+ 	struct ethtool_ringparam ringparam = { .cmd = ETHTOOL_GRINGPARAM };
++	struct kernel_ethtool_ringparam kernel_ringparam = {};
+ 
+ 	if (!dev->ethtool_ops->get_ringparam)
+ 		return -EOPNOTSUPP;
+ 
+-	dev->ethtool_ops->get_ringparam(dev, &ringparam);
++	dev->ethtool_ops->get_ringparam(dev, &ringparam,
++					&kernel_ringparam, NULL);
+ 
+ 	if (copy_to_user(useraddr, &ringparam, sizeof(ringparam)))
+ 		return -EFAULT;
+@@ -1657,6 +1659,7 @@ static int ethtool_get_ringparam(struct net_device *dev, void __user *useraddr)
+ static int ethtool_set_ringparam(struct net_device *dev, void __user *useraddr)
+ {
+ 	struct ethtool_ringparam ringparam, max = { .cmd = ETHTOOL_GRINGPARAM };
++	struct kernel_ethtool_ringparam kernel_ringparam;
+ 
+ 	if (!dev->ethtool_ops->set_ringparam || !dev->ethtool_ops->get_ringparam)
+ 		return -EOPNOTSUPP;
+@@ -1664,7 +1667,7 @@ static int ethtool_set_ringparam(struct net_device *dev, void __user *useraddr)
+ 	if (copy_from_user(&ringparam, useraddr, sizeof(ringparam)))
+ 		return -EFAULT;
+ 
+-	dev->ethtool_ops->get_ringparam(dev, &max);
++	dev->ethtool_ops->get_ringparam(dev, &max, &kernel_ringparam, NULL);
+ 
+ 	/* ensure new ring parameters are within the maximums */
+ 	if (ringparam.rx_pending > max.rx_max_pending ||
+@@ -1673,7 +1676,8 @@ static int ethtool_set_ringparam(struct net_device *dev, void __user *useraddr)
+ 	    ringparam.tx_pending > max.tx_max_pending)
+ 		return -EINVAL;
+ 
+-	return dev->ethtool_ops->set_ringparam(dev, &ringparam);
++	return dev->ethtool_ops->set_ringparam(dev, &ringparam,
++					      &kernel_ringparam, NULL);
+ }
+ 
+ static noinline_for_stack int ethtool_get_channels(struct net_device *dev,
+diff --git a/net/ethtool/rings.c b/net/ethtool/rings.c
+index 128e15b10883..062b08901fe0 100644
+--- a/net/ethtool/rings.c
++++ b/net/ethtool/rings.c
+@@ -35,6 +35,7 @@ static int rings_prepare_data(const struct ethnl_req_info *req_base,
+ 			      struct genl_info *info)
+ {
+ 	struct rings_reply_data *data = RINGS_REPDATA(reply_base);
++	struct netlink_ext_ack *extack = info ? info->extack : NULL;
+ 	struct net_device *dev = reply_base->dev;
+ 	int ret;
+ 
+@@ -43,7 +44,8 @@ static int rings_prepare_data(const struct ethnl_req_info *req_base,
+ 	ret = ethnl_ops_begin(dev);
+ 	if (ret < 0)
+ 		return ret;
+-	dev->ethtool_ops->get_ringparam(dev, &data->ringparam);
++	dev->ethtool_ops->get_ringparam(dev, &data->ringparam,
++					&data->kernel_ringparam, extack);
+ 	ethnl_ops_complete(dev);
+ 
+ 	return 0;
+@@ -164,7 +166,7 @@ int ethnl_set_rings(struct sk_buff *skb, struct genl_info *info)
+ 	ret = ethnl_ops_begin(dev);
+ 	if (ret < 0)
+ 		goto out_rtnl;
+-	ops->get_ringparam(dev, &ringparam);
++	ops->get_ringparam(dev, &ringparam, &kernel_ringparam, info->extack);
+ 
+ 	ethnl_update_u32(&ringparam.rx_pending, tb[ETHTOOL_A_RINGS_RX], &mod);
+ 	ethnl_update_u32(&ringparam.rx_mini_pending,
+@@ -205,7 +207,10 @@ int ethnl_set_rings(struct sk_buff *skb, struct genl_info *info)
+ 		goto out_ops;
+ 	}
+ 
+-	ret = dev->ethtool_ops->set_ringparam(dev, &ringparam);
++	ret = dev->ethtool_ops->set_ringparam(dev, &ringparam,
++					      &kernel_ringparam, info->extack);
++	if (ret < 0)
++		goto out_ops;
+ 
+ out_ops:
+ 	ethnl_ops_complete(dev);
+diff --git a/net/mac80211/ethtool.c b/net/mac80211/ethtool.c
+index 5ac743816b59..a7e9c41587ff 100644
+--- a/net/mac80211/ethtool.c
++++ b/net/mac80211/ethtool.c
+@@ -15,7 +15,9 @@
+ #include "driver-ops.h"
+ 
+ static int ieee80211_set_ringparam(struct net_device *dev,
+-				   struct ethtool_ringparam *rp)
++				   struct ethtool_ringparam *rp,
++				   struct kernel_ethtool_ringparam *kernel_rp,
++				   struct netlink_ext_ack *extack)
+ {
+ 	struct ieee80211_local *local = wiphy_priv(dev->ieee80211_ptr->wiphy);
+ 
+@@ -26,7 +28,9 @@ static int ieee80211_set_ringparam(struct net_device *dev,
+ }
+ 
+ static void ieee80211_get_ringparam(struct net_device *dev,
+-				    struct ethtool_ringparam *rp)
++				    struct ethtool_ringparam *rp,
++				    struct kernel_ethtool_ringparam *kernel_rp,
++				    struct netlink_ext_ack *extack)
+ {
+ 	struct ieee80211_local *local = wiphy_priv(dev->ieee80211_ptr->wiphy);
+ 
+-- 
+2.34.1
+
