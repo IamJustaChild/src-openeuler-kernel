@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0237
+Release: %{hulkrelease}.0238
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -836,6 +836,9 @@ fi
 %endif
 
 %changelog
+* Thu Nov 9 2023 Kunkun Jiang <jiangkunkun@huawei.com> - 4.19.90-2311.1.0.0238
+- scsi: virtio_scsi: limit number of hw queues by nr_cpu_ids
+
 * Tue Nov 7 2023 YaQiang Chen <chenyaqiang@huawei.com> - 4.19.90-2311.1.0.0237
 - spec: fix the problem that patches are not packaged in src.rpm
 
