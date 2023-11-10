@@ -12,9 +12,9 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2203.3.0
+%global hulkrelease 2310.4.0
 
-%define with_patch 0
+%define with_patch 1
 
 %define debuginfodir /usr/lib/debug
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel-rt
 Version: 4.19.90
-Release: %{hulkrelease}.rt103.0141
+Release: %{hulkrelease}.rt103.0142
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -61,7 +61,7 @@ Source9998: patches.tar.bz2
 %endif
 
 Patch0: patch-4.19.90-2203.3.0-rt103.patch
-Patch1: patch-4.19.90-2203.3.0-rt103-openeuler_defconfig.patch
+#Patch1: patch-4.19.90-2203.3.0-rt103-openeuler_defconfig.patch
 
 #BuildRequires:
 BuildRequires: module-init-tools, patch >= 2.5.4, bash >= 2.03, tar
@@ -223,7 +223,6 @@ package or when debugging this package.\
 %prep
 
 %setup -q -n kernel-%{version} -c
-
 %if 0%{?with_patch}
 tar -xjf %{SOURCE9998}
 %endif
@@ -236,9 +235,32 @@ cp %{SOURCE9000} .
 cp %{SOURCE9001} .
 cp %{SOURCE9002} .
 
+
 if [ ! -d patches ];then
     mv ../patches .
 fi
+
+ignores_for_main="CONFIG_DESCRIPTION,FILE_PATH_CHANGES,GERRIT_CHANGE_ID,GIT_COMMIT_ID,UNKNOWN_COMMIT_ID,FROM_SIGN_OFF_MISMATCH,REPEATED_WORD,COMMIT_COMMENT_SYMBOL,BLOCK_COMMENT_STYLE,AVOID_EXTERNS,AVOID_BUG"
+
+Checkpatches() {
+  local SERIESCONF=$1
+  local PATCH_DIR=$2
+  sed -i '/^#/d'  $SERIESCONF
+  sed -i '/^[\s]*$/d' $SERIESCONF
+
+  set +e
+  while IFS= read -r patch; do
+    output=$(scripts/checkpatch.pl --ignore $ignores_for_main $PATCH_DIR/$patch)
+    if echo "$output" | grep -q "ERROR:"; then
+      echo "checkpatch $patch failed"
+      set -e
+      return 1
+    fi
+  done < "$SERIESCONF"
+
+  set -e
+  return 0
+}
 
 Applypatches()
 {
@@ -256,11 +278,11 @@ Applypatches()
     ) | sh
 }
 
+Checkpatches series.conf %{_builddir}/kernel-%{version}/linux-%{KernelVer}
 Applypatches series.conf %{_builddir}/kernel-%{version}/linux-%{KernelVer}
 %endif
 
 %patch0 -p1
-%patch1 -p1
 
 touch .scmversion
 
@@ -814,6 +836,8 @@ fi
 %endif
 
 %changelog
+* Tue Nov 1 2023 zhangyu4 <zhangyu4@kylinos.cn> - 4.19.90-2310.4.0.142
+- update preempt-rt patch for openEuler Raspberry 4.19.90-2310.4.0
 
 * Tue Mar 15 2022 Laibin Qiu <qiulaibin@huawei.com> - 4.19.90-2203.3.0.0141
 - crypto: pcrypt - Fix user-after-free on module unload
