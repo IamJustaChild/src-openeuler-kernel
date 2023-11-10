@@ -1,0 +1,114 @@
+From c76f178feff20fcbda0dba4a72418f310d65f61b Mon Sep 17 00:00:00 2001
+From: Yu Liao <liaoyu15@huawei.com>
+Date: Fri, 9 Jun 2023 13:06:51 +0800
+Subject: [PATCH openEuler-20.03-LTS-SP4 3/4] ACPI / PPTT: Find PPTT processor node
+ by cache id
+
+openeuler inclusion
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I77UDW
+CVE: NA
+
+--------------------------------
+
+The MPAM table identifies caches by id, but the driver also wants to know
+the processor node.
+
+Add a helper that walks every possible cache, until it finds the one
+identified by id, then return processor node.
+
+Signed-off-by: Yu Liao <liaoyu15@huawei.com>
+---
+ drivers/acpi/pptt.c  | 55 ++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/acpi.h |  5 ++++
+ 2 files changed, 60 insertions(+)
+
+diff --git a/drivers/acpi/pptt.c b/drivers/acpi/pptt.c
+index 879b9155b7b4..74ce9fcee830 100644
+--- a/drivers/acpi/pptt.c
++++ b/drivers/acpi/pptt.c
+@@ -896,3 +896,58 @@ int find_acpi_cpu_topology_hetero_id(unsigned int cpu)
+ 	return find_acpi_cpu_topology_tag(cpu, PPTT_ABORT_PACKAGE,
+ 					  ACPI_PPTT_ACPI_IDENTICAL);
+ }
++
++struct acpi_pptt_processor *find_acpi_processor_node_from_cache_id(u32 cache_id)
++{
++	u32 acpi_cpu_id;
++	acpi_status status;
++	int level, cpu, num_levels;
++	struct acpi_pptt_cache *cache;
++	struct acpi_table_header *table;
++	struct acpi_pptt_cache_v1 *cache_v1;
++	struct acpi_pptt_processor *cpu_node;
++
++	status = acpi_get_table(ACPI_SIG_PPTT, 0, &table);
++	if (ACPI_FAILURE(status)) {
++		pr_warn_once("No PPTT table found, cache topology may be inaccurate\n");
++		return NULL;
++	}
++
++	if (table->revision < 3) {
++		acpi_put_table(table);
++		return NULL;
++	}
++
++	/*
++	 * If we found the cache first, we'd still need to walk from each CPU
++	 * to find the level...
++	 */
++	for_each_possible_cpu(cpu) {
++		acpi_cpu_id = get_acpi_id_for_cpu(cpu);
++		cpu_node = acpi_find_processor_node(table, acpi_cpu_id);
++		if (!cpu_node)
++			break;
++		num_levels = acpi_count_levels(table, cpu_node);
++
++		for (level = 0; level <= num_levels; level++) {
++			cache = acpi_find_cache_node(table, acpi_cpu_id,
++						     ACPI_PPTT_CACHE_TYPE_UNIFIED,
++						     level, &cpu_node);
++			if (!cache)
++				continue;
++
++			cache_v1 = ACPI_ADD_PTR(struct acpi_pptt_cache_v1,
++						cache,
++						sizeof(struct acpi_pptt_cache));
++
++			if (cache->flags & ACPI_PPTT_CACHE_ID_VALID &&
++			    cache_v1->cache_id == cache_id) {
++				acpi_put_table(table);
++				return cpu_node;
++			}
++		}
++	}
++
++	acpi_put_table(table);
++	return NULL;
++}
+diff --git a/include/linux/acpi.h b/include/linux/acpi.h
+index 4a0142276cb8..3669c2ff26ed 100644
+--- a/include/linux/acpi.h
++++ b/include/linux/acpi.h
+@@ -1331,6 +1331,7 @@ int find_acpi_cpu_topology(unsigned int cpu, int level);
+ int find_acpi_cpu_topology_package(unsigned int cpu);
+ int find_acpi_cpu_topology_hetero_id(unsigned int cpu);
+ int find_acpi_cpu_cache_topology(unsigned int cpu, int level);
++struct acpi_pptt_processor *find_acpi_processor_node_from_cache_id(u32 cache_id);
+ #else
+ static inline int acpi_pptt_cpu_is_thread(unsigned int cpu)
+ {
+@@ -1352,6 +1353,10 @@ static inline int find_acpi_cpu_cache_topology(unsigned int cpu, int level)
+ {
+ 	return -EINVAL;
+ }
++static inline struct acpi_pptt_processor *find_acpi_processor_node_from_cache_id(u32 cache_id)
++{
++	return NULL;
++}
+ #endif
+ 
+ struct acpi_pptt_processor *
+-- 
+2.25.1
+
