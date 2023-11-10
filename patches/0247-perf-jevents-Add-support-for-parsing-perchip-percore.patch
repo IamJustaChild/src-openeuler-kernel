@@ -1,0 +1,154 @@
+From 8b9df53735696435be2b78eac99feac8e2996bb9 Mon Sep 17 00:00:00 2001
+From: Kajol Jain <kjain@linux.ibm.com>
+Date: Mon, 7 Sep 2020 12:11:31 +0530
+Subject: [PATCH 130/201] perf jevents: Add support for parsing perchip/percore
+ events
+
+mainline inclusion
+from mainline-v5.10-rc1
+commit 560ccbc4a52c567096023e0c6a9b920048e59017
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=560ccbc4a52c567096023e0c6a9b920048e59017
+
+----------------------------------------------------------------------
+
+Initially, every time we want to add new terms like chip, core thread etc,
+we need to create corrsponding fields in pmu_events and event struct.
+
+This patch adds an enum called 'aggr_mode_class' which store all these
+aggregation like perchip/percore. It also adds new field 'aggr_mode'
+to capture these terms.
+
+Now, if user wants to add any new term, they just need to add it in
+the enum defined.
+
+Signed-off-by: Kajol Jain <kjain@linux.ibm.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jin Yao <yao.jin@linux.intel.com>
+Cc: John Garry <john.garry@huawei.com>
+Cc: Madhavan Srinivasan <maddy@linux.ibm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Paul Clarke <pc@us.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+Link: http://lore.kernel.org/lkml/20200907064133.75090-4-kjain@linux.ibm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ tools/perf/pmu-events/jevents.c    | 20 ++++++++++++++++++++
+ tools/perf/pmu-events/pmu-events.h |  6 ++++++
+ 2 files changed, 26 insertions(+)
+
+diff --git a/tools/perf/pmu-events/jevents.c b/tools/perf/pmu-events/jevents.c
+index 3722501956be..4a1bc82e68bd 100644
+--- a/tools/perf/pmu-events/jevents.c
++++ b/tools/perf/pmu-events/jevents.c
+@@ -48,6 +48,7 @@
+ #include <linux/list.h>
+ #include "jsmn.h"
+ #include "json.h"
++#include "pmu-events.h"
+ 
+ int verbose;
+ char *prog;
+@@ -60,6 +61,7 @@ struct json_event {
+ 	char *pmu;
+ 	char *unit;
+ 	char *perpkg;
++	char *aggr_mode;
+ 	char *metric_expr;
+ 	char *metric_name;
+ 	char *metric_group;
+@@ -67,6 +69,17 @@ struct json_event {
+ 	char *metric_constraint;
+ };
+ 
++enum aggr_mode_class convert(const char *aggr_mode)
++{
++	if (!strcmp(aggr_mode, "PerCore"))
++		return PerCore;
++	else if (!strcmp(aggr_mode, "PerChip"))
++		return PerChip;
++
++	pr_err("%s: Wrong AggregationMode value '%s'\n", prog, aggr_mode);
++	return -1;
++}
++
+ typedef int (*func)(void *data, struct json_event *je);
+ 
+ int eprintf(int level, int var, const char *fmt, ...)
+@@ -356,6 +369,8 @@ static int print_events_table_entry(void *data, struct json_event *je)
+ 		fprintf(outfp, "\t.unit = \"%s\",\n", je->unit);
+ 	if (je->perpkg)
+ 		fprintf(outfp, "\t.perpkg = \"%s\",\n", je->perpkg);
++	if (je->aggr_mode)
++		fprintf(outfp, "\t.aggr_mode = \"%d\",\n", convert(je->aggr_mode));
+ 	if (je->metric_expr)
+ 		fprintf(outfp, "\t.metric_expr = \"%s\",\n", je->metric_expr);
+ 	if (je->metric_name)
+@@ -380,6 +395,7 @@ struct event_struct {
+ 	char *pmu;
+ 	char *unit;
+ 	char *perpkg;
++	char *aggr_mode;
+ 	char *metric_expr;
+ 	char *metric_name;
+ 	char *metric_group;
+@@ -409,6 +425,7 @@ struct event_struct {
+ 	op(pmu);						\
+ 	op(unit);						\
+ 	op(perpkg);						\
++	op(aggr_mode);						\
+ 	op(metric_expr);					\
+ 	op(metric_name);					\
+ 	op(metric_group);					\
+@@ -614,6 +631,8 @@ static int json_events(const char *fn,
+ 				addfield(map, &je.unit, "", "", val);
+ 			} else if (json_streq(map, field, "PerPkg")) {
+ 				addfield(map, &je.perpkg, "", "", val);
++			} else if (json_streq(map, field, "AggregationMode")) {
++				addfield(map, &je.aggr_mode, "", "", val);
+ 			} else if (json_streq(map, field, "Deprecated")) {
+ 				addfield(map, &je.deprecated, "", "", val);
+ 			} else if (json_streq(map, field, "MetricName")) {
+@@ -674,6 +693,7 @@ static int json_events(const char *fn,
+ 		free(je.pmu);
+ 		free(filter);
+ 		free(je.perpkg);
++		free(je.aggr_mode);
+ 		free(je.deprecated);
+ 		free(je.unit);
+ 		free(je.metric_expr);
+diff --git a/tools/perf/pmu-events/pmu-events.h b/tools/perf/pmu-events/pmu-events.h
+index 53e76d5d5b37..fb712bb0f59e 100644
+--- a/tools/perf/pmu-events/pmu-events.h
++++ b/tools/perf/pmu-events/pmu-events.h
+@@ -2,6 +2,11 @@
+ #ifndef PMU_EVENTS_H
+ #define PMU_EVENTS_H
+ 
++enum aggr_mode_class {
++	PerChip = 1,
++	PerCore
++};
++
+ /*
+  * Describe each PMU event. Each CPU has a table of PMU events.
+  */
+@@ -14,6 +19,7 @@ struct pmu_event {
+ 	const char *pmu;
+ 	const char *unit;
+ 	const char *perpkg;
++	const char *aggr_mode;
+ 	const char *metric_expr;
+ 	const char *metric_name;
+ 	const char *metric_group;
+-- 
+2.27.0
+

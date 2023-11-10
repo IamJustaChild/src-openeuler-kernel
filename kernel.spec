@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0238
+Release: %{hulkrelease}.0239
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -836,6 +836,211 @@ fi
 %endif
 
 %changelog
+
+* Fri Nov 10 2023 hongrongxuan <hongrongxuan@huawei.com> - 4.19.90-2311.1.0.0239
+- perf metricgroup: Fix find_evsel_group() event selector
+- perf metricgroup: Fix for metrics containing duration_time
+- perf metricgroup: Fix system PMU metrics
+- perf metricgroup: Return error code from metricgroup__add_metric_sys_event_iter()
+- perf vendor events arm64: Fix incorrect Hisi hip08 L3 metrics
+- perf test: Fix metric parsing test
+- perf test: Fix msan uninitialized use.
+- perf test: Set NULL sentinel in pmu_events table in "Parse and process metrics" test
+- perf expr: Allow numbers to be followed by a dot
+- perf expr: Test parsing of floating point numbers
+- perf jevents: Add support for HiSilicon PA PMU aliasing
+- perf jevents: Add support for HiSilicon SLLC PMU aliasing
+- perf jevents: Add support for HiSilicon HHA PMU aliasing
+- perf jevents: Add support for HiSilicon DDRC PMU aliasing
+- perf jevents: Add support for HiSilicon L3C PMU aliasing
+- perf test: Add pmu-events test for aliases of hip09 ddrc pmu
+- perf vendor events arm64: Revise hip08 uncore events
+- perf test: Verify more event members in pmu-events test
+- perf jevents: Support ConfigCode
+- perf parse-events: Set numeric term config
+- perf test: Add pmu-events sys event support
+- perf jevents: Print SoC name per system event table
+- perf pmu: Make pmu_add_sys_aliases() public
+- perf test: Add more pmu-events uncore aliases
+- perf test: Re-add pmu-event uncore PMU alias test
+- perf pmu: Check .is_uncore field in pmu_add_cpu_aliases_map()
+- perf test: Test pmu-events core aliases separately
+- perf test: Factor out pmu-events alias comparison
+- perf test: Declare pmu-events test events separately
+- perf jevents: Relocate test events to cpu folder
+- perf test: Factor out pmu-events event comparison
+- perf jevents: Make build dependency on test JSONs
+- perf pmu: Save pmu name
+- perf pmu: Simplify arguments of __perf_pmu__new_alias
+- perf pmu: Add alias match method to fit pmu_name of HiSilicon DDRC
+- perf pmu: Fix alias matching
+- perf tools: Fix pattern matching for same substring in different PMU type
+- perf jevents: Add test for arch std events
+- perf metricgroup: Support adding metrics for system PMUs
+- perf metricgroup: Support printing metric groups for system PMUs
+- perf metricgroup: Split up metricgroup__print()
+- perf metricgroup: Fix metrics using aliases covering multiple PMUs
+- perf evlist: Change evlist__splice_list_tail() ordering
+- perf pmu: Add pmu_add_sys_aliases()
+- perf pmu: Add pmu_id()
+- perf jevents: Add support for system events tables
+- perf jevents: Add support for an extra directory level
+- perf jevents: Tidy error handling
+- perf jevents: Fix event syntax error caused by ExtSel
+- perf jevents: Fix getting maximum number of fds
+- perf jevents: Fix event code for events referencing std arch events
+- perf vendor events arm64: Add Hisi hip08 L3 metrics
+- perf vendor events arm64: Add Hisi hip08 L2 metrics
+- perf vendor events arm64: Add Hisi hip08 L1 metrics
+- perf pmu: Add pmu_events_map__find() function to find the common PMU map for the system
+- perf test: Handle metric reuse in pmu-events parsing test
+- perf metricgroup: Make find_metric() public with name change
+- perf metricgroup: Fix uncore metric expressions
+- perf test: Free formats for perf pmu parse test
+- perf metric: Do not free metric when failed to resolve
+- perf metric: Free metric when it failed to resolve
+- perf metric: Release expr_parse_ctx after testing
+- perf test: Fix memory leaks in parse-metric test
+- perf parse-event: Fix memory leak in evsel->unit
+- perf evlist: Fix cpu/thread map leak
+- perf metric: Fix some memory leaks - part 2
+- perf metric: Fix some memory leaks
+- perf test: Free aliases for PMU event map aliases test
+- perf metricgroup: Fix typo in comment.
+- perf list: Do not print 'Metric Groups:' unnecessarily
+- perf metricgroup: Pass pmu_event structure as a parameter for arch_get_runtimeparam()
+- perf jevents: Add support for parsing perchip/percore events
+- perf jevents: Add new structure to pass json fields.
+- perf jevents: Make json_events() static and ditch jevents.h file
+- perf metric: Rename group_list to metric_list
+- perf metric: Rename struct egroup to metric
+- perf metric: Add metric group test
+- perf metric: Make compute_single function more precise
+- perf metric: Add recursion check when processing nested metrics
+- perf metric: Add DCache_L2 to metric parse test
+- perf metric: Add cache_miss_cycles to metric parse test
+- perf tests: Add parse metric test for frontend metric
+- perf tests: Add parse metric test for ipc metric
+- perf metric: Add events for the current list
+- perf metric: Compute referenced metrics
+- perf metric: Add referenced metrics to hash data
+- perf metric: Collect referenced metrics in struct metric_expr
+- perf metric: Collect referenced metrics in struct metric_ref_node
+- perf metric: Rename __metricgroup__add_metric to __add_metric
+- perf metric: Add add_metric function
+- perf metric: Add macros for iterating map events
+- perf metric: Add expr__del_id function
+- perf metric: Change expr__get_id to return struct expr_id_data
+- perf metric: Add expr__add_id function
+- perf metric: Fix memory leak in expr__add_id function
+- perf metric: Add 'struct expr_id_data' to keep expr value
+- perf metric: Rename expr__add_id() to expr__add_val()
+- perf pmu: Improve CPU core PMU HW event list ordering
+- perf pmu: List kernel supplied event aliases for arm64
+- perf tools: Add test_generic_metric function
+- perf tools: Release metric_events rblist
+- perf tools: Factor out prepare_metric function
+- perf tools: Add metricgroup__parse_groups_test function
+- perf tools: Add fake_pmu to parse_group() function
+- perf parse: Factor out parse_groups() function
+- perf tests: Add another metric parsing test
+- perf pmu: Add a perf_pmu__fake object to use with __parse_events()
+- perf parse: Provide a way to pass a fake_pmu to parse_events()
+- perf tests: Factor check_parse_id function
+- perf tools: Add fake pmu support
+- perf tools: Fix term parsing for raw syntax
+- perf parse: Add 'struct parse_events_state' pointer to scanner
+- perf stat: Do not pass avg to generic_metric
+- perf tools: Allow r0x<HEX> event syntax
+- perf parser: Add support to specify rXXX event with pmu
+- perf metricgroup: Remove unnecessary ',' from events
+- perf metricgroup: Add options to not group or merge
+- perf metricgroup: Remove duped metric group events
+- perf metricgroup: Order event groups by size
+- perf metricgroup: Delay events string creation
+- perf metricgroup: Use early return in add_metric
+- perf metricgroup: Always place duration_time last
+- perf metricgroup: Make 'evlist_used' variable a bitmap instead of array of bools
+- perf expr: Migrate expr ids table to a hashmap
+- perf test: Provide a subtest callback to ask for the reason for skipping a subtest
+- perf test: Improve pmu event metric testing
+- perf expr: Parse numbers as doubles
+- perf expr: Increase max other
+- perf expr: Allow ',' to be an other token
+- perf expr: Allow for unlimited escaped characters in a symbol
+- perf test: Test pmu-events aliases
+- perf pmu: Make pmu_uncore_alias_match() public
+- perf pmu: Add is_pmu_core()
+- perf test: Add pmu-events test
+- perf pmu: Refactor pmu_add_cpu_aliases()
+- perf jevents: Support test events folder
+- perf jevents: Add some test events
+- perf tests expr: Added test for runtime param in metric expression
+- perf metricgroups: Enhance JSON/metric infrastructure to handle "?"
+- perf metrictroup: Split the metricgroup__add_metric function
+- perf expr: Add expr_scanner_ctx object
+- perf expr: Add expr_ prefix for parse_ctx and parse_id
+- perf expr: Fix copy/paste mistake
+- perf expr: Fix memory leaks in metric bison
+- perf expr: Make expr__parse() return -1 on error
+- perf expr: Straighten expr__parse()/expr__find_other() interface
+- perf expr: Increase EXPR_MAX_OTHER to support metrics with more than 15 variables
+- perf expr: Move expr lexer to flex
+- perf expr: Add expr.c object
+- perf vendor events intel: Add NO_NMI_WATCHDOG metric constraint
+- perf metricgroup: Support metric constraint
+- perf util: Factor out sysctl__nmi_watchdog_enabled()
+- perf metricgroup: Factor out metricgroup__add_metric_weak_group()
+- perf jevents: Support metric constraint
+- perf tools: Update copy of libbpf's hashmap.c
+- perf tools: Sync hashmap.h with libbpf's
+- perf tools: Grab a copy of libbpf's hashmap
+- libbpf, hashmap: Fix undefined behavior in hash_bits
+- libbpf: Fix libbpf hashmap on (I)LP32 architectures
+- libbpf: Define __WORDSIZE if not available
+- libbpf, hashmap: Remove unused #include
+- libbpf: fix missing __WORDSIZE definition
+- perf parse-events: Fix an old style declaration
+- perf metricgroup: Fix printing event names of metric group with multiple events incase of overlapping events
+- tools bitmap: Implement bitmap_equal() operation at bitmap API
+- perf metricgroup: Fix printing event names of metric group with multiple events
+- perf list: Hide deprecated events by default
+- perf tools: Move ALLOC_LIST into a function
+- perf stat: Fix free memory access / memory leaks in metrics
+- perf vendor events arm64: Add some missing events for Hisi hip08 HHA PMU
+- perf vendor events arm64: Add some missing events for Hisi hip08 L3C PMU
+- perf vendor events arm64: Add some missing events for Hisi hip08 DDRC PMU
+- perf vendor events arm64: Fix Hisi hip08 DDRC PMU eventname
+- perf jevents: Add support for Hisi hip08 L3C PMU aliasing
+- perf jevents: Add support for Hisi hip08 HHA PMU aliasing
+- perf jevents: Add support for Hisi hip08 DDRC PMU aliasing
+- perf pmu: Support more complex PMU event aliasing
+- perf metricgroup: Support multiple events for metricgroup
+- perf metricgroup: Scale the metric result
+- perf pmu: Change convert_scale from static to global
+- perf metricgroup: Remove needless includes from metricgroup.h
+- perf metricgroup: Add missing list_del_init() when flushing egroups list
+- perf tools metric: Don't include duration_time in group
+- perf list: Avoid extra : for --raw metrics
+- perf jevents: Use nonlocal include statements in pmu-events.c
+- perf jevents: Remove unused variable
+- perf stat: Fix metrics with --no-merge
+- libbpf: add resizable non-thread safe internal hashmap
+- perf list: Output tool events
+- perf evsel: Support printing evsel name for 'duration_time'
+- perf stat: Implement duration_time as a proper event
+- perf stat: Revert checks for duration_time
+- perf stat: Implement duration_time as a proper event
+- perf stat: Revert checks for duration_time
+- perf tools: Fix legacy events symbol separator parsing
+- perf list: Display metric expressions for --details option
+- perf stat: Move 'metric_events' to 'struct perf_stat_config'
+- perf stat: Pass a 'struct perf_stat_config' argument to global print functions
+- perf stat: Pass 'struct perf_stat_config' argument to local print functions
+- perf stat: Add 'struct perf_stat_config' argument to perf_evlist__print_counters()
+- perf stat: Move STAT_RECORD out of perf_evlist__print_counters()
+- perf stat: Introduce perf_evlist__print_counters()
+
 * Thu Nov 9 2023 Kunkun Jiang <jiangkunkun@huawei.com> - 4.19.90-2311.1.0.0238
 - scsi: virtio_scsi: limit number of hw queues by nr_cpu_ids
 

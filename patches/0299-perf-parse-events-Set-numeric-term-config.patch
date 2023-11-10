@@ -1,0 +1,135 @@
+From b8441923b082859f5681d98d3681555eb17562a1 Mon Sep 17 00:00:00 2001
+From: John Garry <john.garry@huawei.com>
+Date: Thu, 16 Sep 2021 20:34:21 +0800
+Subject: [PATCH 182/201] perf parse-events: Set numeric term config
+
+mainline inclusion
+from mainline-v5.16-rc1
+commit 4f9d4f8aa7328068a2f25cfb3d1d04c1b6fa54ac
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=4f9d4f8aa7328068a2f25cfb3d1d04c1b6fa54ac
+
+----------------------------------------------------------------------
+
+For numeric terms, the config field may be NULL as it is not set from
+the l+y parsing.
+
+Fix by setting the term config from the term type name.
+
+Also fix up the pmu-events test to set the alias strings to set the
+period term properly, and fix up parse-events test to check the term
+config string.
+
+Signed-off-by: John Garry <john.garry@huawei.com>
+Acked-by: Ian Rogers <irogers@google.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Leo Yan <leo.yan@linaro.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Shaokun Zhang <zhangshaokun@hisilicon.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linuxarm@huawei.com
+Cc: liuqi115@huawei.com
+Link: https://lore.kernel.org/r/1631795665-240946-2-git-send-email-john.garry@huawei.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ tools/perf/tests/parse-events.c | 8 ++++----
+ tools/perf/tests/pmu-events.c   | 6 +++---
+ tools/perf/util/parse-events.c  | 2 +-
+ 3 files changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/tools/perf/tests/parse-events.c b/tools/perf/tests/parse-events.c
+index 4ca5e569a05f..77af44643c90 100644
+--- a/tools/perf/tests/parse-events.c
++++ b/tools/perf/tests/parse-events.c
+@@ -602,7 +602,7 @@ static int test__checkterms_simple(struct list_head *terms)
+ 	TEST_ASSERT_VAL("wrong type val",
+ 			term->type_val == PARSE_EVENTS__TERM_TYPE_NUM);
+ 	TEST_ASSERT_VAL("wrong val", term->val.num == 10);
+-	TEST_ASSERT_VAL("wrong config", !term->config);
++	TEST_ASSERT_VAL("wrong config", !strcmp(term->config, "config"));
+ 
+ 	/* config1 */
+ 	term = list_entry(term->list.next, struct parse_events_term, list);
+@@ -611,7 +611,7 @@ static int test__checkterms_simple(struct list_head *terms)
+ 	TEST_ASSERT_VAL("wrong type val",
+ 			term->type_val == PARSE_EVENTS__TERM_TYPE_NUM);
+ 	TEST_ASSERT_VAL("wrong val", term->val.num == 1);
+-	TEST_ASSERT_VAL("wrong config", !term->config);
++	TEST_ASSERT_VAL("wrong config", !strcmp(term->config, "config1"));
+ 
+ 	/* config2=3 */
+ 	term = list_entry(term->list.next, struct parse_events_term, list);
+@@ -620,7 +620,7 @@ static int test__checkterms_simple(struct list_head *terms)
+ 	TEST_ASSERT_VAL("wrong type val",
+ 			term->type_val == PARSE_EVENTS__TERM_TYPE_NUM);
+ 	TEST_ASSERT_VAL("wrong val", term->val.num == 3);
+-	TEST_ASSERT_VAL("wrong config", !term->config);
++	TEST_ASSERT_VAL("wrong config", !strcmp(term->config, "config2"));
+ 
+ 	/* umask=1*/
+ 	term = list_entry(term->list.next, struct parse_events_term, list);
+@@ -658,7 +658,7 @@ static int test__checkterms_simple(struct list_head *terms)
+ 	TEST_ASSERT_VAL("wrong type val",
+ 			term->type_val == PARSE_EVENTS__TERM_TYPE_NUM);
+ 	TEST_ASSERT_VAL("wrong val", term->val.num == 0xead);
+-	TEST_ASSERT_VAL("wrong config", !term->config);
++	TEST_ASSERT_VAL("wrong config", !strcmp(term->config, "config"));
+ 	return 0;
+ }
+ 
+diff --git a/tools/perf/tests/pmu-events.c b/tools/perf/tests/pmu-events.c
+index fcd9df8f545d..80e71bf8a3fe 100644
+--- a/tools/perf/tests/pmu-events.c
++++ b/tools/perf/tests/pmu-events.c
+@@ -67,7 +67,7 @@ static const struct perf_pmu_test_event segment_reg_loads_any = {
+ 		.desc = "Number of segment register loads",
+ 		.topic = "other",
+ 	},
+-	.alias_str = "umask=0x80,(null)=0x30d40,event=0x6",
++	.alias_str = "umask=0x80,period=0x30d40,event=0x6",
+ 	.alias_long_desc = "Number of segment register loads",
+ };
+ 
+@@ -78,7 +78,7 @@ static const struct perf_pmu_test_event dispatch_blocked_any = {
+ 		.desc = "Memory cluster signals to block micro-op dispatch for any reason",
+ 		.topic = "other",
+ 	},
+-	.alias_str = "umask=0x20,(null)=0x30d40,event=0x9",
++	.alias_str = "umask=0x20,period=0x30d40,event=0x9",
+ 	.alias_long_desc = "Memory cluster signals to block micro-op dispatch for any reason",
+ };
+ 
+@@ -89,7 +89,7 @@ static const struct perf_pmu_test_event eist_trans = {
+ 		.desc = "Number of Enhanced Intel SpeedStep(R) Technology (EIST) transitions",
+ 		.topic = "other",
+ 	},
+-	.alias_str = "umask=0,(null)=0x30d40,event=0x3a",
++	.alias_str = "umask=0,period=0x30d40,event=0x3a",
+ 	.alias_long_desc = "Number of Enhanced Intel SpeedStep(R) Technology (EIST) transitions",
+ };
+ 
+diff --git a/tools/perf/util/parse-events.c b/tools/perf/util/parse-events.c
+index 2d20b54866ad..18238a6ca9d2 100644
+--- a/tools/perf/util/parse-events.c
++++ b/tools/perf/util/parse-events.c
+@@ -2674,7 +2674,7 @@ int parse_events_term__num(struct parse_events_term **term,
+ 	struct parse_events_term temp = {
+ 		.type_val  = PARSE_EVENTS__TERM_TYPE_NUM,
+ 		.type_term = type_term,
+-		.config    = config,
++		.config    = config ? : strdup(config_term_names[type_term]),
+ 		.no_value  = no_value,
+ 		.err_term  = loc_term ? loc_term->first_column : 0,
+ 		.err_val   = loc_val  ? loc_val->first_column  : 0,
+-- 
+2.27.0
+

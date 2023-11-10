@@ -1,0 +1,121 @@
+From f82681d8b89d41453021a9e14d918a4b87076bb6 Mon Sep 17 00:00:00 2001
+From: Jiri Olsa <jolsa@kernel.org>
+Date: Sun, 19 Jul 2020 20:13:07 +0200
+Subject: [PATCH 112/201] perf metric: Add add_metric function
+
+mainline inclusion
+from mainline-v5.9-rc1
+commit 3fd29fa6c1644026ec7adbe017cacdf03724e6bc
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=3fd29fa6c1644026ec7adbe017cacdf03724e6bc
+
+----------------------------------------------------------------------
+
+Decouple metric adding logging into add_metric function,
+so it can be used from other places in following changes.
+
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Reviewed-by: Kajol Jain <kjain@linux.ibm.com>
+Acked-by: Ian Rogers <irogers@google.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: John Garry <john.garry@huawei.com>
+Cc: Michael Petlan <mpetlan@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Paul Clarke <pc@us.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Link: http://lore.kernel.org/lkml/20200719181320.785305-7-jolsa@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ tools/perf/util/metricgroup.c | 62 ++++++++++++++++++++---------------
+ 1 file changed, 36 insertions(+), 26 deletions(-)
+
+diff --git a/tools/perf/util/metricgroup.c b/tools/perf/util/metricgroup.c
+index f6e725c6062c..ecc1f2db1a75 100644
+--- a/tools/perf/util/metricgroup.c
++++ b/tools/perf/util/metricgroup.c
+@@ -632,6 +632,39 @@ static int __metricgroup__add_metric(struct list_head *group_list,
+ 		    (match_metric(__pe->metric_group, __metric) ||	\
+ 		     match_metric(__pe->metric_name, __metric)))
+ 
++static int add_metric(struct list_head *group_list,
++		      struct pmu_event *pe,
++		      bool metric_no_group)
++{
++	int ret = 0;
++
++	pr_debug("metric expr %s for %s\n", pe->metric_expr, pe->metric_name);
++
++	if (!strstr(pe->metric_expr, "?")) {
++		ret = __metricgroup__add_metric(group_list,
++						pe,
++						metric_no_group,
++						1);
++	} else {
++		int j, count;
++
++		count = arch_get_runtimeparam();
++
++		/* This loop is added to create multiple
++		 * events depend on count value and add
++		 * those events to group_list.
++		 */
++
++		for (j = 0; j < count && !ret; j++) {
++			ret = __metricgroup__add_metric(
++				group_list, pe,
++				metric_no_group, j);
++		}
++	}
++
++	return ret;
++}
++
+ static int metricgroup__add_metric(const char *metric, bool metric_no_group,
+ 				   struct strbuf *events,
+ 				   struct list_head *group_list,
+@@ -643,34 +676,11 @@ static int metricgroup__add_metric(const char *metric, bool metric_no_group,
+ 	bool has_match = false;
+ 
+ 	map_for_each_metric(pe, i, map, metric) {
+-		pr_debug("metric expr %s for %s\n", pe->metric_expr, pe->metric_name);
+ 		has_match = true;
+ 
+-		if (!strstr(pe->metric_expr, "?")) {
+-			ret = __metricgroup__add_metric(group_list,
+-							pe,
+-							metric_no_group,
+-							1);
+-			if (ret)
+-				return ret;
+-		} else {
+-			int j, count;
+-
+-			count = arch_get_runtimeparam();
+-
+-			/* This loop is added to create multiple
+-			 * events depend on count value and add
+-			 * those events to group_list.
+-			 */
+-
+-			for (j = 0; j < count; j++) {
+-				ret = __metricgroup__add_metric(
+-					group_list, pe,
+-					metric_no_group, j);
+-				if (ret)
+-					return ret;
+-			}
+-		}
++		ret = add_metric(group_list, pe, metric_no_group);
++		if (ret)
++			return ret;
+ 	}
+ 
+ 	/* End of pmu events. */
+-- 
+2.27.0
+

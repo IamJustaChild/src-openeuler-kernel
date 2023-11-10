@@ -1,0 +1,153 @@
+From 23613a50c4e84e51444051ba608de3cc45cc3ad9 Mon Sep 17 00:00:00 2001
+From: John Garry <john.garry@huawei.com>
+Date: Fri, 28 Jun 2019 22:35:50 +0800
+Subject: [PATCH 025/201] perf jevents: Add support for Hisi hip08 DDRC PMU
+ aliasing
+
+mainline inclusion
+from mainline-v5.3-rc1
+commit 57cc732479bac2a3cbd759fb07188657c871d5c1
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=57cc732479bac2a3cbd759fb07188657c871d5c1
+
+------------------------------------------------------------------------
+
+Add support for Hisi hip08 DDRC PMU aliasing. We can now do something like
+this:
+
+$perf list
+
+[snip]
+
+uncore ddrc:
+  uncore_hisi_ddrc.act_cmd
+       [DDRC active commands. Unit: hisi_sccl,ddrc]
+  uncore_hisi_ddrc.flux_rcmd
+       [DDRC read commands. Unit: hisi_sccl,ddrc]
+  uncore_hisi_ddrc.flux_wcmd
+       [DDRC write commands. Unit: hisi_sccl,ddrc]
+  uncore_hisi_ddrc.flux_wr
+       [DDRC precharge commands. Unit: hisi_sccl,ddrc]
+  uncore_hisi_ddrc.rnk_chg
+       [DDRC rank commands. Unit: hisi_sccl,ddrc]
+  uncore_hisi_ddrc.rw_chg
+       [DDRC read and write changes. Unit: hisi_sccl,ddrc]
+
+Performance counter stats for 'system wide':
+
+                 0      uncore_hisi_ddrc.flux_rcmd [hisi_sccl1_ddrc0]
+                 0      uncore_hisi_ddrc.flux_rcmd [hisi_sccl3_ddrc1]
+                 0      uncore_hisi_ddrc.flux_rcmd [hisi_sccl5_ddrc2]
+                 0      uncore_hisi_ddrc.flux_rcmd [hisi_sccl7_ddrc3]
+                 0      uncore_hisi_ddrc.flux_rcmd [hisi_sccl5_ddrc0]
+                 0      uncore_hisi_ddrc.flux_rcmd [hisi_sccl7_ddrc1]
+                 0      uncore_hisi_ddrc.flux_rcmd [hisi_sccl1_ddrc3]
+                 0      uncore_hisi_ddrc.flux_rcmd [hisi_sccl1_ddrc1]
+                 0      uncore_hisi_ddrc.flux_rcmd [hisi_sccl3_ddrc2]
+                 0      uncore_hisi_ddrc.flux_rcmd [hisi_sccl5_ddrc3]
+                 0      uncore_hisi_ddrc.flux_rcmd [hisi_sccl3_ddrc0]
+                 0      uncore_hisi_ddrc.flux_rcmd [hisi_sccl5_ddrc1]
+                 0      uncore_hisi_ddrc.flux_rcmd [hisi_sccl7_ddrc2]
+                 0      uncore_hisi_ddrc.flux_rcmd [hisi_sccl7_ddrc0]
+            20,421      uncore_hisi_ddrc.flux_rcmd [hisi_sccl1_ddrc2]
+                 0      uncore_hisi_ddrc.flux_rcmd [hisi_sccl3_ddrc3]
+
+       1.001559011 seconds time elapsed
+
+The kernel driver is in drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c
+
+Signed-off-by: John Garry <john.garry@huawei.com>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Ben Hutchings <ben@decadent.org.uk>
+Cc: Hendrik Brueckner <brueckner@linux.ibm.com>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Shaokun Zhang <zhangshaokun@hisilicon.com>
+Cc: Thomas Richter <tmricht@linux.ibm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linuxarm@huawei.com
+Link: http://lkml.kernel.org/r/1561732552-143038-3-git-send-email-john.garry@huawei.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+
+  Conflicts:
+	tools/perf/pmu-events/jevents.c
+---
+ .../arm64/hisilicon/hip08/uncore-ddrc.json    | 44 +++++++++++++++++++
+ tools/perf/pmu-events/jevents.c               |  1 +
+ 2 files changed, 45 insertions(+)
+ create mode 100644 tools/perf/pmu-events/arch/arm64/hisilicon/hip08/uncore-ddrc.json
+
+diff --git a/tools/perf/pmu-events/arch/arm64/hisilicon/hip08/uncore-ddrc.json b/tools/perf/pmu-events/arch/arm64/hisilicon/hip08/uncore-ddrc.json
+new file mode 100644
+index 000000000000..0d1556fcdffe
+--- /dev/null
++++ b/tools/perf/pmu-events/arch/arm64/hisilicon/hip08/uncore-ddrc.json
+@@ -0,0 +1,44 @@
++[
++   {
++	    "EventCode": "0x02",
++	    "EventName": "uncore_hisi_ddrc.flux_wcmd",
++	    "BriefDescription": "DDRC write commands",
++	    "PublicDescription": "DDRC write commands",
++	    "Unit": "hisi_sccl,ddrc",
++   },
++   {
++	    "EventCode": "0x03",
++	    "EventName": "uncore_hisi_ddrc.flux_rcmd",
++	    "BriefDescription": "DDRC read commands",
++	    "PublicDescription": "DDRC read commands",
++	    "Unit": "hisi_sccl,ddrc",
++   },
++   {
++	    "EventCode": "0x04",
++	    "EventName": "uncore_hisi_ddrc.flux_wr",
++	    "BriefDescription": "DDRC precharge commands",
++	    "PublicDescription": "DDRC precharge commands",
++	    "Unit": "hisi_sccl,ddrc",
++   },
++   {
++	    "EventCode": "0x05",
++	    "EventName": "uncore_hisi_ddrc.act_cmd",
++	    "BriefDescription": "DDRC active commands",
++	    "PublicDescription": "DDRC active commands",
++	    "Unit": "hisi_sccl,ddrc",
++   },
++   {
++	    "EventCode": "0x06",
++	    "EventName": "uncore_hisi_ddrc.rnk_chg",
++	    "BriefDescription": "DDRC rank commands",
++	    "PublicDescription": "DDRC rank commands",
++	    "Unit": "hisi_sccl,ddrc",
++   },
++   {
++	    "EventCode": "0x07",
++	    "EventName": "uncore_hisi_ddrc.rw_chg",
++	    "BriefDescription": "DDRC read and write changes",
++	    "PublicDescription": "DDRC read and write changes",
++	    "Unit": "hisi_sccl,ddrc",
++   },
++]
+diff --git a/tools/perf/pmu-events/jevents.c b/tools/perf/pmu-events/jevents.c
+index 55c8bf2b0b32..e3c8b4b34cb0 100644
+--- a/tools/perf/pmu-events/jevents.c
++++ b/tools/perf/pmu-events/jevents.c
+@@ -238,6 +238,7 @@ static struct map {
+ 	{ "UPI LL", "uncore_upi" },
+ 	{ "L3PMC", "amd_l3" },
+ 	{ "DFPMC", "amd_df" },
++	{ "hisi_sccl,ddrc", "hisi_sccl,ddrc" },
+ 	{}
+ };
+ 
+-- 
+2.27.0
+

@@ -1,0 +1,76 @@
+From b0124f451ccc06ed5130b04217b60a613dc05566 Mon Sep 17 00:00:00 2001
+From: John Garry <john.garry@huawei.com>
+Date: Thu, 8 Oct 2020 23:19:28 +0800
+Subject: [PATCH 151/201] perf jevents: Fix event code for events referencing
+ std arch events
+
+mainline inclusion
+from mainline-v5.10-rc1
+commit caf7f9685dd339d4fe7c3cbc0b5d7fabd3df784d
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=caf7f9685dd339d4fe7c3cbc0b5d7fabd3df784d
+
+----------------------------------------------------------------------
+
+The event code for events referencing std arch events is incorrectly
+evaluated in json_events().
+
+The issue is that je.event is evaluated properly from try_fixup(), but
+later NULLified from the real_event() call, as "event" may be NULL.
+
+Fix by setting "event" same je.event in try_fixup().
+
+Also remove support for overwriting event code for events using std arch
+events, as it is not used.
+
+Signed-off-by: John Garry <john.garry@huawei.com>
+Reviewed-By: Kajol Jain<kjain@linux.ibm.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Link: https://lore.kernel.org/r/1602170368-11892-1-git-send-email-john.garry@huawei.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ tools/perf/pmu-events/jevents.c | 11 +++--------
+ 1 file changed, 3 insertions(+), 8 deletions(-)
+
+diff --git a/tools/perf/pmu-events/jevents.c b/tools/perf/pmu-events/jevents.c
+index 4a1bc82e68bd..572b6d41d725 100644
+--- a/tools/perf/pmu-events/jevents.c
++++ b/tools/perf/pmu-events/jevents.c
+@@ -505,20 +505,15 @@ static char *real_event(const char *name, char *event)
+ }
+ 
+ static int
+-try_fixup(const char *fn, char *arch_std, unsigned long long eventcode,
+-	  struct json_event *je)
++try_fixup(const char *fn, char *arch_std, struct json_event *je, char **event)
+ {
+ 	/* try to find matching event from arch standard values */
+ 	struct event_struct *es;
+ 
+ 	list_for_each_entry(es, &arch_std_events, list) {
+ 		if (!strcmp(arch_std, es->name)) {
+-			if (!eventcode && es->event) {
+-				/* allow EventCode to be overridden */
+-				free(je->event);
+-				je->event = NULL;
+-			}
+ 			FOR_ALL_EVENT_STRUCT_FIELDS(TRY_FIXUP_FIELD);
++			*event = je->event;
+ 			return 0;
+ 		}
+ 	}
+@@ -678,7 +673,7 @@ static int json_events(const char *fn,
+ 			 * An arch standard event is referenced, so try to
+ 			 * fixup any unassigned values.
+ 			 */
+-			err = try_fixup(fn, arch_std, eventcode, &je);
++			err = try_fixup(fn, arch_std, &je, &event);
+ 			if (err)
+ 				goto free_strings;
+ 		}
+-- 
+2.27.0
+

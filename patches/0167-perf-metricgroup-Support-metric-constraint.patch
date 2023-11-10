@@ -1,0 +1,138 @@
+From f7fceacb6e8e14742426d7eda0cb9b0f09f5b312 Mon Sep 17 00:00:00 2001
+From: Kan Liang <kan.liang@linux.intel.com>
+Date: Mon, 24 Feb 2020 13:59:23 -0800
+Subject: [PATCH 050/201] perf metricgroup: Support metric constraint
+
+mainline inclusion
+from mainline-v5.7-rc1
+commit ab483d8bc8acb83f0103bc38ef8f2c27d98ffd1b
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=ab483d8bc8acb83f0103bc38ef8f2c27d98ffd1b
+
+----------------------------------------------------------------------
+
+Some metric groups have metric constraints. A metric group can be
+scheduled as a group only when some constraints are applied.  For
+example, Page_Walks_Utilization has a metric constraint,
+"NO_NMI_WATCHDOG".
+
+When NMI watchdog is disabled, the metric group can be scheduled as a
+group. Otherwise, splitting the metric group into standalone metrics.
+
+Add a new function, metricgroup__has_constraint(), to check whether all
+constraints are applied. If not, splitting the metric group into
+standalone metrics.
+
+Currently, only one constraint, "NO_NMI_WATCHDOG", is checked. Print a
+warning for the metric group with the constraint, when NMI WATCHDOG is
+enabled.
+
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Jin Yao <yao.jin@linux.intel.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+Link: http://lore.kernel.org/lkml/1582581564-184429-5-git-send-email-kan.liang@linux.intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+
+  Conflicts:
+	tools/perf/util/metricgroup.c
+---
+ tools/perf/util/metricgroup.c | 54 ++++++++++++++++++++++++++++++++++-
+ 1 file changed, 53 insertions(+), 1 deletion(-)
+
+diff --git a/tools/perf/util/metricgroup.c b/tools/perf/util/metricgroup.c
+index 8951c6f6593b..4baa9f2040ec 100644
+--- a/tools/perf/util/metricgroup.c
++++ b/tools/perf/util/metricgroup.c
+@@ -28,6 +28,8 @@
+ #include <assert.h>
+ #include <ctype.h>
+ #include <subcmd/parse-options.h>
++#include <api/fs/fs.h>
++#include "util.h"
+ 
+ struct metric_event *metricgroup__lookup(struct rblist *metric_events,
+ 					 struct perf_evsel *evsel,
+@@ -450,6 +452,49 @@ static void metricgroup__add_metric_weak_group(struct strbuf *events,
+ 		strbuf_addf(events, "}:W");
+ }
+ 
++static void metricgroup__add_metric_non_group(struct strbuf *events,
++					      const char **ids,
++					      int idnum)
++{
++	int i;
++
++	for (i = 0; i < idnum; i++)
++		strbuf_addf(events, ",%s", ids[i]);
++}
++
++static void metricgroup___watchdog_constraint_hint(const char *name, bool foot)
++{
++	static bool violate_nmi_constraint;
++
++	if (!foot) {
++		pr_warning("Splitting metric group %s into standalone metrics.\n", name);
++		violate_nmi_constraint = true;
++		return;
++	}
++
++	if (!violate_nmi_constraint)
++		return;
++
++	pr_warning("Try disabling the NMI watchdog to comply NO_NMI_WATCHDOG metric constraint:\n"
++		   "    echo 0 > /proc/sys/kernel/nmi_watchdog\n"
++		   "    perf stat ...\n"
++		   "    echo 1 > /proc/sys/kernel/nmi_watchdog\n");
++}
++
++static bool metricgroup__has_constraint(struct pmu_event *pe)
++{
++	if (!pe->metric_constraint)
++		return false;
++
++	if (!strcmp(pe->metric_constraint, "NO_NMI_WATCHDOG") &&
++	    sysctl__nmi_watchdog_enabled()) {
++		metricgroup___watchdog_constraint_hint(pe->metric_name, false);
++		return true;
++	}
++
++	return false;
++}
++
+ static int metricgroup__add_metric(const char *metric, struct strbuf *events,
+ 				   struct list_head *group_list)
+ {
+@@ -481,7 +526,10 @@ static int metricgroup__add_metric(const char *metric, struct strbuf *events,
+ 			if (events->len > 0)
+ 				strbuf_addf(events, ",");
+ 
+-			metricgroup__add_metric_weak_group(events, ids, idnum);
++			if (metricgroup__has_constraint(pe))
++				metricgroup__add_metric_non_group(events, ids, idnum);
++			else
++				metricgroup__add_metric_weak_group(events, ids, idnum);
+ 
+ 			eg = malloc(sizeof(struct egroup));
+ 			if (!eg) {
+@@ -523,6 +571,10 @@ static int metricgroup__add_metric_list(const char *list, struct strbuf *events,
+ 		}
+ 	}
+ 	free(nlist);
++
++	if (!ret)
++		metricgroup___watchdog_constraint_hint(NULL, true);
++
+ 	return ret;
+ }
+ 
+-- 
+2.27.0
+

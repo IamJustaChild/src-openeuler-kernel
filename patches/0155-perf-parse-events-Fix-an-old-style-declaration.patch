@@ -1,0 +1,47 @@
+From 52390925ed8b978cc74dc82655ebbddceb0a7b12 Mon Sep 17 00:00:00 2001
+From: Ian Rogers <irogers@google.com>
+Date: Mon, 8 Jun 2020 22:36:10 -0700
+Subject: [PATCH 038/201] perf parse-events: Fix an old style declaration
+
+mainline inclusion
+from mainline-v5.8-rc2
+commit ffaecd7d1f88a955f0b321749de8c0158f973afd
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=ffaecd7d1f88a955f0b321749de8c0158f973afd
+
+------------------------------------------------------------------------
+
+Fixes: a26e47162d76 (perf tools: Move ALLOC_LIST into a function)
+Signed-off-by: Ian Rogers <irogers@google.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Link: http://lore.kernel.org/lkml/20200609053610.206588-2-irogers@google.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ tools/perf/util/parse-events.y | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/perf/util/parse-events.y b/tools/perf/util/parse-events.y
+index ef4c83b07c22..b940b621b14e 100644
+--- a/tools/perf/util/parse-events.y
++++ b/tools/perf/util/parse-events.y
+@@ -27,7 +27,7 @@ do { \
+ 		YYABORT; \
+ } while (0)
+ 
+-static struct list_head* alloc_list()
++static struct list_head* alloc_list(void)
+ {
+ 	struct list_head *list;
+ 
+-- 
+2.27.0
+

@@ -1,0 +1,74 @@
+From db7edc915c851ef0ce02ab60f76bad12d4b388a8 Mon Sep 17 00:00:00 2001
+From: Namhyung Kim <namhyung@kernel.org>
+Date: Wed, 9 Sep 2020 14:58:48 +0900
+Subject: [PATCH 132/201] perf list: Do not print 'Metric Groups:'
+ unnecessarily
+
+mainline inclusion
+from mainline-v5.10-rc1
+commit fac49a3bc4030524c155d9d59f3d7d14e771fe6f
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=fac49a3bc4030524c155d9d59f3d7d14e771fe6f
+
+----------------------------------------------------------------------
+
+It was printed unconditionally even if nothing is printed.
+Check if the output list empty when filter is given.
+
+Before:
+  $ ./perf list duration
+
+  List of pre-defined events (to be used in -e):
+
+    duration_time                                      [Tool event]
+
+  Metric Groups:
+
+After:
+  $ ./perf list duration
+
+  List of pre-defined events (to be used in -e):
+
+    duration_time                                      [Tool event]
+
+Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Link: http://lore.kernel.org/lkml/20200909055849.469612-2-namhyung@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ tools/perf/util/metricgroup.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/tools/perf/util/metricgroup.c b/tools/perf/util/metricgroup.c
+index 2d505fa62a6c..906041a72a90 100644
+--- a/tools/perf/util/metricgroup.c
++++ b/tools/perf/util/metricgroup.c
+@@ -541,10 +541,12 @@ void metricgroup__print(bool metrics, bool metricgroups, char *filter,
+ 		}
+ 	}
+ 
+-	if (metricgroups && !raw)
+-		printf("\nMetric Groups:\n\n");
+-	else if (metrics && !raw)
+-		printf("\nMetrics:\n\n");
++	if (!filter || !rblist__empty(&groups)) {
++		if (metricgroups && !raw)
++			printf("\nMetric Groups:\n\n");
++		else if (metrics && !raw)
++			printf("\nMetrics:\n\n");
++	}
+ 
+ 	for (node = rb_first(&groups.entries); node; node = next) {
+ 		struct mep *me = container_of(node, struct mep, nd);
+-- 
+2.27.0
+

@@ -1,0 +1,138 @@
+From 76d2a94b32ebce193fcc707f2dcbe5011474f6b1 Mon Sep 17 00:00:00 2001
+From: Jiri Olsa <jolsa@kernel.org>
+Date: Sun, 12 Jul 2020 15:26:17 +0200
+Subject: [PATCH 105/201] perf metric: Rename expr__add_id() to expr__add_val()
+
+mainline inclusion
+from mainline-v5.9-rc1
+commit c1b4745b48b3c5a29df6ef2b68384e7cccdc3691
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=c1b4745b48b3c5a29df6ef2b68384e7cccdc3691
+
+----------------------------------------------------------------------
+
+Rename expr__add_id() to expr__add_val() so we can use expr__add_id() to
+actually add just the id without any value in following changes.
+
+There's no functional change.
+
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Acked-by: Ian Rogers <irogers@google.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: John Garry <john.garry@huawei.com>
+Cc: Kajol Jain <kjain@linux.ibm.com>
+Cc: Michael Petlan <mpetlan@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Paul Clarke <pc@us.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Link: http://lore.kernel.org/lkml/20200712132634.138901-2-jolsa@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ tools/perf/tests/expr.c       | 4 ++--
+ tools/perf/tests/pmu-events.c | 4 ++--
+ tools/perf/util/expr.c        | 2 +-
+ tools/perf/util/expr.h        | 2 +-
+ tools/perf/util/expr.y        | 2 +-
+ tools/perf/util/stat-shadow.c | 4 ++--
+ 6 files changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/tools/perf/tests/expr.c b/tools/perf/tests/expr.c
+index 13c4243110d8..d1a5a6f25c50 100644
+--- a/tools/perf/tests/expr.c
++++ b/tools/perf/tests/expr.c
+@@ -22,8 +22,8 @@ int test__expr(struct test *t __maybe_unused, int subtest __maybe_unused)
+ 	struct expr_parse_ctx ctx;
+ 
+ 	expr__ctx_init(&ctx);
+-	expr__add_id(&ctx, strdup("FOO"), 1);
+-	expr__add_id(&ctx, strdup("BAR"), 2);
++	expr__add_id_val(&ctx, strdup("FOO"), 1);
++	expr__add_id_val(&ctx, strdup("BAR"), 2);
+ 
+ 	ret = test(&ctx, "1+1", 2);
+ 	ret |= test(&ctx, "FOO+BAR", 3);
+diff --git a/tools/perf/tests/pmu-events.c b/tools/perf/tests/pmu-events.c
+index 0a6611d8ec32..7a3cad2ac94e 100644
+--- a/tools/perf/tests/pmu-events.c
++++ b/tools/perf/tests/pmu-events.c
+@@ -488,7 +488,7 @@ static int test_parsing(void)
+ 			 */
+ 			k = 1;
+ 			hashmap__for_each_entry((&ctx.ids), cur, bkt)
+-				expr__add_id(&ctx, strdup(cur->key), k++);
++				expr__add_id_val(&ctx, strdup(cur->key), k++);
+ 
+ 			hashmap__for_each_entry((&ctx.ids), cur, bkt) {
+ 				if (check_parse_cpu(cur->key, map == cpus_map,
+@@ -543,7 +543,7 @@ static int metric_parse_fake(const char *str)
+ 	 */
+ 	i = 1;
+ 	hashmap__for_each_entry((&ctx.ids), cur, bkt)
+-		expr__add_id(&ctx, strdup(cur->key), i++);
++		expr__add_id_val(&ctx, strdup(cur->key), i++);
+ 
+ 	hashmap__for_each_entry((&ctx.ids), cur, bkt) {
+ 		if (check_parse_fake(cur->key)) {
+diff --git a/tools/perf/util/expr.c b/tools/perf/util/expr.c
+index 8ab40b42d3e6..e7b929a6d7a8 100644
+--- a/tools/perf/util/expr.c
++++ b/tools/perf/util/expr.c
+@@ -30,7 +30,7 @@ static bool key_equal(const void *key1, const void *key2,
+ }
+ 
+ /* Caller must make sure id is allocated */
+-int expr__add_id(struct expr_parse_ctx *ctx, const char *name, double val)
++int expr__add_id_val(struct expr_parse_ctx *ctx, const char *name, double val)
+ {
+ 	double *val_ptr = NULL, *old_val = NULL;
+ 	char *old_key = NULL;
+diff --git a/tools/perf/util/expr.h b/tools/perf/util/expr.h
+index 8a2c1074f90f..bb6bac836b48 100644
+--- a/tools/perf/util/expr.h
++++ b/tools/perf/util/expr.h
+@@ -22,7 +22,7 @@ struct expr_scanner_ctx {
+ 
+ void expr__ctx_init(struct expr_parse_ctx *ctx);
+ void expr__ctx_clear(struct expr_parse_ctx *ctx);
+-int expr__add_id(struct expr_parse_ctx *ctx, const char *id, double val);
++int expr__add_id_val(struct expr_parse_ctx *ctx, const char *id, double val);
+ int expr__get_id(struct expr_parse_ctx *ctx, const char *id, double *val_ptr);
+ int expr__parse(double *final_val, struct expr_parse_ctx *ctx,
+ 		const char *expr, int runtime);
+diff --git a/tools/perf/util/expr.y b/tools/perf/util/expr.y
+index 924df4e1c477..e43f4ad1a7d3 100644
+--- a/tools/perf/util/expr.y
++++ b/tools/perf/util/expr.y
+@@ -59,7 +59,7 @@ all_other: all_other other
+ 
+ other: ID
+ {
+-	expr__add_id(ctx, $1, 0.0);
++	expr__add_id_val(ctx, $1, 0.0);
+ }
+ |
+ MIN | MAX | IF | ELSE | SMT_ON | NUMBER | '|' | '^' | '&' | '-' | '+' | '*' | '/' | '%' | '(' | ')' | ','
+diff --git a/tools/perf/util/stat-shadow.c b/tools/perf/util/stat-shadow.c
+index 6b259855d5e0..403f20c67c28 100644
+--- a/tools/perf/util/stat-shadow.c
++++ b/tools/perf/util/stat-shadow.c
+@@ -773,9 +773,9 @@ static int prepare_metric(struct perf_evsel **metric_events,
+ 			*pn = 0;
+ 
+ 		if (metric_total)
+-			expr__add_id(pctx, n, metric_total);
++			expr__add_id_val(pctx, n, metric_total);
+ 		else
+-			expr__add_id(pctx, n, avg_stats(stats)*scale);
++			expr__add_id_val(pctx, n, avg_stats(stats)*scale);
+ 	}
+ 
+ 	return i;
+-- 
+2.27.0
+

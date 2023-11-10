@@ -1,0 +1,105 @@
+From bd847b9c735158b626574b0610075af98774fd96 Mon Sep 17 00:00:00 2001
+From: Jiri Olsa <jolsa@kernel.org>
+Date: Sun, 19 Jul 2020 20:13:04 +0200
+Subject: [PATCH 109/201] perf metric: Change expr__get_id to return struct
+ expr_id_data
+
+mainline inclusion
+from mainline-v5.9-rc1
+commit 60e10c0037d0159f886c8592b761ee31ab3b7e21
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=60e10c0037d0159f886c8592b761ee31ab3b7e21
+
+----------------------------------------------------------------------
+
+Changing expr__get_id to use and return struct expr_id_data
+pointer as value for the ID. This way we can access data other
+than value for given ID in following changes.
+
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Reviewed-by: Kajol Jain <kjain@linux.ibm.com>
+Acked-by: Ian Rogers <irogers@google.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: John Garry <john.garry@huawei.com>
+Cc: Michael Petlan <mpetlan@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Paul Clarke <pc@us.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Link: http://lore.kernel.org/lkml/20200719181320.785305-4-jolsa@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ tools/perf/util/expr.c | 10 +++-------
+ tools/perf/util/expr.h |  3 ++-
+ tools/perf/util/expr.y | 14 +++++++++-----
+ 3 files changed, 14 insertions(+), 13 deletions(-)
+
+diff --git a/tools/perf/util/expr.c b/tools/perf/util/expr.c
+index 719313de63eb..db2036cc41bf 100644
+--- a/tools/perf/util/expr.c
++++ b/tools/perf/util/expr.c
+@@ -70,14 +70,10 @@ int expr__add_id_val(struct expr_parse_ctx *ctx, const char *id, double val)
+ 	return ret;
+ }
+ 
+-int expr__get_id(struct expr_parse_ctx *ctx, const char *id, double *val_ptr)
++int expr__get_id(struct expr_parse_ctx *ctx, const char *id,
++		 struct expr_id_data **data)
+ {
+-	struct expr_id_data *data;
+-
+-	if (!hashmap__find(&ctx->ids, id, (void **)&data))
+-		return -1;
+-	*val_ptr = (data == NULL) ?  0.0 : data->val;
+-	return 0;
++	return hashmap__find(&ctx->ids, id, (void **)data) ? 0 : -1;
+ }
+ 
+ void expr__ctx_init(struct expr_parse_ctx *ctx)
+diff --git a/tools/perf/util/expr.h b/tools/perf/util/expr.h
+index ac32cda42006..f38292fdab19 100644
+--- a/tools/perf/util/expr.h
++++ b/tools/perf/util/expr.h
+@@ -28,7 +28,8 @@ void expr__ctx_init(struct expr_parse_ctx *ctx);
+ void expr__ctx_clear(struct expr_parse_ctx *ctx);
+ int expr__add_id(struct expr_parse_ctx *ctx, const char *id);
+ int expr__add_id_val(struct expr_parse_ctx *ctx, const char *id, double val);
+-int expr__get_id(struct expr_parse_ctx *ctx, const char *id, double *val_ptr);
++int expr__get_id(struct expr_parse_ctx *ctx, const char *id,
++		 struct expr_id_data **data);
+ int expr__parse(double *final_val, struct expr_parse_ctx *ctx,
+ 		const char *expr, int runtime);
+ int expr__find_other(const char *expr, const char *one,
+diff --git a/tools/perf/util/expr.y b/tools/perf/util/expr.y
+index a04c969fb5ee..207dd371fed2 100644
+--- a/tools/perf/util/expr.y
++++ b/tools/perf/util/expr.y
+@@ -74,12 +74,16 @@ if_expr:
+ 	;
+ 
+ expr:	  NUMBER
+-	| ID			{ if (expr__get_id(ctx, $1, &$$)) {
+-					pr_debug("%s not found\n", $1);
++	| ID			{
++					struct expr_id_data *data;
++
++					if (expr__get_id(ctx, $1, &data) || !data) {
++						pr_debug("%s not found\n", $1);
++						free($1);
++						YYABORT;
++					}
++					$$ = data->val;
+ 					free($1);
+-					YYABORT;
+-				  }
+-				  free($1);
+ 				}
+ 	| expr '|' expr		{ $$ = (long)$1 | (long)$3; }
+ 	| expr '&' expr		{ $$ = (long)$1 & (long)$3; }
+-- 
+2.27.0
+

@@ -1,0 +1,59 @@
+From dc1272a008a4a49e531fbaa323f509db0641cb80 Mon Sep 17 00:00:00 2001
+From: Namhyung Kim <namhyung@kernel.org>
+Date: Tue, 15 Sep 2020 12:18:10 +0900
+Subject: [PATCH 136/201] perf metric: Fix some memory leaks - part 2
+
+mainline inclusion
+from mainline-v5.9-rc6
+commit b033ab11ad0c7f9a9c9fa4a1ac2ffad14454a9f3
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=b033ab11ad0c7f9a9c9fa4a1ac2ffad14454a9f3
+
+----------------------------------------------------------------------
+
+The metric_event_delete() missed to free expr->metric_events and it
+should free an expr when metric_refs allocation failed.
+
+Fixes: 4ea2896715e67 ("perf metric: Collect referenced metrics in struct metric_expr")
+Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: John Garry <john.garry@huawei.com>
+Cc: Kajol Jain <kjain@linux.ibm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Link: http://lore.kernel.org/lkml/20200915031819.386559-3-namhyung@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ tools/perf/util/metricgroup.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/tools/perf/util/metricgroup.c b/tools/perf/util/metricgroup.c
+index a6cd69f4a306..d42bf52f798c 100644
+--- a/tools/perf/util/metricgroup.c
++++ b/tools/perf/util/metricgroup.c
+@@ -90,6 +90,7 @@ static void metric_event_delete(struct rblist *rblist __maybe_unused,
+ 
+ 	list_for_each_entry_safe(expr, tmp, &me->head, nd) {
+ 		free(expr->metric_refs);
++		free(expr->metric_events);
+ 		free(expr);
+ 	}
+ 
+@@ -321,6 +322,7 @@ static int metricgroup__setup_events(struct list_head *groups,
+ 			if (!metric_refs) {
+ 				ret = -ENOMEM;
+ 				free(metric_events);
++				free(expr);
+ 				break;
+ 			}
+ 
+-- 
+2.27.0
+

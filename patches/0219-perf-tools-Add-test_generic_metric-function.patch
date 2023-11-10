@@ -1,0 +1,76 @@
+From a1323bf2f13800aab0a3391d792e9ad4ba7bb9f8 Mon Sep 17 00:00:00 2001
+From: Jiri Olsa <jolsa@kernel.org>
+Date: Tue, 2 Jun 2020 23:47:39 +0200
+Subject: [PATCH 102/201] perf tools: Add test_generic_metric function
+
+mainline inclusion
+from mainline-v5.9-rc1
+commit 6d432c4c8aa5660d8f9f43326db8350b48dcb6f5
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=6d432c4c8aa5660d8f9f43326db8350b48dcb6f5
+
+----------------------------------------------------------------------
+
+Adding test_generic_metric that prepares and runs given metric over the
+data from struct runtime_stat object.
+
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Acked-by: Ian Rogers <irogers@google.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Michael Petlan <mpetlan@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Link: http://lore.kernel.org/lkml/20200602214741.1218986-12-jolsa@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+
+  Conflicts:
+	tools/perf/util/stat.h
+---
+ tools/perf/util/stat-shadow.c | 14 ++++++++++++++
+ tools/perf/util/stat.h        |  2 ++
+ 2 files changed, 16 insertions(+)
+
+diff --git a/tools/perf/util/stat-shadow.c b/tools/perf/util/stat-shadow.c
+index c686b8dc3cd7..6b259855d5e0 100644
+--- a/tools/perf/util/stat-shadow.c
++++ b/tools/perf/util/stat-shadow.c
+@@ -839,6 +839,20 @@ static void generic_metric(struct perf_stat_config *config,
+ 	expr__ctx_clear(&pctx);
+ }
+ 
++double test_generic_metric(struct metric_expr *mexp, int cpu, struct runtime_stat *st)
++{
++	struct expr_parse_ctx pctx;
++	double ratio;
++
++	if (prepare_metric(mexp->metric_events, &pctx, cpu, st) < 0)
++		return 0.;
++
++	if (expr__parse(&ratio, &pctx, mexp->metric_expr, 1))
++		return 0.;
++
++	return ratio;
++}
++
+ void perf_stat__print_shadow_stats(struct perf_stat_config *config,
+ 				   struct perf_evsel *evsel,
+ 				   double avg, int cpu,
+diff --git a/tools/perf/util/stat.h b/tools/perf/util/stat.h
+index fbbc47ed5d3f..4bb32cf357c6 100644
+--- a/tools/perf/util/stat.h
++++ b/tools/perf/util/stat.h
+@@ -177,4 +177,6 @@ int perf_event__process_stat_event(struct perf_tool *tool,
+ size_t perf_event__fprintf_stat(union perf_event *event, FILE *fp);
+ size_t perf_event__fprintf_stat_round(union perf_event *event, FILE *fp);
+ size_t perf_event__fprintf_stat_config(union perf_event *event, FILE *fp);
++struct metric_expr;
++double test_generic_metric(struct metric_expr *mexp, int cpu, struct runtime_stat *st);
+ #endif
+-- 
+2.27.0
+

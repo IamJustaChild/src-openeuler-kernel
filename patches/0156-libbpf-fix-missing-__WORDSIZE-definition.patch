@@ -1,0 +1,54 @@
+From 0ac7392379b31ec9b76fb42b083544cac8e4ba29 Mon Sep 17 00:00:00 2001
+From: Andrii Nakryiko <andriin@fb.com>
+Date: Thu, 18 Jul 2019 10:30:21 -0700
+Subject: [PATCH 039/201] libbpf: fix missing __WORDSIZE definition
+
+mainline inclusion
+from mainline-v5.3-rc3
+commit 8aa259b10a6a759c50137bbbf225df0c17ca5d27
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=8aa259b10a6a759c50137bbbf225df0c17ca5d27
+
+------------------------------------------------------------------------
+
+hashmap.h depends on __WORDSIZE being defined. It is defined by
+glibc/musl in different headers. It's an explicit goal for musl to be
+"non-detectable" at compilation time, so instead include glibc header if
+glibc is explicitly detected and fall back to musl header otherwise.
+
+Reported-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Andrii Nakryiko <andriin@fb.com>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Alexei Starovoitov <ast@fb.com>
+Cc: Andrii Nakryiko <andrii.nakryiko@gmail.com>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Fixes: e3b924224028 ("libbpf: add resizable non-thread safe internal hashmap")
+Link: https://lkml.kernel.org/r/20190718173021.2418606-1-andriin@fb.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ tools/lib/bpf/hashmap.h | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/tools/lib/bpf/hashmap.h b/tools/lib/bpf/hashmap.h
+index ab97b9797100..bae8879cdf58 100644
+--- a/tools/lib/bpf/hashmap.h
++++ b/tools/lib/bpf/hashmap.h
+@@ -10,6 +10,12 @@
+ 
+ #include <stdbool.h>
+ #include <stddef.h>
++#ifdef __GLIBC__
++#include <bits/wordsize.h>
++#else
++#include <bits/reg.h>
++#endif
++#include "libbpf_internal.h"
+ 
+ static inline size_t hash_bits(size_t h, int bits)
+ {
+-- 
+2.27.0
+

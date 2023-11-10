@@ -1,0 +1,112 @@
+From 88ef54c8b0a53893de4781bc27fd92b930d5670b Mon Sep 17 00:00:00 2001
+From: Kan Liang <kan.liang@linux.intel.com>
+Date: Mon, 24 Feb 2020 13:59:22 -0800
+Subject: [PATCH 049/201] perf util: Factor out sysctl__nmi_watchdog_enabled()
+
+mainline inclusion
+from mainline-v5.7-rc1
+commit 2a14c1bf017f48a17c8c0ba26a22625363e77cc7
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=2a14c1bf017f48a17c8c0ba26a22625363e77cc7
+
+----------------------------------------------------------------------
+
+The NMI watchdog status is required for metric group constraint
+examination.  Factor out sysctl__nmi_watchdog_enabled() to retrieve the
+NMI watchdog status.
+
+Users may count more than one metric group each time. If so, the NMI
+watchdog status may be retrieved several times. To reduce the overhead,
+cache the NMI watchdog status.
+
+Replace the NMI watchdog status checking in print_footer() by
+sysctl__nmi_watchdog_enabled().
+
+Suggested-by: Andi Kleen <ak@linux.intel.com>
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Jin Yao <yao.jin@linux.intel.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+Link: http://lore.kernel.org/lkml/1582581564-184429-4-git-send-email-kan.liang@linux.intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
+---
+ tools/perf/builtin-stat.c |  5 +----
+ tools/perf/util/util.c    | 18 ++++++++++++++++++
+ tools/perf/util/util.h    |  2 ++
+ 3 files changed, 21 insertions(+), 4 deletions(-)
+
+diff --git a/tools/perf/builtin-stat.c b/tools/perf/builtin-stat.c
+index c96c0715171f..0d8943ead576 100644
+--- a/tools/perf/builtin-stat.c
++++ b/tools/perf/builtin-stat.c
+@@ -1800,7 +1800,6 @@ static void print_footer(struct perf_stat_config *config)
+ {
+ 	double avg = avg_stats(&walltime_nsecs_stats) / NSEC_PER_SEC;
+ 	FILE *output = config->output;
+-	int n;
+ 
+ 	if (!null_run)
+ 		fprintf(output, "\n");
+@@ -1834,9 +1833,7 @@ static void print_footer(struct perf_stat_config *config)
+ 	}
+ 	fprintf(output, "\n\n");
+ 
+-	if (print_free_counters_hint &&
+-	    sysctl__read_int("kernel/nmi_watchdog", &n) >= 0 &&
+-	    n > 0)
++	if (print_free_counters_hint && sysctl__nmi_watchdog_enabled())
+ 		fprintf(output,
+ "Some events weren't counted. Try disabling the NMI watchdog:\n"
+ "	echo 0 > /proc/sys/kernel/nmi_watchdog\n"
+diff --git a/tools/perf/util/util.c b/tools/perf/util/util.c
+index eac5b858a371..935e2be276d5 100644
+--- a/tools/perf/util/util.c
++++ b/tools/perf/util/util.c
+@@ -75,6 +75,24 @@ int sysctl__max_stack(void)
+ 	return sysctl_perf_event_max_stack;
+ }
+ 
++bool sysctl__nmi_watchdog_enabled(void)
++{
++	static bool cached;
++	static bool nmi_watchdog;
++	int value;
++
++	if (cached)
++		return nmi_watchdog;
++
++	if (sysctl__read_int("kernel/nmi_watchdog", &value) < 0)
++		return false;
++
++	nmi_watchdog = (value > 0) ? true : false;
++	cached = true;
++
++	return nmi_watchdog;
++}
++
+ bool test_attr__enabled;
+ 
+ bool perf_host  = true;
+diff --git a/tools/perf/util/util.h b/tools/perf/util/util.h
+index 2efec9e77753..bd39aad17eea 100644
+--- a/tools/perf/util/util.h
++++ b/tools/perf/util/util.h
+@@ -47,6 +47,8 @@ int __pure cacheline_size(void);
+ 
+ int sysctl__max_stack(void);
+ 
++bool sysctl__nmi_watchdog_enabled(void);
++
+ int fetch_kernel_version(unsigned int *puint,
+ 			 char *str, size_t str_sz);
+ #define KVER_VERSION(x)		(((x) >> 16) & 0xff)
+-- 
+2.27.0
+
