@@ -1,7 +1,7 @@
-From 69afac3e136866c0a7b16b47607598d38e4d7fe3 Mon Sep 17 00:00:00 2001
+From a345eb09694fc5da40ecbdc298b836bbcbfd0b64 Mon Sep 17 00:00:00 2001
 From: zhangyu <zhangyu4@kylinos.cn>
-Date: Tue, 6 Jun 2023 11:24:59 +0800
-Subject: [PATCH] apply-preempt-RT-patch
+Date: Fri, 10 Nov 2023 10:00:10 +0800
+Subject: [PATCH] 0001-apply-preempt-RT-patch
 
 ---
  .../Expedited-Grace-Periods.rst               |    4 +-
@@ -410,7 +410,7 @@ Subject: [PATCH] apply-preempt-RT-patch
  net/sched/sch_generic.c                       |   10 +
  net/sunrpc/svc_xprt.c                         |    4 +-
  net/xfrm/xfrm_state.c                         |    3 +-
- 406 files changed, 8992 insertions(+), 4813 deletions(-)
+ 406 files changed, 8991 insertions(+), 4814 deletions(-)
  delete mode 100644 arch/alpha/include/asm/kmap_types.h
  delete mode 100644 arch/arc/include/asm/kmap_types.h
  delete mode 100644 arch/arm/include/asm/kmap_types.h
@@ -657,10 +657,10 @@ index fb3ff76c3..3b2b1479f 100644
  		read-side critical sections.  It also permits
  		spinlocks blocking while in RCU read-side critical
 diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index 8a1a25216..477944250 100644
+index 93bab61aa..d5c449212 100644
 --- a/Documentation/admin-guide/kernel-parameters.txt
 +++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -4345,6 +4345,10 @@
+@@ -4364,6 +4364,10 @@
  			value, meaning that RCU_SOFTIRQ is used by default.
  			Specify rcutree.use_softirq=0 to use rcuc kthreads.
  
@@ -671,7 +671,7 @@ index 8a1a25216..477944250 100644
  	rcutree.rcu_fanout_exact= [KNL]
  			Disable autobalancing of the rcu_node combining
  			tree.  This is used by rcutorture, and might
-@@ -4723,6 +4727,13 @@
+@@ -4742,6 +4746,13 @@
  			only normal grace-period primitives.  No effect
  			on CONFIG_TINY_RCU kernels.
  
@@ -4281,7 +4281,7 @@ index e4abac6c9..173999422 100644
  
  static struct kmsg_dumper kmsg_dumper = {
 diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index 7e53f4344..521c550aa 100644
+index 0baa452ef..dd6f8d810 100644
 --- a/arch/x86/Kconfig
 +++ b/arch/x86/Kconfig
 @@ -16,6 +16,7 @@ config X86_32
@@ -5059,10 +5059,10 @@ index 440eed558..7cfc4e6b7 100644
  }
 +#endif
 diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index b2ce17f29..2b9e0cc89 100644
+index 886468f3e..6c088d4d9 100644
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -8264,6 +8264,13 @@ int kvm_arch_init(void *opaque)
+@@ -8267,6 +8267,13 @@ int kvm_arch_init(void *opaque)
  		r = -EOPNOTSUPP;
  		goto out;
  	}
@@ -5749,7 +5749,7 @@ index f2fd46daa..7e4dd447e 100644
  	ktime_t ac_time;
  #endif
 diff --git a/drivers/char/tpm/tpm-dev-common.c b/drivers/char/tpm/tpm-dev-common.c
-index b99e1941c..dc4c0a0a5 100644
+index a9e7f5a82..30b4c288c 100644
 --- a/drivers/char/tpm/tpm-dev-common.c
 +++ b/drivers/char/tpm/tpm-dev-common.c
 @@ -20,7 +20,6 @@
@@ -5837,10 +5837,10 @@ index 9811c4095..17c9d8251 100644
  	if (!test_and_set_bit_lock(0, &ctx->flushing_completions)) {
  		context_tasklet((unsigned long)&ctx->context);
 diff --git a/drivers/firmware/efi/efi.c b/drivers/firmware/efi/efi.c
-index c406de008..7792bca9e 100644
+index 97a0916d6..a237f86db 100644
 --- a/drivers/firmware/efi/efi.c
 +++ b/drivers/firmware/efi/efi.c
-@@ -66,7 +66,7 @@ struct mm_struct efi_mm = {
+@@ -67,7 +67,7 @@ struct mm_struct efi_mm = {
  
  struct workqueue_struct *efi_rts_wq;
  
@@ -5849,7 +5849,7 @@ index c406de008..7792bca9e 100644
  static int __init setup_noefi(char *arg)
  {
  	disable_runtime = true;
-@@ -97,6 +97,9 @@ static int __init parse_efi_cmdline(char *str)
+@@ -98,6 +98,9 @@ static int __init parse_efi_cmdline(char *str)
  	if (parse_option_str(str, "noruntime"))
  		disable_runtime = true;
  
@@ -8427,7 +8427,7 @@ index 18a4588c3..decaa7768 100644
  
  static inline void task_core_dumping(struct seq_file *m, struct mm_struct *mm)
 diff --git a/fs/proc/base.c b/fs/proc/base.c
-index 98bfd18e6..2a2e16b7f 100644
+index cb63dbc52..722c29f9c 100644
 --- a/fs/proc/base.c
 +++ b/fs/proc/base.c
 @@ -96,6 +96,7 @@
@@ -8438,7 +8438,7 @@ index 98bfd18e6..2a2e16b7f 100644
  #include <linux/share_pool.h>
  #include <trace/events/oom.h>
  #include "internal.h"
-@@ -2161,7 +2162,7 @@ bool proc_fill_cache(struct file *file, struct dir_context *ctx,
+@@ -2163,7 +2164,7 @@ bool proc_fill_cache(struct file *file, struct dir_context *ctx,
  
  	child = d_hash_and_lookup(dir, &qname);
  	if (!child) {
@@ -8565,7 +8565,7 @@ index b4d43a4af..ac255e889 100644
  #define __preempt_schedule() preempt_schedule()
  extern asmlinkage void preempt_schedule_notrace(void);
 diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-index 9ede0a81e..31a67de40 100644
+index 50b4fd0a0..f38b1bd30 100644
 --- a/include/linux/blkdev.h
 +++ b/include/linux/blkdev.h
 @@ -166,7 +166,7 @@ struct request {
@@ -12638,10 +12638,10 @@ index eb5ec1fb6..0e5ff10e5 100644
  
  	TP_PROTO(unsigned long function),
 diff --git a/init/Kconfig b/init/Kconfig
-index b137a6c04..8baab5963 100644
+index 2eb3f376f..a54582912 100644
 --- a/init/Kconfig
 +++ b/init/Kconfig
-@@ -866,7 +866,7 @@ config NUMA_BALANCING
+@@ -867,7 +867,7 @@ config NUMA_BALANCING
  	bool "Memory placement aware NUMA scheduler"
  	depends on ARCH_SUPPORTS_NUMA_BALANCING
  	depends on !ARCH_WANT_NUMA_VARIABLE_LOCALITY
@@ -12650,7 +12650,7 @@ index b137a6c04..8baab5963 100644
  	help
  	  This option adds support for automatic NUMA aware memory/task placement.
  	  The mechanism is quite primitive and is based on migrating memory when
-@@ -1005,6 +1005,7 @@ config CFS_BANDWIDTH
+@@ -1006,6 +1006,7 @@ config CFS_BANDWIDTH
  config RT_GROUP_SCHED
  	bool "Group scheduling for SCHED_RR/FIFO"
  	depends on CGROUP_SCHED
@@ -12658,7 +12658,7 @@ index b137a6c04..8baab5963 100644
  	default n
  	help
  	  This feature lets you explicitly allocate real CPU bandwidth
-@@ -1977,6 +1978,7 @@ choice
+@@ -1978,6 +1979,7 @@ choice
  
  config SLAB
  	bool "SLAB"
@@ -12666,7 +12666,7 @@ index b137a6c04..8baab5963 100644
  	select HAVE_HARDENED_USERCOPY_ALLOCATOR
  	help
  	  The regular slab allocator that is established and known to work
-@@ -1997,6 +1999,7 @@ config SLUB
+@@ -1998,6 +2000,7 @@ config SLUB
  config SLOB
  	depends on EXPERT
  	bool "SLOB (Simple Allocator)"
@@ -12674,7 +12674,7 @@ index b137a6c04..8baab5963 100644
  	help
  	   SLOB replaces the stock allocator with a drastically simpler
  	   allocator. SLOB is generally more space efficient but
-@@ -2063,7 +2066,7 @@ config SHUFFLE_PAGE_ALLOCATOR
+@@ -2064,7 +2067,7 @@ config SHUFFLE_PAGE_ALLOCATOR
  
  config SLUB_CPU_PARTIAL
  	default y
@@ -16367,7 +16367,7 @@ index 000000000..b61edc4dc
 +	__up_write_unlock(sem, WRITER_BIAS - 1, flags);
 +}
 diff --git a/kernel/locking/rwsem.c b/kernel/locking/rwsem.c
-index cc5cc889b..f7c909ef1 100644
+index 976b20b2d..51e1085e4 100644
 --- a/kernel/locking/rwsem.c
 +++ b/kernel/locking/rwsem.c
 @@ -28,6 +28,7 @@
@@ -16378,7 +16378,7 @@ index cc5cc889b..f7c909ef1 100644
  #include "lock_events.h"
  
  /*
-@@ -1494,6 +1495,7 @@ static inline void __downgrade_write(struct rw_semaphore *sem)
+@@ -1512,6 +1513,7 @@ static inline void __downgrade_write(struct rw_semaphore *sem)
  	if (tmp & RWSEM_FLAG_WAITERS)
  		rwsem_downgrade_wake(sem);
  }
@@ -16386,7 +16386,7 @@ index cc5cc889b..f7c909ef1 100644
  
  /*
   * lock for reading
-@@ -1657,7 +1659,9 @@ void down_read_non_owner(struct rw_semaphore *sem)
+@@ -1675,7 +1677,9 @@ void down_read_non_owner(struct rw_semaphore *sem)
  {
  	might_sleep();
  	__down_read(sem);
@@ -16396,7 +16396,7 @@ index cc5cc889b..f7c909ef1 100644
  }
  EXPORT_SYMBOL(down_read_non_owner);
  
-@@ -1686,7 +1690,9 @@ EXPORT_SYMBOL(down_write_killable_nested);
+@@ -1704,7 +1708,9 @@ EXPORT_SYMBOL(down_write_killable_nested);
  
  void up_read_non_owner(struct rw_semaphore *sem)
  {
@@ -21921,7 +21921,7 @@ index 0f349d8d0..c0ae7ff2b 100644
  
  	.task_tick		= task_tick_rt,
 diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
-index 0ab8e2532..df54480b4 100644
+index bcef10a2e..4e56e03db 100644
 --- a/kernel/sched/sched.h
 +++ b/kernel/sched/sched.h
 @@ -1032,6 +1032,7 @@ struct rq {
@@ -22134,7 +22134,7 @@ index 95227b6d5..2cef3ba4b 100644
  
  	init_dl_bw(&rd->dl_bw);
 diff --git a/kernel/signal.c b/kernel/signal.c
-index cf498d949..9996986c2 100644
+index e2025f9eb..f7629e348 100644
 --- a/kernel/signal.c
 +++ b/kernel/signal.c
 @@ -20,6 +20,7 @@
@@ -23055,10 +23055,10 @@ index aed5d6b6c..c26a7168f 100644
  			pr_warn("NOHZ tick-stop error: Non-RCU local softirq work is pending, handler #%02x!!!\n",
  				(unsigned int) local_softirq_pending());
 diff --git a/kernel/time/timer.c b/kernel/time/timer.c
-index f7d3a108e..f24e6fed6 100644
+index c1b52dab3..5036bcb52 100644
 --- a/kernel/time/timer.c
 +++ b/kernel/time/timer.c
-@@ -1287,7 +1287,7 @@ static void del_timer_wait_running(struct timer_list *timer)
+@@ -1454,7 +1454,7 @@ static void del_timer_wait_running(struct timer_list *timer)
  	u32 tf;
  
  	tf = READ_ONCE(timer->flags);
@@ -23067,19 +23067,19 @@ index f7d3a108e..f24e6fed6 100644
  		struct timer_base *base = get_timer_base(tf);
  
  		/*
-@@ -1371,6 +1371,13 @@ int del_timer_sync(struct timer_list *timer)
+@@ -1522,7 +1522,12 @@ static int __timer_delete_sync(struct timer_list *timer, bool shutdown)
+ 	 * could lead to deadlock.
  	 */
  	WARN_ON(in_irq() && !(timer->flags & TIMER_IRQSAFE));
- 
+-
 +	/*
 +	 * Must be able to sleep on PREEMPT_RT because of the slowpath in
 +	 * del_timer_wait_running().
 +	 */
 +	if (IS_ENABLED(CONFIG_PREEMPT_RT) && !(timer->flags & TIMER_IRQSAFE))
 +		lockdep_assert_preemption_enabled();
-+
  	do {
- 		ret = try_to_del_timer_sync(timer);
+ 		ret = __try_to_del_timer_sync(timer, shutdown);
  
 diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
 index f00c1a4ec..d767b9450 100644
@@ -24070,7 +24070,7 @@ index efe38ab47..16f3ecd4a 100644
  #if defined(HASHED_PAGE_VIRTUAL)
  
 diff --git a/mm/memcontrol.c b/mm/memcontrol.c
-index 635cb8b65..16fe44a8c 100644
+index f61042469..c1d4b483b 100644
 --- a/mm/memcontrol.c
 +++ b/mm/memcontrol.c
 @@ -67,6 +67,7 @@
@@ -24110,7 +24110,7 @@ index 635cb8b65..16fe44a8c 100644
  }
  
  /**
-@@ -2169,6 +2178,7 @@ void unlock_page_memcg(struct page *page)
+@@ -2166,6 +2175,7 @@ void unlock_page_memcg(struct page *page)
  EXPORT_SYMBOL(unlock_page_memcg);
  
  struct memcg_stock_pcp {
@@ -24118,7 +24118,7 @@ index 635cb8b65..16fe44a8c 100644
  	struct mem_cgroup *cached; /* this never be root cgroup */
  	unsigned int nr_pages;
  
-@@ -2220,7 +2230,7 @@ static bool consume_stock(struct mem_cgroup *memcg, unsigned int nr_pages)
+@@ -2217,7 +2227,7 @@ static bool consume_stock(struct mem_cgroup *memcg, unsigned int nr_pages)
  	if (nr_pages > MEMCG_CHARGE_BATCH)
  		return ret;
  
@@ -24127,7 +24127,7 @@ index 635cb8b65..16fe44a8c 100644
  
  	stock = this_cpu_ptr(&memcg_stock);
  	if (memcg == stock->cached && stock->nr_pages >= nr_pages) {
-@@ -2228,7 +2238,7 @@ static bool consume_stock(struct mem_cgroup *memcg, unsigned int nr_pages)
+@@ -2225,7 +2235,7 @@ static bool consume_stock(struct mem_cgroup *memcg, unsigned int nr_pages)
  		ret = true;
  	}
  
@@ -24136,7 +24136,7 @@ index 635cb8b65..16fe44a8c 100644
  
  	return ret;
  }
-@@ -2263,14 +2273,14 @@ static void drain_local_stock(struct work_struct *dummy)
+@@ -2260,14 +2270,14 @@ static void drain_local_stock(struct work_struct *dummy)
  	 * The only protection from memory hotplug vs. drain_stock races is
  	 * that we always operate on local CPU stock here with IRQ disabled
  	 */
@@ -24153,7 +24153,7 @@ index 635cb8b65..16fe44a8c 100644
  }
  
  /*
-@@ -2282,7 +2292,7 @@ static void refill_stock(struct mem_cgroup *memcg, unsigned int nr_pages)
+@@ -2279,7 +2289,7 @@ static void refill_stock(struct mem_cgroup *memcg, unsigned int nr_pages)
  	struct memcg_stock_pcp *stock;
  	unsigned long flags;
  
@@ -24162,7 +24162,7 @@ index 635cb8b65..16fe44a8c 100644
  
  	stock = this_cpu_ptr(&memcg_stock);
  	if (stock->cached != memcg) { /* reset if necessary */
-@@ -2295,7 +2305,7 @@ static void refill_stock(struct mem_cgroup *memcg, unsigned int nr_pages)
+@@ -2292,7 +2302,7 @@ static void refill_stock(struct mem_cgroup *memcg, unsigned int nr_pages)
  	if (stock->nr_pages > MEMCG_CHARGE_BATCH)
  		drain_stock(stock);
  
@@ -24171,7 +24171,7 @@ index 635cb8b65..16fe44a8c 100644
  }
  
  /*
-@@ -2315,7 +2325,7 @@ static void drain_all_stock(struct mem_cgroup *root_memcg)
+@@ -2312,7 +2322,7 @@ static void drain_all_stock(struct mem_cgroup *root_memcg)
  	 * as well as workers from this path always operate on the local
  	 * per-cpu data. CPU up doesn't touch memcg_stock at all.
  	 */
@@ -24180,7 +24180,7 @@ index 635cb8b65..16fe44a8c 100644
  	for_each_online_cpu(cpu) {
  		struct memcg_stock_pcp *stock = &per_cpu(memcg_stock, cpu);
  		struct mem_cgroup *memcg;
-@@ -2338,7 +2348,7 @@ static void drain_all_stock(struct mem_cgroup *root_memcg)
+@@ -2335,7 +2345,7 @@ static void drain_all_stock(struct mem_cgroup *root_memcg)
  				schedule_work_on(cpu, &stock->work);
  		}
  	}
@@ -24189,7 +24189,7 @@ index 635cb8b65..16fe44a8c 100644
  	mutex_unlock(&percpu_charge_mutex);
  }
  
-@@ -3140,7 +3150,7 @@ static bool consume_obj_stock(struct obj_cgroup *objcg, unsigned int nr_bytes)
+@@ -3137,7 +3147,7 @@ static bool consume_obj_stock(struct obj_cgroup *objcg, unsigned int nr_bytes)
  	unsigned long flags;
  	bool ret = false;
  
@@ -24198,7 +24198,7 @@ index 635cb8b65..16fe44a8c 100644
  
  	stock = this_cpu_ptr(&memcg_stock);
  	if (objcg == stock->cached_objcg && stock->nr_bytes >= nr_bytes) {
-@@ -3148,7 +3158,7 @@ static bool consume_obj_stock(struct obj_cgroup *objcg, unsigned int nr_bytes)
+@@ -3145,7 +3155,7 @@ static bool consume_obj_stock(struct obj_cgroup *objcg, unsigned int nr_bytes)
  		ret = true;
  	}
  
@@ -24207,7 +24207,7 @@ index 635cb8b65..16fe44a8c 100644
  
  	return ret;
  }
-@@ -3204,7 +3214,7 @@ static void refill_obj_stock(struct obj_cgroup *objcg, unsigned int nr_bytes)
+@@ -3201,7 +3211,7 @@ static void refill_obj_stock(struct obj_cgroup *objcg, unsigned int nr_bytes)
  	struct memcg_stock_pcp *stock;
  	unsigned long flags;
  
@@ -24216,7 +24216,7 @@ index 635cb8b65..16fe44a8c 100644
  
  	stock = this_cpu_ptr(&memcg_stock);
  	if (stock->cached_objcg != objcg) { /* reset if necessary */
-@@ -3218,7 +3228,7 @@ static void refill_obj_stock(struct obj_cgroup *objcg, unsigned int nr_bytes)
+@@ -3215,7 +3225,7 @@ static void refill_obj_stock(struct obj_cgroup *objcg, unsigned int nr_bytes)
  	if (stock->nr_bytes > PAGE_SIZE)
  		drain_obj_stock(stock);
  
@@ -24225,7 +24225,7 @@ index 635cb8b65..16fe44a8c 100644
  }
  
  int obj_cgroup_charge(struct obj_cgroup *objcg, gfp_t gfp, size_t size)
-@@ -6309,12 +6319,12 @@ static int mem_cgroup_move_account(struct page *page,
+@@ -6310,12 +6320,12 @@ static int mem_cgroup_move_account(struct page *page,
  
  	ret = 0;
  
@@ -24240,7 +24240,7 @@ index 635cb8b65..16fe44a8c 100644
  out_unlock:
  	unlock_page(page);
  out:
-@@ -7291,10 +7301,10 @@ int mem_cgroup_charge(struct page *page, struct mm_struct *mm, gfp_t gfp_mask)
+@@ -7292,10 +7302,10 @@ int mem_cgroup_charge(struct page *page, struct mm_struct *mm, gfp_t gfp_mask)
  	css_get(&memcg->css);
  	commit_charge(page, memcg);
  
@@ -24253,7 +24253,7 @@ index 635cb8b65..16fe44a8c 100644
  
  	/*
  	 * Cgroup1's unified memory+swap counter has been charged with the
-@@ -7350,11 +7360,11 @@ static void uncharge_batch(const struct uncharge_gather *ug)
+@@ -7351,11 +7361,11 @@ static void uncharge_batch(const struct uncharge_gather *ug)
  		memcg_oom_recover(ug->memcg);
  	}
  
@@ -24267,7 +24267,7 @@ index 635cb8b65..16fe44a8c 100644
  
  	/* drop reference from uncharge_page */
  	css_put(&ug->memcg->css);
-@@ -7526,10 +7536,10 @@ void mem_cgroup_migrate(struct page *oldpage, struct page *newpage)
+@@ -7527,10 +7537,10 @@ void mem_cgroup_migrate(struct page *oldpage, struct page *newpage)
  	css_get(&memcg->css);
  	commit_charge(newpage, memcg);
  
@@ -24280,7 +24280,7 @@ index 635cb8b65..16fe44a8c 100644
  }
  
  DEFINE_STATIC_KEY_FALSE(memcg_sockets_enabled_key);
-@@ -7659,9 +7669,13 @@ static int __init mem_cgroup_init(void)
+@@ -7660,9 +7670,13 @@ static int __init mem_cgroup_init(void)
  	cpuhp_setup_state_nocalls(CPUHP_MM_MEMCQ_DEAD, "mm/memctrl:dead", NULL,
  				  memcg_hotplug_cpu_dead);
  
@@ -24297,7 +24297,7 @@ index 635cb8b65..16fe44a8c 100644
  
  	for_each_node(node) {
  		struct mem_cgroup_tree_per_node *rtpn;
-@@ -7712,6 +7726,7 @@ void mem_cgroup_swapout(struct page *page, swp_entry_t entry)
+@@ -7713,6 +7727,7 @@ void mem_cgroup_swapout(struct page *page, swp_entry_t entry)
  	struct mem_cgroup *memcg, *swap_memcg;
  	unsigned int nr_entries;
  	unsigned short oldid;
@@ -24305,7 +24305,7 @@ index 635cb8b65..16fe44a8c 100644
  
  	VM_BUG_ON_PAGE(PageLRU(page), page);
  	VM_BUG_ON_PAGE(page_count(page), page);
-@@ -7757,9 +7772,13 @@ void mem_cgroup_swapout(struct page *page, swp_entry_t entry)
+@@ -7758,9 +7773,13 @@ void mem_cgroup_swapout(struct page *page, swp_entry_t entry)
  	 * important here to have the interrupts disabled because it is the
  	 * only synchronisation we have for updating the per-CPU variables.
  	 */
@@ -26107,10 +26107,10 @@ index 358f48b17..0c9a52a2f 100644
  #include <linux/atomic.h>
  #include <linux/frontswap.h>
 diff --git a/net/Kconfig b/net/Kconfig
-index d6567162c..05b0f041f 100644
+index a22c3fb88..5a17bded7 100644
 --- a/net/Kconfig
 +++ b/net/Kconfig
-@@ -282,7 +282,7 @@ config CGROUP_NET_CLASSID
+@@ -280,7 +280,7 @@ config CGROUP_NET_CLASSID
  
  config NET_RX_BUSY_POLL
  	bool
@@ -26120,7 +26120,7 @@ index d6567162c..05b0f041f 100644
  config BQL
  	bool
 diff --git a/net/core/dev.c b/net/core/dev.c
-index 64837bb05..dee3d89c8 100644
+index 02bf39500..450202563 100644
 --- a/net/core/dev.c
 +++ b/net/core/dev.c
 @@ -221,14 +221,14 @@ static inline struct hlist_head *dev_index_hash(struct net *net, int ifindex)
@@ -26240,7 +26240,7 @@ index 64837bb05..dee3d89c8 100644
  }
  EXPORT_SYMBOL(__napi_schedule);
  
-@@ -10978,6 +10986,7 @@ static int dev_cpu_dead(unsigned int oldcpu)
+@@ -10976,6 +10984,7 @@ static int dev_cpu_dead(unsigned int oldcpu)
  
  	raise_softirq_irqoff(NET_TX_SOFTIRQ);
  	local_irq_enable();
@@ -26248,7 +26248,7 @@ index 64837bb05..dee3d89c8 100644
  
  #ifdef CONFIG_RPS
  	remsd = oldsd->rps_ipi_list;
-@@ -10991,7 +11000,7 @@ static int dev_cpu_dead(unsigned int oldcpu)
+@@ -10989,7 +10998,7 @@ static int dev_cpu_dead(unsigned int oldcpu)
  		netif_rx_ni(skb);
  		input_queue_head_incr(oldsd);
  	}
@@ -26257,7 +26257,7 @@ index 64837bb05..dee3d89c8 100644
  		netif_rx_ni(skb);
  		input_queue_head_incr(oldsd);
  	}
-@@ -11307,7 +11316,7 @@ static int __init net_dev_init(void)
+@@ -11305,7 +11314,7 @@ static int __init net_dev_init(void)
  
  		INIT_WORK(flush, flush_backlog);
  
@@ -26425,7 +26425,7 @@ index ecdd9e83f..73b5aa797 100644
  	sch->ops = ops;
  	sch->flags = ops->static_flags;
 diff --git a/net/sunrpc/svc_xprt.c b/net/sunrpc/svc_xprt.c
-index 362487f3a..5c6c31fc7 100644
+index f56b4df6c..6cb833516 100644
 --- a/net/sunrpc/svc_xprt.c
 +++ b/net/sunrpc/svc_xprt.c
 @@ -422,7 +422,7 @@ void svc_xprt_do_enqueue(struct svc_xprt *xprt)
