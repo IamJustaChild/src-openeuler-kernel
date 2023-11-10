@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0238
+Release: %{hulkrelease}.0239
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -836,6 +836,10 @@ fi
 %endif
 
 %changelog
+
+* Fri Nov 10 2023 Yu Liao <liaoyu15@huawei.com> - 4.19.90-2311.1.0.0239
+- mpam: support ACPI for MPAM 2.0
+
 * Thu Nov 9 2023 Kunkun Jiang <jiangkunkun@huawei.com> - 4.19.90-2311.1.0.0238
 - scsi: virtio_scsi: limit number of hw queues by nr_cpu_ids
 

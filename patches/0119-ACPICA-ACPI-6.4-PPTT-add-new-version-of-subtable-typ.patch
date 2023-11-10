@@ -1,0 +1,65 @@
+From 3cab8977d9a1456204cc629bbae1572c583a91fb Mon Sep 17 00:00:00 2001
+From: Erik Kaneda <erik.kaneda@intel.com>
+Date: Fri, 9 Jun 2023 13:06:50 +0800
+Subject: [PATCH openEuler-20.03-LTS-SP4 2/4] ACPICA: ACPI 6.4: PPTT: add new version
+ of subtable type 1
+
+mainline inclusion
+from mainline-v5.13-rc1
+commit 5e2e86c0b9970e6f70869e76a1c6417036fd3a7e
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I77UDW
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=5e2e86c0b9970e6f70869e76a1c6417036fd3a7e
+
+--------------------------------
+
+This commit squashes the following:
+
+ACPICA commit 475c5e89f8f701ccdfee6ca567e33c854ecd6c9e
+ACPICA commit 82cf78ac175a4b7d8842c5b786be24031c817cfd
+
+This new subtable is only valid for PPTT version 3.
+
+Elyes fixed a misspelled identifier in this commit.
+
+Link: https://github.com/acpica/acpica/commit/475c5e89
+Link: https://github.com/acpica/acpica/commit/82cf78ac
+Signed-off-by: Elyes HAOUAS <ehaouas@noos.fr>
+Signed-off-by: Erik Kaneda <erik.kaneda@intel.com>
+Signed-off-by: Bob Moore <robert.moore@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Yu Liao <liaoyu15@huawei.com>
+---
+ include/acpi/actbl2.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/include/acpi/actbl2.h b/include/acpi/actbl2.h
+index 38325bd24231..d95852c1708f 100644
+--- a/include/acpi/actbl2.h
++++ b/include/acpi/actbl2.h
+@@ -1664,6 +1664,12 @@ struct acpi_pptt_cache {
+ 	u16 line_size;
+ };
+ 
++/* 1: Cache Type Structure for PPTT version 3 */
++
++struct acpi_pptt_cache_v1 {
++	u32 cache_id;
++};
++
+ /* Flags */
+ 
+ #define ACPI_PPTT_SIZE_PROPERTY_VALID       (1)	/* Physical property valid */
+@@ -1673,6 +1679,7 @@ struct acpi_pptt_cache {
+ #define ACPI_PPTT_CACHE_TYPE_VALID          (1<<4)	/* Cache type valid */
+ #define ACPI_PPTT_WRITE_POLICY_VALID        (1<<5)	/* Write policy valid */
+ #define ACPI_PPTT_LINE_SIZE_VALID           (1<<6)	/* Line size valid */
++#define ACPI_PPTT_CACHE_ID_VALID            (1<<7)	/* Cache ID valid */
+ 
+ /* Masks for Attributes */
+ 
+-- 
+2.25.1
+
