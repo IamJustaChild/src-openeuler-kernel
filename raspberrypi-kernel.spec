@@ -2,7 +2,7 @@
 
 %global KernelVer %{version}-%{release}.raspi.%{_target_cpu}
 
-%global hulkrelease 136.53.0
+%global hulkrelease 136.54.0
 
 %global debug_package %{nil}
 
