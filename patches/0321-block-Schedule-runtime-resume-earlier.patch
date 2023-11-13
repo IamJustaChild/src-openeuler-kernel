@@ -1,0 +1,68 @@
+From 16e80bbfc1171a7c708e7ebb03b8271f372a0795 Mon Sep 17 00:00:00 2001
+From: Bart Van Assche <bvanassche@acm.org>
+Date: Wed, 26 Sep 2018 14:01:06 -0700
+Subject: [PATCH 003/256] block: Schedule runtime resume earlier
+
+mainline inclusion
+from mainline-v4.20-rc1
+commit 0d25bd072b494a0290a7855a2e0286c4a0c92041
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=0d25bd072b494a0290a7855a2e0286c4a0c92041
+
+----------------------------------------------------------------------
+
+Instead of scheduling runtime resume of a request queue after a
+request has been queued, schedule asynchronous resume during request
+allocation. The new pm_request_resume() calls occur after
+blk_queue_enter() has increased the q_usage_counter request queue
+member. This change is needed for a later patch that will make request
+allocation block while the queue status is not RPM_ACTIVE.
+
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Cc: Jianchao Wang <jianchao.w.wang@oracle.com>
+Cc: Hannes Reinecke <hare@suse.com>
+Cc: Johannes Thumshirn <jthumshirn@suse.de>
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	block/blk-core.c
+---
+ block/blk-core.c | 3 ++-
+ block/elevator.c | 1 -
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/block/blk-core.c b/block/blk-core.c
+index 368d4544d678..20a23cb3c323 100644
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -1232,7 +1232,8 @@ int blk_queue_enter(struct request_queue *q, blk_mq_req_flags_t flags)
+ 
+ 		wait_event(q->mq_freeze_wq,
+ 			   (!queue_to_wrapper(q)->mq_freeze_depth &&
+-			    (pm || !blk_queue_pm_only(q))) ||
++			    (pm || (blk_pm_request_resume(q),
++				    !blk_queue_pm_only(q)))) ||
+ 			   blk_queue_dying(q));
+ 		if (blk_queue_dying(q))
+ 			return -ENODEV;
+diff --git a/block/elevator.c b/block/elevator.c
+index 307214632c91..93540a12ca44 100644
+--- a/block/elevator.c
++++ b/block/elevator.c
+@@ -607,7 +607,6 @@ void __elv_add_request(struct request_queue *q, struct request *rq, int where)
+ 	trace_block_rq_insert(q, rq);
+ 
+ 	blk_pm_add_request(q, rq);
+-	blk_pm_request_resume(q);
+ 
+ 	rq->q = q;
+ 
+-- 
+2.27.0
+

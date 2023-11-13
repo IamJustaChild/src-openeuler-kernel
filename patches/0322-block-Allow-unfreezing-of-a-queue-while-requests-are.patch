@@ -1,0 +1,53 @@
+From 6d037b0ddfd6c3b40636eb6472532521cec4c086 Mon Sep 17 00:00:00 2001
+From: Bart Van Assche <bvanassche@acm.org>
+Date: Wed, 26 Sep 2018 14:01:08 -0700
+Subject: [PATCH 004/256] block: Allow unfreezing of a queue while requests are
+ in progress
+
+mainline inclusion
+from mainline-v4.20-rc1
+commit bdd6316094e0370cd183bc979dd7e322b68dc993
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=bdd6316094e0370cd183bc979dd7e322b68dc993
+
+----------------------------------------------------------------------
+
+A later patch will call blk_freeze_queue_start() followed by
+blk_mq_unfreeze_queue() without waiting for q_usage_counter to drop
+to zero. Make sure that this doesn't cause a kernel warning to appear
+by switching from percpu_ref_reinit() to percpu_ref_resurrect(). The
+former namely requires that the refcount it operates on is zero.
+
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Cc: Jianchao Wang <jianchao.w.wang@oracle.com>
+Cc: Hannes Reinecke <hare@suse.com>
+Cc: Johannes Thumshirn <jthumshirn@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	block/blk-mq.c
+---
+ block/blk-mq.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index 96debbe63ad2..73f0f5ed8ec1 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -203,7 +203,7 @@ void blk_mq_unfreeze_queue(struct request_queue *q)
+ 
+ 	WARN_ON_ONCE(q_wrapper->mq_freeze_depth < 0);
+ 	if (!q_wrapper->mq_freeze_depth) {
+-		percpu_ref_reinit(&q->q_usage_counter);
++		percpu_ref_resurrect(&q->q_usage_counter);
+ 		wake_up_all(&q->mq_freeze_wq);
+ 	}
+ 
+-- 
+2.27.0
+

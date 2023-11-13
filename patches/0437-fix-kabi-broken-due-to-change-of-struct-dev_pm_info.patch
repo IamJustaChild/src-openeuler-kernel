@@ -1,0 +1,37 @@
+From 71040333b996884dbf5f6151e37f473311e123ad Mon Sep 17 00:00:00 2001
+From: YunYi Yang <yangyunyi2@huawei.com>
+Date: Mon, 28 Aug 2023 15:00:56 +0800
+Subject: [PATCH 119/256] fix kabi broken due to change of struct dev_pm_info
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F803
+
+----------------------------------------------------------------------------
+
+Commit ("PM / core: Add support to skip power
+management in device/driver model") changes the struct dev_pm_info,
+so we need to fix kabi broken problem.
+
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ include/linux/pm.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/include/linux/pm.h b/include/linux/pm.h
+index e573f956ed8b..9327eb5b32c3 100644
+--- a/include/linux/pm.h
++++ b/include/linux/pm.h
+@@ -591,7 +591,9 @@ struct dev_pm_info {
+ 	bool			is_suspended:1;	/* Ditto */
+ 	bool			is_noirq_suspended:1;
+ 	bool			is_late_suspended:1;
++#ifndef __GENKSYMS__
+ 	bool			no_pm:1;
++#endif
+ 	bool			early_init:1;	/* Owned by the PM core */
+ 	bool			direct_complete:1;	/* Owned by the PM core */
+ 	u32			driver_flags;
+-- 
+2.27.0
+

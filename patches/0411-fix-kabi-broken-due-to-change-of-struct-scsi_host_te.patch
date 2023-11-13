@@ -1,0 +1,84 @@
+From d389bbd1c92f5dd316ec0847c7f914b12ece0d0e Mon Sep 17 00:00:00 2001
+From: YunYi Yang <yangyunyi2@huawei.com>
+Date: Fri, 25 Aug 2023 17:22:22 +0800
+Subject: [PATCH 093/256] fix kabi broken due to change of struct
+ scsi_host_template and Scsi_Host
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F7ZR
+
+----------------------------------------------------------------------------
+
+Commit ("scsi: Add host and host template flag 'host_tagset'")
+changes the struct struct scsi_host_template and Scsi_Host, so we need to
+fix kabi broken problem.
+
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	include/scsi/scsi_host.h
+---
+ include/scsi/scsi_host.h | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/include/scsi/scsi_host.h b/include/scsi/scsi_host.h
+index c9efb9729f6f..845619f71448 100644
+--- a/include/scsi/scsi_host.h
++++ b/include/scsi/scsi_host.h
+@@ -443,9 +443,6 @@ struct scsi_host_template {
+ 	/* True if the low-level driver supports blk-mq only */
+ 	unsigned force_blk_mq:1;
+ 
+-	/* True if the host uses host-wide tagspace */
+-	unsigned host_tagset:1;
+-
+ 	/*
+ 	 * Countdown for host blocking with no commands outstanding.
+ 	 */
+@@ -491,7 +488,12 @@ struct scsi_host_template {
+ 	unsigned int cmd_size;
+ 	struct scsi_host_cmd_pool *cmd_pool;
+ 
++#ifndef __GENKSYMS__
++	/* True if the host uses host-wide tagspace */
++	unsigned host_tagset:1;
++#else
+ 	KABI_RESERVE(1)
++#endif
+ 	KABI_RESERVE(2)
+ 	KABI_RESERVE(3)
+ 	KABI_RESERVE(4)
+@@ -663,9 +665,6 @@ struct Scsi_Host {
+ 	unsigned use_blk_mq:1;
+ 	unsigned use_cmd_list:1;
+ 
+-	/* True if the host uses host-wide tagspace */
+-	unsigned host_tagset:1;
+-
+ 	/* Host responded with short (<36 bytes) INQUIRY result */
+ 	unsigned short_inquiry:1;
+ 
+@@ -717,16 +716,17 @@ struct Scsi_Host {
+ 	 */
+ 	struct device *dma_dev;
+ 
+-
+ #ifndef __GENKSYMS__
+ 	union {
+ 		bool is_builtin;
+ 		KABI_RESERVE(1)
+ 	};
++	/* True if the host uses host-wide tagspace */
++	unsigned host_tagset:1;
+ #else
+ 	KABI_RESERVE(1)
+-#endif
+ 	KABI_RESERVE(2)
++#endif
+ 	KABI_RESERVE(3)
+ 	KABI_RESERVE(4)
+ 	KABI_RESERVE(5)
+-- 
+2.27.0
+

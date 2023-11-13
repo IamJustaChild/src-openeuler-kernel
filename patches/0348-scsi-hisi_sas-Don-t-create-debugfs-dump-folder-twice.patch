@@ -1,0 +1,55 @@
+From 692f1e7568e1ec959c180b694d14585e5ea0262a Mon Sep 17 00:00:00 2001
+From: Xiang Chen <chenxiang66@hisilicon.com>
+Date: Thu, 24 Oct 2019 22:08:08 +0800
+Subject: [PATCH 030/256] scsi: hisi_sas: Don't create debugfs dump folder
+ twice
+
+mainline inclusion
+from mainline-v5.5-rc1
+commit 35160421b63d4753a72e9f72ebcdd9d6f88f84b9
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F81L
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=35160421b63d4753a72e9f72ebcdd9d6f88f84b9
+
+----------------------------------------------------------------------
+
+Due to a merge error, we attempt to create 2x debugfs dump folders, which
+fails:
+[  861.101914] debugfs: Directory 'dump' with parent '0000:74:02.0'
+already present!
+
+This breaks the dump function.
+
+To fix, remove the superfluous attempt to create the folder.
+
+Fixes: 7ec7082c57ec ("scsi: hisi_sas: Add hisi_sas_debugfs_alloc() to centralise allocation")
+Link: https://lore.kernel.org/r/1571926105-74636-2-git-send-email-john.garry@huawei.com
+Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/hisi_sas/hisi_sas_main.c
+---
+ drivers/scsi/hisi_sas/hisi_sas_main.c | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index 31820f024340..bb0287eed0dc 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -3812,9 +3812,6 @@ static int hisi_sas_debugfs_alloc(struct hisi_hba *hisi_hba)
+ 	int p, c, d;
+ 	size_t sz;
+ 
+-	hisi_hba->debugfs_dump_dentry =
+-			debugfs_create_dir("dump", hisi_hba->debugfs_dir);
+-
+ 	/* create bist structures */
+ 	hisi_hba->debugfs_bist_dentry = debugfs_create_dir("bist",
+ 						hisi_hba->debugfs_dir);
+-- 
+2.27.0
+

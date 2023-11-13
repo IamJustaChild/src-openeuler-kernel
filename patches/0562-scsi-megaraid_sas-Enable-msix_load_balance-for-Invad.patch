@@ -1,0 +1,46 @@
+From d8a541fb129863d1720c26a9e79450adaf720601 Mon Sep 17 00:00:00 2001
+From: Shivasharan S <shivasharan.srikanteshwara@broadcom.com>
+Date: Fri, 28 Jun 2019 02:50:39 -0700
+Subject: [PATCH 244/256] scsi: megaraid_sas: Enable msix_load_balance for
+ Invader and later controllers
+
+mainline inclusion
+from mainline-v5.3-rc1
+commit 1175b88452cad208894412b955ee698934968aed
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8F7ZR
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=1175b88452cad208894412b955ee698934968aed
+
+----------------------------------------------------------------------
+
+Load balancing IO completions across all available MSI-X vectors should be
+enabled for Invader and later generation controllers only.  This needs to
+be disabled for older controllers.  Add an adapter type check before
+setting msix_load_balance flag.
+
+Fixes: 1d15d9098ad1 ("scsi: megaraid_sas: Load balance completions across all MSI-X")
+Signed-off-by: Shivasharan S <shivasharan.srikanteshwara@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/megaraid/megaraid_sas_base.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/scsi/megaraid/megaraid_sas_base.c b/drivers/scsi/megaraid/megaraid_sas_base.c
+index daf5b08ab066..c65edb5cd132 100644
+--- a/drivers/scsi/megaraid/megaraid_sas_base.c
++++ b/drivers/scsi/megaraid/megaraid_sas_base.c
+@@ -5481,7 +5481,8 @@ static int megasas_init_fw(struct megasas_instance *instance)
+ 						(scratch_pad_1 & MR_RDPQ_MODE_OFFSET) ?
+ 						1 : 0;
+ 
+-				if (!instance->msix_combined) {
++				if (instance->adapter_type >= INVADER_SERIES &&
++				    !instance->msix_combined) {
+ 					instance->msix_load_balance = true;
+ 					instance->smp_affinity_enable = false;
+ 				}
+-- 
+2.27.0
+

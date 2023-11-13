@@ -1,0 +1,82 @@
+From 7fdc9346b83aa795f83f2d3b27a0e5e44170a870 Mon Sep 17 00:00:00 2001
+From: Xiang Chen <chenxiang66@hisilicon.com>
+Date: Mon, 7 Dec 2020 21:30:55 +0800
+Subject: [PATCH 116/256] scsi: hisi_sas: Select a suitable queue for internal
+ I/Os
+
+mainline inclusion
+from mainline-v5.10-rc1
+commit 359db63378eded1ee9c8c9ad72245f9b0158ae95
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F7ZR
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=359db63378eded1ee9c8c9ad72245f9b0158ae95
+
+----------------------------------------------------------------------
+
+For when managed interrupts are used (and shost->nr_hw_queues is set), a
+fixed queue - set per-device - is still used for internal I/Os.
+
+If all the CPUs mapped to that queue are offlined, then the completions for
+that queue are not serviced and any internal I/Os will time out.
+
+Fix by selecting a queue for internal I/Os from the queue mapped from the
+current CPU in this scenario.
+
+This is still not ideal as it does not deal with CPU hotplug for inflight
+internal I/Os, and needs proper support from [0].
+
+[0] https://lore.kernel.org/linux-scsi/20200703130122.111448-1-hare@suse.de/T/#m7d77d049b18f33a24ef206af69ebb66d07440556
+
+Link: https://lore.kernel.org/r/1607347855-59091-1-git-send-email-john.garry@huawei.com
+Fixes: 8d98416a55eb ("scsi: hisi_sas: Switch v3 hw to MQ")
+Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+---
+ drivers/scsi/hisi_sas/hisi_sas_main.c  | 6 ++++++
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 7 +++++++
+ 2 files changed, 13 insertions(+)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index b78fe6102ba4..4946a9879ed8 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -472,6 +472,12 @@ static int hisi_sas_task_prep(struct sas_task *task,
+ 		blk_tag = blk_mq_unique_tag(scmd->request);
+ 		dq_index = blk_mq_unique_tag_to_hwq(blk_tag);
+ 		*dq_pointer = dq = &hisi_hba->dq[dq_index];
++	} else if (hisi_hba->shost->nr_hw_queues)  {
++		struct Scsi_Host *shost = hisi_hba->shost;
++		struct blk_mq_queue_map *qmap = &shost->tag_set.map[HCTX_TYPE_DEFAULT];
++		int queue = qmap->mq_map[raw_smp_processor_id()];
++
++		*dq_pointer = dq = &hisi_hba->dq[queue];
+ 	} else {
+ 		*dq_pointer = dq = sas_dev->dq;
+ 	}
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index 71e3a77c8725..74ac8bc54f44 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -2787,6 +2787,13 @@ static int interrupt_init_v3_hw(struct hisi_hba *hisi_hba)
+ 		}
+ 
+ 		tasklet_init(t, cq_tasklet_v3_hw, (uintptr_t)cq);
++
++		cq->irq_mask = pci_irq_get_affinity(pdev,
++						    i + HISI_SAS_CQ_INT_BASE_VECTORS_V3_HW);
++		if (!cq->irq_mask) {
++			dev_err(dev, "could not get cq%d irq affinity!\n", i);
++			return -ENOENT;
++		}
+ 	}
+ 
+ 	return 0;
+-- 
+2.27.0
+

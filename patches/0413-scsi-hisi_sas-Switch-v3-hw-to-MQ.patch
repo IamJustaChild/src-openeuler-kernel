@@ -1,0 +1,258 @@
+From 2657c5842c0b0de1e7ea09934d997cbf797119c6 Mon Sep 17 00:00:00 2001
+From: John Garry <john.garry@huawei.com>
+Date: Wed, 19 Aug 2020 23:20:32 +0800
+Subject: [PATCH 095/256] scsi: hisi_sas: Switch v3 hw to MQ
+
+mainline inclusion
+from mainline-v5.10-rc1
+commit 8d98416a55ebfecbe57fd26981decf6fcdf37b11
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8F7ZR
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=8d98416a55ebfecbe57fd26981decf6fcdf37b11
+
+----------------------------------------------------------------------
+
+Now that the block layer provides a shared tag, we can switch the driver
+to expose all HW queues.
+
+Signed-off-by: John Garry <john.garry@huawei.com>
+Tested-by: Douglas Gilbert <dgilbert@interlog.com>
+Acked-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/hisi_sas/hisi_sas.h
+	drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+---
+ drivers/scsi/hisi_sas/hisi_sas.h       |  3 +-
+ drivers/scsi/hisi_sas/hisi_sas_main.c  | 36 ++++++-----
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 88 ++++++++++----------------
+ 3 files changed, 56 insertions(+), 71 deletions(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas.h b/drivers/scsi/hisi_sas/hisi_sas.h
+index f6dbb9dd3ea3..35c1247caa15 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas.h
++++ b/drivers/scsi/hisi_sas/hisi_sas.h
+@@ -13,6 +13,8 @@
+ #define _HISI_SAS_H_
+ 
+ #include <linux/acpi.h>
++#include <linux/blk-mq.h>
++#include <linux/blk-mq-pci.h>
+ #include <linux/clk.h>
+ #include <linux/debugfs.h>
+ #include <linux/dmapool.h>
+@@ -481,7 +483,6 @@ struct hisi_hba {
+ 	int bist_loopback_enable;
+ 
+ 	int enable_dix_dif;
+-	unsigned int *reply_map;
+ 
+ 	/* debugfs memories */
+ 	/* Put Global AXI and RAS Register into register array */
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index 037ab14e40ce..3f49d60d01f3 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -437,6 +437,7 @@ static int hisi_sas_task_prep(struct sas_task *task,
+ 	struct device *dev = hisi_hba->dev;
+ 	int dlvry_queue_slot, dlvry_queue, rc, slot_idx;
+ 	int n_elem = 0, n_elem_dif = 0, n_elem_req = 0;
++	struct scsi_cmnd *scmd = NULL;
+ 	struct hisi_sas_dq *dq;
+ 	unsigned long flags;
+ 	int wr_q_index;
+@@ -453,10 +454,23 @@ static int hisi_sas_task_prep(struct sas_task *task,
+ 		return -ECOMM;
+ 	}
+ 
+-	if (hisi_hba->reply_map) {
+-		int cpu = raw_smp_processor_id();
+-		unsigned int dq_index = hisi_hba->reply_map[cpu];
++	if (task->uldd_task) {
++		struct ata_queued_cmd *qc;
+ 
++		if (dev_is_sata(device)) {
++			qc = task->uldd_task;
++			scmd = qc->scsicmd;
++		} else {
++			scmd = task->uldd_task;
++		}
++	}
++
++	if (scmd) {
++		unsigned int dq_index;
++		u32 blk_tag;
++
++		blk_tag = blk_mq_unique_tag(scmd->request);
++		dq_index = blk_mq_unique_tag_to_hwq(blk_tag);
+ 		*dq_pointer = dq = &hisi_hba->dq[dq_index];
+ 	} else {
+ 		*dq_pointer = dq = sas_dev->dq;
+@@ -483,21 +497,9 @@ static int hisi_sas_task_prep(struct sas_task *task,
+ 
+ 	if (hisi_hba->hw->slot_index_alloc)
+ 		rc = hisi_hba->hw->slot_index_alloc(hisi_hba, device);
+-	else {
+-		struct scsi_cmnd *scsi_cmnd = NULL;
+-
+-		if (task->uldd_task) {
+-			struct ata_queued_cmd *qc;
++	else
++		rc = hisi_sas_slot_index_alloc(hisi_hba, scmd);
+ 
+-			if (dev_is_sata(device)) {
+-				qc = task->uldd_task;
+-				scsi_cmnd = qc->scsicmd;
+-			} else {
+-				scsi_cmnd = task->uldd_task;
+-			}
+-		}
+-		rc  = hisi_sas_slot_index_alloc(hisi_hba, scsi_cmnd);
+-	}
+ 	if (rc < 0)
+ 		goto err_out_dif_dma_unmap;
+ 
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index 7719c13df112..1f5bd0b98d28 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -2686,70 +2686,37 @@ static irqreturn_t cq_interrupt_v3_hw(int irq_no, void *p)
+ 	return IRQ_HANDLED;
+ }
+ 
+-static void setup_reply_map_v3_hw(struct hisi_hba *hisi_hba, int nvecs)
++static int interrupt_preinit_v3_hw(struct hisi_hba *hisi_hba)
+ {
+-	const struct cpumask *mask;
+-	int queue, cpu;
+-
+-	for (queue = 0; queue < nvecs; queue++) {
+-		struct hisi_sas_cq *cq = &hisi_hba->cq[queue];
++	int vectors;
++	int max_msi = HISI_SAS_MSI_COUNT_V3_HW, min_msi;
++	struct Scsi_Host *shost = hisi_hba->shost;
++	struct irq_affinity desc = {
++	.pre_vectors = HISI_SAS_CQ_INT_BASE_VECTORS_V3_HW,
++	};
++
++	min_msi = HISI_SAS_MIN_VECTORS_V3_HW;
++	vectors = pci_alloc_irq_vectors_affinity(hisi_hba->pci_dev,
++						 min_msi, max_msi,
++						 PCI_IRQ_MSI |
++						 PCI_IRQ_AFFINITY,
++						 &desc);
++	if (vectors < 0)
++		return -ENOENT;
+ 
+-		mask = pci_irq_get_affinity(hisi_hba->pci_dev, queue +
+-					    HISI_SAS_CQ_INT_BASE_VECTORS_V3_HW);
+-		if (!mask)
+-			goto fallback;
+-		cq->irq_mask = mask;
+-		for_each_cpu(cpu, mask)
+-			hisi_hba->reply_map[cpu] = queue;
+-	}
+-	return;
++	hisi_hba->nvecs = vectors - HISI_SAS_CQ_INT_BASE_VECTORS_V3_HW;
++	shost->nr_hw_queues = hisi_hba->nvecs;
+ 
+-fallback:
+-	for_each_possible_cpu(cpu)
+-		hisi_hba->reply_map[cpu] = cpu % hisi_hba->queue_count;
+-	/* Don't clean all CQ masks */
++	return 0;
+ }
+ 
+ static int interrupt_init_v3_hw(struct hisi_hba *hisi_hba)
+ {
+ 	struct device *dev = hisi_hba->dev;
+ 	struct pci_dev *pdev = hisi_hba->pci_dev;
+-	int vectors, rc, i;
++	int rc, i;
+ 	int max_dq_num, online_numa_num;
+-	int max_msi = HISI_SAS_MSI_COUNT_V3_HW, min_msi;
+-
+-	if (auto_affine_msi_experimental) {
+-		struct irq_affinity desc = {
+-			.pre_vectors = HISI_SAS_CQ_INT_BASE_VECTORS_V3_HW,
+-		};
+-
+-		dev_info(dev, "Enable MSI auto-affinity\n");
+-
+-		min_msi = HISI_SAS_MIN_VECTORS_V3_HW;
+-
+-		hisi_hba->reply_map = devm_kcalloc(dev, nr_cpu_ids,
+-						   sizeof(unsigned int),
+-						   GFP_KERNEL);
+-		if (!hisi_hba->reply_map)
+-			return -ENOMEM;
+-		vectors = pci_alloc_irq_vectors_affinity(hisi_hba->pci_dev,
+-							 min_msi, max_msi,
+-							 PCI_IRQ_MSI |
+-							 PCI_IRQ_AFFINITY,
+-							 &desc);
+-		if (vectors < 0)
+-			return -ENOENT;
+-		setup_reply_map_v3_hw(hisi_hba,
+-				      vectors - HISI_SAS_CQ_INT_BASE_VECTORS_V3_HW);
+-	} else {
+-		min_msi = max_msi;
+-		vectors = pci_alloc_irq_vectors(hisi_hba->pci_dev, min_msi,
+-						max_msi, PCI_IRQ_MSI);
+-		if (vectors < 0)
+-			return vectors;
+-	}
+ 
+-	hisi_hba->nvecs = vectors - HISI_SAS_CQ_INT_BASE_VECTORS_V3_HW;
+ 	max_dq_num = (hisi_hba->nvecs < hisi_hba->queue_count) ?
+ 		hisi_hba->nvecs : hisi_hba->queue_count;
+ 	online_numa_num = num_online_nodes();
+@@ -3463,6 +3430,15 @@ static void read_iost_itct_cache_v3_hw(struct hisi_hba *hisi_hba,
+ 		buf[i] = hisi_sas_read32(hisi_hba, TAB_DFX);
+ }
+ 
++static int hisi_sas_map_queues(struct Scsi_Host *shost)
++{
++	struct hisi_hba *hisi_hba = shost_priv(shost);
++	struct blk_mq_queue_map *qmap = &shost->tag_set.map[HCTX_TYPE_DEFAULT];
++
++	return blk_mq_pci_map_queues_by_qmap(qmap, hisi_hba->pci_dev,
++					     HISI_SAS_CQ_INT_BASE_VECTORS_V3_HW);
++}
++
+ static struct scsi_host_template sht_v3_hw = {
+ 	.name			= DRV_NAME,
+ 	.proc_name		= DRV_NAME,
+@@ -3472,6 +3448,7 @@ static struct scsi_host_template sht_v3_hw = {
+ 	.slave_configure	= hisi_sas_slave_configure,
+ 	.scan_finished		= hisi_sas_scan_finished,
+ 	.scan_start		= hisi_sas_scan_start,
++	.map_queues		= hisi_sas_map_queues,
+ 	.change_queue_depth	= sas_change_queue_depth,
+ 	.bios_param		= sas_bios_param,
+ 	.this_id		= -1,
+@@ -3487,6 +3464,7 @@ static struct scsi_host_template sht_v3_hw = {
+ 	.shost_attrs		= host_attrs_v3_hw,
+ 	.host_reset             = hisi_sas_host_reset,
+ 	.tag_alloc_policy	= BLK_TAG_ALLOC_RR,
++	.host_tagset		= 1,
+ };
+ 
+ static const struct hisi_sas_hw hisi_sas_v3_hw = {
+@@ -3662,6 +3640,10 @@ hisi_sas_v3_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 				SHOST_DIX_GUARD_CRC);
+ 	}
+ 
++	rc = interrupt_preinit_v3_hw(hisi_hba);
++	if (rc)
++		goto err_out_ha;
++	dev_err(dev, "%d hw queues\n", shost->nr_hw_queues);
+ 	rc = scsi_add_host(shost, dev);
+ 	if (rc)
+ 		goto err_out_ha;
+-- 
+2.27.0
+

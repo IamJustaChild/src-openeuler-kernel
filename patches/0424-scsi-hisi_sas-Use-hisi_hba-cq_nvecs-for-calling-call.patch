@@ -1,0 +1,81 @@
+From 118af04e6a6bd559b4a82f842070cdcff7e8f3f8 Mon Sep 17 00:00:00 2001
+From: Luo Jiaxing <luojiaxing@huawei.com>
+Date: Fri, 2 Oct 2020 22:30:32 +0800
+Subject: [PATCH 106/256] scsi: hisi_sas: Use hisi_hba->cq_nvecs for calling
+ calling synchronize_irq()
+
+mainline inclusion
+from mainline-v5.10-rc1
+commit 7f054da7738a66fc70239ee899e74d899bad3834
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F7ZR
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=7f054da7738a66fc70239ee899e74d899bad3834
+
+----------------------------------------------------------------------
+
+A call trace is observed when running function level reset with online CPUs
+less than 16 and MSI auto-affinity enabled.
+
+[16538.348038] Call trace:
+[16538.348422]  pci_irq_vector+0x98/0xc0
+[16538.348947]  disable_host_v3_hw+0x8c/0x288 [hisi_sas_v3_hw]
+[16538.349706]  hisi_sas_reset_prepare_v3_hw+0x60/0x88 [hisi_sas_v3_hw]
+[16538.350631]  pci_dev_save_and_disable+0x38/0x68
+[16538.351290]  pci_reset_function+0x44/0x88
+[16538.351846]  reset_store+0x6c/0xb8
+[16538.352429]  dev_attr_store+0x44/0x60
+[16538.353035]  sysfs_kf_write+0x58/0x80
+[16538.353558]  kernfs_fop_write+0x140/0x230
+[16538.354175]  __vfs_write+0x48/0x80
+[16538.354675]  vfs_write+0xb8/0x1d8
+[16538.355145]  ksys_write+0x74/0xf8
+[16538.355615]  __arm64_sys_write+0x24/0x30
+[16538.356240]  el0_svc_common.constprop.4+0x80/0x1f0
+[16538.356905]  do_el0_svc+0x2c/0x38
+[16538.357408]  el0_svc+0x14/0x40
+[16538.357848]  el0_sync_handler+0xbc/0x2ec
+[16538.358388]  el0_sync+0x140/0x180
+
+The reason is that if we use pci_alloc_irq_vectors_affinity() to allocate
+IRQs, the number of CQ IRQs can only be less than or equal to the number of
+online CPUs, but we use hisi_hba->queue_count (always 16) to iterate during
+interrupt_disable_v3_hw().
+
+Use hisi_hba->cq_nvecs to replace hisi_hba->queue_count to avoid
+synchronize IRQ on a CPU which does not exist.
+
+Link: https://lore.kernel.org/r/1601649038-25534-2-git-send-email-john.garry@huawei.com
+Signed-off-by: Luo Jiaxing <luojiaxing@huawei.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+---
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index f66c6599ec44..6b64fd9baa76 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -2828,10 +2828,11 @@ static void interrupt_disable_v3_hw(struct hisi_hba *hisi_hba)
+ 	synchronize_irq(pci_irq_vector(pdev, PCI_IRQ_PHY));
+ 	synchronize_irq(pci_irq_vector(pdev, PCI_IRQ_CHANNEL));
+ 	synchronize_irq(pci_irq_vector(pdev, PCI_IRQ_AXI_FATAL));
+-	for (i = 0; i < hisi_hba->nvecs; i++) {
++	for (i = 0; i < hisi_hba->queue_count; i++)
+ 		hisi_sas_write32(hisi_hba, OQ0_INT_SRC_MSK + 0x4 * i, 0x1);
+-		synchronize_irq(pci_irq_vector(pdev, i + PCI_IRQ_CQ_BASE));
+-	}
++
++	for (i = 0; i < hisi_hba->nvecs; i++)
++		synchronize_irq(pci_irq_vector(pdev, i + 16));
+ 
+ 	hisi_sas_write32(hisi_hba, ENT_INT_SRC_MSK1, 0xffffffff);
+ 	hisi_sas_write32(hisi_hba, ENT_INT_SRC_MSK2, 0xffffffff);
+-- 
+2.27.0
+

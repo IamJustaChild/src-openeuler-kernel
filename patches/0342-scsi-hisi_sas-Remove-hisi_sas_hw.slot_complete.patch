@@ -1,0 +1,84 @@
+From a78f22345f24aa09d1e53ed898f0683af04045b5 Mon Sep 17 00:00:00 2001
+From: Luo Jiaxing <luojiaxing@huawei.com>
+Date: Fri, 6 Sep 2019 20:55:32 +0800
+Subject: [PATCH 024/256] scsi: hisi_sas: Remove hisi_sas_hw.slot_complete
+
+mainline inclusion
+from mainline-v5.4-rc1
+commit 971b59443f213d8085d122fae65aa96087b269bc
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EKNE
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=971b59443f213d8085d122fae65aa96087b269bc
+
+----------------------------------------------------------------------
+
+We never call hisi_sas_hw.slot_complete, so remove it.
+
+Link: https://lore.kernel.org/r/1567774537-20003-9-git-send-email-john.garry@huawei.com
+Signed-off-by: Luo Jiaxing <luojiaxing@huawei.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/hisi_sas/hisi_sas.h
+---
+ drivers/scsi/hisi_sas/hisi_sas.h       | 2 --
+ drivers/scsi/hisi_sas/hisi_sas_v1_hw.c | 1 -
+ drivers/scsi/hisi_sas/hisi_sas_v2_hw.c | 1 -
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 1 -
+ 4 files changed, 5 deletions(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas.h b/drivers/scsi/hisi_sas/hisi_sas.h
+index de5752f07987..3fc67664c22a 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas.h
++++ b/drivers/scsi/hisi_sas/hisi_sas.h
+@@ -331,8 +331,6 @@ struct hisi_sas_hw {
+ 			   struct hisi_sas_slot *slot,
+ 			   unsigned int device_id,
+ 			   int abort_flag, int tag_to_abort);
+-	int (*slot_complete)(struct hisi_hba *hisi_hba,
+-			     struct hisi_sas_slot *slot);
+ 	void (*phys_init)(struct hisi_hba *hisi_hba);
+ 	void (*phy_start)(struct hisi_hba *hisi_hba, int phy_no);
+ 	void (*phy_disable)(struct hisi_hba *hisi_hba, int phy_no);
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
+index 7ec286b11973..1228f282d443 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
+@@ -1790,7 +1790,6 @@ static const struct hisi_sas_hw hisi_sas_v1_hw = {
+ 	.prep_smp = prep_smp_v1_hw,
+ 	.prep_ssp = prep_ssp_v1_hw,
+ 	.start_delivery = start_delivery_v1_hw,
+-	.slot_complete = slot_complete_v1_hw,
+ 	.phys_init = phys_init_v1_hw,
+ 	.phy_start = start_phy_v1_hw,
+ 	.phy_disable = disable_phy_v1_hw,
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
+index bb1efab2b682..a835487fd406 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
+@@ -3586,7 +3586,6 @@ static const struct hisi_sas_hw hisi_sas_v2_hw = {
+ 	.prep_stp = prep_ata_v2_hw,
+ 	.prep_abort = prep_abort_v2_hw,
+ 	.start_delivery = start_delivery_v2_hw,
+-	.slot_complete = slot_complete_v2_hw,
+ 	.phys_init = phys_init_v2_hw,
+ 	.phy_start = start_phy_v2_hw,
+ 	.phy_disable = disable_phy_v2_hw,
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index 722ef2be390a..eee696afb28d 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -3488,7 +3488,6 @@ static const struct hisi_sas_hw hisi_sas_v3_hw = {
+ 	.prep_stp = prep_ata_v3_hw,
+ 	.prep_abort = prep_abort_v3_hw,
+ 	.start_delivery = start_delivery_v3_hw,
+-	.slot_complete = slot_complete_v3_hw,
+ 	.phys_init = phys_init_v3_hw,
+ 	.phy_start = start_phy_v3_hw,
+ 	.phy_disable = disable_phy_v3_hw,
+-- 
+2.27.0
+

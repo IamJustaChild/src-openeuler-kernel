@@ -1,0 +1,74 @@
+From bdc1bf67479d6ed91ea0ca455226b3bb7b7ed193 Mon Sep 17 00:00:00 2001
+From: Luo Jiaxing <luojiaxing@huawei.com>
+Date: Tue, 1 Sep 2020 19:13:04 +0800
+Subject: [PATCH 098/256] scsi: hisi_sas: Modify macro name for OOB phy
+ linkrate
+
+mainline inclusion
+from mainline-v5.10-rc1
+commit 4b3a1f1feda62b0b15536548b6d31ca549de2e3a
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F81L
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=4b3a1f1feda62b0b15536548b6d31ca549de2e3a
+
+----------------------------------------------------------------------
+
+The macro for OOB phy linkrate is named CFG_PROG_PHY_LINK_RATE_* but that
+is inaccurate. For clarification, include OOB in macro name.
+
+Link: https://lore.kernel.org/r/1598958790-232272-3-git-send-email-john.garry@huawei.com
+Signed-off-by: Luo Jiaxing <luojiaxing@huawei.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+---
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index 1f5bd0b98d28..2ab1584d762d 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -199,8 +199,8 @@
+ #define PHY_CFG_PHY_RST_OFF		3
+ #define PHY_CFG_PHY_RST_MSK		(0x1 << PHY_CFG_PHY_RST_OFF)
+ #define PROG_PHY_LINK_RATE		(PORT_BASE + 0x8)
+-#define CFG_PROG_PHY_LINK_RATE_OFF	8
+-#define CFG_PROG_PHY_LINK_RATE_MSK	(0xf << CFG_PROG_PHY_LINK_RATE_OFF)
++#define CFG_PROG_OOB_PHY_LINK_RATE_OFF	8
++#define CFG_PROG_OOB_PHY_LINK_RATE_MSK	(0xf << CFG_PROG_OOB_PHY_LINK_RATE_OFF)
+ #define PHY_CTRL			(PORT_BASE + 0x14)
+ #define PHY_CTRL_RESET_OFF		0
+ #define PHY_CTRL_RESET_MSK		(0x1 << PHY_CTRL_RESET_OFF)
+@@ -3312,10 +3312,9 @@ static void hisi_sas_bist_test_restore_v3_hw(struct hisi_hba *hisi_hba)
+ 	/*restore the linkrate*/
+ 	reg_val = hisi_sas_phy_read32(hisi_hba, phy_id, PROG_PHY_LINK_RATE);
+ 	/* init OOB link rate as 1.5 Gbits */
+-	reg_val &= ~CFG_PROG_PHY_LINK_RATE_MSK;
+-	reg_val |= (0x800 << CFG_PROG_PHY_LINK_RATE_OFF);
+-	hisi_sas_phy_write32(hisi_hba, phy_id,
+-		PROG_PHY_LINK_RATE, reg_val);
++	reg_val &= ~CFG_PROG_OOB_PHY_LINK_RATE_MSK;
++	reg_val |= (0x8 << CFG_PROG_OOB_PHY_LINK_RATE_OFF);
++	hisi_sas_phy_write32(hisi_hba, phy_id, PROG_PHY_LINK_RATE, reg_val);
+ 
+ 	/* enable PHY */
+ 	hisi_sas_phy_enable(hisi_hba, phy_id, 1);
+@@ -3339,8 +3338,8 @@ static int debugfs_set_bist_v3_hw(struct hisi_hba *hisi_hba, bool enable)
+ 		/* set linkrate of bit test*/
+ 		reg_val = hisi_sas_phy_read32(hisi_hba, phy_id,
+ 					      PROG_PHY_LINK_RATE);
+-		reg_val &= ~CFG_PROG_PHY_LINK_RATE_MSK;
+-		reg_val |= (linkrate << CFG_PROG_PHY_LINK_RATE_OFF);
++		reg_val &= ~CFG_PROG_OOB_PHY_LINK_RATE_MSK;
++		reg_val |= (linkrate << CFG_PROG_OOB_PHY_LINK_RATE_OFF);
+ 		hisi_sas_phy_write32(hisi_hba, phy_id,
+ 				     PROG_PHY_LINK_RATE, reg_val);
+ 
+-- 
+2.27.0
+

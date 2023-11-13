@@ -1,0 +1,50 @@
+From e3047cf5f635651ba59ca62a46b900be21f81206 Mon Sep 17 00:00:00 2001
+From: John Garry <john.garry@huawei.com>
+Date: Thu, 15 Oct 2020 16:27:05 +0800
+Subject: [PATCH 112/256] scsi: hisi_sas: Stop using queue #0 always for v2 hw
+
+mainline inclusion
+from mainline-v5.10-rc2
+commit fab09aaee80389a37d8ab49396afbb77fa86583a
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EKNE
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=fab09aaee80389a37d8ab49396afbb77fa86583a
+
+----------------------------------------------------------------------
+
+In commit 8d98416a55eb ("scsi: hisi_sas: Switch v3 hw to MQ"), the dispatch
+function was changed to choose the delivery queue based on the request tag
+HW queue index.
+
+This heavily degrades performance for v2 hw, since the HW queues are not
+exposed there, and, as such, HW queue #0 is used for every command.
+
+Revert to previous behaviour for when nr_hw_queues is not set, that being
+to choose the HW queue based on target device index.
+
+Link: https://lore.kernel.org/r/1602750425-240341-1-git-send-email-john.garry@huawei.com
+Fixes: 8d98416a55eb ("scsi: hisi_sas: Switch v3 hw to MQ")
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/hisi_sas/hisi_sas_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index 06d5964bae35..b78fe6102ba4 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -465,7 +465,7 @@ static int hisi_sas_task_prep(struct sas_task *task,
+ 		}
+ 	}
+ 
+-	if (scmd) {
++	if (scmd && hisi_hba->shost->nr_hw_queues) {
+ 		unsigned int dq_index;
+ 		u32 blk_tag;
+ 
+-- 
+2.27.0
+

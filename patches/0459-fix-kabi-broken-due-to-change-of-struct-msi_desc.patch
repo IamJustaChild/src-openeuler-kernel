@@ -1,0 +1,38 @@
+From aa4e8efd56b6d14d421dfbe55fe29abe32d7752e Mon Sep 17 00:00:00 2001
+From: YunYi Yang <yangyunyi2@huawei.com>
+Date: Mon, 19 Jun 2023 17:25:33 +0800
+Subject: [PATCH 141/256] fix kabi broken due to change of struct msi_desc
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F7ZR
+
+----------------------------------------------------------------------------
+
+Commit ("genirq/core: Introduce struct irq_affinity_desc")
+changes struct msi_desc, so we need to fix kabi broken problem.
+
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ include/linux/msi.h | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/include/linux/msi.h b/include/linux/msi.h
+index c0ad2a47a290..75f32a5785dc 100644
+--- a/include/linux/msi.h
++++ b/include/linux/msi.h
+@@ -76,7 +76,11 @@ struct msi_desc {
+ 	unsigned int			nvec_used;
+ 	struct device			*dev;
+ 	struct msi_msg			msg;
++#ifndef __GENKSYMS__
+ 	struct irq_affinity_desc	*affinity;
++#else
++	struct cpumask                  *affinity;
++#endif
+ 
+ 	union {
+ 		/* PCI MSI/X specific data */
+-- 
+2.27.0
+

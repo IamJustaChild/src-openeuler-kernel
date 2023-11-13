@@ -1,0 +1,65 @@
+From 355ba88743269ee4b959e4fe1be45b8d402aa693 Mon Sep 17 00:00:00 2001
+From: Xiang Chen <chenxiang66@hisilicon.com>
+Date: Tue, 19 Apr 2022 17:06:58 +0800
+Subject: [PATCH 186/256] scsi: mvsas: Add spin_lock/unlock() to protect
+ asd_sas_port->phy_list
+
+mainline inclusion
+from mainline-v5.17-rc1
+commit 133b688b2d03f7ae2a6c9d344f92c1949ec05a51
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F803
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=133b688b2d03f7ae2a6c9d344f92c1949ec05a51
+
+----------------------------------------------------------------------
+
+phy_list_lock is not held when using asd_sas_port->phy_list in the mvsas
+driver. Add spin_lock/unlock in those places.
+
+Link: https://lore.kernel.org/r/1639999298-244569-7-git-send-email-chenxiang66@hisilicon.com
+Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Fujai Ni<nifuijia1@hisilicon.com>
+Reviewed-by: Jason Yan <yanaijie@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/mvsas/mv_sas.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/scsi/mvsas/mv_sas.c b/drivers/scsi/mvsas/mv_sas.c
+index d14b6856f592..7a0684c2a215 100644
+--- a/drivers/scsi/mvsas/mv_sas.c
++++ b/drivers/scsi/mvsas/mv_sas.c
+@@ -83,8 +83,10 @@ static struct mvs_info *mvs_find_dev_mvi(struct domain_device *dev)
+ 
+ 	while (sha->sas_port[i]) {
+ 		if (sha->sas_port[i] == dev->port) {
++			spin_lock(&sha->sas_port[i]->phy_list_lock);
+ 			phy =  container_of(sha->sas_port[i]->phy_list.next,
+ 				struct asd_sas_phy, port_phy_el);
++			spin_unlock(&sha->sas_port[i]->phy_list_lock);
+ 			j = 0;
+ 			while (sha->sas_phy[j]) {
+ 				if (sha->sas_phy[j] == phy)
+@@ -112,6 +114,8 @@ static int mvs_find_dev_phyno(struct domain_device *dev, int *phyno)
+ 	while (sha->sas_port[i]) {
+ 		if (sha->sas_port[i] == dev->port) {
+ 			struct asd_sas_phy *phy;
++
++			spin_lock(&sha->sas_port[i]->phy_list_lock);
+ 			list_for_each_entry(phy,
+ 				&sha->sas_port[i]->phy_list, port_phy_el) {
+ 				j = 0;
+@@ -125,6 +129,7 @@ static int mvs_find_dev_phyno(struct domain_device *dev, int *phyno)
+ 				num++;
+ 				n++;
+ 			}
++			spin_unlock(&sha->sas_port[i]->phy_list_lock);
+ 			break;
+ 		}
+ 		i++;
+-- 
+2.27.0
+

@@ -1,0 +1,47 @@
+From b18e2bbcca9dff4bbbad8f5dd6e51ad74e446941 Mon Sep 17 00:00:00 2001
+From: Xingui Yang <yangxingui@huawei.com>
+Date: Thu, 16 Mar 2023 20:21:39 +0800
+Subject: [PATCH 211/256] scsi: hisi_sas: Use abort task set to reset SAS disks
+ when discovered
+
+mainline inclusion
+from mainline-v6.2-rc4
+commit 037b48057e8b485a8d72f808122796aeadbbee32
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F82P
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=037b48057e8b485a8d72f808122796aeadbbee32
+
+----------------------------------------------------------------------
+
+Currently clear task set is used to abort all commands remaining in the
+disk when the SAS disk is discovered, and if the disk is discovered by two
+initiators, other I_T nexuses are also affected. So use abort task set
+instead and take effect only on the specified I_T nexus.
+
+Signed-off-by: Xingui Yang <yangxingui@huawei.com>
+Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
+Link: https://lore.kernel.org/r/1672805000-141102-2-git-send-email-chenxiang66@hisilicon.com
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: xiabing <xiabing12@h-partners.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/hisi_sas/hisi_sas_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index 3f438fe6c7ad..1d406f71016b 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -714,7 +714,7 @@ static int hisi_sas_init_device(struct domain_device *device)
+ 	case SAS_END_DEVICE:
+ 		int_to_scsilun(0, &lun);
+ 
+-		tmf_task.tmf = TMF_CLEAR_TASK_SET;
++		tmf_task.tmf = TMF_ABORT_TASK_SET;
+ 		while (retry-- > 0) {
+ 			rc = hisi_sas_debug_issue_ssp_tmf(device, lun.scsi_lun,
+ 						  &tmf_task);
+-- 
+2.27.0
+

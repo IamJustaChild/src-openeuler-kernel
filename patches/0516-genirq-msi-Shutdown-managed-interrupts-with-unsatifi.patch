@@ -1,0 +1,76 @@
+From 49d6cb0118fdc1e0a1885d5cfc5cdebe0cb43aac Mon Sep 17 00:00:00 2001
+From: Marc Zyngier <maz@kernel.org>
+Date: Wed, 6 Jul 2022 18:05:37 +0800
+Subject: [PATCH 198/256] genirq/msi: Shutdown managed interrupts with
+ unsatifiable affinities
+
+mainline inclusion
+from mainline-v5.19-rc1
+commit d802057c7c553ad426520a053da9f9fe08e2c35a
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EKNE
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=d802057c7c553ad426520a053da9f9fe08e2c35a
+
+----------------------------------------------------------------------
+
+When booting with maxcpus=<small number>, interrupt controllers
+such as the GICv3 ITS may not be able to satisfy the affinity of
+some managed interrupts, as some of the HW resources are simply
+not available.
+
+The same thing happens when loading a driver using managed interrupts
+while CPUs are offline.
+
+In order to deal with this, do not try to activate such interrupt
+if there is no online CPU capable of handling it. Instead, place
+it in shutdown state. Once a capable CPU shows up, it will be
+activated.
+
+Reported-by: John Garry <john.garry@huawei.com>
+Reported-by: David Decotigny <ddecotig@google.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: John Garry <john.garry@huawei.com>
+Link: https://lore.kernel.org/r/20220405185040.206297-2-maz@kernel.org
+
+conflict:
+    kernel/irq/msi.c
+
+Signed-off-by: Chen Jiahao <chenjiahao16@huawei.com>
+Reviewed-by: Zhang Jianhua <chris.zjh@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ kernel/irq/msi.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/kernel/irq/msi.c b/kernel/irq/msi.c
+index b7e4c5999cc8..f2c8b9706f76 100644
+--- a/kernel/irq/msi.c
++++ b/kernel/irq/msi.c
+@@ -457,6 +457,21 @@ int msi_domain_alloc_irqs(struct irq_domain *domain, struct device *dev,
+ 			irqd_clr_can_reserve(irq_data);
+ 			if (domain->flags & IRQ_DOMAIN_MSI_NOMASK_QUIRK)
+ 				irqd_set_msi_nomask_quirk(irq_data);
++
++			/*
++			 * If the interrupt is managed but no CPU is available
++			 * to service it, shut it down until better times. Note
++			 * that we only do this on the !RESERVE path as x86
++			 * (the only architecture using this flag) deals with
++			 * this in a different way by using a catch-all vector.
++			 */
++			if ((info->flags & MSI_FLAG_ACTIVATE_EARLY) &&
++			    irqd_affinity_is_managed(irq_data) &&
++			    !cpumask_intersects(irq_data_get_affinity_mask(irq_data),
++						cpu_online_mask)) {
++				irqd_set_managed_shutdown(irq_data);
++				return 0;
++			}
+ 		}
+ 		ret = irq_domain_activate_irq(irq_data, can_reserve);
+ 		if (ret)
+-- 
+2.27.0
+

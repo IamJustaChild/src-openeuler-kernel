@@ -1,0 +1,46 @@
+From ad6a39e691a7eed85d38acc33053cb184b5efca3 Mon Sep 17 00:00:00 2001
+From: YunYi Yang <yangyunyi2@huawei.com>
+Date: Fri, 25 Aug 2023 16:54:27 +0800
+Subject: [PATCH 089/256] fix kabi broken due to change of struct request_queue
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F7ZR
+
+----------------------------------------------------------------------------
+
+Commit ("blk-mq: Record nr_active_requests per queue
+for when using shared sbitmap") changes the struct request_queue,
+so we need to fix kabi broken problem.
+
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ include/linux/blkdev.h | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
+index af2e2d49d00c..b4216c70193d 100644
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -608,8 +608,6 @@ struct request_queue {
+ 	struct work_struct	timeout_work;
+ 	struct list_head	timeout_list;
+ 
+-	atomic_t		nr_active_requests_shared_sbitmap;
+-
+ 	struct list_head	icq_list;
+ #ifdef CONFIG_BLK_CGROUP
+ 	DECLARE_BITMAP		(blkcg_pols, BLKCG_MAX_POLS);
+@@ -710,6 +708,9 @@ struct request_queue {
+ 
+ #define BLK_MAX_WRITE_HINTS	5
+ 	u64			write_hints[BLK_MAX_WRITE_HINTS];
++#ifndef __GENKSYMS__
++	atomic_t                nr_active_requests_shared_sbitmap;
++#endif
+ };
+ 
+ #define QUEUE_FLAG_QUEUED	0	/* uses generic tag queueing */
+-- 
+2.27.0
+

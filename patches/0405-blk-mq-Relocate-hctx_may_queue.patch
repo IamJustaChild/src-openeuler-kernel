@@ -1,0 +1,133 @@
+From 796836afb278436ff6efe4e3906b27b7b24b0b4f Mon Sep 17 00:00:00 2001
+From: John Garry <john.garry@huawei.com>
+Date: Wed, 19 Aug 2020 23:20:25 +0800
+Subject: [PATCH 087/256] blk-mq: Relocate hctx_may_queue()
+
+mainline inclusion
+from mainline-v5.10-rc1
+commit a0235d230f3245aa4bd70b514d5effb24be61acd
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F7ZR
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=a0235d230f3245aa4bd70b514d5effb24be61acd
+
+----------------------------------------------------------------------
+
+blk-mq.h and blk-mq-tag.h include on each other, which is less than ideal.
+
+Locate hctx_may_queue() to blk-mq.h, as it is not really tag specific code.
+
+In this way, we can drop the blk-mq-tag.h include of blk-mq.h
+
+Signed-off-by: John Garry <john.garry@huawei.com>
+Tested-by: Douglas Gilbert <dgilbert@interlog.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	block/blk-mq-tag.h
+---
+ block/blk-mq-tag.c | 31 -------------------------------
+ block/blk-mq-tag.h |  2 --
+ block/blk-mq.h     | 32 ++++++++++++++++++++++++++++++++
+ 3 files changed, 32 insertions(+), 33 deletions(-)
+
+diff --git a/block/blk-mq-tag.c b/block/blk-mq-tag.c
+index e8bd8e8ccab4..09dceca5142d 100644
+--- a/block/blk-mq-tag.c
++++ b/block/blk-mq-tag.c
+@@ -63,37 +63,6 @@ void __blk_mq_tag_idle(struct blk_mq_hw_ctx *hctx)
+ 	blk_mq_tag_wakeup_all(tags, false);
+ }
+ 
+-/*
+- * For shared tag users, we track the number of currently active users
+- * and attempt to provide a fair share of the tag depth for each of them.
+- */
+-static inline bool hctx_may_queue(struct blk_mq_hw_ctx *hctx,
+-				  struct sbitmap_queue *bt)
+-{
+-	unsigned int depth, users;
+-
+-	if (!hctx || !(hctx->flags & BLK_MQ_F_TAG_QUEUE_SHARED))
+-		return true;
+-	if (!test_bit(BLK_MQ_S_TAG_ACTIVE, &hctx->state))
+-		return true;
+-
+-	/*
+-	 * Don't try dividing an ant
+-	 */
+-	if (bt->sb.depth == 1)
+-		return true;
+-
+-	users = atomic_read(&hctx->tags->active_queues);
+-	if (!users)
+-		return true;
+-
+-	/*
+-	 * Allow at least some tags
+-	 */
+-	depth = max((bt->sb.depth + users - 1) / users, 4U);
+-	return atomic_read(&hctx->nr_active) < depth;
+-}
+-
+ static int __blk_mq_get_tag(struct blk_mq_alloc_data *data,
+ 			    struct sbitmap_queue *bt)
+ {
+diff --git a/block/blk-mq-tag.h b/block/blk-mq-tag.h
+index b2851213e859..f19fb28fd2bc 100644
+--- a/block/blk-mq-tag.h
++++ b/block/blk-mq-tag.h
+@@ -2,8 +2,6 @@
+ #ifndef INT_BLK_MQ_TAG_H
+ #define INT_BLK_MQ_TAG_H
+ 
+-#include "blk-mq.h"
+-
+ /*
+  * Tag address space map.
+  */
+diff --git a/block/blk-mq.h b/block/blk-mq.h
+index 1196eb42f27c..734af4425954 100644
+--- a/block/blk-mq.h
++++ b/block/blk-mq.h
+@@ -275,4 +275,36 @@ static inline void blk_mq_free_requests(struct list_head *list)
+ 	}
+ }
+ 
++/*
++ * For shared tag users, we track the number of currently active users
++ * and attempt to provide a fair share of the tag depth for each of them.
++ */
++static inline bool hctx_may_queue(struct blk_mq_hw_ctx *hctx,
++				  struct sbitmap_queue *bt)
++{
++	unsigned int depth, users;
++
++	if (!hctx || !(hctx->flags & BLK_MQ_F_TAG_QUEUE_SHARED))
++		return true;
++	if (!test_bit(BLK_MQ_S_TAG_ACTIVE, &hctx->state))
++		return true;
++
++	/*
++	 * Don't try dividing an ant
++	 */
++	if (bt->sb.depth == 1)
++		return true;
++
++	users = atomic_read(&hctx->tags->active_queues);
++	if (!users)
++		return true;
++
++	/*
++	 * Allow at least some tags
++	 */
++	depth = max((bt->sb.depth + users - 1) / users, 4U);
++	return atomic_read(&hctx->nr_active) < depth;
++}
++
++
+ #endif
+-- 
+2.27.0
+

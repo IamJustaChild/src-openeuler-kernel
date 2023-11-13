@@ -1,0 +1,55 @@
+From f5d34efb7e7b9d8b8b748c913b5dae1de4d0fc47 Mon Sep 17 00:00:00 2001
+From: Luo Jiaxing <luojiaxing@huawei.com>
+Date: Wed, 11 Mar 2020 23:22:24 +0800
+Subject: [PATCH 051/256] scsi: hisi_sas: Use dev_err() in
+ read_iost_itct_cache_v3_hw()
+
+mainline inclusion
+from mainline-v5.7-rc1
+commit 1e067dd8a3681310a36302640dc33c4f3fb0c190
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EKNE
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=1e067dd8a3681310a36302640dc33c4f3fb0c190
+
+----------------------------------------------------------------------
+
+The print of pr_err() does not come with device information, so replace it
+with dev_err(). Also improve the grammar in the message.
+
+Link: https://lore.kernel.org/r/1583940144-230800-1-git-send-email-john.garry@huawei.com
+Signed-off-by: Luo Jiaxing <luojiaxing@huawei.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+---
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index 11196e52b8df..1d12269c69cf 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -3440,6 +3440,7 @@ static void read_iost_itct_cache_v3_hw(struct hisi_hba *hisi_hba,
+ {
+ 	u32 cache_dw_size = HISI_SAS_IOST_ITCT_CACHE_DW_SZ *
+ 			    HISI_SAS_IOST_ITCT_CACHE_NUM;
++	struct device *dev = hisi_hba->dev;
+ 	u32 *buf = cache;
+ 	u32 i, val;
+ 
+@@ -3452,7 +3453,7 @@ static void read_iost_itct_cache_v3_hw(struct hisi_hba *hisi_hba,
+ 	}
+ 
+ 	if (val != 0xffffffff) {
+-		pr_err("Issue occur when reading IOST/ITCT cache!\n");
++		dev_err(dev, "Issue occurred in reading IOST/ITCT cache!\n");
+ 		return;
+ 	}
+ 
+-- 
+2.27.0
+

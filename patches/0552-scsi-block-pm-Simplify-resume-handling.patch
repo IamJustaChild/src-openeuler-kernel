@@ -1,0 +1,131 @@
+From d3f50dd778db514d3f78eb30c84d88843d66e7eb Mon Sep 17 00:00:00 2001
+From: Alan Stern <stern@rowland.harvard.edu>
+Date: Mon, 6 Jul 2020 11:14:36 -0400
+Subject: [PATCH 234/256] scsi: block: pm: Simplify resume handling
+
+mainline inclusion
+from mainline-v5.9-rc1
+commit 8f38f8e0a30e1c33cdfc48eba2bd63ac2eae373a
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F803
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=8f38f8e0a30e1c33cdfc48eba2bd63ac2eae373a
+
+----------------------------------------------------------------------
+
+Commit 05d18ae1cc8a ("scsi: pm: Balance pm_only counter of request queue
+during system resume") fixed a problem in the block layer's runtime-PM
+code: blk_set_runtime_active() failed to call blk_clear_pm_only().
+However, the commit's implementation was awkward; it forced the SCSI
+system-resume handler to choose whether to call blk_post_runtime_resume()
+or blk_set_runtime_active(), depending on whether or not the SCSI device
+had previously been runtime suspended.
+
+This patch simplifies the situation considerably by adding the missing
+function call directly into blk_set_runtime_active() (under the condition
+that the queue is not already in the RPM_ACTIVE state).  This allows the
+SCSI routine to revert back to its original form.  Furthermore, making this
+change reveals that blk_post_runtime_resume() (in its success pathway) does
+exactly the same thing as blk_set_runtime_active().  The duplicate code is
+easily removed by making one routine call the other.
+
+No functional changes are intended.
+
+Link: https://lore.kernel.org/r/20200706151436.GA702867@rowland.harvard.edu
+CC: Can Guo <cang@codeaurora.org>
+CC: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	block/blk-pm.c
+	drivers/scsi/scsi_pm.c
+---
+ block/blk-pm.c         | 29 +++++++++++++++++------------
+ drivers/scsi/scsi_pm.c |  3 +--
+ 2 files changed, 18 insertions(+), 14 deletions(-)
+
+diff --git a/block/blk-pm.c b/block/blk-pm.c
+index f8fdae01bea2..8f186fad14f8 100644
+--- a/block/blk-pm.c
++++ b/block/blk-pm.c
+@@ -164,9 +164,8 @@ EXPORT_SYMBOL(blk_pre_runtime_resume);
+  *
+  * Description:
+  *    Update the queue's runtime status according to the return value of the
+- *    device's runtime_resume function. If it is successfully resumed, process
+- *    the requests that are queued into the device's queue when it is resuming
+- *    and then mark last busy and initiate autosuspend for it.
++ *    device's runtime_resume function. If the resume was successful, call
++ *    blk_set_runtime_active() to do the real work of restarting the queue.
+  *
+  *    This function should be called near the end of the device's
+  *    runtime_resume callback.
+@@ -175,19 +174,13 @@ void blk_post_runtime_resume(struct request_queue *q, int err)
+ {
+ 	if (!q->dev)
+ 		return;
+-
+-	spin_lock_irq(q->queue_lock);
+ 	if (!err) {
+-		q->rpm_status = RPM_ACTIVE;
+-		pm_runtime_mark_last_busy(q->dev);
+-		pm_request_autosuspend(q->dev);
++		blk_set_runtime_active(q);
+ 	} else {
++		spin_lock_irq(q->queue_lock);
+ 		q->rpm_status = RPM_SUSPENDED;
++		spin_unlock_irq(q->queue_lock);
+ 	}
+-	spin_unlock_irq(q->queue_lock);
+-
+-	if (!err)
+-		blk_clear_pm_only(q);
+ }
+ EXPORT_SYMBOL(blk_post_runtime_resume);
+ 
+@@ -204,13 +197,25 @@ EXPORT_SYMBOL(blk_post_runtime_resume);
+  * This function can be used in driver's resume hook to correct queue
+  * runtime PM status and re-enable peeking requests from the queue. It
+  * should be called before first request is added to the queue.
++ *
++ * This function is also called by blk_post_runtime_resume() for successful
++ * runtime resumes.  It does everything necessary to restart the queue.
+  */
+ void blk_set_runtime_active(struct request_queue *q)
+ {
++	int old_status;
++
++	if (!q->dev)
++		return;
++
+ 	spin_lock_irq(q->queue_lock);
++	old_status = q->rpm_status;
+ 	q->rpm_status = RPM_ACTIVE;
+ 	pm_runtime_mark_last_busy(q->dev);
+ 	pm_request_autosuspend(q->dev);
+ 	spin_unlock_irq(q->queue_lock);
++
++	if (old_status != RPM_ACTIVE)
++		blk_clear_pm_only(q);
+ }
+ EXPORT_SYMBOL(blk_set_runtime_active);
+diff --git a/drivers/scsi/scsi_pm.c b/drivers/scsi/scsi_pm.c
+index 7639df91b110..f0b16a4ec5f6 100644
+--- a/drivers/scsi/scsi_pm.c
++++ b/drivers/scsi/scsi_pm.c
+@@ -93,8 +93,7 @@ static int scsi_dev_type_resume(struct device *dev,
+ 		if (!err && scsi_is_sdev_device(dev)) {
+ 			struct scsi_device *sdev = to_scsi_device(dev);
+ 
+-			if (sdev->request_queue->dev)
+-				blk_set_runtime_active(sdev->request_queue);
++			blk_set_runtime_active(sdev->request_queue);
+ 		}
+ 	}
+ 
+-- 
+2.27.0
+

@@ -1,0 +1,86 @@
+From d74457e6b1d9bf695d25e1c8d1cf7bad978af046 Mon Sep 17 00:00:00 2001
+From: Saravana Kannan <saravanak@google.com>
+Date: Tue, 1 Sep 2020 11:44:44 -0700
+Subject: [PATCH 251/256] driver core: Fix device_pm_lock() locking for device
+ links
+
+mainline inclusion
+from mainline-v5.9-rc5
+commit 6b57b15abe11aa334ebf726e02c0deaf123ba040
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8F803
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=6b57b15abe11aa334ebf726e02c0deaf123ba040
+
+----------------------------------------------------------------------
+
+This commit fixes two issues:
+
+1. The lockdep warning reported by Dong Aisheng <dongas86@gmail.com> [1].
+
+It is a warning about a cycle (dpm_list_mtx --> kn->active#3 --> fw_lock)
+that was introduced when device-link devices were added to expose device
+link information in sysfs.
+
+The patch that "introduced" this cycle can't be reverted because it's fixes
+a real SRCU issue and also ensures that the device-link device is deleted
+as soon as the device-link is deleted. This is important to avoid sysfs
+name collisions if the device-link is create again immediately (this can
+happen a lot with deferred probing).
+
+2. Inconsistency in grabbing device_pm_lock() during device link deletion
+
+Some device link deletion code paths grab device_pm_lock(), while others
+don't.  The device_pm_lock() is grabbed during device_link_add() because it
+checks if the supplier is in the dpm_list and also reorders the dpm_list.
+However, when a device link is deleted, it does not do either of those and
+therefore device_pm_lock() is not necessary. Dropping the device_pm_lock()
+in all the device link deletion paths removes the inconsistency in locking.
+
+Thanks to Stephen Boyd for helping me understand the lockdep splat.
+
+Fixes: 843e600b8a2b ("driver core: Fix sleeping in invalid context during device link deletion")
+[1] - https://lore.kernel.org/lkml/CAA+hA=S4eAreb7vo69LAXSk2t5=DEKNxHaiY1wSpk4xTp9urLg@mail.gmail.com/
+Reported-by: Dong Aisheng <dongas86@gmail.com>
+Signed-off-by: Saravana Kannan <saravanak@google.com>
+Tested-by: Peng Fan <peng.fan@nxp.com>
+Link: https://lore.kernel.org/r/20200901184445.1736658-1-saravanak@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/base/core.c | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/drivers/base/core.c b/drivers/base/core.c
+index c2a04f607904..f628c1517958 100644
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -742,9 +742,7 @@ static void device_link_put_kref(struct device_link *link)
+ void device_link_del(struct device_link *link)
+ {
+ 	device_links_write_lock();
+-	device_pm_lock();
+ 	device_link_put_kref(link);
+-	device_pm_unlock();
+ 	device_links_write_unlock();
+ }
+ EXPORT_SYMBOL_GPL(device_link_del);
+@@ -765,7 +763,6 @@ void device_link_remove(void *consumer, struct device *supplier)
+ 		return;
+ 
+ 	device_links_write_lock();
+-	device_pm_lock();
+ 
+ 	list_for_each_entry(link, &supplier->links.consumers, s_node) {
+ 		if (link->consumer == consumer) {
+@@ -774,7 +771,6 @@ void device_link_remove(void *consumer, struct device *supplier)
+ 		}
+ 	}
+ 
+-	device_pm_unlock();
+ 	device_links_write_unlock();
+ }
+ EXPORT_SYMBOL_GPL(device_link_remove);
+-- 
+2.27.0
+

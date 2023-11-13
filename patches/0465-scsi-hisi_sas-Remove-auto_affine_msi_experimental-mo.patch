@@ -1,0 +1,52 @@
+From fc4f91ff3dc0a791a932a8f6946596b247c16e4f Mon Sep 17 00:00:00 2001
+From: John Garry <john.garry@huawei.com>
+Date: Tue, 3 Aug 2021 14:47:35 +0800
+Subject: [PATCH 147/256] scsi: hisi_sas: Remove auto_affine_msi_experimental
+ module_param
+
+mainline inclusion
+from mainline-v5.12-rc1
+commit 3997e0fdd5878a7d6224056176800c1db538f468
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EKNE
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=3997e0fdd5878a7d6224056176800c1db538f468
+
+----------------------------------------------------------------------
+
+Now that the driver always uses managed interrupts, delete
+auto_affine_msi_experimental module param.
+
+Link: https://lore.kernel.org/r/1609763622-34119-2-git-send-email-john.garry@huawei.com
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reviewed-by: Ouyangdelong <ouyangdelong@huawei.com>
+Signed-off-by: Nifujia <nifujia1@hisilicon.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+---
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 5 -----
+ 1 file changed, 5 deletions(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index fcb7c704f94c..bf4fe277289c 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -568,11 +568,6 @@ module_param(user_ctl_irq, bool, 0444);
+ MODULE_PARM_DESC(user_ctl_irq, "Enable user control irq affinity:\n"
+ 			       "default is auto-control irq affinity");
+ 
+-static bool auto_affine_msi_experimental;
+-module_param(auto_affine_msi_experimental, bool, 0444);
+-MODULE_PARM_DESC(auto_affine_msi_experimental, "Enable auto-affinity of MSI IRQs as experimental:\n"
+-		 "default is off");
+-
+ static void debugfs_work_handler_v3_hw(struct work_struct *work);
+ 
+ static u32 hisi_sas_read32(struct hisi_hba *hisi_hba, u32 off)
+-- 
+2.27.0
+

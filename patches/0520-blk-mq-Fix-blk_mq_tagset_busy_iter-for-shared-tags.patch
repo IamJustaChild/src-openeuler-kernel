@@ -1,0 +1,57 @@
+From c480e0e76967ea0c1155853d63efc17f33c35ecb Mon Sep 17 00:00:00 2001
+From: John Garry <john.garry@huawei.com>
+Date: Thu, 3 Nov 2022 18:48:54 +0800
+Subject: [PATCH 202/256] blk-mq: Fix blk_mq_tagset_busy_iter() for shared tags
+
+mainline inclusion
+from mainline-v5.16-rc1
+commit 0994c64eb4159ba019e7fedc7ba0dd6a69235b40
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EKNE
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=0994c64eb4159ba019e7fedc7ba0dd6a69235b40
+
+----------------------------------------------------------------------
+
+Since it is now possible for a tagset to share a single set of tags, the
+iter function should not re-iter the tags for the count of #hw queues in
+that case. Rather it should just iter once.
+
+Fixes: e155b0c238b2 ("blk-mq: Use shared tags for shared sbitmap support")
+Reported-by: Kashyap Desai <kashyap.desai@broadcom.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Tested-by: Kashyap Desai <kashyap.desai@broadcom.com>
+Link: https://lore.kernel.org/r/1634550083-202815-1-git-send-email-john.garry@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Zhang Wensheng <zhangwensheng5@huawei.com>
+Reviewed-by: Yu Kuai <yukuai3@huawei.com>
+Reviewed-by: Jason Yan <yanaijie@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ block/blk-mq-tag.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/block/blk-mq-tag.c b/block/blk-mq-tag.c
+index 3a714775b588..8993da9fe175 100644
+--- a/block/blk-mq-tag.c
++++ b/block/blk-mq-tag.c
+@@ -316,9 +316,12 @@ static void blk_mq_all_tag_busy_iter(struct blk_mq_tags *tags,
+ void blk_mq_tagset_busy_iter(struct blk_mq_tag_set *tagset,
+ 		busy_tag_iter_fn *fn, void *priv)
+ {
+-	int i;
++	unsigned int flags = tagset->flags;
++	int i, nr_tags;
++
++	nr_tags = blk_mq_is_sbitmap_shared(flags) ? 1 : tagset->nr_hw_queues;
+ 
+-	for (i = 0; i < tagset->nr_hw_queues; i++) {
++	for (i = 0; i < nr_tags; i++) {
+ 		if (tagset->tags && tagset->tags[i])
+ 			blk_mq_all_tag_busy_iter(tagset->tags[i], fn, priv);
+ 	}
+-- 
+2.27.0
+

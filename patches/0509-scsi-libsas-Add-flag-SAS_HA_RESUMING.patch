@@ -1,0 +1,66 @@
+From 042f943e9f77a98b2ec0c5dc3240781350a509d5 Mon Sep 17 00:00:00 2001
+From: Xiang Chen <chenxiang66@hisilicon.com>
+Date: Tue, 19 Apr 2022 17:07:02 +0800
+Subject: [PATCH 191/256] scsi: libsas: Add flag SAS_HA_RESUMING
+
+mainline inclusion
+from mainline-v5.17-rc1
+commit 4ea775abbb5c50c26edbf043d5a2ae7fde407f4a
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F803
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=4ea775abbb5c50c26edbf043d5a2ae7fde407f4a
+
+----------------------------------------------------------------------
+
+Add a flag SAS_HA_RESUMING and use it to indicate the state of resuming the
+host controller.
+
+Link: https://lore.kernel.org/r/1639999298-244569-11-git-send-email-chenxiang66@hisilicon.com
+Reviewed-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Fujai Ni<nifuijia1@hisilicon.com>
+Reviewed-by: Jason Yan <yanaijie@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/libsas/sas_init.c | 2 ++
+ include/scsi/libsas.h          | 1 +
+ 2 files changed, 3 insertions(+)
+
+diff --git a/drivers/scsi/libsas/sas_init.c b/drivers/scsi/libsas/sas_init.c
+index eb7899f25145..8871d7ff17d8 100644
+--- a/drivers/scsi/libsas/sas_init.c
++++ b/drivers/scsi/libsas/sas_init.c
+@@ -382,6 +382,7 @@ void sas_prep_resume_ha(struct sas_ha_struct *ha)
+ 	int i;
+ 
+ 	set_bit(SAS_HA_REGISTERED, &ha->state);
++	set_bit(SAS_HA_RESUMING, &ha->state);
+ 
+ 	/* clear out any stale link events/data from the suspension path */
+ 	for (i = 0; i < ha->num_phys; i++) {
+@@ -463,6 +464,7 @@ static void _sas_resume_ha(struct sas_ha_struct *ha, bool drain)
+ 	scsi_unblock_requests(ha->core.shost);
+ 	if (drain)
+ 		sas_drain_work(ha);
++	clear_bit(SAS_HA_RESUMING, &ha->state);
+ 
+ 	/* send event PORTE_BROADCAST_RCVD to identify some new inserted
+ 	 * disks for expander
+diff --git a/include/scsi/libsas.h b/include/scsi/libsas.h
+index 1253d8a26d96..5634a168fd54 100644
+--- a/include/scsi/libsas.h
++++ b/include/scsi/libsas.h
+@@ -374,6 +374,7 @@ enum sas_ha_state {
+ 	SAS_HA_DRAINING,
+ 	SAS_HA_ATA_EH_ACTIVE,
+ 	SAS_HA_FROZEN,
++	SAS_HA_RESUMING,
+ };
+ 
+ struct sas_ha_struct {
+-- 
+2.27.0
+

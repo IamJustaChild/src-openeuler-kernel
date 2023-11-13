@@ -1,0 +1,58 @@
+From 53fecf3e1c2ee3004bacaf40b9858f382200cb59 Mon Sep 17 00:00:00 2001
+From: Jens Axboe <axboe@kernel.dk>
+Date: Mon, 29 Oct 2018 13:07:33 -0600
+Subject: [PATCH 064/256] blk-mq: provide dummy blk_mq_map_queue_type() helper
+
+mainline inclusion
+from mainline-v5.0-rc1
+commit ff2c56609d9b1f0739ae3a3bfdb78191d01e4192
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F7ZR
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=ff2c56609d9b1f0739ae3a3bfdb78191d01e4192
+
+----------------------------------------------------------------------
+
+Doesn't do anything right now, but it's needed as a prep patch
+to get the interfaces right.
+
+While in there, correct the blk_mq_map_queue() CPU type to an unsigned
+int.
+
+Reviewed-by: Hannes Reinecke <hare@suse.com>
+Reviewed-by: Keith Busch <keith.busch@intel.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ block/blk-mq.h | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/block/blk-mq.h b/block/blk-mq.h
+index fd61bb3d3eb1..9a7c4ab52146 100644
+--- a/block/blk-mq.h
++++ b/block/blk-mq.h
+@@ -83,13 +83,20 @@ void blk_mq_try_issue_list_directly(struct blk_mq_hw_ctx *hctx,
+ extern int blk_mq_hw_queue_to_node(struct blk_mq_queue_map *qmap, unsigned int);
+ 
+ static inline struct blk_mq_hw_ctx *blk_mq_map_queue(struct request_queue *q,
+-		int cpu)
++						     unsigned int cpu)
+ {
+ 	struct blk_mq_tag_set *set = q->tag_set;
+ 
+ 	return q->queue_hw_ctx[set->map[0].mq_map[cpu]];
+ }
+ 
++static inline struct blk_mq_hw_ctx *blk_mq_map_queue_type(struct request_queue *q,
++							  unsigned int hctx_type,
++							  unsigned int cpu)
++{
++	return blk_mq_map_queue(q, cpu);
++}
++
+ /*
+  * sysfs helpers
+  */
+-- 
+2.27.0
+

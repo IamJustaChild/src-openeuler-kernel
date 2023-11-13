@@ -1,0 +1,54 @@
+From 60aca9c3b258bb60f76a0c72fc4af75587073b34 Mon Sep 17 00:00:00 2001
+From: Xingui Yang <yangxingui@huawei.com>
+Date: Thu, 16 Mar 2023 20:21:41 +0800
+Subject: [PATCH 214/256] scsi: libsas: Grab the ATA port lock in
+ sas_ata_device_link_abort()
+
+mainline inclusion
+from mainline-v6.2-rc4
+commit a67aad57d9aee41180aff36e54cb72fe4b8d5a5a
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F82P
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=a67aad57d9aee41180aff36e54cb72fe4b8d5a5a
+
+----------------------------------------------------------------------
+
+Grab the ATA port lock in sas_ata_device_link_abort() before calling
+ata_link_abort() as outlined in this function's locking requirements.
+
+Fixes: 44112922674b ("scsi: libsas: Add sas_ata_device_link_abort()")
+Signed-off-by: Xingui Yang <yangxingui@huawei.com>
+Reviewed-by: John Garry <john.g.garry@oracle.com>
+Reviewed-by: Jason Yan <yanaijie@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: xiabing <xiabing12@h-partners.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/libsas/sas_ata.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/scsi/libsas/sas_ata.c b/drivers/scsi/libsas/sas_ata.c
+index 5cafaec45633..c65bd5c82347 100644
+--- a/drivers/scsi/libsas/sas_ata.c
++++ b/drivers/scsi/libsas/sas_ata.c
+@@ -1046,7 +1046,9 @@ void sas_ata_device_link_abort(struct domain_device *device, bool force_reset)
+ {
+ 	struct ata_port *ap = device->sata_dev.ap;
+ 	struct ata_link *link = &ap->link;
++	unsigned long flags;
+ 
++	spin_lock_irqsave(ap->lock, flags);
+ 	device->sata_dev.fis[2] = ATA_ERR | ATA_DRDY; /* tf status */
+ 	device->sata_dev.fis[3] = ATA_ABORTED; /* tf error */
+ 
+@@ -1054,5 +1056,6 @@ void sas_ata_device_link_abort(struct domain_device *device, bool force_reset)
+ 	if (force_reset)
+ 		link->eh_info.action |= ATA_EH_RESET;
+ 	ata_link_abort(link);
++	spin_unlock_irqrestore(ap->lock, flags);
+ }
+ EXPORT_SYMBOL_GPL(sas_ata_device_link_abort);
+-- 
+2.27.0
+

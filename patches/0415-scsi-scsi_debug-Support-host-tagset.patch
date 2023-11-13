@@ -1,0 +1,96 @@
+From 290aea3fbccc81e1a7bc96e66d2a44bcc2736b13 Mon Sep 17 00:00:00 2001
+From: John Garry <john.garry@huawei.com>
+Date: Wed, 19 Aug 2020 23:20:33 +0800
+Subject: [PATCH 097/256] scsi: scsi_debug: Support host tagset
+
+mainline inclusion
+from mainline-v5.10-rc1
+commit f7c4cdc712ab803f7cdd3d47025081831f457ecc
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F7ZR
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=f7c4cdc712ab803f7cdd3d47025081831f457ecc
+
+----------------------------------------------------------------------
+
+When host_max_queue is set (> 0), set the Scsi_Host.host_tagset such that
+blk-mq will use a hostwide tagset over all SCSI host submission queues.
+
+This means that we may expose all submission queues and always use the hwq
+chosen by blk-mq.
+
+And since if sdebug_host_max_queue is set, sdebug_max_queue is fixed to the
+same value, we can simplify how sdebug_driver_template.can_queue is set.
+
+Signed-off-by: John Garry <john.garry@huawei.com>
+Tested-by: Douglas Gilbert <dgilbert@interlog.com>
+Acked-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/scsi_debug.c
+---
+ drivers/scsi/scsi_debug.c | 28 ++++++++++------------------
+ 1 file changed, 10 insertions(+), 18 deletions(-)
+
+diff --git a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
+index 8abf0dac6d44..cc5d720916f2 100644
+--- a/drivers/scsi/scsi_debug.c
++++ b/drivers/scsi/scsi_debug.c
+@@ -3788,19 +3788,14 @@ static int resp_xdwriteread_10(struct scsi_cmnd *scp,
+ static struct sdebug_queue *get_queue(struct scsi_cmnd *cmnd)
+ {
+ 	u16 hwq;
++	u32 tag = blk_mq_unique_tag(cmnd->request);
+ 
+-	if (sdebug_host_max_queue) {
+-		/* Provide a simple method to choose the hwq */
+-		hwq = smp_processor_id() % submit_queues;
+-	} else {
+-		u32 tag = blk_mq_unique_tag(cmnd->request);
++	hwq = blk_mq_unique_tag_to_hwq(tag);
+ 
+-		hwq = blk_mq_unique_tag_to_hwq(tag);
++	pr_debug("tag=%#x, hwq=%d\n", tag, hwq);
++	if (WARN_ON_ONCE(hwq >= submit_queues))
++		hwq = 0;
+ 
+-		pr_debug("tag=%#x, hwq=%d\n", tag, hwq);
+-		if (WARN_ON_ONCE(hwq >= submit_queues))
+-			hwq = 0;
+-	}
+ 	return sdebug_q_arr + hwq;
+ }
+ 
+@@ -5923,10 +5918,7 @@ static int sdebug_driver_probe(struct device *dev)
+ 
+ 	sdbg_host = to_sdebug_host(dev);
+ 
+-	if (sdebug_host_max_queue)
+-		sdebug_driver_template.can_queue = sdebug_host_max_queue;
+-	else
+-		sdebug_driver_template.can_queue = sdebug_max_queue;
++	sdebug_driver_template.can_queue = sdebug_max_queue;
+ 	if (sdebug_clustering)
+ 		sdebug_driver_template.use_clustering = ENABLE_CLUSTERING;
+ 	hpnt = scsi_host_alloc(&sdebug_driver_template, sizeof(sdbg_host));
+@@ -5942,11 +5934,11 @@ static int sdebug_driver_probe(struct device *dev)
+ 	}
+ 	/*
+ 	 * Decide whether to tell scsi subsystem that we want mq. The
+-	 * following should give the same answer for each host. If the host
+-	 * has a limit of hostwide max commands, then do not set.
++	 * following should give the same answer for each host.
+ 	 */
+-	if (!sdebug_host_max_queue)
+-		hpnt->nr_hw_queues = submit_queues;
++	hpnt->nr_hw_queues = submit_queues;
++	if (sdebug_host_max_queue)
++		hpnt->host_tagset = 1;
+ 
+ 	sdbg_host->shost = hpnt;
+ 	*((struct sdebug_host_info **)hpnt->hostdata) = sdbg_host;
+-- 
+2.27.0
+

@@ -1,0 +1,73 @@
+From a22dc67d198b8a280f08b9c8e837c09895700f3b Mon Sep 17 00:00:00 2001
+From: Bart Van Assche <bvanassche@acm.org>
+Date: Wed, 26 Sep 2018 14:01:10 -0700
+Subject: [PATCH 006/256] blk-mq: Enable support for runtime power management
+
+mainline inclusion
+from mainline-v4.20-rc1
+commit 986d413b7c156e69198dfc80fb74aa18d0ddef44
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=986d413b7c156e69198dfc80fb74aa18d0ddef44
+
+----------------------------------------------------------------------
+
+Now that the blk-mq core processes power management requests
+(marked with RQF_PREEMPT) in other states than RPM_ACTIVE, enable
+runtime power management for blk-mq.
+
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Cc: Jianchao Wang <jianchao.w.wang@oracle.com>
+Cc: Hannes Reinecke <hare@suse.com>
+Cc: Johannes Thumshirn <jthumshirn@suse.de>
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ block/blk-mq.c | 2 ++
+ block/blk-pm.c | 6 ------
+ 2 files changed, 2 insertions(+), 6 deletions(-)
+
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index 73f0f5ed8ec1..d43c0b7723c2 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -33,6 +33,7 @@
+ #include "blk-mq.h"
+ #include "blk-mq-debugfs.h"
+ #include "blk-mq-tag.h"
++#include "blk-pm.h"
+ #include "blk-stat.h"
+ #include "blk-mq-sched.h"
+ #include "blk-rq-qos.h"
+@@ -532,6 +533,7 @@ static void __blk_mq_free_request(struct request *rq)
+ 	struct blk_mq_hw_ctx *hctx = blk_mq_map_queue(q, ctx->cpu);
+ 	const int sched_tag = rq->internal_tag;
+ 
++	blk_pm_mark_last_busy(rq);
+ 	if (rq->tag != -1)
+ 		blk_mq_put_tag(hctx, hctx->tags, ctx, rq->tag);
+ 	if (sched_tag != -1)
+diff --git a/block/blk-pm.c b/block/blk-pm.c
+index 972fbc656846..f8fdae01bea2 100644
+--- a/block/blk-pm.c
++++ b/block/blk-pm.c
+@@ -30,12 +30,6 @@
+  */
+ void blk_pm_runtime_init(struct request_queue *q, struct device *dev)
+ {
+-	/* Don't enable runtime PM for blk-mq until it is ready */
+-	if (q->mq_ops) {
+-		pm_runtime_disable(dev);
+-		return;
+-	}
+-
+ 	q->dev = dev;
+ 	q->rpm_status = RPM_ACTIVE;
+ 	pm_runtime_set_autosuspend_delay(q->dev, -1);
+-- 
+2.27.0
+

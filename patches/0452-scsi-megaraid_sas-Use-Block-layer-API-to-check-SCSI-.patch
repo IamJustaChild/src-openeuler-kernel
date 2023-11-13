@@ -1,0 +1,127 @@
+From dcf0e828904fd5fac727dd41394ab84c5694ca71 Mon Sep 17 00:00:00 2001
+From: Anand Lodnoor <anand.lodnoor@broadcom.com>
+Date: Tue, 14 Jan 2020 16:51:21 +0530
+Subject: [PATCH 134/256] scsi: megaraid_sas: Use Block layer API to check SCSI
+ device in-flight IO requests
+
+mainline inclusion
+from mainline-v5.6-rc1
+commit 4d1634b8d12ecb844f0d1af0b79c703cf9911484
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F7ZR
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=4d1634b8d12ecb844f0d1af0b79c703cf9911484
+
+----------------------------------------------------------------------
+
+Remove usage of device_busy counter from driver. Instead of device_busy
+counter now driver uses 'nr_active' counter of request_queue to get the
+number of inflight request for a LUN.
+
+Link: https://lore.kernel.org/r/1579000882-20246-11-git-send-email-anand.lodnoor@broadcom.com
+Link : https://patchwork.kernel.org/patch/11249297/
+Signed-off-by: Chandrakanth Patil <chandrakanth.patil@broadcom.com>
+Signed-off-by: Anand Lodnoor <anand.lodnoor@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/megaraid/megaraid_sas_fusion.c
+---
+ drivers/scsi/megaraid/megaraid_sas_fusion.c | 66 +++++++++++----------
+ 1 file changed, 34 insertions(+), 32 deletions(-)
+
+diff --git a/drivers/scsi/megaraid/megaraid_sas_fusion.c b/drivers/scsi/megaraid/megaraid_sas_fusion.c
+index 145c379e9424..aa06550616a1 100644
+--- a/drivers/scsi/megaraid/megaraid_sas_fusion.c
++++ b/drivers/scsi/megaraid/megaraid_sas_fusion.c
+@@ -301,6 +301,38 @@ megasas_fusion_update_can_queue(struct megasas_instance *instance, int fw_boot_c
+ 		instance->max_fw_cmds = instance->max_fw_cmds-1;
+ 	}
+ }
++
++static inline void
++megasas_get_msix_index(struct megasas_instance *instance,
++		       struct scsi_cmnd *scmd,
++		       struct megasas_cmd_fusion *cmd,
++		       u8 data_arms)
++{
++	int sdev_busy;
++
++	/* nr_hw_queue = 1 for MegaRAID */
++	struct blk_mq_hw_ctx *hctx =
++		scmd->device->request_queue->queue_hw_ctx[0];
++
++	sdev_busy = atomic_read(&hctx->nr_active);
++
++	if (instance->perf_mode == MR_BALANCED_PERF_MODE &&
++	    sdev_busy > (data_arms * MR_DEVICE_HIGH_IOPS_DEPTH))
++		cmd->request_desc->SCSIIO.MSIxIndex =
++			mega_mod64((atomic64_add_return(1,
++					&instance->high_iops_outstanding) /
++					MR_HIGH_IOPS_BATCH_COUNT),
++					instance->low_latency_index_start);
++	else if (instance->msix_load_balance)
++		cmd->request_desc->SCSIIO.MSIxIndex =
++			(mega_mod64(atomic64_add_return(1,
++				&instance->total_io_count),
++				instance->msix_vectors));
++	else
++		cmd->request_desc->SCSIIO.MSIxIndex =
++			instance->reply_map[raw_smp_processor_id()];
++}
++
+ /**
+  * megasas_free_cmds_fusion -	Free all the cmds in the free cmd pool
+  * @instance:		Adapter soft state
+@@ -2671,22 +2703,7 @@ megasas_build_ldio_fusion(struct megasas_instance *instance,
+ 			fp_possible = (io_info.fpOkForIo > 0) ? true : false;
+ 	}
+ 
+-	if ((instance->perf_mode == MR_BALANCED_PERF_MODE) &&
+-		atomic_read(&scp->device->device_busy) >
+-		(io_info.data_arms * MR_DEVICE_HIGH_IOPS_DEPTH))
+-		cmd->request_desc->SCSIIO.MSIxIndex =
+-			mega_mod64((atomic64_add_return(1,
+-				&instance->high_iops_outstanding) /
+-				MR_HIGH_IOPS_BATCH_COUNT),
+-				instance->low_latency_index_start);
+-	else if (instance->msix_load_balance)
+-		cmd->request_desc->SCSIIO.MSIxIndex =
+-			(mega_mod64(atomic64_add_return(1,
+-						&instance->total_io_count),
+-				    instance->msix_vectors));
+-	else
+-		cmd->request_desc->SCSIIO.MSIxIndex =
+-			instance->reply_map[raw_smp_processor_id()];
++	megasas_get_msix_index(instance, scp, cmd, io_info.data_arms);
+ 
+ 	praid_context = &io_request->RaidContext;
+ 
+@@ -3014,22 +3031,7 @@ megasas_build_syspd_fusion(struct megasas_instance *instance,
+ 
+ 	cmd->request_desc->SCSIIO.DevHandle = io_request->DevHandle;
+ 
+-	if ((instance->perf_mode == MR_BALANCED_PERF_MODE) &&
+-		atomic_read(&scmd->device->device_busy) >
+-		MR_DEVICE_HIGH_IOPS_DEPTH)
+-		cmd->request_desc->SCSIIO.MSIxIndex =
+-			mega_mod64((atomic64_add_return(1,
+-				&instance->high_iops_outstanding) /
+-				MR_HIGH_IOPS_BATCH_COUNT),
+-				instance->low_latency_index_start);
+-	else if (instance->msix_load_balance)
+-		cmd->request_desc->SCSIIO.MSIxIndex =
+-			(mega_mod64(atomic64_add_return(1,
+-						&instance->total_io_count),
+-				    instance->msix_vectors));
+-	else
+-		cmd->request_desc->SCSIIO.MSIxIndex =
+-			instance->reply_map[raw_smp_processor_id()];
++	megasas_get_msix_index(instance, scmd, cmd, 1);
+ 
+ 	if (!fp_possible) {
+ 		/* system pd firmware path */
+-- 
+2.27.0
+

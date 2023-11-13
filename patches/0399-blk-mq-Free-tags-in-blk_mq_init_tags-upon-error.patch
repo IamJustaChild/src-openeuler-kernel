@@ -1,0 +1,83 @@
+From 6c13a5eb75ce1bbf70ed0c7d9c8e7b4fe6e745bb Mon Sep 17 00:00:00 2001
+From: Hannes Reinecke <hare@suse.de>
+Date: Wed, 19 Aug 2020 23:20:21 +0800
+Subject: [PATCH 081/256] blk-mq: Free tags in blk_mq_init_tags() upon error
+
+mainline inclusion
+from mainline-v5.10-rc1
+commit 4d063237b92a4e8d99350ad05492a45009a3c78c
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F7ZR
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=4d063237b92a4e8d99350ad05492a45009a3c78c
+
+----------------------------------------------------------------------
+
+Since the tags are allocated in blk_mq_init_tags(), it's better practice
+to free in that same function upon error, rather than a callee which is to
+init the bitmap tags (blk_mq_init_tags()).
+
+[jpg: Split from an earlier patch with a new commit message]
+
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Tested-by: Douglas Gilbert <dgilbert@interlog.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	block/blk-mq-tag.c
+---
+ block/blk-mq-tag.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
+
+diff --git a/block/blk-mq-tag.c b/block/blk-mq-tag.c
+index 2d5e769d1e57..92094ae471b2 100644
+--- a/block/blk-mq-tag.c
++++ b/block/blk-mq-tag.c
+@@ -407,24 +407,22 @@ static int bt_alloc(struct sbitmap_queue *bt, unsigned int depth,
+ 				       node);
+ }
+ 
+-static struct blk_mq_tags *blk_mq_init_bitmap_tags(struct blk_mq_tags *tags,
+-						   int node, int alloc_policy)
++static int blk_mq_init_bitmap_tags(struct blk_mq_tags *tags,
++				   int node, int alloc_policy)
+ {
+ 	unsigned int depth = tags->nr_tags - tags->nr_reserved_tags;
+ 	bool round_robin = alloc_policy == BLK_TAG_ALLOC_RR;
+ 
+ 	if (bt_alloc(&tags->bitmap_tags, depth, round_robin, node))
+-		goto free_tags;
++		return -ENOMEM;
+ 	if (bt_alloc(&tags->breserved_tags, tags->nr_reserved_tags, round_robin,
+ 		     node))
+ 		goto free_bitmap_tags;
+ 
+-	return tags;
++	return 0;
+ free_bitmap_tags:
+ 	sbitmap_queue_free(&tags->bitmap_tags);
+-free_tags:
+-	kfree(blk_mq_tags_to_wrapper(tags));
+-	return NULL;
++	return -ENOMEM;
+ }
+ 
+ struct blk_mq_tags *blk_mq_init_tags(unsigned int total_tags,
+@@ -448,7 +446,11 @@ struct blk_mq_tags *blk_mq_init_tags(unsigned int total_tags,
+ 	tags->nr_reserved_tags = reserved_tags;
+ 	spin_lock_init(&tags_wrapper->lock);
+ 
+-	return blk_mq_init_bitmap_tags(tags, node, alloc_policy);
++	if (blk_mq_init_bitmap_tags(tags, node, alloc_policy) < 0) {
++		kfree(tags);
++		return NULL;
++	}
++	return tags;
+ }
+ 
+ void blk_mq_free_tags(struct blk_mq_tags *tags)
+-- 
+2.27.0
+

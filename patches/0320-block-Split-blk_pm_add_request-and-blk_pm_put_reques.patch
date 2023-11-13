@@ -1,0 +1,126 @@
+From 74387c669fe2cf0185713b88b9fa02f64c2c5310 Mon Sep 17 00:00:00 2001
+From: Bart Van Assche <bvanassche@acm.org>
+Date: Wed, 26 Sep 2018 14:01:05 -0700
+Subject: [PATCH 002/256] block: Split blk_pm_add_request() and
+ blk_pm_put_request()
+
+mainline inclusion
+from mainline-v4.20-rc1
+commit 154b00d566e221152514ba8259f38b21571081ef
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8C0CX
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=154b00d566e221152514ba8259f38b21571081ef
+
+----------------------------------------------------------------------
+
+Move the pm_request_resume() and pm_runtime_mark_last_busy() calls into
+two new functions and thereby separate legacy block layer code from code
+that works for both the legacy block layer and blk-mq. A later patch will
+add calls to the new functions in the blk-mq code.
+
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Cc: Martin K. Petersen <martin.petersen@oracle.com>
+Cc: Jianchao Wang <jianchao.w.wang@oracle.com>
+Cc: Hannes Reinecke <hare@suse.com>
+Cc: Johannes Thumshirn <jthumshirn@suse.de>
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ block/blk-core.c |  1 +
+ block/blk-pm.h   | 36 +++++++++++++++++++++++++++++++-----
+ block/elevator.c |  1 +
+ 3 files changed, 33 insertions(+), 5 deletions(-)
+
+diff --git a/block/blk-core.c b/block/blk-core.c
+index 466cedc4cad8..368d4544d678 100644
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -2038,6 +2038,7 @@ void __blk_put_request(struct request_queue *q, struct request *req)
+ 
+ 	blk_req_zone_write_unlock(req);
+ 	blk_pm_put_request(req);
++	blk_pm_mark_last_busy(req);
+ 
+ 	elv_completed_request(q, req);
+ 
+diff --git a/block/blk-pm.h b/block/blk-pm.h
+index 1ffc8ef203ec..a8564ea72a41 100644
+--- a/block/blk-pm.h
++++ b/block/blk-pm.h
+@@ -6,8 +6,23 @@
+ #include <linux/pm_runtime.h>
+ 
+ #ifdef CONFIG_PM
++static inline void blk_pm_request_resume(struct request_queue *q)
++{
++	if (q->dev && (q->rpm_status == RPM_SUSPENDED ||
++		       q->rpm_status == RPM_SUSPENDING))
++		pm_request_resume(q->dev);
++}
++
++static inline void blk_pm_mark_last_busy(struct request *rq)
++{
++	if (rq->q->dev && !(rq->rq_flags & RQF_PM))
++		pm_runtime_mark_last_busy(rq->q->dev);
++}
++
+ static inline void blk_pm_requeue_request(struct request *rq)
+ {
++	lockdep_assert_held(rq->q->queue_lock);
++
+ 	if (rq->q->dev && !(rq->rq_flags & RQF_PM))
+ 		rq->q->nr_pending--;
+ }
+@@ -15,17 +30,28 @@ static inline void blk_pm_requeue_request(struct request *rq)
+ static inline void blk_pm_add_request(struct request_queue *q,
+ 				      struct request *rq)
+ {
+-	if (q->dev && !(rq->rq_flags & RQF_PM) && q->nr_pending++ == 0 &&
+-	    (q->rpm_status == RPM_SUSPENDED || q->rpm_status == RPM_SUSPENDING))
+-		pm_request_resume(q->dev);
++	lockdep_assert_held(q->queue_lock);
++
++	if (q->dev && !(rq->rq_flags & RQF_PM))
++		q->nr_pending++;
+ }
+ 
+ static inline void blk_pm_put_request(struct request *rq)
+ {
+-	if (rq->q->dev && !(rq->rq_flags & RQF_PM) && !--rq->q->nr_pending)
+-		pm_runtime_mark_last_busy(rq->q->dev);
++	lockdep_assert_held(rq->q->queue_lock);
++
++	if (rq->q->dev && !(rq->rq_flags & RQF_PM))
++		--rq->q->nr_pending;
+ }
+ #else
++static inline void blk_pm_request_resume(struct request_queue *q)
++{
++}
++
++static inline void blk_pm_mark_last_busy(struct request *rq)
++{
++}
++
+ static inline void blk_pm_requeue_request(struct request *rq)
+ {
+ }
+diff --git a/block/elevator.c b/block/elevator.c
+index 93540a12ca44..307214632c91 100644
+--- a/block/elevator.c
++++ b/block/elevator.c
+@@ -607,6 +607,7 @@ void __elv_add_request(struct request_queue *q, struct request *rq, int where)
+ 	trace_block_rq_insert(q, rq);
+ 
+ 	blk_pm_add_request(q, rq);
++	blk_pm_request_resume(q);
+ 
+ 	rq->q = q;
+ 
+-- 
+2.27.0
+

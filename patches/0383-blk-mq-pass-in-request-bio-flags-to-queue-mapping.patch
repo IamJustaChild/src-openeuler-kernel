@@ -1,0 +1,424 @@
+From 782af131ca62ef23a08c96c1a4e8af827e95aa4e Mon Sep 17 00:00:00 2001
+From: Jens Axboe <axboe@kernel.dk>
+Date: Mon, 29 Oct 2018 13:11:38 -0600
+Subject: [PATCH 065/256] blk-mq: pass in request/bio flags to queue mapping
+
+mainline inclusion
+from mainline-v5.0-rc1
+commit f9afca4d367b8c915f28d29fcaba7460640403ff
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F7ZR
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=f9afca4d367b8c915f28d29fcaba7460640403ff
+
+----------------------------------------------------------------------
+
+Prep patch for being able to place request based not just on
+CPU location, but also on the type of request.
+
+Reviewed-by: Hannes Reinecke <hare@suse.com>
+Reviewed-by: Keith Busch <keith.busch@intel.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	block/blk-flush.c
+	block/blk-mq-debugfs.c
+	block/blk-mq-sched.c
+	block/blk-mq-tag.c
+	block/blk-mq.c
+	block/blk.h
+---
+ block/blk-flush.c      |  7 +++---
+ block/blk-mq-debugfs.c |  5 +++--
+ block/blk-mq-sched.c   | 16 ++++++++++----
+ block/blk-mq-tag.c     |  5 +++--
+ block/blk-mq.c         | 50 +++++++++++++++++++++++-------------------
+ block/blk-mq.h         |  6 +++--
+ block/blk.h            |  6 ++---
+ block/mq-deadline.c    |  3 ++-
+ 8 files changed, 59 insertions(+), 39 deletions(-)
+
+diff --git a/block/blk-flush.c b/block/blk-flush.c
+index c1bfcde165af..5fca033cd830 100644
+--- a/block/blk-flush.c
++++ b/block/blk-flush.c
+@@ -250,7 +250,7 @@ static void flush_end_io(struct request *flush_rq, blk_status_t error)
+ 			fq->rq_status = BLK_STS_OK;
+ 		}
+ 
+-		hctx = blk_mq_map_queue(q, flush_rq->mq_ctx->cpu);
++		hctx = blk_mq_map_queue(q, flush_rq->cmd_flags, flush_rq->mq_ctx->cpu);
+ 		if (!q->elevator) {
+ 			blk_mq_tag_set_rq(hctx, flush_rq->tag, fq->orig_rq);
+ 			flush_rq->tag = -1;
+@@ -365,7 +365,8 @@ static bool blk_kick_flush(struct request_queue *q, struct blk_flush_queue *fq,
+ 		if (!q->elevator) {
+ 			fq->orig_rq = first_rq;
+ 			flush_rq->tag = first_rq->tag;
+-			hctx = blk_mq_map_queue(q, first_rq->mq_ctx->cpu);
++			hctx = blk_mq_map_queue(q, first_rq->cmd_flags,
++						first_rq->mq_ctx->cpu);
+ 			blk_mq_tag_set_rq(hctx, first_rq->tag, flush_rq);
+ 		} else {
+ 			flush_rq->internal_tag = first_rq->internal_tag;
+@@ -441,7 +442,7 @@ static void mq_flush_data_end_io(struct request *rq, blk_status_t error)
+ 	unsigned long flags;
+ 	struct blk_flush_queue *fq = blk_get_flush_queue(q, ctx);
+ 
+-	hctx = blk_mq_map_queue(q, ctx->cpu);
++	hctx = blk_mq_map_queue(q, rq->cmd_flags, ctx->cpu);
+ 
+ 	if (q->elevator) {
+ 		WARN_ON(rq->tag < 0);
+diff --git a/block/blk-mq-debugfs.c b/block/blk-mq-debugfs.c
+index f0865b6ea1e1..2ca8509f887b 100644
+--- a/block/blk-mq-debugfs.c
++++ b/block/blk-mq-debugfs.c
+@@ -430,9 +430,10 @@ struct show_busy_params {
+ static void hctx_show_busy_rq(struct request *rq, void *data, bool reserved)
+ {
+ 	const struct show_busy_params *params = data;
++	struct blk_mq_hw_ctx *hctx;
+ 
+-	if (blk_mq_map_queue(rq->q, rq->mq_ctx->cpu) == params->hctx &&
+-	    blk_mq_rq_state(rq) != MQ_RQ_IDLE)
++	hctx = blk_mq_map_queue(rq->q, rq->cmd_flags, rq->mq_ctx->cpu);
++	if (hctx == params->hctx && blk_mq_rq_state(rq) != MQ_RQ_IDLE)
+ 		__blk_mq_debugfs_rq_show(params->m,
+ 					 list_entry_rq(&rq->queuelist));
+ }
+diff --git a/block/blk-mq-sched.c b/block/blk-mq-sched.c
+index 0fb33abac3f6..de23433e6e8e 100644
+--- a/block/blk-mq-sched.c
++++ b/block/blk-mq-sched.c
+@@ -386,7 +386,7 @@ bool __blk_mq_sched_bio_merge(struct request_queue *q, struct bio *bio)
+ {
+ 	struct elevator_queue *e = q->elevator;
+ 	struct blk_mq_ctx *ctx = blk_mq_get_ctx(q);
+-	struct blk_mq_hw_ctx *hctx = blk_mq_map_queue(q, ctx->cpu);
++	struct blk_mq_hw_ctx *hctx = blk_mq_map_queue(q, bio->bi_opf, ctx->cpu);
+ 	bool ret = false;
+ 
+ 	if (e && e->type->ops.mq.bio_merge) {
+@@ -449,7 +449,9 @@ void blk_mq_sched_insert_request(struct request *rq, bool at_head,
+ 	struct request_queue *q = rq->q;
+ 	struct elevator_queue *e = q->elevator;
+ 	struct blk_mq_ctx *ctx = rq->mq_ctx;
+-	struct blk_mq_hw_ctx *hctx = blk_mq_map_queue(q, ctx->cpu);
++	struct blk_mq_hw_ctx *hctx;
++
++	hctx = blk_mq_map_queue(q, rq->cmd_flags, ctx->cpu);
+ 
+ 	/* flush rq in flush machinery need to be dispatched directly */
+ 	if (!(rq->rq_flags & RQF_FLUSH_SEQ) && op_is_flush(rq->cmd_flags)) {
+@@ -506,8 +508,13 @@ void blk_mq_sched_insert_requests(struct request_queue *q,
+ 				  struct blk_mq_ctx *ctx,
+ 				  struct list_head *list, bool run_queue_async)
+ {
+-	struct blk_mq_hw_ctx *hctx = blk_mq_map_queue(q, ctx->cpu);
+-	struct elevator_queue *e = hctx->queue->elevator;
++	struct blk_mq_hw_ctx *hctx;
++	struct elevator_queue *e;
++	struct request *rq;
++
++	/* For list inserts, requests better be on the same hw queue */
++	rq = list_first_entry(list, struct request, queuelist);
++	hctx = blk_mq_map_queue(q, rq->cmd_flags, ctx->cpu);
+ 
+ 	/*
+ 	 * blk_mq_sched_insert_requests() is called from flush plug
+@@ -516,6 +523,7 @@ void blk_mq_sched_insert_requests(struct request_queue *q,
+ 	 */
+ 	percpu_ref_get(&q->q_usage_counter);
+ 
++	e = hctx->queue->elevator;
+ 	if (e && e->type->ops.mq.insert_requests)
+ 		e->type->ops.mq.insert_requests(hctx, list, false);
+ 	else {
+diff --git a/block/blk-mq-tag.c b/block/blk-mq-tag.c
+index bee92ab06a5e..fbd61a765088 100644
+--- a/block/blk-mq-tag.c
++++ b/block/blk-mq-tag.c
+@@ -169,7 +169,8 @@ unsigned int blk_mq_get_tag(struct blk_mq_alloc_data *data)
+ 		io_schedule();
+ 
+ 		data->ctx = blk_mq_get_ctx(data->q);
+-		data->hctx = blk_mq_map_queue(data->q, data->ctx->cpu);
++		data->hctx = blk_mq_map_queue(data->q, data->cmd_flags,
++						data->ctx->cpu);
+ 		tags = blk_mq_tags_from_data(data);
+ 		if (data->flags & BLK_MQ_REQ_RESERVED)
+ 			bt = &tags->breserved_tags;
+@@ -529,7 +530,7 @@ u32 blk_mq_unique_tag(struct request *rq)
+ 	int hwq = 0;
+ 
+ 	if (q->mq_ops) {
+-		hctx = blk_mq_map_queue(q, rq->mq_ctx->cpu);
++		hctx = blk_mq_map_queue(q, rq->cmd_flags, rq->mq_ctx->cpu);
+ 		hwq = hctx->queue_num;
+ 	}
+ 
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index de8892ddd67f..f51147cdecb8 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -395,8 +395,8 @@ static struct request *blk_mq_rq_ctx_init(struct blk_mq_alloc_data *data,
+ }
+ 
+ static struct request *blk_mq_get_request(struct request_queue *q,
+-		struct bio *bio, unsigned int op,
+-		struct blk_mq_alloc_data *data)
++					  struct bio *bio,
++					  struct blk_mq_alloc_data *data)
+ {
+ 	struct elevator_queue *e = q->elevator;
+ 	struct request *rq;
+@@ -410,8 +410,9 @@ static struct request *blk_mq_get_request(struct request_queue *q,
+ 		put_ctx_on_error = true;
+ 	}
+ 	if (likely(!data->hctx))
+-		data->hctx = blk_mq_map_queue(q, data->ctx->cpu);
+-	if (op & REQ_NOWAIT)
++		data->hctx = blk_mq_map_queue(q, data->cmd_flags,
++						data->ctx->cpu);
++	if (data->cmd_flags & REQ_NOWAIT)
+ 		data->flags |= BLK_MQ_REQ_NOWAIT;
+ 
+ 	if (e) {
+@@ -422,9 +423,10 @@ static struct request *blk_mq_get_request(struct request_queue *q,
+ 		 * dispatch list. Don't include reserved tags in the
+ 		 * limiting, as it isn't useful.
+ 		 */
+-		if (!op_is_flush(op) && e->type->ops.mq.limit_depth &&
++		if (!op_is_flush(data->cmd_flags) &&
++		    e->type->ops.mq.limit_depth &&
+ 		    !(data->flags & BLK_MQ_REQ_RESERVED))
+-			e->type->ops.mq.limit_depth(op, data);
++			e->type->ops.mq.limit_depth(data->cmd_flags, data);
+ 	} else {
+ 		blk_mq_tag_busy(data->hctx);
+ 	}
+@@ -439,8 +441,8 @@ static struct request *blk_mq_get_request(struct request_queue *q,
+ 		return NULL;
+ 	}
+ 
+-	rq = blk_mq_rq_ctx_init(data, tag, op);
+-	if (!op_is_flush(op)) {
++	rq = blk_mq_rq_ctx_init(data, tag, data->cmd_flags);
++	if (!op_is_flush(data->cmd_flags)) {
+ 		rq->elv.icq = NULL;
+ 		if (e && e->type->ops.mq.prepare_request) {
+ 			if (e->type->icq_cache && rq_ioc(bio))
+@@ -457,7 +459,7 @@ static struct request *blk_mq_get_request(struct request_queue *q,
+ struct request *blk_mq_alloc_request(struct request_queue *q, unsigned int op,
+ 		blk_mq_req_flags_t flags)
+ {
+-	struct blk_mq_alloc_data alloc_data = { .flags = flags };
++	struct blk_mq_alloc_data alloc_data = { .flags = flags, .cmd_flags = op };
+ 	struct request *rq;
+ 	int ret;
+ 
+@@ -465,7 +467,7 @@ struct request *blk_mq_alloc_request(struct request_queue *q, unsigned int op,
+ 	if (ret)
+ 		return ERR_PTR(ret);
+ 
+-	rq = blk_mq_get_request(q, NULL, op, &alloc_data);
++	rq = blk_mq_get_request(q, NULL, &alloc_data);
+ 	blk_queue_exit(q);
+ 
+ 	if (!rq)
+@@ -483,7 +485,7 @@ EXPORT_SYMBOL(blk_mq_alloc_request);
+ struct request *blk_mq_alloc_request_hctx(struct request_queue *q,
+ 	unsigned int op, blk_mq_req_flags_t flags, unsigned int hctx_idx)
+ {
+-	struct blk_mq_alloc_data alloc_data = { .flags = flags };
++	struct blk_mq_alloc_data alloc_data = { .flags = flags, .cmd_flags = op };
+ 	struct request *rq;
+ 	unsigned int cpu;
+ 	int ret;
+@@ -516,7 +518,7 @@ struct request *blk_mq_alloc_request_hctx(struct request_queue *q,
+ 	cpu = cpumask_first_and(alloc_data.hctx->cpumask, cpu_online_mask);
+ 	alloc_data.ctx = __blk_mq_get_ctx(q, cpu);
+ 
+-	rq = blk_mq_get_request(q, NULL, op, &alloc_data);
++	rq = blk_mq_get_request(q, NULL, &alloc_data);
+ 	blk_queue_exit(q);
+ 
+ 	if (!rq)
+@@ -530,7 +532,7 @@ static void __blk_mq_free_request(struct request *rq)
+ {
+ 	struct request_queue *q = rq->q;
+ 	struct blk_mq_ctx *ctx = rq->mq_ctx;
+-	struct blk_mq_hw_ctx *hctx = blk_mq_map_queue(q, ctx->cpu);
++	struct blk_mq_hw_ctx *hctx = blk_mq_map_queue(q, rq->cmd_flags, ctx->cpu);
+ 	const int sched_tag = rq->internal_tag;
+ 
+ 	blk_pm_mark_last_busy(rq);
+@@ -547,7 +549,7 @@ void blk_mq_free_request(struct request *rq)
+ 	struct request_queue *q = rq->q;
+ 	struct elevator_queue *e = q->elevator;
+ 	struct blk_mq_ctx *ctx = rq->mq_ctx;
+-	struct blk_mq_hw_ctx *hctx = blk_mq_map_queue(q, ctx->cpu);
++	struct blk_mq_hw_ctx *hctx = blk_mq_map_queue(q, rq->cmd_flags, ctx->cpu);
+ 
+ 	if (rq->rq_flags & RQF_ELVPRIV) {
+ 		if (e && e->type->ops.mq.finish_request)
+@@ -1054,8 +1056,9 @@ bool blk_mq_get_driver_tag(struct request *rq)
+ {
+ 	struct blk_mq_alloc_data data = {
+ 		.q = rq->q,
+-		.hctx = blk_mq_map_queue(rq->q, rq->mq_ctx->cpu),
++		.hctx = blk_mq_map_queue(rq->q, rq->cmd_flags, rq->mq_ctx->cpu),
+ 		.flags = BLK_MQ_REQ_NOWAIT,
++		.cmd_flags = rq->cmd_flags,
+ 	};
+ 	bool shared;
+ 
+@@ -1237,7 +1240,7 @@ bool blk_mq_dispatch_rq_list(struct request_queue *q, struct list_head *list,
+ 
+ 		rq = list_first_entry(list, struct request, queuelist);
+ 
+-		hctx = blk_mq_map_queue(rq->q, rq->mq_ctx->cpu);
++		hctx = blk_mq_map_queue(rq->q, rq->cmd_flags, rq->mq_ctx->cpu);
+ 		if (!got_budget && !blk_mq_get_dispatch_budget(hctx)) {
+ 			blk_mq_put_driver_tag(rq);
+ 			no_budget_avail = true;
+@@ -1710,7 +1713,8 @@ void blk_mq_request_bypass_insert(struct request *rq, bool at_head,
+ 				bool run_queue)
+ {
+ 	struct blk_mq_ctx *ctx = rq->mq_ctx;
+-	struct blk_mq_hw_ctx *hctx = blk_mq_map_queue(rq->q, ctx->cpu);
++	struct blk_mq_hw_ctx *hctx = blk_mq_map_queue(rq->q, rq->cmd_flags,
++							ctx->cpu);
+ 
+ 	spin_lock(&hctx->lock);
+ 	if (at_head)
+@@ -1926,7 +1930,8 @@ blk_status_t blk_mq_request_issue_directly(struct request *rq)
+ 	int srcu_idx;
+ 	blk_qc_t unused_cookie;
+ 	struct blk_mq_ctx *ctx = rq->mq_ctx;
+-	struct blk_mq_hw_ctx *hctx = blk_mq_map_queue(rq->q, ctx->cpu);
++	struct blk_mq_hw_ctx *hctx = blk_mq_map_queue(rq->q, rq->cmd_flags,
++							ctx->cpu);
+ 
+ 	hctx_lock(hctx, &srcu_idx);
+ 	ret = __blk_mq_try_issue_directly(hctx, rq, &unused_cookie, true);
+@@ -1961,7 +1966,7 @@ static blk_qc_t blk_mq_make_request(struct request_queue *q, struct bio *bio)
+ {
+ 	const int is_sync = op_is_sync(bio->bi_opf);
+ 	const int is_flush_fua = op_is_flush(bio->bi_opf);
+-	struct blk_mq_alloc_data data = { .flags = 0 };
++	struct blk_mq_alloc_data data = { .flags = 0, .cmd_flags = bio->bi_opf };
+ 	struct request *rq;
+ 	unsigned int request_count = 0;
+ 	struct blk_plug *plug;
+@@ -1989,7 +1994,7 @@ static blk_qc_t blk_mq_make_request(struct request_queue *q, struct bio *bio)
+ 
+ 	rq_qos_throttle(q, bio, NULL);
+ 
+-	rq = blk_mq_get_request(q, bio, bio->bi_opf, &data);
++	rq = blk_mq_get_request(q, bio, &data);
+ 	if (unlikely(!rq)) {
+ 		rq_qos_cleanup(q, bio);
+ 		if (bio->bi_opf & REQ_NOWAIT)
+@@ -2058,6 +2063,7 @@ static blk_qc_t blk_mq_make_request(struct request_queue *q, struct bio *bio)
+ 
+ 		if (same_queue_rq) {
+ 			data.hctx = blk_mq_map_queue(q,
++					same_queue_rq->cmd_flags,
+ 					same_queue_rq->mq_ctx->cpu);
+ 			blk_mq_try_issue_directly(data.hctx, same_queue_rq,
+ 					&cookie);
+@@ -2523,7 +2529,7 @@ static void blk_mq_init_cpu_queues(struct request_queue *q,
+ 		 * Set local node, IFF we have more than one hw queue. If
+ 		 * not, we remain on the home node of the device
+ 		 */
+-		hctx = blk_mq_map_queue(q, i);
++		hctx = blk_mq_map_queue_type(q, 0, i);
+ 		if (nr_hw_queues > 1 && hctx->numa_node == NUMA_NO_NODE)
+ 			hctx->numa_node = local_memory_node(cpu_to_node(i));
+ 	}
+@@ -2591,7 +2597,7 @@ static void blk_mq_map_swqueue(struct request_queue *q)
+ 		}
+ 
+ 		ctx = per_cpu_ptr(q->queue_ctx, i);
+-		hctx = blk_mq_map_queue(q, i);
++		hctx = blk_mq_map_queue_type(q, 0, i);
+ 
+ 		cpumask_set_cpu(i, hctx->cpumask);
+ 		ctx->index_hw = hctx->nr_ctx;
+diff --git a/block/blk-mq.h b/block/blk-mq.h
+index 9a7c4ab52146..29f88f9caa62 100644
+--- a/block/blk-mq.h
++++ b/block/blk-mq.h
+@@ -83,6 +83,7 @@ void blk_mq_try_issue_list_directly(struct blk_mq_hw_ctx *hctx,
+ extern int blk_mq_hw_queue_to_node(struct blk_mq_queue_map *qmap, unsigned int);
+ 
+ static inline struct blk_mq_hw_ctx *blk_mq_map_queue(struct request_queue *q,
++						     unsigned int flags,
+ 						     unsigned int cpu)
+ {
+ 	struct blk_mq_tag_set *set = q->tag_set;
+@@ -94,7 +95,7 @@ static inline struct blk_mq_hw_ctx *blk_mq_map_queue_type(struct request_queue *
+ 							  unsigned int hctx_type,
+ 							  unsigned int cpu)
+ {
+-	return blk_mq_map_queue(q, cpu);
++	return blk_mq_map_queue(q, hctx_type, cpu);
+ }
+ 
+ /*
+@@ -147,6 +148,7 @@ struct blk_mq_alloc_data {
+ 	struct request_queue *q;
+ 	blk_mq_req_flags_t flags;
+ 	unsigned int shallow_depth;
++	unsigned int cmd_flags;
+ 
+ 	/* input & output parameter */
+ 	struct blk_mq_ctx *ctx;
+@@ -221,7 +223,7 @@ static inline void blk_mq_put_driver_tag(struct request *rq)
+ 	if (rq->tag == -1 || rq->internal_tag == -1)
+ 		return;
+ 
+-	hctx = blk_mq_map_queue(rq->q, rq->mq_ctx->cpu);
++	hctx = blk_mq_map_queue(rq->q, rq->cmd_flags, rq->mq_ctx->cpu);
+ 	__blk_mq_put_driver_tag(hctx, rq);
+ }
+ 
+diff --git a/block/blk.h b/block/blk.h
+index 965e9c507654..6b1ec6e4d782 100644
+--- a/block/blk.h
++++ b/block/blk.h
+@@ -134,11 +134,11 @@ static inline void queue_flag_clear(unsigned int flag, struct request_queue *q)
+ 	__clear_bit(flag, &q->queue_flags);
+ }
+ 
+-static inline struct blk_flush_queue *blk_get_flush_queue(
+-		struct request_queue *q, struct blk_mq_ctx *ctx)
++static inline struct blk_flush_queue *
++blk_get_flush_queue(struct request_queue *q, struct blk_mq_ctx *ctx)
+ {
+ 	if (q->mq_ops)
+-		return blk_mq_map_queue(q, ctx->cpu)->fq;
++		return blk_mq_map_queue(q, REQ_OP_FLUSH, ctx->cpu)->fq;
+ 	return q->fq;
+ }
+ 
+diff --git a/block/mq-deadline.c b/block/mq-deadline.c
+index 7ad820050675..e79c58aaad2e 100644
+--- a/block/mq-deadline.c
++++ b/block/mq-deadline.c
+@@ -573,7 +573,8 @@ static void dd_finish_request(struct request *rq)
+ 		if (!list_empty(&dd->fifo_list[WRITE])) {
+ 			struct blk_mq_hw_ctx *hctx;
+ 
+-			hctx = blk_mq_map_queue(q, rq->mq_ctx->cpu);
++			hctx = blk_mq_map_queue(q, rq->cmd_flags,
++						rq->mq_ctx->cpu);
+ 			blk_mq_sched_mark_restart_hctx(hctx);
+ 		}
+ 		spin_unlock_irqrestore(&dd->zone_lock, flags);
+-- 
+2.27.0
+

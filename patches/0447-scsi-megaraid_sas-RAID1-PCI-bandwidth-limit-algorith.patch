@@ -1,0 +1,118 @@
+From d34c68a266669b71a439888d5cac9452344a66fc Mon Sep 17 00:00:00 2001
+From: Chandrakanth Patil <chandrakanth.patil@broadcom.com>
+Date: Tue, 25 Jun 2019 16:34:28 +0530
+Subject: [PATCH 129/256] scsi: megaraid_sas: RAID1 PCI bandwidth limit
+ algorithm is applicable for only Ventura
+
+mainline inclusion
+from mainline-v5.3-rc1
+commit 49f2bf1071f06a430920888ff2d1a89395a3b6b5
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F7ZR
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=49f2bf1071f06a430920888ff2d1a89395a3b6b5
+
+----------------------------------------------------------------------
+
+RAID1 PCI bandwidth limit algorithm is not applicable to Aero as it's PCIe
+Gen4 adapter.
+
+Signed-off-by: Sumit Saxena <sumit.saxena@broadcom.com>
+Signed-off-by: Chandrakanth Patil <chandrakanth.patil@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/megaraid/megaraid_sas_fusion.c
+---
+ drivers/scsi/megaraid/megaraid_sas_base.c   |  3 +++
+ drivers/scsi/megaraid/megaraid_sas_fusion.c | 24 +++++++++++----------
+ drivers/scsi/megaraid/megaraid_sas_fusion.h |  2 +-
+ 3 files changed, 17 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/scsi/megaraid/megaraid_sas_base.c b/drivers/scsi/megaraid/megaraid_sas_base.c
+index 476e06df9067..3b9448b486e8 100644
+--- a/drivers/scsi/megaraid/megaraid_sas_base.c
++++ b/drivers/scsi/megaraid/megaraid_sas_base.c
+@@ -5327,6 +5327,9 @@ static int megasas_init_fw(struct megasas_instance *instance)
+ 			MR_MAX_RAID_MAP_SIZE_MASK);
+ 	}
+ 
++	if (instance->adapter_type == VENTURA_SERIES)
++		fusion->pcie_bw_limitation = true;
++
+ 	/* Check if MSI-X is supported while in ready state */
+ 	msix_enable = (instance->instancet->read_fw_status_reg(reg_set) &
+ 		       0x4000000) >> 0x1a;
+diff --git a/drivers/scsi/megaraid/megaraid_sas_fusion.c b/drivers/scsi/megaraid/megaraid_sas_fusion.c
+index 17907ce629cf..e4f644ae06a1 100644
+--- a/drivers/scsi/megaraid/megaraid_sas_fusion.c
++++ b/drivers/scsi/megaraid/megaraid_sas_fusion.c
+@@ -2451,9 +2451,10 @@ static void megasas_stream_detect(struct megasas_instance *instance,
+  *
+  */
+ static void
+-megasas_set_raidflag_cpu_affinity(union RAID_CONTEXT_UNION *praid_context,
+-				  struct MR_LD_RAID *raid, bool fp_possible,
+-				  u8 is_read, u32 scsi_buff_len)
++megasas_set_raidflag_cpu_affinity(struct fusion_context *fusion,
++				union RAID_CONTEXT_UNION *praid_context,
++				struct MR_LD_RAID *raid, bool fp_possible,
++				u8 is_read, u32 scsi_buff_len)
+ {
+ 	u8 cpu_sel = MR_RAID_CTX_CPUSEL_0;
+ 	struct RAID_CONTEXT_G35 *rctx_g35;
+@@ -2511,11 +2512,11 @@ megasas_set_raidflag_cpu_affinity(union RAID_CONTEXT_UNION *praid_context,
+ 	 * vs MR_RAID_FLAGS_IO_SUB_TYPE_CACHE_BYPASS.
+ 	 * IO Subtype is not bitmap.
+ 	 */
+-	if ((raid->level == 1) && (!is_read)) {
+-		if (scsi_buff_len > MR_LARGE_IO_MIN_SIZE)
+-			praid_context->raid_context_g35.raid_flags =
+-				(MR_RAID_FLAGS_IO_SUB_TYPE_LDIO_BW_LIMIT
+-				<< MR_RAID_CTX_RAID_FLAGS_IO_SUB_TYPE_SHIFT);
++	if ((fusion->pcie_bw_limitation) && (raid->level == 1) && (!is_read) &&
++			(scsi_buff_len > MR_LARGE_IO_MIN_SIZE)) {
++		praid_context->raid_context_g35.raid_flags =
++			(MR_RAID_FLAGS_IO_SUB_TYPE_LDIO_BW_LIMIT
++			<< MR_RAID_CTX_RAID_FLAGS_IO_SUB_TYPE_SHIFT);
+ 	}
+ }
+ 
+@@ -2668,8 +2669,9 @@ megasas_build_ldio_fusion(struct megasas_instance *instance,
+ 				(instance->host->can_queue)) {
+ 				fp_possible = false;
+ 				atomic_dec(&instance->fw_outstanding);
+-			} else if ((scsi_buff_len > MR_LARGE_IO_MIN_SIZE) ||
+-				   (atomic_dec_if_positive(&mrdev_priv->r1_ldio_hint) > 0)) {
++			} else if (fusion->pcie_bw_limitation &&
++				((scsi_buff_len > MR_LARGE_IO_MIN_SIZE) ||
++				(atomic_dec_if_positive(&mrdev_priv->r1_ldio_hint) > 0))) {
+ 				fp_possible = false;
+ 				atomic_dec(&instance->fw_outstanding);
+ 				if (scsi_buff_len > MR_LARGE_IO_MIN_SIZE)
+@@ -2694,7 +2696,7 @@ megasas_build_ldio_fusion(struct megasas_instance *instance,
+ 
+ 		/* If raid is NULL, set CPU affinity to default CPU0 */
+ 		if (raid)
+-			megasas_set_raidflag_cpu_affinity(praid_context,
++			megasas_set_raidflag_cpu_affinity(fusion, praid_context,
+ 				raid, fp_possible, io_info.isRead,
+ 				scsi_buff_len);
+ 		else
+diff --git a/drivers/scsi/megaraid/megaraid_sas_fusion.h b/drivers/scsi/megaraid/megaraid_sas_fusion.h
+index 8e5ebee6517f..68517cb7342b 100644
+--- a/drivers/scsi/megaraid/megaraid_sas_fusion.h
++++ b/drivers/scsi/megaraid/megaraid_sas_fusion.h
+@@ -1333,7 +1333,7 @@ struct fusion_context {
+ 	dma_addr_t ioc_init_request_phys;
+ 	struct MPI2_IOC_INIT_REQUEST *ioc_init_request;
+ 	struct megasas_cmd *ioc_init_cmd;
+-
++	bool pcie_bw_limitation;
+ };
+ 
+ union desc_value {
+-- 
+2.27.0
+

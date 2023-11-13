@@ -1,0 +1,165 @@
+From 372770b627778576f8a3b5d390f01af21d3e9177 Mon Sep 17 00:00:00 2001
+From: John Garry <john.garry@huawei.com>
+Date: Wed, 19 Aug 2020 23:20:27 +0800
+Subject: [PATCH 090/256] blk-mq: Record active_queues_shared_sbitmap per
+ tag_set for when using shared sbitmap
+
+mainline inclusion
+from mainline-v5.10-rc1
+commit f1b49fdc1c64db110aa1315831e5fe0f8599fa56
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F7ZR
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=f1b49fdc1c64db110aa1315831e5fe0f8599fa56
+
+----------------------------------------------------------------------
+
+For when using a shared sbitmap, no longer should the number of active
+request queues per hctx be relied on for when judging how to share the tag
+bitmap.
+
+Instead maintain the number of active request queues per tag_set, and make
+the judgement based on that.
+
+Originally-from: Kashyap Desai <kashyap.desai@broadcom.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Tested-by: Don Brace<don.brace@microsemi.com> #SCSI resv cmds patches used
+Tested-by: Douglas Gilbert <dgilbert@interlog.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	include/linux/blkdev.h
+---
+ block/blk-mq-tag.c     | 33 +++++++++++++++++++++++++--------
+ block/blk-mq.c         |  2 ++
+ block/blk-mq.h         | 16 +++++++++++++---
+ include/linux/blk-mq.h |  1 +
+ include/linux/blkdev.h |  1 +
+ 5 files changed, 42 insertions(+), 11 deletions(-)
+
+diff --git a/block/blk-mq-tag.c b/block/blk-mq-tag.c
+index 09dceca5142d..3a714775b588 100644
+--- a/block/blk-mq-tag.c
++++ b/block/blk-mq-tag.c
+@@ -30,9 +30,18 @@ bool blk_mq_has_free_tags(struct blk_mq_tags *tags)
+  */
+ bool __blk_mq_tag_busy(struct blk_mq_hw_ctx *hctx)
+ {
+-	if (!test_bit(BLK_MQ_S_TAG_ACTIVE, &hctx->state) &&
+-	    !test_and_set_bit(BLK_MQ_S_TAG_ACTIVE, &hctx->state))
+-		atomic_inc(&hctx->tags->active_queues);
++	if (blk_mq_is_sbitmap_shared(hctx->flags)) {
++		struct request_queue *q = hctx->queue;
++		struct blk_mq_tag_set *set = q->tag_set;
++
++		if (!test_bit(QUEUE_FLAG_HCTX_ACTIVE, &q->queue_flags) &&
++		    !test_and_set_bit(QUEUE_FLAG_HCTX_ACTIVE, &q->queue_flags))
++			atomic_inc(&set->active_queues_shared_sbitmap);
++	} else {
++		if (!test_bit(BLK_MQ_S_TAG_ACTIVE, &hctx->state) &&
++		    !test_and_set_bit(BLK_MQ_S_TAG_ACTIVE, &hctx->state))
++			atomic_inc(&hctx->tags->active_queues);
++	}
+ 
+ 	return true;
+ }
+@@ -54,11 +63,19 @@ void blk_mq_tag_wakeup_all(struct blk_mq_tags *tags, bool include_reserve)
+ void __blk_mq_tag_idle(struct blk_mq_hw_ctx *hctx)
+ {
+ 	struct blk_mq_tags *tags = hctx->tags;
+-
+-	if (!test_and_clear_bit(BLK_MQ_S_TAG_ACTIVE, &hctx->state))
+-		return;
+-
+-	atomic_dec(&tags->active_queues);
++	struct request_queue *q = hctx->queue;
++	struct blk_mq_tag_set *set = q->tag_set;
++
++	if (blk_mq_is_sbitmap_shared(hctx->flags)) {
++		if (!test_and_clear_bit(QUEUE_FLAG_HCTX_ACTIVE,
++					&q->queue_flags))
++			return;
++		atomic_dec(&set->active_queues_shared_sbitmap);
++	} else {
++		if (!test_and_clear_bit(BLK_MQ_S_TAG_ACTIVE, &hctx->state))
++			return;
++		atomic_dec(&tags->active_queues);
++	}
+ 
+ 	blk_mq_tag_wakeup_all(tags, false);
+ }
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index a61ff58b108a..bec2190a64dd 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -3181,6 +3181,8 @@ int blk_mq_alloc_tag_set(struct blk_mq_tag_set *set)
+ 		goto out_free_mq_map;
+ 
+ 	if (blk_mq_is_sbitmap_shared(set->flags)) {
++		atomic_set(&set->active_queues_shared_sbitmap, 0);
++
+ 		if (blk_mq_init_shared_sbitmap(set, set->flags)) {
+ 			ret = -ENOMEM;
+ 			goto out_free_mq_rq_maps;
+diff --git a/block/blk-mq.h b/block/blk-mq.h
+index 1bd704349865..7d21b7ecf178 100644
+--- a/block/blk-mq.h
++++ b/block/blk-mq.h
+@@ -308,8 +308,6 @@ static inline bool hctx_may_queue(struct blk_mq_hw_ctx *hctx,
+ 
+ 	if (!hctx || !(hctx->flags & BLK_MQ_F_TAG_QUEUE_SHARED))
+ 		return true;
+-	if (!test_bit(BLK_MQ_S_TAG_ACTIVE, &hctx->state))
+-		return true;
+ 
+ 	/*
+ 	 * Don't try dividing an ant
+@@ -317,7 +315,19 @@ static inline bool hctx_may_queue(struct blk_mq_hw_ctx *hctx,
+ 	if (bt->sb.depth == 1)
+ 		return true;
+ 
+-	users = atomic_read(&hctx->tags->active_queues);
++	if (blk_mq_is_sbitmap_shared(hctx->flags)) {
++		struct request_queue *q = hctx->queue;
++		struct blk_mq_tag_set *set = q->tag_set;
++
++		if (!test_bit(BLK_MQ_S_TAG_ACTIVE, &q->queue_flags))
++			return true;
++		users = atomic_read(&set->active_queues_shared_sbitmap);
++	} else {
++		if (!test_bit(BLK_MQ_S_TAG_ACTIVE, &hctx->state))
++			return true;
++		users = atomic_read(&hctx->tags->active_queues);
++	}
++
+ 	if (!users)
+ 		return true;
+ 
+diff --git a/include/linux/blk-mq.h b/include/linux/blk-mq.h
+index 847d2c725348..4033a1c7795e 100644
+--- a/include/linux/blk-mq.h
++++ b/include/linux/blk-mq.h
+@@ -127,6 +127,7 @@ struct blk_mq_tag_set {
+ 	unsigned int		timeout;
+ 	unsigned int		flags;		/* BLK_MQ_F_* */
+ 	void			*driver_data;
++	atomic_t		active_queues_shared_sbitmap;
+ 
+ 	struct blk_mq_tags	**tags;
+ 
+diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
+index b4216c70193d..d0c11bba64ce 100644
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -749,6 +749,7 @@ struct request_queue {
+ #define QUEUE_FLAG_QUIESCED_INTERNAL 30
+ /* bio will be dispatched asynchronous */
+ #define QUEUE_FLAG_DISPATCH_ASYNC 31
++#define QUEUE_FLAG_HCTX_ACTIVE 32       /* at least one blk-mq hctx is active */
+ 
+ #define QUEUE_FLAG_DEFAULT	((1 << QUEUE_FLAG_IO_STAT) |		\
+ 				 (1 << QUEUE_FLAG_SAME_COMP)	|	\
+-- 
+2.27.0
+

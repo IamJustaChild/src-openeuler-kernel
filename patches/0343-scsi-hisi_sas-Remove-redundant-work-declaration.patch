@@ -1,0 +1,41 @@
+From 550219eca40a5ec48fea8356e364671249118752 Mon Sep 17 00:00:00 2001
+From: Xiang Chen <chenxiang66@hisilicon.com>
+Date: Fri, 6 Sep 2019 20:55:33 +0800
+Subject: [PATCH 025/256] scsi: hisi_sas: Remove redundant work declaration
+
+mainline inclusion
+from mainline-v5.4-rc1
+commit 27f22723c3f4a1a3e66642b3da7a3d16ee602972
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EKNE
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=27f22723c3f4a1a3e66642b3da7a3d16ee602972
+
+----------------------------------------------------------------------
+
+Remove redundant work declaration in HISI_SAS_DECLARE_RST_WORK_ON_STACK
+
+Link: https://lore.kernel.org/r/1567774537-20003-10-git-send-email-john.garry@huawei.com
+Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/hisi_sas/hisi_sas.h | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas.h b/drivers/scsi/hisi_sas/hisi_sas.h
+index 3fc67664c22a..ba4470bf99da 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas.h
++++ b/drivers/scsi/hisi_sas/hisi_sas.h
+@@ -153,7 +153,6 @@ struct hisi_sas_rst {
+ 
+ #define HISI_SAS_DECLARE_RST_WORK_ON_STACK(r) \
+ 	DECLARE_COMPLETION_ONSTACK(c); \
+-	DECLARE_WORK(w, hisi_sas_sync_rst_work_handler); \
+ 	struct hisi_sas_rst r = HISI_SAS_RST_WORK_INIT(r, c)
+ 
+ enum hisi_sas_bit_err_type {
+-- 
+2.27.0
+

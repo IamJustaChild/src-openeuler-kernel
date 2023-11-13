@@ -1,0 +1,44 @@
+From db4e4e7cf5333822e1c25eec5b825df6c56dc8f6 Mon Sep 17 00:00:00 2001
+From: YunYi Yang <yangyunyi2@huawei.com>
+Date: Fri, 25 Aug 2023 15:13:45 +0800
+Subject: [PATCH 074/256] fix kabi broken due to change of struct request
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F7ZR
+
+----------------------------------------------------------------------------
+
+Commit 6a137b2f297a ("blk-mq: cache request hardware queue mapping")
+changes the struct request, so we need to fix kabi broken problem.
+
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ include/linux/blkdev.h | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
+index ff73fbc87b32..7d76f401e1a9 100644
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -159,7 +159,6 @@ enum mq_rq_state {
+ struct request {
+ 	struct request_queue *q;
+ 	struct blk_mq_ctx *mq_ctx;
+-	struct blk_mq_hw_ctx *mq_hctx;
+ 
+ 	int cpu;
+ 	unsigned int cmd_flags;		/* op and common flags */
+@@ -278,6 +277,9 @@ struct request {
+ #ifdef CONFIG_BLK_CGROUP
+ 	struct request_list *rl;		/* rl this rq is alloced from */
+ #endif
++#ifndef __GENKSYMS__
++	struct blk_mq_hw_ctx *mq_hctx;
++#endif
+ };
+ 
+ static inline bool blk_op_is_scsi(unsigned int op)
+-- 
+2.27.0
+

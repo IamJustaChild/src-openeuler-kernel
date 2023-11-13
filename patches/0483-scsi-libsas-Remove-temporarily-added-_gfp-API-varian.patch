@@ -1,0 +1,138 @@
+From 147e1a6300f02feb56cadeee5675da4248c69397 Mon Sep 17 00:00:00 2001
+From: "Ahmed S. Darwish" <a.darwish@linutronix.de>
+Date: Tue, 3 Aug 2021 14:47:47 +0800
+Subject: [PATCH 165/256] scsi: libsas: Remove temporarily-added _gfp() API
+ variants
+
+mainline inclusion
+from mainline-v5.12-rc1
+commit 65f7cfba6196baf2fc06ac0ab0be764377f3206a
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EKNE
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=65f7cfba6196baf2fc06ac0ab0be764377f3206a
+
+----------------------------------------------------------------------
+
+These variants were added for bisectability. Remove them, as all call sites
+have now been convertd to use the original API.
+
+Link: https://lore.kernel.org/r/20210118100955.1761652-20-a.darwish@linutronix.de
+Cc: Jason Yan <yanaijie@huawei.com>
+Reviewed-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Ahmed S. Darwish <a.darwish@linutronix.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reviewed-by: Ouyangdelong <ouyangdelong@huawei.com>
+Signed-off-by: Nifujia <nifujia1@hisilicon.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	Documentation/scsi/libsas.rst
+	drivers/scsi/libsas/sas_event.c
+---
+ Documentation/scsi/libsas.txt      |  2 --
+ drivers/scsi/libsas/sas_event.c    | 13 -------------
+ drivers/scsi/libsas/sas_init.c     |  7 -------
+ drivers/scsi/libsas/sas_internal.h |  4 ----
+ include/scsi/libsas.h              |  4 ----
+ 5 files changed, 30 deletions(-)
+
+diff --git a/Documentation/scsi/libsas.txt b/Documentation/scsi/libsas.txt
+index 56a26b31fa6d..ff95aa2fcedf 100644
+--- a/Documentation/scsi/libsas.txt
++++ b/Documentation/scsi/libsas.txt
+@@ -156,8 +156,6 @@ The event interface:
+ 	void (*notify_ha_event)(struct sas_ha_struct *, enum ha_event);
+ 	void sas_notify_port_event(struct sas_phy *, enum port_event, gfp_t);
+ 	void sas_notify_phy_event(struct sas_phy *, enum phy_event, gfp_t);
+-	void sas_notify_port_event_gfp(struct sas_phy *, enum port_event, gfp_t);
+-	void sas_notify_phy_event_gfp(struct sas_phy *, enum phy_event, gfp_t);
+ 
+ When sas_register_ha() returns, those are set and can be
+ called by the LLDD to notify the SAS layer of such events
+diff --git a/drivers/scsi/libsas/sas_event.c b/drivers/scsi/libsas/sas_event.c
+index cd6ef88ef136..4ceff8adf74f 100644
+--- a/drivers/scsi/libsas/sas_event.c
++++ b/drivers/scsi/libsas/sas_event.c
+@@ -172,13 +172,6 @@ int sas_notify_port_event(struct asd_sas_phy *phy, enum port_event event,
+ }
+ EXPORT_SYMBOL_GPL(sas_notify_port_event);
+ 
+-int sas_notify_port_event_gfp(struct asd_sas_phy *phy, enum port_event event,
+-			      gfp_t gfp_flags)
+-{
+-	return sas_notify_port_event(phy, event, gfp_flags);
+-}
+-EXPORT_SYMBOL_GPL(sas_notify_port_event_gfp);
+-
+ int sas_notify_phy_event(struct asd_sas_phy *phy, enum phy_event event,
+ 			 gfp_t gfp_flags)
+ {
+@@ -210,9 +203,3 @@ int sas_init_events(struct sas_ha_struct *sas_ha)
+ 	return 0;
+ }
+ 
+-int sas_notify_phy_event_gfp(struct asd_sas_phy *phy, enum phy_event event,
+-			     gfp_t gfp_flags)
+-{
+-	return sas_notify_phy_event(phy, event, gfp_flags);
+-}
+-EXPORT_SYMBOL_GPL(sas_notify_phy_event_gfp);
+diff --git a/drivers/scsi/libsas/sas_init.c b/drivers/scsi/libsas/sas_init.c
+index ecd2a4cf6ee8..87bebd171652 100644
+--- a/drivers/scsi/libsas/sas_init.c
++++ b/drivers/scsi/libsas/sas_init.c
+@@ -642,13 +642,6 @@ struct asd_sas_event *sas_alloc_event(struct asd_sas_phy *phy,
+ 	return event;
+ }
+ 
+-struct asd_sas_event *sas_alloc_event_gfp(struct asd_sas_phy *phy,
+-					  gfp_t gfp_flags)
+-{
+-
+-	return sas_alloc_event(phy, gfp_flags);
+-}
+-
+ void sas_free_event(struct asd_sas_event *event)
+ {
+ 	struct asd_sas_phy *phy = event->phy;
+diff --git a/drivers/scsi/libsas/sas_internal.h b/drivers/scsi/libsas/sas_internal.h
+index 2fae32a9156b..90049b3fbf68 100644
+--- a/drivers/scsi/libsas/sas_internal.h
++++ b/drivers/scsi/libsas/sas_internal.h
+@@ -62,8 +62,6 @@ int  sas_register_phys(struct sas_ha_struct *sas_ha);
+ void sas_unregister_phys(struct sas_ha_struct *sas_ha);
+ 
+ struct asd_sas_event *sas_alloc_event(struct asd_sas_phy *phy, gfp_t gfp_flags);
+-struct asd_sas_event *sas_alloc_event_gfp(struct asd_sas_phy *phy,
+-					  gfp_t gfp_flags);
+ void sas_free_event(struct asd_sas_event *event);
+ 
+ int  sas_register_ports(struct sas_ha_struct *sas_ha);
+@@ -94,8 +92,6 @@ int sas_smp_get_phy_events(struct sas_phy *phy);
+ 
+ int sas_notify_phy_event(struct asd_sas_phy *phy, enum phy_event event,
+ 			 gfp_t flags);
+-int sas_notify_phy_event_gfp(struct asd_sas_phy *phy, enum phy_event event,
+-			     gfp_t flags);
+ void sas_device_set_phy(struct domain_device *dev, struct sas_port *port);
+ struct domain_device *sas_find_dev_by_rphy(struct sas_rphy *rphy);
+ struct domain_device *sas_ex_to_ata(struct domain_device *ex_dev, int phy_id);
+diff --git a/include/scsi/libsas.h b/include/scsi/libsas.h
+index 7db79ca4037f..be8ad849dfcd 100644
+--- a/include/scsi/libsas.h
++++ b/include/scsi/libsas.h
+@@ -733,9 +733,5 @@ int sas_notify_port_event(struct asd_sas_phy *phy, enum port_event event,
+ 			  gfp_t gfp_flags);
+ int sas_notify_phy_event(struct asd_sas_phy *phy, enum phy_event event,
+ 			 gfp_t gfp_flags);
+-int sas_notify_port_event_gfp(struct asd_sas_phy *phy, enum port_event event,
+-			      gfp_t gfp_flags);
+-int sas_notify_phy_event_gfp(struct asd_sas_phy *phy, enum phy_event event,
+-			     gfp_t gfp_flags);
+ 
+ #endif /* _SASLIB_H_ */
+-- 
+2.27.0
+

@@ -1,0 +1,62 @@
+From 3f3c4a2d57f32678b57467937ee0d6270961e95f Mon Sep 17 00:00:00 2001
+From: John Garry <john.garry@huawei.com>
+Date: Wed, 19 Aug 2020 23:20:31 +0800
+Subject: [PATCH 094/256] scsi: core: Show nr_hw_queues in sysfs
+
+mainline inclusion
+from mainline-v5.10-rc1
+commit 64f1501bd2a9c8ab1df548e1ed224552f9c7ac71
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F7ZR
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=64f1501bd2a9c8ab1df548e1ed224552f9c7ac71
+
+----------------------------------------------------------------------
+
+So that we don't use a value of 0 for when Scsi_Host.nr_hw_queues is unset,
+use the tag_set->nr_hw_queues (which holds 1 for this case).
+
+Signed-off-by: John Garry <john.garry@huawei.com>
+Tested-by: Douglas Gilbert <dgilbert@interlog.com>
+Acked-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/scsi_sysfs.c
+---
+ drivers/scsi/scsi_sysfs.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/drivers/scsi/scsi_sysfs.c b/drivers/scsi/scsi_sysfs.c
+index 18299693e4ff..6118db6a7c1d 100644
+--- a/drivers/scsi/scsi_sysfs.c
++++ b/drivers/scsi/scsi_sysfs.c
+@@ -386,6 +386,16 @@ show_host_busy(struct device *dev, struct device_attribute *attr, char *buf)
+ }
+ static DEVICE_ATTR(host_busy, S_IRUGO, show_host_busy, NULL);
+ 
++static ssize_t
++nr_hw_queues_show(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct Scsi_Host *shost = class_to_shost(dev);
++	struct blk_mq_tag_set *tag_set = &shost->tag_set;
++
++	return snprintf(buf, 20, "%d\n", tag_set->nr_hw_queues);
++}
++static DEVICE_ATTR(nr_hw_queues, 0444, nr_hw_queues_show, NULL);
++
+ static struct attribute *scsi_sysfs_shost_attrs[] = {
+ 	&dev_attr_use_blk_mq.attr,
+ 	&dev_attr_unique_id.attr,
+@@ -404,6 +414,7 @@ static struct attribute *scsi_sysfs_shost_attrs[] = {
+ 	&dev_attr_prot_guard_type.attr,
+ 	&dev_attr_host_reset.attr,
+ 	&dev_attr_eh_deadline.attr,
++	&dev_attr_nr_hw_queues.attr,
+ 	NULL
+ };
+ 
+-- 
+2.27.0
+

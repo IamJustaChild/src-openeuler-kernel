@@ -1,0 +1,288 @@
+From 49326b6fc45da1e543fb275ef8808256d73a7bab Mon Sep 17 00:00:00 2001
+From: "Ahmed S. Darwish" <a.darwish@linutronix.de>
+Date: Tue, 3 Aug 2021 14:47:40 +0800
+Subject: [PATCH 157/256] scsi: libsas: Add gfp_t flags parameter to event
+ notifications
+
+mainline inclusion
+from mainline-v5.12-rc1
+commit 5d6a75a1edf63ff243d937253ced62d8edea30b5
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EKNE
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=5d6a75a1edf63ff243d937253ced62d8edea30b5
+
+----------------------------------------------------------------------
+
+All call-sites of below libsas APIs:
+
+  - sas_alloc_event()
+  - sas_notify_port_event()
+  - sas_notify_phy_event()
+
+have been converted to use the _gfp()-suffixed version.  Modify the
+original APIs above to take a gfp_t flags parameter by default.
+
+For bisectability, call-sites will be modified again to use the original
+libsas APIs (while passing gfp_t). The temporary _gfp()-suffixed versions
+can then be removed.
+
+Link: https://lore.kernel.org/r/20210118100955.1761652-13-a.darwish@linutronix.de
+Cc: Jason Yan <yanaijie@huawei.com>
+Reviewed-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Ahmed S. Darwish <a.darwish@linutronix.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reviewed-by: Ouyangdelong <ouyangdelong@huawei.com>
+Signed-off-by: Nifujia <nifujia1@hisilicon.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	Documentation/scsi/libsas.rst
+---
+ Documentation/scsi/libsas.txt      |  4 +-
+ drivers/scsi/libsas/sas_event.c    | 62 +++++++++---------------------
+ drivers/scsi/libsas/sas_expander.c |  4 +-
+ drivers/scsi/libsas/sas_init.c     | 12 ++----
+ drivers/scsi/libsas/sas_internal.h |  5 ++-
+ include/scsi/libsas.h              | 12 ++++--
+ 6 files changed, 37 insertions(+), 62 deletions(-)
+
+diff --git a/Documentation/scsi/libsas.txt b/Documentation/scsi/libsas.txt
+index 5c28e4727f2c..56a26b31fa6d 100644
+--- a/Documentation/scsi/libsas.txt
++++ b/Documentation/scsi/libsas.txt
+@@ -154,8 +154,8 @@ The event interface:
+ 
+ 	/* LLDD calls these to notify the class of an event. */
+ 	void (*notify_ha_event)(struct sas_ha_struct *, enum ha_event);
+-	void (*notify_port_event)(struct sas_phy *, enum port_event);
+-	void (*notify_phy_event)(struct sas_phy *, enum phy_event);
++	void sas_notify_port_event(struct sas_phy *, enum port_event, gfp_t);
++	void sas_notify_phy_event(struct sas_phy *, enum phy_event, gfp_t);
+ 	void sas_notify_port_event_gfp(struct sas_phy *, enum port_event, gfp_t);
+ 	void sas_notify_phy_event_gfp(struct sas_phy *, enum phy_event, gfp_t);
+ 
+diff --git a/drivers/scsi/libsas/sas_event.c b/drivers/scsi/libsas/sas_event.c
+index 4bd200cc294b..06b0105be611 100644
+--- a/drivers/scsi/libsas/sas_event.c
++++ b/drivers/scsi/libsas/sas_event.c
+@@ -149,15 +149,19 @@ static void sas_phy_event_worker(struct work_struct *work)
+ 	sas_free_event(ev);
+ }
+ 
+-static int __sas_notify_port_event(struct asd_sas_phy *phy,
+-				   enum port_event event,
+-				   struct asd_sas_event *ev)
++int sas_notify_port_event(struct asd_sas_phy *phy, enum port_event event,
++			  gfp_t gfp_flags)
+ {
+ 	struct sas_ha_struct *ha = phy->ha;
++	struct asd_sas_event *ev;
+ 	int ret;
+ 
+ 	BUG_ON(event >= PORT_NUM_EVENTS);
+ 
++	ev = sas_alloc_event_gfp(phy, gfp_flags);
++	if (!ev)
++		return -ENOMEM;
++
+ 	INIT_SAS_EVENT(ev, sas_port_event_worker, phy, event);
+ 
+ 	ret = sas_queue_event(event, &ev->work, ha);
+@@ -166,41 +170,28 @@ static int __sas_notify_port_event(struct asd_sas_phy *phy,
+ 
+ 	return ret;
+ }
++EXPORT_SYMBOL_GPL(sas_notify_port_event);
+ 
+ int sas_notify_port_event_gfp(struct asd_sas_phy *phy, enum port_event event,
+ 			      gfp_t gfp_flags)
+ {
+-	struct asd_sas_event *ev;
+-
+-	ev = sas_alloc_event_gfp(phy, gfp_flags);
+-	if (!ev)
+-		return -ENOMEM;
+-
+-	return __sas_notify_port_event(phy, event, ev);
++	return sas_notify_port_event(phy, event, gfp_flags);
+ }
+ EXPORT_SYMBOL_GPL(sas_notify_port_event_gfp);
+ 
+-int sas_notify_port_event(struct asd_sas_phy *phy, enum port_event event)
+-{
+-	struct asd_sas_event *ev;
+-
+-	ev = sas_alloc_event(phy);
+-	if (!ev)
+-		return -ENOMEM;
+-
+-	return __sas_notify_port_event(phy, event, ev);
+-}
+-EXPORT_SYMBOL_GPL(sas_notify_port_event);
+-
+-static inline int __sas_notify_phy_event(struct asd_sas_phy *phy,
+-					 enum phy_event event,
+-					 struct asd_sas_event *ev)
++int sas_notify_phy_event(struct asd_sas_phy *phy, enum phy_event event,
++			 gfp_t gfp_flags)
+ {
+ 	struct sas_ha_struct *ha = phy->ha;
++	struct asd_sas_event *ev;
+ 	int ret;
+ 
+ 	BUG_ON(event >= PHY_NUM_EVENTS);
+ 
++	ev = sas_alloc_event_gfp(phy, gfp_flags);
++	if (!ev)
++		return -ENOMEM;
++
+ 	INIT_SAS_EVENT(ev, sas_phy_event_worker, phy, event);
+ 
+ 	ret = sas_queue_event(event, &ev->work, ha);
+@@ -209,6 +200,7 @@ static inline int __sas_notify_phy_event(struct asd_sas_phy *phy,
+ 
+ 	return ret;
+ }
++EXPORT_SYMBOL_GPL(sas_notify_phy_event);
+ 
+ int sas_init_events(struct sas_ha_struct *sas_ha)
+ {
+@@ -221,24 +213,6 @@ int sas_init_events(struct sas_ha_struct *sas_ha)
+ int sas_notify_phy_event_gfp(struct asd_sas_phy *phy, enum phy_event event,
+ 			     gfp_t gfp_flags)
+ {
+-	struct asd_sas_event *ev;
+-
+-	ev = sas_alloc_event_gfp(phy, gfp_flags);
+-	if (!ev)
+-		return -ENOMEM;
+-
+-	return __sas_notify_phy_event(phy, event, ev);
++	return sas_notify_phy_event(phy, event, gfp_flags);
+ }
+ EXPORT_SYMBOL_GPL(sas_notify_phy_event_gfp);
+-
+-int sas_notify_phy_event(struct asd_sas_phy *phy, enum phy_event event)
+-{
+-	struct asd_sas_event *ev;
+-
+-	ev = sas_alloc_event(phy);
+-	if (!ev)
+-		return -ENOMEM;
+-
+-	return __sas_notify_phy_event(phy, event, ev);
+-}
+-EXPORT_SYMBOL_GPL(sas_notify_phy_event);
+diff --git a/drivers/scsi/libsas/sas_expander.c b/drivers/scsi/libsas/sas_expander.c
+index 911d0e1e8e3f..799eb400a174 100644
+--- a/drivers/scsi/libsas/sas_expander.c
++++ b/drivers/scsi/libsas/sas_expander.c
+@@ -2273,7 +2273,6 @@ int sas_ex_revalidate_domain(struct domain_device *port_dev)
+ 	 * go again to pick up on any new devices on a separate pass
+ 	 */
+ 	if (unregistered > 0) {
+-		struct asd_sas_port *port = dev->port;
+ 		struct asd_sas_phy *sas_phy;
+ 		struct ex_phy *phy;
+ 
+@@ -2288,7 +2287,8 @@ int sas_ex_revalidate_domain(struct domain_device *port_dev)
+ 		sas_phy = container_of(dev->port->phy_list.next,
+ 				struct asd_sas_phy,
+ 				port_phy_el);
+-		port->ha->notify_port_event(sas_phy, PORTE_BROADCAST_RCVD);
++		sas_notify_port_event(sas_phy, PORTE_BROADCAST_RCVD,
++				      in_interrupt() ? GFP_ATOMIC : GFP_KERNEL);
+ 
+ 		return 0;
+ 	}
+diff --git a/drivers/scsi/libsas/sas_init.c b/drivers/scsi/libsas/sas_init.c
+index 556f29233872..239cf00a7bf7 100644
+--- a/drivers/scsi/libsas/sas_init.c
++++ b/drivers/scsi/libsas/sas_init.c
+@@ -608,8 +608,8 @@ sas_domain_attach_transport(struct sas_domain_function_template *dft)
+ }
+ EXPORT_SYMBOL_GPL(sas_domain_attach_transport);
+ 
+-static struct asd_sas_event *__sas_alloc_event(struct asd_sas_phy *phy,
+-					       gfp_t gfp_flags)
++struct asd_sas_event *sas_alloc_event(struct asd_sas_phy *phy,
++				      gfp_t gfp_flags)
+ {
+ 	struct asd_sas_event *event;
+ 	struct sas_ha_struct *sas_ha = phy->ha;
+@@ -642,15 +642,11 @@ static struct asd_sas_event *__sas_alloc_event(struct asd_sas_phy *phy,
+ 	return event;
+ }
+ 
+-struct asd_sas_event *sas_alloc_event(struct asd_sas_phy *phy)
+-{
+-	return __sas_alloc_event(phy, in_interrupt() ? GFP_ATOMIC : GFP_KERNEL);
+-}
+-
+ struct asd_sas_event *sas_alloc_event_gfp(struct asd_sas_phy *phy,
+ 					  gfp_t gfp_flags)
+ {
+-	return __sas_alloc_event(phy, gfp_flags);
++
++	return sas_alloc_event(phy, gfp_flags);
+ }
+ 
+ void sas_free_event(struct asd_sas_event *event)
+diff --git a/drivers/scsi/libsas/sas_internal.h b/drivers/scsi/libsas/sas_internal.h
+index 5ccaab295b09..2fae32a9156b 100644
+--- a/drivers/scsi/libsas/sas_internal.h
++++ b/drivers/scsi/libsas/sas_internal.h
+@@ -61,7 +61,7 @@ int sas_show_oob_mode(enum sas_oob_mode oob_mode, char *buf);
+ int  sas_register_phys(struct sas_ha_struct *sas_ha);
+ void sas_unregister_phys(struct sas_ha_struct *sas_ha);
+ 
+-struct asd_sas_event *sas_alloc_event(struct asd_sas_phy *phy);
++struct asd_sas_event *sas_alloc_event(struct asd_sas_phy *phy, gfp_t gfp_flags);
+ struct asd_sas_event *sas_alloc_event_gfp(struct asd_sas_phy *phy,
+ 					  gfp_t gfp_flags);
+ void sas_free_event(struct asd_sas_event *event);
+@@ -92,7 +92,8 @@ int sas_smp_phy_control(struct domain_device *dev, int phy_id,
+ 			enum phy_func phy_func, struct sas_phy_linkrates *);
+ int sas_smp_get_phy_events(struct sas_phy *phy);
+ 
+-int sas_notify_phy_event(struct asd_sas_phy *phy, enum phy_event event);
++int sas_notify_phy_event(struct asd_sas_phy *phy, enum phy_event event,
++			 gfp_t flags);
+ int sas_notify_phy_event_gfp(struct asd_sas_phy *phy, enum phy_event event,
+ 			     gfp_t flags);
+ void sas_device_set_phy(struct domain_device *dev, struct sas_port *port);
+diff --git a/include/scsi/libsas.h b/include/scsi/libsas.h
+index 5b82e023bc90..3978717229bf 100644
+--- a/include/scsi/libsas.h
++++ b/include/scsi/libsas.h
+@@ -404,8 +404,10 @@ struct sas_ha_struct {
+ 				* their siblings when forming wide ports */
+ 
+ 	/* LLDD calls these to notify the class of an event. */
+-	int (*notify_port_event)(struct asd_sas_phy *, enum port_event);
+-	int (*notify_phy_event)(struct asd_sas_phy *, enum phy_event);
++	int (*notify_port_event)(struct asd_sas_phy *, enum port_event,
++				 gfp_t gfp_flags);
++	int (*notify_phy_event)(struct asd_sas_phy *, enum phy_event,
++				gfp_t gfp_flags);
+ 
+ 	void *lldd_ha;		  /* not touched by sas class code */
+ 
+@@ -723,8 +725,10 @@ struct sas_phy *sas_get_local_phy(struct domain_device *dev);
+ 
+ int sas_request_addr(struct Scsi_Host *shost, u8 *addr);
+ 
+-int sas_notify_port_event(struct asd_sas_phy *phy, enum port_event event);
+-int sas_notify_phy_event(struct asd_sas_phy *phy, enum phy_event event);
++int sas_notify_port_event(struct asd_sas_phy *phy, enum port_event event,
++			  gfp_t gfp_flags);
++int sas_notify_phy_event(struct asd_sas_phy *phy, enum phy_event event,
++			 gfp_t gfp_flags);
+ int sas_notify_port_event_gfp(struct asd_sas_phy *phy, enum port_event event,
+ 			      gfp_t gfp_flags);
+ int sas_notify_phy_event_gfp(struct asd_sas_phy *phy, enum phy_event event,
+-- 
+2.27.0
+

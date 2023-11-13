@@ -1,0 +1,69 @@
+From 3486af537ecd5299314cc588054515d632c20f48 Mon Sep 17 00:00:00 2001
+From: Xiang Chen <chenxiang66@hisilicon.com>
+Date: Fri, 2 Oct 2020 22:30:35 +0800
+Subject: [PATCH 109/256] scsi: hisi_sas: Add check for methods _PS0 and _PR0
+
+mainline inclusion
+from mainline-v5.10-rc1
+commit e06596d5000c58f35721f334fe2eee28e3b01a77
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F81U
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=e06596d5000c58f35721f334fe2eee28e3b01a77
+
+----------------------------------------------------------------------
+
+To support system suspend/resume or runtime suspend/resume, need to use the
+function pci_set_power_state() to change the power state which requires at
+least method _PS0 or _PR0 be filled by platform for v3 hw. So check whether
+the method is supported, if not, print a warning.
+
+A Kconfig dependency is added as there is no stub for
+acpi_device_power_manageable().
+
+Link: https://lore.kernel.org/r/1601649038-25534-5-git-send-email-john.garry@huawei.com
+Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/hisi_sas/Kconfig          | 1 +
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 4 ++++
+ 2 files changed, 5 insertions(+)
+
+diff --git a/drivers/scsi/hisi_sas/Kconfig b/drivers/scsi/hisi_sas/Kconfig
+index 79ad42352825..11c46b217caa 100644
+--- a/drivers/scsi/hisi_sas/Kconfig
++++ b/drivers/scsi/hisi_sas/Kconfig
+@@ -14,5 +14,6 @@ config SCSI_HISI_SAS_PCI
+ 	tristate "HiSilicon SAS on PCI bus"
+ 	depends on SCSI_HISI_SAS
+ 	depends on PCI
++	depends on ACPI
+ 	help
+ 		This driver supports HiSilicon's SAS HBA based on PCI device
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index d2ae66b8a828..8e3f25d6a669 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -1000,6 +1000,7 @@ static int reset_hw_v3_hw(struct hisi_hba *hisi_hba)
+ static int hw_init_v3_hw(struct hisi_hba *hisi_hba)
+ {
+ 	struct device *dev = hisi_hba->dev;
++	struct acpi_device *acpi_dev;
+ 	union acpi_object *obj;
+ 	guid_t guid;
+ 	int rc;
+@@ -1031,6 +1032,9 @@ static int hw_init_v3_hw(struct hisi_hba *hisi_hba)
+ 	else
+ 		ACPI_FREE(obj);
+ 
++	acpi_dev = ACPI_COMPANION(dev);
++	if (!acpi_device_power_manageable(acpi_dev))
++		dev_notice(dev, "neither _PS0 nor _PR0 is defined\n");
+ 	return 0;
+ }
+ 
+-- 
+2.27.0
+

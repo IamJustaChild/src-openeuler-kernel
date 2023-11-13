@@ -1,0 +1,90 @@
+From 6777ac10a1516928d930e462021d0dca0ab90a8e Mon Sep 17 00:00:00 2001
+From: Luo Jiaxing <luojiaxing@huawei.com>
+Date: Tue, 3 Aug 2021 14:48:05 +0800
+Subject: [PATCH 179/256] scsi: hisi_sas: Speed up error handling when internal
+ abort timeout occurs
+
+mainline inclusion
+from mainline-v5.14-rc1
+commit e8a4d0daaef6fc8f965ca0b8e9585aa9698a0f24
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F82P
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=e8a4d0daaef6fc8f965ca0b8e9585aa9698a0f24
+
+----------------------------------------------------------------------
+
+If an internal task abort timeout occurs, the controller has developed a
+fault, and needs to be reset to be recovered.
+
+When this occurs during error handling, the current policy is to allow
+error handling to continue, and the inevitable nexus ha reset will handle
+the required reset.
+
+However various steps of error handling need to taken before this happens.
+These also involve some level of HW interaction, which will also fail with
+various timeouts.
+
+Speed up this process by recording a HW fault bit for an internal abort
+timeout - when this is set, just automatically error any HW interaction,
+and essentially go straight to clear nexus ha (to reset the controller).
+
+Link: https://lore.kernel.org/r/1623058179-80434-6-git-send-email-john.garry@huawei.com
+Signed-off-by: Luo Jiaxing <luojiaxing@huawei.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reviewed-by: Ouyangdelong <ouyangdelong@huawei.com>
+Signed-off-by: Nifujia <nifujia1@hisilicon.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/hisi_sas/hisi_sas.h      | 1 +
+ drivers/scsi/hisi_sas/hisi_sas_main.c | 6 ++++++
+ 2 files changed, 7 insertions(+)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas.h b/drivers/scsi/hisi_sas/hisi_sas.h
+index aa3ea25c25dc..1fe7e3e7e6ed 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas.h
++++ b/drivers/scsi/hisi_sas/hisi_sas.h
+@@ -44,6 +44,7 @@
+ #define HISI_SAS_RESET_BIT	0
+ #define HISI_SAS_REJECT_CMD_BIT	1
+ #define HISI_SAS_PM_BIT		2
++#define HISI_SAS_HW_FAULT_BIT	3
+ #define HISI_SAS_MAX_COMMANDS (HISI_SAS_QUEUE_SLOTS)
+ #define HISI_SAS_RESERVED_IPTT  96
+ #define HISI_SAS_UNRESERVED_IPTT \
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index cd84b5b076cb..a2da57dda953 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -1675,6 +1675,7 @@ static int hisi_sas_controller_reset(struct hisi_hba *hisi_hba)
+ 	}
+ 
+ 	hisi_sas_controller_reset_done(hisi_hba);
++	clear_bit(HISI_SAS_HW_FAULT_BIT, &hisi_hba->flags);
+ 	dev_info(dev, "controller reset complete\n");
+ 
+ 	return 0;
+@@ -2154,6 +2155,9 @@ _hisi_sas_internal_task_abort(struct hisi_hba *hisi_hba,
+ 	if (!hisi_hba->hw->prep_abort)
+ 		return TMF_RESP_FUNC_FAILED;
+ 
++	if (test_bit(HISI_SAS_HW_FAULT_BIT, &hisi_hba->flags))
++		return -EIO;
++
+ 	task = sas_alloc_slow_task(GFP_KERNEL);
+ 	if (!task)
+ 		return -ENOMEM;
+@@ -2184,6 +2188,8 @@ _hisi_sas_internal_task_abort(struct hisi_hba *hisi_hba,
+ 		if (!(task->task_state_flags & SAS_TASK_STATE_DONE)) {
+ 			struct hisi_sas_slot *slot = task->lldd_task;
+ 
++			set_bit(HISI_SAS_HW_FAULT_BIT, &hisi_hba->flags);
++
+ 			if (slot) {
+ 				struct hisi_sas_cq *cq =
+ 					&hisi_hba->cq[slot->dlvry_queue];
+-- 
+2.27.0
+

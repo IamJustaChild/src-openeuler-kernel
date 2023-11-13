@@ -1,0 +1,165 @@
+From 931ad4d4580a677f774272424609ea295784e80c Mon Sep 17 00:00:00 2001
+From: John Garry <john.garry@huawei.com>
+Date: Fri, 25 Jan 2019 22:22:27 +0800
+Subject: [PATCH 007/256] scsi: hisi_sas: No need to check return value of
+ debugfs_create functions
+
+mainline inclusion
+from mainline-v5.1-rc1
+commit c2c7e740577154e755ec373712e32e5864e88315
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EKNE
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=c2c7e740577154e755ec373712e32e5864e88315
+
+----------------------------------------------------------------------
+
+When calling debugfs functions, there is no need to ever check the return
+value. The function can work or not, but the code logic should never do
+something different based on this.
+
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/hisi_sas/hisi_sas.h
+	drivers/scsi/hisi_sas/hisi_sas_main.c
+---
+ drivers/scsi/hisi_sas/hisi_sas.h      |  1 +
+ drivers/scsi/hisi_sas/hisi_sas_main.c | 56 ++++++++++-----------------
+ 2 files changed, 21 insertions(+), 36 deletions(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas.h b/drivers/scsi/hisi_sas/hisi_sas.h
+index 2880e4e22a73..d04d784c45b9 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas.h
++++ b/drivers/scsi/hisi_sas/hisi_sas.h
+@@ -437,6 +437,7 @@ struct hisi_hba {
+ 	unsigned int dq_idx[NR_CPUS];
+ 	int nvecs;
+ 	unsigned int dq_num_per_node;
++	bool debugfs_snapshot;
+ };
+ 
+ /* Generic HW DMA host memory structures */
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index 6bccd36556f2..6d8f9e9e0120 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -1621,8 +1621,7 @@ static int hisi_sas_controller_reset(struct hisi_hba *hisi_hba)
+ 	if (test_and_set_bit(HISI_SAS_RESET_BIT, &hisi_hba->flags))
+ 		return -EPERM;
+ 
+-	if (hisi_sas_debugfs_enable && hisi_hba->debugfs_itct &&
+-	    !hisi_hba->debugfs_dump_dentry)
++	if (hisi_sas_debugfs_enable && hisi_hba->debugfs_itct)
+ 		hisi_hba->hw->debugfs_work_handler(&hisi_hba->debugfs_work);
+ 
+ 	dev_info(dev, "controller resetting...\n");
+@@ -3499,67 +3498,51 @@ static void hisi_sas_debugfs_create_files(struct hisi_hba *hisi_hba)
+ 
+ 	/* Create dump dir inside device dir */
+ 	dump_dentry = debugfs_create_dir("dump", hisi_hba->debugfs_dir);
+-	if (!dump_dentry)
+-		goto fail;
+ 
+ 	hisi_hba->debugfs_dump_dentry = dump_dentry;
+ 
+-	if (!debugfs_create_file("global", 0400, dump_dentry, hisi_hba,
+-				 &hisi_sas_debugfs_global_fops))
+-		goto fail;
++	debugfs_create_file("global", 0400, dump_dentry, hisi_hba,
++			    &hisi_sas_debugfs_global_fops);
+ 
+ 	/* Create port dir and files */
+ 	dentry = debugfs_create_dir("port", dump_dentry);
+-	if (!dentry)
+-		goto fail;
+ 
+ 	for (p = 0; p < hisi_hba->n_phy; p++) {
+ 		snprintf(name, sizeof(name), "%d", p);
+-		if (!debugfs_create_file(name, 0400, dentry,
+-					 &hisi_hba->phy[p],
+-					 &hisi_sas_debugfs_port_fops))
+-			goto fail;
++		debugfs_create_file(name, 0400, dentry,
++				    &hisi_hba->phy[p],
++				    &hisi_sas_debugfs_port_fops);
+ 	}
+ 
+ 	/* Create CQ dir and files */
+ 	dentry = debugfs_create_dir("cq", dump_dentry);
+-	if (!dentry)
+-		goto fail;
+ 
+ 	for (c = 0; c < hisi_hba->queue_count; c++) {
+ 		snprintf(name, sizeof(name), "%d", c);
+ 
+-		if (!debugfs_create_file(name, 0400, dentry,
+-					 &hisi_hba->cq[c],
+-					 &hisi_sas_debugfs_cq_fops))
+-			goto fail;
++		debugfs_create_file(name, 0400, dentry,
++				    &hisi_hba->cq[c],
++				    &hisi_sas_debugfs_cq_fops);
+ 	}
+ 
+ 	/* Create DQ dir and files */
+ 	dentry = debugfs_create_dir("dq", dump_dentry);
+-	if (!dentry)
+-		goto fail;
+ 
+ 	for (d = 0; d < hisi_hba->queue_count; d++) {
+ 		snprintf(name, sizeof(name), "%d", d);
+ 
+-		if (!debugfs_create_file(name, 0400, dentry,
+-					 &hisi_hba->dq[d],
+-					 &hisi_sas_debugfs_dq_fops))
+-			goto fail;
++		debugfs_create_file(name, 0400, dentry,
++				    &hisi_hba->dq[d],
++				    &hisi_sas_debugfs_dq_fops);
+ 	}
+ 
+-	if (!debugfs_create_file("iost", 0400, dump_dentry, hisi_hba,
+-				 &hisi_sas_debugfs_iost_fops))
+-		goto fail;
++	debugfs_create_file("iost", 0400, dump_dentry, hisi_hba,
++			    &hisi_sas_debugfs_iost_fops);
+ 
+-	if (!debugfs_create_file("itct", 0400, dump_dentry, hisi_hba,
+-				 &hisi_sas_debugfs_itct_fops))
+-		goto fail;
++	debugfs_create_file("itct", 0400, dump_dentry, hisi_hba,
++				 &hisi_sas_debugfs_itct_fops);
+ 
+ 	return;
+-fail:
+-	hisi_sas_debugfs_exit(hisi_hba);
+ }
+ 
+ static void hisi_sas_debugfs_snapshot_regs(struct hisi_hba *hisi_hba)
+@@ -3620,6 +3603,10 @@ void hisi_sas_debugfs_work_handler(struct work_struct *work)
+ 	struct hisi_hba *hisi_hba =
+ 		container_of(work, struct hisi_hba, debugfs_work);
+ 
++	if (hisi_hba->debugfs_snapshot)
++		return;
++	hisi_hba->debugfs_snapshot = true;
++
+ 	hisi_sas_debugfs_snapshot_regs(hisi_hba);
+ }
+ EXPORT_SYMBOL_GPL(hisi_sas_debugfs_work_handler);
+@@ -3634,9 +3621,6 @@ void hisi_sas_debugfs_init(struct hisi_hba *hisi_hba)
+ 	hisi_hba->debugfs_dir = debugfs_create_dir(dev_name(dev),
+ 						   hisi_sas_debugfs_dir);
+ 
+-	if (!hisi_hba->debugfs_dir)
+-		return;
+-
+ 	debugfs_create_file("trigger_dump", 0600,
+ 			    hisi_hba->debugfs_dir,
+ 			    hisi_hba,
+-- 
+2.27.0
+

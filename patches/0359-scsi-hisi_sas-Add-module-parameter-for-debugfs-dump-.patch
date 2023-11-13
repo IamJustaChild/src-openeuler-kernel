@@ -1,0 +1,91 @@
+From 5ff6e72a58288a7d02553953b0fd8258c8c6baa8 Mon Sep 17 00:00:00 2001
+From: Luo Jiaxing <luojiaxing@huawei.com>
+Date: Thu, 24 Oct 2019 22:08:22 +0800
+Subject: [PATCH 041/256] scsi: hisi_sas: Add module parameter for debugfs dump
+ count
+
+mainline inclusion
+from mainline-v5.5-rc1
+commit 905ab01faf5fc81ba2fc46dddcd21ad5a2dd137b
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F81L
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=905ab01faf5fc81ba2fc46dddcd21ad5a2dd137b
+
+----------------------------------------------------------------------
+
+We still only use dump index #0 however.
+
+Link: https://lore.kernel.org/r/1571926105-74636-16-git-send-email-john.garry@huawei.com
+Signed-off-by: Luo Jiaxing <luojiaxing@huawei.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/hisi_sas/hisi_sas.h      |  1 +
+ drivers/scsi/hisi_sas/hisi_sas_main.c | 16 +++++++++++++---
+ 2 files changed, 14 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas.h b/drivers/scsi/hisi_sas/hisi_sas.h
+index 785f0c3f7cb9..5604e6d7bc25 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas.h
++++ b/drivers/scsi/hisi_sas/hisi_sas.h
+@@ -649,6 +649,7 @@ struct hisi_sas_slot_dif_buf_table {
+ };
+ 
+ extern bool hisi_sas_debugfs_enable;
++extern u32 hisi_sas_debugfs_dump_count;
+ extern struct dentry *hisi_sas_debugfs_dir;
+ extern int skip_bus_flag;
+ extern struct scsi_transport_template *hisi_sas_stt;
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index 4f9fd39991fc..ab7e07f1ed51 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -3939,7 +3939,7 @@ static int hisi_sas_debugfs_alloc(struct hisi_hba *hisi_hba, int dump_index)
+ 
+ 	return 0;
+ fail:
+-	for (i = 0; i < HISI_SAS_MAX_DEBUGFS_DUMP; i++)
++	for (i = 0; i < hisi_sas_debugfs_dump_count; i++)
+ 		hisi_sas_debugfs_release(hisi_hba, i);
+ 	return -ENOMEM;
+ }
+@@ -3959,7 +3959,7 @@ void hisi_sas_debugfs_init(struct hisi_hba *hisi_hba)
+ 	hisi_hba->debugfs_dump_dentry =
+ 			debugfs_create_dir("dump", hisi_hba->debugfs_dir);
+ 
+-	for (i = 0; i < HISI_SAS_MAX_DEBUGFS_DUMP; i++) {
++	for (i = 0; i < hisi_sas_debugfs_dump_count; i++) {
+ 		if (hisi_sas_debugfs_alloc(hisi_hba, i)) {
+ 			debugfs_remove_recursive(hisi_hba->debugfs_dir);
+ 			dev_dbg(dev, "failed to init debugfs!\n");
+@@ -3999,14 +3999,24 @@ EXPORT_SYMBOL_GPL(hisi_sas_debugfs_enable);
+ module_param_named(debugfs_enable, hisi_sas_debugfs_enable, bool, 0444);
+ MODULE_PARM_DESC(hisi_sas_debugfs_enable, "Enable driver debugfs (default disabled)");
+ 
++u32 hisi_sas_debugfs_dump_count = 1;
++EXPORT_SYMBOL_GPL(hisi_sas_debugfs_dump_count);
++module_param_named(debugfs_dump_count, hisi_sas_debugfs_dump_count, uint, 0444);
++MODULE_PARM_DESC(hisi_sas_debugfs_dump_count, "Number of debugfs dumps to allow");
++
+ static __init int hisi_sas_init(void)
+ {
+ 	hisi_sas_stt = sas_domain_attach_transport(&hisi_sas_transport_ops);
+ 	if (!hisi_sas_stt)
+ 		return -ENOMEM;
+ 
+-	if (hisi_sas_debugfs_enable)
++	if (hisi_sas_debugfs_enable) {
+ 		hisi_sas_debugfs_dir = debugfs_create_dir("hisi_sas", NULL);
++		if (hisi_sas_debugfs_dump_count > HISI_SAS_MAX_DEBUGFS_DUMP) {
++			pr_info("hisi_sas: Limiting debugfs dump count\n");
++			hisi_sas_debugfs_dump_count = HISI_SAS_MAX_DEBUGFS_DUMP;
++		}
++	}
+ 
+ 	return 0;
+ }
+-- 
+2.27.0
+

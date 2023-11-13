@@ -1,0 +1,146 @@
+From 6ec3caf5dc2d7983ef6dfa9e810a22f751605d51 Mon Sep 17 00:00:00 2001
+From: Dou Liyang <douliyangs@gmail.com>
+Date: Tue, 4 Dec 2018 23:51:21 +0800
+Subject: [PATCH 143/256] genirq/affinity: Add is_managed to struct
+ irq_affinity_desc
+
+mainline inclusion
+from mainline-v5.0-rc1
+commit c410abbbacb9b378365ba17a30df08b4b9eec64f
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F7ZR
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=c410abbbacb9b378365ba17a30df08b4b9eec64f
+
+----------------------------------------------------------------------
+
+Devices which use managed interrupts usually have two classes of
+interrupts:
+
+  - Interrupts for multiple device queues
+  - Interrupts for general device management
+
+Currently both classes are treated the same way, i.e. as managed
+interrupts. The general interrupts get the default affinity mask assigned
+while the device queue interrupts are spread out over the possible CPUs.
+
+Treating the general interrupts as managed is both a limitation and under
+certain circumstances a bug. Assume the following situation:
+
+ default_irq_affinity = 4..7
+
+So if CPUs 4-7 are offlined, then the core code will shut down the device
+management interrupts because the last CPU in their affinity mask went
+offline.
+
+It's also a limitation because it's desired to allow manual placement of
+the general device interrupts for various reasons. If they are marked
+managed then the interrupt affinity setting from both user and kernel space
+is disabled. That limitation was reported by Kashyap and Sumit.
+
+Expand struct irq_affinity_desc with a new bit 'is_managed' which is set
+for truly managed interrupts (queue interrupts) and cleared for the general
+device interrupts.
+
+[ tglx: Simplify code and massage changelog ]
+
+Reported-by: Kashyap Desai <kashyap.desai@broadcom.com>
+Reported-by: Sumit Saxena <sumit.saxena@broadcom.com>
+Signed-off-by: Dou Liyang <douliyangs@gmail.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-pci@vger.kernel.org
+Cc: shivasharan.srikanteshwara@broadcom.com
+Cc: ming.lei@redhat.com
+Cc: hch@lst.de
+Cc: bhelgaas@google.com
+Cc: douliyang1@huawei.com
+Link: https://lkml.kernel.org/r/20181204155122.6327-3-douliyangs@gmail.com
+
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	kernel/irq/irqdesc.c
+---
+ include/linux/interrupt.h |  1 +
+ kernel/irq/affinity.c     |  6 +++++-
+ kernel/irq/irqdesc.c      | 11 +++++++----
+ 3 files changed, 13 insertions(+), 5 deletions(-)
+
+diff --git a/include/linux/interrupt.h b/include/linux/interrupt.h
+index 02d673cc6178..2b5d53e0fb00 100644
+--- a/include/linux/interrupt.h
++++ b/include/linux/interrupt.h
+@@ -279,6 +279,7 @@ struct irq_affinity {
+  */
+ struct irq_affinity_desc {
+ 	struct cpumask	mask;
++	unsigned int	is_managed : 1;
+ };
+ 
+ #if defined(CONFIG_SMP)
+diff --git a/kernel/irq/affinity.c b/kernel/irq/affinity.c
+index 2aa435ceb874..87064eba298f 100644
+--- a/kernel/irq/affinity.c
++++ b/kernel/irq/affinity.c
+@@ -180,7 +180,7 @@ struct irq_affinity_desc *
+ irq_create_affinity_masks(int nvecs, const struct irq_affinity *affd)
+ {
+ 	int affvecs = nvecs - affd->pre_vectors - affd->post_vectors;
+-	int curvec, usedvecs;
++	int curvec, usedvecs, i;
+ 	cpumask_var_t nmsk, npresmsk, *node_to_cpumask;
+ 	struct irq_affinity_desc *masks = NULL;
+ 
+@@ -242,6 +242,10 @@ irq_create_affinity_masks(int nvecs, const struct irq_affinity *affd)
+ 	for (; curvec < nvecs; curvec++)
+ 		cpumask_copy(&masks[curvec].mask, irq_default_affinity);
+ 
++	/* Mark the managed interrupts */
++	for (i = affd->pre_vectors; i < nvecs - affd->post_vectors; i++)
++		masks[i].is_managed = 1;
++
+ outnodemsk:
+ 	free_node_to_cpumask(node_to_cpumask);
+ outnpresmsk:
+diff --git a/kernel/irq/irqdesc.c b/kernel/irq/irqdesc.c
+index d3ac4c4cd6a3..1591040b52ea 100644
+--- a/kernel/irq/irqdesc.c
++++ b/kernel/irq/irqdesc.c
+@@ -468,27 +468,30 @@ static int alloc_descs(unsigned int start, unsigned int cnt, int node,
+ 		       struct module *owner)
+ {
+ 	struct irq_desc *desc;
+-	unsigned int flags;
+ 	int i;
+ 
+ 	/* Validate affinity mask(s) */
+ 	if (affinity) {
+-		for (i = 0; i < cnt; i++) {
++		for (i = 0; i < cnt; i++, i++) {
+ 			if (cpumask_empty(&affinity[i].mask))
+ 				return -EINVAL;
+ 		}
+ 	}
+ 
+-	flags = affinity ? IRQD_AFFINITY_MANAGED | IRQD_MANAGED_SHUTDOWN : 0;
+-
+ 	for (i = 0; i < cnt; i++) {
+ 		const struct cpumask *mask = NULL;
++		unsigned int flags = 0;
+ 
+ 		if (affinity) {
++			if (affinity->is_managed) {
++				flags = IRQD_AFFINITY_MANAGED |
++					IRQD_MANAGED_SHUTDOWN;
++			}
+ 			mask = &affinity->mask;
+ 			node = cpu_to_node(cpumask_first(mask));
+ 			affinity++;
+ 		}
++
+ 		desc = alloc_desc(start + i, node, flags, mask, owner);
+ 		if (!desc)
+ 			goto err;
+-- 
+2.27.0
+

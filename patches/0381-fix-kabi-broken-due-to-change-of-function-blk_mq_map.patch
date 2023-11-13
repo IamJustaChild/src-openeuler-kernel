@@ -1,0 +1,258 @@
+From 719bb7ca29c86dd87566a44e47314527eedee0ef Mon Sep 17 00:00:00 2001
+From: YunYi Yang <yangyunyi2@huawei.com>
+Date: Sat, 26 Aug 2023 10:21:12 +0800
+Subject: [PATCH 063/256] fix kabi broken due to change of function
+ blk_mq_map_queues and blk_mq_pci_map_queues
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F7ZR
+
+----------------------------------------------------------------------------
+
+Commit ("blk-mq: abstract out queue map")
+changes function blk_mq_map_queues and blk_mq_pci_map_queues,
+so we need to fix kabi broken problem.
+
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ block/blk-mq-cpumap.c                 | 10 ++++++--
+ block/blk-mq-pci.c                    | 37 +++++++++++++++++----------
+ block/blk-mq-rdma.c                   |  2 +-
+ block/blk-mq-virtio.c                 |  2 +-
+ block/blk-mq.c                        |  4 +--
+ drivers/nvme/host/pci.c               |  2 +-
+ drivers/scsi/qla2xxx/qla_os.c         |  4 +--
+ drivers/scsi/scsi_lib.c               |  2 +-
+ drivers/scsi/smartpqi/smartpqi_init.c |  2 +-
+ include/linux/blk-mq-pci.h            |  6 +++--
+ include/linux/blk-mq.h                |  8 ++++--
+ 11 files changed, 50 insertions(+), 29 deletions(-)
+
+diff --git a/block/blk-mq-cpumap.c b/block/blk-mq-cpumap.c
+index 6e6686c55984..cd49d2ba670c 100644
+--- a/block/blk-mq-cpumap.c
++++ b/block/blk-mq-cpumap.c
+@@ -30,7 +30,13 @@ static int get_first_sibling(unsigned int cpu)
+ 	return cpu;
+ }
+ 
+-int blk_mq_map_queues(struct blk_mq_queue_map *qmap)
++int blk_mq_map_queues(struct blk_mq_tag_set *set)
++{
++	return blk_mq_map_queues_by_qmap(&set->map[0]);
++}
++EXPORT_SYMBOL_GPL(blk_mq_map_queues);
++
++int blk_mq_map_queues_by_qmap(struct blk_mq_queue_map *qmap)
+ {
+ 	unsigned int *map = qmap->mq_map;
+ 	unsigned int nr_queues = qmap->nr_queues;
+@@ -56,7 +62,7 @@ int blk_mq_map_queues(struct blk_mq_queue_map *qmap)
+ 
+ 	return 0;
+ }
+-EXPORT_SYMBOL_GPL(blk_mq_map_queues);
++EXPORT_SYMBOL_GPL(blk_mq_map_queues_by_qmap);
+ 
+ /*
+  * We have no quick way of doing reverse lookups. This is only used at
+diff --git a/block/blk-mq-pci.c b/block/blk-mq-pci.c
+index 40333d60a850..6501d9632f59 100644
+--- a/block/blk-mq-pci.c
++++ b/block/blk-mq-pci.c
+@@ -19,20 +19,10 @@
+ 
+ #include "blk-mq.h"
+ 
+-/**
+- * blk_mq_pci_map_queues - provide a default queue mapping for PCI device
+- * @set:	tagset to provide the mapping for
+- * @pdev:	PCI device associated with @set.
+- * @offset:	Offset to use for the pci irq vector
+- *
+- * This function assumes the PCI device @pdev has at least as many available
+- * interrupt vectors as @set has queues.  It will then query the vector
+- * corresponding to each queue for it's affinity mask and built queue mapping
+- * that maps a queue to the CPUs that have irq affinity for the corresponding
+- * vector.
+- */
+-int blk_mq_pci_map_queues(struct blk_mq_queue_map *qmap, struct pci_dev *pdev,
+-			    int offset)
++
++int blk_mq_pci_map_queues_by_qmap(struct blk_mq_queue_map *qmap,
++				  struct pci_dev *pdev,
++				  int offset)
+ {
+ 	const struct cpumask *mask;
+ 	unsigned int queue, cpu;
+@@ -53,4 +43,23 @@ int blk_mq_pci_map_queues(struct blk_mq_queue_map *qmap, struct pci_dev *pdev,
+ 	blk_mq_clear_mq_map(qmap);
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(blk_mq_pci_map_queues_by_qmap);
++
++/**
++ * blk_mq_pci_map_queues - provide a default queue mapping for PCI device
++ * @set:	tagset to provide the mapping for
++ * @pdev:	PCI device associated with @set.
++ * @offset:	Offset to use for the pci irq vector
++ *
++ * This function assumes the PCI device @pdev has at least as many available
++ * interrupt vectors as @set has queues.  It will then query the vector
++ * corresponding to each queue for it's affinity mask and built queue mapping
++ * that maps a queue to the CPUs that have irq affinity for the corresponding
++ * vector.
++ */
++int blk_mq_pci_map_queues(struct blk_mq_tag_set *set,  struct pci_dev *pdev,
++			  int offset)
++{
++	return blk_mq_pci_map_queues_by_qmap(&set->map[0], pdev, offset);
++}
+ EXPORT_SYMBOL_GPL(blk_mq_pci_map_queues);
+diff --git a/block/blk-mq-rdma.c b/block/blk-mq-rdma.c
+index a71576aff3a5..7a7690023484 100644
+--- a/block/blk-mq-rdma.c
++++ b/block/blk-mq-rdma.c
+@@ -47,6 +47,6 @@ int blk_mq_rdma_map_queues(struct blk_mq_tag_set *set,
+ 	return 0;
+ 
+ fallback:
+-	return blk_mq_map_queues(&set->map[0]);
++	return blk_mq_map_queues_by_qmap(&set->map[0]);
+ }
+ EXPORT_SYMBOL_GPL(blk_mq_rdma_map_queues);
+diff --git a/block/blk-mq-virtio.c b/block/blk-mq-virtio.c
+index 661fbfef480f..f5bd128c9b2e 100644
+--- a/block/blk-mq-virtio.c
++++ b/block/blk-mq-virtio.c
+@@ -49,6 +49,6 @@ int blk_mq_virtio_map_queues(struct blk_mq_queue_map *qmap,
+ 
+ 	return 0;
+ fallback:
+-	return blk_mq_map_queues(qmap);
++	return blk_mq_map_queues_by_qmap(qmap);
+ }
+ EXPORT_SYMBOL_GPL(blk_mq_virtio_map_queues);
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index d27de16d158e..de8892ddd67f 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -3044,7 +3044,7 @@ static int blk_mq_update_queue_map(struct blk_mq_tag_set *set)
+ 
+ 		return set->ops->map_queues(set);
+ 	} else
+-		return blk_mq_map_queues(&set->map[0]);
++		return blk_mq_map_queues_by_qmap(&set->map[0]);
+ }
+ 
+ /*
+@@ -3305,7 +3305,7 @@ static void __blk_mq_update_nr_hw_queues(struct blk_mq_tag_set *set,
+ 				blk_mq_free_map_and_requests(set, i);
+ 
+ 			set->nr_hw_queues = prev_nr_hw_queues;
+-			blk_mq_map_queues(&set->map[0]);
++			blk_mq_map_queues_by_qmap(&set->map[0]);
+ 			goto fallback;
+ 		}
+ 		blk_mq_map_swqueue(q);
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index a409e458d6a4..d373a0b7957e 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -457,7 +457,7 @@ static int nvme_pci_map_queues(struct blk_mq_tag_set *set)
+ {
+ 	struct nvme_dev *dev = set->driver_data;
+ 
+-	return blk_mq_pci_map_queues(&set->map[0], to_pci_dev(dev->dev),
++	return blk_mq_pci_map_queues_by_qmap(&set->map[0], to_pci_dev(dev->dev),
+ 			dev->num_vecs > 1 ? 1 /* admin queue */ : 0);
+ }
+ 
+diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
+index 31fa7e6c44af..301d57b828e0 100644
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -6884,9 +6884,9 @@ static int qla2xxx_map_queues(struct Scsi_Host *shost)
+ 	struct blk_mq_queue_map *qmap = &shost->tag_set.map[0];
+ 
+ 	if (USER_CTRL_IRQ(vha->hw))
+-		rc = blk_mq_map_queues(qmap);
++		rc = blk_mq_map_queues_by_qmap(qmap);
+ 	else
+-		rc = blk_mq_pci_map_queues(qmap, vha->hw->pdev, 0);
++		rc = blk_mq_pci_map_queues_by_qmap(qmap, vha->hw->pdev, 0);
+ 	return rc;
+ }
+ 
+diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
+index ed21a6ef6df2..f3ccf06fb049 100644
+--- a/drivers/scsi/scsi_lib.c
++++ b/drivers/scsi/scsi_lib.c
+@@ -2302,7 +2302,7 @@ static int scsi_map_queues(struct blk_mq_tag_set *set)
+ 
+ 	if (shost->hostt->map_queues)
+ 		return shost->hostt->map_queues(shost);
+-	return blk_mq_map_queues(&set->map[0]);
++	return blk_mq_map_queues_by_qmap(&set->map[0]);
+ }
+ 
+ void __scsi_init_queue(struct Scsi_Host *shost, struct request_queue *q)
+diff --git a/drivers/scsi/smartpqi/smartpqi_init.c b/drivers/scsi/smartpqi/smartpqi_init.c
+index ed72ad0b7c2d..0718ececb26a 100644
+--- a/drivers/scsi/smartpqi/smartpqi_init.c
++++ b/drivers/scsi/smartpqi/smartpqi_init.c
+@@ -5346,7 +5346,7 @@ static int pqi_map_queues(struct Scsi_Host *shost)
+ {
+ 	struct pqi_ctrl_info *ctrl_info = shost_to_hba(shost);
+ 
+-	return blk_mq_pci_map_queues(&shost->tag_set.map[0],
++	return blk_mq_pci_map_queues_by_qmap(&shost->tag_set.map[0],
+ 					ctrl_info->pci_dev, 0);
+ }
+ 
+diff --git a/include/linux/blk-mq-pci.h b/include/linux/blk-mq-pci.h
+index 0b1f45c62623..0527c4754246 100644
+--- a/include/linux/blk-mq-pci.h
++++ b/include/linux/blk-mq-pci.h
+@@ -5,7 +5,9 @@
+ struct blk_mq_queue_map;
+ struct pci_dev;
+ 
+-int blk_mq_pci_map_queues(struct blk_mq_queue_map *qmap, struct pci_dev *pdev,
+-			  int offset);
++int blk_mq_pci_map_queues_by_qmap(struct blk_mq_queue_map *qmap,
++				  struct pci_dev *pdev,
++				  int offset);
++
+ 
+ #endif /* _LINUX_BLK_MQ_PCI_H */
+diff --git a/include/linux/blk-mq.h b/include/linux/blk-mq.h
+index 8417351f19ea..907c8a22ac39 100644
+--- a/include/linux/blk-mq.h
++++ b/include/linux/blk-mq.h
+@@ -94,7 +94,11 @@ enum {
+ };
+ 
+ struct blk_mq_tag_set {
+-	struct blk_mq_queue_map	map[HCTX_MAX_TYPES];
++#ifdef __GENKSYMS__
++	unsigned int            *mq_map;
++#else
++	struct blk_mq_queue_map map[HCTX_MAX_TYPES];
++#endif
+ 	const struct blk_mq_ops	*ops;
+ 	unsigned int		nr_hw_queues;	/* nr hw queues across maps */
+ 	unsigned int		queue_depth;	/* max hw supported */
+@@ -335,7 +339,7 @@ void blk_mq_freeze_queue_wait(struct request_queue *q);
+ int blk_mq_freeze_queue_wait_timeout(struct request_queue *q,
+ 				     unsigned long timeout);
+ 
+-int blk_mq_map_queues(struct blk_mq_queue_map *qmap);
++int blk_mq_map_queues_by_qmap(struct blk_mq_queue_map *qmap);
+ void blk_mq_update_nr_hw_queues(struct blk_mq_tag_set *set, int nr_hw_queues);
+ 
+ void blk_mq_quiesce_queue_nowait(struct request_queue *q);
+-- 
+2.27.0
+

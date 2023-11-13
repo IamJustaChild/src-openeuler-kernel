@@ -1,0 +1,57 @@
+From 822d9bbd5b385690d8fdc5ecee354ccf165cfe44 Mon Sep 17 00:00:00 2001
+From: Luo Jiaxing <luojiaxing@huawei.com>
+Date: Tue, 3 Aug 2021 14:47:54 +0800
+Subject: [PATCH 170/256] scsi: hisi_sas: Print SAS address for v3 hw erroneous
+ completion print
+
+mainline inclusion
+from mainline-v5.13-rc1
+commit 4da0b7f6fac331f2d2336df3ca88a335f545b4dc
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EKNE
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=4da0b7f6fac331f2d2336df3ca88a335f545b4dc
+
+----------------------------------------------------------------------
+
+To help debugging efforts, print the device SAS address for v3 hw erroneous
+completion log.
+
+Here is an example print:
+
+hisi_sas_v3_hw 0000:b4:02.0: erroneous completion iptt=2193 task=000000002b0c13f8 dev id=17 addr=570fd45f9d17b001
+
+Link: https://lore.kernel.org/r/1617709711-195853-3-git-send-email-john.garry@huawei.com
+Signed-off-by: Luo Jiaxing <luojiaxing@huawei.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reviewed-by: Ouyangdelong <ouyangdelong@huawei.com>
+Signed-off-by: Nifujia <nifujia1@hisilicon.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+---
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index 8ce0ff71aafc..3e2414256bfa 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -2489,9 +2489,9 @@ static void slot_complete_v3_hw(struct hisi_hba *hisi_hba,
+ 
+ 		set_aborted_iptt(hisi_hba, slot);
+ 		slot_err_v3_hw(hisi_hba, task, slot);
+-		dev_info(dev, "erroneous completion iptt=%d task=%pK dev id=%d sas_addr=0x%llx CQ hdr: 0x%x 0x%x 0x%x 0x%x Error info: 0x%x 0x%x 0x%x 0x%x\n",
++		dev_info(dev, "erroneous completion iptt=%d task=%pK dev id=%d addr%016llx sas_addr=0x%llx CQ hdr: 0x%x 0x%x 0x%x 0x%x Error info: 0x%x 0x%x 0x%x 0x%x\n",
+ 			 slot->idx, task, sas_dev->device_id,
+-			 itct->sas_addr,
++			 SAS_ADDR(device->sas_addr), itct->sas_addr,
+ 			 dw0, dw1,
+ 			 complete_hdr->act, dw3,
+ 			 error_info[0], error_info[1],
+-- 
+2.27.0
+

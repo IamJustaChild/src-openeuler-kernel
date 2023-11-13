@@ -1,0 +1,81 @@
+From a09a3eaf19f687ba6209ea49c3445397a5707e27 Mon Sep 17 00:00:00 2001
+From: "Ahmed S. Darwish" <a.darwish@linutronix.de>
+Date: Tue, 3 Aug 2021 14:47:46 +0800
+Subject: [PATCH 164/256] scsi: mvsas: Switch back to original libsas event
+ notifiers
+
+mainline inclusion
+from mainline-v5.12-rc1
+commit 36cdfd0f7a8c99c5817bea2306613a966e67f0e2
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EKNE
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=36cdfd0f7a8c99c5817bea2306613a966e67f0e2
+
+----------------------------------------------------------------------
+
+libsas event notifiers required an extension where gfp_t flags must be
+explicitly passed. For bisectability, a temporary _gfp() variant of such
+functions were added. All call sites then got converted use the _gfp()
+variants and explicitly pass GFP context. Having no callers left, the
+original libsas notifiers were then modified to accept gfp_t flags by
+default.
+
+Switch back to the original libas API, while still passing GFP context.
+The libsas _gfp() variants will be removed afterwards.
+
+Link: https://lore.kernel.org/r/20210118100955.1761652-19-a.darwish@linutronix.de
+Reviewed-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Ahmed S. Darwish <a.darwish@linutronix.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reviewed-by: Ouyangdelong <ouyangdelong@huawei.com>
+Signed-off-by: Nifujia <nifujia1@hisilicon.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/mvsas/mv_sas.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/scsi/mvsas/mv_sas.c b/drivers/scsi/mvsas/mv_sas.c
+index f97d69ac18a4..d14b6856f592 100644
+--- a/drivers/scsi/mvsas/mv_sas.c
++++ b/drivers/scsi/mvsas/mv_sas.c
+@@ -244,7 +244,7 @@ static void mvs_bytes_dmaed(struct mvs_info *mvi, int i, gfp_t gfp_flags)
+ 		return;
+ 	}
+ 
+-	sas_notify_phy_event_gfp(sas_phy, PHYE_OOB_DONE, gfp_flags);
++	sas_notify_phy_event(sas_phy, PHYE_OOB_DONE, gfp_flags);
+ 
+ 	if (sas_phy->phy) {
+ 		struct sas_phy *sphy = sas_phy->phy;
+@@ -276,7 +276,7 @@ static void mvs_bytes_dmaed(struct mvs_info *mvi, int i, gfp_t gfp_flags)
+ 
+ 	sas_phy->frame_rcvd_size = phy->frame_rcvd_size;
+ 
+-	sas_notify_port_event_gfp(sas_phy, PORTE_BYTES_DMAED, gfp_flags);
++	sas_notify_port_event(sas_phy, PORTE_BYTES_DMAED, gfp_flags);
+ }
+ 
+ void mvs_scan_start(struct Scsi_Host *shost)
+@@ -1909,7 +1909,7 @@ static void mvs_work_queue(struct work_struct *work)
+ 			if (!(tmp & PHY_READY_MASK)) {
+ 				sas_phy_disconnected(sas_phy);
+ 				mvs_phy_disconnected(phy);
+-				sas_notify_phy_event_gfp(sas_phy,
++				sas_notify_phy_event(sas_phy,
+ 					PHYE_LOSS_OF_SIGNAL, GFP_ATOMIC);
+ 				mv_dprintk("phy%d Removed Device\n", phy_no);
+ 			} else {
+@@ -1922,7 +1922,7 @@ static void mvs_work_queue(struct work_struct *work)
+ 		}
+ 	} else if (mwq->handler & EXP_BRCT_CHG) {
+ 		phy->phy_event &= ~EXP_BRCT_CHG;
+-		sas_notify_port_event_gfp(sas_phy,
++		sas_notify_port_event(sas_phy,
+ 				PORTE_BROADCAST_RCVD, GFP_ATOMIC);
+ 		mv_dprintk("phy%d Got Broadcast Change\n", phy_no);
+ 	}
+-- 
+2.27.0
+

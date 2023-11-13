@@ -1,0 +1,103 @@
+From 06b51a86cf25bc47bd5d42d32de0808ab9d1ae75 Mon Sep 17 00:00:00 2001
+From: Yihang Li <liyihang9@huawei.com>
+Date: Fri, 28 Apr 2023 14:39:18 +0800
+Subject: [PATCH 226/256] scsi: hisi_sas: Configure the initialization
+ registers according to HBA model
+
+mainline inclusion
+from mainline-v6.5-rc1
+commit b68daae9660b45a0bb3ac9df1f1746d15693d254
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8F81U
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=b68daae9660b45a0bb3ac9df1f1746d15693d254
+
+----------------------------------------------------------------------
+
+We use init_reg_v3_hw() to set some registers, for the latest HBA devices,
+some of these HW registers are set through firmware. Therefore, different
+HBA models are distinguished through pci_dev->revision.
+
+Signed-off-by: Yihang Li <liyihang9@huawei.com>
+Reviewed-by: Xiang Chen <chenxiang66@hisilicon.com>
+Signed-off-by: xiabing <xiabing12@h-partners.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+---
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 23 +++++++++++++++--------
+ 1 file changed, 15 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index 4b7a58f17036..eb248289468a 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -653,12 +653,12 @@ static void interrupt_enable_v3_hw(struct hisi_hba *hisi_hba)
+ 
+ static void init_reg_v3_hw(struct hisi_hba *hisi_hba)
+ {
++	struct pci_dev *pdev = hisi_hba->pci_dev;
+ 	int i, j;
+ 
+ 	/* Global registers init */
+ 	hisi_sas_write32(hisi_hba, DLVRY_QUEUE_ENABLE,
+ 			 (u32)((1ULL << hisi_hba->queue_count) - 1));
+-	hisi_sas_write32(hisi_hba, SAS_AXI_USER3, 0);
+ 	hisi_sas_write32(hisi_hba, CFG_MAX_TAG, 0xfff0400);
+ 	/* time / CLK_AHB = 2.5s / 2ns = 0x4A817C80 */
+ 	hisi_sas_write32(hisi_hba, TRANS_LOCK_ICT_TIME, 0x4A817C80);
+@@ -686,6 +686,9 @@ static void init_reg_v3_hw(struct hisi_hba *hisi_hba)
+ 		hisi_sas_write32(hisi_hba, AXI_MASTER_CFG_BASE, 0x10000);
+ 	}
+ 
++	if (pdev->revision < 0x30)
++		hisi_sas_write32(hisi_hba, SAS_AXI_USER3, 0);
++
+ 	interrupt_enable_v3_hw(hisi_hba);
+ 	for (i = 0; i < hisi_hba->n_phy; i++) {
+ 		enum sas_linkrate max;
+@@ -714,7 +717,6 @@ static void init_reg_v3_hw(struct hisi_hba *hisi_hba)
+ 					SAS_RX_TRAIN_TIMER, 0x13e80);
+ 		}
+ 
+-		hisi_sas_phy_write32(hisi_hba, i, SERDES_CFG, 0xffc00);
+ 		hisi_sas_phy_write32(hisi_hba, i, CHL_INT0, 0xffffffff);
+ 		hisi_sas_phy_write32(hisi_hba, i, CHL_INT1, 0xffffffff);
+ 		hisi_sas_phy_write32(hisi_hba, i, CHL_INT2, 0xffffffff);
+@@ -741,13 +743,18 @@ static void init_reg_v3_hw(struct hisi_hba *hisi_hba)
+ 		hisi_sas_phy_write32(hisi_hba, i, CON_CFG_DRIVER, 0x2a0a01);
+ 		hisi_sas_phy_write32(hisi_hba, i, SAS_EC_INT_COAL_TIME,
+ 				     0x30f4240);
+-		hisi_sas_phy_write32(hisi_hba, i,
+-				     SAS_SSP_CON_TIMER_CFG, 0x32);
+-
+-		/* used for 12G negotiate */
+-		hisi_sas_phy_write32(hisi_hba, i, COARSETUNE_TIME, 0x1e);
+ 		hisi_sas_phy_write32(hisi_hba, i, AIP_LIMIT, 0x2ffff);
+ 
++		/* set value through firmware for the latest HBA */
++		if (pdev->revision < 0x30) {
++			hisi_sas_phy_write32(hisi_hba, i,
++					     SAS_SSP_CON_TIMER_CFG, 0x32);
++			hisi_sas_phy_write32(hisi_hba, i, SERDES_CFG, 0xffc00);
++			/* used for 12G negotiate */
++			hisi_sas_phy_write32(hisi_hba, i,
++					     COARSETUNE_TIME, 0x1e);
++		}
++
+ 		/* get default FFE configuration for BIST */
+ 		for (j = 0; j < FFE_CFG_MAX; j++) {
+ 			u32 val = hisi_sas_phy_read32(hisi_hba, i,
+@@ -759,7 +766,7 @@ static void init_reg_v3_hw(struct hisi_hba *hisi_hba)
+ 	for (i = 0; i < hisi_hba->queue_count; i++) {
+ 		/* Delivery queue */
+ 		hisi_sas_write32(hisi_hba,
+-				 DLVRY_Q_0_BASE_ADDR_HI +
++			 DLVRY_Q_0_BASE_ADDR_HI +
+ 				 (i * NEXT_DQCQ_REG_OFF),
+ 				 upper_32_bits(hisi_hba->cmd_hdr_dma[i]));
+ 
+-- 
+2.27.0
+

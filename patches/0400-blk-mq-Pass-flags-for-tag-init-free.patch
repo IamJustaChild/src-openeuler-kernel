@@ -1,0 +1,267 @@
+From 77dcb35e7695d33a709e13b3bca0f53f2bfb19e5 Mon Sep 17 00:00:00 2001
+From: John Garry <john.garry@huawei.com>
+Date: Wed, 19 Aug 2020 23:20:22 +0800
+Subject: [PATCH 082/256] blk-mq: Pass flags for tag init/free
+
+mainline inclusion
+from mainline-v5.10-rc1
+commit 1c0706a70a64eda48477caa880657e07f5196512
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F7ZR
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=1c0706a70a64eda48477caa880657e07f5196512
+
+----------------------------------------------------------------------
+
+Pass hctx/tagset flags argument down to blk_mq_init_tags() and
+blk_mq_free_tags() for selective init/free.
+
+For now, make it include the alloc policy flag, which can be evaluated
+when needed (in blk_mq_init_tags()).
+
+Signed-off-by: John Garry <john.garry@huawei.com>
+Tested-by: Douglas Gilbert <dgilbert@interlog.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	block/blk-mq-sched.c
+	block/blk-mq-tag.h
+---
+ block/blk-mq-sched.c |  9 ++++++---
+ block/blk-mq-tag.c   | 12 +++++++-----
+ block/blk-mq-tag.h   |  6 ++++--
+ block/blk-mq.c       | 25 ++++++++++++++-----------
+ block/blk-mq.h       |  5 +++--
+ 5 files changed, 34 insertions(+), 23 deletions(-)
+
+diff --git a/block/blk-mq-sched.c b/block/blk-mq-sched.c
+index 9bf39bb94935..e45c54e7f8d1 100644
+--- a/block/blk-mq-sched.c
++++ b/block/blk-mq-sched.c
+@@ -541,9 +541,11 @@ static void blk_mq_sched_free_tags(struct blk_mq_tag_set *set,
+ 				   struct blk_mq_hw_ctx *hctx,
+ 				   unsigned int hctx_idx)
+ {
++	unsigned int flags = set->flags;
++
+ 	if (hctx->sched_tags) {
+ 		blk_mq_free_rqs(set, hctx->sched_tags, hctx_idx);
+-		blk_mq_free_rq_map(hctx->sched_tags);
++		blk_mq_free_rq_map(hctx->sched_tags, flags);
+ 		hctx->sched_tags = NULL;
+ 	}
+ }
+@@ -553,16 +555,17 @@ static int blk_mq_sched_alloc_tags(struct request_queue *q,
+ 				   unsigned int hctx_idx)
+ {
+ 	struct blk_mq_tag_set *set = q->tag_set;
++	unsigned int flags = set->flags;
+ 	int ret;
+ 
+ 	hctx->sched_tags = blk_mq_alloc_rq_map(set, hctx_idx, q->nr_requests,
+-					       set->reserved_tags);
++					       set->reserved_tags, flags);
+ 	if (!hctx->sched_tags)
+ 		return -ENOMEM;
+ 
+ 	ret = blk_mq_alloc_rqs(set, hctx->sched_tags, hctx_idx, q->nr_requests);
+ 	if (ret) {
+-		blk_mq_free_rq_map(hctx->sched_tags);
++		blk_mq_free_rq_map(hctx->sched_tags, flags);
+ 		hctx->sched_tags = NULL;
+ 	}
+ 
+diff --git a/block/blk-mq-tag.c b/block/blk-mq-tag.c
+index 92094ae471b2..27e336a89f78 100644
+--- a/block/blk-mq-tag.c
++++ b/block/blk-mq-tag.c
+@@ -427,8 +427,9 @@ static int blk_mq_init_bitmap_tags(struct blk_mq_tags *tags,
+ 
+ struct blk_mq_tags *blk_mq_init_tags(unsigned int total_tags,
+ 				     unsigned int reserved_tags,
+-				     int node, int alloc_policy)
++				     int node, unsigned int flags)
+ {
++	int alloc_policy = BLK_MQ_FLAG_TO_ALLOC_POLICY(flags);
+ 	struct blk_mq_tags *tags;
+ 	struct blk_mq_tags_wrapper *tags_wrapper;
+ 
+@@ -453,7 +454,7 @@ struct blk_mq_tags *blk_mq_init_tags(unsigned int total_tags,
+ 	return tags;
+ }
+ 
+-void blk_mq_free_tags(struct blk_mq_tags *tags)
++void blk_mq_free_tags(struct blk_mq_tags *tags, unsigned int flags)
+ {
+ 	sbitmap_queue_free(&tags->bitmap_tags);
+ 	sbitmap_queue_free(&tags->breserved_tags);
+@@ -475,6 +476,7 @@ int blk_mq_tag_update_depth(struct blk_mq_hw_ctx *hctx,
+ 	 */
+ 	if (tdepth > tags->nr_tags) {
+ 		struct blk_mq_tag_set *set = hctx->queue->tag_set;
++		unsigned int flags = set->flags;
+ 		struct blk_mq_tags *new;
+ 		bool ret;
+ 
+@@ -489,17 +491,17 @@ int blk_mq_tag_update_depth(struct blk_mq_hw_ctx *hctx,
+ 			return -EINVAL;
+ 
+ 		new = blk_mq_alloc_rq_map(set, hctx->queue_num, tdepth,
+-				tags->nr_reserved_tags);
++				tags->nr_reserved_tags, flags);
+ 		if (!new)
+ 			return -ENOMEM;
+ 		ret = blk_mq_alloc_rqs(set, new, hctx->queue_num, tdepth);
+ 		if (ret) {
+-			blk_mq_free_rq_map(new);
++			blk_mq_free_rq_map(new, flags);
+ 			return -ENOMEM;
+ 		}
+ 
+ 		blk_mq_free_rqs(set, *tagsptr, hctx->queue_num);
+-		blk_mq_free_rq_map(*tagsptr);
++		blk_mq_free_rq_map(*tagsptr, flags);
+ 		*tagsptr = new;
+ 	} else {
+ 		/*
+diff --git a/block/blk-mq-tag.h b/block/blk-mq-tag.h
+index 8e9a2e3ae842..ad7948b59156 100644
+--- a/block/blk-mq-tag.h
++++ b/block/blk-mq-tag.h
+@@ -38,8 +38,10 @@ struct blk_mq_tags_wrapper {
+ #define blk_mq_tags_unlock_irqrestore(tags, flags) \
+ 	spin_unlock_irqrestore(&blk_mq_tags_to_wrapper(tags)->lock, flags)
+ 
+-extern struct blk_mq_tags *blk_mq_init_tags(unsigned int nr_tags, unsigned int reserved_tags, int node, int alloc_policy);
+-extern void blk_mq_free_tags(struct blk_mq_tags *tags);
++extern struct blk_mq_tags *blk_mq_init_tags(unsigned int nr_tags,
++					unsigned int reserved_tags,
++					int node, unsigned int flags);
++extern void blk_mq_free_tags(struct blk_mq_tags *tags, unsigned int flags);
+ 
+ extern unsigned int blk_mq_get_tag(struct blk_mq_alloc_data *data);
+ extern void blk_mq_put_tag(struct blk_mq_hw_ctx *hctx, struct blk_mq_tags *tags,
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index feb7cfc52c1c..ecedc471fee8 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -2163,20 +2163,21 @@ void blk_mq_free_rqs(struct blk_mq_tag_set *set, struct blk_mq_tags *tags,
+ 	}
+ }
+ 
+-void blk_mq_free_rq_map(struct blk_mq_tags *tags)
++void blk_mq_free_rq_map(struct blk_mq_tags *tags, unsigned int flags)
+ {
+ 	kfree(tags->rqs);
+ 	tags->rqs = NULL;
+ 	kfree(tags->static_rqs);
+ 	tags->static_rqs = NULL;
+ 
+-	blk_mq_free_tags(tags);
++	blk_mq_free_tags(tags, flags);
+ }
+ 
+ struct blk_mq_tags *blk_mq_alloc_rq_map(struct blk_mq_tag_set *set,
+ 					unsigned int hctx_idx,
+ 					unsigned int nr_tags,
+-					unsigned int reserved_tags)
++					unsigned int reserved_tags,
++					unsigned int flags)
+ {
+ 	struct blk_mq_tags *tags;
+ 	int node;
+@@ -2185,8 +2186,7 @@ struct blk_mq_tags *blk_mq_alloc_rq_map(struct blk_mq_tag_set *set,
+ 	if (node == NUMA_NO_NODE)
+ 		node = set->numa_node;
+ 
+-	tags = blk_mq_init_tags(nr_tags, reserved_tags, node,
+-				BLK_MQ_FLAG_TO_ALLOC_POLICY(set->flags));
++	tags = blk_mq_init_tags(nr_tags, reserved_tags, node, flags);
+ 	if (!tags)
+ 		return NULL;
+ 
+@@ -2194,7 +2194,7 @@ struct blk_mq_tags *blk_mq_alloc_rq_map(struct blk_mq_tag_set *set,
+ 				 GFP_NOIO | __GFP_NOWARN | __GFP_NORETRY,
+ 				 node);
+ 	if (!tags->rqs) {
+-		blk_mq_free_tags(tags);
++		blk_mq_free_tags(tags, flags);
+ 		return NULL;
+ 	}
+ 
+@@ -2203,7 +2203,7 @@ struct blk_mq_tags *blk_mq_alloc_rq_map(struct blk_mq_tag_set *set,
+ 					node);
+ 	if (!tags->static_rqs) {
+ 		kfree(tags->rqs);
+-		blk_mq_free_tags(tags);
++		blk_mq_free_tags(tags, flags);
+ 		return NULL;
+ 	}
+ 
+@@ -2550,10 +2550,11 @@ static void blk_mq_init_cpu_queues(struct request_queue *q,
+ 
+ static bool __blk_mq_alloc_rq_map(struct blk_mq_tag_set *set, int hctx_idx)
+ {
++	unsigned int flags = set->flags;
+ 	int ret = 0;
+ 
+ 	set->tags[hctx_idx] = blk_mq_alloc_rq_map(set, hctx_idx,
+-					set->queue_depth, set->reserved_tags);
++					set->queue_depth, set->reserved_tags, flags);
+ 	if (!set->tags[hctx_idx])
+ 		return false;
+ 
+@@ -2562,7 +2563,7 @@ static bool __blk_mq_alloc_rq_map(struct blk_mq_tag_set *set, int hctx_idx)
+ 	if (!ret)
+ 		return true;
+ 
+-	blk_mq_free_rq_map(set->tags[hctx_idx]);
++	blk_mq_free_rq_map(set->tags[hctx_idx], flags);
+ 	set->tags[hctx_idx] = NULL;
+ 	return false;
+ }
+@@ -2570,9 +2571,11 @@ static bool __blk_mq_alloc_rq_map(struct blk_mq_tag_set *set, int hctx_idx)
+ static void blk_mq_free_map_and_requests(struct blk_mq_tag_set *set,
+ 					 unsigned int hctx_idx)
+ {
++	unsigned int flags = set->flags;
++
+ 	if (set->tags && set->tags[hctx_idx]) {
+ 		blk_mq_free_rqs(set, set->tags[hctx_idx], hctx_idx);
+-		blk_mq_free_rq_map(set->tags[hctx_idx]);
++		blk_mq_free_rq_map(set->tags[hctx_idx], flags);
+ 		set->tags[hctx_idx] = NULL;
+ 	}
+ }
+@@ -3032,7 +3035,7 @@ static int __blk_mq_alloc_rq_maps(struct blk_mq_tag_set *set)
+ 
+ out_unwind:
+ 	while (--i >= 0)
+-		blk_mq_free_rq_map(set->tags[i]);
++		blk_mq_free_rq_map(set->tags[i], set->flags);
+ 
+ 	return -ENOMEM;
+ }
+diff --git a/block/blk-mq.h b/block/blk-mq.h
+index 53db914ad7fd..9f26211c3060 100644
+--- a/block/blk-mq.h
++++ b/block/blk-mq.h
+@@ -59,11 +59,12 @@ void blk_mq_unquiesce_queue_internal(struct request_queue *q);
+  */
+ void blk_mq_free_rqs(struct blk_mq_tag_set *set, struct blk_mq_tags *tags,
+ 		     unsigned int hctx_idx);
+-void blk_mq_free_rq_map(struct blk_mq_tags *tags);
++void blk_mq_free_rq_map(struct blk_mq_tags *tags, unsigned int flags);
+ struct blk_mq_tags *blk_mq_alloc_rq_map(struct blk_mq_tag_set *set,
+ 					unsigned int hctx_idx,
+ 					unsigned int nr_tags,
+-					unsigned int reserved_tags);
++					unsigned int reserved_tags,
++					unsigned int flags);
+ int blk_mq_alloc_rqs(struct blk_mq_tag_set *set, struct blk_mq_tags *tags,
+ 		     unsigned int hctx_idx, unsigned int depth);
+ 
+-- 
+2.27.0
+

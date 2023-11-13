@@ -1,0 +1,96 @@
+From e7082e66646bef944308703ccf316ddb5df0018b Mon Sep 17 00:00:00 2001
+From: Luo Jiaxing <luojiaxing@huawei.com>
+Date: Tue, 1 Sep 2020 19:13:05 +0800
+Subject: [PATCH 099/256] scsi: hisi_sas: Do not modify upper fields of
+ PROG_PHY_LINK_RATE reg
+
+mainline inclusion
+from mainline-v5.10-rc1
+commit caeddc0453b9215669a39ea335f1af1f3f91cc99
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F81L
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=caeddc0453b9215669a39ea335f1af1f3f91cc99
+
+----------------------------------------------------------------------
+
+When updating PROG_PHY_LINK_RATE to set linkrate for a phy we used a
+hard-coded initial value instead of getting the current value from the
+register. The assumption was that this register would not be modified, but
+in fact it was partially modified in a new version of hardware. The
+hard-coded value we used changed the default value of the register to a an
+incorrect setting and as a result the SAS controller could not change
+linkrate for the phy.
+
+Delete hard-coded value and always read the latest value of register before
+updating it.
+
+Link: https://lore.kernel.org/r/1598958790-232272-4-git-send-email-john.garry@huawei.com
+Signed-off-by: Luo Jiaxing <luojiaxing@huawei.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+---
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 21 ++++++++++++---------
+ 1 file changed, 12 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index 2ab1584d762d..39ff01eb193b 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -199,6 +199,8 @@
+ #define PHY_CFG_PHY_RST_OFF		3
+ #define PHY_CFG_PHY_RST_MSK		(0x1 << PHY_CFG_PHY_RST_OFF)
+ #define PROG_PHY_LINK_RATE		(PORT_BASE + 0x8)
++#define CFG_PROG_PHY_LINK_RATE_OFF	0
++#define CFG_PROG_PHY_LINK_RATE_MSK	(0xff << CFG_PROG_PHY_LINK_RATE_OFF)
+ #define CFG_PROG_OOB_PHY_LINK_RATE_OFF	8
+ #define CFG_PROG_OOB_PHY_LINK_RATE_MSK	(0xf << CFG_PROG_OOB_PHY_LINK_RATE_OFF)
+ #define PHY_CTRL			(PORT_BASE + 0x14)
+@@ -659,20 +661,20 @@ static void init_reg_v3_hw(struct hisi_hba *hisi_hba)
+ 	}
+ 
+ 	for (i = 0; i < hisi_hba->n_phy; i++) {
++		enum sas_linkrate max;
+ 		struct hisi_sas_phy *phy = &hisi_hba->phy[i];
+ 		struct asd_sas_phy *sas_phy = &phy->sas_phy;
+-		u32 prog_phy_link_rate = 0x800;
++		u32 prog_phy_link_rate = hisi_sas_phy_read32(hisi_hba, i,
++							   PROG_PHY_LINK_RATE);
+ 
++		prog_phy_link_rate &= ~CFG_PROG_PHY_LINK_RATE_MSK;
+ 		if (!sas_phy->phy || (sas_phy->phy->maximum_linkrate <
+ 				SAS_LINK_RATE_1_5_GBPS)) {
+-			prog_phy_link_rate = 0x855;
++			max = SAS_LINK_RATE_12_0_GBPS;
+ 		} else {
+-			enum sas_linkrate max = sas_phy->phy->maximum_linkrate;
+-
+-			prog_phy_link_rate =
+-				hisi_sas_get_prog_phy_linkrate_mask(max) |
+-				0x800;
++			max = sas_phy->phy->maximum_linkrate;
+ 		}
++		prog_phy_link_rate |= hisi_sas_get_prog_phy_linkrate_mask(max);
+ 
+ 		if (skip_bus_flag) {
+ 			hisi_sas_phy_write32(hisi_hba, i,
+@@ -2803,9 +2805,10 @@ static void phy_set_linkrate_v3_hw(struct hisi_hba *hisi_hba, int phy_no,
+ 		struct sas_phy_linkrates *r)
+ {
+ 	enum sas_linkrate max = r->maximum_linkrate;
+-	/* init OOB link rate as 1.5 Gbits */
+-	u32 prog_phy_link_rate = 0x800;
++	u32 prog_phy_link_rate = hisi_sas_phy_read32(hisi_hba, phy_no,
++						     PROG_PHY_LINK_RATE);
+ 
++	prog_phy_link_rate &= ~CFG_PROG_PHY_LINK_RATE_MSK;
+ 	prog_phy_link_rate |= hisi_sas_get_prog_phy_linkrate_mask(max);
+ 	hisi_sas_phy_write32(hisi_hba, phy_no, PROG_PHY_LINK_RATE,
+ 			     prog_phy_link_rate);
+-- 
+2.27.0
+

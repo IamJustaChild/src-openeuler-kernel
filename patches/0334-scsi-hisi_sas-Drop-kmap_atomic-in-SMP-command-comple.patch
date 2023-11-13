@@ -1,0 +1,105 @@
+From 9a166aaf81f6d23144d06dad41a81294e0e6bd6b Mon Sep 17 00:00:00 2001
+From: John Garry <john.garry@huawei.com>
+Date: Mon, 5 Aug 2019 21:48:06 +0800
+Subject: [PATCH 016/256] scsi: hisi_sas: Drop kmap_atomic() in SMP command
+ completion
+
+mainline inclusion
+from mainline-v5.4-rc1
+commit 1c003146c64bb3ae86f1a08d73a7e4551d7cd04a
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EKNE
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=1c003146c64bb3ae86f1a08d73a7e4551d7cd04a
+
+----------------------------------------------------------------------
+
+The call to kmap_atomic() in the SMP command completion code is
+unnecessary, since kmap() is only really concerned with highmem, which is
+not relevant on arm64. The controller only finds itself in arm64 systems.
+
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/hisi_sas/hisi_sas_v1_hw.c | 4 +---
+ drivers/scsi/hisi_sas/hisi_sas_v2_hw.c | 4 +---
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 4 +---
+ 3 files changed, 3 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
+index 1e03e673ceb5..eebc774ba443 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
+@@ -1283,11 +1283,10 @@ static int slot_complete_v1_hw(struct hisi_hba *hisi_hba,
+ 	}
+ 	case SAS_PROTOCOL_SMP:
+ 	{
+-		void *to;
+ 		struct scatterlist *sg_resp = &task->smp_task.smp_resp;
++		void *to = page_address(sg_page(sg_resp));
+ 
+ 		ts->stat = SAM_STAT_GOOD;
+-		to = kmap_atomic(sg_page(sg_resp));
+ 
+ 		dma_unmap_sg(dev, &task->smp_task.smp_resp, 1,
+ 			     DMA_FROM_DEVICE);
+@@ -1297,7 +1296,6 @@ static int slot_complete_v1_hw(struct hisi_hba *hisi_hba,
+ 		       hisi_sas_status_buf_addr_mem(slot) +
+ 		       sizeof(struct hisi_sas_err_record),
+ 		       sg_dma_len(sg_resp));
+-		kunmap_atomic(to);
+ 		break;
+ 	}
+ 	case SAS_PROTOCOL_SATA:
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
+index ff197bc06453..a2689ca8421a 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
+@@ -2441,10 +2441,9 @@ slot_complete_v2_hw(struct hisi_hba *hisi_hba, struct hisi_sas_slot *slot)
+ 	case SAS_PROTOCOL_SMP:
+ 	{
+ 		struct scatterlist *sg_resp = &task->smp_task.smp_resp;
+-		void *to;
++		void *to = page_address(sg_page(sg_resp));
+ 
+ 		ts->stat = SAM_STAT_GOOD;
+-		to = kmap_atomic(sg_page(sg_resp));
+ 
+ 		dma_unmap_sg(dev, &task->smp_task.smp_resp, 1,
+ 			     DMA_FROM_DEVICE);
+@@ -2454,7 +2453,6 @@ slot_complete_v2_hw(struct hisi_hba *hisi_hba, struct hisi_sas_slot *slot)
+ 		       hisi_sas_status_buf_addr_mem(slot) +
+ 		       sizeof(struct hisi_sas_err_record),
+ 		       sg_dma_len(sg_resp));
+-		kunmap_atomic(to);
+ 		break;
+ 	}
+ 	case SAS_PROTOCOL_SATA:
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index 9500a02ae9c2..c3b8432c5c34 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -2533,10 +2533,9 @@ slot_complete_v3_hw(struct hisi_hba *hisi_hba, struct hisi_sas_slot *slot)
+ 	}
+ 	case SAS_PROTOCOL_SMP: {
+ 		struct scatterlist *sg_resp = &task->smp_task.smp_resp;
+-		void *to;
++		void *to = page_address(sg_page(sg_resp));
+ 
+ 		ts->stat = SAM_STAT_GOOD;
+-		to = kmap_atomic(sg_page(sg_resp));
+ 
+ 		dma_unmap_sg(dev, &task->smp_task.smp_resp, 1,
+ 			     DMA_FROM_DEVICE);
+@@ -2546,7 +2545,6 @@ slot_complete_v3_hw(struct hisi_hba *hisi_hba, struct hisi_sas_slot *slot)
+ 			hisi_sas_status_buf_addr_mem(slot) +
+ 		       sizeof(struct hisi_sas_err_record),
+ 		       sg_dma_len(sg_resp));
+-		kunmap_atomic(to);
+ 		break;
+ 	}
+ 	case SAS_PROTOCOL_SATA:
+-- 
+2.27.0
+

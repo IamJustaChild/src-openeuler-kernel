@@ -1,0 +1,56 @@
+From d1560f7c868b359aebea3353693dbc32e8b40966 Mon Sep 17 00:00:00 2001
+From: Luo Jiaxing <luojiaxing@huawei.com>
+Date: Mon, 20 Jan 2020 20:22:35 +0800
+Subject: [PATCH 049/256] scsi: hisi_sas: Add prints for v3 hw interrupt
+ converge and automatic affinity
+
+mainline inclusion
+from mainline-v5.6-rc1
+commit 33c77c31b752c561dd4b3c25661f949014c31370
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EKNE
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=33c77c31b752c561dd4b3c25661f949014c31370
+
+----------------------------------------------------------------------
+
+Add prints to inform the user of enabled features.
+
+Link: https://lore.kernel.org/r/1579522957-4393-6-git-send-email-john.garry@huawei.com
+Signed-off-by: Luo Jiaxing <luojiaxing@huawei.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+---
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index c8328e1ef166..6a64653a68b9 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -2725,6 +2725,8 @@ static int interrupt_init_v3_hw(struct hisi_hba *hisi_hba)
+ 			.pre_vectors = HISI_SAS_CQ_INT_BASE_VECTORS_V3_HW,
+ 		};
+ 
++		dev_info(dev, "Enable MSI auto-affinity\n");
++
+ 		min_msi = HISI_SAS_MIN_VECTORS_V3_HW;
+ 
+ 		hisi_hba->reply_map = devm_kcalloc(dev, nr_cpu_ids,
+@@ -2786,6 +2788,9 @@ static int interrupt_init_v3_hw(struct hisi_hba *hisi_hba)
+ 		goto free_irq_vectors;
+ 	}
+ 
++	if (hisi_sas_intr_conv)
++		dev_info(dev, "Enable interrupt converge\n");
++
+ 	/* Init tasklets for cq only */
+ 	for (i = 0; i < hisi_hba->nvecs; i++) {
+ 		struct hisi_sas_cq *cq = &hisi_hba->cq[i];
+-- 
+2.27.0
+

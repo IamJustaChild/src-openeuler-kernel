@@ -1,0 +1,50 @@
+From 12e50f4d307d9f916618ecc15ae6ab8fd309c2c8 Mon Sep 17 00:00:00 2001
+From: YueHaibing <yuehaibing@huawei.com>
+Date: Thu, 2 Apr 2020 16:58:12 +0800
+Subject: [PATCH 052/256] scsi: hisi_sas: Fix build error without SATA_HOST
+
+mainline inclusion
+from mainline-v5.7-rc2
+commit 1d95b8a2d41f0cfbf3cefb5d986941bde2e1378f
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EKNE
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=1d95b8a2d41f0cfbf3cefb5d986941bde2e1378f
+
+----------------------------------------------------------------------
+
+If SATA_HOST is n, build fails:
+
+drivers/scsi/hisi_sas/hisi_sas_main.o: In function
+`hisi_sas_fill_ata_reset_cmd': hisi_sas_main.c:(.text+0x2500): undefined
+reference to `ata_tf_to_fis'
+
+Select SATA_HOST to fix this.
+
+Link: https://lore.kernel.org/r/20200402085812.32948-1-yuehaibing@huawei.com
+Fixes: bd322af15ce9 ("ata: make SATA_PMP option selectable only if any SATA host driver is enabled")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Reviewed-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Acked-by: John Garry <john.garry@huawei.com>
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/hisi_sas/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/scsi/hisi_sas/Kconfig b/drivers/scsi/hisi_sas/Kconfig
+index 57183fce70fb..79ad42352825 100644
+--- a/drivers/scsi/hisi_sas/Kconfig
++++ b/drivers/scsi/hisi_sas/Kconfig
+@@ -5,6 +5,7 @@ config SCSI_HISI_SAS
+ 	select SCSI_SAS_LIBSAS
+ 	select BLK_DEV_INTEGRITY
+ 	depends on ATA
++	select SATA_HOST
+ 	help
+ 		This driver supports HiSilicon's SAS HBA, including support based
+ 		on platform device
+-- 
+2.27.0
+

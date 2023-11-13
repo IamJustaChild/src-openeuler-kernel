@@ -1,0 +1,91 @@
+From f7795c1cb9db1a8cafde17ee751d6589050261d7 Mon Sep 17 00:00:00 2001
+From: Xiang Chen <chenxiang66@hisilicon.com>
+Date: Tue, 19 Apr 2022 17:06:57 +0800
+Subject: [PATCH 185/256] scsi: hisi_sas: Fix some issues related to
+ asd_sas_port->phy_list
+
+mainline inclusion
+from mainline-v5.17-rc1
+commit 29e2bac87421c613782ccb510c76c5efbecac0cf
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F803
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=29e2bac87421c613782ccb510c76c5efbecac0cf
+
+----------------------------------------------------------------------
+
+Most places that use asd_sas_port->phy_list are protected by spinlock
+asd_sas_port->phy_list_lock, however there are still some places which miss
+grabbing the lock. Add it in function hisi_sas_refresh_port_id() when
+accessing asd_sas_port->phy_list. This carries a risk that list mutates
+while at the same time dropping the lock in function
+hisi_sas_send_ata_reset_each_phy(). Read asd_sas_port->phy_mask instead of
+accessing asd_sas_port->phy_list to avoid this risk.
+
+Link: https://lore.kernel.org/r/1639999298-244569-6-git-send-email-chenxiang66@hisilicon.com
+Acked-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Fujai Ni<nifuijia1@hisilicon.com>
+Reviewed-by: Jason Yan <yanaijie@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/hisi_sas/hisi_sas_main.c
+---
+ drivers/scsi/hisi_sas/hisi_sas_main.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index 9f89796b37ac..4cd2f26caf52 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -1474,11 +1474,13 @@ static void hisi_sas_refresh_port_id(struct hisi_hba *hisi_hba)
+ 		sas_port = device->port;
+ 		port = to_hisi_sas_port(sas_port);
+ 
++		spin_lock(&sas_port->phy_list_lock);
+ 		list_for_each_entry(sas_phy, &sas_port->phy_list, port_phy_el)
+ 			if (state & BIT(sas_phy->id)) {
+ 				phy = sas_phy->lldd_phy;
+ 				break;
+ 			}
++		spin_unlock(&sas_port->phy_list_lock);
+ 
+ 		if (phy) {
+ 			port->id = phy->port_id;
+@@ -1566,23 +1568,27 @@ static void hisi_sas_send_ata_reset_each_phy(struct hisi_hba *hisi_hba,
+ 	struct asd_sas_phy *sas_phy;
+ 	struct ata_link *link;
+ 	u32 state;
++	int i;
+ 
+ 	state = hisi_hba->hw->get_phys_state(hisi_hba);
+-	list_for_each_entry(sas_phy, &sas_port->phy_list, port_phy_el) {
++	for (i = 0; i < hisi_hba->n_phy; i++) {
++		sas_phy = &hisi_hba->phy[i].sas_phy;
+ 		if (!(state & BIT(sas_phy->id)))
+ 			continue;
++		if (!(sas_port->phy_mask & BIT(i)))
++			continue;
+ 
+ 		ata_for_each_link(link, ap, EDGE) {
+ 			int pmp = sata_srst_pmp(link);
+ 
+-			tmf_task.phy_id = sas_phy->id;
++			tmf_task.phy_id = i;
+ 			hisi_sas_fill_ata_reset_cmd(link->device, 1,
+ 						    pmp, (u8 *)&fis);
+ 			rc = hisi_sas_exec_internal_tmf_task(device, &fis, s,
+ 							     &tmf_task);
+ 			if (rc != TMF_RESP_FUNC_COMPLETE) {
+ 				dev_err(dev, "phy%d ata reset failed rc=%d\n",
+-					sas_phy->id, rc);
++					i, rc);
+ 				break;
+ 			}
+ 		}
+-- 
+2.27.0
+

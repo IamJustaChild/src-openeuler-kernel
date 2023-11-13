@@ -1,0 +1,79 @@
+From 91bf4f8c9e030b76b148b9aa4205191a6d633e5b Mon Sep 17 00:00:00 2001
+From: YunYi Yang <yangyunyi2@huawei.com>
+Date: Sat, 26 Aug 2023 17:12:16 +0800
+Subject: [PATCH 068/256] fix kabi broken due to change of struct blk_mq_hw_ctx
+ and blk_mq_ctx
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F7ZR
+
+----------------------------------------------------------------------------
+
+Commit ("blk-mq: allow software queue to map to multiple
+hardware queues") changes the struct blk_mq_hw_ctx and blk_mq_ctx, so
+we need to fix kabi broken problem.
+
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ block/blk-mq.h         | 7 ++++++-
+ include/linux/blk-mq.h | 9 ++++++++-
+ 2 files changed, 14 insertions(+), 2 deletions(-)
+
+diff --git a/block/blk-mq.h b/block/blk-mq.h
+index beadc82ddb4c..f4c3b9702d6f 100644
+--- a/block/blk-mq.h
++++ b/block/blk-mq.h
+@@ -22,7 +22,9 @@ struct blk_mq_ctx {
+ 	}  ____cacheline_aligned_in_smp;
+ 
+ 	unsigned int		cpu;
+-	unsigned short		index_hw[HCTX_MAX_TYPES];
++#ifdef __GENKSYMS__
++	unsigned int            index_hw;
++#endif
+ 
+ 	/* incremented at dispatch time */
+ 	unsigned long		rq_dispatched[2];
+@@ -34,6 +36,9 @@ struct blk_mq_ctx {
+ 	struct request_queue	*queue;
+ 	struct blk_mq_ctxs      *ctxs;
+ 	struct kobject		kobj;
++#ifndef __GENKSYMS__
++	unsigned short          index_hw[HCTX_MAX_TYPES];
++#endif
+ } ____cacheline_aligned_in_smp;
+ 
+ void blk_mq_freeze_queue(struct request_queue *q);
+diff --git a/include/linux/blk-mq.h b/include/linux/blk-mq.h
+index c12a56fa867d..2ef1d57d6598 100644
+--- a/include/linux/blk-mq.h
++++ b/include/linux/blk-mq.h
+@@ -37,8 +37,11 @@ struct blk_mq_hw_ctx {
+ 	struct blk_mq_ctx	*dispatch_from;
+ 	unsigned int		dispatch_busy;
+ 
+-	unsigned short		type;
++#ifndef __GENKSYMS__
+ 	unsigned short		nr_ctx;
++#else
++	unsigned int            nr_ctx;
++#endif
+ 	struct blk_mq_ctx	**ctxs;
+ 
+ 	spinlock_t		dispatch_wait_lock;
+@@ -72,7 +75,11 @@ struct blk_mq_hw_ctx {
+ #endif
+ 
+ 	struct list_head hctx_list;
++#ifndef __GENKSYMS__
++	unsigned short          type;
++#else
+ 	KABI_RESERVE(1)
++#endif
+ 	KABI_RESERVE(2)
+ 	KABI_RESERVE(3)
+ 	KABI_RESERVE(4)
+-- 
+2.27.0
+

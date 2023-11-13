@@ -1,0 +1,155 @@
+From eb0dcb1ba829f6113c8dbdf8ad48df1fd777111a Mon Sep 17 00:00:00 2001
+From: "Ahmed S. Darwish" <a.darwish@linutronix.de>
+Date: Tue, 3 Aug 2021 14:47:38 +0800
+Subject: [PATCH 155/256] scsi: aic94xx: Pass gfp_t flags to libsas event
+ notifiers
+
+mainline inclusion
+from mainline-v5.12-rc1
+commit 111d06ab77c9f45fc4b8fc8be918b45154dafd44
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EKNE
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=111d06ab77c9f45fc4b8fc8be918b45154dafd44
+
+----------------------------------------------------------------------
+
+Use the new libsas event notifiers API, which requires callers to
+explicitly pass the gfp_t memory allocation flags.
+
+Context analysis:
+
+  aic94xx_hwi.c: asd_dl_tasklet_handler()
+    -> asd_ascb::tasklet_complete()
+    == escb_tasklet_complete()
+      -> aic94xx_scb.c: asd_phy_event_tasklet()
+      -> aic94xx_scb.c: asd_bytes_dmaed_tasklet()
+      -> aic94xx_scb.c: asd_link_reset_err_tasklet()
+      -> aic94xx_scb.c: asd_primitive_rcvd_tasklet()
+
+All functions are invoked by escb_tasklet_complete(), which is invoked by
+the tasklet handler. Pass GFP_ATOMIC.
+
+Link: https://lore.kernel.org/r/20210118100955.1761652-11-a.darwish@linutronix.de
+Reviewed-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Ahmed S. Darwish <a.darwish@linutronix.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reviewed-by: Ouyangdelong <ouyangdelong@huawei.com>
+Signed-off-by: Nifujia <nifujia1@hisilicon.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/aic94xx/aic94xx_scb.c
+---
+ drivers/scsi/aic94xx/aic94xx_scb.c | 27 ++++++++++++++++-----------
+ 1 file changed, 16 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/scsi/aic94xx/aic94xx_scb.c b/drivers/scsi/aic94xx/aic94xx_scb.c
+index 22873ce8bbfa..eac4aa9afb57 100644
+--- a/drivers/scsi/aic94xx/aic94xx_scb.c
++++ b/drivers/scsi/aic94xx/aic94xx_scb.c
+@@ -86,7 +86,6 @@ static void asd_phy_event_tasklet(struct asd_ascb *ascb,
+ 					 struct done_list_struct *dl)
+ {
+ 	struct asd_ha_struct *asd_ha = ascb->ha;
+-	struct sas_ha_struct *sas_ha = &asd_ha->sas_ha;
+ 	int phy_id = dl->status_block[0] & DL_PHY_MASK;
+ 	struct asd_phy *phy = &asd_ha->phys[phy_id];
+ 
+@@ -99,7 +98,8 @@ static void asd_phy_event_tasklet(struct asd_ascb *ascb,
+ 		ASD_DPRINTK("phy%d: device unplugged\n", phy_id);
+ 		asd_turn_led(asd_ha, phy_id, 0);
+ 		sas_phy_disconnected(&phy->sas_phy);
+-		sas_ha->notify_phy_event(&phy->sas_phy, PHYE_LOSS_OF_SIGNAL);
++		sas_notify_phy_event_gfp(&phy->sas_phy, PHYE_LOSS_OF_SIGNAL,
++					 GFP_ATOMIC);
+ 		break;
+ 	case CURRENT_OOB_DONE:
+ 		/* hot plugged device */
+@@ -107,12 +107,14 @@ static void asd_phy_event_tasklet(struct asd_ascb *ascb,
+ 		get_lrate_mode(phy, oob_mode);
+ 		ASD_DPRINTK("phy%d device plugged: lrate:0x%x, proto:0x%x\n",
+ 			    phy_id, phy->sas_phy.linkrate, phy->sas_phy.iproto);
+-		sas_ha->notify_phy_event(&phy->sas_phy, PHYE_OOB_DONE);
++		sas_notify_phy_event_gfp(&phy->sas_phy, PHYE_OOB_DONE,
++					 GFP_ATOMIC);
+ 		break;
+ 	case CURRENT_SPINUP_HOLD:
+ 		/* hot plug SATA, no COMWAKE sent */
+ 		asd_turn_led(asd_ha, phy_id, 1);
+-		sas_ha->notify_phy_event(&phy->sas_phy, PHYE_SPINUP_HOLD);
++		sas_notify_phy_event_gfp(&phy->sas_phy, PHYE_SPINUP_HOLD,
++					 GFP_ATOMIC);
+ 		break;
+ 	case CURRENT_GTO_TIMEOUT:
+ 	case CURRENT_OOB_ERROR:
+@@ -120,7 +122,8 @@ static void asd_phy_event_tasklet(struct asd_ascb *ascb,
+ 			    dl->status_block[1]);
+ 		asd_turn_led(asd_ha, phy_id, 0);
+ 		sas_phy_disconnected(&phy->sas_phy);
+-		sas_ha->notify_phy_event(&phy->sas_phy, PHYE_OOB_ERROR);
++		sas_notify_phy_event_gfp(&phy->sas_phy, PHYE_OOB_ERROR,
++					 GFP_ATOMIC);
+ 		break;
+ 	}
+ }
+@@ -240,7 +243,6 @@ static void asd_bytes_dmaed_tasklet(struct asd_ascb *ascb,
+ 	int edb_el = edb_id + ascb->edb_index;
+ 	struct asd_dma_tok *edb = ascb->ha->seq.edb_arr[edb_el];
+ 	struct asd_phy *phy = &ascb->ha->phys[phy_id];
+-	struct sas_ha_struct *sas_ha = phy->sas_phy.ha;
+ 	u16 size = ((dl->status_block[3] & 7) << 8) | dl->status_block[2];
+ 
+ 	size = min(size, (u16) sizeof(phy->frame_rcvd));
+@@ -252,7 +254,7 @@ static void asd_bytes_dmaed_tasklet(struct asd_ascb *ascb,
+ 	spin_unlock_irqrestore(&phy->sas_phy.frame_rcvd_lock, flags);
+ 	asd_dump_frame_rcvd(phy, dl);
+ 	asd_form_port(ascb->ha, phy);
+-	sas_ha->notify_port_event(&phy->sas_phy, PORTE_BYTES_DMAED);
++	sas_notify_port_event_gfp(&phy->sas_phy, PORTE_BYTES_DMAED, GFP_ATOMIC);
+ }
+ 
+ static void asd_link_reset_err_tasklet(struct asd_ascb *ascb,
+@@ -288,7 +290,7 @@ static void asd_link_reset_err_tasklet(struct asd_ascb *ascb,
+ 	asd_turn_led(asd_ha, phy_id, 0);
+ 	sas_phy_disconnected(sas_phy);
+ 	asd_deform_port(asd_ha, phy);
+-	sas_ha->notify_port_event(sas_phy, PORTE_LINK_RESET_ERR);
++	sas_notify_port_event_gfp(sas_phy, PORTE_LINK_RESET_ERR, GFP_ATOMIC);
+ 
+ 	if (retries_left == 0) {
+ 		int num = 1;
+@@ -333,7 +335,8 @@ static void asd_primitive_rcvd_tasklet(struct asd_ascb *ascb,
+ 			spin_lock_irqsave(&sas_phy->sas_prim_lock, flags);
+ 			sas_phy->sas_prim = ffs(cont);
+ 			spin_unlock_irqrestore(&sas_phy->sas_prim_lock, flags);
+-			sas_ha->notify_port_event(sas_phy,PORTE_BROADCAST_RCVD);
++			sas_notify_port_event_gfp(sas_phy, PORTE_BROADCAST_RCVD,
++						  GFP_ATOMIC);
+ 			break;
+ 
+ 		case LmUNKNOWNP:
+@@ -354,7 +357,8 @@ static void asd_primitive_rcvd_tasklet(struct asd_ascb *ascb,
+ 			/* The sequencer disables all phys on that port.
+ 			 * We have to re-enable the phys ourselves. */
+ 			asd_deform_port(asd_ha, phy);
+-			sas_ha->notify_port_event(sas_phy, PORTE_HARD_RESET);
++			sas_notify_port_event_gfp(sas_phy, PORTE_HARD_RESET,
++						  GFP_ATOMIC);
+ 			break;
+ 
+ 		default:
+@@ -585,7 +589,8 @@ static void escb_tasklet_complete(struct asd_ascb *ascb,
+ 		/* the device is gone */
+ 		sas_phy_disconnected(sas_phy);
+ 		asd_deform_port(asd_ha, phy);
+-		sas_ha->notify_port_event(sas_phy, PORTE_TIMER_EVENT);
++		sas_notify_port_event_gfp(sas_phy, PORTE_TIMER_EVENT,
++					  GFP_ATOMIC);
+ 		break;
+ 	default:
+ 		ASD_DPRINTK("%s: phy%d: unknown event:0x%x\n", __func__,
+-- 
+2.27.0
+
