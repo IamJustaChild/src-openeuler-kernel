@@ -849,7 +849,6 @@ fi
 %endif
 
 %changelog
-Mon
 * Mon Nov 13 2023  mingqian218472 <hangmingqian.zhang@huawei.com> - 4.19.90-2311.1.0.0240
 - Add feature for nfs client support multipath
 
