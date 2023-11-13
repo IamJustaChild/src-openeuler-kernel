@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0239
+Release: %{hulkrelease}.0240
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -836,6 +836,9 @@ fi
 %endif
 
 %changelog
+
+* Mon Nov 13 2023 Yu Liao <liaoyu15@huawei.com> - 4.19.90-2311.1.0.0240
+- mpam: support ACPI for MPAM 2.0
 
 * Fri Nov 10 2023 hongrongxuan <hongrongxuan@huawei.com> - 4.19.90-2311.1.0.0239
 - perf metricgroup: Fix find_evsel_group() event selector
