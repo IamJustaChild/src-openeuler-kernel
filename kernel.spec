@@ -12,7 +12,7 @@
 %global upstream_sublevel   0
 %global devel_release       166
 %global maintenance_release .0.0
-%global pkg_release         .79
+%global pkg_release         .80
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -429,6 +429,9 @@ popd
 pushd tools/kvm/kvm_stat/
 make %{?_smp_mflags} man
 popd
+pushd tools/netacc
+make BPFTOOL=../../tools/bpf/bpftool/bpftool
+popd
 
 %install
 %if 0%{?with_source}
@@ -705,6 +708,9 @@ popd
 pushd tools/kvm/kvm_stat
 make INSTALL_ROOT=%{buildroot} install-tools
 popd
+pushd tools/netacc
+make INSTALL_ROOT=%{buildroot} install
+popd
 
 %define __spec_install_post\
 %{?__debug_package:%{__debug_install_post}}\
@@ -853,6 +859,8 @@ fi
 %{_bindir}/gpio-watch
 %{_mandir}/man1/kvm_stat*
 %{_bindir}/kvm_stat
+%{_sbindir}/net-acc
+%{_sbindir}/tuned_acc/netacc
 %{_libdir}/libcpupower.so.0
 %{_libdir}/libcpupower.so.0.0.1
 %license linux-%{KernelVer}/COPYING
@@ -889,6 +897,9 @@ fi
 %endif
 
 %changelog
+* Tue Nov 07 2023 Liu Jian <liujian56@huawei.com> - 5.10.0-166.0.0.80
+- And net-acc tool to kernel-tools.
+
 * Thu Nov 02 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-166.0.0.79
 - !2675 RDMA/hns: Support STARS over RDMA
 - !2688  nvmet-tcp: Fix a possible UAF in queue intialization setup
