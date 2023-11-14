@@ -1,0 +1,104 @@
+From 1092dc3f08140ec688913cc84267e4f7ef466efe Mon Sep 17 00:00:00 2001
+From: Yicong Yang <yangyicong@hisilicon.com>
+Date: Thu, 24 Sep 2020 20:24:28 +0800
+Subject: [PATCH 32/39] spi: hisi-sfc-v3xx: factor out bus config and transfer
+ functions
+
+mainline inclusion
+from mainline-v5.10-rc1
+commit f6d2737720d6f6e5f4825b7203ad8b5cfcf9906c
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8CSBP
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=f6d2737720d6f6e5f4825b7203ad8b5cfcf9906c
+
+----------------------------------------------------------------------------
+
+In hisi_sfc_v3xx_generic_exec_op(), we will write the data to the buffer,
+configure and start the transfer, read the data to the buffer and check
+whether occurs an error. Factor out the config and transfer start codes
+as individual functions, to make the process a bit clearer.
+
+Acked-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
+Link: https://lore.kernel.org/r/1600950270-52536-3-git-send-email-yangyicong@hisilicon.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/spi/spi-hisi-sfc-v3xx.c | 37 +++++++++++++++++++++++++--------
+ 1 file changed, 28 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/spi/spi-hisi-sfc-v3xx.c b/drivers/spi/spi-hisi-sfc-v3xx.c
+index 9203a7c06aaa..02b18fdd1a50 100644
+--- a/drivers/spi/spi-hisi-sfc-v3xx.c
++++ b/drivers/spi/spi-hisi-sfc-v3xx.c
+@@ -198,12 +198,12 @@ static void hisi_sfc_v3xx_write_databuf(struct hisi_sfc_v3xx_host *host,
+ 	}
+ }
+ 
+-static int hisi_sfc_v3xx_generic_exec_op(struct hisi_sfc_v3xx_host *host,
+-					 const struct spi_mem_op *op,
+-					 u8 chip_select)
++static int hisi_sfc_v3xx_start_bus(struct hisi_sfc_v3xx_host *host,
++				   const struct spi_mem_op *op,
++				   u8 chip_select)
+ {
+-	int ret = 0, len = op->data.nbytes, buswidth_mode;
+-	u32 int_stat, config = 0;
++	int len = op->data.nbytes, buswidth_mode;
++	u32 config = 0;
+ 
+ 	if (op->addr.nbytes)
+ 		config |= HISI_SFC_V3XX_CMD_CFG_ADDR_EN_MSK;
+@@ -228,9 +228,7 @@ static int hisi_sfc_v3xx_generic_exec_op(struct hisi_sfc_v3xx_host *host,
+ 		config |= HISI_SFC_V3XX_CMD_CFG_DATA_EN_MSK;
+ 	}
+ 
+-	if (op->data.dir == SPI_MEM_DATA_OUT)
+-		hisi_sfc_v3xx_write_databuf(host, op->data.buf.out, len);
+-	else if (op->data.dir == SPI_MEM_DATA_IN)
++	if (op->data.dir == SPI_MEM_DATA_IN)
+ 		config |= HISI_SFC_V3XX_CMD_CFG_RW_MSK;
+ 
+ 	config |= op->dummy.nbytes << HISI_SFC_V3XX_CMD_CFG_DUMMY_CNT_OFF |
+@@ -242,6 +240,25 @@ static int hisi_sfc_v3xx_generic_exec_op(struct hisi_sfc_v3xx_host *host,
+ 
+ 	writel(config, host->regbase + HISI_SFC_V3XX_CMD_CFG);
+ 
++	return 0;
++}
++
++static int hisi_sfc_v3xx_generic_exec_op(struct hisi_sfc_v3xx_host *host,
++					 const struct spi_mem_op *op,
++					 u8 chip_select)
++{
++	u32 int_stat;
++	int ret;
++
++	if (op->data.dir == SPI_MEM_DATA_OUT)
++		hisi_sfc_v3xx_write_databuf(host,
++					    op->data.buf.out,
++					    op->data.nbytes);
++
++	ret = hisi_sfc_v3xx_start_bus(host, op, chip_select);
++	if (ret)
++		return ret;
++
+ 	ret = hisi_sfc_v3xx_wait_cmd_idle(host);
+ 	if (ret)
+ 		return ret;
+@@ -266,7 +283,9 @@ static int hisi_sfc_v3xx_generic_exec_op(struct hisi_sfc_v3xx_host *host,
+ 	}
+ 
+ 	if (op->data.dir == SPI_MEM_DATA_IN)
+-		hisi_sfc_v3xx_read_databuf(host, op->data.buf.in, len);
++		hisi_sfc_v3xx_read_databuf(host,
++					   op->data.buf.in,
++					   op->data.nbytes);
+ 
+ 	return 0;
+ }
+-- 
+2.27.0
+

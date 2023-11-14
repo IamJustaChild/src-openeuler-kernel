@@ -1,0 +1,46 @@
+From 6dc80f062988a0251723db031b4e89cbc899550f Mon Sep 17 00:00:00 2001
+From: Geert Uytterhoeven <geert+renesas@glider.be>
+Date: Fri, 25 Oct 2019 15:53:25 +0200
+Subject: [PATCH 13/39] ARM: shmobile: defconfig: Refresh config
+ CONFIG_MTD_M25P80 for v5.4-rc1
+
+mainline inclusion
+from mainline-v5.5-rc1
+commit 51e0f6a1917831373e153eca2fb27902f0f8bc7b
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8CSBP
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=51e0f6a1917831373e153eca2fb27902f0f8bc7b
+
+----------------------------------------------------------------------------
+
+Update the defconfig for Renesas ARM boards:
+  - Drop CONFIG_MTD_M25P80=y (removed in commit b35b9a10362d2034 ("mtd:
+    spi-nor: Move m25p80 code in spi-nor.c")),
+
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20191025135325.32242-1-geert+renesas@glider.be
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	arch/arm/configs/shmobile_defconfig
+---
+ arch/arm/configs/shmobile_defconfig | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/arch/arm/configs/shmobile_defconfig b/arch/arm/configs/shmobile_defconfig
+index f8faf3729464..f52302ae49a6 100644
+--- a/arch/arm/configs/shmobile_defconfig
++++ b/arch/arm/configs/shmobile_defconfig
+@@ -65,7 +65,6 @@ CONFIG_CMA_SIZE_MBYTES=64
+ CONFIG_SIMPLE_PM_BUS=y
+ CONFIG_MTD=y
+ CONFIG_MTD_BLOCK=y
+-CONFIG_MTD_M25P80=y
+ CONFIG_MTD_SPI_NOR=y
+ CONFIG_EEPROM_AT24=y
+ CONFIG_BLK_DEV_SD=y
+-- 
+2.27.0
+

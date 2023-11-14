@@ -1,0 +1,41 @@
+From 679821ee5b370e36451dd353809ce29f4a217da0 Mon Sep 17 00:00:00 2001
+From: Bin Meng <bin.meng@windriver.com>
+Date: Fri, 1 May 2020 21:30:21 -0700
+Subject: [PATCH 15/39] m68k: Drop CONFIG_MTD_M25P80 in stmark2_defconfig
+
+mainline inclusion
+from mainline-v5.8-rc1
+commit e00091071615378e66291c61ea02d02d15a2cc7e
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8CSBP
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=e00091071615378e66291c61ea02d02d15a2cc7e
+
+----------------------------------------------------------------------------
+
+Drop CONFIG_MTD_M25P80 that was removed in
+commit b35b9a10362d ("mtd: spi-nor: Move m25p80 code in spi-nor.c")
+
+Signed-off-by: Bin Meng <bin.meng@windriver.com>
+Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ arch/m68k/configs/stmark2_defconfig | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/arch/m68k/configs/stmark2_defconfig b/arch/m68k/configs/stmark2_defconfig
+index 3d07b1de7eb0..f2a0937f1d22 100644
+--- a/arch/m68k/configs/stmark2_defconfig
++++ b/arch/m68k/configs/stmark2_defconfig
+@@ -49,7 +49,6 @@ CONFIG_MTD_CFI_STAA=y
+ CONFIG_MTD_ROM=y
+ CONFIG_MTD_COMPLEX_MAPPINGS=y
+ CONFIG_MTD_PLATRAM=y
+-CONFIG_MTD_M25P80=y
+ CONFIG_MTD_SPI_NOR=y
+ # CONFIG_INPUT_KEYBOARD is not set
+ # CONFIG_INPUT_MOUSE is not set
+-- 
+2.27.0
+
