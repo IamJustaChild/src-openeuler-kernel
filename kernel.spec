@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0241
+Release: %{hulkrelease}.0243
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,8 +849,48 @@ fi
 %endif
 
 %changelog
+* TUE Nov 14 2023  YunYi Yang <yangyunyi2@huawei.com> - 4.19.90-2311.2.0.0243
+- config: arm64: Build HiSilicon SPI/SFC driver as module
+- spi: hisi-sfc-v3xx: drop unnecessary ACPI_PTR and related ifendif protection
+- spi: hisi-sfc-v3xx: fix potential irq race condition
+- spi: hisi-sfc-v3xx: add address mode check
+- spi: hisi-sfc-v3xx: extend version checking compatibility
+- spi: hisi-sfc-v3xx: add support for IRQ mode
+- spi: hisi-sfc-v3xx: factor out the bit definition of interrupt register
+- spi: hisi-sfc-v3xx: factor out bus config and transfer functions
+- spi: hisi-sfc-v3xx: factor out IO modes configuration
+- spi: Remove CONFIG_ prefix from Kconfig select
+- spi: hisi-sfc-v3xx: add error check after per operation
+- spi: HiSilicon v3xx: Use DMI quirk to set controller buswidth override bits
+- spi: HiSilicon v3xx: Properly set CMD_CONFIG for Dual/Quad modes
+- spi: Allow SPI controller override device buswidth
+- spi: Add HiSilicon v3xx SPI NOR flash controller driver
+- spi/acpi: avoid spurious matches during slave enumeration
+- spi/acpi: fix incorrect ACPI parent check
+- spi/acpi: enumerate all SPI slaves in the namespace
+- driver core: platform: return -ENXIO for missing GpioInt
+- driver: platform: Support parsing GpioInt 0 in platform_get_irq()
+- spi: spi-mem: Fix build error without CONFIG_SPI_MEM
+- spi: spi-mem: Add SPI_MEM_NO_DATA to the spi_mem_data_dir enum
+- sh: Replace CONFIG_MTD_M25P80 with CONFIG_MTD_SPI_NOR in sh7757lcr_defconfig
+- powerpc: Drop CONFIG_MTD_M25P80 in 85xx-hw.config
+- m68k: Drop CONFIG_MTD_M25P80 in stmark2_defconfig
+- mips: Drop CONFIG_MTD_M25P80 in various defconfig files
+- ARM: shmobile: defconfig: Refresh config CONFIG_MTD_M25P80 for v5.4-rc1
+- mtd: spi-nor: core: Fix an issue of releasing resources during read/write
+- mtd: spi-nor: fix kernel-doc for spi_nor::spimem
+- mtd: spi-nor: Pointer parameter for CR in spi_nor_read_cr()
+- mtd: spi-nor: Pointer parameter for FSR in spi_nor_read_fsr()
+- mtd: spi-nor: Pointer parameter for SR in spi_nor_read_sr()
+- mtd: spi-nor: Stop compare with negative in Reg Ops methods
+- mtd: spi-nor: Prepend spi_nor_ to all Reg Ops methods
+- mtd: spi-nor: Fix direction of the write_sr() transfer
+- mtd: spi-nor: Move m25p80 code in spi-nor.c
+- mtd: spi-nor: always use bounce buffer for register read/writes
+- mtd: spi-nor: Add support for mx25u12835f
+- spi: add support for octal mode I/O data transfer
 
-* TUE Nov 14 2023  Li Xiaodong <lixiaodong67@huawei.com> - 4.19.90-2311.2.0.0241
+* TUE Nov 14 2023  Li Xiaodong <lixiaodong67@huawei.com> - 4.19.90-2311.2.0.0242
 - !2793  handle uninitialized numa nodes gracefully.
 - !2789 linux-4.19.y inclusion
 - arch/x86/mm/numa: Do not initialize nodes twice
@@ -915,7 +955,7 @@ fi
 - i2c: add phytium i2c driver DT binding docs
 - Net: ethernet: Support 3snic 3s9xx network card
 
-* Mon Nov 13 2023  mingqian218472 <hangmingqian.zhang@huawei.com> - 4.19.90-2311.1.0.0240
+* Mon Nov 13 2023  mingqian218472 <hangmingqian.zhang@huawei.com> - 4.19.90-2311.1.0.0241
 - Add feature for nfs client support multipath
 
 * Mon Nov 13 2023 Yu Liao <liaoyu15@huawei.com> - 4.19.90-2311.1.0.0240

@@ -1,0 +1,42 @@
+From ff14e23b9018738156c8943d0edf556901d9fe6e Mon Sep 17 00:00:00 2001
+From: Bin Meng <bin.meng@windriver.com>
+Date: Fri, 1 May 2020 21:44:54 -0700
+Subject: [PATCH 16/39] powerpc: Drop CONFIG_MTD_M25P80 in 85xx-hw.config
+
+mainline inclusion
+from mainline-v5.9-rc1
+commit 76f09371bc05d6eb8d5a01823c9eaab768d6e934
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8CSBP
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=76f09371bc05d6eb8d5a01823c9eaab768d6e934
+
+----------------------------------------------------------------------------
+
+Drop CONFIG_MTD_M25P80 that was removed in
+commit b35b9a10362d ("mtd: spi-nor: Move m25p80 code in spi-nor.c")
+
+Signed-off-by: Bin Meng <bin.meng@windriver.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/1588394694-517-1-git-send-email-bmeng.cn@gmail.com
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ arch/powerpc/configs/85xx-hw.config | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/arch/powerpc/configs/85xx-hw.config b/arch/powerpc/configs/85xx-hw.config
+index c03d0fb16665..2bce8e571651 100644
+--- a/arch/powerpc/configs/85xx-hw.config
++++ b/arch/powerpc/configs/85xx-hw.config
+@@ -68,7 +68,6 @@ CONFIG_MTD_CFI_AMDSTD=y
+ CONFIG_MTD_CFI_INTELEXT=y
+ CONFIG_MTD_CFI=y
+ CONFIG_MTD_CMDLINE_PARTS=y
+-CONFIG_MTD_M25P80=y
+ CONFIG_MTD_NAND_FSL_ELBC=y
+ CONFIG_MTD_NAND_FSL_IFC=y
+ CONFIG_MTD_NAND=y
+-- 
+2.27.0
+

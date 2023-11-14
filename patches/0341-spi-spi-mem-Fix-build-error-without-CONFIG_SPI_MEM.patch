@@ -1,0 +1,80 @@
+From 9fc413c03fc3aa5566c7ce9da96b6ee7e417184a Mon Sep 17 00:00:00 2001
+From: YueHaibing <yuehaibing@huawei.com>
+Date: Mon, 8 Apr 2019 22:39:49 +0800
+Subject: [PATCH 19/39] spi: spi-mem: Fix build error without CONFIG_SPI_MEM
+
+mainline inclusion
+from mainline-v5.2-rc1
+commit 72e6841608b9ce7e04515ed43693b2878936c93a
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8CSBP
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=72e6841608b9ce7e04515ed43693b2878936c93a
+
+----------------------------------------------------------------------------
+
+When building with CONFIG_SPI_MEM is not set
+gc warns this:
+
+drivers/spi/spi-zynq-qspi.o: In function `zynq_qspi_supports_op':
+spi-zynq-qspi.c:(.text+0x1da): undefined reference to `spi_mem_default_supports_op'
+
+Fixes: 67dca5e580f1 ("spi: spi-mem: Add support for Zynq QSPI controller")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	include/linux/spi/spi-mem.h
+---
+ drivers/spi/spi-mem.c       |  2 +-
+ include/linux/spi/spi-mem.h | 12 ++++++++++++
+ 2 files changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/spi/spi-mem.c b/drivers/spi/spi-mem.c
+index 526b1ed5c306..788824ee00c7 100644
+--- a/drivers/spi/spi-mem.c
++++ b/drivers/spi/spi-mem.c
+@@ -126,7 +126,7 @@ static int spi_check_buswidth_req(struct spi_mem *mem, u8 buswidth, bool tx)
+ 	return -ENOTSUPP;
+ }
+ 
+-static bool spi_mem_default_supports_op(struct spi_mem *mem,
++bool spi_mem_default_supports_op(struct spi_mem *mem,
+ 					const struct spi_mem_op *op)
+ {
+ 	if (spi_check_buswidth_req(mem, op->cmd.buswidth, true))
+diff --git a/include/linux/spi/spi-mem.h b/include/linux/spi/spi-mem.h
+index 80db2de83402..991a394efe9c 100644
+--- a/include/linux/spi/spi-mem.h
++++ b/include/linux/spi/spi-mem.h
+@@ -224,6 +224,10 @@ int spi_controller_dma_map_mem_op_data(struct spi_controller *ctlr,
+ void spi_controller_dma_unmap_mem_op_data(struct spi_controller *ctlr,
+ 					  const struct spi_mem_op *op,
+ 					  struct sg_table *sg);
++
++bool spi_mem_default_supports_op(struct spi_mem *mem,
++				 const struct spi_mem_op *op);
++
+ #else
+ static inline int
+ spi_controller_dma_map_mem_op_data(struct spi_controller *ctlr,
+@@ -239,6 +243,14 @@ spi_controller_dma_unmap_mem_op_data(struct spi_controller *ctlr,
+ 				     struct sg_table *sg)
+ {
+ }
++
++static inline
++bool spi_mem_default_supports_op(struct spi_mem *mem,
++				 const struct spi_mem_op *op)
++{
++	return false;
++}
++
+ #endif /* CONFIG_SPI_MEM */
+ 
+ int spi_mem_adjust_op_size(struct spi_mem *mem, struct spi_mem_op *op);
+-- 
+2.27.0
+

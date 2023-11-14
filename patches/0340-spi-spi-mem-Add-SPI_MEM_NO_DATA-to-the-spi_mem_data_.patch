@@ -1,0 +1,67 @@
+From c95fab40e779f7e66d3643daf9a9760aeb964929 Mon Sep 17 00:00:00 2001
+From: Boris Brezillon <boris.brezillon@bootlin.com>
+Date: Tue, 6 Nov 2018 17:05:31 +0100
+Subject: [PATCH 18/39] spi: spi-mem: Add SPI_MEM_NO_DATA to the
+ spi_mem_data_dir enum
+
+mainline inclusion
+from mainline-v5.0-rc1
+commit 0ebb261a0b2d090de618a383d2378d4a00834958
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8CSBP
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=0ebb261a0b2d090de618a383d2378d4a00834958
+
+----------------------------------------------------------------------------
+
+When defining spi_mem_op templates we don't necessarily know the size
+that will be passed when the template is actually used, and basing the
+supports_op() check on op->data.nbytes to know whether there will be
+data transferred for a specific operation is this not possible.
+
+Add SPI_MEM_NO_DATA to the spi_mem_data_dir enum so that we can base
+our checks on op->data.dir instead of op->data.nbytes.
+
+Signed-off-by: Boris Brezillon <boris.brezillon@bootlin.com>
+Reviewed-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/spi/spi-mem.c       | 2 +-
+ include/linux/spi/spi-mem.h | 2 ++
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/spi/spi-mem.c b/drivers/spi/spi-mem.c
+index eb72dba71d83..526b1ed5c306 100644
+--- a/drivers/spi/spi-mem.c
++++ b/drivers/spi/spi-mem.c
+@@ -140,7 +140,7 @@ static bool spi_mem_default_supports_op(struct spi_mem *mem,
+ 	    spi_check_buswidth_req(mem, op->dummy.buswidth, true))
+ 		return false;
+ 
+-	if (op->data.nbytes &&
++	if (op->data.dir != SPI_MEM_NO_DATA &&
+ 	    spi_check_buswidth_req(mem, op->data.buswidth,
+ 				   op->data.dir == SPI_MEM_DATA_OUT))
+ 		return false;
+diff --git a/include/linux/spi/spi-mem.h b/include/linux/spi/spi-mem.h
+index 69ee30456864..80db2de83402 100644
+--- a/include/linux/spi/spi-mem.h
++++ b/include/linux/spi/spi-mem.h
+@@ -57,10 +57,12 @@
+ /**
+  * enum spi_mem_data_dir - describes the direction of a SPI memory data
+  *			   transfer from the controller perspective
++ * @SPI_MEM_NO_DATA: no data transferred
+  * @SPI_MEM_DATA_IN: data coming from the SPI memory
+  * @SPI_MEM_DATA_OUT: data sent the SPI memory
+  */
+ enum spi_mem_data_dir {
++	SPI_MEM_NO_DATA,
+ 	SPI_MEM_DATA_IN,
+ 	SPI_MEM_DATA_OUT,
+ };
+-- 
+2.27.0
+
