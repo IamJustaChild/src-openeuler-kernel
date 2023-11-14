@@ -1,0 +1,40 @@
+From 573abc0cb48c35eb8d931e0cf4a76346a5b2a3d4 Mon Sep 17 00:00:00 2001
+From: Yicong Yang <yangyicong@hisilicon.com>
+Date: Fri, 26 Nov 2021 16:26:59 +0800
+Subject: [PATCH 39/39] config: arm64: Build HiSilicon SPI/SFC driver as module
+
+driver inclusion
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8CSBP
+
+------------------------------------------------------------------------
+
+Build HiSilicon SPI/SFC driver as module.
+
+Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
+Reviewed-by: Jay Fang <f.fangjian@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	arch/arm64/configs/openeuler_defconfig
+---
+ arch/arm64/configs/openeuler_defconfig | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/arm64/configs/openeuler_defconfig b/arch/arm64/configs/openeuler_defconfig
+index b89c386c1bc7..2c81e9dd3cab 100644
+--- a/arch/arm64/configs/openeuler_defconfig
++++ b/arch/arm64/configs/openeuler_defconfig
+@@ -3199,6 +3199,8 @@ CONFIG_SPI_DESIGNWARE=y
+ CONFIG_SPI_DW_PCI=m
+ # CONFIG_SPI_DW_MID_DMA is not set
+ CONFIG_SPI_DW_MMIO=m
++CONFIG_SPI_HISI_KUNPENG=m
++CONFIG_SPI_HISI_SFC_V3XX=m
+ # CONFIG_SPI_GPIO is not set
+ # CONFIG_SPI_FSL_SPI is not set
+ # CONFIG_SPI_OC_TINY is not set
+-- 
+2.27.0
+

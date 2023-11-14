@@ -1,0 +1,43 @@
+From b76e9c7fbcd02e7062b13ab29330860d77181cc7 Mon Sep 17 00:00:00 2001
+From: Bin Meng <bin.meng@windriver.com>
+Date: Sat, 2 May 2020 04:04:43 -0700
+Subject: [PATCH 17/39] sh: Replace CONFIG_MTD_M25P80 with CONFIG_MTD_SPI_NOR
+ in sh7757lcr_defconfig
+
+mainline inclusion
+from mainline-v5.9-rc1
+commit bd158322ba5f6190403e6aeb53c1e7b659f9ade8
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8CSBP
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=bd158322ba5f6190403e6aeb53c1e7b659f9ade8
+
+----------------------------------------------------------------------------
+
+CONFIG_MTD_M25P80 was removed and replaced by CONFIG_MTD_SPI_NOR in
+commit b35b9a10362d ("mtd: spi-nor: Move m25p80 code in spi-nor.c")
+
+Signed-off-by: Bin Meng <bin.meng@windriver.com>
+Signed-off-by: Rich Felker <dalias@libc.org>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ arch/sh/configs/sh7757lcr_defconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/sh/configs/sh7757lcr_defconfig b/arch/sh/configs/sh7757lcr_defconfig
+index b0c4bc830fb8..225b82d49d6d 100644
+--- a/arch/sh/configs/sh7757lcr_defconfig
++++ b/arch/sh/configs/sh7757lcr_defconfig
+@@ -37,7 +37,7 @@ CONFIG_UEVENT_HELPER_PATH="/sbin/hotplug"
+ # CONFIG_FW_LOADER is not set
+ CONFIG_MTD=y
+ CONFIG_MTD_BLOCK=y
+-CONFIG_MTD_M25P80=y
++CONFIG_MTD_SPI_NOR=y
+ CONFIG_BLK_DEV_RAM=y
+ CONFIG_SCSI=y
+ CONFIG_BLK_DEV_SD=y
+-- 
+2.27.0
+

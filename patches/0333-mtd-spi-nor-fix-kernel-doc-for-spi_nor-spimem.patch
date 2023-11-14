@@ -1,0 +1,49 @@
+From 9eaef9e96377baccef091f6247b064e09b91394a Mon Sep 17 00:00:00 2001
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Date: Fri, 3 Apr 2020 23:50:57 +0300
+Subject: [PATCH 11/39] mtd: spi-nor: fix kernel-doc for spi_nor::spimem
+
+mainline inclusion
+from mainline-v5.8-rc1
+commit 1f241ad2a093b889122bd6bfdce57551d21bba5b
+category: cleanup
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8CSBP
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=1f241ad2a093b889122bd6bfdce57551d21bba5b
+
+----------------------------------------------------------------------------
+
+When adding the 'spimem' field to 'struct spi_nor', a grammar mistake
+("point" instead of "pointer") was made -- fix it and convert the SPI
+acronym to uppercase and fully spell out "memory", while at it...
+
+Fixes: b35b9a10362 ("mtd: spi-nor: Move m25p80 code in spi-nor.c")
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	include/linux/mtd/spi-nor.h
+---
+ include/linux/mtd/spi-nor.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/include/linux/mtd/spi-nor.h b/include/linux/mtd/spi-nor.h
+index ac5e2656e9b3..98d7794ceedb 100644
+--- a/include/linux/mtd/spi-nor.h
++++ b/include/linux/mtd/spi-nor.h
+@@ -249,8 +249,8 @@ struct flash_info;
+  * struct spi_nor - Structure for defining a the SPI NOR layer
+  * @mtd:		point to a mtd_info structure
+  * @lock:		the lock for the read/write/erase/lock/unlock operations
+- * @dev:		point to a spi device, or a spi nor controller device.
+- * @spimem:		point to the spi mem device
++ * @dev:		pointer to an SPI device or an SPI NOR controller device
++ * @spimem:		pointer to the SPI memory device
+  * @bouncebuf:		bounce buffer used when the buffer passed by the MTD
+  *                      layer is not DMA-able
+  * @bouncebuf_size:	size of the bounce buffer
+-- 
+2.27.0
+

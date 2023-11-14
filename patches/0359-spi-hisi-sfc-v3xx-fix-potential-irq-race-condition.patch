@@ -1,0 +1,47 @@
+From 6aca11b49d76afb6bed69e0d8714744ee52b203b Mon Sep 17 00:00:00 2001
+From: Yicong Yang <yangyicong@hisilicon.com>
+Date: Thu, 8 Dec 2022 21:45:26 +0800
+Subject: [PATCH 37/39] spi: hisi-sfc-v3xx: fix potential irq race condition
+
+mainline inclusion
+from mainline-v5.13-rc1
+commit 4c84e42d29afa3dce201a4db747db2a5ba404604
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8CSBP
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=4c84e42d29afa3dce201a4db747db2a5ba404604
+
+--------------------------------------------------------------------------
+
+We mask the irq when the command completion is timeout. This won't
+stop the already running irq handler. Use sychronize_irq() after
+we mask the irq, to make sure there is no running handler.
+
+Acked-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
+Link: https://lore.kernel.org/r/1618228708-37949-2-git-send-email-yangyicong@hisilicon.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Wangming Shao <shaowangming@h-partners.com>
+Reviewed-by: Yicong Yang <yangyicong@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/spi/spi-hisi-sfc-v3xx.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/spi/spi-hisi-sfc-v3xx.c b/drivers/spi/spi-hisi-sfc-v3xx.c
+index 3cb6735aaf34..2636bf6be06f 100644
+--- a/drivers/spi/spi-hisi-sfc-v3xx.c
++++ b/drivers/spi/spi-hisi-sfc-v3xx.c
+@@ -349,6 +349,7 @@ static int hisi_sfc_v3xx_generic_exec_op(struct hisi_sfc_v3xx_host *host,
+ 			ret = 0;
+ 
+ 		hisi_sfc_v3xx_disable_int(host);
++		synchronize_irq(host->irq);
+ 		host->completion = NULL;
+ 	} else {
+ 		ret = hisi_sfc_v3xx_wait_cmd_idle(host);
+-- 
+2.27.0
+

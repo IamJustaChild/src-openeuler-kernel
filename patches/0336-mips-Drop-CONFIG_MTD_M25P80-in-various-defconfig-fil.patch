@@ -1,0 +1,96 @@
+From e8d9db794570db82ac042b0c661456e0f7c3af21 Mon Sep 17 00:00:00 2001
+From: Bin Meng <bin.meng@windriver.com>
+Date: Fri, 1 May 2020 21:25:49 -0700
+Subject: [PATCH 14/39] mips: Drop CONFIG_MTD_M25P80 in various defconfig files
+
+mainline inclusion
+from mainline-v5.8-rc1
+commit 9d139131e973dac0ef6207a161b228a7fcad8180
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8CSBP
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=9d139131e973dac0ef6207a161b228a7fcad8180
+
+----------------------------------------------------------------------------
+
+Drop CONFIG_MTD_M25P80 that was removed in
+commit b35b9a10362d ("mtd: spi-nor: Move m25p80 code in spi-nor.c")
+
+Signed-off-by: Bin Meng <bin.meng@windriver.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	arch/mips/configs/generic/board-ocelot.config
+---
+ arch/mips/configs/ath79_defconfig             | 1 -
+ arch/mips/configs/db1xxx_defconfig            | 1 -
+ arch/mips/configs/generic/board-ocelot.config | 1 -
+ arch/mips/configs/pistachio_defconfig         | 1 -
+ arch/mips/configs/rt305x_defconfig            | 1 -
+ 5 files changed, 5 deletions(-)
+
+diff --git a/arch/mips/configs/ath79_defconfig b/arch/mips/configs/ath79_defconfig
+index 4c47b3fd958b..7195338da194 100644
+--- a/arch/mips/configs/ath79_defconfig
++++ b/arch/mips/configs/ath79_defconfig
+@@ -49,7 +49,6 @@ CONFIG_MTD_JEDECPROBE=y
+ CONFIG_MTD_CFI_AMDSTD=y
+ CONFIG_MTD_COMPLEX_MAPPINGS=y
+ CONFIG_MTD_PHYSMAP=y
+-CONFIG_MTD_M25P80=y
+ CONFIG_MTD_SPI_NOR=y
+ CONFIG_NETDEVICES=y
+ # CONFIG_NET_PACKET_ENGINE is not set
+diff --git a/arch/mips/configs/db1xxx_defconfig b/arch/mips/configs/db1xxx_defconfig
+index 0108bb9f1e37..b517d469b1b2 100644
+--- a/arch/mips/configs/db1xxx_defconfig
++++ b/arch/mips/configs/db1xxx_defconfig
+@@ -105,7 +105,6 @@ CONFIG_MTD_CFI=y
+ CONFIG_MTD_CFI_ADV_OPTIONS=y
+ CONFIG_MTD_CFI_AMDSTD=y
+ CONFIG_MTD_PHYSMAP=y
+-CONFIG_MTD_M25P80=y
+ CONFIG_MTD_SST25L=y
+ CONFIG_MTD_NAND=y
+ CONFIG_MTD_NAND_ECC_BCH=y
+diff --git a/arch/mips/configs/generic/board-ocelot.config b/arch/mips/configs/generic/board-ocelot.config
+index aa815761d85e..7e7695e1542a 100644
+--- a/arch/mips/configs/generic/board-ocelot.config
++++ b/arch/mips/configs/generic/board-ocelot.config
+@@ -5,7 +5,6 @@ CONFIG_LEGACY_BOARD_OCELOT=y
+ CONFIG_MTD=y
+ CONFIG_MTD_CMDLINE_PARTS=y
+ CONFIG_MTD_BLOCK=y
+-CONFIG_MTD_M25P80=y
+ CONFIG_MTD_NAND=y
+ CONFIG_MTD_NAND_PLATFORM=y
+ CONFIG_MTD_SPI_NOR=y
+diff --git a/arch/mips/configs/pistachio_defconfig b/arch/mips/configs/pistachio_defconfig
+index b22a3cf149b6..e524c5ced381 100644
+--- a/arch/mips/configs/pistachio_defconfig
++++ b/arch/mips/configs/pistachio_defconfig
+@@ -131,7 +131,6 @@ CONFIG_DEBUG_DEVRES=y
+ CONFIG_CONNECTOR=y
+ CONFIG_MTD=y
+ CONFIG_MTD_BLOCK=y
+-CONFIG_MTD_M25P80=y
+ CONFIG_MTD_SPI_NOR=y
+ CONFIG_MTD_UBI=y
+ CONFIG_MTD_UBI_BLOCK=y
+diff --git a/arch/mips/configs/rt305x_defconfig b/arch/mips/configs/rt305x_defconfig
+index dbe6a4639d05..6c9f3c892f5a 100644
+--- a/arch/mips/configs/rt305x_defconfig
++++ b/arch/mips/configs/rt305x_defconfig
+@@ -84,7 +84,6 @@ CONFIG_MTD_CFI_AMDSTD=y
+ CONFIG_MTD_COMPLEX_MAPPINGS=y
+ CONFIG_MTD_PHYSMAP=y
+ CONFIG_MTD_PHYSMAP_OF=y
+-CONFIG_MTD_M25P80=y
+ CONFIG_MTD_SPI_NOR=y
+ CONFIG_EEPROM_93CX6=m
+ CONFIG_SCSI=y
+-- 
+2.27.0
+

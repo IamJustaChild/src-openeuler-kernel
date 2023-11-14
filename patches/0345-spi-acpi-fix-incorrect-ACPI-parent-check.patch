@@ -1,0 +1,66 @@
+From d6e11ded3fafb57845205b7392da6ea3257ac444 Mon Sep 17 00:00:00 2001
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Date: Wed, 19 Jun 2019 11:52:54 +0200
+Subject: [PATCH 23/39] spi/acpi: fix incorrect ACPI parent check
+
+mainline inclusion
+from mainline-v5.3-rc1
+commit b5e3cf410b486a2415ff09b12f3ef18aba9f53ff
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8CSBP
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=b5e3cf410b486a2415ff09b12f3ef18aba9f53ff
+
+----------------------------------------------------------------------------
+
+The ACPI device object parsing code for SPI slaves enumerates the
+entire ACPI namespace to look for devices that refer to the master
+in question via the 'resource_source' field in the 'SPISerialBus'
+resource. If that field does not refer to a valid ACPI device or
+if it refers to the wrong SPI master, we should disregard the
+device.
+
+Current, the valid device check is wrong, since it gets the
+polarity of 'status' wrong. This could cause issues if the
+'resource_source' field is bogus but parent_handle happens to
+refer to the correct master (which is not entirely imaginary
+since this code runs in a loop)
+
+So test for ACPI_FAILURE() instead, to make the code more
+self explanatory.
+
+Fixes: 4c3c59544f33 ("spi/acpi: enumerate all SPI slaves in the namespace")
+Reported-by: kbuild test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: andy.shevchenko@gmail.com
+Cc: masahisa.kojima@linaro.org
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: linux-acpi@vger.kernel.org
+Cc: Lukas Wunner <lukas@wunner.de>
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/spi/spi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+index c6e272edd806..59465736b574 100644
+--- a/drivers/spi/spi.c
++++ b/drivers/spi/spi.c
+@@ -1788,7 +1788,7 @@ static int acpi_spi_add_resource(struct acpi_resource *ares, void *data)
+ 						 sb->resource_source.string_ptr,
+ 						 &parent_handle);
+ 
+-			if (!status ||
++			if (ACPI_FAILURE(status) ||
+ 			    ACPI_HANDLE(ctlr->dev.parent) != parent_handle)
+ 				return -ENODEV;
+ 
+-- 
+2.27.0
+

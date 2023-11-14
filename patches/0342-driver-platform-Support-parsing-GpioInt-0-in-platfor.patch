@@ -1,0 +1,77 @@
+From 65d39d8a4568e1f70da4ec8313e2cff534a2c70b Mon Sep 17 00:00:00 2001
+From: Enrico Granata <egranata@chromium.org>
+Date: Mon, 11 Feb 2019 11:01:12 -0800
+Subject: [PATCH 20/39] driver: platform: Support parsing GpioInt 0 in
+ platform_get_irq()
+
+mainline inclusion
+from mainline-v5.1-rc1
+commit daaef255dc96834aaaad627d3271504cba3ac2dc
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8CSBP
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=daaef255dc96834aaaad627d3271504cba3ac2dc
+
+----------------------------------------------------------------------------
+
+ACPI 5 added support for GpioInt resources as a way to provide
+information about interrupts mediated via a GPIO controller.
+
+Several device buses (e.g. SPI, I2C) have support for retrieving
+an IRQ specified via this type of resource, and providing it
+directly to the driver as an IRQ number.
+
+This is not currently done for the platform drivers, as platform_get_irq()
+does not try to parse GpioInt() resources. This requires drivers to
+either have to support only one possible IRQ resource, or to have code
+in place to try both as a failsafe.
+
+While there is a possibility of ambiguity for devices that exposes
+multiple IRQs, it is easy and feasible to support the common case
+of devices that only expose one IRQ which would be of either type
+depending on the underlying system's architecture.
+
+This commit adds support for parsing a GpioInt resource in order
+to fulfill a request for the index 0 IRQ for a platform device.
+
+Signed-off-by: Enrico Granata <egranata@chromium.org>
+Reviewed-by: Dmitry Torokhov <dtor@chromium.org>
+Acked-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/base/platform.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/base/platform.c b/drivers/base/platform.c
+index be8c82cc4445..77412f3509de 100644
+--- a/drivers/base/platform.c
++++ b/drivers/base/platform.c
+@@ -128,7 +128,20 @@ int platform_get_irq(struct platform_device *dev, unsigned int num)
+ 		irqd_set_trigger_type(irqd, r->flags & IORESOURCE_BITS);
+ 	}
+ 
+-	return r ? r->start : -ENXIO;
++	if (r)
++		return r->start;
++
++	/*
++	 * For the index 0 interrupt, allow falling back to GpioInt
++	 * resources. While a device could have both Interrupt and GpioInt
++	 * resources, making this fallback ambiguous, in many common cases
++	 * the device will only expose one IRQ, and this fallback
++	 * allows a common code path across either kind of resource.
++	 */
++	if (num == 0 && has_acpi_companion(&dev->dev))
++		return acpi_dev_gpio_irq_get(ACPI_COMPANION(&dev->dev), num);
++
++	return -ENXIO;
+ #endif
+ }
+ EXPORT_SYMBOL_GPL(platform_get_irq);
+-- 
+2.27.0
+
