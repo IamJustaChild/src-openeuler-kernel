@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2311.2.0
+%global hulkrelease 2311.3.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0243
+Release: %{hulkrelease}.0244
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,19 @@ fi
 %endif
 
 %changelog
+
+* Wed Nov 15 2023 Luo Shengwei <luoshengwei@huawei.com> - 4.19.90-2311.3.0.0244
+- !2803 drivers/gmjstcm: fix a dev_err() call in spi tcm device probe
+- !2841  drm/qxl: fix UAF on handle creation
+- !2785  [openEuler-1.0-LTS] SCSI: SSSRAID: Support 3SNIC 3S5XX serial RAID/HBA controllers
+- drm/qxl: fix UAF on handle creation
+- !2809  bugfix for CVE-2022-45884
+- media: dvb-core: Fix use-after-free due to race at dvb_register_device()
+- media: media/dvb: Use kmemdup rather than duplicating its implementation
+- media: dvbdev: Fix memleak in dvb_register_device
+- drivers/gmjstcm: fix a dev_err() call in spi tcm device probe
+- SCSI: SSSRAID: Support 3SNIC 3S5XX serial RAID/HBA  controllers
+
 * TUE Nov 14 2023  YunYi Yang <yangyunyi2@huawei.com> - 4.19.90-2311.2.0.0243
 - config: arm64: Build HiSilicon SPI/SFC driver as module
 - spi: hisi-sfc-v3xx: drop unnecessary ACPI_PTR and related ifendif protection
