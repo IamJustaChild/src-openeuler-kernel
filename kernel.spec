@@ -17,8 +17,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .54.0
-%global pkg_release         .133
+%global maintenance_release .55.0
+%global pkg_release         .134
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -942,6 +942,17 @@ fi
 %endif
 
 %changelog
+* Wed Nov 15 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.55.0.134
+- !2859  bugfix for CVE-2022-45884
+- media: dvb-core: Fix use-after-free due to race at dvb_register_device()
+- media: dvbdev: fix error logic at dvb_register_device()
+- media: dvbdev: Fix memleak in dvb_register_device
+- !2847 [sync] PR-2840:  drm/qxl: fix UAF on handle creation
+- drm/qxl: fix UAF on handle creation
+- !2801 [sync] PR-2782:  cpufreq: Abort show()/store() for half-initialized policies
+- cpufreq: make interface functions and lock holding state clear
+- cpufreq: Abort show()/store() for half-initialized policies
+
 * Wed Nov 08 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.54.0.133
 - !2718 [sync] PR-2678:  io_uring/fdinfo: lock SQ thread while retrieving thread cpu/pid
 - !2740 [sync] PR-2443:  CVE-2023-37453
