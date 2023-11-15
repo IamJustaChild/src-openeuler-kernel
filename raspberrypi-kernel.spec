@@ -2,13 +2,13 @@
 
 %global KernelVer %{version}-%{release}.raspi.%{_target_cpu}
 
-%global hulkrelease 153.12.0
+%global hulkrelease 153.32.0
 
 %global debug_package %{nil}
 
 Name:	 raspberrypi-kernel
 Version: 5.10.0
-Release: %{hulkrelease}.17
+Release: %{hulkrelease}.18
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -166,6 +166,9 @@ install -m 644 /boot/dtb-%{KernelVer}/overlays/README /boot/overlays/
 /lib/modules/%{KernelVer}
 
 %changelog
+* Sun Nov 12 2023 Junyu Mu <junyu@isrc.iscas.ac.cn> - 5.10.0-153.32.0.18
+- update kernel version to openEuler 5.10.0-153.32.0
+
 * Tue Jun 27 2023 Liang Ma <maliang@iscas.ac.cn> - 5.10.0-153.12.0.17
 - update kernel version to openEuler 5.10.0-153.12.0
 
