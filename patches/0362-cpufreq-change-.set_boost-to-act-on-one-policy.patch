@@ -1,0 +1,186 @@
+From a93e5e087b753c9fe954e4a82ae1224ba56732d0 Mon Sep 17 00:00:00 2001
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Date: Sat, 30 May 2020 10:08:30 +0800
+Subject: [PATCH openEuler-1.0-LTS 1/2] cpufreq: change '.set_boost' to act on
+ one policy
+
+mainline inclusion
+from mainline-v5.8-rc1
+commit cf6fada71543ceea0f6228ffdc0b85778f3f5a6e
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I88RXU
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=cf6fada71543ceea0f6228ffdc0b85778f3f5a6e
+
+--------------------------------
+
+Macro 'for_each_active_policy()' is defined internally. To avoid some
+cpufreq driver needing this macro to iterate over all the policies in
+'.set_boost' callback, we redefine '.set_boost' to act on only one
+policy and pass the policy as an argument.
+
+'cpufreq_boost_trigger_state()' iterates over all the policies to set
+boost for the system.
+
+This is preparation for adding SW BOOST support for CPPC.
+
+To protect Boost enable/disable by sysfs from CPU online/offline,
+add 'cpu_hotplug_lock' before calling '.set_boost' for each CPU.
+
+Also move the lock from 'set_boost()' to 'store_cpb()' in
+acpi_cpufreq.
+
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Suggested-by: Viresh Kumar <viresh.kumar@linaro.org>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+[ rjw: Subject & changelog ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+
+Conflicts:
+	drivers/cpufreq/cpufreq.c
+
+Signed-off-by: Yu Liao <liaoyu15@huawei.com>
+---
+ drivers/cpufreq/acpi-cpufreq.c | 14 ++++----
+ drivers/cpufreq/cpufreq.c      | 58 +++++++++++++++++++---------------
+ include/linux/cpufreq.h        |  2 +-
+ 3 files changed, 42 insertions(+), 32 deletions(-)
+
+diff --git a/drivers/cpufreq/acpi-cpufreq.c b/drivers/cpufreq/acpi-cpufreq.c
+index ce0a51849f66..189c7c9e2641 100644
+--- a/drivers/cpufreq/acpi-cpufreq.c
++++ b/drivers/cpufreq/acpi-cpufreq.c
+@@ -147,12 +147,12 @@ static void boost_set_msr_each(void *p_en)
+ 	boost_set_msr(enable);
+ }
+ 
+-static int set_boost(int val)
++static int set_boost(struct cpufreq_policy *policy, int val)
+ {
+-	get_online_cpus();
+-	on_each_cpu(boost_set_msr_each, (void *)(long)val, 1);
+-	put_online_cpus();
+-	pr_debug("Core Boosting %sabled.\n", val ? "en" : "dis");
++	on_each_cpu_mask(policy->cpus, boost_set_msr_each,
++			 (void *)(long)val, 1);
++	pr_debug("CPU %*pbl: Core Boosting %sabled.\n",
++		 cpumask_pr_args(policy->cpus), val ? "en" : "dis");
+ 
+ 	return 0;
+ }
+@@ -183,7 +183,9 @@ static ssize_t store_cpb(struct cpufreq_policy *policy, const char *buf,
+ 	if (ret || val > 1)
+ 		return -EINVAL;
+ 
+-	set_boost(val);
++	get_online_cpus();
++	set_boost(policy, val);
++	put_online_cpus();
+ 
+ 	return count;
+ }
+diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
+index 99ca9c50a88f..49ed22b45fb7 100644
+--- a/drivers/cpufreq/cpufreq.c
++++ b/drivers/cpufreq/cpufreq.c
+@@ -2347,34 +2347,32 @@ EXPORT_SYMBOL(cpufreq_update_policy);
+ /*********************************************************************
+  *               BOOST						     *
+  *********************************************************************/
+-static int cpufreq_boost_set_sw(int state)
++static int cpufreq_boost_set_sw(struct cpufreq_policy *policy, int state)
+ {
+-	struct cpufreq_policy *policy;
+ 	int ret = -EINVAL;
+ 
+-	for_each_active_policy(policy) {
+-		if (!policy->freq_table)
+-			continue;
+-
+-		ret = cpufreq_frequency_table_cpuinfo(policy,
+-						      policy->freq_table);
+-		if (ret) {
+-			pr_err("%s: Policy frequency update failed\n",
+-			       __func__);
+-			break;
+-		}
++	if (!policy->freq_table)
++		return -ENXIO;
+ 
+-		down_write(&policy->rwsem);
+-		policy->user_policy.max = policy->max;
+-		cpufreq_governor_limits(policy);
+-		up_write(&policy->rwsem);
++	ret = cpufreq_frequency_table_cpuinfo(policy,
++					      policy->freq_table);
++	if (ret) {
++		pr_err("%s: Policy frequency update failed\n",
++		       __func__);
++		return ret;
+ 	}
+ 
++	down_write(&policy->rwsem);
++	policy->user_policy.max = policy->max;
++	cpufreq_governor_limits(policy);
++	up_write(&policy->rwsem);
++
+ 	return ret;
+ }
+ 
+ int cpufreq_boost_trigger_state(int state)
+ {
++	struct cpufreq_policy *policy;
+ 	unsigned long flags;
+ 	int ret = 0;
+ 
+@@ -2385,15 +2383,25 @@ int cpufreq_boost_trigger_state(int state)
+ 	cpufreq_driver->boost_enabled = state;
+ 	write_unlock_irqrestore(&cpufreq_driver_lock, flags);
+ 
+-	ret = cpufreq_driver->set_boost(state);
+-	if (ret) {
+-		write_lock_irqsave(&cpufreq_driver_lock, flags);
+-		cpufreq_driver->boost_enabled = !state;
+-		write_unlock_irqrestore(&cpufreq_driver_lock, flags);
+-
+-		pr_err("%s: Cannot %s BOOST\n",
+-		       __func__, state ? "enable" : "disable");
++	get_online_cpus();
++	for_each_active_policy(policy) {
++		ret = cpufreq_driver->set_boost(policy, state);
++		if (ret)
++			goto err_reset_state;
+ 	}
++	put_online_cpus();
++
++	return 0;
++
++err_reset_state:
++	put_online_cpus();
++
++	write_lock_irqsave(&cpufreq_driver_lock, flags);
++	cpufreq_driver->boost_enabled = !state;
++	write_unlock_irqrestore(&cpufreq_driver_lock, flags);
++
++	pr_err("%s: Cannot %s BOOST\n",
++	       __func__, state ? "enable" : "disable");
+ 
+ 	return ret;
+ }
+diff --git a/include/linux/cpufreq.h b/include/linux/cpufreq.h
+index 3361663144a1..ff6b10552c86 100644
+--- a/include/linux/cpufreq.h
++++ b/include/linux/cpufreq.h
+@@ -334,7 +334,7 @@ struct cpufreq_driver {
+ 
+ 	/* platform specific boost support code */
+ 	bool		boost_enabled;
+-	int		(*set_boost)(int state);
++	int		(*set_boost)(struct cpufreq_policy *policy, int state);
+ };
+ 
+ /* flags */
+-- 
+2.25.1
+
