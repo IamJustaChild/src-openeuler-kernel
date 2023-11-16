@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0244
+Release: %{hulkrelease}.0245
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,9 @@ fi
 %endif
 
 %changelog
+
+* Thu Nov 16 2023 Yu Liao <liaoyu15@huawei.com> - 4.19.90-2311.3.0.0245
+- Backport cpu turbo patches
 
 * Wed Nov 15 2023 Luo Shengwei <luoshengwei@huawei.com> - 4.19.90-2311.3.0.0244
 - !2803 drivers/gmjstcm: fix a dev_err() call in spi tcm device probe
