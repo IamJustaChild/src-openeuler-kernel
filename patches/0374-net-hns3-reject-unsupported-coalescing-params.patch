@@ -1,0 +1,138 @@
+From 9c0ab6c6b497b9f9c37c1f9ab3da570122d47151 Mon Sep 17 00:00:00 2001
+From: Jakub Kicinski <kuba@kernel.org>
+Date: Wed, 11 Mar 2020 15:32:53 -0700
+Subject: [PATCH 013/283] net: hns3: reject unsupported coalescing params
+
+mainline inclusion
+from mainline-v5.7-rc1
+commit 7b8fda64b29d433712575c99eb97545899667d06
+category: cleanup
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EJ0A
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=7b8fda64b29d433712575c99eb97545899667d06
+
+--------------------------------
+
+Set ethtool_ops->supported_coalesce_params to let
+the core reject unsupported coalescing parameters.
+
+This driver did not previously reject unsupported parameters.
+
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+---
+ .../ethernet/hisilicon/hns3/hns3_ethtool.c    |  7 +++
+ include/linux/ethtool.h                       | 44 +++++++++++++++++--
+ 2 files changed, 48 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+index d18e8141f7e4..cfd35b5f14b7 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+@@ -1483,7 +1483,13 @@ static int hns3_get_module_eeprom(struct net_device *netdev,
+ 	return ops->get_module_eeprom(handle, ee->offset, ee->len, data);
+ }
+ 
++#define HNS3_ETHTOOL_COALESCE	(ETHTOOL_COALESCE_USECS |		\
++				 ETHTOOL_COALESCE_USE_ADAPTIVE |	\
++				 ETHTOOL_COALESCE_RX_USECS_HIGH |	\
++				 ETHTOOL_COALESCE_TX_USECS_HIGH)
++
+ static const struct ethtool_ops hns3vf_ethtool_ops = {
++	.supported_coalesce_params = HNS3_ETHTOOL_COALESCE,
+ 	.get_drvinfo = hns3_get_drvinfo,
+ 	.get_ringparam = hns3_get_ringparam,
+ 	.set_ringparam = hns3_set_ringparam,
+@@ -1509,6 +1515,7 @@ static const struct ethtool_ops hns3vf_ethtool_ops = {
+ };
+ 
+ static const struct ethtool_ops hns3_ethtool_ops = {
++	.supported_coalesce_params = HNS3_ETHTOOL_COALESCE,
+ 	.self_test = hns3_self_test,
+ 	.get_drvinfo = hns3_get_drvinfo,
+ 	.get_link = hns3_get_link,
+diff --git a/include/linux/ethtool.h b/include/linux/ethtool.h
+index 3e398b8ac212..217f56d2462c 100644
+--- a/include/linux/ethtool.h
++++ b/include/linux/ethtool.h
+@@ -182,8 +182,43 @@ void ethtool_convert_legacy_u32_to_link_mode(unsigned long *dst,
+ bool ethtool_convert_link_mode_to_legacy_u32(u32 *legacy_u32,
+ 				     const unsigned long *src);
+ 
++#define ETHTOOL_COALESCE_RX_USECS              BIT(0)
++#define ETHTOOL_COALESCE_RX_MAX_FRAMES         BIT(1)
++#define ETHTOOL_COALESCE_RX_USECS_IRQ          BIT(2)
++#define ETHTOOL_COALESCE_RX_MAX_FRAMES_IRQ     BIT(3)
++#define ETHTOOL_COALESCE_TX_USECS              BIT(4)
++#define ETHTOOL_COALESCE_TX_MAX_FRAMES         BIT(5)
++#define ETHTOOL_COALESCE_TX_USECS_IRQ          BIT(6)
++#define ETHTOOL_COALESCE_TX_MAX_FRAMES_IRQ     BIT(7)
++#define ETHTOOL_COALESCE_STATS_BLOCK_USECS     BIT(8)
++#define ETHTOOL_COALESCE_USE_ADAPTIVE_RX       BIT(9)
++#define ETHTOOL_COALESCE_USE_ADAPTIVE_TX       BIT(10)
++#define ETHTOOL_COALESCE_PKT_RATE_LOW          BIT(11)
++#define ETHTOOL_COALESCE_RX_USECS_LOW          BIT(12)
++#define ETHTOOL_COALESCE_RX_MAX_FRAMES_LOW     BIT(13)
++#define ETHTOOL_COALESCE_TX_USECS_LOW          BIT(14)
++#define ETHTOOL_COALESCE_TX_MAX_FRAMES_LOW     BIT(15)
++#define ETHTOOL_COALESCE_PKT_RATE_HIGH         BIT(16)
++#define ETHTOOL_COALESCE_RX_USECS_HIGH         BIT(17)
++#define ETHTOOL_COALESCE_RX_MAX_FRAMES_HIGH    BIT(18)
++#define ETHTOOL_COALESCE_TX_USECS_HIGH         BIT(19)
++#define ETHTOOL_COALESCE_TX_MAX_FRAMES_HIGH    BIT(20)
++#define ETHTOOL_COALESCE_RATE_SAMPLE_INTERVAL  BIT(21)
++
++#define ETHTOOL_COALESCE_USECS						\
++	(ETHTOOL_COALESCE_RX_USECS | ETHTOOL_COALESCE_TX_USECS)
++#define ETHTOOL_COALESCE_MAX_FRAMES					\
++	(ETHTOOL_COALESCE_RX_MAX_FRAMES | ETHTOOL_COALESCE_TX_MAX_FRAMES)
++#define ETHTOOL_COALESCE_USECS_IRQ					\
++	(ETHTOOL_COALESCE_RX_USECS_IRQ | ETHTOOL_COALESCE_TX_USECS_IRQ)
++#define ETHTOOL_COALESCE_MAX_FRAMES_IRQ					\
++	(ETHTOOL_COALESCE_RX_MAX_FRAMES_IRQ |				\
++	ETHTOOL_COALESCE_TX_MAX_FRAMES_IRQ)
++#define ETHTOOL_COALESCE_USE_ADAPTIVE					\
++	(ETHTOOL_COALESCE_USE_ADAPTIVE_RX | ETHTOOL_COALESCE_USE_ADAPTIVE_TX)
+ /**
+  * struct ethtool_ops - optional netdev operations
++ * @supported_coalesce_params: supported types of interrupt coalescing.
+  * @get_settings: DEPRECATED, use %get_link_ksettings/%set_link_ksettings
+  *	API. Get various device settings including Ethernet link
+  *	settings. The @cmd parameter is expected to have been cleared
+@@ -220,8 +255,9 @@ bool ethtool_convert_link_mode_to_legacy_u32(u32 *legacy_u32,
+  *	or zero.
+  * @get_coalesce: Get interrupt coalescing parameters.  Returns a negative
+  *	error code or zero.
+- * @set_coalesce: Set interrupt coalescing parameters.  Returns a negative
+- *	error code or zero.
++ * @set_coalesce: Set interrupt coalescing parameters.  Supported coalescing
++ *     types should be set in @supported_coalesce_params.
++ *     Returns a negative error code or zero.
+  * @get_ringparam: Report ring sizes
+  * @set_ringparam: Set ring sizes.  Returns a negative error code or zero.
+  * @get_pauseparam: Report pause parameters
+@@ -291,7 +327,8 @@ bool ethtool_convert_link_mode_to_legacy_u32(u32 *legacy_u32,
+  * @get_per_queue_coalesce: Get interrupt coalescing parameters per queue.
+  *	It must check that the given queue number is valid. If neither a RX nor
+  *	a TX queue has this number, return -EINVAL. If only a RX queue or a TX
+- *	queue has this number, set the inapplicable fields to ~0 and return 0.
++ *     queue has this number, ignore the inapplicable fields. Supported
++ *     coalescing types should be set in @supported_coalesce_params.
+  *	Returns a negative error code or zero.
+  * @set_per_queue_coalesce: Set interrupt coalescing parameters per queue.
+  *	It must check that the given queue number is valid. If neither a RX nor
+@@ -330,6 +367,7 @@ bool ethtool_convert_link_mode_to_legacy_u32(u32 *legacy_u32,
+  * of the generic netdev features interface.
+  */
+ struct ethtool_ops {
++	u32     supported_coalesce_params;
+ 	int	(*get_settings)(struct net_device *, struct ethtool_cmd *);
+ 	int	(*set_settings)(struct net_device *, struct ethtool_cmd *);
+ 	void	(*get_drvinfo)(struct net_device *, struct ethtool_drvinfo *);
+-- 
+2.34.1
+

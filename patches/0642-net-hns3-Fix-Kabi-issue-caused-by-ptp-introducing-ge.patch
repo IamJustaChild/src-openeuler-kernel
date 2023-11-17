@@ -1,0 +1,123 @@
+From ef24cbc7b7f598a1246f541899073c47e162efe7 Mon Sep 17 00:00:00 2001
+From: Algernon <lixiaodong67@huawei.com>
+Date: Wed, 15 Nov 2023 17:22:29 +0800
+Subject: [PATCH 281/283] net: hns3: Fix Kabi issue caused by ptp introducing
+ gettimex64()
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN49
+--------------------------------
+
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ptp.c | 7 +++----
+ drivers/ptp/ptp_chardev.c                              | 4 +---
+ drivers/ptp/ptp_clock.c                                | 4 +---
+ drivers/ptp/ptp_hisi.c                                 | 5 ++---
+ include/linux/ptp_clock_kernel.h                       | 4 ----
+ 5 files changed, 7 insertions(+), 17 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ptp.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ptp.c
+index a40b1583f114..41d47ab8b8aa 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ptp.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ptp.c
+@@ -137,8 +137,7 @@ void hclge_ptp_get_rx_hwts(struct hnae3_handle *handle, struct sk_buff *skb,
+ 	hdev->ptp->rx_cnt++;
+ }
+ 
+-static int hclge_ptp_gettimex(struct ptp_clock_info *ptp, struct timespec64 *ts,
+-			      struct ptp_system_timestamp *sts)
++static int hclge_ptp_gettimex(struct ptp_clock_info *ptp, struct timespec64 *ts)
+ {
+ 	struct hclge_dev *hdev = hclge_ptp_get_hdev(ptp);
+ 	unsigned long flags;
+@@ -194,7 +193,7 @@ static int hclge_ptp_adjtime(struct ptp_clock_info *ptp, s64 delta)
+ 		struct timespec64 ts;
+ 		s64 ns;
+ 
+-		hclge_ptp_gettimex(ptp, &ts, NULL);
++		hclge_ptp_gettimex(ptp, &ts);
+ 		ns = timespec64_to_ns(&ts);
+ 		ns = is_neg ? ns - delta : ns + delta;
+ 		ts = ns_to_timespec64(ns);
+@@ -448,7 +447,7 @@ static int hclge_ptp_create_clock(struct hclge_dev *hdev)
+ 	ptp->info.pps = 0;
+ 	ptp->info.adjfreq = hclge_ptp_adjfreq;
+ 	ptp->info.adjtime = hclge_ptp_adjtime;
+-	ptp->info.gettimex64 = hclge_ptp_gettimex;
++	ptp->info.gettime64 = hclge_ptp_gettimex;
+ 	ptp->info.settime64 = hclge_ptp_settime;
+ 
+ 	ptp->info.n_alarm = 0;
+diff --git a/drivers/ptp/ptp_chardev.c b/drivers/ptp/ptp_chardev.c
+index 28e589b794bb..d1e9684f8443 100644
+--- a/drivers/ptp/ptp_chardev.c
++++ b/drivers/ptp/ptp_chardev.c
+@@ -228,9 +228,7 @@ long ptp_ioctl(struct posix_clock *pc, unsigned int cmd, unsigned long arg)
+ 			pct->sec = ts.tv_sec;
+ 			pct->nsec = ts.tv_nsec;
+ 			pct++;
+-			if (ops->gettimex64)
+-				err = ops->gettimex64(ops, &ts, NULL);
+-			else
++			if (ops->gettime64)
+ 				err = ops->gettime64(ops, &ts);
+ 			if (err)
+ 				goto out;
+diff --git a/drivers/ptp/ptp_clock.c b/drivers/ptp/ptp_clock.c
+index e865cfdef360..916e48109566 100644
+--- a/drivers/ptp/ptp_clock.c
++++ b/drivers/ptp/ptp_clock.c
+@@ -117,9 +117,7 @@ static int ptp_clock_gettime(struct posix_clock *pc, struct timespec64 *tp)
+ 	struct ptp_clock *ptp = container_of(pc, struct ptp_clock, clock);
+ 	int err;
+ 
+-	if (ptp->info->gettimex64)
+-		err = ptp->info->gettimex64(ptp->info, tp, NULL);
+-	else
++	if (ptp->info->gettime64)
+ 		err = ptp->info->gettime64(ptp->info, tp);
+ 	return err;
+ }
+diff --git a/drivers/ptp/ptp_hisi.c b/drivers/ptp/ptp_hisi.c
+index 1fcff3c9a90b..60bf10a7a3d9 100644
+--- a/drivers/ptp/ptp_hisi.c
++++ b/drivers/ptp/ptp_hisi.c
+@@ -561,8 +561,7 @@ static int hisi_ptp_settime(struct ptp_clock_info *ptp_info,
+ }
+ 
+ static int hisi_ptp_gettime(struct ptp_clock_info *ptp_info,
+-			     struct timespec64 *ts,
+-			     struct ptp_system_timestamp *sts)
++			     struct timespec64 *ts)
+ {
+ 	struct hisi_ptp_pdev *ptp = hisi_ptp_get_pdev(ptp_info);
+ 	unsigned long flags;
+@@ -594,7 +593,7 @@ static int hisi_ptp_create_clock(struct hisi_ptp_pdev *ptp)
+ 	ptp->info.adjfine = hisi_ptp_adjfine;
+ 	ptp->info.adjtime = hisi_ptp_adjtime;
+ 	ptp->info.settime64 = hisi_ptp_settime;
+-	ptp->info.gettimex64 = hisi_ptp_gettime;
++	ptp->info.gettime64 = hisi_ptp_gettime;
+ 	ptp->clock = ptp_clock_register(&ptp->info, ptp->ptp_tx->dev);
+ 	if (IS_ERR(ptp->clock)) {
+ 		dev_err(ptp->ptp_tx->dev,
+diff --git a/include/linux/ptp_clock_kernel.h b/include/linux/ptp_clock_kernel.h
+index 9d7afc71a2e7..91a47e2342f3 100644
+--- a/include/linux/ptp_clock_kernel.h
++++ b/include/linux/ptp_clock_kernel.h
+@@ -134,10 +134,6 @@ struct ptp_clock_info {
+ 	int (*adjfine)(struct ptp_clock_info *ptp, long scaled_ppm);
+ 	int (*adjfreq)(struct ptp_clock_info *ptp, s32 delta);
+ 	int (*adjtime)(struct ptp_clock_info *ptp, s64 delta);
+-#ifndef __GENKSYMS__
+-	int (*gettimex64)(struct ptp_clock_info *ptp, struct timespec64 *ts,
+-			  struct ptp_system_timestamp *sts);
+-#endif
+ 	int (*gettime64)(struct ptp_clock_info *ptp, struct timespec64 *ts);
+ 	int (*getcrosststamp)(struct ptp_clock_info *ptp,
+ 			      struct system_device_crosststamp *cts);
+-- 
+2.34.1
+

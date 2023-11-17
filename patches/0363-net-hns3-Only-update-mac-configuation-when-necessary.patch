@@ -1,0 +1,48 @@
+From 3cd7ff62b371e10e7f66cee74c75e69708a98c63 Mon Sep 17 00:00:00 2001
+From: Yunsheng Lin <linyunsheng@huawei.com>
+Date: Mon, 3 Sep 2018 11:21:53 +0100
+Subject: [PATCH 002/283] net: hns3: Only update mac configuation when
+ necessary
+
+mainline inclusion
+from mainline-v4.20-rc1
+commit 2d03eacc0b7e7aeedce6032f79872f3fd3d1a94f
+category: cleanup
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EJ0A
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=2d03eacc0b7e7aeedce6032f79872f3fd3d1a94f
+
+--------------------------------
+
+Currently only fiber port checks if it is necessay to set the
+mac through firmware when link is changed, this patch unify the
+checking to allow the copper port do the checking too.
+
+Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: Salil Mehta <salil.mehta@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index b4b1e440fba4..9f9edbdc518a 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -2424,7 +2424,7 @@ static u8 hclge_check_speed_dup(u8 duplex, int speed)
+ 	return duplex;
+ }
+ 
+-static int hclge_cfg_mac_speed_dup_hw(struct hclge_dev *hdev, int speed,
++int hclge_cfg_mac_speed_dup_hw(struct hclge_dev *hdev, int speed,
+ 				      u8 duplex)
+ {
+ 	struct hclge_config_mac_speed_dup_cmd *req;
+-- 
+2.34.1
+

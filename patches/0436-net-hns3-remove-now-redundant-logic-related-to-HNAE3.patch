@@ -1,0 +1,50 @@
+From b91dbf7afeac98f63bca87ee6c37921bb7a925bc Mon Sep 17 00:00:00 2001
+From: Yufeng Mo <moyufeng@huawei.com>
+Date: Sat, 24 Jul 2021 15:45:10 +0800
+Subject: [PATCH 075/283] net: hns3: remove now redundant logic related to
+ HNAE3_UNKNOWN_RESET
+
+mainline inclusion
+from mainline-v5.14-rc1
+commit e0fe0a38371b6d2d669e231c1fd68ce620dfa6b2
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMUR
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=e0fe0a38371b6d2d669e231c1fd68ce620dfa6b2
+
+----------------------------------------------------------------------
+
+Earlier patches have decoupled the MSI-X conveyed error handling
+and recovery logic. This earlier concept code is no longer required.
+
+Signed-off-by: Yufeng Mo <moyufeng@huawei.com>
+Signed-off-by: Salil Mehta <salil.mehta@huawei.com>
+Signed-off-by: Jiaran Zhang <zhangjiaran@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hnae3.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3.h b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+index 6a21c1b0434e..6a93ea356234 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+@@ -234,7 +234,9 @@ enum hnae3_reset_type {
+ 	HNAE3_FUNC_RESET,
+ 	HNAE3_GLOBAL_RESET,
+ 	HNAE3_IMP_RESET,
++#ifdef __GENKSYMS__
+ 	HNAE3_UNKNOWN_RESET,
++#endif
+ 	HNAE3_NONE_RESET,
+ 	HNAE3_MAX_RESET,
+ };
+-- 
+2.34.1
+

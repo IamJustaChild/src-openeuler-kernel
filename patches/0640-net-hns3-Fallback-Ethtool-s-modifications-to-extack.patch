@@ -1,0 +1,61 @@
+From 506a7a706f7eb9a5af7ea96fcc3d8259a267b4d1 Mon Sep 17 00:00:00 2001
+From: Algernon <lixiaodong67@huawei.com>
+Date: Wed, 15 Nov 2023 15:23:47 +0800
+Subject: [PATCH 279/283] net: hns3: Fallback Ethtool's modifications to extack
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN49
+--------------------------------
+
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ include/linux/netlink.h  | 3 ---
+ net/ethtool/netlink.c    | 2 +-
+ net/netlink/af_netlink.c | 2 --
+ 3 files changed, 1 insertion(+), 6 deletions(-)
+
+diff --git a/include/linux/netlink.h b/include/linux/netlink.h
+index b25b2f427127..aff84a0067f1 100644
+--- a/include/linux/netlink.h
++++ b/include/linux/netlink.h
+@@ -176,9 +176,6 @@ struct netlink_callback {
+ 	void			*data;
+ 	/* the module that dump function belong to */
+ 	struct module		*module;
+-#ifndef __GENKSYMS__
+-	struct netlink_ext_ack  *extack;
+-#endif
+ 	u16			family;
+ 	u16			min_dump_alloc;
+ 	unsigned int		prev_seq, seq;
+diff --git a/net/ethtool/netlink.c b/net/ethtool/netlink.c
+index c5fa38fad466..f710cea37a96 100644
+--- a/net/ethtool/netlink.c
++++ b/net/ethtool/netlink.c
+@@ -570,7 +570,7 @@ static int ethnl_default_start(struct netlink_callback *cb)
+ 	}
+ 
+ 	ret = ethnl_default_parse(req_info, cb->nlh, sock_net(cb->skb->sk), ops,
+-				  cb->extack, false);
++				  NULL, false);
+ 	if (req_info->dev) {
+ 		/* We ignore device specification in dump requests but as the
+ 		 * same parser as for non-dump (doit) requests is used, it
+diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
+index 135b658f060d..ab8efc593cb6 100644
+--- a/net/netlink/af_netlink.c
++++ b/net/netlink/af_netlink.c
+@@ -2258,9 +2258,7 @@ static int netlink_dump(struct sock *sk)
+ 	netlink_skb_set_owner_r(skb, sk);
+ 
+ 	if (nlk->dump_done_errno > 0) {
+-		cb->extack = &extack;
+ 		nlk->dump_done_errno = cb->dump(skb, cb);
+-		cb->extack = NULL;
+ 	}
+ 
+ 	if (nlk->dump_done_errno > 0 ||
+-- 
+2.34.1
+

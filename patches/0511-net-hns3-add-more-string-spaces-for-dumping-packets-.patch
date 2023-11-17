@@ -1,0 +1,49 @@
+From 65536c5c087b6b522e78d9d22626246be2f5313c Mon Sep 17 00:00:00 2001
+From: Jie Wang <wangjie125@huawei.com>
+Date: Thu, 18 Nov 2021 20:44:51 +0800
+Subject: [PATCH 150/283] net: hns3: add more string spaces for dumping packets
+ number of queue info in debugfs
+
+mainline inclusion
+from mainline-v5.15
+commit 6754614a787cbcbf87bae8a75619c24a33ea6791
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMYT
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=6754614a787cbcbf87bae8a75619c24a33ea6791
+
+----------------------------------------------------------------------
+
+As the width of packets number registers is 32 bits, they needs at most
+10 characters for decimal data printing, but now the string spaces is not
+enough, so this patch fixes it.
+
+Fixes: e44c495d95e ("net: hns3: refactor queue info of debugfs")
+Signed-off-by: Jie Wang <wangjie125@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c b/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
+index b13cd5ea7bd7..c0a255f93dbd 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
+@@ -448,7 +448,7 @@ static const struct hns3_dbg_item rx_queue_info_items[] = {
+ 	{ "TAIL", 2 },
+ 	{ "HEAD", 2 },
+ 	{ "FBDNUM", 2 },
+-	{ "PKTNUM", 2 },
++	{ "PKTNUM", 5 },
+ 	{ "COPYBREAK", 2 },
+ 	{ "RING_EN", 2 },
+ 	{ "RX_RING_EN", 2 },
+-- 
+2.34.1
+

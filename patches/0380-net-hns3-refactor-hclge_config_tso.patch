@@ -1,0 +1,65 @@
+From 2cf7b0ff6f0f960fbccfc32ead53d4362baa85a0 Mon Sep 17 00:00:00 2001
+From: Huazhong Tan <tanhuazhong@huawei.com>
+Date: Thu, 28 May 2020 21:48:10 +0800
+Subject: [PATCH 019/283] net: hns3: refactor hclge_config_tso()
+
+mainline inclusion
+from mainline-v5.8-rc1
+commit 9f5a9816065f92683fd5f23cd8ec98719f20144f
+category: cleanup
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EJ0A
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=9f5a9816065f92683fd5f23cd8ec98719f20144f
+
+--------------------------------
+
+Since parameters 'tso_mss_min' and 'tso_mss_max' only indicate
+the minimum and maximum MSS, the hnae3_set_field() calls are
+meaningless, remove them and change the type of these two
+parameters to u16.
+
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ .../ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 17 ++++-------------
+ 1 file changed, 4 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 14c7ef0fe807..cc2be3366409 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -1466,26 +1466,17 @@ static int hclge_configure(struct hclge_dev *hdev)
+ 	return ret;
+ }
+ 
+-static int hclge_config_tso(struct hclge_dev *hdev, unsigned int tso_mss_min,
+-			    unsigned int tso_mss_max)
++static int hclge_config_tso(struct hclge_dev *hdev, u16 tso_mss_min,
++			    u16 tso_mss_max)
+ {
+ 	struct hclge_cfg_tso_status_cmd *req;
+ 	struct hclge_desc desc;
+-	u16 tso_mss;
+ 
+ 	hclge_cmd_setup_basic_desc(&desc, HCLGE_OPC_TSO_GENERIC_CONFIG, false);
+ 
+ 	req = (struct hclge_cfg_tso_status_cmd *)desc.data;
+-
+-	tso_mss = 0;
+-	hnae3_set_field(tso_mss, HCLGE_TSO_MSS_MIN_M,
+-			HCLGE_TSO_MSS_MIN_S, tso_mss_min);
+-	req->tso_mss_min = cpu_to_le16(tso_mss);
+-
+-	tso_mss = 0;
+-	hnae3_set_field(tso_mss, HCLGE_TSO_MSS_MIN_M,
+-			HCLGE_TSO_MSS_MIN_S, tso_mss_max);
+-	req->tso_mss_max = cpu_to_le16(tso_mss);
++	req->tso_mss_min = cpu_to_le16(tso_mss_min);
++	req->tso_mss_max = cpu_to_le16(tso_mss_max);
+ 
+ 	return hclge_cmd_send(&hdev->hw, &desc, 1);
+ }
+-- 
+2.34.1
+

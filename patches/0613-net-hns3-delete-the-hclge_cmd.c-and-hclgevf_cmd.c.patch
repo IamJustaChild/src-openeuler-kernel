@@ -1,0 +1,127 @@
+From 19316ba0f96e49c2d5f67c49f10d656b99a1cd99 Mon Sep 17 00:00:00 2001
+From: Jie Wang <wangjie125@huawei.com>
+Date: Wed, 12 Jan 2022 15:16:58 +0800
+Subject: [PATCH 252/283] net: hns3: delete the hclge_cmd.c and hclgevf_cmd.c
+
+mainline inclusion
+from mainline-v5.17-rc1
+commit aab8d1c6a5e3aaf67c4c18f6b03cf6486c435755
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN49
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=aab8d1c6a5e3aaf67c4c18f6b03cf6486c435755
+
+----------------------------------------------------------------------
+
+currently most cmdq APIs are unified in hclge_comm_cmd.c. Newly developed
+cmdq APIs should also be placed in hclge_comm_cmd.c. So there is no need to
+keep hclge_cmd.c and hclgevf_cmd.c.
+
+This patch moves the hclge(vf)_cmd_send to hclge(vf)_main.c and deletes
+the source files and makefile scripts.
+
+Signed-off-by: Jie Wang <wangjie125@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Jian Shen <shenjian15@huawei.com>
+Reviewed-by: Yue Haibing <yuehaibing@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/Makefile
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c
+	drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.c
+---
+ drivers/net/ethernet/hisilicon/hns3/Makefile  |  3 +--
+ .../hisilicon/hns3/hns3pf/hclge_main.c        | 14 ++++++++++
+ .../hisilicon/hns3/hns3vf/hclgevf_main.c      | 26 +++++++++++++++++++
+ 3 files changed, 41 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/Makefile b/drivers/net/ethernet/hisilicon/hns3/Makefile
+index 95069b38ab65..f95ddaedd3a5 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/Makefile
++++ b/drivers/net/ethernet/hisilicon/hns3/Makefile
+@@ -32,7 +32,6 @@ hns3-$(CONFIG_HNS3_DCB) += hns3_dcbnl.o
+ 
+ #### compile hclge.ko
+ HCLGE_OBJ = 	hns3pf/hclge_main.o \
+-			hns3pf/hclge_cmd.o \
+ 			hns3pf/hclge_mdio.o \
+ 			hns3pf/hclge_debugfs.o \
+ 			hns3pf/hclge_tm.o \
+@@ -52,7 +51,7 @@ hclge-objs += hns3_common/hclge_comm_cmd.o
+ hclge-$(CONFIG_HNS3_DCB) += hns3pf/hclge_dcb.o
+ #### compile hclgevf.ko
+ obj-$(CONFIG_HNS3_HCLGEVF) += hclgevf.o
+-hclgevf-objs := hns3vf/hclgevf_main.o hns3vf/hclgevf_cmd.o hns3vf/hclgevf_mbx.o hns3vf/hclgevf_devlink.o hns3_common/hclge_comm_cmd.o
++hclgevf-objs := hns3vf/hclgevf_main.o hns3vf/hclgevf_mbx.o hns3vf/hclgevf_devlink.o hns3_common/hclge_comm_cmd.o
+ 
+ #### compile hns3_cae.ko
+ #add rally code
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 459051a01506..a18a9ffba130 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -481,6 +481,20 @@ static const struct key_info tuple_key_info[] = {
+ 	{ INNER_L4_RSV, 32, KEY_OPT_LE32, -1, -1 },
+ };
+ 
++/**
++ * hclge_cmd_send - send command to command queue
++ * @hw: pointer to the hw struct
++ * @desc: prefilled descriptor for describing the command
++ * @num : the number of descriptors to be sent
++ *
++ * This is the main send command for command queue, it
++ * sends the queue, cleans the queue, etc
++ **/
++int hclge_cmd_send(struct hclge_hw *hw, struct hclge_desc *desc, int num)
++{
++	return hclge_comm_cmd_send(&hw->hw, desc, num);
++}
++
+ static int hclge_mac_update_stats_defective(struct hclge_dev *hdev)
+ {
+ #define HCLGE_MAC_CMD_NUM 21
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+index 3d72c2a3a59c..271321f02a0e 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+@@ -92,6 +92,32 @@ static const u32 tqp_intr_reg_addr_list[] = {HCLGEVF_TQP_INTR_CTRL_REG,
+ 					     HCLGEVF_TQP_INTR_GL2_REG,
+ 					     HCLGEVF_TQP_INTR_RL_REG};
+ 
++/* hclgevf_cmd_send - send command to command queue
++ * @hw: pointer to the hw struct
++ * @desc: prefilled descriptor for describing the command
++ * @num : the number of descriptors to be sent
++ *
++ * This is the main send command for command queue, it
++ * sends the queue, cleans the queue, etc
++ */
++int hclgevf_cmd_send(struct hclgevf_hw *hw, struct hclge_desc *desc, int num)
++{
++	return hclge_comm_cmd_send(&hw->hw, desc, num);
++}
++
++void hclgevf_arq_init(struct hclgevf_dev *hdev)
++{
++	struct hclge_comm_cmq *cmdq = &hdev->hw.hw.cmq;
++
++	spin_lock(&cmdq->crq.lock);
++	/* initialize the pointers of async rx queue of mailbox */
++	hdev->arq.hdev = hdev;
++	hdev->arq.head = 0;
++	hdev->arq.tail = 0;
++	atomic_set(&hdev->arq.count, 0);
++	spin_unlock(&cmdq->crq.lock);
++}
++
+ static struct hclgevf_dev *hclgevf_ae_get_hdev(struct hnae3_handle *handle)
+ {
+ 	if (!handle->client)
+-- 
+2.34.1
+

@@ -1,0 +1,54 @@
+From 06d65b6bd4d2fe5a1c020dda207b70d4211caf50 Mon Sep 17 00:00:00 2001
+From: Yunsheng Lin <linyunsheng@huawei.com>
+Date: Mon, 3 Sep 2018 11:21:50 +0100
+Subject: [PATCH 001/283] net: hns3: Fix for loopback selftest failed problem
+
+mainline inclusion
+from mainline-v4.20-rc1
+commit 0f29fc23b21d3cbd966537bfabba07c00466b787
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EJ0A
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=0f29fc23b21d3cbd966537bfabba07c00466b787
+
+--------------------------------
+
+Tqp and mac need to be enabled when doing loopback selftest,
+ae_algo->ops->start/stop is used to do the job, there is a
+time window between ae_algo->ops->start/stop and loopback setup,
+which will cause selftest failed problem when there is frame
+coming in during that time window.
+
+This patch fixes it by enabling the tqp and mac during loopback
+setup process.
+
+Fixes: c39c4d98dc65 ("net: hns3: Add mac loopback selftest support in hns3 driver")
+Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: Salil Mehta <salil.mehta@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+index be771c75e37e..d18e8141f7e4 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+@@ -125,7 +125,7 @@ static int hns3_lp_up(struct net_device *ndev, enum hnae3_loop loop_mode)
+ 	ret = hns3_lp_setup(ndev, loop_mode, true);
+ 	usleep_range(HNS3_NIC_LB_SETUP_USEC, HNS3_NIC_LB_SETUP_USEC * 2);
+ 
+-	return ret;
++	return 0;
+ }
+ 
+ static int hns3_lp_down(struct net_device *ndev, enum hnae3_loop loop_mode)
+-- 
+2.34.1
+

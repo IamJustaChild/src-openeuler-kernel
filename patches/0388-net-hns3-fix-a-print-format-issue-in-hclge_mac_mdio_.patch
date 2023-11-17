@@ -1,0 +1,41 @@
+From a96f4ce9ec69c9bdd8b5fc10cbfbbf5e83d12ff6 Mon Sep 17 00:00:00 2001
+From: Huazhong Tan <tanhuazhong@huawei.com>
+Date: Sat, 30 May 2020 09:08:27 +0800
+Subject: [PATCH 027/283] net: hns3: fix a print format issue in
+ hclge_mac_mdio_config()
+
+mainline inclusion
+from mainline-v5.8-rc1
+commit 1f4982ef56f794101cae7ec0fa3b7605f78bd25f
+category: cleanup
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EJ0A
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=1f4982ef56f794101cae7ec0fa3b7605f78bd25f
+
+--------------------------------
+
+Use %d to print int variable 'ret' in hclge_mac_mdio_config().
+
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mdio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mdio.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mdio.c
+index d0247f4ab1e8..3eea4870a56a 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mdio.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mdio.c
+@@ -155,7 +155,7 @@ int hclge_mac_mdio_config(struct hclge_dev *hdev)
+ 	ret = mdiobus_register(mdio_bus);
+ 	if (ret) {
+ 		dev_err(mdio_bus->parent,
+-			"Failed to register MDIO bus ret = %#x\n", ret);
++			"failed to register MDIO bus, ret = %d\n", ret);
+ 		return ret;
+ 	}
+ 
+-- 
+2.34.1
+

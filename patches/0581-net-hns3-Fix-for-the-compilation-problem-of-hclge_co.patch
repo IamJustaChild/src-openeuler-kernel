@@ -1,0 +1,232 @@
+From 1d09e7b284cffc9a14c25e4cae565bbf872d6bb9 Mon Sep 17 00:00:00 2001
+From: Algernon <lixiaodong67@huawei.com>
+Date: Tue, 11 Jul 2023 19:29:52 +0800
+Subject: [PATCH 220/283] net: hns3: Fix for the compilation problem of
+ hclge_comm_cmd
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN49
+
+--------------------------------
+
+Fix because of hclge_ Cmd. c and hclge_ Transfer of cmd. h
+partial structure and functions to hclge_ Comm_ Cmd. c
+and hclge_ Comm_ Compilation alarm issues caused by cmd. h.
+
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/Makefile  |  1 +
+ .../hns3/hns3_common/hclge_comm_cmd.c         | 64 ++++++++++---------
+ .../hns3/hns3_common/hclge_comm_cmd.h         | 11 +++-
+ .../hisilicon/hns3/hns3pf/hclge_ext.c         | 10 ---
+ 4 files changed, 43 insertions(+), 43 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/Makefile b/drivers/net/ethernet/hisilicon/hns3/Makefile
+index 45ff4d501760..7ff21cdf43b9 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/Makefile
++++ b/drivers/net/ethernet/hisilicon/hns3/Makefile
+@@ -48,6 +48,7 @@ HCLGE_OBJ_IT_MAIN	=	hns3_extension/hns3pf/hclge_main_it.o \
+ obj-$(CONFIG_HNS3_HCLGE) += hclge.o
+ hclge-objs := $(HCLGE_OBJ) $(HCLGE_OBJ_IT_MAIN)
+ hclge-objs += hns3pf/hclge_ext.o
++hclge-objs += hns3_common/hclge_comm_cmd.o
+ 
+ hclge-$(CONFIG_HNS3_DCB) += hns3pf/hclge_dcb.o
+ #### compile hclgevf.ko
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.c b/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.c
+index a27736cde913..d2000301b942 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.c
+@@ -2,9 +2,11 @@
+ // Copyright (c) 2021-2021 Hisilicon Limited.
+ 
+ #include "hnae3.h"
++#include "hclge_cmd.h"
+ #include "hclge_comm_cmd.h"
+ 
+-static bool hclge_is_elem_in_array(const u16 *spec_opcode, u32 size, u16 opcode)
++static void hclge_comm_cmd_config_regs(struct hclge_comm_hw *hw,
++				       struct hclge_comm_cmq_ring *ring)
+ {
+ 	dma_addr_t dma = ring->desc_dma_addr;
+ 	u32 reg_val;
+@@ -226,40 +228,40 @@ int hclge_comm_cmd_query_version_and_capability(struct hnae3_ae_dev *ae_dev,
+ 					 HNAE3_PCI_REVISION_BIT_SIZE;
+ 	ae_dev->dev_version |= ae_dev->pdev->revision;
+ 
+-	for (i = 0; i < size; i++) {
+-		if (spec_opcode[i] == opcode)
+-			return true;
++	if (ae_dev->dev_version == HNAE3_DEVICE_VERSION_V2) {
++		hclge_comm_set_default_capability(ae_dev, is_pf);
++		return 0;
+ 	}
+ 
++	hclge_comm_parse_capability(ae_dev, is_pf, resp);
++
+ 	return false;
+ }
+ 
+-static const u16 pf_spec_opcode[] = { HCLGE_COMM_OPC_STATS_64_BIT,
+-				      HCLGE_COMM_OPC_STATS_32_BIT,
+-				      HCLGE_COMM_OPC_STATS_MAC,
+-				      HCLGE_COMM_OPC_STATS_MAC_ALL,
+-				      HCLGE_COMM_OPC_QUERY_32_BIT_REG,
+-				      HCLGE_COMM_OPC_QUERY_64_BIT_REG,
+-				      HCLGE_COMM_QUERY_CLEAR_MPF_RAS_INT,
+-				      HCLGE_COMM_QUERY_CLEAR_PF_RAS_INT,
+-				      HCLGE_COMM_QUERY_CLEAR_ALL_MPF_MSIX_INT,
+-				      HCLGE_COMM_QUERY_CLEAR_ALL_PF_MSIX_INT,
+-				      HCLGE_COMM_QUERY_ALL_ERR_INFO };
+-
+-static const u16 vf_spec_opcode[] = { HCLGE_COMM_OPC_STATS_64_BIT,
+-				      HCLGE_COMM_OPC_STATS_32_BIT,
+-				      HCLGE_COMM_OPC_STATS_MAC };
+-
+-static bool hclge_comm_is_special_opcode(u16 opcode, bool is_pf)
++static const u16 spec_opcode[] = { HCLGE_OPC_STATS_64_BIT,
++				   HCLGE_OPC_STATS_32_BIT,
++				   HCLGE_OPC_STATS_MAC,
++				   HCLGE_OPC_STATS_MAC_ALL,
++				   HCLGE_OPC_QUERY_32_BIT_REG,
++				   HCLGE_OPC_QUERY_64_BIT_REG,
++				   HCLGE_QUERY_CLEAR_MPF_RAS_INT,
++				   HCLGE_QUERY_CLEAR_PF_RAS_INT,
++				   HCLGE_QUERY_CLEAR_ALL_MPF_MSIX_INT,
++				   HCLGE_QUERY_CLEAR_ALL_PF_MSIX_INT,
++				   HCLGE_QUERY_ALL_ERR_INFO };
++
++static bool hclge_comm_is_special_opcode(u16 opcode)
+ {
+ 	/* these commands have several descriptors,
+ 	 * and use the first one to save opcode and return value
+ 	 */
+-	const u16 *spec_opcode = is_pf ? pf_spec_opcode : vf_spec_opcode;
+-	u32 size = is_pf ? ARRAY_SIZE(pf_spec_opcode) :
+-				ARRAY_SIZE(vf_spec_opcode);
++	u32 i;
+ 
+-	return hclge_is_elem_in_array(spec_opcode, size, opcode);
++	for (i = 0; i < ARRAY_SIZE(spec_opcode); i++)
++		if (spec_opcode[i] == opcode)
++			return true;
++
++	return false;
+ }
+ 
+ static int hclge_comm_ring_space(struct hclge_comm_cmq_ring *ring)
+@@ -389,7 +391,7 @@ static int hclge_comm_cmd_convert_err_code(u16 desc_ret)
+ 
+ static int hclge_comm_cmd_check_retval(struct hclge_comm_hw *hw,
+ 				       struct hclge_desc *desc, int num,
+-				       int ntc, bool is_pf)
++				       int ntc)
+ {
+ 	u16 opcode, desc_ret;
+ 	int handle;
+@@ -401,7 +403,7 @@ static int hclge_comm_cmd_check_retval(struct hclge_comm_hw *hw,
+ 		if (ntc >= hw->cmq.csq.desc_num)
+ 			ntc = 0;
+ 	}
+-	if (likely(!hclge_comm_is_special_opcode(opcode, is_pf)))
++	if (likely(!hclge_comm_is_special_opcode(opcode)))
+ 		desc_ret = le16_to_cpu(desc[num - 1].retval);
+ 	else
+ 		desc_ret = le16_to_cpu(desc[0].retval);
+@@ -413,7 +415,7 @@ static int hclge_comm_cmd_check_retval(struct hclge_comm_hw *hw,
+ 
+ static int hclge_comm_cmd_check_result(struct hclge_comm_hw *hw,
+ 				       struct hclge_desc *desc,
+-				       int num, int ntc, bool is_pf)
++				       int num, int ntc)
+ {
+ 	bool is_completed = false;
+ 	int handle, ret;
+@@ -428,7 +430,7 @@ static int hclge_comm_cmd_check_result(struct hclge_comm_hw *hw,
+ 	if (!is_completed)
+ 		ret = -EBADE;
+ 	else
+-		ret = hclge_comm_cmd_check_retval(hw, desc, num, ntc, is_pf);
++		ret = hclge_comm_cmd_check_retval(hw, desc, num, ntc);
+ 
+ 	/* Clean the command send queue */
+ 	handle = hclge_comm_cmd_csq_clean(hw);
+@@ -451,7 +453,7 @@ static int hclge_comm_cmd_check_result(struct hclge_comm_hw *hw,
+  * sends the queue, cleans the queue, etc
+  **/
+ int hclge_comm_cmd_send(struct hclge_comm_hw *hw, struct hclge_desc *desc,
+-			int num, bool is_pf)
++			int num)
+ {
+ 	struct hclge_comm_cmq_ring *csq = &hw->cmq.csq;
+ 	int ret;
+@@ -486,7 +488,7 @@ int hclge_comm_cmd_send(struct hclge_comm_hw *hw, struct hclge_desc *desc,
+ 	hclge_comm_write_dev(hw, HCLGE_COMM_NIC_CSQ_TAIL_REG,
+ 			     hw->cmq.csq.next_to_use);
+ 
+-	ret = hclge_comm_cmd_check_result(hw, desc, num, ntc, is_pf);
++	ret = hclge_comm_cmd_check_result(hw, desc, num, ntc);
+ 
+ 	spin_unlock_bh(&hw->cmq.csq.lock);
+ 
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h
+index 81904010b96b..de9da88134e5 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h
+@@ -5,7 +5,6 @@
+ #define __HCLGE_COMM_CMD_H
+ #include <linux/types.h>
+ 
+-#include "hclge_cmd.h"
+ #include "hnae3.h"
+ 
+ #define HCLGE_COMM_CMD_FLAG_IN			BIT(0)
+@@ -135,6 +134,14 @@ struct hclge_comm_errcode {
+ 	int common_errno;
+ };
+ 
++#define HCLGE_COMM_QUERY_CAP_LENGTH		3
++struct hclge_comm_query_version_cmd {
++	__le32 firmware;
++	__le32 hardware;
++	__le32 api_caps;
++	__le32 caps[HCLGE_COMM_QUERY_CAP_LENGTH]; /* capabilities of device */
++};
++
+ #define HCLGE_DESC_DATA_LEN		6
+ struct hclge_desc {
+ 	__le16 opcode;
+@@ -203,7 +210,7 @@ int hclge_comm_cmd_query_version_and_capability(struct hnae3_ae_dev *ae_dev,
+ 						u32 *fw_version, bool is_pf);
+ int hclge_comm_alloc_cmd_queue(struct hclge_comm_hw *hw, int ring_type);
+ int hclge_comm_cmd_send(struct hclge_comm_hw *hw, struct hclge_desc *desc,
+-			int num, bool is_pf);
++			int num);
+ int hclge_comm_firmware_compat_config(struct hnae3_ae_dev *ae_dev,
+ 				      struct hclge_comm_hw *hw, bool en);
+ void hclge_comm_free_cmd_desc(struct hclge_comm_cmq_ring *ring);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+index c1013b338650..4f93ad1ac62e 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+@@ -18,16 +18,6 @@ static nic_event_fn_t nic_event_call;
+  */
+ static DEFINE_MUTEX(hclge_nic_event_lock);
+ 
+-void hclge_comm_cmd_reuse_desc(struct hclge_desc *desc, bool is_read)
+-{
+-	desc->flag = cpu_to_le16(HCLGE_COMM_CMD_FLAG_NO_INTR |
+-				 HCLGE_COMM_CMD_FLAG_IN);
+-	if (is_read)
+-		desc->flag |= cpu_to_le16(HCLGE_COMM_CMD_FLAG_WR);
+-	else
+-		desc->flag &= cpu_to_le16(~HCLGE_COMM_CMD_FLAG_WR);
+-}
+-
+ static int hclge_clean_stats64(struct hclge_dev *hdev, void *data,
+ 			       size_t length)
+ {
+-- 
+2.34.1
+

@@ -1,0 +1,351 @@
+From bac4441b4906c8d32fbdf1b2fde111a0f6a3b7bf Mon Sep 17 00:00:00 2001
+From: Jiantao Xiao <xiaojiantao1@h-partners.com>
+Date: Fri, 17 Mar 2023 11:49:22 +0800
+Subject: [PATCH 196/283] net: hns3: add support query port ext information
+
+driver inclusion
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN3D
+CVE: NA
+
+----------------------------------------------------------------------
+
+The patch supports the query of port ext information.
+
+Signed-off-by: Jiantao Xiao <xiaojiantao1@h-partners.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
+	drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+---
+ .../net/ethernet/hisilicon/hns3/hnae3_ext.h   |  14 +++
+ .../net/ethernet/hisilicon/hns3/hns3_ext.c    | 111 ++++++++++++++++++
+ .../net/ethernet/hisilicon/hns3/hns3_ext.h    |  13 ++
+ .../hisilicon/hns3/hns3pf/hclge_ext.c         |  91 ++++++++++++++
+ .../hisilicon/hns3/hns3pf/hclge_ext.h         |  21 ++++
+ 5 files changed, 250 insertions(+)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h b/drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h
+index 1cb43732bf3c..baf9dfba872d 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h
+@@ -35,6 +35,9 @@ enum hnae3_ext_opcode {
+ 	HNAE3_EXT_OPC_SET_TORUS_PARAM,
+ 	HNAE3_EXT_OPC_GET_TORUS_PARAM,
+ 	HNAE3_EXT_OPC_CLEAN_STATS64,
++	HNAE3_EXT_OPC_GET_PORT_EXT_ID_INFO,
++	HNAE3_EXT_OPC_GET_PORT_EXT_NUM_INFO,
++	HNAE3_EXT_OPC_GET_PORT_NUM,
+ };
+ 
+ struct hnae3_pfc_storm_para {
+@@ -60,4 +63,15 @@ struct hnae3_torus_param {
+ 	u32 mac_id;       /* export mac id of port */
+ 	u8 is_node0;      /* if current node is node0 */
+ };
++
++struct hane3_port_ext_id_info {
++	u32 chip_id;
++	u32 mac_id;
++	u32 io_die_id;
++};
++
++struct hane3_port_ext_num_info {
++	u32 chip_num;
++	u32 io_die_num;
++};
+ #endif
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
+index 1e1b1fb81f17..889bef7bdb82 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
+@@ -205,3 +205,114 @@ int nic_get_torus_param(struct net_device *ndev,
+ 				  param, sizeof(*param));
+ }
+ EXPORT_SYMBOL(nic_get_torus_param);
++static int nic_get_ext_id_info(struct net_device *ndev,
++			       struct hane3_port_ext_id_info *id_info)
++{
++	return nic_invoke_pri_ops(ndev, HNAE3_EXT_OPC_GET_PORT_EXT_ID_INFO,
++				  id_info, sizeof(*id_info));
++}
++
++int nic_get_chipid(struct net_device *ndev, u32 *chip_id)
++{
++	struct hane3_port_ext_id_info info;
++	int ret;
++
++	if (!chip_id)
++		return -EINVAL;
++
++	ret = nic_get_ext_id_info(ndev, &info);
++	if (ret)
++		return ret;
++
++	*chip_id = info.chip_id;
++	return 0;
++}
++EXPORT_SYMBOL(nic_get_chipid);
++
++int nic_get_mac_id(struct net_device *ndev, u32 *mac_id)
++{
++	struct hane3_port_ext_id_info info;
++	int ret;
++
++	if (!mac_id)
++		return -EINVAL;
++
++	ret = nic_get_ext_id_info(ndev, &info);
++	if (ret)
++		return ret;
++
++	*mac_id = info.mac_id;
++	return 0;
++}
++EXPORT_SYMBOL(nic_get_mac_id);
++
++int nic_get_io_die_id(struct net_device *ndev, u32 *io_die_id)
++{
++	struct hane3_port_ext_id_info info;
++	int ret;
++
++	if (!io_die_id)
++		return -EINVAL;
++
++	ret = nic_get_ext_id_info(ndev, &info);
++	if (ret)
++		return ret;
++
++	*io_die_id = info.io_die_id;
++	return 0;
++}
++EXPORT_SYMBOL(nic_get_io_die_id);
++
++static int nic_get_ext_num_info(struct net_device *ndev,
++				struct hane3_port_ext_num_info *num_info)
++{
++	return nic_invoke_pri_ops(ndev, HNAE3_EXT_OPC_GET_PORT_EXT_NUM_INFO,
++				  num_info, sizeof(*num_info));
++}
++
++int nic_get_chip_num(struct net_device *ndev, u32 *chip_num)
++{
++	struct hane3_port_ext_num_info info;
++	int ret;
++
++	if (!chip_num)
++		return -EINVAL;
++
++	ret = nic_get_ext_num_info(ndev, &info);
++	if (ret)
++		return ret;
++
++	*chip_num = info.chip_num;
++	return 0;
++}
++EXPORT_SYMBOL(nic_get_chip_num);
++
++int nic_get_io_die_num(struct net_device *ndev, u32 *io_die_num)
++{
++	struct hane3_port_ext_num_info info;
++	int ret;
++
++	if (!io_die_num)
++		return -EINVAL;
++
++	ret = nic_get_ext_num_info(ndev, &info);
++	if (ret)
++		return ret;
++
++	*io_die_num = info.io_die_num;
++	return 0;
++}
++EXPORT_SYMBOL(nic_get_io_die_num);
++
++int nic_get_port_num_of_die(struct net_device *ndev, u32 *port_num)
++{
++	return nic_invoke_pri_ops(ndev, HNAE3_EXT_OPC_GET_PORT_NUM,
++				  port_num, sizeof(*port_num));
++}
++EXPORT_SYMBOL(nic_get_port_num_of_die);
++
++int nic_get_port_num_per_chip(struct net_device *ndev, u32 *port_num)
++{
++	return nic_get_port_num_of_die(ndev, port_num);
++}
++EXPORT_SYMBOL(nic_get_port_num_per_chip);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+index 1a8573efa642..239293ace01e 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+@@ -19,4 +19,17 @@ int nic_set_torus_param(struct net_device *ndev,
+ 			struct hnae3_torus_param *param);
+ int nic_get_torus_param(struct net_device *ndev,
+ 			struct hnae3_torus_param *param);
++int nic_set_torus_param(struct net_device *ndev,
++			struct hnae3_torus_param *param);
++int nic_get_torus_param(struct net_device *ndev,
++			struct hnae3_torus_param *param);
++int nic_clean_stats64(struct net_device *ndev, struct rtnl_link_stats64 *stats);
++int nic_set_cpu_affinity(struct net_device *ndev, cpumask_t *affinity_mask);
++int nic_get_chipid(struct net_device *ndev, u32 *chip_id);
++int nic_get_mac_id(struct net_device *ndev, u32 *mac_id);
++int nic_get_io_die_id(struct net_device *ndev, u32 *io_die_id);
++int nic_get_chip_num(struct net_device *ndev, u32 *chip_num);
++int nic_get_io_die_num(struct net_device *ndev, u32 *io_die_num);
++int nic_get_port_num_of_die(struct net_device *ndev, u32 *port_num);
++int nic_get_port_num_per_chip(struct net_device *ndev, u32 *port_num);
+ #endif
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+index 8097f7079760..635f66dc37b1 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+@@ -306,6 +306,94 @@ static int hclge_get_torus_param(struct hclge_dev *hdev, void *data,
+ 	return 0;
+ }
+ 
++static int hclge_get_info_from_cmd(struct hclge_dev *hdev,
++				   struct hclge_desc *desc, u32 num, int opcode)
++{
++	u32 i;
++
++	for (i = 0; i < num; i++) {
++		hclge_cmd_setup_basic_desc(desc + i, opcode, true);
++		if (i != num - 1)
++			desc[i].flag |= cpu_to_le16(HCLGE_COMM_CMD_FLAG_NEXT);
++	}
++
++	return hclge_cmd_send(&hdev->hw, desc, num);
++}
++
++static int hclge_get_extend_port_id_info(struct hclge_dev *hdev,
++					 void *data, size_t length)
++{
++	struct hane3_port_ext_id_info *info;
++	struct hclge_id_info_cmd *info_cmd;
++	struct hclge_desc desc;
++	int ret;
++
++	if (length != sizeof(struct hane3_port_ext_id_info))
++		return -EINVAL;
++
++	ret = hclge_get_info_from_cmd(hdev, &desc, 1, HCLGE_OPC_CHIP_ID_GET);
++	if (ret) {
++		dev_err(&hdev->pdev->dev,
++			"failed to get extend port id info, ret = %d\n",
++			ret);
++		return ret;
++	}
++
++	info_cmd = (struct hclge_id_info_cmd *)desc.data;
++	info = (struct hane3_port_ext_id_info *)data;
++	info->chip_id = le32_to_cpu(info_cmd->chip_id);
++	info->mac_id = le32_to_cpu(info_cmd->mac_id);
++	info->io_die_id = le32_to_cpu(info_cmd->io_die_id);
++	return 0;
++}
++
++static int hclge_get_extend_port_num_info(struct hclge_dev *hdev,
++					  void *data, size_t length)
++{
++	struct hane3_port_ext_num_info *num_info;
++	struct hclge_num_info_cmd *resp;
++	struct hclge_desc desc;
++	int ret;
++
++	if (length != sizeof(struct hane3_port_ext_num_info))
++		return -EINVAL;
++
++	ret = hclge_get_info_from_cmd(hdev, &desc, 1, HCLGE_OPC_GET_CHIP_NUM);
++	if (ret) {
++		dev_err(&hdev->pdev->dev,
++			"failed to get extend port number info, ret = %d\n", ret);
++		return ret;
++	}
++
++	resp = (struct hclge_num_info_cmd *)(desc.data);
++	num_info = (struct hane3_port_ext_num_info *)data;
++	num_info->chip_num = le32_to_cpu(resp->chip_num);
++	num_info->io_die_num = le32_to_cpu(resp->io_die_num);
++	return 0;
++}
++
++static int hclge_get_port_num(struct hclge_dev *hdev, void *data,
++			      size_t length)
++{
++	struct hclge_port_num_info_cmd *resp;
++	struct hclge_desc desc;
++	int ret;
++
++	if (length != sizeof(u32))
++		return -EINVAL;
++
++	ret = hclge_get_info_from_cmd(hdev, &desc, 1, HCLGE_OPC_GET_PORT_NUM);
++	if (ret) {
++		dev_err(&hdev->pdev->dev,
++			"failed to get port number, ret = %d\n", ret);
++		return ret;
++	}
++
++	resp = (struct hclge_port_num_info_cmd *)(desc.data);
++	*(u32 *)data = le32_to_cpu(resp->port_num);
++	return 0;
++}
++
+ static void hclge_ext_resotre_config(struct hclge_dev *hdev)
+ {
+ 	if (hdev->reset_type != HNAE3_IMP_RESET &&
+@@ -462,6 +550,9 @@ static const hclge_priv_ops_fn hclge_ext_func_arr[] = {
+ 	[HNAE3_EXT_OPC_SET_NOTIFY_START] = hclge_set_notify_packet_start,
+ 	[HNAE3_EXT_OPC_SET_TORUS_PARAM] = hclge_set_torus_param,
+ 	[HNAE3_EXT_OPC_GET_TORUS_PARAM] = hclge_get_torus_param,
++	[HNAE3_EXT_OPC_GET_PORT_EXT_ID_INFO] = hclge_get_extend_port_id_info,
++	[HNAE3_EXT_OPC_GET_PORT_EXT_NUM_INFO] = hclge_get_extend_port_num_info,
++	[HNAE3_EXT_OPC_GET_PORT_NUM] = hclge_get_port_num,
+ };
+ 
+ int hclge_ext_ops_handle(struct hnae3_handle *handle, int opcode,
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h
+index abdb00e78fc3..f840129572c8 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h
+@@ -27,6 +27,24 @@
+ 
+ #define HCLGE_TOURS_TCX_MAP_TCY_MASK 0x1c71c7
+ 
++struct hclge_id_info_cmd {
++	__le32 chip_id;
++	__le32 mac_id;
++	__le32 io_die_id;
++	u8 rsv[12];
++};
++
++struct hclge_num_info_cmd {
++	__le32 chip_num;
++	__le32 io_die_num;
++	u8 rsv[16];
++};
++
++struct hclge_port_num_info_cmd {
++	__le32 port_num;
++	u8 rsv[20];
++};
++
+ struct hclge_pfc_storm_para_cmd {
+ 	__le32 dir;
+ 	__le32 enable;
+@@ -60,6 +78,9 @@ enum hclge_ext_opcode_type {
+ 	HCLGE_OPC_CONFIG_VLAN_FILTER = 0x1100,
+ 	HCLGE_OPC_SET_NOTIFY_PKT = 0x180A,
+ 	HCLGE_OPC_CONFIG_1D_TORUS = 0x2300,
++	HCLGE_OPC_CHIP_ID_GET = 0x7003,
++	HCLGE_OPC_GET_CHIP_NUM = 0x7005,
++	HCLGE_OPC_GET_PORT_NUM = 0x7006,
+ 	HCLGE_OPC_CFG_PAUSE_STORM_PARA = 0x7019,
+ };
+ 
+-- 
+2.34.1
+

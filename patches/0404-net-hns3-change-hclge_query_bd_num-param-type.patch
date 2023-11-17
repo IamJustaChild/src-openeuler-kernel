@@ -1,0 +1,56 @@
+From 789c7d8513f196c27f42ef08e98719743c0d95bb Mon Sep 17 00:00:00 2001
+From: Peng Li <lipeng321@huawei.com>
+Date: Sat, 24 Jul 2021 15:43:27 +0800
+Subject: [PATCH 043/283] net: hns3: change hclge_query_bd_num() param type
+
+mainline inclusion
+from mainline-v5.12-rc1-dontuse
+commit cad8dfe82a9eb8d889cc550ceb8e61112376ae6f
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMQV
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=cad8dfe82a9eb8d889cc550ceb8e61112376ae6f
+
+----------------------------------------------------------------------
+
+The type of parameter mpf_bd_num and pf_bd_num in
+hclge_query_bd_num() should be u32* instead of int*,
+so change them.
+
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c
+index 55990ba4b30e..9265243fbb84 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c
+@@ -1074,7 +1074,7 @@ static int hclge_config_ssu_hw_err_int(struct hclge_dev *hdev, bool en)
+  * This function querys number of mpf and pf buffer descriptors.
+  */
+ static int hclge_query_bd_num(struct hclge_dev *hdev, bool is_ras,
+-			      int *mpf_bd_num, int *pf_bd_num)
++			      u32 *mpf_bd_num, u32 *pf_bd_num)
+ {
+ 	struct device *dev = &hdev->pdev->dev;
+ 	u32 mpf_min_bd_num, pf_min_bd_num;
+@@ -1103,7 +1103,7 @@ static int hclge_query_bd_num(struct hclge_dev *hdev, bool is_ras,
+ 	*mpf_bd_num = le32_to_cpu(desc_bd.data[0]);
+ 	*pf_bd_num = le32_to_cpu(desc_bd.data[1]);
+ 	if (*mpf_bd_num < mpf_min_bd_num || *pf_bd_num < pf_min_bd_num) {
+-		dev_err(dev, "Invalid bd num: mpf(%d), pf(%d)\n",
++		dev_err(dev, "Invalid bd num: mpf(%u), pf(%u)\n",
+ 			*mpf_bd_num, *pf_bd_num);
+ 		return -EINVAL;
+ 	}
+-- 
+2.34.1
+
