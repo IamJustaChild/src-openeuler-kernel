@@ -1,0 +1,776 @@
+From 4a236e9c4f8e24770ebec17387366b5bf40f4902 Mon Sep 17 00:00:00 2001
+From: Jian Shen <shenjian15@huawei.com>
+Date: Sun, 23 Apr 2023 16:44:38 +0800
+Subject: [PATCH 207/283] net: hns3: add extend interface support for read and
+ write phy register
+
+driver inclusion
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN3D
+CVE: NA
+
+----------------------------------------------------------------------
+
+Add extend interface support for read and write
+phy register with page. Sofar it supports only
+Phy RTL8211 and YT8521.
+
+Signed-off-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: Jiantao Xiao <xiaojiantao1@h-partners.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+---
+ .../net/ethernet/hisilicon/hns3/hnae3_ext.h   |   9 +
+ .../net/ethernet/hisilicon/hns3/hns3_ext.c    |  36 ++
+ .../net/ethernet/hisilicon/hns3/hns3_ext.h    |  11 +
+ .../hisilicon/hns3/hns3pf/hclge_cmd.h         |   8 +-
+ .../hisilicon/hns3/hns3pf/hclge_ext.c         | 559 ++++++++++++++++++
+ .../hisilicon/hns3/hns3pf/hclge_ext.h         |  32 +
+ 6 files changed, 654 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h b/drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h
+index 6b1b5c630260..a9503e89263d 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h
+@@ -50,6 +50,8 @@ enum hnae3_ext_opcode {
+ 	HNAE3_EXT_OPC_SET_MAC_STATE,
+ 	HNAE3_EXT_OPC_SET_LED,
+ 	HNAE3_EXT_OPC_GET_LED_SIGNAL,
++	HNAE3_EXT_OPC_GET_PHY_REG,
++	HNAE3_EXT_OPC_SET_PHY_REG,
+ };
+ 
+ struct hnae3_led_state_para {
+@@ -57,6 +59,13 @@ struct hnae3_led_state_para {
+ 	u32 status;
+ };
+ 
++struct hnae3_phy_para {
++	u32 page_select_addr;
++	u32 reg_addr;
++	u16 page;
++	u16 data;
++};
++
+ struct hnae3_lamp_signal {
+ 	u8 error;
+ 	u8 locate;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
+index 64ad9be4ec4f..39bd51e93ddb 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
+@@ -430,3 +430,39 @@ int nic_get_led_signal(struct net_device *ndev,
+ 				  signal, sizeof(*signal));
+ }
+ EXPORT_SYMBOL(nic_get_led_signal);
++
++int nic_get_phy_reg(struct net_device *ndev, u32 page_select_addr,
++		    u16 page, u32 reg_addr, u16 *data)
++{
++	struct hnae3_phy_para para;
++	int ret;
++
++	if (!data)
++		return -EINVAL;
++
++	para.page_select_addr = page_select_addr;
++	para.page = page;
++	para.reg_addr = reg_addr;
++	ret = nic_invoke_pri_ops(ndev, HNAE3_EXT_OPC_GET_PHY_REG,
++				 &para, sizeof(para));
++	if (ret)
++		return ret;
++
++	*data = para.data;
++	return 0;
++}
++EXPORT_SYMBOL(nic_get_phy_reg);
++
++int nic_set_phy_reg(struct net_device *ndev, u32 page_select_addr,
++		    u16 page, u32 reg_addr, u16 data)
++{
++	struct hnae3_phy_para para;
++
++	para.page_select_addr = page_select_addr;
++	para.page = page;
++	para.reg_addr = reg_addr;
++	para.data = data;
++	return nic_invoke_pri_ops(ndev, HNAE3_EXT_OPC_SET_PHY_REG,
++				  &para, sizeof(para));
++}
++EXPORT_SYMBOL(nic_set_phy_reg);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+index f47c05c2c660..d9c107f5e231 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+@@ -14,6 +14,13 @@
+ #define HNS3_PFC_STORM_PARA_PERIOD_MIN 5
+ #define HNS3_PFC_STORM_PARA_PERIOD_MAX 2000
+ 
++#define nic_set_8211_phy_reg nic_set_phy_reg
++#define nic_get_8211_phy_reg nic_get_phy_reg
++#define nic_set_8521_phy_reg(ndev, page_region, page, reg_addr, data) \
++	nic_set_phy_reg(ndev, 0, page_region, page, reg_addr, data)
++#define nic_get_8521_phy_reg(ndev, page_region, page, reg_addr, data) \
++	nic_get_phy_reg(ndev, 0, page_region, page, reg_addr, data)
++
+ #define nic_get_cdr_flash_status(ndev, status)	\
+ 	nic_get_port_fault_status(ndev, HNAE3_FAULT_TYPE_CDR_FLASH, status)
+ #define nic_get_hilink_ref_los(ndev, status)	\
+@@ -58,4 +65,8 @@ int nic_set_mac_state(struct net_device *ndev, int enable);
+ int nic_set_led(struct net_device *ndev, int type, int status);
+ int nic_get_led_signal(struct net_device *ndev,
+ 		       struct hnae3_lamp_signal *signal);
++int nic_get_phy_reg(struct net_device *ndev, u32 page_select_addr,
++		    u16 page, u32 reg_addr, u16 *data);
++int nic_set_phy_reg(struct net_device *ndev, u32 page_select_addr,
++		    u16 page, u32 reg_addr, u16 data);
+ #endif
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+index 07e20ed0106c..a4599f717da5 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+@@ -1250,11 +1250,17 @@ struct hclge_phy_link_ksetting_1_cmd {
+ 	u8 rsv[22];
+ };
+ 
++#define HCLGE_PHY_RW_DIRECTLY	0
++#define HCLGE_PHY_RW_WITH_PAGE	1
+ struct hclge_phy_reg_cmd {
+ 	__le16 reg_addr;
+ 	u8 rsv0[2];
+ 	__le16 reg_val;
+-	u8 rsv1[18];
++	u8 rsv1[2];
++	u8 type;
++	u8 dev_addr;
++	__le16 page;
++	u8 rsv2[12];
+ };
+ 
+ /* capabilities bits map between imp firmware and local driver */
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+index 4ef891d9613a..c1013b338650 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+@@ -688,6 +688,563 @@ static int hclge_get_led_signal(struct hclge_dev *hdev, void *data,
+ 	return 0;
+ }
+ 
++static int hclge_def_phy_opt(struct mii_bus *mdio_bus, u32 phy_addr,
++			     u16 reg_addr, u16 *data,
++			     enum hclge_phy_op_code opt_type)
++{
++	int ret;
++
++	if (opt_type == PHY_OP_READ) {
++		ret = mdio_bus->read(mdio_bus, phy_addr, reg_addr);
++		if (ret >= 0) {
++			*data = (u16)ret;
++			ret = 0;
++		}
++	} else {
++		ret = mdio_bus->write(mdio_bus, phy_addr, reg_addr, *data);
++	}
++	return ret;
++}
++
++static int hclge_phy_reg_opt(struct hclge_dev *hdev,
++			     struct hnae3_phy_para *para,
++			     enum hclge_phy_op_code opt_type)
++{
++	struct mii_bus *mdio_bus = hdev->hw.mac.mdio_bus;
++	u32 phy_addr = hdev->hw.mac.phy_addr;
++	bool need_page_select = false;
++	u16 cur_page;
++	int ret;
++
++	/* operate flow:
++	 * 1 record current page addr
++	 * 2 jump to operated page
++	 * 3 operate register(read or write)
++	 * 4 come back to the page recorded in the first step.
++	 */
++	mutex_lock(&mdio_bus->mdio_lock);
++
++	/* check if page select is needed and record current page addr.
++	 * no need to change page when read page 0
++	 */
++	if (opt_type != PHY_OP_READ || para->page != 0) {
++		ret = mdio_bus->read(mdio_bus, phy_addr,
++				     para->page_select_addr);
++		if (ret < 0) {
++			dev_err(&hdev->pdev->dev,
++				"failed to read current phy %u reg page\n",
++				phy_addr);
++			mutex_unlock(&mdio_bus->mdio_lock);
++			return ret;
++		}
++		cur_page = (u16)ret;
++		need_page_select = cur_page != para->page;
++	}
++
++	/* jump to operated page */
++	if (need_page_select) {
++		ret = mdio_bus->write(mdio_bus, phy_addr,
++				      para->page_select_addr, para->page);
++		if (ret < 0) {
++			mutex_unlock(&mdio_bus->mdio_lock);
++			dev_err(&hdev->pdev->dev,
++				"failed to change phy %u page %u to page %u\n",
++				phy_addr, cur_page, para->page);
++			return ret;
++		}
++	}
++
++	/* operate register(read or write) */
++	ret = hclge_def_phy_opt(mdio_bus, phy_addr, para->reg_addr, &para->data,
++				opt_type);
++	if (ret < 0)
++		dev_err(&hdev->pdev->dev,
++			"failed to %s phy %u page %u reg %u\n, ret = %d",
++			opt_type == PHY_OP_READ ? "read" : "write",
++			phy_addr, para->page, para->reg_addr, ret);
++
++	/* come back to the page recorded in the first step. */
++	if (need_page_select) {
++		ret = mdio_bus->write(mdio_bus, phy_addr,
++				      para->page_select_addr, cur_page);
++		if (ret < 0)
++			dev_err(&hdev->pdev->dev,
++				"failed to restore phy %u reg page %u\n",
++				phy_addr, cur_page);
++	}
++
++	mutex_unlock(&mdio_bus->mdio_lock);
++
++	return ret;
++}
++
++static int hclge_8521_phy_ext_opt(struct mii_bus *mdio_bus, u32 phy_addr,
++				  u16 reg_addr, u16 *data,
++				  enum hclge_phy_op_code opt_type)
++{
++#define EXT_REG_ADDR 0x1e
++#define EXT_DATA_ADDR 0x1f
++	int ret;
++
++	ret = mdio_bus->write(mdio_bus, phy_addr, EXT_REG_ADDR, reg_addr);
++	if (ret < 0)
++		return ret;
++
++	return hclge_def_phy_opt(mdio_bus, phy_addr, EXT_DATA_ADDR, data,
++				 opt_type);
++}
++
++static int hclge_8521_phy_mmd_opt(struct mii_bus *mdio_bus, u32 phy_addr,
++				  u32 reg_addr, u16 *data,
++				  enum hclge_phy_op_code opt_type)
++{
++#define MMD_REG_ADDR 0xd
++#define MMD_DATA_ADDR 0xe
++	u16 mmd_index;
++	u16 mmd_reg;
++	int ret;
++
++	mmd_index = reg_addr >> 16U;
++	mmd_reg = reg_addr & 0xFFFF;
++
++	ret = mdio_bus->write(mdio_bus, phy_addr, MMD_REG_ADDR, mmd_index);
++	if (ret < 0)
++		return ret;
++	ret = mdio_bus->write(mdio_bus, phy_addr, MMD_DATA_ADDR, mmd_reg);
++	if (ret < 0)
++		return ret;
++	ret = mdio_bus->write(mdio_bus, phy_addr, MMD_REG_ADDR,
++			      mmd_index | 0x4000);
++	if (ret < 0)
++		return ret;
++
++	return hclge_def_phy_opt(mdio_bus, phy_addr, MMD_DATA_ADDR, data,
++				 opt_type);
++}
++
++static void hclge_8521_phy_restores_to_utp_mii(struct hclge_dev *hdev,
++					       struct mii_bus *mdio_bus,
++					       u32 phy_addr)
++{
++	u16 phy_mii_region_val = 0x6;
++	u16 utp_region_val = 0x0;
++	int ret;
++
++	ret = hclge_8521_phy_ext_opt(mdio_bus, phy_addr,
++				     HCLGE_8521_PHY_SMI_SDS_ADDR,
++				     &utp_region_val, PHY_OP_WRITE);
++	if (ret)
++		dev_err(&hdev->pdev->dev,
++			"failed to choose phy space, ret = %d\n", ret);
++
++	ret = hclge_8521_phy_ext_opt(mdio_bus, phy_addr,
++				     HCLGE_8521_PHY_LDS_MII_ADDR,
++				     &phy_mii_region_val, PHY_OP_WRITE);
++	if (ret)
++		dev_err(&hdev->pdev->dev,
++			"failed to choose phy MII, ret = %d\n", ret);
++}
++
++static int hclge_8521_phy_utp_mii_opt(struct hnae3_phy_para *para,
++				      struct mii_bus *mdio_bus, u32 phy_addr,
++				      enum hclge_phy_op_code opt_type)
++{
++	u16 phy_mii_region_val = 0x6;
++	u16 utp_region_val = 0x0;
++	int ret;
++
++	ret = hclge_8521_phy_ext_opt(mdio_bus, phy_addr,
++				     HCLGE_8521_PHY_SMI_SDS_ADDR,
++				     &utp_region_val, PHY_OP_WRITE);
++	if (ret)
++		return ret;
++
++	ret = hclge_8521_phy_ext_opt(mdio_bus, phy_addr,
++				     HCLGE_8521_PHY_LDS_MII_ADDR,
++				     &phy_mii_region_val, PHY_OP_WRITE);
++	if (ret)
++		return ret;
++
++	return hclge_def_phy_opt(mdio_bus, phy_addr, (u16)para->reg_addr,
++				 &para->data, opt_type);
++}
++
++static int hclge_8521_phy_utp_mmd_opt(struct hnae3_phy_para *para,
++				      struct mii_bus *mdio_bus, u32 phy_addr,
++				      enum hclge_phy_op_code opt_type)
++{
++	u16 utp_region_val = 0x0;
++	int ret;
++
++	ret = hclge_8521_phy_ext_opt(mdio_bus, phy_addr,
++				     HCLGE_8521_PHY_SMI_SDS_ADDR,
++				     &utp_region_val, PHY_OP_WRITE);
++	if (ret)
++		return ret;
++
++	return hclge_8521_phy_mmd_opt(mdio_bus, phy_addr, para->reg_addr,
++				      &para->data, opt_type);
++}
++
++static int hclge_8521_phy_utp_lds_opt(struct hnae3_phy_para *para,
++				      struct mii_bus *mdio_bus, u32 phy_addr,
++				      enum hclge_phy_op_code opt_type)
++{
++	u16 lds_mii_region_val = 0x4;
++	u16 utp_region_val = 0x0;
++	int ret;
++
++	ret = hclge_8521_phy_ext_opt(mdio_bus, phy_addr,
++				     HCLGE_8521_PHY_SMI_SDS_ADDR,
++				     &utp_region_val, PHY_OP_WRITE);
++	if (ret)
++		return ret;
++
++	ret = hclge_8521_phy_ext_opt(mdio_bus, phy_addr,
++				     HCLGE_8521_PHY_LDS_MII_ADDR,
++				     &lds_mii_region_val, PHY_OP_WRITE);
++	if (ret)
++		return ret;
++
++	return hclge_def_phy_opt(mdio_bus, phy_addr, (u16)para->reg_addr,
++				 &para->data, opt_type);
++}
++
++static int hclge_8521_phy_utp_ext_opt(struct hnae3_phy_para *para,
++				      struct mii_bus *mdio_bus, u32 phy_addr,
++				      enum hclge_phy_op_code opt_type)
++{
++	u16 utp_region_val = 0x0;
++	int ret;
++
++	ret = hclge_8521_phy_ext_opt(mdio_bus, phy_addr,
++				     HCLGE_8521_PHY_SMI_SDS_ADDR,
++				     &utp_region_val, PHY_OP_WRITE);
++	if (ret)
++		return ret;
++
++	return hclge_8521_phy_ext_opt(mdio_bus, phy_addr, (u16)para->reg_addr,
++				      &para->data, opt_type);
++}
++
++static int hclge_8521_phy_sds_mii_opt(struct hnae3_phy_para *para,
++				      struct mii_bus *mdio_bus, u32 phy_addr,
++				      enum hclge_phy_op_code opt_type)
++{
++	u16 sds_region_val = 0x2;
++	int ret;
++
++	ret = hclge_8521_phy_ext_opt(mdio_bus, phy_addr,
++				     HCLGE_8521_PHY_SMI_SDS_ADDR,
++				     &sds_region_val, PHY_OP_WRITE);
++	if (ret)
++		return ret;
++
++	return hclge_def_phy_opt(mdio_bus, phy_addr, (u16)para->reg_addr,
++				 &para->data, opt_type);
++}
++
++static int hclge_8521_phy_sds_ext_opt(struct hnae3_phy_para *para,
++				      struct mii_bus *mdio_bus, u32 phy_addr,
++				      enum hclge_phy_op_code opt_type)
++{
++	u16 sds_region_val = 0x2;
++	int ret;
++
++	ret = hclge_8521_phy_ext_opt(mdio_bus, phy_addr,
++				     HCLGE_8521_PHY_SMI_SDS_ADDR,
++				     &sds_region_val, PHY_OP_WRITE);
++	if (ret)
++		return ret;
++
++	return hclge_8521_phy_ext_opt(mdio_bus, phy_addr, (u16)para->reg_addr,
++				      &para->data, opt_type);
++}
++
++static int hclge_8521_phy_opt(struct hclge_dev *hdev,
++			      struct hnae3_phy_para *para,
++			      enum hclge_phy_op_code opt_type)
++{
++	struct mii_bus *mdio_bus = hdev->hw.mac.mdio_bus;
++	u32 phy_addr = hdev->hw.mac.phy_addr;
++	int ret;
++
++	mutex_lock(&mdio_bus->mdio_lock);
++	switch (para->page) {
++	case HCLGE_PHY_REGION_UTP_MII:
++		ret = hclge_8521_phy_utp_mii_opt(para, mdio_bus,
++						 phy_addr, opt_type);
++		break;
++	case HCLGE_PHY_REGION_UTP_MMD:
++		ret = hclge_8521_phy_utp_mmd_opt(para, mdio_bus,
++						 phy_addr, opt_type);
++		break;
++	case HCLGE_PHY_REGION_UTP_LDS:
++		ret = hclge_8521_phy_utp_lds_opt(para, mdio_bus,
++						 phy_addr, opt_type);
++		break;
++	case HCLGE_PHY_REGION_UTP_EXT:
++		ret = hclge_8521_phy_utp_ext_opt(para, mdio_bus,
++						 phy_addr, opt_type);
++		break;
++	case HCLGE_PHY_REGION_SDS_MII:
++		ret = hclge_8521_phy_sds_mii_opt(para, mdio_bus,
++						 phy_addr, opt_type);
++		break;
++	case HCLGE_PHY_REGION_SDS_EXT:
++		ret = hclge_8521_phy_sds_ext_opt(para, mdio_bus,
++						 phy_addr, opt_type);
++		break;
++	case HCLGE_PHY_REGION_COM_REG:
++		ret = hclge_8521_phy_ext_opt(mdio_bus, phy_addr,
++					     (u16)para->reg_addr,
++					     &para->data, opt_type);
++		break;
++	default:
++		dev_err(&hdev->pdev->dev, "invalid reg region: %d\n",
++			para->page);
++		mutex_unlock(&mdio_bus->mdio_lock);
++		return -EINVAL;
++	}
++
++	if (ret)
++		dev_err(&hdev->pdev->dev,
++			"phy operation failed %d, reg_region: %d, data: 0x%x\n",
++			ret, para->page, para->data);
++
++	/* Set the region to UTP MII after operating the 8521 phy register */
++	hclge_8521_phy_restores_to_utp_mii(hdev, mdio_bus, phy_addr);
++	mutex_unlock(&mdio_bus->mdio_lock);
++	return ret;
++}
++
++static int hclge_check_phy_opt_param(struct hclge_dev *hdev, void *data,
++				     size_t length)
++{
++	struct hnae3_phy_para *para = (struct hnae3_phy_para *)data;
++	struct hclge_mac *mac = &hdev->hw.mac;
++
++	if (length != sizeof(*para))
++		return -EINVAL;
++
++	if (mac->media_type != HNAE3_MEDIA_TYPE_COPPER) {
++		dev_err(&hdev->pdev->dev, "this is not a copper port");
++		return -EOPNOTSUPP;
++	}
++
++	if (hnae3_dev_phy_imp_supported(hdev))
++		return 0;
++
++	if (!mac->phydev) {
++		dev_err(&hdev->pdev->dev, "this net device has no phy");
++		return -EINVAL;
++	}
++
++	if (!mac->mdio_bus) {
++		dev_err(&hdev->pdev->dev, "this net device has no mdio bus");
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
++static int hclge_8211_phy_indirect_opt(struct hclge_dev *hdev,
++				       struct hnae3_phy_para *para,
++				       struct mii_bus *mdio_bus, u32 phy_addr,
++				       enum hclge_phy_op_code opt_type)
++{
++	u32 indirect_reg_data;
++	int ret;
++
++	/* select indirect page 0xa43 */
++	ret = mdio_bus->write(mdio_bus, phy_addr, para->page_select_addr,
++			      HCLGE_8211_PHY_INDIRECT_PAGE);
++	if (ret < 0) {
++		dev_err(&hdev->pdev->dev,
++			"failed to change phy %u indirect page 0xa43\n",
++			phy_addr);
++		return ret;
++	}
++	/* indirect access addr = page_no*16 + 2*(reg_no%16) */
++	indirect_reg_data = (para->page << 4) + ((para->reg_addr % 16) << 1);
++	ret = mdio_bus->write(mdio_bus, phy_addr, HCLGE_8211_PHY_INDIRECT_REG,
++			      indirect_reg_data);
++	if (ret < 0) {
++		dev_err(&hdev->pdev->dev,
++			"failed to write phy %u indirect reg\n", phy_addr);
++		return ret;
++	}
++
++	ret = hclge_def_phy_opt(mdio_bus, phy_addr,
++				HCLGE_8211_PHY_INDIRECT_DATA, &para->data,
++				opt_type);
++	if (ret < 0)
++		dev_err(&hdev->pdev->dev,
++			"failed to %s phy %u indirect data\n, ret = %d",
++			opt_type == PHY_OP_READ ? "read" : "write",
++			phy_addr, ret);
++
++	return ret;
++}
++
++static int hclge_8211_phy_need_indirect_access(u16 page)
++{
++	if (page >= HCLGE_8211_PHY_INDIRECT_RANGE1_S &&
++	    page <= HCLGE_8211_PHY_INDIRECT_RANGE1_E)
++		return true;
++	else if (page >= HCLGE_8211_PHY_INDIRECT_RANGE2_S &&
++		 page <= HCLGE_8211_PHY_INDIRECT_RANGE2_E)
++		return true;
++
++	return false;
++}
++
++static int hclge_8211_phy_reg_opt(struct hclge_dev *hdev,
++				  struct hnae3_phy_para *para,
++				  enum hclge_phy_op_code opt_type)
++{
++	struct mii_bus *mdio_bus = hdev->hw.mac.mdio_bus;
++	u32 phy_addr = hdev->hw.mac.phy_addr;
++	u16 save_page;
++	int ret;
++
++	mutex_lock(&mdio_bus->mdio_lock);
++	ret = mdio_bus->read(mdio_bus, phy_addr, para->page_select_addr);
++	if (ret < 0) {
++		dev_err(&hdev->pdev->dev,
++			"failed to record phy %u reg page\n", phy_addr);
++		mutex_unlock(&mdio_bus->mdio_lock);
++		return ret;
++	}
++	save_page = ret;
++	ret = hclge_8211_phy_indirect_opt(hdev, para, mdio_bus, phy_addr,
++					  opt_type);
++	if (ret)
++		dev_err(&hdev->pdev->dev,
++			"failed to indirect access 8211 phy %u\n", phy_addr);
++	ret = mdio_bus->write(mdio_bus, phy_addr, para->page_select_addr,
++			      save_page);
++	if (ret < 0)
++		dev_err(&hdev->pdev->dev,
++			"failed to restore phy %u reg page %u\n",
++			phy_addr, save_page);
++	mutex_unlock(&mdio_bus->mdio_lock);
++
++	return ret;
++}
++
++static int hclge_rw_8211_phy_reg(struct hclge_dev *hdev,
++				 struct hnae3_phy_para *para,
++				 enum hclge_phy_op_code opt_type)
++{
++	if (hclge_8211_phy_need_indirect_access(para->page))
++		return hclge_8211_phy_reg_opt(hdev, para, opt_type);
++
++	return hclge_phy_reg_opt(hdev, para, opt_type);
++}
++
++/* used when imp support phy drvier */
++static int hclge_read_phy_reg_with_page(struct hclge_dev *hdev, u16 page,
++					u16 reg_addr, u16 *val)
++{
++	struct hclge_phy_reg_cmd *req;
++	struct hclge_desc desc;
++	int ret;
++
++	hclge_cmd_setup_basic_desc(&desc, HCLGE_OPC_PHY_REG, true);
++
++	req = (struct hclge_phy_reg_cmd *)desc.data;
++	req->reg_addr = cpu_to_le16(reg_addr);
++	req->type = HCLGE_PHY_RW_WITH_PAGE;
++	req->page = cpu_to_le16(page);
++
++	ret = hclge_cmd_send(&hdev->hw, &desc, 1);
++	if (ret) {
++		dev_err(&hdev->pdev->dev,
++			"failed to read phy page %u reg %u, ret = %d\n",
++			page, reg_addr, ret);
++		return ret;
++	}
++
++	*val = le16_to_cpu(req->reg_val);
++	return 0;
++}
++
++/* used when imp support phy drvier */
++static int hclge_write_phy_reg_with_page(struct hclge_dev *hdev, u16 page,
++					 u16 reg_addr, u16 val)
++{
++	struct hclge_phy_reg_cmd *req;
++	struct hclge_desc desc;
++	int ret;
++
++	hclge_cmd_setup_basic_desc(&desc, HCLGE_OPC_PHY_REG, false);
++
++	req = (struct hclge_phy_reg_cmd *)desc.data;
++	req->reg_addr = cpu_to_le16(reg_addr);
++	req->type = HCLGE_PHY_RW_WITH_PAGE;
++	req->page = cpu_to_le16(page);
++	req->reg_val = cpu_to_le16(val);
++
++	ret = hclge_cmd_send(&hdev->hw, &desc, 1);
++	if (ret)
++		dev_err(&hdev->pdev->dev,
++			"failed to write phy page %u reg %u, ret = %d\n",
++			page, reg_addr, ret);
++
++	return ret;
++}
++
++static int hclge_rw_phy_reg_with_page(struct hclge_dev *hdev,
++				      struct hnae3_phy_para *para,
++				      enum hclge_phy_op_code opt_type)
++{
++	if (opt_type == PHY_OP_READ)
++		return hclge_read_phy_reg_with_page(hdev, para->page,
++						    para->reg_addr,
++						    &para->data);
++
++	return hclge_write_phy_reg_with_page(hdev, para->page, para->reg_addr,
++					     para->data);
++}
++
++static int hclge_rw_phy_reg(struct hclge_dev *hdev, void *data,
++			    size_t length, enum hclge_phy_op_code opt_type)
++{
++	struct hnae3_phy_para *para = (struct hnae3_phy_para *)data;
++	struct hclge_mac *mac = &hdev->hw.mac;
++	u32 phy_id;
++	int ret;
++
++	ret = hclge_check_phy_opt_param(hdev, data, length);
++	if (ret < 0)
++		return ret;
++
++	if (hnae3_dev_phy_imp_supported(hdev))
++		return hclge_rw_phy_reg_with_page(hdev, para, opt_type);
++
++	phy_id = mac->phydev->phy_id & HCLGE_PHY_ID_MASK;
++	switch (phy_id) {
++	case HCLGE_PHY_ID_FOR_RTL8211:
++		return hclge_rw_8211_phy_reg(hdev, para, opt_type);
++	case HCLGE_PHY_ID_FOR_YT8521:
++		return hclge_8521_phy_opt(hdev, para, opt_type);
++	case HCLGE_PHY_ID_FOR_MVL1512:
++	default:
++		return hclge_phy_reg_opt(hdev, para, opt_type);
++	}
++}
++
++static int hclge_get_phy_reg(struct hclge_dev *hdev, void *data, size_t length)
++{
++	return hclge_rw_phy_reg(hdev, data, length, PHY_OP_READ);
++}
++
++static int hclge_set_phy_reg(struct hclge_dev *hdev, void *data, size_t length)
++{
++	return hclge_rw_phy_reg(hdev, data, length, PHY_OP_WRITE);
++}
++
+ static void hclge_ext_resotre_config(struct hclge_dev *hdev)
+ {
+ 	if (hdev->reset_type != HNAE3_IMP_RESET &&
+@@ -859,6 +1416,8 @@ static const hclge_priv_ops_fn hclge_ext_func_arr[] = {
+ 	[HNAE3_EXT_OPC_SET_MAC_STATE] = hclge_set_mac_state,
+ 	[HNAE3_EXT_OPC_SET_LED] = hclge_set_led,
+ 	[HNAE3_EXT_OPC_GET_LED_SIGNAL] = hclge_get_led_signal,
++	[HNAE3_EXT_OPC_GET_PHY_REG] = hclge_get_phy_reg,
++	[HNAE3_EXT_OPC_SET_PHY_REG] = hclge_set_phy_reg,
+ };
+ 
+ int hclge_ext_ops_handle(struct hnae3_handle *handle, int opcode,
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h
+index dab62a588e53..090152a87c60 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h
+@@ -5,6 +5,38 @@
+ #define __HCLGE_EXT_H
+ #include <linux/types.h>
+ 
++#define HCLGE_PHY_ID_FOR_RTL8211 0x001cc910
++#define HCLGE_PHY_ID_FOR_MVL1512 0x01410dd0
++#define HCLGE_PHY_ID_FOR_YT8521  0x00000110
++#define HCLGE_PHY_ID_MASK	0xFFFFFFF0U
++
++enum hclge_phy_page_region {
++	HCLGE_PHY_REGION_UTP_MII,
++	HCLGE_PHY_REGION_UTP_MMD,
++	HCLGE_PHY_REGION_UTP_LDS,
++	HCLGE_PHY_REGION_UTP_EXT,
++	HCLGE_PHY_REGION_SDS_MII,
++	HCLGE_PHY_REGION_SDS_EXT,
++	HCLGE_PHY_REGION_COM_REG,
++	HCLGE_PHY_REGION_MAX
++};
++
++enum hclge_phy_op_code {
++	PHY_OP_READ,
++	PHY_OP_WRITE
++};
++
++#define HCLGE_8211_PHY_INDIRECT_PAGE	0xa43
++#define HCLGE_8211_PHY_INDIRECT_REG	0x1b
++#define HCLGE_8211_PHY_INDIRECT_DATA	0x1c
++#define HCLGE_8211_PHY_INDIRECT_RANGE1_S	0xDC0
++#define HCLGE_8211_PHY_INDIRECT_RANGE1_E	0xDCF
++#define HCLGE_8211_PHY_INDIRECT_RANGE2_S	0xDE0
++#define HCLGE_8211_PHY_INDIRECT_RANGE2_E	0xDF0
++
++#define HCLGE_8521_PHY_SMI_SDS_ADDR 0xA000
++#define HCLGE_8521_PHY_LDS_MII_ADDR 0x100
++
+ #define HCLGE_NOTIFY_PARA_CFG_PKT_EN		BIT(0)
+ #define HCLGE_NOTIFY_PARA_CFG_START_EN		BIT(1)
+ #define HCLGE_NOTIFY_PARA_CFG_PKT_NUM_M		GENMASK(5, 2)
+-- 
+2.34.1
+

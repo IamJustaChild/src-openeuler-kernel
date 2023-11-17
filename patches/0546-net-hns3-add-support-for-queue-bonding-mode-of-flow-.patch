@@ -1,0 +1,693 @@
+From db6fc1265c32f538007028c888d92f3eba756448 Mon Sep 17 00:00:00 2001
+From: Jian Shen <shenjian15@huawei.com>
+Date: Wed, 30 Nov 2022 18:23:32 +0800
+Subject: [PATCH 185/283] net: hns3: add support for queue bonding mode of flow
+ director
+
+driver inclusion
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN3D
+
+----------------------------------------------------------------------
+
+For device version V3, it supports queue bonding, which can
+identify the tuple information of TCP stream, and create flow
+director rules automatically, in order to keep the tx and rx
+packets are in the same queue pair. The driver set FD_ADD
+field of TX BD for TCP SYN packet, and set FD_DEL filed for
+TCP FIN or RST packet. The hardware create or remove a fd rule
+according to the TX BD, and it also support to age-out a rule
+if not hit for a long time.
+
+The queue bonding mode is default to be disabled, and can be
+enabled/disabled with ethtool priv-flags command.
+
+Signed-off-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: Jiantao Xiao <xiaojiantao1@h-partners.com>
+Reviewed-by: Yue Haibing <yuehaibing@huawei.com>
+Reviewed-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hnae3.h
+	drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
+	drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+	drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
+	drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+---
+ drivers/net/ethernet/hisilicon/hns3/hnae3.h   |   8 +
+ .../ethernet/hisilicon/hns3/hns3_debugfs.c    |   4 +-
+ .../net/ethernet/hisilicon/hns3/hns3_enet.c   | 228 +++++++++++++-----
+ .../net/ethernet/hisilicon/hns3/hns3_enet.h   |  20 +-
+ .../ethernet/hisilicon/hns3/hns3_ethtool.c    |  30 ++-
+ .../hisilicon/hns3/hns3pf/hclge_cmd.h         |   7 +
+ .../hisilicon/hns3/hns3pf/hclge_main.c        | 109 +++++++++
+ .../hisilicon/hns3/hns3pf/hclge_main.h        |   4 +
+ 8 files changed, 346 insertions(+), 64 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3.h b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+index 2963f3d816fd..07db6d16abbe 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+@@ -549,6 +549,10 @@ struct hnae3_ae_dev {
+  *   Check if any cls flower rule exist
+  * dbg_read_cmd
+  *   Execute debugfs read command.
++ * request_flush_qb_config
++ *   Request to update queue bonding configuration
++ * query_fd_qb_state
++ *   Query whether hw queue bonding enabled
+  * set_tx_hwts_info
+  *   Save information for 1588 tx packet
+  * get_rx_hwts
+@@ -741,6 +745,8 @@ struct hnae3_ae_ops {
+ 				      struct ethtool_link_ksettings *cmd);
+ 	int (*set_phy_link_ksettings)(struct hnae3_handle *handle,
+ 				      const struct ethtool_link_ksettings *cmd);
++	void (*request_flush_qb_config)(struct hnae3_handle *handle);
++	bool (*query_fd_qb_state)(struct hnae3_handle *handle);
+ 	bool (*set_tx_hwts_info)(struct hnae3_handle *handle,
+ 				 struct sk_buff *skb);
+ 	void (*get_rx_hwts)(struct hnae3_handle *handle, struct sk_buff *skb,
+@@ -880,6 +886,8 @@ struct hnae3_unic_private_info {
+ 
+ enum hnae3_pflag {
+ 	HNAE3_PFLAG_LIMIT_PROMISC,
++	HNAE3_PFLAG_PUSH_ENABLE,
++	HNAE3_PFLAG_FD_QB_ENABLE,
+ 	HNAE3_PFLAG_MAX
+ };
+ 
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c b/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
+index f535b7ea39c0..f2a11eaa7161 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
+@@ -844,7 +844,7 @@ static const struct hns3_dbg_item tx_bd_info_items[] = {
+ 	{ "OT_VLAN_TAG", 3 },
+ 	{ "TV", 5 },
+ 	{ "OLT_VLAN_LEN", 2 },
+-	{ "PAYLEN_OL4CS", 2 },
++	{ "PAYLEN_FDOP_OL4CS", 2 },
+ 	{ "BD_FE_SC_VLD", 2 },
+ 	{ "MSS_HW_CSUM", 0 },
+ };
+@@ -864,7 +864,7 @@ static void hns3_dump_tx_bd_info(struct hns3_nic_priv *priv,
+ 	sprintf(result[j++], "%5u", le16_to_cpu(desc->tx.tv));
+ 	sprintf(result[j++], "%10u",
+ 		le32_to_cpu(desc->tx.ol_type_vlan_len_msec));
+-	sprintf(result[j++], "%#x", le32_to_cpu(desc->tx.paylen));
++	sprintf(result[j++], "%#x", le32_to_cpu(desc->tx.paylen_fdop_ol4cs));
+ 	sprintf(result[j++], "%#x", le16_to_cpu(desc->tx.bdtp_fe_sc_vld_ra_ri));
+ 	sprintf(result[j++], "%5u", le16_to_cpu(desc->tx.mss_hw_csum));
+ }
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index 66fd6c870cc3..42932052ccaf 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -1235,6 +1235,73 @@ static int hns3_handle_vtags(struct hns3_enet_ring *tx_ring,
+ 	return 0;
+ }
+ 
++static bool hns3_query_fd_qb_state(struct hnae3_handle *handle)
++{
++	const struct hnae3_ae_ops *ops = handle->ae_algo->ops;
++
++	if (!test_bit(HNAE3_PFLAG_FD_QB_ENABLE, &handle->priv_flags))
++		return false;
++
++	if (!ops->query_fd_qb_state)
++		return false;
++
++	return ops->query_fd_qb_state(handle);
++}
++
++/* fd_op is the field of tx bd indicates hw whether to add or delete
++ * a qb rule or do nothing.
++ */
++static u8 hns3_fd_qb_handle(struct hns3_enet_ring *ring, struct sk_buff *skb)
++{
++	struct hnae3_handle *handle = ring->tqp->handle;
++	union l4_hdr_info l4;
++	union l3_hdr_info l3;
++	u8 l4_proto_tmp = 0;
++	__be16 frag_off;
++	u8 ip_version;
++	u8 fd_op = 0;
++
++	if (!hns3_query_fd_qb_state(handle))
++		return 0;
++
++	if (skb->encapsulation) {
++		ip_version = inner_ip_hdr(skb)->version;
++		l3.hdr = skb_inner_network_header(skb);
++		l4.hdr = skb_inner_transport_header(skb);
++	} else {
++		ip_version = ip_hdr(skb)->version;
++		l3.hdr = skb_network_header(skb);
++		l4.hdr = skb_transport_header(skb);
++	}
++
++	if (ip_version == IP_VERSION_IPV6) {
++		unsigned char *exthdr;
++
++		exthdr = l3.hdr + sizeof(*l3.v6);
++		l4_proto_tmp = l3.v6->nexthdr;
++		if (l4.hdr != exthdr)
++			ipv6_skip_exthdr(skb, exthdr - skb->data,
++					 &l4_proto_tmp, &frag_off);
++	} else if (ip_version == IP_VERSION_IPV4) {
++		l4_proto_tmp = l3.v4->protocol;
++	}
++
++	if (l4_proto_tmp != IPPROTO_TCP)
++		return 0;
++
++	ring->fd_qb_tx_sample++;
++	if (l4.tcp->fin || l4.tcp->rst) {
++		hnae3_set_bit(fd_op, HNS3_TXD_FD_DEL_B, 1);
++		ring->fd_qb_tx_sample = 0;
++	} else if (l4.tcp->syn ||
++		   ring->fd_qb_tx_sample >= HNS3_FD_QB_FORCE_CNT_MAX) {
++		hnae3_set_bit(fd_op, HNS3_TXD_FD_ADD_B, 1);
++		ring->fd_qb_tx_sample = 0;
++	}
++
++	return fd_op;
++}
++
+ /* check if the hardware is capable of checksum offloading */
+ static bool hns3_check_hw_tx_csum(struct sk_buff *skb)
+ {
+@@ -1251,16 +1318,29 @@ static bool hns3_check_hw_tx_csum(struct sk_buff *skb)
+ 	return true;
+ }
+ 
+-static int hns3_fill_skb_desc(struct hns3_enet_ring *ring,
+-			      struct sk_buff *skb, struct hns3_desc *desc,
+-			      struct hns3_desc_cb *desc_cb)
++struct hns3_desc_param {
++	u32 paylen_fdop_ol4cs;
++	u32 ol_type_vlan_len_msec;
++	u32 type_cs_vlan_tso;
++	u16 mss_hw_csum;
++	u16 inner_vtag;
++	u16 out_vtag;
++};
++
++static void hns3_init_desc_data(struct sk_buff *skb, struct hns3_desc_param *pa)
++{
++	pa->paylen_fdop_ol4cs = skb->len;
++	pa->ol_type_vlan_len_msec = 0;
++	pa->type_cs_vlan_tso = 0;
++	pa->mss_hw_csum = 0;
++	pa->inner_vtag = 0;
++	pa->out_vtag = 0;
++}
++
++static int hns3_handle_vlan_info(struct hns3_enet_ring *ring,
++				 struct sk_buff *skb,
++				 struct hns3_desc_param *param)
+ {
+-	u32 ol_type_vlan_len_msec = 0;
+-	u32 type_cs_vlan_tso = 0;
+-	u32 paylen = skb->len;
+-	u16 mss_hw_csum = 0;
+-	u16 inner_vtag = 0;
+-	u16 out_vtag = 0;
+ 	int ret;
+ 
+ 	ret = hns3_handle_vtags(ring, skb);
+@@ -1270,73 +1350,97 @@ static int hns3_fill_skb_desc(struct hns3_enet_ring *ring,
+ 		u64_stats_update_end(&ring->syncp);
+ 		return ret;
+ 	} else if (ret == HNS3_INNER_VLAN_TAG) {
+-		inner_vtag = skb_vlan_tag_get(skb);
+-		inner_vtag |= (skb->priority << VLAN_PRIO_SHIFT) &
++		param->inner_vtag = skb_vlan_tag_get(skb);
++		param->inner_vtag |= (skb->priority << VLAN_PRIO_SHIFT) &
+ 				VLAN_PRIO_MASK;
+-		hns3_set_field(type_cs_vlan_tso, HNS3_TXD_VLAN_B, 1);
++		hns3_set_field(param->type_cs_vlan_tso, HNS3_TXD_VLAN_B, 1);
+ 	} else if (ret == HNS3_OUTER_VLAN_TAG) {
+-		out_vtag = skb_vlan_tag_get(skb);
+-		out_vtag |= (skb->priority << VLAN_PRIO_SHIFT) &
++		param->out_vtag = skb_vlan_tag_get(skb);
++		param->out_vtag |= (skb->priority << VLAN_PRIO_SHIFT) &
+ 				VLAN_PRIO_MASK;
+-		hns3_set_field(ol_type_vlan_len_msec, HNS3_TXD_OVLAN_B,
++		hns3_set_field(param->ol_type_vlan_len_msec, HNS3_TXD_OVLAN_B,
+ 			       1);
+ 	}
++	return 0;
++}
++
++static int hns3_handle_csum_partial(struct hns3_enet_ring *ring,
++				    struct sk_buff *skb,
++				    struct hns3_desc_cb *desc_cb,
++				    struct hns3_desc_param *param)
++{
++	u8 ol4_proto, il4_proto;
++	int ret;
++
++	if (hns3_check_hw_tx_csum(skb)) {
++		/* set checksum start and offset, defined in 2 Bytes */
++		hns3_set_field(param->type_cs_vlan_tso, HNS3_TXD_CSUM_START_S,
++			       skb_checksum_start_offset(skb) >> 1);
++		hns3_set_field(param->ol_type_vlan_len_msec,
++			       HNS3_TXD_CSUM_OFFSET_S,
++			       skb->csum_offset >> 1);
++		param->mss_hw_csum |= BIT(HNS3_TXD_HW_CS_B);
++		return 0;
++	}
+ 
+-	desc_cb->send_bytes = skb->len;
++	skb_reset_mac_len(skb);
+ 
+-	if (skb->ip_summed == CHECKSUM_PARTIAL) {
+-		u8 ol4_proto, il4_proto;
+-
+-		if (hns3_check_hw_tx_csum(skb)) {
+-			/* set checksum start and offset, defined in 2 Bytes */
+-			hns3_set_field(type_cs_vlan_tso, HNS3_TXD_CSUM_START_S,
+-				       skb_checksum_start_offset(skb) >> 1);
+-			hns3_set_field(ol_type_vlan_len_msec,
+-				       HNS3_TXD_CSUM_OFFSET_S,
+-				       skb->csum_offset >> 1);
+-			mss_hw_csum |= BIT(HNS3_TXD_HW_CS_B);
+-			goto out_hw_tx_csum;
+-		}
++	ret = hns3_get_l4_protocol(skb, &ol4_proto, &il4_proto);
++	if (unlikely(ret < 0)) {
++		hns3_ring_stats_update(ring, tx_l4_proto_err);
++		return ret;
++	}
+ 
+-		skb_reset_mac_len(skb);
++	ret = hns3_set_l2l3l4(skb, ol4_proto, il4_proto,
++			      &param->type_cs_vlan_tso,
++			      &param->ol_type_vlan_len_msec);
++	if (unlikely(ret < 0)) {
++		hns3_ring_stats_update(ring, tx_l2l3l4_err);
++		return ret;
++	}
+ 
+-		ret = hns3_get_l4_protocol(skb, &ol4_proto, &il4_proto);
+-		if (unlikely(ret < 0)) {
+-			u64_stats_update_begin(&ring->syncp);
+-			ring->stats.tx_l4_proto_err++;
+-			u64_stats_update_end(&ring->syncp);
+-			return ret;
+-		}
++	ret = hns3_set_tso(skb, &param->paylen_fdop_ol4cs, &param->mss_hw_csum,
++			   &param->type_cs_vlan_tso, &desc_cb->send_bytes);
++	if (unlikely(ret < 0)) {
++		hns3_ring_stats_update(ring, tx_tso_err);
++		return ret;
++	}
++	return 0;
++}
+ 
+-		ret = hns3_set_l2l3l4(skb, ol4_proto, il4_proto,
+-				      &type_cs_vlan_tso,
+-				      &ol_type_vlan_len_msec);
+-		if (unlikely(ret < 0)) {
+-			u64_stats_update_begin(&ring->syncp);
+-			ring->stats.tx_l2l3l4_err++;
+-			u64_stats_update_end(&ring->syncp);
+-			return ret;
+-		}
++static int hns3_fill_skb_desc(struct hns3_enet_ring *ring,
++			      struct sk_buff *skb, struct hns3_desc *desc,
++			      struct hns3_desc_cb *desc_cb)
++{
++	struct hns3_desc_param param;
++	u8 fd_op;
++	int ret;
+ 
+-		ret = hns3_set_tso(skb, &paylen, &mss_hw_csum,
+-				   &type_cs_vlan_tso, &desc_cb->send_bytes);
+-		if (unlikely(ret < 0)) {
+-			u64_stats_update_begin(&ring->syncp);
+-			ring->stats.tx_tso_err++;
+-			u64_stats_update_end(&ring->syncp);
++	hns3_init_desc_data(skb, &param);
++	ret = hns3_handle_vlan_info(ring, skb, &param);
++	if (unlikely(ret < 0))
++		return ret;
++
++	desc_cb->send_bytes = skb->len;
++
++	if (skb->ip_summed == CHECKSUM_PARTIAL) {
++		ret = hns3_handle_csum_partial(ring, skb, desc_cb, &param);
++		if (ret)
+ 			return ret;
+-		}
+ 	}
+ 
+-out_hw_tx_csum:
++	fd_op = hns3_fd_qb_handle(ring, skb);
++	hnae3_set_field(param.paylen_fdop_ol4cs, HNS3_TXD_FD_OP_M,
++			HNS3_TXD_FD_OP_S, fd_op);
++
+ 	/* Set txbd */
+ 	desc->tx.ol_type_vlan_len_msec =
+-		cpu_to_le32(ol_type_vlan_len_msec);
+-	desc->tx.type_cs_vlan_tso_len = cpu_to_le32(type_cs_vlan_tso);
+-	desc->tx.paylen = cpu_to_le32(paylen);
+-	desc->tx.mss_hw_csum = cpu_to_le16(mss_hw_csum);
+-	desc->tx.vlan_tag = cpu_to_le16(inner_vtag);
+-	desc->tx.outer_vlan_tag = cpu_to_le16(out_vtag);
++		cpu_to_le32(param.ol_type_vlan_len_msec);
++	desc->tx.type_cs_vlan_tso_len = cpu_to_le32(param.type_cs_vlan_tso);
++	desc->tx.paylen_fdop_ol4cs = cpu_to_le32(param.paylen_fdop_ol4cs);
++	desc->tx.mss_hw_csum = cpu_to_le16(param.mss_hw_csum);
++	desc->tx.vlan_tag = cpu_to_le16(param.inner_vtag);
++	desc->tx.outer_vlan_tag = cpu_to_le16(param.out_vtag);
+ 
+ 	return 0;
+ }
+@@ -4766,11 +4870,15 @@ static void hns3_state_init(struct hnae3_handle *handle)
+ 
+ 	if (hnae3_ae_dev_rxd_adv_layout_supported(ae_dev))
+ 		set_bit(HNS3_NIC_STATE_RXD_ADV_LAYOUT_ENABLE, &priv->state);
++
++	if (test_bit(HNAE3_DEV_SUPPORT_QB_B, ae_dev->caps))
++		set_bit(HNAE3_PFLAG_FD_QB_ENABLE, &handle->supported_pflags);
+ }
+ 
+ static int hns3_client_init(struct hnae3_handle *handle)
+ {
+ 	struct pci_dev *pdev = handle->pdev;
++	struct hnae3_ae_dev *ae_dev = pci_get_drvdata(pdev);
+ 	u16 alloc_tqps, max_rss_size;
+ 	struct hns3_nic_priv *priv;
+ 	struct net_device *netdev;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
+index f2d5adb54cdc..b71d06ab6dba 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
+@@ -174,6 +174,13 @@ enum hns3_nic_state {
+ #define HNS3_TXD_DECTTL_S			12
+ #define HNS3_TXD_DECTTL_M			(0xf << HNS3_TXD_DECTTL_S)
+ 
++#define HNS3_TXD_FD_ADD_B			1
++#define HNS3_TXD_FD_DEL_B			0
++#define HNS3_TXD_FD_OP_M			GENMASK(21, 20)
++#define HNS3_TXD_FD_OP_S			20
++
++#define HNS3_TXD_OL4CS_B			22
++
+ #define HNS3_TXD_MSS_S				0
+ #define HNS3_TXD_MSS_M				(0x3fff << HNS3_TXD_MSS_S)
+ #define HNS3_TXD_HW_CS_B			14
+@@ -200,6 +207,14 @@ enum hns3_nic_state {
+ 
+ #define HNS3_RING_EN_B				0
+ 
++#define HNS3_GL0_CQ_MODE_REG			0x20d00
++#define HNS3_GL1_CQ_MODE_REG			0x20d04
++#define HNS3_GL2_CQ_MODE_REG			0x20d08
++#define HNS3_CQ_MODE_EQE			1U
++#define HNS3_CQ_MODE_CQE			0U
++
++#define HNS3_FD_QB_FORCE_CNT_MAX		20
++
+ enum hns3_pkt_l2t_type {
+ 	HNS3_L2_TYPE_UNICAST,
+ 	HNS3_L2_TYPE_MULTICAST,
+@@ -271,7 +286,7 @@ struct __packed hns3_desc {
+ 			};
+ 		};
+ 
+-			__le32 paylen;
++			__le32 paylen_fdop_ol4cs;
+ 			__le16 bdtp_fe_sc_vld_ra_ri;
+ 			__le16 mss_hw_csum;
+ 		} tx;
+@@ -383,6 +398,9 @@ enum hns3_pkt_ol4type {
+ 	HNS3_OL4_TYPE_UNKNOWN
+ };
+ 
++#define IP_VERSION_IPV4		0x4
++#define IP_VERSION_IPV6		0x6
++
+ struct hns3_rx_ptype {
+ 	u32 ptype : 8;
+ 	u32 csum_level : 2;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+index 568cc9e57c9c..c2c7e94d0467 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+@@ -477,8 +477,36 @@ static void hns3_update_limit_promisc_mode(struct net_device *netdev,
+ 	hns3_request_update_promisc_mode(handle);
+ }
+ 
++static void hns3_update_fd_qb_state(struct net_device *netdev, bool enable)
++{
++	struct hnae3_handle *handle = hns3_get_handle(netdev);
++
++	if (!handle->ae_algo->ops->request_flush_qb_config)
++		return;
++
++	handle->ae_algo->ops->request_flush_qb_config(handle);
++}
++
++static void hns3_update_state(struct net_device *netdev,
++			      enum hns3_nic_state state, bool enable)
++{
++	struct hns3_nic_priv *priv = netdev_priv(netdev);
++
++	if (enable)
++		set_bit(state, &priv->state);
++	else
++		clear_bit(state, &priv->state);
++}
++
++static void hns3_update_push_state(struct net_device *netdev, bool enable)
++{
++	hns3_update_state(netdev, HNS3_NIC_STATE_TX_PUSH_ENABLE, enable);
++}
++
+ static const struct hns3_pflag_desc hns3_priv_flags[HNAE3_PFLAG_MAX] = {
+-	{ "limit_promisc",	hns3_update_limit_promisc_mode }
++	{ "limit_promisc",	hns3_update_limit_promisc_mode },
++	{ "tx_push_enable",	hns3_update_push_state },
++	{ "qb_enable",		hns3_update_fd_qb_state },
+ };
+ 
+ static int hns3_get_sset_count(struct net_device *netdev, int stringset)
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+index 234647cd6a4c..d06307c0199e 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+@@ -245,6 +245,7 @@ enum hclge_opcode_type {
+ 	HCLGE_OPC_FD_AD_OP		= 0x1204,
+ 	HCLGE_OPC_FD_CNT_OP		= 0x1205,
+ 	HCLGE_OPC_FD_USER_DEF_OP	= 0x1207,
++	HCLGE_OPC_FD_QB_CTRL		= 0x1210,
+ 
+ 	/* MDIO command */
+ 	HCLGE_OPC_MDIO_CONFIG		= 0x1900,
+@@ -1108,6 +1109,12 @@ struct hclge_fd_ad_cnt_read_cmd {
+ 	u8 rsv2[8];
+ };
+ 
++struct hclge_fd_qb_cfg_cmd {
++	u8 en;
++	u8 vf_id;
++	u8 rsv[22];
++};
++
+ #define HCLGE_FD_USER_DEF_OFT_S		0
+ #define HCLGE_FD_USER_DEF_OFT_M		GENMASK(14, 0)
+ #define HCLGE_FD_USER_DEF_EN_B		15
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 14e70efd44c8..5fcae2b54ac7 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -4540,6 +4540,95 @@ static void hclge_update_vport_alive(struct hclge_dev *hdev)
+ 	}
+ }
+ 
++static int hclge_set_fd_qb(struct hclge_dev *hdev, u8 vf_id, bool enable)
++{
++	struct hclge_fd_qb_cfg_cmd *req;
++	struct hclge_desc desc;
++	int ret;
++
++	hclge_cmd_setup_basic_desc(&desc, HCLGE_OPC_FD_QB_CTRL, false);
++	req = (struct hclge_fd_qb_cfg_cmd *)desc.data;
++	req->en = enable;
++	req->vf_id = vf_id;
++
++	ret = hclge_cmd_send(&hdev->hw, &desc, 1);
++	if (ret)
++		dev_err(&hdev->pdev->dev,
++			"failed to %s qb config for vport %u, ret = %d.\n",
++			enable ? "enable" : "disable", vf_id, ret);
++	return ret;
++}
++
++static int hclge_sync_pf_qb_mode(struct hclge_dev *hdev)
++{
++	struct hclge_vport *vport = &hdev->vport[0];
++	struct hnae3_handle *handle = &vport->nic;
++	bool request_enable = true;
++	int ret;
++
++	if (!test_and_clear_bit(HCLGE_VPORT_STATE_QB_CHANGE, &vport->state))
++		return 0;
++
++	spin_lock_bh(&hdev->fd_rule_lock);
++	if (hdev->fd_active_type == HCLGE_FD_EP_ACTIVE ||
++	    hdev->fd_active_type == HCLGE_FD_TC_FLOWER_ACTIVE ||
++	    !test_bit(HNAE3_PFLAG_FD_QB_ENABLE, &handle->priv_flags))
++		request_enable = false;
++
++	if (request_enable ==
++		test_bit(HCLGE_STATE_HW_QB_ENABLE, &hdev->state)) {
++		spin_unlock_bh(&hdev->fd_rule_lock);
++		return 0;
++	}
++
++	if (request_enable)
++		hclge_clear_arfs_rules(handle);
++
++	ret = hclge_set_fd_qb(hdev, vport->vport_id, request_enable);
++	if (!ret) {
++		if (request_enable) {
++			set_bit(HCLGE_STATE_HW_QB_ENABLE, &hdev->state);
++			hdev->fd_active_type = HCLGE_FD_QB_ACTIVE;
++		} else {
++			clear_bit(HCLGE_STATE_HW_QB_ENABLE, &hdev->state);
++			hdev->fd_active_type = HCLGE_FD_RULE_NONE;
++		}
++	} else {
++		set_bit(HCLGE_VPORT_STATE_QB_CHANGE, &vport->state);
++	}
++	spin_unlock_bh(&hdev->fd_rule_lock);
++
++	return ret;
++}
++
++static int hclge_disable_fd_qb_mode(struct hclge_dev *hdev)
++{
++	struct hnae3_ae_dev *ae_dev = hdev->ae_dev;
++	int ret;
++
++	if (!test_bit(HNAE3_DEV_SUPPORT_QB_B, ae_dev->caps) ||
++	    !test_bit(HCLGE_STATE_HW_QB_ENABLE, &hdev->state))
++		return 0;
++
++	ret = hclge_set_fd_qb(hdev, 0, false);
++	if (ret)
++		return ret;
++
++	clear_bit(HCLGE_STATE_HW_QB_ENABLE, &hdev->state);
++
++	return 0;
++}
++
++static void hclge_sync_fd_qb_mode(struct hclge_dev *hdev)
++{
++	struct hnae3_ae_dev *ae_dev = hdev->ae_dev;
++
++	if (!test_bit(HNAE3_DEV_SUPPORT_QB_B, ae_dev->caps))
++		return;
++
++	hclge_sync_pf_qb_mode(hdev);
++}
++
+ static void hclge_periodic_service_task(struct hclge_dev *hdev)
+ {
+ 	unsigned long delta = round_jiffies_relative(HZ);
+@@ -4553,6 +4642,7 @@ static void hclge_periodic_service_task(struct hclge_dev *hdev)
+ 	hclge_update_link_status(hdev);
+ 	hclge_sync_mac_table(hdev);
+ 	hclge_sync_promisc_mode(hdev);
++	hclge_sync_fd_qb_mode(hdev);
+ 
+ 	if (time_is_after_jiffies(hdev->last_serv_processed + HZ)) {
+ 		delta = jiffies - hdev->last_serv_processed;
+@@ -5456,6 +5546,21 @@ static void hclge_request_update_promisc_mode(struct hnae3_handle *handle)
+ 	set_bit(HCLGE_VPORT_STATE_PROMISC_CHANGE, &vport->state);
+ }
+ 
++static bool hclge_query_fd_qb_state(struct hnae3_handle *handle)
++{
++	struct hclge_vport *vport = hclge_get_vport(handle);
++	struct hclge_dev *hdev = vport->back;
++
++	return test_bit(HCLGE_STATE_HW_QB_ENABLE, &hdev->state);
++}
++
++static void hclge_flush_qb_config(struct hnae3_handle *handle)
++{
++	struct hclge_vport *vport = hclge_get_vport(handle);
++
++	set_bit(HCLGE_VPORT_STATE_QB_CHANGE, &vport->state);
++}
++
+ static int hclge_get_fd_mode(struct hclge_dev *hdev, u8 *fd_mode)
+ {
+ 	struct hclge_get_fd_mode_cmd *req;
+@@ -7650,6 +7755,7 @@ int hclge_vport_start(struct hclge_vport *vport)
+ 
+ 	set_bit(HCLGE_VPORT_STATE_INITED, &vport->state);
+ 	set_bit(HCLGE_VPORT_STATE_ALIVE, &vport->state);
++	set_bit(HCLGE_VPORT_STATE_QB_CHANGE, &vport->state);
+ 	set_bit(HCLGE_VPORT_STATE_PROMISC_CHANGE, &vport->state);
+ 	vport->last_active_jiffies = jiffies;
+ 	vport->need_notify = 0;
+@@ -9701,6 +9807,7 @@ static void hclge_restore_hw_table(struct hclge_dev *hdev)
+ 	hclge_restore_vport_port_base_vlan_config(hdev);
+ 	hclge_restore_vport_vlan_table(vport);
+ 	set_bit(HCLGE_STATE_FD_USER_DEF_CHANGED, &hdev->state);
++	clear_bit(HCLGE_STATE_HW_QB_ENABLE, &hdev->state);
+ 	hclge_restore_fd_entries(handle);
+ }
+ 
+@@ -12391,6 +12498,8 @@ struct hnae3_ae_ops hclge_ops = {
+ 	.put_vector = hclge_put_vector,
+ 	.set_promisc_mode = hclge_set_promisc_mode,
+ 	.request_update_promisc_mode = hclge_request_update_promisc_mode,
++	.request_flush_qb_config = hclge_flush_qb_config,
++	.query_fd_qb_state = hclge_query_fd_qb_state,
+ 	.set_loopback = hclge_set_loopback,
+ 	.start = hclge_ae_start,
+ 	.stop = hclge_ae_stop,
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+index b7b4d922711e..65c7b8a534aa 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+@@ -242,6 +242,7 @@ enum HCLGE_DEV_STATE {
+ 	HCLGE_STATE_FD_TBL_CHANGED,
+ 	HCLGE_STATE_FD_CLEAR_ALL,
+ 	HCLGE_STATE_FD_USER_DEF_CHANGED,
++	HCLGE_STATE_HW_QB_ENABLE,
+ 	HCLGE_STATE_PTP_EN,
+ 	HCLGE_STATE_PTP_TX_HANDLING,
+ 	HCLGE_STATE_MAX
+@@ -636,6 +637,8 @@ enum HCLGE_FD_ACTIVE_RULE_TYPE {
+ 	HCLGE_FD_RULE_NONE,
+ 	HCLGE_FD_ARFS_ACTIVE,
+ 	HCLGE_FD_EP_ACTIVE,
++	HCLGE_FD_TC_FLOWER_ACTIVE,
++	HCLGE_FD_QB_ACTIVE,
+ };
+ 
+ enum HCLGE_FD_PACKET_TYPE {
+@@ -971,6 +974,7 @@ struct hclge_rss_tuple_cfg {
+ enum HCLGE_VPORT_STATE {
+ 	HCLGE_VPORT_STATE_ALIVE,
+ 	HCLGE_VPORT_STATE_MAC_TBL_CHANGE,
++	HCLGE_VPORT_STATE_QB_CHANGE,
+ 	HCLGE_VPORT_STATE_PROMISC_CHANGE,
+ 	HCLGE_VPORT_STATE_VLAN_FLTR_CHANGE,
+ 	HCLGE_VPORT_STATE_INITED,
+-- 
+2.34.1
+

@@ -1,0 +1,76 @@
+From 33c240aba8e2f8b7e8f7bba2e60739d3dcf942cd Mon Sep 17 00:00:00 2001
+From: Huazhong Tan <tanhuazhong@huawei.com>
+Date: Thu, 28 May 2020 21:48:14 +0800
+Subject: [PATCH 023/283] net: hns3: remove some unused fields in struct
+ hns3_nic_priv
+
+mainline inclusion
+from mainline-v5.8-rc1
+commit 5e86178dcead4941fcdadc963f31ed4e859e58ce
+category: cleanup
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EJ0A
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=5e86178dcead4941fcdadc963f31ed4e859e58ce
+
+--------------------------------
+
+Remove some fileds which defined in struct hns3_nic_priv,
+but not used, and remove the related definition of struct
+hns3_udp_tunnel and enum hns3_udp_tnl_type.
+
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ .../net/ethernet/hisilicon/hns3/hns3_enet.h   | 22 -------------------
+ 1 file changed, 22 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
+index ac1659c18b16..7f19a8b82036 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
+@@ -493,21 +493,8 @@ struct hns3_enet_tqp_vector {
+ 	unsigned long last_jiffies;
+ } ____cacheline_internodealigned_in_smp;
+ 
+-enum hns3_udp_tnl_type {
+-	HNS3_UDP_TNL_VXLAN,
+-	HNS3_UDP_TNL_GENEVE,
+-	HNS3_UDP_TNL_MAX,
+-};
+-
+-struct hns3_udp_tunnel {
+-	u16 dst_port;
+-	int used;
+-};
+-
+ struct hns3_nic_priv {
+ 	struct hnae3_handle *ae_handle;
+-	u32 enet_ver;
+-	u32 port_id;
+ 	struct net_device *netdev;
+ 	struct device *dev;
+ 
+@@ -519,19 +506,10 @@ struct hns3_nic_priv {
+ 	struct hns3_enet_tqp_vector *tqp_vector;
+ 	u16 vector_num;
+ 
+-	/* The most recently read link state */
+-	int link;
+ 	u64 tx_timeout_count;
+ 
+ 	unsigned long state;
+ 
+-	struct timer_list service_timer;
+-
+-	struct work_struct service_task;
+-
+-	struct notifier_block notifier_block;
+-	/* Vxlan/Geneve information */
+-	struct hns3_udp_tunnel udp_tnl[HNS3_UDP_TNL_MAX];
+ 	struct hns3_enet_coalesce tx_coal;
+ 	struct hns3_enet_coalesce rx_coal;
+ };
+-- 
+2.34.1
+

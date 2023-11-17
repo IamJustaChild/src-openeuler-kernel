@@ -1,0 +1,58 @@
+From df14cd82752d4472c5ee577425cec047578b92fa Mon Sep 17 00:00:00 2001
+From: Guangbin Huang <huangguangbin2@huawei.com>
+Date: Thu, 18 Nov 2021 20:44:33 +0800
+Subject: [PATCH 139/283] net: hns3: PF enable promisc for VF when mac table is
+ overflow
+
+mainline inclusion
+from mainline-v5.15-rc4
+commit 276e60421668d019dc655973b1832ea354c0f36c
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMYT
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=276e60421668d019dc655973b1832ea354c0f36c
+
+----------------------------------------------------------------------
+
+If unicast mac address table is full, and user add a new mac address, the
+unicast promisc needs to be enabled for the new unicast mac address can be
+used. So does the multicast promisc.
+
+Now this feature has been implemented for PF, and VF should be implemented
+too. When the mac table of VF is overflow, PF will enable promisc for this
+VF.
+
+Fixes: 1e6e76101fd9 ("net: hns3: configure promisc mode for VF asynchronously")
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 8c3cd8e52c7f..e9d9c44d6cc3 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -11955,8 +11955,12 @@ static void hclge_sync_promisc_mode(struct hclge_dev *hdev)
+ 			continue;
+ 
+ 		if (vport->vf_info.trusted) {
+-			uc_en = vport->vf_info.request_uc_en > 0;
+-			mc_en = vport->vf_info.request_mc_en > 0;
++			uc_en = vport->vf_info.request_uc_en > 0 ||
++				vport->overflow_promisc_flags &
++				HNAE3_OVERFLOW_UPE;
++			mc_en = vport->vf_info.request_mc_en > 0 ||
++				vport->overflow_promisc_flags &
++				HNAE3_OVERFLOW_MPE;
+ 		}
+ 		bc_en = vport->vf_info.request_bc_en > 0;
+ 
+-- 
+2.34.1
+

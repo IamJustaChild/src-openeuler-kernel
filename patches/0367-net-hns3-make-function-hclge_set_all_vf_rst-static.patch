@@ -1,0 +1,45 @@
+From 9207408757116d3192c5a1e9e630e1419c81a85c Mon Sep 17 00:00:00 2001
+From: Wei Yongjun <weiyongjun1@huawei.com>
+Date: Sat, 16 Feb 2019 08:15:52 +0000
+Subject: [PATCH 006/283] net: hns3: make function hclge_set_all_vf_rst()
+ static
+
+mainline inclusion
+from mainline-v5.10-rc1
+commit e511f17b1fb40248e63677a6ab81a29b9b32080d
+category: cleanup
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EJ0A
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=e511f17b1fb40248e63677a6ab81a29b9b32080d
+
+--------------------------------
+
+Fixes the following sparse warning:
+
+drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c:2431:5: warning:
+ symbol 'hclge_set_all_vf_rst' was not declared. Should it be static?
+
+Fixes: aa5c4f175be6 ("net: hns3: add reset handling for VF when doing PF reset")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 9f9edbdc518a..118e5097b384 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -3361,7 +3361,7 @@ static int hclge_set_vf_rst(struct hclge_dev *hdev, int func_id, bool reset)
+ 	return hclge_cmd_send(&hdev->hw, &desc, 1);
+ }
+ 
+-int hclge_set_all_vf_rst(struct hclge_dev *hdev, bool reset)
++static int hclge_set_all_vf_rst(struct hclge_dev *hdev, bool reset)
+ {
+ 	int i;
+ 
+-- 
+2.34.1
+

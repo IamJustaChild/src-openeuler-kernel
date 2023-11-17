@@ -1,0 +1,177 @@
+From 1d8787a29618a0489a3d005c58d55a50cf8f75b8 Mon Sep 17 00:00:00 2001
+From: Yufeng Mo <moyufeng@huawei.com>
+Date: Thu, 18 Nov 2021 20:44:58 +0800
+Subject: [PATCH 155/283] net: hns3: sync rx ring head in echo common pull
+
+mainline inclusion
+from mainline-v5.16-rc1
+commit 3b6db4a0492beed36545a2bc6075117faecebfe2
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMYT
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=3b6db4a0492beed36545a2bc6075117faecebfe2
+
+----------------------------------------------------------------------
+
+When the driver processes rx packets, the head pointer is updated only
+after the number of received packets reaches 16. However, hardware
+relies on the head pointer to calculate the number of FBDs. As a result,
+the hardware calculates the FBD incorrectly. Therefore, the driver
+proactively updates the head pointer in each common poll to ensure that
+the number of FBDs calculated by the hardware is correct.
+
+Fixes: 68752b24f51a ("net: hns3: schedule the polling again when allocation fails")
+Signed-off-by: Yufeng Mo <moyufeng@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c
+---
+ .../net/ethernet/hisilicon/hns3/hns3_enet.c   |  7 ++++
+ .../hisilicon/hns3/hns3pf/hclge_cmd.c         |  5 +++
+ .../hisilicon/hns3/hns3pf/hclge_cmd.h         |  1 +
+ .../hisilicon/hns3/hns3vf/hclgevf_cmd.c       | 32 +++++++++++++++++++
+ .../hisilicon/hns3/hns3vf/hclgevf_cmd.h       |  9 ++++++
+ 5 files changed, 54 insertions(+)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index 9691d43a9b52..6cf947cd96eb 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -3842,6 +3842,13 @@ int hns3_clean_rx_ring(struct hns3_enet_ring *ring, int budget,
+ 	}
+ 
+ out:
++	/* sync head pointer before exiting, since hardware will calculate
++	 * FBD number with head pointer
++	 */
++	if (unused_count > 0)
++		failure = failure ||
++			  hns3_nic_alloc_rx_buffers(ring, unused_count);
++
+ 	return failure ? budget : recv_pkts;
+ }
+ 
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c
+index 6e28dd4524b8..6d9c3945328a 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c
+@@ -487,6 +487,11 @@ static int hclge_firmware_compat_config(struct hclge_dev *hdev, bool en)
+ 
+ 		hnae3_set_bit(compat, HCLGE_LINK_EVENT_REPORT_EN_B, 1);
+ 		hnae3_set_bit(compat, HCLGE_NCSI_ERROR_REPORT_EN_B, 1);
++		if (hnae3_dev_phy_imp_supported(hdev))
++			hnae3_set_bit(compat, HCLGE_PHY_IMP_EN_B, 1);
++		hnae3_set_bit(compat, HCLGE_MAC_STATS_EXT_EN_B, 1);
++		hnae3_set_bit(compat, HCLGE_SYNC_RX_RING_HEAD_EN_B, 1);
++
+ 		req->compat = cpu_to_le32(compat);
+ 	}
+ 
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+index 16e41f546e21..882e14a15128 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+@@ -1149,6 +1149,7 @@ struct hclge_query_ppu_pf_other_int_dfx_cmd {
+ #define HCLGE_NCSI_ERROR_REPORT_EN_B	1
+ #define HCLGE_PHY_IMP_EN_B		2
+ #define HCLGE_MAC_STATS_EXT_EN_B	3
++#define HCLGE_SYNC_RX_RING_HEAD_EN_B	4
+ struct hclge_firmware_compat_cmd {
+ 	__le32 compat;
+ 	u8 rsv[20];
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.c
+index 37e0fc7e570b..12b241c0db0a 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.c
+@@ -445,8 +445,28 @@ int hclgevf_cmd_queue_init(struct hclgevf_dev *hdev)
+ 	return ret;
+ }
+ 
++static int hclgevf_firmware_compat_config(struct hclgevf_dev *hdev, bool en)
++{
++	struct hclgevf_firmware_compat_cmd *req;
++	struct hclgevf_desc desc;
++	u32 compat = 0;
++
++	hclgevf_cmd_setup_basic_desc(&desc, HCLGEVF_OPC_IMP_COMPAT_CFG, false);
++
++	if (en) {
++		req = (struct hclgevf_firmware_compat_cmd *)desc.data;
++
++		hnae3_set_bit(compat, HCLGEVF_SYNC_RX_RING_HEAD_EN_B, 1);
++
++		req->compat = cpu_to_le32(compat);
++	}
++
++	return hclgevf_cmd_send(&hdev->hw, &desc, 1);
++}
++
+ int hclgevf_cmd_init(struct hclgevf_dev *hdev)
+ {
++	struct hnae3_ae_dev *ae_dev = pci_get_drvdata(hdev->pdev);
+ 	int ret;
+ 
+ 	spin_lock_bh(&hdev->hw.cmq.csq.lock);
+@@ -496,6 +516,17 @@ int hclgevf_cmd_init(struct hclgevf_dev *hdev)
+ 		hnae3_get_field(hdev->fw_version, HNAE3_FW_VERSION_BYTE0_MASK,
+ 				HNAE3_FW_VERSION_BYTE0_SHIFT));
+ 
++	if (ae_dev->dev_version >= HNAE3_DEVICE_VERSION_V3) {
++		/* ask the firmware to enable some features, driver can work
++		 * without it.
++		 */
++		ret = hclgevf_firmware_compat_config(hdev, true);
++		if (ret)
++			dev_warn(&hdev->pdev->dev,
++				 "Firmware compatible features not enabled(%d).\n",
++				 ret);
++	}
++
+ 	return 0;
+ 
+ err_cmd_init:
+@@ -506,6 +537,7 @@ int hclgevf_cmd_init(struct hclgevf_dev *hdev)
+ 
+ void hclgevf_cmd_uninit(struct hclgevf_dev *hdev)
+ {
++	hclgevf_firmware_compat_config(hdev, false);
+ 	set_bit(HCLGEVF_STATE_CMD_DISABLE, &hdev->state);
+ 	/* wait to ensure that the firmware completes the possible left
+ 	 * over commands.
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.h
+index 824414e5fdf0..6d0540c15487 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.h
+@@ -15,6 +15,12 @@
+ struct hclgevf_hw;
+ struct hclgevf_dev;
+ 
++#define HCLGEVF_SYNC_RX_RING_HEAD_EN_B	4
++struct hclgevf_firmware_compat_cmd {
++	__le32 compat;
++	u8 rsv[20];
++};
++
+ struct hclgevf_desc {
+ 	__le16 opcode;
+ 	__le16 flag;
+@@ -107,6 +113,9 @@ enum hclgevf_opcode_type {
+ 	HCLGEVF_OPC_RSS_TC_MODE		= 0x0D08,
+ 	/* Mailbox cmd */
+ 	HCLGEVF_OPC_MBX_VF_TO_PF	= 0x2001,
++
++	/* IMP stats command */
++	HCLGEVF_OPC_IMP_COMPAT_CFG	= 0x701A,
+ };
+ 
+ #define HCLGEVF_TQP_REG_OFFSET		0x80000
+-- 
+2.34.1
+

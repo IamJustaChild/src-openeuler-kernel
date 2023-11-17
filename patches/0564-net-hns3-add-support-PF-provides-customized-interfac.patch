@@ -1,0 +1,237 @@
+From c76711a0880d0c7b90ae4fe9a8c6ce5402ad8ae8 Mon Sep 17 00:00:00 2001
+From: Jie Wang <wangjie125@huawei.com>
+Date: Fri, 21 Apr 2023 15:55:24 +0800
+Subject: [PATCH 203/283] net: hns3: add support PF provides customized
+ interfaces to detect port faults.
+
+driver inclusion
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN3D
+CVE: NA
+
+----------------------------------------------------------------------
+
+When the link status of the PF network port changes from up to down,
+the IMP can quickly report the link down fault cause based on the
+link status. If the hardware is faulty from the beginning and the
+link is not up, the IMP does not report the link down event
+because the status is not changed.
+
+Therefore, an interface is provided to detect port faults.
+
+Signed-off-by: Jie Wang <wangjie125@huawei.com>
+Signed-off-by: Jiantao Xiao <xiaojiantao1@h-partners.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+---
+ .../net/ethernet/hisilicon/hns3/hnae3_ext.h   | 15 +++++
+ .../net/ethernet/hisilicon/hns3/hns3_ext.c    | 23 ++++++++
+ .../net/ethernet/hisilicon/hns3/hns3_ext.h    | 14 +++++
+ .../hisilicon/hns3/hns3pf/hclge_cmd.h         |  6 ++
+ .../hisilicon/hns3/hns3pf/hclge_ext.c         | 55 +++++++++++++++++++
+ .../hisilicon/hns3/hns3pf/hclge_ext.h         |  2 +
+ 6 files changed, 115 insertions(+)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h b/drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h
+index 5f1302488a1c..51913618bcba 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h
+@@ -44,6 +44,8 @@ enum hnae3_ext_opcode {
+ 	HNAE3_EXT_OPC_GET_LANE_STATUS,
+ 	HNAE3_EXT_OPC_DISABLE_CLOCK,
+ 	HNAE3_EXT_OPC_SET_PFC_TIME,
++	HNAE3_EXT_OPC_GET_HILINK_REF_LOS,
++	HNAE3_EXT_OPC_GET_PORT_FAULT_STATUS,
+ };
+ 
+ struct hnae3_pfc_storm_para {
+@@ -54,6 +56,19 @@ struct hnae3_pfc_storm_para {
+ 	u32 recovery_period_ms;
+ };
+ 
++enum hnae3_port_fault_type {
++	HNAE3_FAULT_TYPE_CDR_FLASH,
++	HNAE3_FAULT_TYPE_9545_ERR,
++	HNAE3_FAULT_TYPE_CDR_CORE,
++	HNAE3_FAULT_TYPE_HILINK_REF_LOS,
++	HNAE3_FAULT_TYPE_INVALID
++};
++
++struct hnae3_port_fault {
++	u32 fault_type;
++	u32 fault_status;
++};
++
+ struct hnae3_notify_pkt_param {
+ 	/* inter-packet gap of sending, the unit is one cycle of clock */
+ 	u32 ipg;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
+index 9683099efb9c..d4a171938d21 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
+@@ -373,3 +373,26 @@ int nic_set_pfc_time_cfg(struct net_device *ndev, u16 time)
+ 				  &time, sizeof(time));
+ }
+ EXPORT_SYMBOL(nic_set_pfc_time_cfg);
++
++int nic_get_port_fault_status(struct net_device *ndev,
++			      u32 fault_type, u32 *status)
++{
++	int opcode = HNAE3_EXT_OPC_GET_PORT_FAULT_STATUS;
++	struct hnae3_port_fault fault_para;
++	int ret;
++
++	if (!status)
++		return -EINVAL;
++
++	if (fault_type == HNAE3_FAULT_TYPE_HILINK_REF_LOS)
++		opcode = HNAE3_EXT_OPC_GET_HILINK_REF_LOS;
++
++	fault_para.fault_type = fault_type;
++	ret = nic_invoke_pri_ops(ndev, opcode, &fault_para, sizeof(fault_para));
++	if (ret)
++		return ret;
++
++	*status = fault_para.fault_status;
++	return 0;
++}
++EXPORT_SYMBOL(nic_get_port_fault_status);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+index 0f9d6683825e..555c8d0dcef1 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+@@ -7,6 +7,18 @@
+ #include "hns3_enet.h"
+ #include "hnae3_ext.h"
+ 
++#define HNS3_PFC_STORM_PARA_DIR_RX 0
++#define HNS3_PFC_STORM_PARA_DIR_TX 1
++#define HNS3_PFC_STORM_PARA_DISABLE 0
++#define HNS3_PFC_STORM_PARA_ENABLE 1
++#define HNS3_PFC_STORM_PARA_PERIOD_MIN 5
++#define HNS3_PFC_STORM_PARA_PERIOD_MAX 2000
++
++#define nic_get_cdr_flash_status(ndev, status)	\
++	nic_get_port_fault_status(ndev, HNAE3_FAULT_TYPE_CDR_FLASH, status)
++#define nic_get_hilink_ref_los(ndev, status)	\
++	nic_get_port_fault_status(ndev, HNAE3_FAULT_TYPE_HILINK_REF_LOS, status)
++
+ int nic_netdev_match_check(struct net_device *netdev);
+ void nic_chip_recover_handler(struct net_device *ndev,
+ 			      enum hnae3_event_type_custom event_t);
+@@ -39,4 +51,6 @@ int nic_disable_net_lane(struct net_device *ndev);
+ int nic_get_net_lane_status(struct net_device *ndev, u32 *status);
+ int nic_disable_clock(struct net_device *ndev);
+ int nic_set_pfc_time_cfg(struct net_device *ndev, u16 time);
++int nic_get_port_fault_status(struct net_device *ndev,
++			      u32 fault_type, u32 *status);
+ #endif
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+index 1785eb6b0f33..07e20ed0106c 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+@@ -702,6 +702,12 @@ struct hclge_sfp_info_cmd {
+ 	u8 rsv[7];
+ };
+ 
++struct hclge_port_fault_cmd {
++	__le32 fault_status;
++	__le32 port_type;
++	u8 rsv[16];
++};
++
+ #define HCLGE_MAC_CFG_FEC_AUTO_EN_B	0
+ #define HCLGE_MAC_CFG_FEC_MODE_S	1
+ #define HCLGE_MAC_CFG_FEC_MODE_M	GENMASK(3, 1)
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+index 2a405fecd5ad..d89c31cc5491 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+@@ -539,6 +539,59 @@ static int hclge_disable_nic_clock(struct hclge_dev *hdev, void *data,
+ 	return ret;
+ }
+ 
++static int hclge_get_hilink_ref_los(struct hclge_dev *hdev, void *data,
++				    size_t length)
++{
++	struct hclge_port_fault_cmd *fault_cmd;
++	struct hclge_desc desc;
++	int ret;
++
++	if (length != sizeof(struct hnae3_port_fault))
++		return -EINVAL;
++
++	fault_cmd = (struct hclge_port_fault_cmd *)desc.data;
++	ret = hclge_get_info_from_cmd(hdev, &desc,
++				      1, HCLGE_OPC_CFG_GET_HILINK_REF_LOS);
++	if (ret) {
++		dev_err(&hdev->pdev->dev,
++			"failed to get hilink ref los, ret = %d\n", ret);
++		return ret;
++	}
++
++	*(u32 *)data = le32_to_cpu(fault_cmd->fault_status);
++	return 0;
++}
++
++static int hclge_get_port_fault_status(struct hclge_dev *hdev, void *data,
++				       size_t length)
++{
++	struct hclge_port_fault_cmd *fault_cmd;
++	struct hnae3_port_fault *para;
++	struct hclge_desc desc;
++	int ret;
++
++	if (length != sizeof(struct hnae3_port_fault))
++		return -EINVAL;
++
++	para = (struct hnae3_port_fault *)data;
++	fault_cmd = (struct hclge_port_fault_cmd *)desc.data;
++	hclge_cmd_setup_basic_desc(&desc,
++				   HCLGE_OPC_GET_PORT_FAULT_STATUS,
++				   true);
++	fault_cmd->port_type = cpu_to_le32(para->fault_type);
++	ret = hclge_cmd_send(&hdev->hw, &desc, 1);
++	if (ret) {
++		dev_err(&hdev->pdev->dev,
++			"failed to get port fault status, type = %u, ret = %d\n",
++			para->fault_type, ret);
++		return ret;
++	}
++
++	para->fault_status = le32_to_cpu(fault_cmd->fault_status);
++
++	return 0;
++}
++
+ static void hclge_ext_resotre_config(struct hclge_dev *hdev)
+ {
+ 	if (hdev->reset_type != HNAE3_IMP_RESET &&
+@@ -704,6 +757,8 @@ static const hclge_priv_ops_fn hclge_ext_func_arr[] = {
+ 	[HNAE3_EXT_OPC_DISABLE_LANE] = hclge_disable_net_lane,
+ 	[HNAE3_EXT_OPC_GET_LANE_STATUS] = hclge_get_net_lane_status,
+ 	[HNAE3_EXT_OPC_DISABLE_CLOCK] = hclge_disable_nic_clock,
++	[HNAE3_EXT_OPC_GET_HILINK_REF_LOS] = hclge_get_hilink_ref_los,
++	[HNAE3_EXT_OPC_GET_PORT_FAULT_STATUS] = hclge_get_port_fault_status,
+ };
+ 
+ int hclge_ext_ops_handle(struct hnae3_handle *handle, int opcode,
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h
+index 04f9ab5261e8..c06b5164accd 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h
+@@ -94,6 +94,8 @@ enum hclge_ext_opcode_type {
+ 	HCLGE_OPC_GET_PORT_NUM = 0x7006,
+ 	HCLGE_OPC_DISABLE_NET_LANE = 0x7008,
+ 	HCLGE_OPC_CFG_PAUSE_STORM_PARA = 0x7019,
++	HCLGE_OPC_CFG_GET_HILINK_REF_LOS = 0x701B,
++	HCLGE_OPC_GET_PORT_FAULT_STATUS = 0x7023,
+ 	HCLGE_OPC_SFP_GET_PRESENT = 0x7101,
+ 	HCLGE_OPC_SFP_SET_STATUS = 0x7102,
+ };
+-- 
+2.34.1
+

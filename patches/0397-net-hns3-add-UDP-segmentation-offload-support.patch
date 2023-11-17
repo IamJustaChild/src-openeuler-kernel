@@ -1,0 +1,73 @@
+From c50c8d104add5d3d4c9a8cf5de7aa26f3088cb38 Mon Sep 17 00:00:00 2001
+From: Huazhong Tan <tanhuazhong@huawei.com>
+Date: Tue, 29 Sep 2020 17:32:01 +0800
+Subject: [PATCH 036/283] net: hns3: add UDP segmentation offload support
+
+mainline inclusion
+from mainline-v5.10-rc1
+commit 0692cfe94a760d17793d2e1c8ca2fe10118e55de
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMQV
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=0692cfe94a760d17793d2e1c8ca2fe10118e55de
+
+--------------------------------
+
+Add support for UDP segmentation offload to the HNS3 driver
+when the device can do it.
+
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+---
+ .../net/ethernet/hisilicon/hns3/hns3_enet.c   | 21 ++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index f55dd10ab554..a06c01cd3efe 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -674,12 +674,19 @@ static int hns3_set_tso(struct sk_buff *skb, u32 *paylen,
+ 
+ 	/* normal or tunnel packet */
+ 	l4_offset = l4.hdr - skb->data;
+-	hdr_len = (l4.tcp->doff << 2) + l4_offset;
+ 
+ 	/* remove payload length from inner pseudo checksum when tso */
+ 	l4_paylen = skb->len - l4_offset;
+-	csum_replace_by_diff(&l4.tcp->check,
+-			     (__force __wsum)htonl(l4_paylen));
++
++	if (skb_shinfo(skb)->gso_type & SKB_GSO_UDP_L4) {
++		hdr_len = sizeof(*l4.udp) + l4_offset;
++		csum_replace_by_diff(&l4.udp->check,
++				     (__force __wsum)htonl(l4_paylen));
++	} else {
++		hdr_len = (l4.tcp->doff << 2) + l4_offset;
++		csum_replace_by_diff(&l4.tcp->check,
++				     (__force __wsum)htonl(l4_paylen));
++	}
+ 
+ 	*send_bytes = (skb_shinfo(skb)->gso_segs - 1) * hdr_len + skb->len;
+ 
+@@ -2425,8 +2432,12 @@ static void hns3_set_default_feature(struct net_device *netdev)
+ 		}
+ 	}
+ 
+-	if (hnae3_get_bit(ae_dev->flag, HNAE3_DEV_SUPPORT_VLAN_FLTR_MDF_B))
+-		netdev->hw_features |= NETIF_F_HW_VLAN_CTAG_FILTER;
++	if (test_bit(HNAE3_DEV_SUPPORT_UDP_GSO_B, ae_dev->caps)) {
++		netdev->hw_features |= NETIF_F_GSO_UDP_L4;
++		netdev->features |= NETIF_F_GSO_UDP_L4;
++		netdev->vlan_features |= NETIF_F_GSO_UDP_L4;
++		netdev->hw_enc_features |= NETIF_F_GSO_UDP_L4;
++	}
+ }
+ 
+ static int hns3_alloc_buffer(struct hns3_enet_ring *ring,
+-- 
+2.34.1
+

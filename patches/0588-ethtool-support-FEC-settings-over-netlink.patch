@@ -1,0 +1,585 @@
+From e67a441d116007df864d97daeccf6966268ba84f Mon Sep 17 00:00:00 2001
+From: Jakub Kicinski <kuba@kernel.org>
+Date: Mon, 29 Mar 2021 20:59:52 -0700
+Subject: [PATCH 227/283] ethtool: support FEC settings over netlink
+
+mainline inclusion
+from mainline-v5.13-rc1
+commit 1e5d1f69d9fb8ea0679f9e85915e8e7fdacfbe7a
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN49
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=1e5d1f69d9fb8ea0679f9e85915e8e7fdacfbe7a
+
+--------------------------------
+
+Add FEC API to netlink.
+
+This is not a 1-to-1 conversion.
+
+FEC settings already depend on link modes to tell user which
+modes are supported. Take this further an use link modes for
+manual configuration. Old struct ethtool_fecparam is still
+used to talk to the drivers, so we need to translate back
+and forth. We can revisit the internal API if number of FEC
+encodings starts to grow.
+
+Enforce only one active FEC bit (by using a bit position
+rather than another mask).
+
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	Documentation/networking/ethtool-netlink.rst
+	include/uapi/linux/ethtool_netlink.h
+	net/ethtool/Makefile
+	net/ethtool/netlink.c
+	net/ethtool/netlink.h
+---
+ Documentation/networking/ethtool-netlink.rst |  61 ++++-
+ include/linux/netdevice.h                    |   2 +
+ include/net/genetlink.h                      |   3 +-
+ include/net/netlink.h                        |  11 +
+ include/uapi/linux/ethtool_netlink.h         |  18 ++
+ net/ethtool/Makefile                         |   2 +-
+ net/ethtool/fec.c                            | 238 +++++++++++++++++++
+ net/ethtool/netlink.c                        |  19 ++
+ net/ethtool/netlink.h                        |   4 +
+ 9 files changed, 354 insertions(+), 4 deletions(-)
+ create mode 100644 net/ethtool/fec.c
+
+diff --git a/Documentation/networking/ethtool-netlink.rst b/Documentation/networking/ethtool-netlink.rst
+index 83b3ecda4f16..39d038e327e9 100644
+--- a/Documentation/networking/ethtool-netlink.rst
++++ b/Documentation/networking/ethtool-netlink.rst
+@@ -182,12 +182,16 @@ Userspace to kernel:
+   ===================================== ================================
+   ``ETHTOOL_MSG_RINGS_GET``             get ring sizes
+   ``ETHTOOL_MSG_RINGS_SET``             set ring sizes
++  ``ETHTOOL_MSG_FEC_GET``               get FEC settings
++  ``ETHTOOL_MSG_FEC_SET``               set FEC settings
+   ===================================== ================================
+ 
+ Kernel to userspace:
+ 
+   ===================================== =================================
+   ``ETHTOOL_MSG_RINGS_GET_REPLY``       ring sizes
++  ``ETHTOOL_MSG_FEC_GET_REPLY``         FEC settings
++  ``ETHTOOL_MSG_FEC_NTF``               FEC settings
+   ===================================== =================================
+ 
+ ``GET`` requests are sent by userspace applications to retrieve device
+@@ -293,6 +297,59 @@ Kernel checks that requested ring sizes do not exceed limits reported by
+ driver. Driver may impose additional constraints and may not suspport all
+ attributes.
+ 
++FEC_GET
++=======
++
++Gets FEC configuration and state like ``ETHTOOL_GFECPARAM`` ioctl request.
++
++Request contents:
++
++  =====================================  ======  ==========================
++  ``ETHTOOL_A_FEC_HEADER``               nested  request header
++  =====================================  ======  ==========================
++
++Kernel response contents:
++
++  =====================================  ======  ==========================
++  ``ETHTOOL_A_FEC_HEADER``               nested  request header
++  ``ETHTOOL_A_FEC_MODES``                bitset  configured modes
++  ``ETHTOOL_A_FEC_AUTO``                 bool    FEC mode auto selection
++  ``ETHTOOL_A_FEC_ACTIVE``               u32     index of active FEC mode
++  =====================================  ======  ==========================
++
++``ETHTOOL_A_FEC_ACTIVE`` is the bit index of the FEC link mode currently
++active on the interface. This attribute may not be present if device does
++not support FEC.
++
++``ETHTOOL_A_FEC_MODES`` and ``ETHTOOL_A_FEC_AUTO`` are only meaningful when
++autonegotiation is disabled. If ``ETHTOOL_A_FEC_AUTO`` is non-zero driver will
++select the FEC mode automatically based on the parameters of the SFP module.
++This is equivalent to the ``ETHTOOL_FEC_AUTO`` bit of the ioctl interface.
++``ETHTOOL_A_FEC_MODES`` carry the current FEC configuration using link mode
++bits (rather than old ``ETHTOOL_FEC_*`` bits).
++
++FEC_SET
++=======
++
++Sets FEC parameters like ``ETHTOOL_SFECPARAM`` ioctl request.
++
++Request contents:
++
++  =====================================  ======  ==========================
++  ``ETHTOOL_A_FEC_HEADER``               nested  request header
++  ``ETHTOOL_A_FEC_MODES``                bitset  configured modes
++  ``ETHTOOL_A_FEC_AUTO``                 bool    FEC mode auto selection
++  =====================================  ======  ==========================
++
++``FEC_SET`` is only meaningful when autonegotiation is disabled. Otherwise
++FEC mode is selected as part of autonegotiation.
++
++``ETHTOOL_A_FEC_MODES`` selects which FEC mode should be used. It's recommended
++to set only one bit, if multiple bits are set driver may choose between them
++in an implementation specific way.
++
++``ETHTOOL_A_FEC_AUTO`` requests the driver to choose FEC mode based on SFP
++module parameters. This does not mean autonegotiation.
+ 
+ Request translation
+ ===================
+@@ -382,6 +439,6 @@ have their netlink replacement yet.
+   ``ETHTOOL_SLINKSETTINGS``           n/a
+   ``ETHTOOL_PHY_GTUNABLE``            n/a
+   ``ETHTOOL_PHY_STUNABLE``            n/a
+-  ``ETHTOOL_GFECPARAM``               n/a
+-  ``ETHTOOL_SFECPARAM``               n/a
++  ``ETHTOOL_GFECPARAM``               ``ETHTOOL_MSG_FEC_GET``
++  ``ETHTOOL_SFECPARAM``               ``ETHTOOL_MSG_FEC_SET``
+   =================================== =====================================
+diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+index 5f110d6a0faa..98935a2a887c 100644
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -4401,6 +4401,8 @@ int skb_crc32c_csum_help(struct sk_buff *skb);
+ int skb_csum_hwoffload_help(struct sk_buff *skb,
+ 			    const netdev_features_t features);
+ 
++void ethtool_notify(struct net_device *dev, unsigned int cmd, const void *data);
++
+ struct sk_buff *__skb_gso_segment(struct sk_buff *skb,
+ 				  netdev_features_t features, bool tx_path);
+ struct sk_buff *skb_mac_gso_segment(struct sk_buff *skb,
+diff --git a/include/net/genetlink.h b/include/net/genetlink.h
+index 5aa6238b0de2..a057409a44a5 100644
+--- a/include/net/genetlink.h
++++ b/include/net/genetlink.h
+@@ -141,13 +141,14 @@ static inline int genl_err_attr(struct genl_info *info, int err,
+  * @done: completion callback for dumps
+  */
+ struct genl_ops {
+-	const struct nla_policy	*policy;
+ 	int		       (*doit)(struct sk_buff *skb,
+ 				       struct genl_info *info);
+ 	int		       (*start)(struct netlink_callback *cb);
+ 	int		       (*dumpit)(struct sk_buff *skb,
+ 					 struct netlink_callback *cb);
+ 	int		       (*done)(struct netlink_callback *cb);
++	const struct nla_policy *policy;
++	unsigned int		maxattr;
+ 	u8			cmd;
+ 	u8			internal_flags;
+ 	u8			flags;
+diff --git a/include/net/netlink.h b/include/net/netlink.h
+index 849a0ef9f695..7b7c14128558 100644
+--- a/include/net/netlink.h
++++ b/include/net/netlink.h
+@@ -259,6 +259,11 @@ struct nla_policy {
+ #endif
+ };
+ 
++#define _NLA_POLICY_NESTED(maxattr, policy) \
++	{ .type = NLA_NESTED, .nested_policy = policy, .len = maxattr }
++#define NLA_POLICY_NESTED(policy) \
++	_NLA_POLICY_NESTED(ARRAY_SIZE(policy) - 1, policy)
++
+ #define __NLA_IS_UINT_TYPE(tp)						\
+ 	(tp == NLA_U8 || tp == NLA_U16 || tp == NLA_U32 || tp == NLA_U64)
+ #define __NLA_IS_SINT_TYPE(tp)						\
+@@ -285,6 +290,12 @@ struct nla_policy {
+ 	.min = _min,					\
+ }
+ 
++#define NLA_POLICY_MAX(tp, _max) {			\
++	.type = NLA_ENSURE_INT_OR_BINARY_TYPE(tp),	\
++	.validation_type = NLA_VALIDATE_MAX,		\
++	.max = _max,					\
++}
++
+ /**
+  * struct nl_info - netlink source information
+  * @nlh: Netlink message header of original request
+diff --git a/include/uapi/linux/ethtool_netlink.h b/include/uapi/linux/ethtool_netlink.h
+index 0c03f091574f..8dffdf192102 100644
+--- a/include/uapi/linux/ethtool_netlink.h
++++ b/include/uapi/linux/ethtool_netlink.h
+@@ -30,6 +30,8 @@ enum {
+ 	ETHTOOL_MSG_PRIVFLAGS_SET,
+ 	ETHTOOL_MSG_RINGS_GET,
+ 	ETHTOOL_MSG_RINGS_SET,
++	ETHTOOL_MSG_FEC_GET,
++	ETHTOOL_MSG_FEC_SET,
+ 
+ 	/* add new constants above here */
+ 	__ETHTOOL_MSG_USER_CNT,
+@@ -56,6 +58,9 @@ enum {
+ 	ETHTOOL_MSG_PRIVFLAGS_NTF,
+ 	ETHTOOL_MSG_RINGS_GET_REPLY,
+ 	ETHTOOL_MSG_RINGS_NTF,
++	ETHTOOL_MSG_FEC_GET_REPLY,
++	ETHTOOL_MSG_FEC_NTF,
++
+ 	/* add new constants above here */
+ 	__ETHTOOL_MSG_KERNEL_CNT,
+ 	ETHTOOL_MSG_KERNEL_MAX = __ETHTOOL_MSG_KERNEL_CNT - 1
+@@ -290,6 +295,19 @@ enum {
+ 	ETHTOOL_A_RINGS_MAX = (__ETHTOOL_A_RINGS_CNT - 1)
+ };
+ 
++/* FEC */
++
++enum {
++	ETHTOOL_A_FEC_UNSPEC,
++	ETHTOOL_A_FEC_HEADER,				/* nest - _A_HEADER_* */
++	ETHTOOL_A_FEC_MODES,				/* bitset */
++	ETHTOOL_A_FEC_AUTO,				/* u8 */
++	ETHTOOL_A_FEC_ACTIVE,				/* u32 */
++
++	__ETHTOOL_A_FEC_CNT,
++	ETHTOOL_A_FEC_MAX = (__ETHTOOL_A_FEC_CNT - 1)
++};
++
+ /* generic netlink info */
+ #define ETHTOOL_GENL_NAME "ethtool"
+ #define ETHTOOL_GENL_VERSION 1
+diff --git a/net/ethtool/Makefile b/net/ethtool/Makefile
+index 70e62f840e28..8900e8ff22f8 100644
+--- a/net/ethtool/Makefile
++++ b/net/ethtool/Makefile
+@@ -4,4 +4,4 @@ obj-y				+= ioctl.o common.o
+ 
+ obj-$(CONFIG_ETHTOOL_NETLINK)	+= ethtool_nl.o
+ 
+-ethtool_nl-y	:= netlink.o rings.o linkmodes.o bitset.o
+\ No newline at end of file
++ethtool_nl-y	:= netlink.o rings.o linkmodes.o bitset.o fec.o
+\ No newline at end of file
+diff --git a/net/ethtool/fec.c b/net/ethtool/fec.c
+new file mode 100644
+index 000000000000..31454b9188bd
+--- /dev/null
++++ b/net/ethtool/fec.c
+@@ -0,0 +1,238 @@
++// SPDX-License-Identifier: GPL-2.0-only
++
++#include "netlink.h"
++#include "common.h"
++#include "bitset.h"
++
++struct fec_req_info {
++	struct ethnl_req_info		base;
++};
++
++struct fec_reply_data {
++	struct ethnl_reply_data		base;
++	__ETHTOOL_DECLARE_LINK_MODE_MASK(fec_link_modes);
++	u32 active_fec;
++	u8 fec_auto;
++};
++
++#define FEC_REPDATA(__reply_base) \
++	container_of(__reply_base, struct fec_reply_data, base)
++
++#define ETHTOOL_FEC_MASK	((ETHTOOL_FEC_LLRS << 1) - 1)
++
++const struct nla_policy ethnl_fec_get_policy[ETHTOOL_A_FEC_HEADER + 1] = {
++	[ETHTOOL_A_FEC_HEADER]	= NLA_POLICY_NESTED(ethnl_header_policy),
++};
++
++static void
++ethtool_fec_to_link_modes(u32 fec, unsigned long *link_modes, u8 *fec_auto)
++{
++	if (fec_auto)
++		*fec_auto = !!(fec & ETHTOOL_FEC_AUTO);
++
++	if (fec & ETHTOOL_FEC_OFF)
++		__set_bit(ETHTOOL_LINK_MODE_FEC_NONE_BIT, link_modes);
++	if (fec & ETHTOOL_FEC_RS)
++		__set_bit(ETHTOOL_LINK_MODE_FEC_RS_BIT, link_modes);
++	if (fec & ETHTOOL_FEC_BASER)
++		__set_bit(ETHTOOL_LINK_MODE_FEC_BASER_BIT, link_modes);
++	if (fec & ETHTOOL_FEC_LLRS)
++		__set_bit(ETHTOOL_LINK_MODE_FEC_LLRS_BIT, link_modes);
++}
++
++static int
++ethtool_link_modes_to_fecparam(struct ethtool_fecparam *fec,
++			       unsigned long *link_modes, u8 fec_auto)
++{
++	memset(fec, 0, sizeof(*fec));
++
++	if (fec_auto)
++		fec->fec |= ETHTOOL_FEC_AUTO;
++
++	if (__test_and_clear_bit(ETHTOOL_LINK_MODE_FEC_NONE_BIT, link_modes))
++		fec->fec |= ETHTOOL_FEC_OFF;
++	if (__test_and_clear_bit(ETHTOOL_LINK_MODE_FEC_RS_BIT, link_modes))
++		fec->fec |= ETHTOOL_FEC_RS;
++	if (__test_and_clear_bit(ETHTOOL_LINK_MODE_FEC_BASER_BIT, link_modes))
++		fec->fec |= ETHTOOL_FEC_BASER;
++	if (__test_and_clear_bit(ETHTOOL_LINK_MODE_FEC_LLRS_BIT, link_modes))
++		fec->fec |= ETHTOOL_FEC_LLRS;
++
++	if (!bitmap_empty(link_modes, __ETHTOOL_LINK_MODE_MASK_NBITS))
++		return -EINVAL;
++
++	return 0;
++}
++
++static int fec_prepare_data(const struct ethnl_req_info *req_base,
++			    struct ethnl_reply_data *reply_base,
++			    struct genl_info *info)
++{
++	__ETHTOOL_DECLARE_LINK_MODE_MASK(active_fec_modes) = {};
++	struct fec_reply_data *data = FEC_REPDATA(reply_base);
++	struct net_device *dev = reply_base->dev;
++	struct ethtool_fecparam fec = {};
++	int ret;
++
++	if (!dev->ethtool_ops->get_fecparam)
++		return -EOPNOTSUPP;
++	ret = ethnl_ops_begin(dev);
++	if (ret < 0)
++		return ret;
++	ret = dev->ethtool_ops->get_fecparam(dev, &fec);
++	ethnl_ops_complete(dev);
++	if (ret)
++		return ret;
++
++	WARN_ON_ONCE(fec.reserved);
++
++	ethtool_fec_to_link_modes(fec.fec, data->fec_link_modes,
++				  &data->fec_auto);
++
++	ethtool_fec_to_link_modes(fec.active_fec, active_fec_modes, NULL);
++	data->active_fec = find_first_bit(active_fec_modes,
++					  __ETHTOOL_LINK_MODE_MASK_NBITS);
++	/* Don't report attr if no FEC mode set. Note that
++	 * ethtool_fecparam_to_link_modes() ignores NONE and AUTO.
++	 */
++	if (data->active_fec == __ETHTOOL_LINK_MODE_MASK_NBITS)
++		data->active_fec = 0;
++
++	return 0;
++}
++
++static int fec_reply_size(const struct ethnl_req_info *req_base,
++			  const struct ethnl_reply_data *reply_base)
++{
++	bool compact = req_base->flags & ETHTOOL_FLAG_COMPACT_BITSETS;
++	const struct fec_reply_data *data = FEC_REPDATA(reply_base);
++	int len = 0;
++	int ret;
++
++	ret = ethnl_bitset_size(data->fec_link_modes, NULL,
++				__ETHTOOL_LINK_MODE_MASK_NBITS,
++				link_mode_names, compact);
++	if (ret < 0)
++		return ret;
++	len += ret;
++
++	len += nla_total_size(sizeof(u8)) +	/* _FEC_AUTO */
++	       nla_total_size(sizeof(u32));	/* _FEC_ACTIVE */
++
++	return len;
++}
++
++static int fec_fill_reply(struct sk_buff *skb,
++			  const struct ethnl_req_info *req_base,
++			  const struct ethnl_reply_data *reply_base)
++{
++	bool compact = req_base->flags & ETHTOOL_FLAG_COMPACT_BITSETS;
++	const struct fec_reply_data *data = FEC_REPDATA(reply_base);
++	int ret;
++
++	ret = ethnl_put_bitset(skb, ETHTOOL_A_FEC_MODES,
++			       data->fec_link_modes, NULL,
++			       __ETHTOOL_LINK_MODE_MASK_NBITS,
++			       link_mode_names, compact);
++	if (ret < 0)
++		return ret;
++
++	if (nla_put_u8(skb, ETHTOOL_A_FEC_AUTO, data->fec_auto) ||
++	    (data->active_fec &&
++	     nla_put_u32(skb, ETHTOOL_A_FEC_ACTIVE, data->active_fec)))
++		return -EMSGSIZE;
++
++	return 0;
++}
++
++const struct ethnl_request_ops ethnl_fec_request_ops = {
++	.request_cmd		= ETHTOOL_MSG_FEC_GET,
++	.reply_cmd		= ETHTOOL_MSG_FEC_GET_REPLY,
++	.hdr_attr		= ETHTOOL_A_FEC_HEADER,
++	.req_info_size		= sizeof(struct fec_req_info),
++	.reply_data_size	= sizeof(struct fec_reply_data),
++
++	.prepare_data		= fec_prepare_data,
++	.reply_size		= fec_reply_size,
++	.fill_reply		= fec_fill_reply,
++};
++
++/* FEC_SET */
++
++const struct nla_policy ethnl_fec_set_policy[ETHTOOL_A_FEC_AUTO + 1] = {
++	[ETHTOOL_A_FEC_HEADER]	= NLA_POLICY_NESTED(ethnl_header_policy),
++	[ETHTOOL_A_FEC_MODES]	= { .type = NLA_NESTED },
++	[ETHTOOL_A_FEC_AUTO]	= NLA_POLICY_MAX(NLA_U8, 1),
++};
++
++int ethnl_set_fec(struct sk_buff *skb, struct genl_info *info)
++{
++	__ETHTOOL_DECLARE_LINK_MODE_MASK(fec_link_modes) = {};
++	struct ethnl_req_info req_info = {};
++	struct nlattr **tb = info->attrs;
++	struct ethtool_fecparam fec = {};
++	const struct ethtool_ops *ops;
++	struct net_device *dev;
++	bool mod = false;
++	u8 fec_auto;
++	int ret;
++
++	ret = ethnl_parse_header_dev_get(&req_info, tb[ETHTOOL_A_FEC_HEADER],
++					 genl_info_net(info), info->extack,
++					 true);
++	if (ret < 0)
++		return ret;
++	dev = req_info.dev;
++	ops = dev->ethtool_ops;
++	ret = -EOPNOTSUPP;
++	if (!ops->get_fecparam || !ops->set_fecparam)
++		goto out_dev;
++
++	rtnl_lock();
++	ret = ethnl_ops_begin(dev);
++	if (ret < 0)
++		goto out_rtnl;
++	ret = ops->get_fecparam(dev, &fec);
++	if (ret < 0)
++		goto out_ops;
++
++	ethtool_fec_to_link_modes(fec.fec, fec_link_modes, &fec_auto);
++
++	ret = ethnl_update_bitset(fec_link_modes,
++				  __ETHTOOL_LINK_MODE_MASK_NBITS,
++				  tb[ETHTOOL_A_FEC_MODES],
++				  link_mode_names, info->extack, &mod);
++	if (ret < 0)
++		goto out_ops;
++	ethnl_update_u8(&fec_auto, tb[ETHTOOL_A_FEC_AUTO], &mod);
++
++	ret = 0;
++	if (!mod)
++		goto out_ops;
++
++	ret = ethtool_link_modes_to_fecparam(&fec, fec_link_modes, fec_auto);
++	if (ret) {
++		NL_SET_ERR_MSG_ATTR(info->extack, tb[ETHTOOL_A_FEC_MODES],
++				    "invalid FEC modes requested");
++		goto out_ops;
++	}
++	if (!fec.fec) {
++		ret = -EINVAL;
++		NL_SET_ERR_MSG_ATTR(info->extack, tb[ETHTOOL_A_FEC_MODES],
++				    "no FEC modes set");
++		goto out_ops;
++	}
++
++	ret = dev->ethtool_ops->set_fecparam(dev, &fec);
++	if (ret < 0)
++		goto out_ops;
++	ethtool_notify(dev, ETHTOOL_MSG_FEC_NTF, NULL);
++
++out_ops:
++	ethnl_ops_complete(dev);
++out_rtnl:
++	rtnl_unlock();
++out_dev:
++	dev_put(dev);
++	return ret;
++}
+diff --git a/net/ethtool/netlink.c b/net/ethtool/netlink.c
+index d86613309591..0b740fe1cd35 100644
+--- a/net/ethtool/netlink.c
++++ b/net/ethtool/netlink.c
+@@ -288,6 +288,7 @@ struct ethnl_dump_ctx {
+ static const struct ethnl_request_ops *
+ ethnl_default_requests[__ETHTOOL_MSG_USER_CNT] = {
+ 	[ETHTOOL_MSG_RINGS_GET]		= &ethnl_rings_request_ops,
++	[ETHTOOL_MSG_FEC_GET]		= &ethnl_fec_request_ops,
+ };
+ 
+ static struct ethnl_dump_ctx *ethnl_dump_context(struct netlink_callback *cb)
+@@ -599,6 +600,7 @@ static int ethnl_default_done(struct netlink_callback *cb)
+ static const struct ethnl_request_ops *
+ ethnl_default_notify_ops[ETHTOOL_MSG_KERNEL_MAX + 1] = {
+ 	[ETHTOOL_MSG_RINGS_NTF]		= &ethnl_rings_request_ops,
++	[ETHTOOL_MSG_FEC_NTF]		= &ethnl_fec_request_ops,
+ };
+ 
+ /* default notification handler */
+@@ -685,6 +687,7 @@ static const ethnl_notify_handler_t ethnl_notify_handlers[] = {
+ 	[ETHTOOL_MSG_WOL_NTF]		= ethnl_default_notify,
+ 	[ETHTOOL_MSG_FEATURES_NTF]	= ethnl_default_notify,
+ 	[ETHTOOL_MSG_PRIVFLAGS_NTF]	= ethnl_default_notify,
++	[ETHTOOL_MSG_FEC_NTF]		= ethnl_default_notify,
+ };
+ 
+ void ethtool_notify(struct net_device *dev, unsigned int cmd, const void *data)
+@@ -774,6 +777,22 @@ static const struct genl_ops ethtool_genl_ops[] = {
+ 		.flags	= GENL_UNS_ADMIN_PERM,
+ 		.doit	= ethnl_set_rings,
+ 	},
++	{
++		.cmd	= ETHTOOL_MSG_FEC_GET,
++		.doit	= ethnl_default_doit,
++		.start	= ethnl_default_start,
++		.dumpit	= ethnl_default_dumpit,
++		.done	= ethnl_default_done,
++		.policy = ethnl_fec_get_policy,
++		.maxattr = ARRAY_SIZE(ethnl_fec_get_policy) - 1,
++	},
++	{
++		.cmd	= ETHTOOL_MSG_FEC_SET,
++		.flags	= GENL_UNS_ADMIN_PERM,
++		.doit	= ethnl_set_fec,
++		.policy = ethnl_fec_set_policy,
++		.maxattr = ARRAY_SIZE(ethnl_fec_set_policy) - 1,
++	},
+ };
+ 
+ static const struct genl_multicast_group ethtool_nl_mcgrps[] = {
+diff --git a/net/ethtool/netlink.h b/net/ethtool/netlink.h
+index bf71eaf2ace8..17155d446f2d 100644
+--- a/net/ethtool/netlink.h
++++ b/net/ethtool/netlink.h
+@@ -331,6 +331,7 @@ extern const struct ethnl_request_ops ethnl_coalesce_request_ops;
+ extern const struct ethnl_request_ops ethnl_pause_request_ops;
+ extern const struct ethnl_request_ops ethnl_eee_request_ops;
+ extern const struct ethnl_request_ops ethnl_tsinfo_request_ops;
++extern const struct ethnl_request_ops ethnl_fec_request_ops;
+ 
+ extern const struct nla_policy ethnl_header_policy[ETHTOOL_A_HEADER_FLAGS + 1];
+ extern const struct nla_policy ethnl_header_policy_stats[ETHTOOL_A_HEADER_FLAGS + 1];
+@@ -351,6 +352,8 @@ extern const struct nla_policy ethnl_privflags_get_policy[ETHTOOL_A_PRIVFLAGS_HE
+ extern const struct nla_policy ethnl_privflags_set_policy[ETHTOOL_A_PRIVFLAGS_FLAGS + 1];
+ extern const struct nla_policy ethnl_rings_get_policy[ETHTOOL_A_RINGS_HEADER + 1];
+ extern const struct nla_policy ethnl_rings_set_policy[ETHTOOL_A_RINGS_RX_BUF_LEN + 1];
++extern const struct nla_policy ethnl_fec_get_policy[ETHTOOL_A_FEC_HEADER + 1];
++extern const struct nla_policy ethnl_fec_set_policy[ETHTOOL_A_FEC_AUTO + 1];
+ 
+ int ethnl_set_linkinfo(struct sk_buff *skb, struct genl_info *info);
+ int ethnl_set_linkmodes(struct sk_buff *skb, struct genl_info *info);
+@@ -359,5 +362,6 @@ int ethnl_set_wol(struct sk_buff *skb, struct genl_info *info);
+ int ethnl_set_features(struct sk_buff *skb, struct genl_info *info);
+ int ethnl_set_privflags(struct sk_buff *skb, struct genl_info *info);
+ int ethnl_set_rings(struct sk_buff *skb, struct genl_info *info);
++int ethnl_set_fec(struct sk_buff *skb, struct genl_info *info);
+ 
+ #endif /* _NET_ETHTOOL_NETLINK_H */
+-- 
+2.34.1
+

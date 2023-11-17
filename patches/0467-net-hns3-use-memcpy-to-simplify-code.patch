@@ -1,0 +1,60 @@
+From 3efcdbc96a9e44d11a381e2700d3e66c7077dbfc Mon Sep 17 00:00:00 2001
+From: Peng Li <lipeng321@huawei.com>
+Date: Tue, 28 Sep 2021 11:51:57 +0800
+Subject: [PATCH 106/283] net: hns3: use memcpy to simplify code
+
+mainline inclusion
+from mainline-v5.15-rc1
+commit 304cd8e776ddca5021dd9c1d7603ea40afc48ec6
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMYT
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=304cd8e776ddca5021dd9c1d7603ea40afc48ec6
+
+----------------------------------------------------------------------
+
+Use memcpy to copy req->msg.resp_data to resp->additional_info,
+to simplify the code and improve a little efficiency.
+
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c
+index 244b83e22f53..41e303a42a9d 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c
+@@ -189,8 +189,6 @@ void hclgevf_mbx_handler(struct hclgevf_dev *hdev)
+ 	struct hclgevf_desc *desc;
+ 	u16 *msg_q;
+ 	u16 flag;
+-	u8 *temp;
+-	int i;
+ 
+ 	resp = &hdev->mbx_resp;
+ 	crq = &hdev->hw.cmq.crq;
+@@ -237,11 +235,8 @@ void hclgevf_mbx_handler(struct hclgevf_dev *hdev)
+ 			resp->resp_status =
+ 				hclgevf_resp_to_errno(req->msg.resp_status);
+ 
+-			temp = (u8 *)req->msg.resp_data;
+-			for (i = 0; i < HCLGE_MBX_MAX_RESP_DATA_SIZE; i++) {
+-				resp->additional_info[i] = *temp;
+-				temp++;
+-			}
++			memcpy(resp->additional_info, req->msg.resp_data,
++			       HCLGE_MBX_MAX_RESP_DATA_SIZE * sizeof(u8));
+ 
+ 			/* ensure additional_info will be seen before setting
+ 			 * received_resp
+-- 
+2.34.1
+

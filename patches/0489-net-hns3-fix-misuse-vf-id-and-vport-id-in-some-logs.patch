@@ -1,0 +1,54 @@
+From 27fb70e76f8226914d0163b9bf635f03df5ebe58 Mon Sep 17 00:00:00 2001
+From: Jiaran Zhang <zhangjiaran@huawei.com>
+Date: Mon, 11 Oct 2021 11:13:27 +0800
+Subject: [PATCH 128/283] net: hns3: fix misuse vf id and vport id in some logs
+
+mainline inclusion
+from mainline-v5.15-rc3
+commit 311c0aaa9b4bb8dc65f22634e15963316b17c921
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMYT
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=311c0aaa9b4bb8dc65f22634e15963316b17c921
+
+----------------------------------------------------------------------
+
+vport_id include PF and VFs, vport_id = 0 means PF, other values mean VFs.
+So the actual vf id is equal to vport_id minus 1.
+
+Some VF print logs are actually vport, and logs of vf id actually use
+vport id, so this patch fixes them.
+
+Fixes: ac887be5b0fe ("net: hns3: change print level of RAS error log from warning to error")
+Fixes: adcf738b804b ("net: hns3: cleanup some print format warning")
+Signed-off-by: Jiaran Zhang <zhangjiaran@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c
+index 094f49087f72..dd607bfad25d 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c
+@@ -2467,7 +2467,7 @@ static void hclge_handle_over_8bd_err(struct hclge_dev *hdev,
+ 		ret = hclge_inform_reset_assert_to_vf(&hdev->vport[vf_id]);
+ 		if (ret)
+ 			dev_err(dev, "inform reset to vport(%u) failed %d!\n",
+-				hdev->vport->vport_id, ret);
++				vf_id, ret);
+ 	} else {
+ 		set_bit(HNAE3_FUNC_RESET, reset_requests);
+ 	}
+-- 
+2.34.1
+

@@ -1,0 +1,358 @@
+From a8ed6dd2923eaa49dc933a6bc98afe746f5e92cb Mon Sep 17 00:00:00 2001
+From: Hao Chen <chenhao418@huawei.com>
+Date: Tue, 6 Sep 2022 17:12:23 +0800
+Subject: [PATCH 224/283] net: hns3: add support to query and set lane number
+ by ethtool
+
+mainline inclusion
+from mainline-v5.1-rc1
+commit 0f032f93c4ee9ff667b493db7b21c94cff31edc6
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN49
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=0f032f93c4ee9ff667b493db7b21c94cff31edc6
+
+--------------------------------
+
+When serdes lane support setting 25Gb/s or 50Gb/s speed and user wants to
+set port speed as 50Gb/s, it can be setted as one 50Gb/s serdes lane or
+two 25Gb/s serdes lanes.
+
+So, this patch adds support to query and set lane number by ethtool
+to satisfy this scenario.
+
+Signed-off-by: Hao Chen <chenhao418@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hnae3.h
+	drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.c
+	drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h
+	drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
+	drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+---
+ drivers/net/ethernet/hisilicon/hns3/hnae3.h   |  9 +++++--
+ .../hns3/hns3_common/hclge_comm_cmd.c         |  1 +
+ .../hns3/hns3_common/hclge_comm_cmd.h         |  1 +
+ .../ethernet/hisilicon/hns3/hns3_debugfs.c    |  6 +++++
+ .../net/ethernet/hisilicon/hns3/hns3_enet.c   |  8 ++----
+ .../ethernet/hisilicon/hns3/hns3_ethtool.c    | 27 ++++++++++++-------
+ .../hisilicon/hns3/hns3pf/hclge_main.c        | 23 ++++++++++------
+ .../hisilicon/hns3/hns3pf/hclge_main.h        |  3 ++-
+ .../hisilicon/hns3/hns3pf/hclge_mdio.c        |  2 +-
+ .../hisilicon/hns3/hns3vf/hclgevf_main.c      |  2 +-
+ 10 files changed, 53 insertions(+), 29 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3.h b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+index 437130f8077b..31a593966a42 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+@@ -101,6 +101,7 @@ enum HNAE3_DEV_CAP_BITS {
+ 	HNAE3_DEV_SUPPORT_VLAN_FLTR_MDF_B,
+ 	HNAE3_DEV_SUPPORT_MC_MAC_MNG_B,
+ 	HNAE3_DEV_SUPPORT_CQ_B,
++	HNAE3_DEV_SUPPORT_FEC_STATS_B,
+ 	HNAE3_DEV_SUPPORT_LANE_NUM_B,
+ 	HNAE3_DEV_SUPPORT_WOL_B,
+ 	HNAE3_DEV_SUPPORT_VF_FAULT_B,
+@@ -179,6 +180,9 @@ enum HNAE3_DEV_CAP_BITS {
+ #define hnae3_ae_dev_notify_pkt_supported(ae_dev) \
+ 	test_bit(HNAE3_DEV_SUPPORT_NOTIFY_PKT_B, (ae_dev)->caps)
+ 
++#define hnae3_ae_dev_lane_num_supported(ae_dev) \
++	test_bit(HNAE3_DEV_SUPPORT_LANE_NUM_B, (ae_dev)->caps)
++
+ enum HNAE3_PF_CAP_BITS {
+ 	HNAE3_PF_SUPPORT_VLAN_FLTR_MDF_B = 0,
+ };
+@@ -606,10 +610,11 @@ struct hnae3_ae_ops {
+ 	void (*client_stop)(struct hnae3_handle *handle);
+ 	int (*get_status)(struct hnae3_handle *handle);
+ 	void (*get_ksettings_an_result)(struct hnae3_handle *handle,
+-					u8 *auto_neg, u32 *speed, u8 *duplex);
++					u8 *auto_neg, u32 *speed, u8 *duplex,
++					u32 *lane_num);
+ 
+ 	int (*cfg_mac_speed_dup_h)(struct hnae3_handle *handle, int speed,
+-				   u8 duplex);
++				   u8 duplex, u8 lane_num);
+ 
+ 	void (*get_media_type)(struct hnae3_handle *handle, u8 *media_type,
+ 			       u8 *module_type);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.c b/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.c
+index d2000301b942..c4d647519977 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.c
+@@ -154,6 +154,7 @@ static const struct hclge_comm_caps_bit_map hclge_pf_cmd_caps[] = {
+ 	{HCLGE_COMM_CAP_CQ_B, HNAE3_DEV_SUPPORT_CQ_B},
+ 	{HCLGE_COMM_CAP_GRO_B, HNAE3_DEV_SUPPORT_GRO_B},
+ 	{HCLGE_COMM_CAP_FD_B, HNAE3_DEV_SUPPORT_FD_B},
++	{HCLGE_COMM_CAP_FEC_STATS_B, HNAE3_DEV_SUPPORT_FEC_STATS_B},
+ 	{HCLGE_COMM_CAP_LANE_NUM_B, HNAE3_DEV_SUPPORT_LANE_NUM_B},
+ 	{HCLGE_COMM_CAP_WOL_B, HNAE3_DEV_SUPPORT_WOL_B},
+ 	{HCLGE_COMM_CAP_NOTIFY_PKT_B, HNAE3_DEV_SUPPORT_NOTIFY_PKT_B},
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h
+index de9da88134e5..2b8df9b03412 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h
+@@ -95,6 +95,7 @@ enum HCLGE_COMM_CAP_BITS {
+ 	HCLGE_COMM_CAP_CQ_B = 18,
+ 	HCLGE_COMM_CAP_GRO_B = 20,
+ 	HCLGE_COMM_CAP_FD_B = 21,
++	HCLGE_COMM_CAP_FEC_STATS_B = 25,
+ 	HCLGE_COMM_CAP_LANE_NUM_B = 27,
+ 	HCLGE_COMM_CAP_WOL_B = 28,
+ 	HCLGE_COMM_CAP_NOTIFY_PKT_B = 29,
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c b/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
+index 9e92e8f92b95..afe3f673364c 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
+@@ -367,6 +367,12 @@ static struct hns3_dbg_cap_info hns3_dbg_cap[] = {
+ 	}, {
+ 		.name = "support modify vlan filter state",
+ 		.cap_bit = HNAE3_DEV_SUPPORT_VLAN_FLTR_MDF_B,
++	}, {
++		.name = "support FEC statistics",
++		.cap_bit = HNAE3_DEV_SUPPORT_FEC_STATS_B,
++	}, {
++		.name = "support lane num",
++		.cap_bit = HNAE3_DEV_SUPPORT_LANE_NUM_B,
+ 	}
+ };
+ 
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index 72cc7f16aa7e..3066d7e960de 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -2053,8 +2053,7 @@ netdev_tx_t hns3_nic_net_xmit(struct sk_buff *skb, struct net_device *netdev)
+ 	struct hns3_enet_ring *ring = &priv->ring[skb->queue_mapping];
+ 	struct hns3_desc_cb *desc_cb = &ring->desc_cb[ring->next_to_use];
+ 	struct netdev_queue *dev_queue;
+-	int pre_ntu, next_to_use_head;
+-	int ret;
++	int pre_ntu, ret;
+ 
+ 	/* Hardware can only handle short frames above 32 bytes */
+ 	if (skb_put_padto(skb, HNS3_MIN_TX_LEN)) {
+@@ -2094,7 +2093,7 @@ netdev_tx_t hns3_nic_net_xmit(struct sk_buff *skb, struct net_device *netdev)
+ 	 */
+ 	ret = hns3_handle_desc_filling(ring, skb);
+ 	if (unlikely(ret <= 0))
+-		goto fill_err;
++		goto out_err_tx_ok;
+ 
+ 	pre_ntu = ring->next_to_use ? (ring->next_to_use - 1) :
+ 					(ring->desc_num - 1);
+@@ -2119,9 +2118,6 @@ netdev_tx_t hns3_nic_net_xmit(struct sk_buff *skb, struct net_device *netdev)
+ 
+ 	return NETDEV_TX_OK;
+ 
+-fill_err:
+-	hns3_clear_desc(ring, next_to_use_head);
+-
+ out_err_tx_ok:
+ 	dev_kfree_skb_any(skb);
+ 	hns3_tx_doorbell(ring, 0, !netdev_xmit_more());
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+index 52d448686a06..ece3e95e80d6 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+@@ -766,7 +766,8 @@ static void hns3_get_ksettings(struct hnae3_handle *h,
+ 		ops->get_ksettings_an_result(h,
+ 					     &cmd->base.autoneg,
+ 					     &cmd->base.speed,
+-					     &cmd->base.duplex);
++					     &cmd->base.duplex,
++					     &cmd->lanes);
+ 
+ 	/* 2.get link mode */
+ 	if (ops->get_link_mode)
+@@ -848,6 +849,7 @@ static int hns3_check_ksettings_param(const struct net_device *netdev,
+ 	const struct hnae3_ae_ops *ops = handle->ae_algo->ops;
+ 	u8 module_type = HNAE3_MODULE_TYPE_UNKNOWN;
+ 	u8 media_type = HNAE3_MEDIA_TYPE_UNKNOWN;
++	u32 lane_num;
+ 	u8 autoneg;
+ 	u32 speed;
+ 	u8 duplex;
+@@ -860,9 +862,10 @@ static int hns3_check_ksettings_param(const struct net_device *netdev,
+ 		return 0;
+ 
+ 	if (ops->get_ksettings_an_result) {
+-		ops->get_ksettings_an_result(handle, &autoneg, &speed, &duplex);
++		ops->get_ksettings_an_result(handle, &autoneg, &speed,
++						&duplex, &lane_num);
+ 		if (cmd->base.autoneg == autoneg && cmd->base.speed == speed &&
+-		    cmd->base.duplex == duplex)
++		    cmd->base.duplex == duplex && cmd->lanes == lane_num)
+ 			return 0;
+ 	}
+ 
+@@ -899,12 +902,14 @@ static int hns3_set_link_ksettings(struct net_device *netdev,
+ 	if (cmd->base.speed == SPEED_1000 && cmd->base.duplex == DUPLEX_HALF)
+ 		return -EINVAL;
+ 
+-	if (netif_msg_ifdown(handle))
+-		netdev_info(netdev,
+-			    "set link(%s): autoneg=%u, speed=%u, duplex=%u\n",
+-			    netdev->phydev ? "phy" : "mac",
+-			    cmd->base.autoneg, cmd->base.speed,
+-			    cmd->base.duplex);
++	if (cmd->lanes && !hnae3_ae_dev_lane_num_supported(ae_dev))
++		return -EOPNOTSUPP;
++
++	netif_dbg(handle, drv, netdev,
++		  "set link(%s): autoneg=%u, speed=%u, duplex=%u, lanes=%u\n",
++		  netdev->phydev ? "phy" : "mac",
++		  cmd->base.autoneg, cmd->base.speed, cmd->base.duplex,
++		  cmd->lanes);
+ 
+ 	/* Only support ksettings_set for netdev with phy attached for now */
+ 	if (netdev->phydev) {
+@@ -942,7 +947,8 @@ static int hns3_set_link_ksettings(struct net_device *netdev,
+ 
+ 	if (ops->cfg_mac_speed_dup_h)
+ 		ret = ops->cfg_mac_speed_dup_h(handle, cmd->base.speed,
+-					       cmd->base.duplex);
++					       cmd->base.duplex,
++						   (u8)(cmd->lanes));
+ 
+ 	return ret;
+ }
+@@ -2028,6 +2034,7 @@ static const struct ethtool_ops hns3vf_ethtool_ops = {
+ static const struct ethtool_ops hns3_ethtool_ops = {
+ 	.supported_coalesce_params = HNS3_ETHTOOL_COALESCE,
+ 	.supported_ring_params = HNS3_ETHTOOL_RING,
++	.cap_link_lanes_supported = true,
+ 	.self_test = hns3_self_test,
+ 	.get_drvinfo = hns3_get_drvinfo,
+ 	.get_link = hns3_get_link,
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index e838d68607c9..5cb599ca53ea 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -2724,33 +2724,37 @@ int hclge_cfg_mac_speed_dup_hw(struct hclge_dev *hdev, int speed,
+ 	return 0;
+ }
+ 
+-int hclge_cfg_mac_speed_dup(struct hclge_dev *hdev, int speed, u8 duplex)
++int hclge_cfg_mac_speed_dup(struct hclge_dev *hdev, int speed,
++			    u8 duplex, u8 lane_num)
+ {
+ 	struct hclge_mac *mac = &hdev->hw.mac;
+ 	int ret;
+ 
+ 	duplex = hclge_check_speed_dup(duplex, speed);
+ 	if (!mac->support_autoneg && mac->speed == speed &&
+-	    mac->duplex == duplex)
++	    mac->duplex == duplex &&
++		(mac->lane_num == lane_num || lane_num == 0))
+ 		return 0;
+ 
+-	ret = hclge_cfg_mac_speed_dup_hw(hdev, speed, duplex, 0);
++	ret = hclge_cfg_mac_speed_dup_hw(hdev, speed, duplex, lane_num);
+ 	if (ret)
+ 		return ret;
+ 
+ 	hdev->hw.mac.speed = speed;
+ 	hdev->hw.mac.duplex = duplex;
++	if (!lane_num)
++		hdev->hw.mac.lane_num = lane_num;
+ 
+ 	return 0;
+ }
+ 
+ static int hclge_cfg_mac_speed_dup_h(struct hnae3_handle *handle, int speed,
+-				     u8 duplex)
++				     u8 duplex, u8 lane_num)
+ {
+ 	struct hclge_vport *vport = hclge_get_vport(handle);
+ 	struct hclge_dev *hdev = vport->back;
+ 
+-	return hclge_cfg_mac_speed_dup(hdev, speed, duplex);
++	return hclge_cfg_mac_speed_dup(hdev, speed, duplex, lane_num);
+ }
+ 
+ static int hclge_set_autoneg_en(struct hclge_dev *hdev, bool enable)
+@@ -3409,13 +3413,13 @@ static int hclge_update_port_info(struct hclge_dev *hdev)
+ 			return 0;
+ 		}
+ 		return hclge_cfg_mac_speed_dup(hdev, mac->speed,
+-					       HCLGE_MAC_FULL);
++					       HCLGE_MAC_FULL, mac->lane_num);
+ 	} else {
+ 		if (speed == HCLGE_MAC_SPEED_UNKNOWN)
+ 			return 0; /* do nothing if no SFP */
+ 
+ 		/* must config full duplex for SFP */
+-		return hclge_cfg_mac_speed_dup(hdev, speed, HCLGE_MAC_FULL);
++		return hclge_cfg_mac_speed_dup(hdev, speed, HCLGE_MAC_FULL, 0);
+ 	}
+ }
+ 
+@@ -10897,7 +10901,8 @@ static int hclge_set_pauseparam(struct hnae3_handle *handle, u32 auto_neg,
+ }
+ 
+ static void hclge_get_ksettings_an_result(struct hnae3_handle *handle,
+-					  u8 *auto_neg, u32 *speed, u8 *duplex)
++					  u8 *auto_neg, u32 *speed,
++					  u8 *duplex, u32 *lane_num)
+ {
+ 	struct hclge_vport *vport = hclge_get_vport(handle);
+ 	struct hclge_dev *hdev = vport->back;
+@@ -10908,6 +10913,8 @@ static void hclge_get_ksettings_an_result(struct hnae3_handle *handle,
+ 		*duplex = hdev->hw.mac.duplex;
+ 	if (auto_neg)
+ 		*auto_neg = hdev->hw.mac.autoneg;
++	if (lane_num)
++		*lane_num = hdev->hw.mac.lane_num;
+ }
+ 
+ void hclge_get_media_type(struct hnae3_handle *handle, u8 *media_type,
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+index ad9c1f2fb7ce..00b4d476efe8 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+@@ -1134,7 +1134,8 @@ static inline bool hclge_is_reset_pending(struct hclge_dev *hdev)
+ }
+ 
+ int hclge_inform_reset_assert_to_vf(struct hclge_vport *vport);
+-int hclge_cfg_mac_speed_dup(struct hclge_dev *hdev, int speed, u8 duplex);
++int hclge_cfg_mac_speed_dup(struct hclge_dev *hdev, int speed,
++			    u8 duplex, u8 lane_num);
+ int hclge_set_vlan_filter(struct hnae3_handle *handle, __be16 proto,
+ 			  u16 vlan_id, bool is_kill);
+ int hclge_en_hw_strip_rxvtag(struct hnae3_handle *handle, bool enable);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mdio.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mdio.c
+index b9c81e2e60b2..3f2c898b0bf9 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mdio.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mdio.c
+@@ -187,7 +187,7 @@ static void hclge_mac_adjust_link(struct net_device *netdev)
+ 	speed = netdev->phydev->speed;
+ 	duplex = netdev->phydev->duplex;
+ 
+-	ret = hclge_cfg_mac_speed_dup(hdev, speed, duplex);
++	ret = hclge_cfg_mac_speed_dup(hdev, speed, duplex, 0);
+ 	if (ret)
+ 		netdev_err(netdev, "failed to adjust link.\n");
+ 
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+index 623c53e22249..b38c903659a6 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+@@ -3606,7 +3606,7 @@ static int hclgevf_get_status(struct hnae3_handle *handle)
+ 
+ static void hclgevf_get_ksettings_an_result(struct hnae3_handle *handle,
+ 					    u8 *auto_neg, u32 *speed,
+-					    u8 *duplex)
++					    u8 *duplex, u32 *lane_num)
+ {
+ 	struct hclgevf_dev *hdev = hclgevf_ae_get_hdev(handle);
+ 
+-- 
+2.34.1
+

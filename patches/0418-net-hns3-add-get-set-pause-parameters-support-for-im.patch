@@ -1,0 +1,75 @@
+From 161e7c4611fd6cebddc02d77b245236cb5c87b96 Mon Sep 17 00:00:00 2001
+From: Guangbin Huang <huangguangbin2@huawei.com>
+Date: Sat, 24 Jul 2021 15:43:49 +0800
+Subject: [PATCH 057/283] net: hns3: add get/set pause parameters support for
+ imp-controlled PHYs
+
+mainline inclusion
+from mainline-v5.13-rc1
+commit 57a8f46b1bd3f5f43b06f48aab7c1f7ca0936be3
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMQV
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=57a8f46b1bd3f5f43b06f48aab7c1f7ca0936be3
+
+----------------------------------------------------------------------
+
+When the imp-controlled PHYs feature is enabled, phydev is NULL.
+In this case, the autoneg is always off when user uses ethtool -a
+command to get pause parameters because  hclge_get_pauseparam()
+uses phydev to check whether device is TP port. To fit this new
+feature, use media type to check whether device is TP port.
+
+And when user set pause parameters, these parameters need to
+always set to mac, no matter whether autoneg is off.
+
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 115e70fcce36..c73348bc7706 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -9935,9 +9935,10 @@ static void hclge_get_pauseparam(struct hnae3_handle *handle, u32 *auto_neg,
+ {
+ 	struct hclge_vport *vport = hclge_get_vport(handle);
+ 	struct hclge_dev *hdev = vport->back;
+-	struct phy_device *phydev = hdev->hw.mac.phydev;
++	u8 media_type = hdev->hw.mac.media_type;
+ 
+-	*auto_neg = phydev ? hclge_get_autoneg(handle) : 0;
++	*auto_neg = (media_type == HNAE3_MEDIA_TYPE_COPPER) ?
++		    hclge_get_autoneg(handle) : 0;
+ 
+ 	if (hdev->tm_info.fc_mode == HCLGE_FC_PFC) {
+ 		*rx_en = 0;
+@@ -9983,7 +9984,7 @@ static int hclge_set_pauseparam(struct hnae3_handle *handle, u32 auto_neg,
+ 	struct phy_device *phydev = hdev->hw.mac.phydev;
+ 	u32 fc_autoneg;
+ 
+-	if (phydev) {
++	if (phydev || hnae3_dev_phy_imp_supported(hdev)) {
+ 		fc_autoneg = hclge_get_autoneg(handle);
+ 		if (auto_neg != fc_autoneg) {
+ 			dev_info(&hdev->pdev->dev,
+@@ -10002,7 +10003,7 @@ static int hclge_set_pauseparam(struct hnae3_handle *handle, u32 auto_neg,
+ 
+ 	hclge_record_user_pauseparam(hdev, rx_en, tx_en);
+ 
+-	if (!auto_neg)
++	if (!auto_neg || hnae3_dev_phy_imp_supported(hdev))
+ 		return hclge_cfg_pauseparam(hdev, rx_en, tx_en);
+ 
+ 	if (phydev)
+-- 
+2.34.1
+

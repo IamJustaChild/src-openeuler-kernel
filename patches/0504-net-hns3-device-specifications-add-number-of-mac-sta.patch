@@ -1,0 +1,138 @@
+From ebfa5b4485a5df87d420848a84cc8ac0fd047439 Mon Sep 17 00:00:00 2001
+From: Guangbin Huang <huangguangbin2@huawei.com>
+Date: Thu, 18 Nov 2021 20:44:42 +0800
+Subject: [PATCH 143/283] net: hns3: device specifications add number of mac
+ statistics
+
+mainline inclusion
+from mainline-v5.16-rc1
+commit 4e4c03f6ab636e9c39558845da5bfbcd60baf33d
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMYT
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=4e4c03f6ab636e9c39558845da5bfbcd60baf33d
+
+----------------------------------------------------------------------
+
+Currently, driver queries number of mac statistics before querying mac
+statistics. As the number of mac statistics is a fixed value in firmware,
+it is redundant to query this number everytime before querying mac
+statistics, it can just be queried once in initialization process and
+saved in device specifications.
+
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hnae3.h
+	drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
+---
+ drivers/net/ethernet/hisilicon/hns3/hnae3.h   |  3 ++
+ .../ethernet/hisilicon/hns3/hns3_debugfs.c    |  2 ++
+ .../hisilicon/hns3/hns3pf/hclge_main.c        | 34 +++++++++++++------
+ 3 files changed, 28 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3.h b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+index 46e9e3879826..744c0d4db199 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+@@ -349,6 +349,9 @@ struct hnae3_dev_specs {
+ 	u16 max_int_gl; /* max value of interrupt coalesce based on INT_GL */
+ 	u8 max_non_tso_bd_num; /* max BD number of one non-TSO packet */
+ 	u16 max_qset_num;
++	u16 umv_size;
++	u16 mc_mac_size;
++	u32 mac_stats_num;
+ };
+ 
+ struct hnae3_client_ops {
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c b/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
+index 3ec72f8b2d87..b13cd5ea7bd7 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
+@@ -780,6 +780,8 @@ hns3_dbg_dev_specs(struct hnae3_handle *h, char *buf, int len, int *pos)
+ 			  dev_specs->max_tm_rate);
+ 	*pos += scnprintf(buf + *pos, len - *pos, "MAX QSET number: %u\n",
+ 			  dev_specs->max_qset_num);
++	*pos += scnprintf(buf + *pos, len - *pos, "MAC statistics number: %u\n",
++			  dev_specs->mac_stats_num);
+ }
+ 
+ static int hns3_dbg_dev_info(struct hnae3_handle *h, char *buf, int len)
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 60ec024314ae..0c5f3f005757 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -450,10 +450,11 @@ static int hclge_mac_update_stats_defective(struct hclge_dev *hdev)
+ 	return 0;
+ }
+ 
+-static int hclge_mac_update_stats_complete(struct hclge_dev *hdev, u32 reg_num)
++static int hclge_mac_update_stats_complete(struct hclge_dev *hdev)
+ {
+ #define HCLGE_REG_NUM_PER_DESC		4
+ 
++	u32 reg_num = hdev->ae_dev->dev_specs.mac_stats_num;
+ 	u64 *data = (u64 *)(&hdev->mac_stats);
+ 	struct hclge_desc *desc;
+ 	__le64 *desc_data;
+@@ -522,17 +523,11 @@ static int hclge_mac_query_reg_num(struct hclge_dev *hdev, u32 *reg_num)
+ 
+ int hclge_mac_update_stats(struct hclge_dev *hdev)
+ {
+-	u32 reg_num;
+-	int ret;
+-
+-	ret = hclge_mac_query_reg_num(hdev, &reg_num);
+ 	/* The firmware supports the new statistics acquisition method */
+-	if (!ret)
+-		ret = hclge_mac_update_stats_complete(hdev, reg_num);
+-	else if (ret == -EOPNOTSUPP)
+-		ret = hclge_mac_update_stats_defective(hdev);
+-
+-	return ret;
++	if (hdev->ae_dev->dev_specs.mac_stats_num)
++		return hclge_mac_update_stats_complete(hdev);
++	else
++		return hclge_mac_update_stats_defective(hdev);
+ }
+ 
+ static int hclge_tqps_update_stats(struct hnae3_handle *handle)
+@@ -1421,12 +1416,29 @@ static void hclge_parse_dev_specs(struct hclge_dev *hdev,
+ 	ae_dev->dev_specs.max_int_gl = le16_to_cpu(req1->max_int_gl);
+ }
+ 
++static int hclge_query_mac_stats_num(struct hclge_dev *hdev)
++{
++	u32 reg_num = 0;
++	int ret;
++
++	ret = hclge_mac_query_reg_num(hdev, &reg_num);
++	if (ret && ret != -EOPNOTSUPP)
++		return ret;
++
++	hdev->ae_dev->dev_specs.mac_stats_num = reg_num;
++	return 0;
++}
++
+ static int hclge_query_dev_specs(struct hclge_dev *hdev)
+ {
+ 	struct hclge_desc desc[HCLGE_QUERY_DEV_SPECS_BD_NUM];
+ 	int ret;
+ 	int i;
+ 
++	ret = hclge_query_mac_stats_num(hdev);
++	if (ret)
++		return ret;
++
+ 	/* set default specifications as devices lower than version V3 do not
+ 	 * support querying specifications from firmware.
+ 	 */
+-- 
+2.34.1
+

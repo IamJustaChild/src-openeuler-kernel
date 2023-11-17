@@ -1,0 +1,46 @@
+From 2c11c385ef2ec0799953db5568a81a6d70bc8002 Mon Sep 17 00:00:00 2001
+From: Peng Li <lipeng321@huawei.com>
+Date: Sat, 24 Jul 2021 15:43:26 +0800
+Subject: [PATCH 042/283] net: hns3: change hclge_parse_speed() param type
+
+mainline inclusion
+from mainline-v5.12-rc1-dontuse
+commit 6e7f109ee9d8ed94a8c403e4daf34e752602148b
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMQV
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=6e7f109ee9d8ed94a8c403e4daf34e752602148b
+
+----------------------------------------------------------------------
+
+The type of parameters in hclge_parse_speed() should be
+unsigned type, so change them.
+
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 307907896ff4..a7fa93715f73 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -939,7 +939,7 @@ static int hclge_query_pf_resource(struct hclge_dev *hdev)
+ 	return 0;
+ }
+ 
+-static int hclge_parse_speed(int speed_cmd, int *speed)
++static int hclge_parse_speed(u8 speed_cmd, u32 *speed)
+ {
+ 	switch (speed_cmd) {
+ 	case 6:
+-- 
+2.34.1
+

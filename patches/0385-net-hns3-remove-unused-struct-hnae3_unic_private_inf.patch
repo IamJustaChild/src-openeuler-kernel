@@ -1,0 +1,58 @@
+From eadef93b6f79f1abad6d60d4bd8328a111ce7396 Mon Sep 17 00:00:00 2001
+From: Huazhong Tan <tanhuazhong@huawei.com>
+Date: Thu, 28 May 2020 21:48:16 +0800
+Subject: [PATCH 024/283] net: hns3: remove unused struct
+ hnae3_unic_private_info
+
+ainline inclusion
+from mainline-v5.8-rc1
+commit 4828b5766a69e93ca76b15f820c97f03ebd3a48c
+category: cleanup
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EJ0A
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=4828b5766a69e93ca76b15f820c97f03ebd3a48c
+
+--------------------------------
+
+Since field .uinfo in struct hnae3_handle never be used,
+so remove it and its structure definition.
+
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hnae3.h | 11 -----------
+ 1 file changed, 11 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3.h b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+index a978ab96c7ad..7ab3c4012b44 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+@@ -718,16 +718,6 @@ struct hnae3_roce_private_info {
+ 	unsigned long state;
+ };
+ 
+-struct hnae3_unic_private_info {
+-	struct net_device *netdev;
+-	u16 rx_buf_len;
+-	u16 num_tx_desc;
+-	u16 num_rx_desc;
+-
+-	u16 num_tqps;	/* total number of tqps in this handle */
+-	struct hnae3_queue **tqp;  /* array base of all TQPs of this instance */
+-};
+-
+ #define HNAE3_SUPPORT_APP_LOOPBACK    BIT(0)
+ #define HNAE3_SUPPORT_PHY_LOOPBACK    BIT(1)
+ #define HNAE3_SUPPORT_SERDES_SERIAL_LOOPBACK	BIT(2)
+@@ -754,7 +744,6 @@ struct hnae3_handle {
+ 	union {
+ 		struct net_device *netdev; /* first member */
+ 		struct hnae3_knic_private_info kinfo;
+-		struct hnae3_unic_private_info uinfo;
+ 		struct hnae3_roce_private_info rinfo;
+ 	};
+ 
+-- 
+2.34.1
+

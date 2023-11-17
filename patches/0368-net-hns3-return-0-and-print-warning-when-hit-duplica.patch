@@ -1,0 +1,84 @@
+From 1bd2f0085ef31d7db11f198e41d08f20295b9f01 Mon Sep 17 00:00:00 2001
+From: Peng Li <lipeng321@huawei.com>
+Date: Thu, 4 Apr 2019 16:17:51 +0800
+Subject: [PATCH 007/283] net: hns3: return 0 and print warning when hit
+ duplicate MAC
+
+mainline inclusion
+from mainline-v5.2-rc1
+commit 72110b567479f0282489a9b3747e76d8c67d75f5
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EJ0A
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=72110b567479f0282489a9b3747e76d8c67d75f5
+
+--------------------------------
+
+When set 2 same MAC to different function of one port, IMP
+will return error as the later one may modify the origin one.
+This will cause bond fail for 2 VFs of one port.
+
+Driver just print warning and return 0 with this patch, so
+if set same MAC address, it will return 0 but do not really
+configure HW.
+
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+---
+ .../net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c    | 10 +++++++++-
+ drivers/scsi/smartpqi/smartpqi_init.c                  |  6 +++---
+ 2 files changed, 12 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 118e5097b384..3c68cbf19d48 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -7565,7 +7565,7 @@ int hclge_add_uc_addr_common(struct hclge_vport *vport,
+ 	struct hclge_dev *hdev = vport->back;
+ 	struct hclge_mac_vlan_tbl_entry_cmd req;
+ 	u16 egress_port = 0;
+-	int ret;
++	int ret = 0;
+ 
+ 	/* mac addr check */
+ 	if (is_zero_ether_addr(addr) ||
+@@ -7604,6 +7604,14 @@ int hclge_add_uc_addr_common(struct hclge_vport *vport,
+ 		dev_err(&hdev->pdev->dev, "UC MAC table full(%u)\n",
+ 			hdev->priv_umv_size);
+ 
++	/* check if we just hit the duplicate */
++	if (!ret)
++		return -EEXIST;
++
++	dev_err(&hdev->pdev->dev,
++		"PF failed to add unicast entry(%pM) in the MAC table\n",
++		addr);
++
+ 	return -ENOSPC;
+ }
+ 
+diff --git a/drivers/scsi/smartpqi/smartpqi_init.c b/drivers/scsi/smartpqi/smartpqi_init.c
+index d9df5627cfb6..ed046c586724 100644
+--- a/drivers/scsi/smartpqi/smartpqi_init.c
++++ b/drivers/scsi/smartpqi/smartpqi_init.c
+@@ -3374,9 +3374,9 @@ static int pqi_alloc_admin_queues(struct pqi_ctrl_info *ctrl_info)
+ 
+ 	ctrl_info->admin_queue_memory_base =
+ 		dma_zalloc_coherent(&ctrl_info->pci_dev->dev,
+-			alloc_length,
+-			&ctrl_info->admin_queue_memory_base_dma_handle,
+-			GFP_KERNEL);
++				    alloc_length,
++				    &ctrl_info->admin_queue_memory_base_dma_handle,
++				    GFP_KERNEL);
+ 
+ 	if (!ctrl_info->admin_queue_memory_base)
+ 		return -ENOMEM;
+-- 
+2.34.1
+

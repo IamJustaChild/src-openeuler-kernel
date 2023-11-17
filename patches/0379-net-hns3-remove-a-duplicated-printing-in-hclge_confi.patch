@@ -1,0 +1,46 @@
+From 5b602038a70319bf26e3b7b75eedfa05cd47dbc6 Mon Sep 17 00:00:00 2001
+From: Huazhong Tan <tanhuazhong@huawei.com>
+Date: Thu, 14 May 2020 20:41:23 +0800
+Subject: [PATCH 018/283] net: hns3: remove a duplicated printing in
+ hclge_configure()
+
+mainline inclusion
+from mainline-v5.8-rc1
+commit 727f514bd677420d4253ad84509710040e808899
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EJ0A
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=727f514bd677420d4253ad84509710040e808899
+
+--------------------------------
+
+Since hclge_get_cfg() already has error print, so hclge_configure()
+should not print error when calling hclge_get_cfg() fail.
+
+Reported-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 57a8cb114e28..14c7ef0fe807 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -1395,10 +1395,8 @@ static int hclge_configure(struct hclge_dev *hdev)
+ 	int node, ret;
+ 
+ 	ret = hclge_get_cfg(hdev, &cfg);
+-	if (ret) {
+-		dev_err(&hdev->pdev->dev, "get mac mode error %d.\n", ret);
++	if (ret)
+ 		return ret;
+-	}
+ 
+ 	hdev->num_vmdq_vport = cfg.vmdq_vport_num;
+ 	hdev->base_tqp_pid = 0;
+-- 
+2.34.1
+

@@ -1,0 +1,46 @@
+From 8470d9c6890f685e36ba6b19ad9b4fc096538d3c Mon Sep 17 00:00:00 2001
+From: Guangbin Huang <huangguangbin2@huawei.com>
+Date: Thu, 18 Nov 2021 20:44:53 +0800
+Subject: [PATCH 151/283] net: hns3: adjust string spaces of some parameters of
+ tx bd info in debugfs
+
+mainline inclusion
+from mainline-v5.15
+commit 630a6738da82e2c29e1c38eafd6f8328e0a4963c
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMYT
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=630a6738da82e2c29e1c38eafd6f8328e0a4963c
+
+----------------------------------------------------------------------
+
+This patch adjusts the string spaces of some parameters of tx bd info in
+debugfs according to their maximum needs.
+
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c b/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
+index c0a255f93dbd..f535b7ea39c0 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
+@@ -842,7 +842,7 @@ static const struct hns3_dbg_item tx_bd_info_items[] = {
+ 	{ "SIZE", 2 },
+ 	{ "T_CS_VLAN_TSO", 2 },
+ 	{ "OT_VLAN_TAG", 3 },
+-	{ "TV", 2 },
++	{ "TV", 5 },
+ 	{ "OLT_VLAN_LEN", 2 },
+ 	{ "PAYLEN_OL4CS", 2 },
+ 	{ "BD_FE_SC_VLD", 2 },
+-- 
+2.34.1
+

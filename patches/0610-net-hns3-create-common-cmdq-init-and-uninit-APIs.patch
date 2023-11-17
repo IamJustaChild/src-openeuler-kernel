@@ -1,0 +1,89 @@
+From 33ab1700e50e7becea5c5824d122b0fb8ae8b343 Mon Sep 17 00:00:00 2001
+From: Jie Wang <wangjie125@huawei.com>
+Date: Wed, 12 Jan 2022 15:16:55 +0800
+Subject: [PATCH 249/283] net: hns3: create common cmdq init and uninit APIs
+
+mainline inclusion
+from mainline-v5.17-rc1
+commit 0b04224c131269efeab0571dcff9377f9c6d911c
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN49
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=0b04224c131269efeab0571dcff9377f9c6d911c
+
+----------------------------------------------------------------------
+
+The PF and VF cmdq init and uninit APIs are also almost same espect the
+suffixes of API names.
+
+This patch creates common cmdq init and uninit APIs needed by PF and VF
+cmdq modules. The next patch will use the new unified APIs to replace init
+and uninit APIs in PF module.
+
+Signed-off-by: Jie Wang <wangjie125@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Jian Shen <shenjian15@huawei.com>
+Reviewed-by: Yue Haibing <yuehaibing@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.c
+	drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h
+---
+ .../ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.c | 4 ++--
+ .../ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h | 9 ++++++++-
+ 2 files changed, 10 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.c b/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.c
+index 67c084f7dce0..78321511798a 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.c
+@@ -526,7 +526,7 @@ static void hclge_comm_cmd_uninit_regs(struct hclge_comm_hw *hw)
+ 	hclge_comm_write_dev(hw, HCLGE_COMM_NIC_CRQ_TAIL_REG, 0);
+ }
+ 
+-void hclge_comm_cmd_uninit(struct hnae3_ae_dev *ae_dev,
++void hclge_comm_cmd_uninit(struct hnae3_ae_dev *ae_dev, bool is_pf,
+ 			   struct hclge_comm_hw *hw)
+ {
+ 	struct hclge_comm_cmq *cmdq = &hw->cmq;
+@@ -565,7 +565,7 @@ int hclge_comm_cmd_queue_init(struct pci_dev *pdev, struct hclge_comm_hw *hw)
+ 	cmdq->crq.desc_num = HCLGE_COMM_NIC_CMQ_DESC_NUM;
+ 
+ 	/* Setup Tx write back timeout */
+-	cmdq->tx_timeout = HCLGE_COMM_CMDQ_TX_TIMEOUT_DEFAULT;
++	cmdq->tx_timeout = HCLGE_COMM_CMDQ_TX_TIMEOUT;
+ 
+ 	/* Setup queue rings */
+ 	ret = hclge_comm_alloc_cmd_queue(hw, HCLGE_COMM_TYPE_CSQ);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h
+index 393953e828af..1e5448ee4744 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h
+@@ -54,7 +54,7 @@
+ #define HCLGE_COMM_NIC_SW_RST_RDY		BIT(HCLGE_COMM_NIC_SW_RST_RDY_B)
+ #define HCLGE_COMM_NIC_CMQ_DESC_NUM_S		3
+ #define HCLGE_COMM_NIC_CMQ_DESC_NUM		1024
+-#define HCLGE_COMM_CMDQ_TX_TIMEOUT_DEFAULT	30000
++#define HCLGE_COMM_CMDQ_TX_TIMEOUT		30000
+ #define HCLGE_COMM_CMDQ_TX_TIMEOUT_500MS	500000
+ 
+ enum hclge_opcode_type {
+@@ -468,4 +468,11 @@ void hclge_comm_cmd_setup_basic_desc(struct hclge_desc *desc,
+ 				     enum hclge_opcode_type opcode,
+ 				     bool is_read);
+ void hclge_comm_cmd_reuse_desc(struct hclge_desc *desc, bool is_read);
++void hclge_comm_cmd_uninit(struct hnae3_ae_dev *ae_dev, bool is_pf,
++			   struct hclge_comm_hw *hw);
++int hclge_comm_cmd_queue_init(struct pci_dev *pdev, struct hclge_comm_hw *hw);
++int hclge_comm_cmd_init(struct hnae3_ae_dev *ae_dev, struct hclge_comm_hw *hw,
++			u32 *fw_version, bool is_pf,
++			unsigned long reset_pending);
++
+ #endif
+-- 
+2.34.1
+

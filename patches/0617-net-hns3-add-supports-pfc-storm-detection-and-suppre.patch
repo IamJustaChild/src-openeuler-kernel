@@ -1,0 +1,210 @@
+From b863e1ccdb78ffba61a54078e45e5aabb4a45837 Mon Sep 17 00:00:00 2001
+From: Tian Jiang <jiangtian6@h-partners.com>
+Date: Thu, 16 Mar 2023 14:05:22 +0800
+Subject: [PATCH 256/283] net: hns3: add supports pfc storm detection and
+ suppression
+
+driver inclusion
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN49
+CVE: NA
+
+----------------------------------------------------------------------
+
+To solve the problem of abnormal transmission of pauses or PFC frames,
+the IMP periodically checks the transmission and reception status of
+packets. If a pause frame storm occurs, the pause storm response of
+the MAC address is disabled for a period of time.
+
+Signed-off-by: Tian Jiang <jiangtian6@h-partners.com>
+Signed-off-by: shaojijie <shaojijie@huawei.com>
+Signed-off-by: Jiantao Xiao <xiaojiantao1@h-partners.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h
+	drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
+	drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h
+---
+ .../net/ethernet/hisilicon/hns3/hns3_ext.c    | 70 +++++++++++++++++++
+ .../net/ethernet/hisilicon/hns3/hns3_ext.h    |  4 ++
+ .../hisilicon/hns3/hns3pf/hclge_ext.c         | 60 ++++++++++++++++
+ 3 files changed, 134 insertions(+)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
+index 45189aaea9a3..e51a281844b9 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
+@@ -462,6 +462,76 @@ int nic_get_phy_reg(struct net_device *ndev, u32 page_select_addr,
+ }
+ EXPORT_SYMBOL(nic_get_phy_reg);
+ 
++static int nic_check_pfc_storm_para(int dir, int enable, int period_ms,
++				    int times, int recovery_period_ms)
++{
++	if ((dir != HNS3_PFC_STORM_PARA_DIR_RX &&
++	     dir != HNS3_PFC_STORM_PARA_DIR_TX) ||
++	     (enable != HNS3_PFC_STORM_PARA_DISABLE &&
++	      enable != HNS3_PFC_STORM_PARA_ENABLE))
++		return -EINVAL;
++
++	if (period_ms < HNS3_PFC_STORM_PARA_PERIOD_MIN ||
++	    period_ms > HNS3_PFC_STORM_PARA_PERIOD_MAX ||
++	    recovery_period_ms < HNS3_PFC_STORM_PARA_PERIOD_MIN ||
++	    recovery_period_ms > HNS3_PFC_STORM_PARA_PERIOD_MAX ||
++	    times <= 0)
++		return -EINVAL;
++
++	return 0;
++}
++
++int nic_set_pfc_storm_para(struct net_device *ndev, int dir, int enable,
++			   int period_ms, int times, int recovery_period_ms)
++{
++	struct hnae3_pfc_storm_para para;
++
++	if (nic_check_pfc_storm_para(dir, enable, period_ms, times,
++				     recovery_period_ms)) {
++		dev_err(&ndev->dev,
++			"set pfc storm para failed because invalid input param.\n");
++		return -EINVAL;
++	}
++
++	para.dir = dir;
++	para.enable = enable;
++	para.period_ms = period_ms;
++	para.times = times;
++	para.recovery_period_ms = recovery_period_ms;
++
++	return nic_invoke_pri_ops(ndev, HNAE3_EXT_OPC_SET_PFC_STORM_PARA,
++				  &para, sizeof(para));
++}
++EXPORT_SYMBOL(nic_set_pfc_storm_para);
++
++int nic_get_pfc_storm_para(struct net_device *ndev, int dir, int *enable,
++			   int *period_ms, int *times, int *recovery_period_ms)
++{
++	struct hnae3_pfc_storm_para para;
++	int ret;
++
++	if (!enable || !period_ms || !times || !recovery_period_ms ||
++	    (dir != HNS3_PFC_STORM_PARA_DIR_RX &&
++	     dir != HNS3_PFC_STORM_PARA_DIR_TX)) {
++		dev_err(&ndev->dev,
++			"get pfc storm para failed because invalid input param.\n");
++		return -EINVAL;
++	}
++
++	para.dir = dir;
++	ret = nic_invoke_pri_ops(ndev, HNAE3_EXT_OPC_GET_PFC_STORM_PARA,
++				 &para, sizeof(para));
++	if (ret)
++		return ret;
++
++	*enable = para.enable;
++	*period_ms = para.period_ms;
++	*times = para.times;
++	*recovery_period_ms = para.recovery_period_ms;
++	return 0;
++}
++EXPORT_SYMBOL(nic_get_pfc_storm_para);
++
+ int nic_set_phy_reg(struct net_device *ndev, u32 page_select_addr,
+ 		    u16 page, u32 reg_addr, u16 data)
+ {
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+index f883beae8bf4..b1e358173819 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+@@ -70,4 +70,8 @@ int nic_get_phy_reg(struct net_device *ndev, u32 page_select_addr,
+ 		    u16 page, u32 reg_addr, u16 *data);
+ int nic_set_phy_reg(struct net_device *ndev, u32 page_select_addr,
+ 		    u16 page, u32 reg_addr, u16 data);
++int nic_set_pfc_storm_para(struct net_device *ndev, int dir, int enable,
++			   int period_ms, int times, int recovery_period_ms);
++int nic_get_pfc_storm_para(struct net_device *ndev, int dir, int *enable,
++			   int *period_ms, int *times, int *recovery_period_ms);
+ #endif
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+index 4f93ad1ac62e..7b9d6d861b42 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+@@ -1249,6 +1249,64 @@ static void hclge_ext_resotre_config(struct hclge_dev *hdev)
+ 			      sizeof(hdev->torus_param));
+ }
+ 
++static int hclge_set_pfc_storm_para(struct hclge_dev *hdev, void *data,
++				    size_t length)
++{
++	struct hclge_pfc_storm_para_cmd *para_cmd;
++	struct hnae3_pfc_storm_para *para;
++	struct hclge_desc desc;
++	int ret;
++
++	if (length != sizeof(struct hnae3_pfc_storm_para))
++		return -EINVAL;
++
++	hclge_cmd_setup_basic_desc(&desc, HCLGE_OPC_CFG_PAUSE_STORM_PARA,
++				   false);
++	para = (struct hnae3_pfc_storm_para *)data;
++	para_cmd = (struct hclge_pfc_storm_para_cmd *)desc.data;
++	para_cmd->dir = cpu_to_le32(para->dir);
++	para_cmd->enable = cpu_to_le32(para->enable);
++	para_cmd->period_ms = cpu_to_le32(para->period_ms);
++	para_cmd->times = cpu_to_le32(para->times);
++	para_cmd->recovery_period_ms = cpu_to_le32(para->recovery_period_ms);
++
++	ret = hclge_cmd_send(&hdev->hw, &desc, 1);
++	if (ret)
++		dev_err(&hdev->pdev->dev,
++			"failed to set pfc storm para, ret = %d\n", ret);
++	return ret;
++}
++
++static int hclge_get_pfc_storm_para(struct hclge_dev *hdev, void *data,
++				    size_t length)
++{
++	struct hclge_pfc_storm_para_cmd *para_cmd;
++	struct hnae3_pfc_storm_para *para;
++	struct hclge_desc desc;
++	int ret;
++
++	if (length != sizeof(struct hnae3_pfc_storm_para))
++		return -EINVAL;
++
++	hclge_cmd_setup_basic_desc(&desc, HCLGE_OPC_CFG_PAUSE_STORM_PARA, true);
++	para = (struct hnae3_pfc_storm_para *)data;
++	para_cmd = (struct hclge_pfc_storm_para_cmd *)desc.data;
++	para_cmd->dir = cpu_to_le32(para->dir);
++	ret = hclge_cmd_send(&hdev->hw, &desc, 1);
++	if (ret) {
++		dev_err(&hdev->pdev->dev,
++			"failed to get pfc storm para, ret = %d\n", ret);
++		return ret;
++	}
++
++	para->enable = le32_to_cpu(para_cmd->enable);
++	para->period_ms = le32_to_cpu(para_cmd->period_ms);
++	para->times = le32_to_cpu(para_cmd->times);
++	para->recovery_period_ms = le32_to_cpu(para_cmd->recovery_period_ms);
++
++	return 0;
++}
++
+ static int hclge_set_reset_task(struct hclge_dev *hdev, void *data,
+ 				size_t length)
+ {
+@@ -1408,6 +1466,8 @@ static const hclge_priv_ops_fn hclge_ext_func_arr[] = {
+ 	[HNAE3_EXT_OPC_GET_LED_SIGNAL] = hclge_get_led_signal,
+ 	[HNAE3_EXT_OPC_GET_PHY_REG] = hclge_get_phy_reg,
+ 	[HNAE3_EXT_OPC_SET_PHY_REG] = hclge_set_phy_reg,
++	[HNAE3_EXT_OPC_GET_PFC_STORM_PARA] = hclge_get_pfc_storm_para,
++	[HNAE3_EXT_OPC_SET_PFC_STORM_PARA] = hclge_set_pfc_storm_para,
+ };
+ 
+ int hclge_ext_ops_handle(struct hnae3_handle *handle, int opcode,
+-- 
+2.34.1
+
