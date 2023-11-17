@@ -1,0 +1,774 @@
+From 66962d2f2ca31c150b28b43e99654f6c85889357 Mon Sep 17 00:00:00 2001
+From: Tian Jiang <jiangtian6@h-partners.com>
+Date: Thu, 9 Mar 2023 10:59:36 +0800
+Subject: [PATCH 191/283] net: hns3: add support customized exception handling
+ interfaces.
+
+driver inclusion
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN3D
+CVE: NA
+
+----------------------------------------------------------------------
+
+Establish a framework to support customization requirement. Provides
+interfaces to register special processing functions. When the system
+is reset due to an abnormal interrupt, the registered handler is
+called first.
+
+Signed-off-by: Tian Jiang <jiangtian6@h-partners.com>
+Signed-off-by: shaojijie <shaojijie@huawei.com>
+Signed-off-by: Jiantao Xiao <xiaojiantao1@h-partners.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/Makefile
+	drivers/net/ethernet/hisilicon/hns3/hnae3.h
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+---
+ drivers/net/ethernet/hisilicon/hns3/Makefile  |   3 +
+ drivers/net/ethernet/hisilicon/hns3/hnae3.h   |   2 +
+ .../net/ethernet/hisilicon/hns3/hnae3_ext.h   |  32 ++++
+ .../net/ethernet/hisilicon/hns3/hns3_enet.c   |   5 +
+ .../net/ethernet/hisilicon/hns3/hns3_ext.c    |  76 ++++++++
+ .../net/ethernet/hisilicon/hns3/hns3_ext.h    |  13 ++
+ .../hns3_extension/hns3pf/hclge_main_it.c     |  22 +--
+ .../hns3_extension/hns3pf/hclge_main_it.h     |  32 ----
+ .../hisilicon/hns3/hns3pf/hclge_ext.c         | 178 ++++++++++++++++++
+ .../hisilicon/hns3/hns3pf/hclge_ext.h         |  43 +++++
+ .../hisilicon/hns3/hns3pf/hclge_main.c        |  45 ++---
+ .../hisilicon/hns3/hns3pf/hclge_main.h        |   5 +-
+ .../hisilicon/hns3/hns3pf/hclge_mbx.c         |   2 +-
+ 13 files changed, 382 insertions(+), 76 deletions(-)
+ create mode 100644 drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h
+ create mode 100644 drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
+ create mode 100644 drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+ create mode 100644 drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+ create mode 100644 drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/Makefile b/drivers/net/ethernet/hisilicon/hns3/Makefile
+index 70bf49da5591..d0f56781b558 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/Makefile
++++ b/drivers/net/ethernet/hisilicon/hns3/Makefile
+@@ -26,6 +26,7 @@ HNS3_OBJS	=	hns3_enet.o \
+ HNS3_OBJS_IT	=	hns3_extension/hns3_enet_it.o
+ obj-$(CONFIG_HNS3_ENET) += hns3.o
+ hns3-objs = $(HNS3_OBJS) $(HNS3_OBJS_IT)
++hns3-objs += hns3_ext.o
+ 
+ hns3-$(CONFIG_HNS3_DCB) += hns3_dcbnl.o
+ 
+@@ -44,6 +45,8 @@ HCLGE_OBJ_IT_MAIN	=	hns3_extension/hns3pf/hclge_main_it.o \
+ 				hns3_extension/hns3pf/hclge_sysfs.o
+ obj-$(CONFIG_HNS3_HCLGE) += hclge.o
+ hclge-objs := $(HCLGE_OBJ) $(HCLGE_OBJ_IT_MAIN)
++hclge-objs += hns3pf/hclge_ext.o
++
+ hclge-$(CONFIG_HNS3_DCB) += hns3pf/hclge_dcb.o
+ #### compile hclgevf.ko
+ obj-$(CONFIG_HNS3_HCLGEVF) += hclgevf.o
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3.h b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+index d15038e8bcb5..970ef08ce9cc 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+@@ -787,6 +787,8 @@ struct hnae3_ae_ops {
+ 			struct ethtool_wolinfo *wol);
+ 	int (*set_wol)(struct hnae3_handle *handle,
+ 		       struct ethtool_wolinfo *wol);
++	int (*priv_ops)(struct hnae3_handle *handle, int opcode,
++			void *data, size_t length);
+ /* Notice! If the function is not for test, the definition must before
+  * CONFIG_HNS3_TEST! Because RoCE will use this head file, and it won't
+  * set CONFIG_HNS3_TEST, that may cause RoCE calling the wrong function.
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h b/drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h
+new file mode 100644
+index 000000000000..0b1fa53dfb41
+--- /dev/null
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h
+@@ -0,0 +1,32 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++// Copyright (c) 2023 Hisilicon Limited.
++
++#ifndef __HNAE3_EXT_H
++#define __HNAE3_EXT_H
++
++enum hnae3_event_type_custom {
++	HNAE3_VF_RESET_CUSTOM,
++	HNAE3_VF_FUNC_RESET_CUSTOM,
++	HNAE3_VF_PF_FUNC_RESET_CUSTOM,
++	HNAE3_VF_FULL_RESET_CUSTOM,
++	HNAE3_FLR_RESET_CUSTOM,
++	HNAE3_FUNC_RESET_CUSTOM,
++	HNAE3_GLOBAL_RESET_CUSTOM,
++	HNAE3_IMP_RESET_CUSTOM,
++	HNAE3_UNKNOWN_RESET_CUSTOM,
++	HNAE3_NONE_RESET_CUSTOM,
++	HNAE3_PORT_FAULT,
++	HNAE3_RESET_DONE_CUSTOM,
++	HNAE3_FUNC_RESET_FAIL_CUSTOM,
++	HNAE3_GLOBAL_RESET_FAIL_CUSTOM,
++	HNAE3_IMP_RESET_FAIL_CUSTOM,
++	HNAE3_PPU_POISON_CUSTOM,
++	HNAE3_IMP_RD_POISON_CUSTOM,
++	HNAE3_INVALID_EVENT_CUSTOM
++};
++
++enum hnae3_ext_opcode {
++	HNAE3_EXT_OPC_RESET,
++	HNAE3_EXT_OPC_EVENT_CALLBACK,
++};
++#endif
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index 2ca9e369c4bc..72cc7f16aa7e 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -23,6 +23,7 @@
+ 
+ #include "kcompat.h"
+ #include "hnae3.h"
++#include "hnae3_ext.h"
+ #include "hns3_enet.h"
+ /* All hns3 tracepoints are defined by the include below, which
+  * must be included exactly once across the whole kernel with
+@@ -5526,6 +5527,10 @@ static void hns3_process_hw_error(struct hnae3_handle *handle,
+ 		if (hns3_hw_err[i].type == type) {
+ 			dev_err(&handle->pdev->dev, "Detected %s!\n",
+ 				hns3_hw_err[i].msg);
++			if (handle->ae_algo->ops->priv_ops)
++				handle->ae_algo->ops->priv_ops(handle,
++					HNAE3_EXT_OPC_EVENT_CALLBACK, &type,
++					sizeof(type));
+ 			break;
+ 		}
+ 	}
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
+new file mode 100644
+index 000000000000..34aadd10feb8
+--- /dev/null
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
+@@ -0,0 +1,76 @@
++// SPDX-License-Identifier: GPL-2.0+
++// Copyright (c) 2023 Hisilicon Limited.
++
++#include "hns3_ext.h"
++
++int nic_netdev_match_check(struct net_device *ndev)
++{
++#define HNS3_DRIVER_NAME_LEN 5
++
++	struct ethtool_drvinfo drv_info;
++	struct hnae3_handle *h;
++
++	if (!ndev || !ndev->ethtool_ops ||
++	    !ndev->ethtool_ops->get_drvinfo)
++		return -EINVAL;
++
++	ndev->ethtool_ops->get_drvinfo(ndev, &drv_info);
++
++	if (strncmp(drv_info.driver, "hns3", HNS3_DRIVER_NAME_LEN))
++		return -EINVAL;
++
++	h = hns3_get_handle(ndev);
++	if (h->flags & HNAE3_SUPPORT_VF)
++		return -EINVAL;
++
++	return 0;
++}
++EXPORT_SYMBOL(nic_netdev_match_check);
++
++static int nic_invoke_pri_ops(struct net_device *ndev, int opcode,
++			      void *data, size_t length)
++
++{
++	struct hnae3_handle *h;
++	int ret;
++
++	if ((!data && length) || (data && !length)) {
++		netdev_err(ndev, "failed to check data and length");
++		return -EINVAL;
++	}
++
++	if (nic_netdev_match_check(ndev))
++		return -ENODEV;
++
++	h = hns3_get_handle(ndev);
++	if (!h->ae_algo->ops->priv_ops)
++		return -EOPNOTSUPP;
++
++	ret = h->ae_algo->ops->priv_ops(h, opcode, data, length);
++	if (ret)
++		netdev_err(ndev,
++			   "failed to invoke pri ops, opcode = %#x, ret = %d\n",
++			   opcode, ret);
++
++	return ret;
++}
++
++void nic_chip_recover_handler(struct net_device *ndev,
++			      enum hnae3_event_type_custom event_t)
++{
++	dev_info(&ndev->dev, "reset type is %d!!\n", event_t);
++
++	if (event_t == HNAE3_PPU_POISON_CUSTOM)
++		event_t = HNAE3_FUNC_RESET_CUSTOM;
++
++	if (event_t != HNAE3_FUNC_RESET_CUSTOM &&
++	    event_t != HNAE3_GLOBAL_RESET_CUSTOM &&
++	    event_t != HNAE3_IMP_RESET_CUSTOM) {
++		dev_err(&ndev->dev, "reset type err!!\n");
++		return;
++	}
++
++	nic_invoke_pri_ops(ndev, HNAE3_EXT_OPC_RESET,
++			   &event_t, sizeof(event_t));
++}
++EXPORT_SYMBOL(nic_chip_recover_handler);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+new file mode 100644
+index 000000000000..ce92a666db17
+--- /dev/null
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+@@ -0,0 +1,13 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/* Copyright (c) 2023 Hisilicon Limited. */
++
++#ifndef __HNS3_EXT_H
++#define __HNS3_EXT_H
++#include <linux/types.h>
++#include "hns3_enet.h"
++#include "hnae3_ext.h"
++
++int nic_netdev_match_check(struct net_device *netdev);
++void nic_chip_recover_handler(struct net_device *ndev,
++			      enum hnae3_event_type_custom event_t);
++#endif
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_extension/hns3pf/hclge_main_it.c b/drivers/net/ethernet/hisilicon/hns3/hns3_extension/hns3pf/hclge_main_it.c
+index 0118b9577a66..37b121632ddc 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_extension/hns3pf/hclge_main_it.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_extension/hns3pf/hclge_main_it.c
+@@ -18,6 +18,7 @@
+ #include "hclge_main.h"
+ #include "hnae3.h"
+ #include "hclge_main_it.h"
++#include "hclge_ext.h"
+ #ifdef CONFIG_HNS3_TEST
+ #include "hclge_sysfs.h"
+ #endif
+@@ -27,27 +28,6 @@
+ 
+ static nic_event_fn_t nic_event_call;
+ 
+-int nic_register_event(nic_event_fn_t event_call)
+-{
+-	if (!event_call) {
+-		pr_err("register event handle is null.\n");
+-		return -EINVAL;
+-	}
+-
+-	nic_event_call = event_call;
+-
+-	pr_info("netdev register success.\n");
+-	return 0;
+-}
+-EXPORT_SYMBOL(nic_register_event);
+-
+-int nic_unregister_event(void)
+-{
+-	nic_event_call = NULL;
+-	return 0;
+-}
+-EXPORT_SYMBOL(nic_unregister_event);
+-
+ static void nic_call_event(struct net_device *netdev,
+ 			   enum hnae3_event_type_custom event_t)
+ {
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_extension/hns3pf/hclge_main_it.h b/drivers/net/ethernet/hisilicon/hns3/hns3_extension/hns3pf/hclge_main_it.h
+index 343e036412d4..290c221f1807 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_extension/hns3pf/hclge_main_it.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_extension/hns3pf/hclge_main_it.h
+@@ -7,25 +7,6 @@
+ extern struct hnae3_ae_algo ae_algo;
+ extern struct hnae3_ae_ops hclge_ops;
+ 
+-enum hnae3_event_type_custom {
+-	HNAE3_VF_RESET_CUSTOM,
+-	HNAE3_VF_FUNC_RESET_CUSTOM,
+-	HNAE3_VF_PF_FUNC_RESET_CUSTOM,
+-	HNAE3_VF_FULL_RESET_CUSTOM,
+-	HNAE3_FLR_RESET_CUSTOM,
+-	HNAE3_FUNC_RESET_CUSTOM,
+-	HNAE3_GLOBAL_RESET_CUSTOM,
+-	HNAE3_IMP_RESET_CUSTOM,
+-	HNAE3_UNKNOWN_RESET_CUSTOM,
+-	HNAE3_NONE_RESET_CUSTOM,
+-	HNAE3_PORT_FAULT,
+-	HNAE3_RESET_DONE_CUSTOM,
+-	HNAE3_FUNC_RESET_FAIL_CUSTOM,
+-	HNAE3_GLOBAL_RESET_FAIL_CUSTOM,
+-	HNAE3_IMP_RESET_FAIL_CUSTOM,
+-	HNAE3_PPU_POISON_CUSTOM,
+-	HNAE3_IMP_RD_POISON_CUSTOM,
+-};
+ 
+ /**
+  * nic_event_fn_t - nic event handler prototype
+@@ -35,18 +16,5 @@ enum hnae3_event_type_custom {
+ typedef void (*nic_event_fn_t) (struct net_device *netdev,
+ 				enum hnae3_event_type_custom);
+ 
+-/**
+- * nic_register_event - register for nic event handling
+- * @event_call:	nic event handler
+- * return 0 - success , negative - fail
+- */
+-int nic_register_event(nic_event_fn_t event_call);
+-
+-/**
+- * nic_unregister_event - quit nic event handling
+- * return 0 - success , negative - fail
+- */
+-int nic_unregister_event(void);
+-
+ int hclge_init(void);
+ #endif
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+new file mode 100644
+index 000000000000..52c7f5085cfb
+--- /dev/null
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+@@ -0,0 +1,178 @@
++// SPDX-License-Identifier: GPL-2.0+
++// Copyright (c) 2023 Hisilicon Limited.
++
++#include "hclge_main.h"
++#include "hnae3.h"
++#include "hnae3_ext.h"
++#include "hclge_cmd.h"
++#include "hclge_ext.h"
++
++#define HCLGE_RESET_MAX_FAIL_CNT 5
++
++static nic_event_fn_t nic_event_call;
++
++/* We use a lock to ensure that the address of the nic_event_call function
++ * is valid when it is called. Avoid null pointer exceptions caused by
++ * external unregister during invoking.
++ */
++static DEFINE_MUTEX(hclge_nic_event_lock);
++
++static int hclge_set_reset_task(struct hclge_dev *hdev, void *data,
++				size_t length)
++{
++	u32 *reset_level = (u32 *)data;
++
++	if (length != sizeof(u32))
++		return -EINVAL;
++
++	dev_warn(&hdev->pdev->dev, "reset level is %u\n", *reset_level);
++
++	/* request reset & schedule reset task */
++	set_bit(*reset_level, &hdev->reset_request);
++	hclge_reset_task_schedule(hdev);
++	return 0;
++}
++
++int hclge_ext_call_event(struct hclge_dev *hdev,
++			 enum hnae3_event_type_custom event_t)
++{
++	if (event_t >= HNAE3_INVALID_EVENT_CUSTOM)
++		return -EINVAL;
++
++	mutex_lock(&hclge_nic_event_lock);
++	if (!nic_event_call) {
++		mutex_unlock(&hclge_nic_event_lock);
++		return -EOPNOTSUPP;
++	}
++
++	nic_event_call(hdev->vport[0].nic.netdev, event_t);
++	mutex_unlock(&hclge_nic_event_lock);
++	return 0;
++}
++
++int nic_register_event(nic_event_fn_t event_call)
++{
++	if (!event_call) {
++		pr_err("hns3: register event handle is null\n");
++		return -EINVAL;
++	}
++
++	mutex_lock(&hclge_nic_event_lock);
++	if (nic_event_call) {
++		mutex_unlock(&hclge_nic_event_lock);
++		pr_err("hns3: event already register\n");
++		return -EBUSY;
++	}
++
++	nic_event_call = event_call;
++
++	mutex_unlock(&hclge_nic_event_lock);
++	pr_info("hns3: event register success\n");
++	return 0;
++}
++EXPORT_SYMBOL(nic_register_event);
++
++int nic_unregister_event(void)
++{
++	mutex_lock(&hclge_nic_event_lock);
++	nic_event_call = NULL;
++
++	mutex_unlock(&hclge_nic_event_lock);
++	pr_info("hns3: event unregister success\n");
++	return 0;
++}
++EXPORT_SYMBOL(nic_unregister_event);
++
++static int hclge_nic_call_event(struct hclge_dev *hdev, void *data,
++				size_t length)
++{
++#define ERROR_EVENT_TYPE_NUM 3
++
++	u32 event_type[ERROR_EVENT_TYPE_NUM] = {
++		HNAE3_PPU_POISON_CUSTOM,
++		HNAE3_IMP_RESET_CUSTOM,
++		HNAE3_IMP_RD_POISON_CUSTOM
++	};
++	u32 *index = (u32 *)data;
++
++	if (length != sizeof(u32))
++		return -EINVAL;
++
++	if ((*index) >= ERROR_EVENT_TYPE_NUM)
++		return 0;
++
++	return hclge_ext_call_event(hdev, event_type[*index]);
++}
++
++static enum hnae3_event_type_custom
++hclge_get_reset_fail_type(enum hnae3_reset_type reset_type)
++{
++	const struct hclge_reset_fail_type_map fail_type_map[] = {
++		{HNAE3_FUNC_RESET, HNAE3_FUNC_RESET_FAIL_CUSTOM},
++		{HNAE3_GLOBAL_RESET, HNAE3_GLOBAL_RESET_FAIL_CUSTOM},
++		{HNAE3_IMP_RESET, HNAE3_IMP_RESET_FAIL_CUSTOM},
++	};
++	u32 i;
++
++	for (i = 0; i < ARRAY_SIZE(fail_type_map); i++)
++		if (fail_type_map[i].reset_type == reset_type)
++			return fail_type_map[i].custom_type;
++
++	return HNAE3_INVALID_EVENT_CUSTOM;
++}
++
++static void hclge_report_reset_fail_custom(struct hclge_dev *hdev)
++{
++#define HCLGE_RESET_MAX_FAIL_CNT_CUSTOM 1
++
++	u32 max_fail_custom_cnt = HCLGE_RESET_MAX_FAIL_CNT;
++
++	mutex_lock(&hclge_nic_event_lock);
++	if (nic_event_call)
++		max_fail_custom_cnt = HCLGE_RESET_MAX_FAIL_CNT_CUSTOM;
++	mutex_unlock(&hclge_nic_event_lock);
++
++	if (hdev->rst_stats.reset_fail_cnt < max_fail_custom_cnt)
++		return;
++
++	dev_err(&hdev->pdev->dev, "failed to report reset!\n");
++	hclge_ext_call_event(hdev, hclge_get_reset_fail_type(hdev->reset_type));
++}
++
++void hclge_ext_reset_end(struct hclge_dev *hdev, bool done)
++{
++	if (!done) {
++		hclge_report_reset_fail_custom(hdev);
++		return;
++	}
++
++	hclge_ext_call_event(hdev, HNAE3_RESET_DONE_CUSTOM);
++	dev_info(&hdev->pdev->dev, "report reset done!\n");
++}
++
++static const hclge_priv_ops_fn hclge_ext_func_arr[] = {
++	[HNAE3_EXT_OPC_RESET] = hclge_set_reset_task,
++	[HNAE3_EXT_OPC_EVENT_CALLBACK] = hclge_nic_call_event,
++};
++
++int hclge_ext_ops_handle(struct hnae3_handle *handle, int opcode,
++			 void *data, size_t length)
++{
++	struct hclge_vport *vport = hclge_get_vport(handle);
++	int cmd_num = ARRAY_SIZE(hclge_ext_func_arr);
++	struct hclge_dev *hdev = vport->back;
++	hclge_priv_ops_fn ext_opcode_func;
++
++	if (opcode >= cmd_num) {
++		dev_err(&hdev->pdev->dev, "invalid opcode %d\n", opcode);
++		return -EINVAL;
++	}
++
++	ext_opcode_func = hclge_ext_func_arr[opcode];
++	if (!ext_opcode_func) {
++		dev_err(&hdev->pdev->dev, "unsupported opcode %d\n", opcode);
++		return -EOPNOTSUPP;
++	}
++
++	return ext_opcode_func(hdev, data, length);
++}
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h
+new file mode 100644
+index 000000000000..1c1b04765e7e
+--- /dev/null
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h
+@@ -0,0 +1,43 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/* Copyright (c) 2016-2017 Hisilicon Limited. */
++
++#ifndef __HCLGE_EXT_H
++#define __HCLGE_EXT_H
++#include <linux/types.h>
++
++struct hclge_reset_fail_type_map {
++	enum hnae3_reset_type reset_type;
++	enum hnae3_event_type_custom custom_type;
++};
++
++typedef int (*hclge_priv_ops_fn)(struct hclge_dev *hdev, void *data,
++				 size_t length);
++
++/**
++ * nic_event_fn_t - nic event handler prototype
++ * @netdev:	net device
++ * @hnae3_event_type_custom:	nic device event type
++ */
++typedef void (*nic_event_fn_t) (struct net_device *netdev,
++				enum hnae3_event_type_custom);
++
++/**
++ * nic_register_event - register for nic event handling
++ * @event_call:	nic event handler
++ * return 0 - success , negative - fail
++ */
++int nic_register_event(nic_event_fn_t event_call);
++
++/**
++ * nic_unregister_event - unregister for nic event handling
++ * return 0 - success , negative - fail
++ */
++int nic_unregister_event(void);
++
++int hclge_ext_call_event(struct hclge_dev *hdev,
++			 enum hnae3_event_type_custom event_t);
++void hclge_ext_reset_end(struct hclge_dev *hdev, bool done);
++
++int hclge_ext_ops_handle(struct hnae3_handle *handle, int opcode,
++			 void *data, size_t length);
++#endif
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index bbc63c47d0df..3779181b8f59 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -18,6 +18,7 @@
+ #include "kcompat.h"
+ #include "hclge_cmd.h"
+ #include "hclge_dcb.h"
++#include "hclge_ext.h"
+ #include "hclge_main.h"
+ #include "hclge_mbx.h"
+ #include "hclge_mdio.h"
+@@ -34,7 +35,6 @@
+ #define BUF_MAX_PERCENT		100
+ #define BUF_RESERVE_PERCENT	90
+ 
+-#define HCLGE_RESET_MAX_FAIL_CNT	5
+ #define HCLGE_RESET_SYNC_TIME		100
+ #define HCLGE_PF_RESET_SYNC_TIME	20
+ #define HCLGE_PF_RESET_SYNC_CNT		1500
+@@ -55,6 +55,8 @@
+ 
+ #define HCLGE_LINK_STATUS_MS	10
+ 
++#define HCLGE_RESET_MAX_FAIL_CNT        5
++
+ static int hclge_set_mac_mtu(struct hclge_dev *hdev, int new_mps);
+ static int hclge_init_vlan_config(struct hclge_dev *hdev);
+ static void hclge_sync_vlan_filter(struct hclge_dev *hdev);
+@@ -67,6 +69,7 @@ static int hclge_set_default_loopback(struct hclge_dev *hdev);
+ static void hclge_sync_mac_table(struct hclge_dev *hdev);
+ static void hclge_restore_hw_table(struct hclge_dev *hdev);
+ static void hclge_sync_promisc_mode(struct hclge_dev *hdev);
++static void hclge_reset_end(struct hnae3_handle *handle, bool done);
+ 
+ static struct hnae3_ae_algo ae_algo;
+ 
+@@ -2916,7 +2919,7 @@ static void hclge_mbx_task_schedule(struct hclge_dev *hdev)
+ 	}
+ }
+ 
+-static void hclge_reset_task_schedule(struct hclge_dev *hdev)
++void hclge_reset_task_schedule(struct hclge_dev *hdev)
+ {
+ 	if (!test_bit(HCLGE_STATE_REMOVING, &hdev->state) &&
+ 	    test_bit(HCLGE_STATE_SERVICE_INITED, &hdev->state) &&
+@@ -3399,7 +3402,7 @@ static int hclge_get_status(struct hnae3_handle *handle)
+ 	return hdev->hw.mac.link;
+ }
+ 
+-static struct hclge_vport *hclge_get_vf_vport(struct hclge_dev *hdev, int vf)
++struct hclge_vport *hclge_get_vf_vport(struct hclge_dev *hdev, int vf)
+ {
+ 	if (!pci_num_vf(hdev->pdev)) {
+ 		dev_err(&hdev->pdev->dev,
+@@ -4142,8 +4145,7 @@ static bool hclge_reset_err_handle(struct hclge_dev *hdev)
+ 	/* recover the handshake status when reset fail */
+ 	hclge_reset_handshake(hdev, true);
+ 
+-	if (handle && handle->ae_algo->ops->reset_end)
+-		handle->ae_algo->ops->reset_end(handle, false);
++	hclge_reset_end(handle, false);
+ 
+ 	hclge_show_rst_info(hdev);
+ 
+@@ -4262,6 +4264,7 @@ static int hclge_reset_prepare(struct hclge_dev *hdev)
+ 
+ static int hclge_reset_rebuild(struct hclge_dev *hdev)
+ {
++	struct hnae3_handle *handle = &hdev->vport[0].nic;
+ 	int ret;
+ 
+ 	hdev->rst_stats.hw_reset_done_cnt++;
+@@ -4307,6 +4310,8 @@ static int hclge_reset_rebuild(struct hclge_dev *hdev)
+ 
+ 	hclge_update_reset_level(hdev);
+ 
++	hclge_reset_end(handle, true);
++
+ 	return 0;
+ }
+ 
+@@ -4328,10 +4333,11 @@ static void hclge_reset(struct hclge_dev *hdev)
+ 		hclge_reset_task_schedule(hdev);
+ }
+ 
+-static void hclge_reset_event(struct pci_dev *pdev, struct hnae3_handle *handle)
++void hclge_reset_event(struct pci_dev *pdev, struct hnae3_handle *handle)
+ {
+ 	struct hnae3_ae_dev *ae_dev = pci_get_drvdata(pdev);
+ 	struct hclge_dev *hdev = ae_dev->priv;
++	int ret;
+ 
+ 	/* We might end up getting called broadly because of 2 below cases:
+ 	 * 1. Recoverable error was conveyed through APEI and only way to bring
+@@ -4366,9 +4372,12 @@ static void hclge_reset_event(struct pci_dev *pdev, struct hnae3_handle *handle)
+ 	dev_info(&hdev->pdev->dev, "received reset event, reset type is %d\n",
+ 		 hdev->reset_level);
+ 
+-	/* request reset & schedule reset task */
+-	set_bit(hdev->reset_level, &hdev->reset_request);
+-	hclge_reset_task_schedule(hdev);
++	ret = hclge_ext_call_event(hdev, hdev->reset_level);
++	if (ret) {
++		/* request reset & schedule reset task */
++		set_bit(hdev->reset_level, &hdev->reset_request);
++		hclge_reset_task_schedule(hdev);
++	}
+ 
+ 	if (hdev->reset_level < HNAE3_GLOBAL_RESET)
+ 		hdev->reset_level++;
+@@ -4385,7 +4394,6 @@ static void hclge_set_def_reset_request(struct hnae3_ae_dev *ae_dev,
+ static void hclge_reset_timer(struct timer_list *t)
+ {
+ 	struct hclge_dev *hdev = from_timer(hdev, t, reset_timer);
+-	struct hnae3_ae_dev *ae_dev = pci_get_drvdata(hdev->pdev);
+ 
+ 	/* if default_reset_request has no value, it means that this reset
+ 	 * request has already be handled, so just return here
+@@ -4395,20 +4403,15 @@ static void hclge_reset_timer(struct timer_list *t)
+ 
+ 	dev_info(&hdev->pdev->dev,
+ 		 "triggering reset in reset timer\n");
+-
+-	if (ae_dev->ops->reset_event)
+-		ae_dev->ops->reset_event(hdev->pdev, NULL);
++	hclge_reset_event(hdev->pdev, &hdev->vport[0].nic);
+ }
+ 
+-static bool hclge_reset_end(struct hnae3_handle *handle, bool done)
++static void hclge_reset_end(struct hnae3_handle *handle, bool done)
+ {
+ 	struct hclge_vport *vport = hclge_get_vport(handle);
+ 	struct hclge_dev *hdev = vport->back;
+ 
+-	if (hdev->rst_stats.reset_fail_cnt >= HCLGE_RESET_MAX_FAIL_CNT)
+-		dev_err(&hdev->pdev->dev, "Reset fail!\n");
+-
+-	return done;
++	hclge_ext_reset_end(hdev, done);
+ }
+ 
+ static void hclge_reset_subtask(struct hclge_dev *hdev)
+@@ -4448,8 +4451,8 @@ static void hclge_handle_err_reset_request(struct hclge_dev *hdev)
+ 		hclge_set_def_reset_request(ae_dev, reset_type);
+ 	}
+ 
+-	if (hdev->default_reset_request && ae_dev->ops->reset_event)
+-		ae_dev->ops->reset_event(hdev->pdev, NULL);
++	if (hdev->default_reset_request)
++		hclge_reset_event(hdev->pdev, &hdev->vport[0].nic);
+ 
+ 	/* enable interrupt after error handling complete */
+ 	hclge_enable_vector(&hdev->misc_vector, true);
+@@ -12836,7 +12839,6 @@ struct hnae3_ae_ops hclge_ops = {
+ 	.set_timer_task = hclge_set_timer_task,
+ 	.mac_connect_phy = hclge_mac_connect_phy,
+ 	.mac_disconnect_phy = hclge_mac_disconnect_phy,
+-	.reset_end = hclge_reset_end,
+ 	.get_vf_config = hclge_get_vf_config,
+ 	.set_vf_link_state = hclge_set_vf_link_state,
+ 	.set_vf_spoofchk = hclge_set_vf_spoofchk,
+@@ -12853,6 +12855,7 @@ struct hnae3_ae_ops hclge_ops = {
+ 	.get_link_diagnosis_info = hclge_get_link_diagnosis_info,
+ 	.get_wol = hclge_get_wol,
+ 	.set_wol = hclge_set_wol,
++	.priv_ops = hclge_ext_ops_handle,
+ };
+ 
+ static struct hnae3_ae_algo ae_algo = {
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+index 9d739033daab..f32c8b52f022 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+@@ -11,7 +11,7 @@
+ 
+ #include "hclge_cmd.h"
+ #include "hclge_ptp.h"
+-#include "hnae3.h"
++#include "hnae3_ext.h"
+ 
+ #define HCLGE_MOD_VERSION "23.7.1"
+ #define HCLGE_DRIVER_NAME "hclge"
+@@ -1168,4 +1168,7 @@ void hclge_unregister_sysfs(struct hclge_dev *hdev);
+ int hclge_cfg_mac_speed_dup_hw(struct hclge_dev *hdev, int speed, u8 duplex);
+ int hclge_get_wol_supported_mode(struct hclge_dev *hdev, u32 *wol_supported);
+ int hclge_get_wol_cfg(struct hclge_dev *hdev, u32 *mode);
++struct hclge_vport *hclge_get_vf_vport(struct hclge_dev *hdev, int vf);
++void hclge_reset_task_schedule(struct hclge_dev *hdev);
++void hclge_reset_event(struct pci_dev *pdev, struct hnae3_handle *handle);
+ #endif
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
+index 305f11c854bf..4c270073c607 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
+@@ -802,7 +802,7 @@ static void hclge_handle_ncsi_error(struct hclge_dev *hdev)
+ 
+ 	ae_dev->ops->set_default_reset_request(ae_dev, HNAE3_GLOBAL_RESET);
+ 	dev_warn(&hdev->pdev->dev, "requesting reset due to NCSI error\n");
+-	ae_dev->ops->reset_event(hdev->pdev, NULL);
++	hclge_reset_event(hdev->pdev, &hdev->vport[0].nic);
+ }
+ 
+ static void hclge_handle_vf_tbl(struct hclge_vport *vport,
+-- 
+2.34.1
+

@@ -1,0 +1,48 @@
+From cb1b6b70aa8a365a507acf6cf2f7ba1c30d6cd02 Mon Sep 17 00:00:00 2001
+From: Jakub Kicinski <kuba@kernel.org>
+Date: Mon, 28 Sep 2020 17:58:41 -0700
+Subject: [PATCH 272/283] ethtool: mark netlink family as __ro_after_init
+
+mainline inclusion
+from mainline-v5.9
+commit 78b70155dc73280be2c7084a3be591161cdc6d0c
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN49
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=78b70155dc73280be2c7084a3be591161cdc6d0c
+
+--------------------------------
+
+Like all genl families ethtool_genl_family needs to not
+be a straight up constant, because it's modified/initialized
+by genl_register_family(). After init, however, it's only
+passed to genlmsg_put() & co. therefore we can mark it
+as __ro_after_init.
+
+Since genl_family structure contains function pointers
+mark this as a fix.
+
+Fixes: 2b4a8990b7df ("ethtool: introduce ethtool netlink interface")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ net/ethtool/netlink.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/net/ethtool/netlink.c b/net/ethtool/netlink.c
+index 1fdf23c0a6ec..c5fa38fad466 100644
+--- a/net/ethtool/netlink.c
++++ b/net/ethtool/netlink.c
+@@ -811,7 +811,7 @@ static const struct genl_multicast_group ethtool_nl_mcgrps[] = {
+ 	[ETHNL_MCGRP_MONITOR] = { .name = ETHTOOL_MCGRP_MONITOR_NAME },
+ };
+ 
+-static struct genl_family ethtool_genl_family = {
++static struct genl_family ethtool_genl_family __ro_after_init = {
+ 	.name		= ETHTOOL_GENL_NAME,
+ 	.version	= ETHTOOL_GENL_VERSION,
+ 	.netnsok	= true,
+-- 
+2.34.1
+

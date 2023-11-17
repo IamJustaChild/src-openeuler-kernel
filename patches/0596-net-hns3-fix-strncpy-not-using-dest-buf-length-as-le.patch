@@ -1,0 +1,123 @@
+From 2a6d050445917e451c37ea8c2c7286f6f4df3e1c Mon Sep 17 00:00:00 2001
+From: Hao Chen <chenhao418@huawei.com>
+Date: Thu, 27 Oct 2022 15:27:35 +0800
+Subject: [PATCH 235/283] net: hns3: fix strncpy() not using dest-buf length as
+ length issue
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN49
+CVE: NA
+
+----------------------------------------------------------------------
+
+Now, strncpy() in hns3_dbg_fill_content() use src-length as copy-length,
+it may result in dest-buf overflow.
+
+This patch add some values check to avoid this issue.
+
+Fixes: 721091d171a1 ("net: hns3: refactor dump bd info of debugfs")
+Signed-off-by: Hao Chen <chenhao418@huawei.com>
+(cherry picked from commit 68023e0709aa1eb47549d58867e9285cf9980535)
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ .../ethernet/hisilicon/hns3/hns3_debugfs.c    | 31 ++++++++++++++-----
+ .../hisilicon/hns3/hns3pf/hclge_debugfs.c     | 29 ++++++++++++++---
+ 2 files changed, 48 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c b/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
+index afe3f673364c..ca2c5e6bd40d 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
+@@ -380,19 +380,36 @@ static void hns3_dbg_fill_content(char *content, u16 len,
+ 				  const struct hns3_dbg_item *items,
+ 				  const char **result, u16 size)
+ {
++#define HNS3_DBG_LINE_END_LEN	2
+ 	char *pos = content;
++	u16 item_len;
+ 	u16 i;
+ 
++	if (!len) {
++		return;
++	} else if (len <= HNS3_DBG_LINE_END_LEN) {
++		*pos++ = '\0';
++		return;
++	}
++
+ 	memset(content, ' ', len);
+-	for (i = 0; i < size; i++) {
+-		if (result)
+-			strncpy(pos, result[i], strlen(result[i]));
+-		else
+-			strncpy(pos, items[i].name, strlen(items[i].name));
++	len -= HNS3_DBG_LINE_END_LEN;
+ 
+-		pos += strlen(items[i].name) + items[i].interval;
++	for (i = 0; i < size; i++) {
++		item_len = strlen(items[i].name) + items[i].interval;
++		if (len < item_len)
++			break;
++
++		if (result) {
++			if (item_len < strlen(result[i]))
++				break;
++			memcpy(pos, result[i], strlen(result[i]));
++		} else {
++			memcpy(pos, items[i].name, strlen(items[i].name));
++		}
++		pos += item_len;
++		len -= item_len;
+ 	}
+-
+ 	*pos++ = '\n';
+ 	*pos++ = '\0';
+ }
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_debugfs.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_debugfs.c
+index 63cc42060a31..087079070353 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_debugfs.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_debugfs.c
+@@ -81,16 +81,35 @@ static void hclge_dbg_fill_content(char *content, u16 len,
+ 				   const struct hclge_dbg_item *items,
+ 				   const char **result, u16 size)
+ {
++#define HCLGE_DBG_LINE_END_LEN	2
+ 	char *pos = content;
++	u16 item_len;
+ 	u16 i;
+ 
++	if (!len) {
++		return;
++	} else if (len <= HCLGE_DBG_LINE_END_LEN) {
++		*pos++ = '\0';
++		return;
++	}
++
+ 	memset(content, ' ', len);
++	len -= HCLGE_DBG_LINE_END_LEN;
++
+ 	for (i = 0; i < size; i++) {
+-		if (result)
+-			strncpy(pos, result[i], strlen(result[i]));
+-		else
+-			strncpy(pos, items[i].name, strlen(items[i].name));
+-		pos += strlen(items[i].name) + items[i].interval;
++		item_len = strlen(items[i].name) + items[i].interval;
++		if (len < item_len)
++			break;
++
++		if (result) {
++			if (item_len < strlen(result[i]))
++				break;
++			memcpy(pos, result[i], strlen(result[i]));
++		} else {
++			memcpy(pos, items[i].name, strlen(items[i].name));
++		}
++		pos += item_len;
++		len -= item_len;
+ 	}
+ 	*pos++ = '\n';
+ 	*pos++ = '\0';
+-- 
+2.34.1
+

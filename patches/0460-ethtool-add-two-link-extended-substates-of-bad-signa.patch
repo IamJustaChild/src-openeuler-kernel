@@ -1,0 +1,123 @@
+From b63dbee6334e1890f68376bf0ec734a2ef0f604c Mon Sep 17 00:00:00 2001
+From: Guangbin Huang <huangguangbin2@huawei.com>
+Date: Sat, 21 Aug 2021 17:00:39 +0800
+Subject: [PATCH 099/283] ethtool: add two link extended substates of bad
+ signal integrity
+
+mainline inclusion
+from mainline-v5.15-rc1
+commit 5b4ecc3d4c4aab8d002fe6358885c10e7b57e432
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMYT
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=5b4ecc3d4c4aab8d002fe6358885c10e7b57e432
+
+----------------------------------------------------------------------
+
+ETHTOOL_LINK_EXT_SUBSTATE_BSI_SERDES_REFERENCE_CLOCK_LOST means the input
+external clock signal for SerDes is too weak or lost.
+
+ETHTOOL_LINK_EXT_SUBSTATE_BSI_SERDES_ALOS means the received signal for
+SerDes is too weak because analog loss of signal.
+
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+(fix conflicts: replace the last line by "/**")
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	include/uapi/linux/ethtool.h
+---
+ include/uapi/linux/ethtool.h | 72 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 72 insertions(+)
+
+diff --git a/include/uapi/linux/ethtool.h b/include/uapi/linux/ethtool.h
+index 4a43996de6d0..43ac4af42346 100644
+--- a/include/uapi/linux/ethtool.h
++++ b/include/uapi/linux/ethtool.h
+@@ -553,6 +553,78 @@ struct ethtool_pauseparam {
+ 	__u32	tx_pause;
+ };
+ 
++/**
++ * enum ethtool_link_ext_state - link extended state
++ */
++enum ethtool_link_ext_state {
++	ETHTOOL_LINK_EXT_STATE_AUTONEG,
++	ETHTOOL_LINK_EXT_STATE_LINK_TRAINING_FAILURE,
++	ETHTOOL_LINK_EXT_STATE_LINK_LOGICAL_MISMATCH,
++	ETHTOOL_LINK_EXT_STATE_BAD_SIGNAL_INTEGRITY,
++	ETHTOOL_LINK_EXT_STATE_NO_CABLE,
++	ETHTOOL_LINK_EXT_STATE_CABLE_ISSUE,
++	ETHTOOL_LINK_EXT_STATE_EEPROM_ISSUE,
++	ETHTOOL_LINK_EXT_STATE_CALIBRATION_FAILURE,
++	ETHTOOL_LINK_EXT_STATE_POWER_BUDGET_EXCEEDED,
++	ETHTOOL_LINK_EXT_STATE_OVERHEAT,
++};
++
++/**
++ * enum ethtool_link_ext_substate_autoneg - more information in addition to
++ * ETHTOOL_LINK_EXT_STATE_AUTONEG.
++ */
++enum ethtool_link_ext_substate_autoneg {
++	ETHTOOL_LINK_EXT_SUBSTATE_AN_NO_PARTNER_DETECTED = 1,
++	ETHTOOL_LINK_EXT_SUBSTATE_AN_ACK_NOT_RECEIVED,
++	ETHTOOL_LINK_EXT_SUBSTATE_AN_NEXT_PAGE_EXCHANGE_FAILED,
++	ETHTOOL_LINK_EXT_SUBSTATE_AN_NO_PARTNER_DETECTED_FORCE_MODE,
++	ETHTOOL_LINK_EXT_SUBSTATE_AN_FEC_MISMATCH_DURING_OVERRIDE,
++	ETHTOOL_LINK_EXT_SUBSTATE_AN_NO_HCD,
++};
++
++/**
++ * enum ethtool_link_ext_substate_link_training - more information
++ * in addition to ETHTOOL_LINK_EXT_STATE_LINK_TRAINING_FAILURE.
++ */
++enum ethtool_link_ext_substate_link_training {
++	ETHTOOL_LINK_EXT_SUBSTATE_LT_KR_FRAME_LOCK_NOT_ACQUIRED = 1,
++	ETHTOOL_LINK_EXT_SUBSTATE_LT_KR_LINK_INHIBIT_TIMEOUT,
++	ETHTOOL_LINK_EXT_SUBSTATE_LT_KR_LINK_PARTNER_DID_NOT_SET_RECEIVER_READY,
++	ETHTOOL_LINK_EXT_SUBSTATE_LT_REMOTE_FAULT,
++};
++
++/**
++ * enum ethtool_link_ext_substate_logical_mismatch - more information
++ * in addition to ETHTOOL_LINK_EXT_STATE_LINK_LOGICAL_MISMATCH.
++ */
++enum ethtool_link_ext_substate_link_logical_mismatch {
++	ETHTOOL_LINK_EXT_SUBSTATE_LLM_PCS_DID_NOT_ACQUIRE_BLOCK_LOCK = 1,
++	ETHTOOL_LINK_EXT_SUBSTATE_LLM_PCS_DID_NOT_ACQUIRE_AM_LOCK,
++	ETHTOOL_LINK_EXT_SUBSTATE_LLM_PCS_DID_NOT_GET_ALIGN_STATUS,
++	ETHTOOL_LINK_EXT_SUBSTATE_LLM_FC_FEC_IS_NOT_LOCKED,
++	ETHTOOL_LINK_EXT_SUBSTATE_LLM_RS_FEC_IS_NOT_LOCKED,
++};
++
++/**
++ * enum ethtool_link_ext_substate_bad_signal_integrity - more information in
++ * addition to ETHTOOL_LINK_EXT_STATE_BAD_SIGNAL_INTEGRITY.
++ */
++enum ethtool_link_ext_substate_bad_signal_integrity {
++	ETHTOOL_LINK_EXT_SUBSTATE_BSI_LARGE_NUMBER_OF_PHYSICAL_ERRORS = 1,
++	ETHTOOL_LINK_EXT_SUBSTATE_BSI_UNSUPPORTED_RATE,
++	ETHTOOL_LINK_EXT_SUBSTATE_BSI_SERDES_REFERENCE_CLOCK_LOST,
++	ETHTOOL_LINK_EXT_SUBSTATE_BSI_SERDES_ALOS,
++};
++
++/**
++ * enum ethtool_link_ext_substate_cable_issue - more information in
++ * addition to ETHTOOL_LINK_EXT_STATE_CABLE_ISSUE.
++ */
++enum ethtool_link_ext_substate_cable_issue {
++	ETHTOOL_LINK_EXT_SUBSTATE_CI_UNSUPPORTED_CABLE = 1,
++	ETHTOOL_LINK_EXT_SUBSTATE_CI_CABLE_TEST_FAILURE,
++};
++
+ #define ETH_GSTRING_LEN		32
+ 
+ /**
+-- 
+2.34.1
+

@@ -1,0 +1,51 @@
+From b86c90458d7f560c59dc9d7cd6bb15eb27c60e55 Mon Sep 17 00:00:00 2001
+From: Yufeng Mo <moyufeng@huawei.com>
+Date: Tue, 25 May 2021 15:30:01 +0000
+Subject: [PATCH 037/283] net: hns3: initialize the message content in
+ hclge_get_link_mode()
+
+mainline inclusion
+from mainline-v5.13-rc1
+commit 568a54bdf70b143f3e0befa298e22ad469ffc732
+category: cleanup
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMQV
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=568a54bdf70b143f3e0befa298e22ad469ffc732
+
+--------------------------------
+
+[ Upstream commit 568a54bdf70b143f3e0befa298e22ad469ffc732 ]
+
+The message sent to VF should be initialized, otherwise random
+value of some contents may cause improper processing by the target.
+So add a initialization to message in hclge_get_link_mode().
+
+Fixes: 9194d18b0577 ("net: hns3: fix the problem that the supported port is empty")
+Signed-off-by: Yufeng Mo <moyufeng@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Chen Jun <chenjun102@huawei.com>
+Acked-by: Weilong Chen <chenweilong@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
+index 893f6e0ce473..ff283ac443e5 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
+@@ -583,7 +583,7 @@ static void hclge_get_link_mode(struct hclge_vport *vport,
+ 	unsigned long advertising;
+ 	unsigned long supported;
+ 	unsigned long send_data;
+-	u8 msg_data[10];
++	u8 msg_data[10] = {};
+ 	u8 dest_vfid;
+ 
+ 	memset(msg_data, 0, sizeof(msg_data));
+-- 
+2.34.1
+

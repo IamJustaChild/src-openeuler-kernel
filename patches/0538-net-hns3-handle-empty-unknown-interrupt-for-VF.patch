@@ -1,0 +1,51 @@
+From 8294bb0096acee531586cc5364273763fc658b5b Mon Sep 17 00:00:00 2001
+From: Yufeng Mo <moyufeng@huawei.com>
+Date: Thu, 7 Apr 2022 16:12:44 +0800
+Subject: [PATCH 177/283] net: hns3: handle empty unknown interrupt for VF
+
+mainline inclusion
+from mainline-v5.17-rc2
+commit 2f61353cd2f789a4229b6f5c1c24a40a613357bb
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN3D
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net.git/commit/?id=2f61353cd2f789a4229b6f5c1c24a40a613357bb
+
+----------------------------------------------------------------------
+
+Since some interrupt states may be cleared by hardware, the driver
+may receive an empty interrupt. Currently, the VF driver directly
+disables the vector0 interrupt in this case. As a result, the VF
+is unavailable. Therefore, the vector0 interrupt should be enabled
+in this case.
+
+Fixes: b90fcc5bd904 ("net: hns3: add reset handling for VF when doing Core/Global/IMP reset")
+Signed-off-by: Yufeng Mo <moyufeng@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yue Haibing <yuehaibing@huawei.com>
+Acked-by: Xie XiuQi <xiexiuqi@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+index 4dbfd2daa7e2..d03d6c22b051 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+@@ -2430,8 +2430,7 @@ static irqreturn_t hclgevf_misc_irq_handle(int irq, void *data)
+ 		break;
+ 	}
+ 
+-	if (event_cause != HCLGEVF_VECTOR0_EVENT_OTHER)
+-		hclgevf_enable_vector(&hdev->misc_vector, true);
++	hclgevf_enable_vector(&hdev->misc_vector, true);
+ 
+ 	return IRQ_HANDLED;
+ }
+-- 
+2.34.1
+

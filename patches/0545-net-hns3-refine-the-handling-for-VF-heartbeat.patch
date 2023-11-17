@@ -1,0 +1,856 @@
+From e6642c8c809905f91653b25325c0fbdcf20c5952 Mon Sep 17 00:00:00 2001
+From: Jian Shen <shenjian15@huawei.com>
+Date: Wed, 30 Nov 2022 18:23:31 +0800
+Subject: [PATCH 184/283] net: hns3: refine the handling for VF heartbeat
+
+driver inclusion
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN3D
+
+----------------------------------------------------------------------
+
+Currently, the PF check the VF alive by the KEEP_ALVE
+mailbox from VF. VF keep sending the mailbox per 2
+seconds. Once PF lost the mailbox for more than 8
+seconds, it will regards the VF is abnormal, and stop
+notifying the state change to VF, include link state,
+vf mac, reset, even though it receives the KEEP_ALIVE
+mailbox again. It's inreasonable.
+
+This patch fixes it. PF will record the state change which
+need to notify VF when lost the VF's KEEP_ALIVE mailbox.
+And notify VF when receive the mailbox again. Introduce a
+new flag HCLGE_VPORT_STATE_INITED, used to distinguish the
+case whether VF driver loaded or not. For VF will query
+these states when initializing, so it's unnecessary to
+notify it in this case.
+
+Signed-off-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: Jiantao Xiao <xiaojiantao1@h-partners.com>
+Reviewed-by: Yue Haibing <yuehaibing@huawei.com>
+Reviewed-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
+---
+ .../net/ethernet/hisilicon/hns3/hclge_mbx.h   |  13 +-
+ .../hisilicon/hns3/hns3pf/hclge_main.c        |  60 ++-
+ .../hisilicon/hns3/hns3pf/hclge_main.h        |   8 +-
+ .../hisilicon/hns3/hns3pf/hclge_mbx.c         | 510 ++++++++++++------
+ 4 files changed, 393 insertions(+), 198 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h b/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
+index 98045a4649e8..05a1b789c9ab 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
+@@ -24,7 +24,7 @@ enum HCLGE_MBX_OPCODE {
+ 	HCLGE_MBX_GET_RETA,		/* (VF -> PF) get RETA */
+ 	HCLGE_MBX_GET_RSS_KEY,		/* (VF -> PF) get RSS key */
+ 	HCLGE_MBX_GET_MAC_ADDR,		/* (VF -> PF) get MAC addr */
+-	HCLGE_MBX_PF_VF_RESP,		/* (PF -> VF) generate respone to VF */
++	HCLGE_MBX_PF_VF_RESP,		/* (PF -> VF) generate response to VF */
+ 	HCLGE_MBX_GET_BDNUM,		/* (VF -> PF) get BD num */
+ 	HCLGE_MBX_GET_BUFSIZE,		/* (VF -> PF) get buffer size */
+ 	HCLGE_MBX_GET_STREAMID,		/* (VF -> PF) get stream id */
+@@ -47,6 +47,8 @@ enum HCLGE_MBX_OPCODE {
+ 	HCLGE_MBX_VF_UNINIT,            /* (VF -> PF) vf is unintializing */
+ 	HCLGE_MBX_HANDLE_VF_TBL,	/* (VF -> PF) store/clear hw table */
+ 	HCLGE_MBX_GET_RING_VECTOR_MAP,	/* (VF -> PF) get ring-to-vector map */
++	HCLGE_MBX_SET_QB = 0x28,        /* (VF -> PF) set queue bonding */
++	HCLGE_MBX_PUSH_QB_STATE,        /* (PF -> VF) push qb state */
+ 
+ 	HCLGE_MBX_GET_VF_FLR_STATUS = 200, /* (M7 -> PF) get vf flr status */
+ 	HCLGE_MBX_PUSH_LINK_STATUS,	/* (M7 -> PF) get port link status */
+@@ -186,6 +188,15 @@ struct hclgevf_mbx_arq_ring {
+ 	u16 msg_q[HCLGE_MBX_MAX_ARQ_MSG_NUM][HCLGE_MBX_MAX_ARQ_MSG_SIZE];
+ };
+ 
++#define HCLGE_MBX_OPCODE_MAX 256
++struct hclge_mbx_ops_param {
++	struct hclge_vport *vport;
++	struct hclge_mbx_vf_to_pf_cmd *req;
++	struct hclge_respond_to_vf_msg *resp_msg;
++};
++
++typedef int (*hclge_mbx_ops_fn)(struct hclge_mbx_ops_param *param);
++
+ #define hclge_mbx_ring_ptr_move_crq(crq) \
+ 	(crq->next_to_use = (crq->next_to_use + 1) % crq->desc_num)
+ #define hclge_mbx_tail_ptr_move_arq(arq) \
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 62b60e559137..14e70efd44c8 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -3797,9 +3797,17 @@ static int hclge_set_all_vf_rst(struct hclge_dev *hdev, bool reset)
+ 			return ret;
+ 		}
+ 
+-		if (!reset || !test_bit(HCLGE_VPORT_STATE_ALIVE, &vport->state))
++		if (!reset ||
++		    !test_bit(HCLGE_VPORT_STATE_INITED, &vport->state))
+ 			continue;
+ 
++		if (!test_bit(HCLGE_VPORT_STATE_ALIVE, &vport->state) &&
++		    hdev->reset_type == HNAE3_FUNC_RESET) {
++			set_bit(HCLGE_VPORT_NEED_NOTIFY_RESET,
++				&vport->need_notify);
++			continue;
++		}
++
+ 		/* Inform VF to process the reset.
+ 		 * hclge_inform_reset_assert_to_vf may fail if VF
+ 		 * driver is not loaded.
+@@ -4520,20 +4528,15 @@ static void hclge_update_vport_alive(struct hclge_dev *hdev)
+ 	for (i = 1; i < hdev->num_alloc_vport; i++) {
+ 		struct hclge_vport *vport = &hdev->vport[i];
+ 
+-		/* vf keeps sending alive msg to pf per 2s, if pf doesn't
+-		 * receive a vf's alive msg for 8s, regards the vf is offline
+-		 */
+-		if (time_after(jiffies, vport->last_active_jiffies + 8 * HZ))
+-			if (test_and_clear_bit(HCLGE_VPORT_STATE_ALIVE,
+-					       &vport->state))
+-				dev_info(&hdev->pdev->dev,
+-					 "VF %u keep alive lost!",
+-					 vport->vport_id -
+-					 HCLGE_VF_VPORT_START_NUM);
+-
+-		/* If vf is not alive, set to default value */
+-		if (!test_bit(HCLGE_VPORT_STATE_ALIVE, &vport->state))
+-			vport->mps = HCLGE_MAC_DEFAULT_FRAME;
++		if (!test_bit(HCLGE_VPORT_STATE_INITED, &vport->state) ||
++		    !test_bit(HCLGE_VPORT_STATE_ALIVE, &vport->state))
++			continue;
++		if (time_after(jiffies, vport->last_active_jiffies + 8 * HZ)) {
++			clear_bit(HCLGE_VPORT_STATE_ALIVE, &vport->state);
++			dev_warn(&hdev->pdev->dev,
++				 "vf %u heartbeat timeout\n",
++				 i - HCLGE_VF_VPORT_START_NUM);
++		}
+ 	}
+ }
+ 
+@@ -7645,11 +7648,11 @@ int hclge_vport_start(struct hclge_vport *vport)
+ {
+ 	struct hclge_dev *hdev = vport->back;
+ 
++	set_bit(HCLGE_VPORT_STATE_INITED, &vport->state);
+ 	set_bit(HCLGE_VPORT_STATE_ALIVE, &vport->state);
+ 	set_bit(HCLGE_VPORT_STATE_PROMISC_CHANGE, &vport->state);
+ 	vport->last_active_jiffies = jiffies;
+-	set_bit(HCLGE_VPORT_STATE_START, &vport->state);
+-	set_bit(HCLGE_VPORT_STATE_ALIVE, &vport->state);
++	vport->need_notify = 0;
+ 
+ 	if (test_bit(vport->vport_id, hdev->vport_config_block)) {
+ 		if (vport->vport_id) {
+@@ -7666,8 +7669,9 @@ int hclge_vport_start(struct hclge_vport *vport)
+ 
+ void hclge_vport_stop(struct hclge_vport *vport)
+ {
+-	clear_bit(HCLGE_VPORT_STATE_START, &vport->state);
++	clear_bit(HCLGE_VPORT_STATE_INITED, &vport->state);
+ 	clear_bit(HCLGE_VPORT_STATE_ALIVE, &vport->state);
++	vport->need_notify = 0;
+ }
+ 
+ static int hclge_client_start(struct hnae3_handle *handle)
+@@ -8723,7 +8727,8 @@ static int hclge_set_vf_mac(struct hnae3_handle *handle, int vf,
+ 		return 0;
+ 	}
+ 
+-	dev_info(&hdev->pdev->dev, "MAC of VF %d has been set to %s\n",
++	dev_info(&hdev->pdev->dev,
++		 "MAC of VF %d has been set to %s, will be active after vf reset\n",
+ 		 vf, format_mac_addr);
+ 	return 0;
+ }
+@@ -9866,6 +9871,7 @@ static u16 hclge_get_port_base_vlan_state(struct hclge_vport *vport,
+ static int hclge_set_vf_vlan_filter(struct hnae3_handle *handle, int vfid,
+ 				    u16 vlan, u8 qos, __be16 proto)
+ {
++	struct hnae3_ae_dev *ae_dev = pci_get_drvdata(handle->pdev);
+ 	struct hclge_vport *vport = hclge_get_vport(handle);
+ 	struct hclge_dev *hdev = vport->back;
+ 	struct hclge_vlan_info vlan_info;
+@@ -9907,10 +9913,16 @@ static int hclge_set_vf_vlan_filter(struct hnae3_handle *handle, int vfid,
+ 	 * cause send mailbox fail, but it doesn't matter, VF will
+ 	 * query it when reinit.
+ 	 */
+-	if (test_bit(HCLGE_VPORT_STATE_ALIVE, &vport->state))
+-		(void)hclge_push_vf_port_base_vlan_info(&hdev->vport[0],
+-							vport->vport_id,
+-							state, &vlan_info);
++	if (ae_dev->dev_version < HNAE3_DEVICE_VERSION_V3) {
++		if (test_bit(HCLGE_VPORT_STATE_ALIVE, &vport->state))
++			(void)hclge_push_vf_port_base_vlan_info(&hdev->vport[0],
++								vport->vport_id,
++								state,
++								&vlan_info);
++		else
++			set_bit(HCLGE_VPORT_NEED_NOTIFY_VF_VLAN,
++				&vport->need_notify);
++	}
+ 	return 0;
+ }
+ 
+@@ -11376,7 +11388,7 @@ static void hclge_reset_vport_state(struct hclge_dev *hdev)
+ 	int i;
+ 
+ 	for (i = 0; i < hdev->num_alloc_vport; i++) {
+-		hclge_vport_stop(vport);
++		clear_bit(HCLGE_VPORT_STATE_ALIVE, &vport->state);
+ 		vport++;
+ 	}
+ }
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+index 973b4f3de627..b7b4d922711e 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+@@ -973,10 +973,15 @@ enum HCLGE_VPORT_STATE {
+ 	HCLGE_VPORT_STATE_MAC_TBL_CHANGE,
+ 	HCLGE_VPORT_STATE_PROMISC_CHANGE,
+ 	HCLGE_VPORT_STATE_VLAN_FLTR_CHANGE,
+-	HCLGE_VPORT_STATE_START,
++	HCLGE_VPORT_STATE_INITED,
+ 	HCLGE_VPORT_STATE_MAX
+ };
+ 
++enum HCLGE_VPORT_NEED_NOTIFY {
++	HCLGE_VPORT_NEED_NOTIFY_RESET,
++	HCLGE_VPORT_NEED_NOTIFY_VF_VLAN,
++};
++
+ struct hclge_vlan_info {
+ 	u16 vlan_proto; /* so far support 802.1Q only */
+ 	u16 qos;
+@@ -1032,6 +1037,7 @@ struct hclge_vport {
+ 	struct hnae3_handle roce;
+ 
+ 	unsigned long state;
++	unsigned long need_notify;
+ 	unsigned long last_active_jiffies;
+ 	int mps; /* Max packet size */
+ 	struct hclge_vf_info vf_info;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
+index 7b27a012bbd1..ec84f81fff92 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
+@@ -117,17 +117,26 @@ static int hclge_send_mbx_msg(struct hclge_vport *vport, u8 *msg, u16 msg_len,
+ 	return status;
+ }
+ 
++static int hclge_inform_vf_reset(struct hclge_vport *vport, u16 reset_type)
++{
++	__le16 msg_data;
++	u8 dest_vfid;
++
++	dest_vfid = (u8)vport->vport_id;
++	msg_data = cpu_to_le16(reset_type);
++
++	/* send this requested info to VF */
++	return hclge_send_mbx_msg(vport, (u8 *)&msg_data, sizeof(msg_data),
++				  HCLGE_MBX_ASSERTING_RESET, dest_vfid);
++}
++
+ int hclge_inform_reset_assert_to_vf(struct hclge_vport *vport)
+ {
+ 	struct hclge_dev *hdev = vport->back;
+ 	u16 reset_type;
+-	u8 msg_data[2];
+-	u8 dest_vfid;
+ 
+ 	BUILD_BUG_ON(HNAE3_MAX_RESET > U16_MAX);
+ 
+-	dest_vfid = (u8)vport->vport_id;
+-
+ 	if (hdev->reset_type == HNAE3_FUNC_RESET)
+ 		reset_type = HNAE3_VF_PF_FUNC_RESET;
+ 	else if (hdev->reset_type == HNAE3_FLR_RESET)
+@@ -135,11 +144,7 @@ int hclge_inform_reset_assert_to_vf(struct hclge_vport *vport)
+ 	else
+ 		reset_type = HNAE3_VF_FUNC_RESET;
+ 
+-	memcpy(&msg_data[0], &reset_type, sizeof(u16));
+-
+-	/* send this requested info to VF */
+-	return hclge_send_mbx_msg(vport, msg_data, sizeof(msg_data),
+-				  HCLGE_MBX_ASSERTING_RESET, dest_vfid);
++	return hclge_inform_vf_reset(vport, reset_type);
+ }
+ 
+ static void hclge_free_vector_ring_chain(struct hnae3_ring_chain_node *head)
+@@ -639,31 +644,55 @@ static int hclge_reset_vf(struct hclge_vport *vport)
+ 	return hclge_func_reset_cmd(hdev, vport->vport_id);
+ }
+ 
+-static void hclge_vf_keep_alive(struct hclge_vport *vport)
++static void hclge_notify_vf_config(struct hclge_vport *vport)
+ {
+ 	struct hclge_dev *hdev = vport->back;
++	struct hnae3_ae_dev *ae_dev = pci_get_drvdata(hdev->pdev);
++	struct hclge_port_base_vlan_config *vlan_cfg;
+ 	int ret;
+ 
++	hclge_push_vf_link_status(vport);
++	if (test_bit(HCLGE_VPORT_NEED_NOTIFY_RESET, &vport->need_notify)) {
++		ret = hclge_inform_vf_reset(vport, HNAE3_VF_PF_FUNC_RESET);
++		if (ret) {
++			dev_err(&hdev->pdev->dev,
++				"failed to inform VF %u reset!",
++				vport->vport_id - HCLGE_VF_VPORT_START_NUM);
++			return;
++		}
++		vport->need_notify = 0;
++		return;
++	}
++
++	if (ae_dev->dev_version < HNAE3_DEVICE_VERSION_V3 &&
++	    test_bit(HCLGE_VPORT_NEED_NOTIFY_VF_VLAN, &vport->need_notify)) {
++		vlan_cfg = &vport->port_base_vlan_cfg;
++		ret = hclge_push_vf_port_base_vlan_info(&hdev->vport[0],
++							vport->vport_id,
++							vlan_cfg->state,
++							&vlan_cfg->vlan_info);
++		if (ret) {
++			dev_err(&hdev->pdev->dev,
++				"failed to inform VF %u port base vlan!",
++				vport->vport_id - HCLGE_VF_VPORT_START_NUM);
++			return;
++		}
++		clear_bit(HCLGE_VPORT_NEED_NOTIFY_VF_VLAN, &vport->need_notify);
++	}
++}
++
++static void hclge_vf_keep_alive(struct hclge_vport *vport)
++{
++	struct hclge_dev *hdev = vport->back;
++
+ 	vport->last_active_jiffies = jiffies;
+ 
+-	if (test_bit(HCLGE_VPORT_STATE_START, &vport->state) &&
++	if (test_bit(HCLGE_VPORT_STATE_INITED, &vport->state) &&
+ 	    !test_bit(HCLGE_VPORT_STATE_ALIVE, &vport->state)) {
+ 		set_bit(HCLGE_VPORT_STATE_ALIVE, &vport->state);
+-
+-		dev_info(&hdev->pdev->dev, "VF %u keep alive resume!",
++		dev_info(&hdev->pdev->dev, "VF %u is alive!",
+ 			 vport->vport_id - HCLGE_VF_VPORT_START_NUM);
+-
+-		/* if vf support push link, need to push link status after keep
+-		 * alive restore, because the vf will not fetch the link status
+-		 * of it's own.
+-		 */
+-		ret = hclge_push_vf_link_status(vport);
+-		if (ret) {
+-			dev_err(&hdev->pdev->dev,
+-				"failed to push link status to vf%u, ret=%d\n",
+-				vport->vport_id - HCLGE_VF_VPORT_START_NUM,
+-				ret);
+-		}
++		hclge_notify_vf_config(vport);
+ 	}
+ }
+ 
+@@ -677,7 +706,7 @@ static int hclge_set_vf_mtu(struct hclge_vport *vport,
+ 	return hclge_set_vport_mtu(vport, mtu);
+ }
+ 
+-static void hclge_get_queue_id_in_pf(struct hclge_vport *vport,
++static int hclge_get_queue_id_in_pf(struct hclge_vport *vport,
+ 				     struct hclge_mbx_vf_to_pf_cmd *mbx_req,
+ 				     struct hclge_respond_to_vf_msg *resp_msg)
+ {
+@@ -689,17 +718,19 @@ static void hclge_get_queue_id_in_pf(struct hclge_vport *vport,
+ 	if (queue_id >= handle->kinfo.num_tqps) {
+ 		dev_err(&hdev->pdev->dev, "Invalid queue id(%u) from VF %u\n",
+ 			queue_id, mbx_req->mbx_src_vfid);
+-		return;
++		return -EINVAL;
+ 	}
+ 
+ 	qid_in_pf = hclge_covert_handle_qid_global(&vport->nic, queue_id);
+ 	memcpy(resp_msg->data, &qid_in_pf, sizeof(qid_in_pf));
+ 	resp_msg->len = sizeof(qid_in_pf);
++
++	return 0;
+ }
+ 
+-static void hclge_get_rss_key(struct hclge_vport *vport,
+-			      struct hclge_mbx_vf_to_pf_cmd *mbx_req,
+-			      struct hclge_respond_to_vf_msg *resp_msg)
++static int hclge_get_rss_key(struct hclge_vport *vport,
++			     struct hclge_mbx_vf_to_pf_cmd *mbx_req,
++			     struct hclge_respond_to_vf_msg *resp_msg)
+ {
+ #define HCLGE_RSS_MBX_RESP_LEN	8
+ 	struct hclge_dev *hdev = vport->back;
+@@ -719,13 +750,15 @@ static void hclge_get_rss_key(struct hclge_vport *vport,
+ 		dev_warn(&hdev->pdev->dev,
+ 			 "failed to get the rss hash key, the index(%u) invalid !\n",
+ 			 index);
+-		return;
++		return -EINVAL;
+ 	}
+ 
+ 	memcpy(resp_msg->data,
+ 	       &hdev->vport[0].rss_hash_key[index * HCLGE_RSS_MBX_RESP_LEN],
+ 	       HCLGE_RSS_MBX_RESP_LEN);
+ 	resp_msg->len = HCLGE_RSS_MBX_RESP_LEN;
++
++	return 0;
+ }
+ 
+ static void hclge_link_fail_parse(struct hclge_dev *hdev, u8 link_fail_code)
+@@ -789,17 +822,285 @@ static void hclge_handle_vf_tbl(struct hclge_vport *vport,
+ 	}
+ }
+ 
++static int
++hclge_mbx_map_ring_to_vector_handler(struct hclge_mbx_ops_param *param)
++{
++	return hclge_map_unmap_ring_to_vf_vector(param->vport, true,
++						 param->req);
++}
++
++static int
++hclge_mbx_unmap_ring_to_vector_handler(struct hclge_mbx_ops_param *param)
++{
++	return hclge_map_unmap_ring_to_vf_vector(param->vport, false,
++						 param->req);
++}
++
++static int
++hclge_mbx_get_ring_vector_map_handler(struct hclge_mbx_ops_param *param)
++{
++	int ret;
++
++	ret = hclge_get_vf_ring_vector_map(param->vport, param->req,
++					   param->resp_msg);
++	if (ret)
++		dev_err(&param->vport->back->pdev->dev,
++			"PF fail(%d) to get VF ring vector map\n",
++			ret);
++	return ret;
++}
++
++static int hclge_mbx_set_promisc_mode_handler(struct hclge_mbx_ops_param *param)
++{
++	hclge_set_vf_promisc_mode(param->vport, param->req);
++	return 0;
++}
++
++static int hclge_mbx_set_unicast_handler(struct hclge_mbx_ops_param *param)
++{
++	int ret;
++
++	ret = hclge_set_vf_uc_mac_addr(param->vport, param->req);
++	if (ret)
++		dev_err(&param->vport->back->pdev->dev,
++			"PF fail(%d) to set VF UC MAC Addr\n",
++			ret);
++	return ret;
++}
++
++static int hclge_mbx_set_multicast_handler(struct hclge_mbx_ops_param *param)
++{
++	int ret;
++
++	ret = hclge_set_vf_mc_mac_addr(param->vport, param->req);
++	if (ret)
++		dev_err(&param->vport->back->pdev->dev,
++			"PF fail(%d) to set VF MC MAC Addr\n",
++			ret);
++	return ret;
++}
++
++static int hclge_mbx_set_vlan_handler(struct hclge_mbx_ops_param *param)
++{
++	int ret;
++
++	ret = hclge_set_vf_vlan_cfg(param->vport, param->req, param->resp_msg);
++	if (ret)
++		dev_err(&param->vport->back->pdev->dev,
++			"PF failed(%d) to config VF's VLAN\n",
++			ret);
++	return ret;
++}
++
++static int hclge_mbx_set_alive_handler(struct hclge_mbx_ops_param *param)
++{
++	int ret;
++
++	ret = hclge_set_vf_alive(param->vport, param->req);
++	if (ret)
++		dev_err(&param->vport->back->pdev->dev,
++			"PF failed(%d) to set VF's ALIVE\n",
++			ret);
++	return ret;
++}
++
++static int hclge_mbx_get_qinfo_handler(struct hclge_mbx_ops_param *param)
++{
++	hclge_get_vf_queue_info(param->vport, param->resp_msg);
++	return 0;
++}
++
++static int hclge_mbx_get_qdepth_handler(struct hclge_mbx_ops_param *param)
++{
++	hclge_get_vf_queue_depth(param->vport, param->resp_msg);
++	return 0;
++}
++
++static int hclge_mbx_get_basic_info_handler(struct hclge_mbx_ops_param *param)
++{
++	hclge_get_basic_info(param->vport, param->resp_msg);
++	return 0;
++}
++
++static int hclge_mbx_get_link_status_handler(struct hclge_mbx_ops_param *param)
++{
++	int ret;
++
++	ret = hclge_push_vf_link_status(param->vport);
++	if (ret)
++		dev_err(&param->vport->back->pdev->dev,
++			"failed to inform link stat to VF, ret = %d\n",
++			ret);
++	return ret;
++}
++
++static int hclge_mbx_queue_reset_handler(struct hclge_mbx_ops_param *param)
++{
++	return hclge_mbx_reset_vf_queue(param->vport, param->req,
++					param->resp_msg);
++}
++
++static int hclge_mbx_reset_handler(struct hclge_mbx_ops_param *param)
++{
++	return hclge_reset_vf(param->vport);
++}
++
++static int hclge_mbx_keep_alive_handler(struct hclge_mbx_ops_param *param)
++{
++	hclge_vf_keep_alive(param->vport);
++	return 0;
++}
++
++static int hclge_mbx_set_mtu_handler(struct hclge_mbx_ops_param *param)
++{
++	int ret;
++
++	ret = hclge_set_vf_mtu(param->vport, param->req);
++	if (ret)
++		dev_err(&param->vport->back->pdev->dev,
++			"VF fail(%d) to set mtu\n", ret);
++	return ret;
++}
++
++static int hclge_mbx_get_qid_in_pf_handler(struct hclge_mbx_ops_param *param)
++{
++	return hclge_get_queue_id_in_pf(param->vport, param->req,
++					param->resp_msg);
++}
++
++static int hclge_mbx_get_rss_key_handler(struct hclge_mbx_ops_param *param)
++{
++	return hclge_get_rss_key(param->vport, param->req, param->resp_msg);
++}
++
++static int hclge_mbx_get_link_mode_handler(struct hclge_mbx_ops_param *param)
++{
++	hclge_get_link_mode(param->vport, param->req);
++	return 0;
++}
++
++static int
++hclge_mbx_get_vf_flr_status_handler(struct hclge_mbx_ops_param *param)
++{
++	hclge_rm_vport_all_mac_table(param->vport, false,
++				     HCLGE_MAC_ADDR_UC);
++	hclge_rm_vport_all_mac_table(param->vport, false,
++				     HCLGE_MAC_ADDR_MC);
++	hclge_rm_vport_all_vlan_table(param->vport, false);
++	return 0;
++}
++
++static int hclge_mbx_vf_uninit_handler(struct hclge_mbx_ops_param *param)
++{
++	hclge_rm_vport_all_mac_table(param->vport, true,
++				     HCLGE_MAC_ADDR_UC);
++	hclge_rm_vport_all_mac_table(param->vport, true,
++				     HCLGE_MAC_ADDR_MC);
++	hclge_rm_vport_all_vlan_table(param->vport, true);
++	param->vport->mps = 0;
++	return 0;
++}
++
++static int hclge_mbx_get_media_type_handler(struct hclge_mbx_ops_param *param)
++{
++	hclge_get_vf_media_type(param->vport, param->resp_msg);
++	return 0;
++}
++
++static int hclge_mbx_push_link_status_handler(struct hclge_mbx_ops_param *param)
++{
++	hclge_handle_link_change_event(param->vport->back, param->req);
++	return 0;
++}
++
++static int hclge_mbx_get_mac_addr_handler(struct hclge_mbx_ops_param *param)
++{
++	hclge_get_vf_mac_addr(param->vport, param->resp_msg);
++	return 0;
++}
++
++static int hclge_mbx_ncsi_error_handler(struct hclge_mbx_ops_param *param)
++{
++	hclge_handle_ncsi_error(param->vport->back);
++	return 0;
++}
++
++static int hclge_mbx_handle_vf_tbl_handler(struct hclge_mbx_ops_param *param)
++{
++	hclge_handle_vf_tbl(param->vport, param->req);
++	return 0;
++}
++
++static const hclge_mbx_ops_fn hclge_mbx_ops_list[HCLGE_MBX_OPCODE_MAX] = {
++	[HCLGE_MBX_RESET]   = hclge_mbx_reset_handler,
++	[HCLGE_MBX_SET_UNICAST] = hclge_mbx_set_unicast_handler,
++	[HCLGE_MBX_SET_MULTICAST] = hclge_mbx_set_multicast_handler,
++	[HCLGE_MBX_SET_VLAN] = hclge_mbx_set_vlan_handler,
++	[HCLGE_MBX_MAP_RING_TO_VECTOR] = hclge_mbx_map_ring_to_vector_handler,
++	[HCLGE_MBX_UNMAP_RING_TO_VECTOR] = hclge_mbx_unmap_ring_to_vector_handler,
++	[HCLGE_MBX_SET_PROMISC_MODE] = hclge_mbx_set_promisc_mode_handler,
++	[HCLGE_MBX_GET_QINFO] = hclge_mbx_get_qinfo_handler,
++	[HCLGE_MBX_GET_QDEPTH] = hclge_mbx_get_qdepth_handler,
++	[HCLGE_MBX_GET_BASIC_INFO] = hclge_mbx_get_basic_info_handler,
++	[HCLGE_MBX_GET_RSS_KEY] = hclge_mbx_get_rss_key_handler,
++	[HCLGE_MBX_GET_MAC_ADDR] = hclge_mbx_get_mac_addr_handler,
++	[HCLGE_MBX_GET_LINK_STATUS] = hclge_mbx_get_link_status_handler,
++	[HCLGE_MBX_QUEUE_RESET] = hclge_mbx_queue_reset_handler,
++	[HCLGE_MBX_KEEP_ALIVE] = hclge_mbx_keep_alive_handler,
++	[HCLGE_MBX_SET_ALIVE] = hclge_mbx_set_alive_handler,
++	[HCLGE_MBX_SET_MTU] = hclge_mbx_set_mtu_handler,
++	[HCLGE_MBX_GET_QID_IN_PF] = hclge_mbx_get_qid_in_pf_handler,
++	[HCLGE_MBX_GET_LINK_MODE] = hclge_mbx_get_link_mode_handler,
++	[HCLGE_MBX_GET_MEDIA_TYPE] = hclge_mbx_get_media_type_handler,
++	[HCLGE_MBX_VF_UNINIT] = hclge_mbx_vf_uninit_handler,
++	[HCLGE_MBX_HANDLE_VF_TBL] = hclge_mbx_handle_vf_tbl_handler,
++	[HCLGE_MBX_GET_RING_VECTOR_MAP] = hclge_mbx_get_ring_vector_map_handler,
++	[HCLGE_MBX_GET_VF_FLR_STATUS] = hclge_mbx_get_vf_flr_status_handler,
++	[HCLGE_MBX_PUSH_LINK_STATUS] = hclge_mbx_push_link_status_handler,
++	[HCLGE_MBX_NCSI_ERROR] = hclge_mbx_ncsi_error_handler,
++};
++
++static void hclge_mbx_request_handling(struct hclge_mbx_ops_param *param)
++{
++	hclge_mbx_ops_fn cmd_func = NULL;
++	struct hclge_dev *hdev;
++	int ret = 0;
++
++	hdev = param->vport->back;
++	cmd_func = hclge_mbx_ops_list[param->req->msg.code];
++	if (cmd_func)
++		ret = cmd_func(param);
++	else
++		dev_err(&hdev->pdev->dev,
++			"un-supported mailbox message, code = %u\n",
++			param->req->msg.code);
++
++	/* PF driver should not reply IMP */
++	if (hnae3_get_bit(param->req->mbx_need_resp, HCLGE_MBX_NEED_RESP_B) &&
++	    param->req->msg.code < HCLGE_MBX_GET_VF_FLR_STATUS) {
++		param->resp_msg->status = ret;
++		if (time_is_before_jiffies(hdev->last_mbx_scheduled +
++					   HCLGE_MBX_SCHED_TIMEOUT))
++			dev_warn(&hdev->pdev->dev,
++				 "resp vport%u mbx(%u,%u) late\n",
++				 param->req->mbx_src_vfid,
++				 param->req->msg.code,
++				 param->req->msg.subcode);
++
++		hclge_gen_resp_to_vf(param->vport, param->req, param->resp_msg);
++	}
++}
++
+ void hclge_mbx_handler(struct hclge_dev *hdev)
+ {
+ 	struct hclge_cmq_ring *crq = &hdev->hw.cmq.crq;
+ 	struct hclge_respond_to_vf_msg resp_msg;
+ 	struct hclge_mbx_vf_to_pf_cmd *req;
+-	struct hclge_vport *vport;
++	struct hclge_mbx_ops_param param;
+ 	struct hclge_desc *desc;
+-	bool is_del = false;
+ 	unsigned int flag;
+-	int ret = 0;
+ 
++	param.resp_msg = &resp_msg;
+ 	/* handle all the mailbox requests in the queue */
+ 	while (!hclge_cmd_crq_empty(&hdev->hw)) {
+ 		if (test_bit(HCLGE_STATE_CMD_DISABLE, &hdev->state)) {
+@@ -823,152 +1124,17 @@ void hclge_mbx_handler(struct hclge_dev *hdev)
+ 			continue;
+ 		}
+ 
+-		vport = &hdev->vport[req->mbx_src_vfid];
+-
+ 		trace_hclge_pf_mbx_get(hdev, req);
+ 
+ 		/* clear the resp_msg before processing every mailbox message */
+ 		memset(&resp_msg, 0, sizeof(resp_msg));
+ 
+-		switch (req->msg.code) {
+-		case HCLGE_MBX_MAP_RING_TO_VECTOR:
+-			ret = hclge_map_unmap_ring_to_vf_vector(vport, true,
+-								req);
+-			break;
+-		case HCLGE_MBX_UNMAP_RING_TO_VECTOR:
+-			ret = hclge_map_unmap_ring_to_vf_vector(vport, false,
+-								req);
+-			break;
+-		case HCLGE_MBX_GET_RING_VECTOR_MAP:
+-			ret = hclge_get_vf_ring_vector_map(vport, req,
+-							   &resp_msg);
+-			if (ret)
+-				dev_err(&hdev->pdev->dev,
+-					"PF fail(%d) to get VF ring vector map\n",
+-					ret);
+-			break;
+-		case HCLGE_MBX_SET_PROMISC_MODE:
+-			hclge_set_vf_promisc_mode(vport, req);
+-			break;
+-		case HCLGE_MBX_SET_UNICAST:
+-			ret = hclge_set_vf_uc_mac_addr(vport, req);
+-			if (ret)
+-				dev_err(&hdev->pdev->dev,
+-					"PF fail(%d) to set VF UC MAC Addr\n",
+-					ret);
+-			break;
+-		case HCLGE_MBX_SET_MULTICAST:
+-			ret = hclge_set_vf_mc_mac_addr(vport, req);
+-			if (ret)
+-				dev_err(&hdev->pdev->dev,
+-					"PF fail(%d) to set VF MC MAC Addr\n",
+-					ret);
+-			break;
+-		case HCLGE_MBX_SET_VLAN:
+-			ret = hclge_set_vf_vlan_cfg(vport, req, &resp_msg);
+-			if (ret)
+-				dev_err(&hdev->pdev->dev,
+-					"PF failed(%d) to config VF's VLAN\n",
+-					ret);
+-			break;
+-		case HCLGE_MBX_SET_ALIVE:
+-			ret = hclge_set_vf_alive(vport, req);
+-			if (ret)
+-				dev_err(&hdev->pdev->dev,
+-					"PF failed(%d) to set VF's ALIVE\n",
+-					ret);
+-			break;
+-		case HCLGE_MBX_GET_QINFO:
+-			hclge_get_vf_queue_info(vport, &resp_msg);
+-			break;
+-		case HCLGE_MBX_GET_QDEPTH:
+-			hclge_get_vf_queue_depth(vport, &resp_msg);
+-			break;
+-		case HCLGE_MBX_GET_BASIC_INFO:
+-			hclge_get_basic_info(vport, &resp_msg);
+-			break;
+-		case HCLGE_MBX_GET_LINK_STATUS:
+-			ret = hclge_push_vf_link_status(vport);
+-			if (ret)
+-				dev_err(&hdev->pdev->dev,
+-					"failed to inform link stat to VF, ret = %d\n",
+-					ret);
+-			break;
+-		case HCLGE_MBX_QUEUE_RESET:
+-			ret = hclge_mbx_reset_vf_queue(vport, req, &resp_msg);
+-			break;
+-		case HCLGE_MBX_RESET:
+-			ret = hclge_reset_vf(vport);
+-			break;
+-		case HCLGE_MBX_KEEP_ALIVE:
+-			hclge_vf_keep_alive(vport);
+-			break;
+-		case HCLGE_MBX_SET_MTU:
+-			ret = hclge_set_vf_mtu(vport, req);
+-			if (ret)
+-				dev_err(&hdev->pdev->dev,
+-					"VF fail(%d) to set mtu\n", ret);
+-			break;
+-		case HCLGE_MBX_GET_QID_IN_PF:
+-			hclge_get_queue_id_in_pf(vport, req, &resp_msg);
+-			break;
+-		case HCLGE_MBX_GET_RSS_KEY:
+-			hclge_get_rss_key(vport, req, &resp_msg);
+-			break;
+-		case HCLGE_MBX_GET_LINK_MODE:
+-			hclge_get_link_mode(vport, req);
+-			break;
+-		case HCLGE_MBX_GET_VF_FLR_STATUS:
+-		case HCLGE_MBX_VF_UNINIT:
+-			is_del = req->msg.code == HCLGE_MBX_VF_UNINIT;
+-			hclge_rm_vport_all_mac_table(vport, is_del,
+-						     HCLGE_MAC_ADDR_UC);
+-			hclge_rm_vport_all_mac_table(vport, is_del,
+-						     HCLGE_MAC_ADDR_MC);
+-			hclge_rm_vport_all_vlan_table(vport, is_del);
+-			break;
+-		case HCLGE_MBX_GET_MEDIA_TYPE:
+-			hclge_get_vf_media_type(vport, &resp_msg);
+-			break;
+-		case HCLGE_MBX_PUSH_LINK_STATUS:
+-			hclge_handle_link_change_event(hdev, req);
+-			break;
+-		case HCLGE_MBX_GET_MAC_ADDR:
+-			hclge_get_vf_mac_addr(vport, &resp_msg);
+-			break;
+-		case HCLGE_MBX_NCSI_ERROR:
+-			hclge_handle_ncsi_error(hdev);
+-			break;
+-		case HCLGE_MBX_HANDLE_VF_TBL:
+-			hclge_handle_vf_tbl(vport, req);
+-			break;
+-		default:
+-			dev_err(&hdev->pdev->dev,
+-				"un-supported mailbox message, code = %u\n",
+-				req->msg.code);
+-			break;
+-		}
+-
+-		/* PF driver should not reply IMP */
+-		if (hnae3_get_bit(req->mbx_need_resp, HCLGE_MBX_NEED_RESP_B) &&
+-		    req->msg.code < HCLGE_MBX_GET_VF_FLR_STATUS) {
+-			resp_msg.status = ret;
+-			if (time_is_before_jiffies(hdev->last_mbx_scheduled +
+-						   HCLGE_MBX_SCHED_TIMEOUT))
+-				dev_warn(&hdev->pdev->dev,
+-					 "resp vport%u mbx(%u,%u) late\n",
+-					 req->mbx_src_vfid,
+-					 req->msg.code,
+-					 req->msg.subcode);
+-
+-			hclge_gen_resp_to_vf(vport, req, &resp_msg);
+-		}
++		param.vport = &hdev->vport[req->mbx_src_vfid];
++		param.req = req;
++		hclge_mbx_request_handling(&param);
+ 
+ 		crq->desc[crq->next_to_use].flag = 0;
+ 		hclge_mbx_ring_ptr_move_crq(crq);
+-
+-		/* reinitialize ret after complete the mbx message processing */
+-		ret = 0;
+ 	}
+ 
+ 	/* Write back CMDQ_RQ header pointer, M7 need this pointer */
+-- 
+2.34.1
+

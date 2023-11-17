@@ -1,0 +1,154 @@
+From 46b0da78c7c1deae0bb38d5943ce717e1f967143 Mon Sep 17 00:00:00 2001
+From: Jie Wang <wangjie125@huawei.com>
+Date: Wed, 12 Jan 2022 15:16:47 +0800
+Subject: [PATCH 173/283] net: hns3: create new cmdq hardware description
+ structure hclge_comm_hw
+
+mainline inclusion
+from mainline-v5.17-rc1
+commit 0a7b6d221868be6aa3249c70ffab707a265b89d6
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN3D
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=0a7b6d221868be6aa3249c70ffab707a265b89d6
+
+----------------------------------------------------------------------
+
+Currently PF and VF cmdq APIs use struct hclge(vf)_hw to describe cmdq
+hardware information needed by hclge(vf)_cmd_send. There are a little
+differences between its child struct hclge_cmq_ring and hclgevf_cmq_ring.
+It is redundent to use two sets of structures to support same functions.
+
+So this patch creates new set of common cmdq hardware description
+structures(hclge_comm_hw) to unify PF and VF cmdq functions. The struct
+hclge_desc is still kept to avoid too many meaningless replacement.
+
+These new structures will be used to unify hclge(vf)_hw structures in PF
+and VF cmdq APIs in next patches.
+
+Signed-off-by: Jie Wang <wangjie125@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Jian Shen <shenjian15@huawei.com>
+Reviewed-by: Yue Haibing <yuehaibing@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/Makefile
+---
+ drivers/net/ethernet/hisilicon/hns3/Makefile  |  3 +-
+ .../hns3/hns3_common/hclge_comm_cmd.h         | 55 +++++++++++++++++++
+ .../hisilicon/hns3/hns3pf/hclge_cmd.h         |  9 +--
+ 3 files changed, 58 insertions(+), 9 deletions(-)
+ create mode 100644 drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/Makefile b/drivers/net/ethernet/hisilicon/hns3/Makefile
+index c012979b86be..70bf49da5591 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/Makefile
++++ b/drivers/net/ethernet/hisilicon/hns3/Makefile
+@@ -13,7 +13,8 @@ ccflags-y += 	-I$(PWD) \
+ 		-I$(PWD)/hns3_extension \
+ 		-I$(PWD)/hns3_extension/hns3pf \
+ 		-I$(PWD)/hns3vf \
+-		-I$(PWD)/hns3_cae
++		-I$(PWD)/hns3_cae \
++		-I$(PWD)/hns3_common
+ 
+ #### compile hnae3.ko
+ obj-$(CONFIG_HNS3) += hnae3.o
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h
+new file mode 100644
+index 000000000000..f1e39003ceeb
+--- /dev/null
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h
+@@ -0,0 +1,55 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++// Copyright (c) 2021-2021 Hisilicon Limited.
++
++#ifndef __HCLGE_COMM_CMD_H
++#define __HCLGE_COMM_CMD_H
++#include <linux/types.h>
++
++#include "hnae3.h"
++
++#define HCLGE_DESC_DATA_LEN		6
++struct hclge_desc {
++	__le16 opcode;
++	__le16 flag;
++	__le16 retval;
++	__le16 rsv;
++	__le32 data[HCLGE_DESC_DATA_LEN];
++};
++
++struct hclge_comm_cmq_ring {
++	dma_addr_t desc_dma_addr;
++	struct hclge_desc *desc;
++	struct pci_dev *pdev;
++	u32 head;
++	u32 tail;
++
++	u16 buf_size;
++	u16 desc_num;
++	int next_to_use;
++	int next_to_clean;
++	u8 ring_type; /* cmq ring type */
++	spinlock_t lock; /* Command queue lock */
++};
++
++enum hclge_comm_cmd_status {
++	HCLGE_COMM_STATUS_SUCCESS	= 0,
++	HCLGE_COMM_ERR_CSQ_FULL		= -1,
++	HCLGE_COMM_ERR_CSQ_TIMEOUT	= -2,
++	HCLGE_COMM_ERR_CSQ_ERROR	= -3,
++};
++
++struct hclge_comm_cmq {
++	struct hclge_comm_cmq_ring csq;
++	struct hclge_comm_cmq_ring crq;
++	u16 tx_timeout;
++	enum hclge_comm_cmd_status last_status;
++};
++
++struct hclge_comm_hw {
++	void __iomem *io_base;
++	void __iomem *mem_base;
++	struct hclge_comm_cmq cmq;
++	unsigned long comm_state;
++};
++
++#endif
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+index 882e14a15128..52e8f318fd96 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+@@ -7,24 +7,17 @@
+ #include <linux/types.h>
+ #include <linux/io.h>
+ #include "hnae3.h"
++#include "hclge_comm_cmd.h"
+ 
+ #define HCLGE_CMDQ_TX_TIMEOUT		30000
+ #define HCLGE_CMDQ_CLEAR_WAIT_TIME	200
+ #define HCLGE_DESC_DATA_LEN		6
+ 
+ struct hclge_dev;
+-struct hclge_desc {
+-	__le16 opcode;
+ 
+ #define HCLGE_CMDQ_RX_INVLD_B		0
+ #define HCLGE_CMDQ_RX_OUTVLD_B		1
+ 
+-	__le16 flag;
+-	__le16 retval;
+-	__le16 rsv;
+-	__le32 data[HCLGE_DESC_DATA_LEN];
+-};
+-
+ struct hclge_cmq_ring {
+ 	dma_addr_t desc_dma_addr;
+ 	struct hclge_desc *desc;
+-- 
+2.34.1
+

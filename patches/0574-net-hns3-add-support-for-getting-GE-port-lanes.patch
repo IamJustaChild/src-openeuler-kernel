@@ -1,0 +1,47 @@
+From 980de814b7cf31f0f22fb71acc755b186d9aad72 Mon Sep 17 00:00:00 2001
+From: Hao Chen <chenhao418@huawei.com>
+Date: Thu, 15 Dec 2022 11:54:02 +0800
+Subject: [PATCH 213/283] net: hns3: add support for getting GE port lanes
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN49
+CVE: NA
+
+----------------------------------------------------------------------
+
+The number of lanes on the electrical port is 0, which does not
+meet the expectation. The patch add support for getting GE port
+lanes.
+
+Signed-off-by: Hao Chen <chenhao418@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_sysfs.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_sysfs.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_sysfs.c
+index b7cc89c3f6d8..6840d7bda82e 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_sysfs.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_sysfs.c
+@@ -7,11 +7,16 @@
+ static ssize_t lane_num_show(struct device *dev,
+ 			     struct device_attribute *attr, char *buf)
+ {
++#define HCLGE_GE_PORT_ONE_LANE	1
+ 	struct pci_dev *pdev = container_of(dev, struct pci_dev, dev);
+ 	struct hnae3_ae_dev *ae_dev = pci_get_drvdata(pdev);
+ 	struct hclge_dev *hdev = ae_dev->priv;
+ 
+-	return scnprintf(buf, PAGE_SIZE, "%u\n", hdev->hw.mac.lane_num);
++	if (hdev->hw.mac.media_type == HNAE3_MEDIA_TYPE_COPPER)
++		return scnprintf(buf, PAGE_SIZE, "%u\n",
++				 HCLGE_GE_PORT_ONE_LANE);
++	else
++		return scnprintf(buf, PAGE_SIZE, "%u\n", hdev->hw.mac.lane_num);
+ }
+ 
+ static ssize_t lane_num_store(struct device *dev,
+-- 
+2.34.1
+

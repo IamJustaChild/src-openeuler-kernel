@@ -1,0 +1,38 @@
+From fd278a93071f924014782c34e84f48832e5d52a5 Mon Sep 17 00:00:00 2001
+From: Algernon <lixiaodong67@huawei.com>
+Date: Tue, 20 Jun 2023 14:23:51 +0800
+Subject: [PATCH 055/283] net:hns3 Fix KABI for The dev_version & caps element
+ is added to the hnae3_ae_dev structure.
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMQV
+
+--------------------------------
+
+Fix it because hnae3_ Ae_ Add dev to the dev structure_ Kabi
+changes caused by version and caps members
+
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hnae3.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3.h b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+index 6d58e1ccec78..0ffb8109fba9 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+@@ -345,8 +345,10 @@ struct hnae3_ae_dev {
+ 	struct list_head node;
+ 	u32 flag;
+ 	unsigned long hw_err_reset_req;
++#ifndef __GENKSYMS__
+ 	u32 dev_version;
+ 	unsigned long caps[BITS_TO_LONGS(HNAE3_DEV_CAPS_MAX_NUM)];
++#endif
+ 	void *priv;
+ };
+ 
+-- 
+2.34.1
+

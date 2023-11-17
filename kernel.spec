@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0244
+Release: %{hulkrelease}.0245
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,291 @@ fi
 %endif
 
 %changelog
+
+* Fri Nov 17 2023 Luo Shengwei <luoshengwei@huawei.com> - 4.19.90-2311.3.0.0245
+- net: hns3: Fix unreasonable modifications caused by rollback extension ringparam parameters
+- net: hns3: Fix ethtool_ Ops&gen_ Improper modification of kabi changes caused by adding members in the ops structure
+- net: hns3: Fix Kabi issue caused by ptp introducing gettimex64()
+- Fallback ethtool about nla_ Modification of kabi changes caused by the addition of new associations in the policy structure
+- net: hns3: Fallback Ethtool's modifications to extack
+- net: hns3: Fallback ethtool's modification of lane
+- net: hns3: HNAE3 framework add support for ROH client
+- net: hns3: add ROH MAC type definitions and support query MAC type
+- net: hns3: Add configuration of TM QCN error event
+- net: hns3: fix return value check bug of rx copybreak
+- net: hns3: add netdev reset check for hns3_set_tunable()
+- ethtool: mark netlink family as __ro_after_init
+- net: hns3: add max order judgement for tx spare buffer
+- net: hns3: fix ethtool tx copybreak buf size indicating not aligned issue
+- net: hns3: fix deadlock issue when externel_lb and reset are executed together
+- ethtool: Fix uninitialized number of lanes
+- ethtool: reset lanes when lanes is omitted
+- ethtool: limit bitset size
+- ethtool: fix application of verbose no_mask bitset
+- net: hns3: fix for not calculating TX BD send size correctly
+- NIC: hns3: fix kabi
+- ptp: deprecate gettime64() in favor of gettimex64()
+- net: hns3: add support for Hisilicon ptp sync device
+- net: hns3: sync linux kernel hns3 wol to openeuler
+- net: hns3: fix pointer cast to different type for wol
+- net: hns3: fix the HCLGE_OPC_WOL_CFG opcode id for wol
+- net: hns3: fix getting supported parameter from driver in hclge_set_wol
+- net: hns3: add supports pfc storm detection and suppression
+- net: hns3: debugfs add dump dscp map info
+- net: hns3: support debugfs for wake on lan
+- net: hns3: add debugfs support for interrupt coalesce
+- net: hns3: delete the hclge_cmd.c and hclgevf_cmd.c
+- net: hns3: refactor VF cmdq init and uninit APIs with new common APIs
+- net: hns3: refactor PF cmdq init and uninit APIs with new common APIs
+- net: hns3: create common cmdq init and uninit APIs
+- net: hns3: refactor VF cmdq resource APIs with new common APIs
+- net: hns3: refactor PF cmdq resource APIs with new common APIs
+- net: hns3: create common cmdq resource allocate/free/query APIs
+- net: hns3: refactor hclgevf_cmd_send with new hclge_comm_cmd_send API
+- net: hns3: refactor hclge_cmd_send with new hclge_comm_cmd_send API
+- net: hns3: fix setting wrong tx_timeout value issue
+- net: hns3: refactor hclge_mac_link_status_wait for interface reuse
+- net: hns3: add wait until mac link down
+- net: hns3: fix set cpu affinity when state down
+- net: hns3: restore user pause configure when disable autoneg
+- net: hns3: add tm flush when setting tm
+- net: hns3: fix the imp capability bit cannot exceed 32 bits issue
+- net: hns3: fix GRE checksum offload issue
+- net: hns3: fix strncpy() not using dest-buf length as length issue
+- net: hns3: add support config dscp map to tc
+- net: hns3: refactor hclge_update_desc_vfid for extension
+- net:ethtool Fix the Kabi problem is caused by the new FEC callback function in ethtool_ops
+- net:hns3 The kabi issue is resolved when the lane members are added to the ethtool_link_ksettings structure
+- net: hns3: add querying fec statistics
+- ethtool: add FEC statistics
+- ethtool: fec_prepare_data() - jump to error handling
+- ethtool: support FEC settings over netlink
+- ethtool: netlink bitset handling
+- net: hns3: avoid mult + div op in critical data path
+- net: hns3: add support to query and set lane number by ethtool
+- ethtool: Extend link modes settings uAPI with lanes
+- net: hns3: Resolved the kabi change issue caused by new members in the devlink structure
+- The kabi issue is resolved when the rx_buf_len extension ring is used to set parameters or obtain APIs
+- net: hns3: Fix for the compilation problem of hclge_comm_cmd
+- net: hns3: remove always exist devlink pointer check
+- net: hns3: add support for registering devlink for VF
+- net: hns3: add support for registering devlink for PF
+- net: hns3: fix output information incomplete for dumping tx queue info with debugfs
+- net: hns3: fix reset timeout when enable full VF
+- net: hns3: modify reset delay time to avoid configuration timeout
+- net: hns3: add support for getting GE port lanes
+- net: hns3: Use the correct style for SPDX License Identifier
+- net: hns3: support set/get VxLAN rule of rx flow director by ethtool
+- net: hns3: refactor for function hclge_fd_convert_tuple
+- net: hns3: PF supports to set and query lane_num by sysfs
+- net: ethtool: add VxLAN to the NFC API
+- net: hns3: add extend interface support for read and write phy register
+- net: hns3: add support set led
+- net: hns3: add support set mac state
+- net: hns3: add support detect port wire type
+- net: hns3: add support PF provides customized interfaces to detect port faults.
+- net: hns3: add support disable nic clock
+- net: hns3: add support config and query serdes lane status
+- net: hns3: add supports configure optical module enable
+- net: hns3: add support query the presence of optical module
+- net: hns3: disbable pfc en before the reset
+- net: hns3: support set pfc pause trans time
+- net: hns3: add support query port ext information
+- net: hns3: add support to get/set 1d torus param
+- net: hns3: add supports fast reporting of faulty nodes
+- net: hns3: add support configuring function-level interrupt affinity
+- net: hns3: add support clear mac statistics
+- net: hns3: add support customized exception handling interfaces.
+- net: hns3: fix miss L3E checking for rx packet
+- net: hns3: support wake on lan configuration and query
+- net: hns3: refactor the debugfs for dumping FD tcam
+- net: hns3: allocate fd counter for queue bonding
+- net: hns3: add queue bonding mode support for VF
+- net: hns3: add support for queue bonding mode of flow director
+- net: hns3: refine the handling for VF heartbeat
+- net: hns3: fix setting incorrect phy link ksettings for firmware in resetting process
+- net: hns3: add support for external loopback test
+- net: hns3: net: hns3: add querying and setting fec off mode from firmware
+- net: hns3: add querying and setting fec llrs mode from firmware
+- net: hns3: add querying fec ability from firmware
+- net: hns3: fix software vlan talbe of vlan 0 inconsistent with hardware
+- net: hns3: handle empty unknown interrupt for VF
+- net: hns3: add support for TX push mode
+- net: hns3: create new set of unified hclge_comm_cmd_send APIs
+- net: hns3: use struct hclge_desc to replace hclgevf_desc in VF cmdq module
+- net: hns3: create new cmdq hardware description structure hclge_comm_hw
+- net: hns3: fix incorrect components info of ethtool --reset command
+- net: hns3: add dql info when tx timeout
+- net: hns3: debugfs add drop packet statistics of multicast and broadcast for igu
+- net: hns3: remove the way to set tx spare buf via module parameter
+- net: hns3: add support to set/get rx buf len via ethtool for hns3 driver
+- ethtool: add support to set/get rx buf len via ethtool
+- net: hns3: add support to set/get tx copybreak buf size via ethtool for hns3 driver
+- ethtool: add support to set/get tx copybreak buf size via ethtool
+- ethtool: set device ring sizes with RINGS_SET request
+- ethtool: provide ring sizes with RINGS_GET request
+- ethtool: helper functions for netlink interface
+- ethtool: introduce ethtool netlink interface
+- ethtool: provide link mode names as a string set
+- ethtool: move string arrays into common file
+- ethtool: move to its own directory
+- net: hns3: allow configure ETS bandwidth of all TCs
+- net: hns3: fix some mac statistics is always 0 in device version V2
+- net: hns3: sync rx ring head in echo common pull
+- net: hns3: fix ROCE base interrupt vector initialization bug
+- net: hns3: add support for pf querying new interrupt resources
+- net: hisilicon: fix hsn3_ethtool kernel-doc warnings
+- net: hns3: adjust string spaces of some parameters of tx bd info in debugfs
+- net: hns3: add more string spaces for dumping packets number of queue info in debugfs
+- net: hns3: fix data endian problem of some functions of debugfs
+- net: hns3: add error recovery module and type for himac
+- net: hns3: add new ras error type for roce
+- net: hns3: add update ethtool advertised link modes for FIBRE port when autoneg off
+- net: hns3: modify functions of converting speed ability to ethtool link mode
+- net: hns3: add support pause/pfc durations for mac statistics
+- net: hns3: device specifications add number of mac statistics
+- net: hns3: modify mac statistics update process for compatibility
+- net: hns3: schedule the polling again when allocation fails
+- net: hns3: fix for miscalculation of rx unused desc
+- net: hns3: PF enable promisc for VF when mac table is overflow
+- net: hns3: don't rollback when destroy mqprio fail
+- net: hns3: fix hclge_dbg_dump_tm_pg() stack usage
+- xdp: Fixed an issue where the trace_mem_disconnect function cannot find the definition.
+- net: hns3: fix the max tx size according to user manual
+- net: hns3: disable sriov before unload hclge layer
+- net: hns3: add limit ets dwrr bandwidth cannot be 0
+- net: hns3: fix always enable rx vlan filter problem after selftest
+- net: hns3: fix show wrong state when add existing uc mac address
+- net: hns3: do not allow call hns3_nic_net_open repeatedly
+- net: hns3: optimize the rx page reuse handling process
+- net: hns3: fix misuse vf id and vport id in some logs
+- net: hns3: make hclgevf_cmd_caps_bit_map0 and hclge_cmd_caps_bit_map0 static
+- net: hns3: remove unnecessary spaces
+- net: hns3: add some required spaces
+- net: hns3: clean up a type mismatch warning
+- net: hns3: refine function hns3_set_default_feature()
+- net: hns3: uniform parameter name of hclge_ptp_clean_tx_hwts()
+- net: hnss3: use max() to simplify code
+- net: hns3: refine function hclge_dbg_dump_tm_pri()
+- net: hns3: reconstruct function hclge_ets_validate()
+- net: hns3: reconstruct function hns3_self_test
+- net: hns3: initialize each member of structure array on a separate line
+- net: hns3: add required space in comment
+- net: hns3: remove unnecessary "static" of local variables in function
+- net: hns3: don't config TM DWRR twice when set ETS
+- net: hns3: add new function hclge_get_speed_bit()
+- net: hns3: refactor function hclgevf_parse_capability()
+- net: hns3: refactor function hclge_parse_capability()
+- net: hns3: uniform type of function parameter cmd
+- net: hns3: merge some repetitive macros
+- net: hns3: package new functions to simplify hclgevf_mbx_handler code
+- net: hns3: remove redundant param to simplify code
+- net: hns3: use memcpy to simplify code
+- net: hns3: add hns3_state_init() to do state initialization
+- net: hns3: add macros for mac speeds of firmware command
+- net: hns3: fix GRO configuration error after reset
+- net: hns3: fix speed unknown issue in bond 4
+- net: hns3: add support ethtool extended link state
+- net: hns3: add header file hns3_ethtoo.h
+- ethtool: add two link extended substates of bad signal integrity
+- docs: ethtool: Add two link extended substates of bad signal integrity
+- net: hns3: add support for triggering reset by ethtool
+- net: hns3: change the method of obtaining default ptp cycle
+- net: hns3: fix rx VLAN offload state inconsistent issue
+- net: hns3: add support for FD counter in debugfs
+- net: hns3: Fix a memory leak in an error handling path in 'hclge_handle_error_info_log()'
+- net: hns3: fix different snprintf() limit
+- net: hns3: use bounce buffer when rx page can not be reused
+- net: hns3: support dma_map_sg() for multi frags skb
+- net: hns3: add support to query tx spare buffer size for pf
+- net: hns3: use tx bounce buffer for small packets
+- net: hns3: add priv flags support to switch limit promisc mode
+- net: hns3: refactor for hns3_fill_desc() function
+- net: hns3: minor refactor related to desc_cb handling
+- net: hns3: fix a double shift bug
+- net: hns3: add support for PTP
+- net: hns3: refactor dev capability and dev spec of debugfs
+- net: hns3: use list_move_tail instead of list_del/list_add_tail in hclgevf_main.c
+- net: hns3: add error handling compatibility during initialization
+- net: hns3: update error recovery module and type
+- net: hns3: add support for imp-handle ras capability
+- net: hns3: add the RAS compatibility adaptation solution
+- net: hns3: add support for handling all errors through MSI-X
+- net: hns3: remove now redundant logic related to HNAE3_UNKNOWN_RESET
+- net: hns3: add log for workqueue scheduled late
+- net: hns3: add scheduling logic for error handling task
+- net: hns3: add a separate error handling task
+- net: hns3: use HCLGE_VPORT_STATE_PROMISC_CHANGE to replace HCLGE_STATE_PROMISC_CHANGED
+- net: hns3: fix user's coalesce configuration lost issue
+- net: hns3: add support for configuring interrupt quantity limiting
+- net: hns3: clear unnecessary reset request in hclge_reset_rebuild
+- net: hns3: cleanup inappropriate spaces in struct hlcgevf_tqp_stats
+- net: hns3: Trivial spell fix in hns3 driver
+- net: hns3: split out hclge_tm_vport_tc_info_update()
+- net: hns3: split function hclge_reset_rebuild()
+- net: hns3: remove redundant query in hclge_config_tm_hw_err_int()
+- net: hns3: remove redundant blank lines
+- net: hns3: remove unused code of vmdq
+- net: hns3: add support to query device specifications
+- net: hns3: add phy loopback support for imp-controlled PHYs
+- net: hns3: add ioctl support for imp-controlled PHYs
+- net: hns3: add get/set pause parameters support for imp-controlled PHYs
+- net: hns3: add support for imp-controlled PHYs
+- net:hns3 Fix KABI for The dev_version & caps element is added to the hnae3_ae_dev structure.
+- net:hns3 Fix KABI for deletion of hnae3_unic_private_info in hnae3_handle
+- net:hns3 Fix KABI for ethtools->supported_coalesce_params
+- net: hns3: split out hclgevf_cmd_send()
+- net: hns3: split out hclge_cmd_send()
+- net: hns3: refactor out hclgevf_get_rss_tuple()
+- net: hns3: refactor out hclge_get_rss_tuple()
+- net: hns3: refactor out hclge_set_vf_vlan_common()
+- net: hns3: use ipv6_addr_any() helper
+- net: hns3: refactor out hclgevf_cmd_convert_err_code()
+- net: hns3: refactor out hclge_cmd_convert_err_code()
+- net: hns3: remove unused macro definition
+- net: hns3: change hclge_query_bd_num() param type
+- net: hns3: change hclge_parse_speed() param type
+- net: hns3: clean up unnecessary parentheses in macro definitions
+- net: hns3: remove the shaper param magic number
+- net: hns3: add a structure for IR shaper's parameter in hclge_shaper_para_calc()
+- net: hns3: add support for TX hardware checksum offload
+- net: hns3: initialize the message content in hclge_get_link_mode()
+- net: hns3: add UDP segmentation offload support
+- net: hns3: use capabilities queried from firmware
+- net: hns3: add support to query device capability
+- net: hns3: add device version to replace pci revision
+- net: hns3: remove some unused macros
+- net: hns3: remove some unused codes in hns3_nic_set_features()
+- net: hns3: fix two coding style issues in hclgevf_main.c
+- net: hns3: remove two unused macros in hclgevf_cmd.c
+- net: hns3: remove an unused macro hclge_is_csq
+- net: hns3: fix a print format issue in hclge_mac_mdio_config()
+- net: hns3: remove some unused fields in struct hclge_dev
+- net: hns3: remove two duplicated register macros in hclgevf_main.h
+- net: hns3: remove unused struct hnae3_unic_private_info
+- net: hns3: remove some unused fields in struct hns3_nic_priv
+- net: hns3: modify an incorrect type in struct hclgevf_cfg_gro_status_cmd
+- net: hns3: modify an incorrect type in struct hclge_cfg_gro_status_cmd
+- net: hns3: refactor hclge_query_bd_num_cmd_send()
+- net: hns3: refactor hclge_config_tso()
+- net: hns3: remove a duplicated printing in hclge_configure()
+- net: hns3: modify two uncorrect macro names
+- net: hns3: remove a redundant register macro definition
+- net/hns: Remove custom driver version in favour of global one
+- net: hns3: clear port base VLAN when unload PF
+- net: hns3: reject unsupported coalescing params
+- net: hns3: modify an unsuitable log in hclge_map_ring_to_vector()
+- net: hns3: remove unused macros
+- net: hns3: adjust hns3_uninit_phy()'s location in the hns3_client_uninit()
+- net: hns3: fix compile warning without CONFIG_RFS_ACCEL
+- net: hns3: Use LLDP ethertype define ETH_P_LLDP
+- net: hns3: return 0 and print warning when hit duplicate MAC
+- net: hns3: make function hclge_set_all_vf_rst() static
+- net: phy: Move linkmode helpers to somewhere public
+- net: hns3: Add unlikely for buf_num check
+- net: hns3: Add default irq affinity
+- net: hns3: Only update mac configuation when necessary
+- net: hns3: Fix for loopback selftest failed problem
 
 * Wed Nov 15 2023 Luo Shengwei <luoshengwei@huawei.com> - 4.19.90-2311.3.0.0244
 - !2803 drivers/gmjstcm: fix a dev_err() call in spi tcm device probe

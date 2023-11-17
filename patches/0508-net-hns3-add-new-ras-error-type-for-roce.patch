@@ -1,0 +1,62 @@
+From a8db90eed71df1bde62c097ae4748f128617742b Mon Sep 17 00:00:00 2001
+From: Weihang Li <liweihang@huawei.com>
+Date: Thu, 18 Nov 2021 20:44:46 +0800
+Subject: [PATCH 147/283] net: hns3: add new ras error type for roce
+
+mainline inclusion
+from mainline-v5.16-rc1
+commit b566ef60394c528ae201a7c33182539183edd3bf
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMYT
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=b566ef60394c528ae201a7c33182539183edd3bf
+
+----------------------------------------------------------------------
+
+This patch adds one ras error of bus related for roce, this error
+including RRESP/BRESP and read poison error.
+
+Signed-off-by: Weihang Li <liweihang@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c | 5 ++++-
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.h | 1 +
+ 2 files changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c
+index dd607bfad25d..0af187c1e052 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c
+@@ -1321,7 +1321,10 @@ static const struct hclge_hw_type_id hclge_hw_type_id_st[] = {
+ 	}, {
+ 		.type_id = ROCEE_OVF_ERR,
+ 		.msg = "rocee_ovf_error"
+-	}
++	}, {
++		.type_id = ROCEE_BUS_ERR,
++		.msg = "rocee_bus_error"
++	},
+ };
+ 
+ void hclge_log_error(struct device *dev, char *reg,
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.h
+index 05612658423a..efe08946050a 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.h
+@@ -170,6 +170,7 @@ enum hclge_err_type_list {
+ 	/* add new ERROR TYPE for NIC here in order */
+ 	ROCEE_NORMAL_ERR	= 40,
+ 	ROCEE_OVF_ERR		= 41,
++	ROCEE_BUS_ERR		= 42,
+ 	/* add new ERROR TYPE for ROCEE here in order */
+ };
+ 
+-- 
+2.34.1
+

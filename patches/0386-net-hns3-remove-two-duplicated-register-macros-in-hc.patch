@@ -1,0 +1,86 @@
+From 6224bf81772210b3564b1aacef98ce13a0841ab6 Mon Sep 17 00:00:00 2001
+From: Huazhong Tan <tanhuazhong@huawei.com>
+Date: Thu, 28 May 2020 21:48:17 +0800
+Subject: [PATCH 025/283] net: hns3: remove two duplicated register macros in
+ hclgevf_main.h
+
+mainline inclusion
+from mainline-v5.8-rc1
+commit 9cee2e8d303940a413d20c5d275bdaf418b09b17
+category: cleanup
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EJ0A
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=9cee2e8d303940a413d20c5d275bdaf418b09b17
+
+--------------------------------
+
+HCLGEVF_CMDQ_INTR_SRC_REG and HCLGEVF_CMDQ_INTR_STS_REG are same
+as HCLGEVF_VECTOR0_CMDQ_SRC_REG and HCLGEVF_VECTOR0_CMDQ_STAT_REG,
+replace the former with the latter, and rename macro
+HCLGEVF_VECTOR0_CMDQ_STAT_REG since 'stat' is not abbreviation of
+'state'.
+
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c | 6 +++---
+ drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h | 4 +---
+ 2 files changed, 4 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+index 35a2f0415ef5..0ff126b5d688 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+@@ -47,7 +47,7 @@ static const u32 cmdq_reg_addr_list[] = {HCLGEVF_CMDQ_TX_ADDR_L_REG,
+ 					 HCLGEVF_CMDQ_RX_TAIL_REG,
+ 					 HCLGEVF_CMDQ_RX_HEAD_REG,
+ 					 HCLGEVF_VECTOR0_CMDQ_SRC_REG,
+-					 HCLGEVF_CMDQ_INTR_STS_REG,
++					 HCLGEVF_VECTOR0_CMDQ_STATE_REG,
+ 					 HCLGEVF_CMDQ_INTR_EN_REG,
+ 					 HCLGEVF_CMDQ_INTR_GEN_REG};
+ 
+@@ -1904,7 +1904,7 @@ static void hclgevf_dump_rst_info(struct hclgevf_dev *hdev)
+ 	dev_info(&hdev->pdev->dev, "vector0 interrupt enable status: 0x%x\n",
+ 		 hclgevf_read_dev(&hdev->hw, HCLGEVF_MISC_VECTOR_REG_BASE));
+ 	dev_info(&hdev->pdev->dev, "vector0 interrupt status: 0x%x\n",
+-		 hclgevf_read_dev(&hdev->hw, HCLGEVF_VECTOR0_CMDQ_STAT_REG));
++		 hclgevf_read_dev(&hdev->hw, HCLGEVF_VECTOR0_CMDQ_STATE_REG));
+ 	dev_info(&hdev->pdev->dev, "handshake status: 0x%x\n",
+ 		 hclgevf_read_dev(&hdev->hw, HCLGEVF_CMDQ_TX_DEPTH_REG));
+ 	dev_info(&hdev->pdev->dev, "function reset status: 0x%x\n",
+@@ -2336,7 +2336,7 @@ static enum hclgevf_evt_cause hclgevf_check_evt_cause(struct hclgevf_dev *hdev,
+ 
+ 	/* fetch the events from their corresponding regs */
+ 	cmdq_stat_reg = hclgevf_read_dev(&hdev->hw,
+-					 HCLGEVF_VECTOR0_CMDQ_STAT_REG);
++					 HCLGEVF_VECTOR0_CMDQ_STATE_REG);
+ 
+ 	if (BIT(HCLGEVF_VECTOR0_RST_INT_B) & cmdq_stat_reg) {
+ 		rst_ing_reg = hclgevf_read_dev(&hdev->hw, HCLGEVF_RST_ING);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h
+index 101b3fa9e2db..fe0c87a9e2ff 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h
+@@ -42,8 +42,6 @@
+ #define HCLGEVF_CMDQ_RX_DEPTH_REG		0x27020
+ #define HCLGEVF_CMDQ_RX_TAIL_REG		0x27024
+ #define HCLGEVF_CMDQ_RX_HEAD_REG		0x27028
+-#define HCLGEVF_CMDQ_INTR_SRC_REG		0x27100
+-#define HCLGEVF_CMDQ_INTR_STS_REG		0x27104
+ #define HCLGEVF_CMDQ_INTR_EN_REG		0x27108
+ #define HCLGEVF_CMDQ_INTR_GEN_REG		0x2710C
+ 
+@@ -88,7 +86,7 @@
+ /* Vector0 interrupt CMDQ event source register(RW) */
+ #define HCLGEVF_VECTOR0_CMDQ_SRC_REG	0x27100
+ /* Vector0 interrupt CMDQ event status register(RO) */
+-#define HCLGEVF_VECTOR0_CMDQ_STAT_REG	0x27104
++#define HCLGEVF_VECTOR0_CMDQ_STATE_REG	0x27104
+ /* CMDQ register bits for RX event(=MBX event) */
+ #define HCLGEVF_VECTOR0_RX_CMDQ_INT_B	1
+ /* RST register bits for RESET event */
+-- 
+2.34.1
+

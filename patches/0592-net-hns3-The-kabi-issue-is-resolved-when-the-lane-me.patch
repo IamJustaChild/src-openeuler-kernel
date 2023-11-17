@@ -1,0 +1,63 @@
+From 2d50293e720035b378749f2d37b85e0b0af81d7f Mon Sep 17 00:00:00 2001
+From: Algernon <lixiaodong67@huawei.com>
+Date: Sat, 26 Aug 2023 10:10:33 +0800
+Subject: [PATCH 231/283] net:hns3 The kabi issue is resolved when the lane
+ members are added to the ethtool_link_ksettings structure
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN49
+
+--------------------------------
+
+Fix it because hnae3_ Ae_ Get in ops structure_ Ksettings_ An_
+Result, cfg_ Mac_ Speed_ Dup_ Kabi problem caused by changes in
+h member parameters.
+
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hnae3.h | 8 +++++++-
+ include/linux/ethtool.h                     | 2 ++
+ 2 files changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3.h b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+index 903a942bc851..526a607a0242 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+@@ -611,12 +611,18 @@ struct hnae3_ae_ops {
+ 	int (*client_start)(struct hnae3_handle *handle);
+ 	void (*client_stop)(struct hnae3_handle *handle);
+ 	int (*get_status)(struct hnae3_handle *handle);
++#ifndef __GENKSYMS__
+ 	void (*get_ksettings_an_result)(struct hnae3_handle *handle,
+ 					u8 *auto_neg, u32 *speed, u8 *duplex,
+ 					u32 *lane_num);
+-
+ 	int (*cfg_mac_speed_dup_h)(struct hnae3_handle *handle, int speed,
+ 				   u8 duplex, u8 lane_num);
++#else
++	void (*get_ksettings_an_result)(struct hnae3_handle *handle,
++					u8 *auto_neg, u32 *speed, u8 *duplex);
++	int (*cfg_mac_speed_dup_h)(struct hnae3_handle *handle, int speed,
++				   u8 duplex);
++#endif
+ 
+ 	void (*get_media_type)(struct hnae3_handle *handle, u8 *media_type,
+ 			       u8 *module_type);
+diff --git a/include/linux/ethtool.h b/include/linux/ethtool.h
+index e9b7695a4c0e..56bc3e94af94 100644
+--- a/include/linux/ethtool.h
++++ b/include/linux/ethtool.h
+@@ -149,7 +149,9 @@ struct ethtool_link_ksettings {
+ 		__ETHTOOL_DECLARE_LINK_MODE_MASK(advertising);
+ 		__ETHTOOL_DECLARE_LINK_MODE_MASK(lp_advertising);
+ 	} link_modes;
++#ifndef __GENKSYMS__
+ 	u32	lanes;
++#endif
+ };
+ 
+ /**
+-- 
+2.34.1
+

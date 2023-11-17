@@ -1,0 +1,278 @@
+From 275cb764c0a08c0ee0e9b484cbe29f9045055d6f Mon Sep 17 00:00:00 2001
+From: Xiaodong Li <lixiaodong67@huawei.com>
+Date: Thu, 16 Nov 2023 22:31:57 +0800
+Subject: [PATCH 283/283] net: hns3: Fix unreasonable modifications caused by
+ rollback extension ringparam parameters
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN49
+--------------------------------
+
+Fixed residual kernel introduced by subsequent patches in hns3 due to rollback
+of ringparam_ Param compilation reported an error and deleted unused enums and header files
+
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ .../ethernet/hisilicon/hns3/hns3_ethtool.c    | 21 ++++-------------
+ include/linux/ethtool.h                       | 23 +++++++++++++------
+ include/linux/phy.h                           |  1 +
+ include/net/genetlink.h                       |  2 +-
+ include/net/netlink.h                         |  3 +--
+ include/uapi/linux/ethtool.h                  |  9 +++-----
+ net/core/xdp.c                                |  3 ---
+ net/ethtool/ioctl.c                           |  4 ++--
+ 8 files changed, 29 insertions(+), 37 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+index c951f7c4eea9..ea870fa15ce6 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+@@ -726,7 +726,6 @@ static void hns3_get_ringparam(struct net_device *netdev,
+ 
+ 	param->tx_pending = priv->ring[0].desc_num;
+ 	param->rx_pending = priv->ring[rx_queue_index].desc_num;
+-	kernel_param->rx_buf_len = priv->ring[rx_queue_index].buf_size;
+ }
+ 
+ static void hns3_get_pauseparam(struct net_device *netdev,
+@@ -1129,8 +1128,7 @@ static struct hns3_enet_ring *hns3_backup_ringparam(struct hns3_nic_priv *priv)
+ }
+ 
+ static int hns3_check_ringparam(struct net_device *ndev,
+-				struct ethtool_ringparam *param,
+-				struct kernel_ethtool_ringparam *kernel_param)
++				struct ethtool_ringparam *param)
+ {
+ #define RX_BUF_LEN_2K 2048
+ #define RX_BUF_LEN_4K 4096
+@@ -1140,12 +1138,6 @@ static int hns3_check_ringparam(struct net_device *ndev,
+ 	if (param->rx_mini_pending || param->rx_jumbo_pending)
+ 		return -EINVAL;
+ 
+-	if (kernel_param->rx_buf_len != RX_BUF_LEN_2K &&
+-	    kernel_param->rx_buf_len != RX_BUF_LEN_4K) {
+-		netdev_err(ndev, "Rx buf len only support 2048 and 4096\n");
+-		return -EINVAL;
+-	}
+-
+ 	if (param->tx_pending > HNS3_RING_MAX_PENDING ||
+ 	    param->tx_pending < HNS3_RING_MIN_PENDING ||
+ 	    param->rx_pending > HNS3_RING_MAX_PENDING ||
+@@ -1187,7 +1179,7 @@ static int hns3_set_ringparam(struct net_device *ndev,
+ 	u32 old_rx_buf_len;
+ 	int ret, i;
+ 
+-	ret = hns3_check_ringparam(ndev, param, kernel_param);
++	ret = hns3_check_ringparam(ndev, param);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -1198,8 +1190,7 @@ static int hns3_set_ringparam(struct net_device *ndev,
+ 	old_rx_desc_num = priv->ring[queue_num].desc_num;
+ 	old_rx_buf_len = priv->ring[queue_num].buf_size;
+ 	if (old_tx_desc_num == new_tx_desc_num &&
+-	    old_rx_desc_num == new_rx_desc_num &&
+-	    kernel_param->rx_buf_len == old_rx_buf_len)
++	    old_rx_desc_num == new_rx_desc_num)
+ 		return 0;
+ 
+ 	tmp_rings = hns3_backup_ringparam(priv);
+@@ -1210,16 +1201,14 @@ static int hns3_set_ringparam(struct net_device *ndev,
+ 	}
+ 
+ 	netdev_info(ndev,
+-		    "Changing Tx/Rx ring depth from %u/%u to %u/%u, Changing rx buffer len from %d to %d\n",
++		    "Changing Tx/Rx ring depth from %u/%u to %u/%u\n",
+ 		    old_tx_desc_num, old_rx_desc_num,
+-		    new_tx_desc_num, new_rx_desc_num,
+-		    old_rx_buf_len, kernel_param->rx_buf_len);
++		    new_tx_desc_num, new_rx_desc_num);
+ 
+ 	if (if_running)
+ 		ndev->netdev_ops->ndo_stop(ndev);
+ 
+ 	hns3_change_all_ring_bd_num(priv, new_tx_desc_num, new_rx_desc_num);
+-	hns3_change_rx_buf_len(ndev, kernel_param->rx_buf_len);
+ 	ret = hns3_init_all_ring(priv);
+ 	if (ret) {
+ 		netdev_err(ndev, "set ringparam fail, revert to old value(%d)\n",
+diff --git a/include/linux/ethtool.h b/include/linux/ethtool.h
+index affef82ee8f3..8f321c874ce0 100644
+--- a/include/linux/ethtool.h
++++ b/include/linux/ethtool.h
+@@ -130,10 +130,12 @@ static inline u32 ethtool_rxfh_indir_default(u32 index, u32 n_rx_rings)
+ 	return index % n_rx_rings;
+ }
+ 
+-#ifdef __GENKSYMS__
++/* number of link mode bits/ulongs handled internally by kernel */
+ #define __ETHTOOL_LINK_MODE_MASK_NBITS			\
+ 	(__ETHTOOL_LINK_MODE_LAST + 1)
+-#endif
++
++#define __ETHTOOL_LINK_MODE_MASK_ASSERT_NBITS			\
++	(ETHTOOL_LINK_MODE_100baseFX_Full_BIT + 1)
+ 
+ /* declare a link mode bitmap */
+ #define __ETHTOOL_DECLARE_LINK_MODE_MASK(name)		\
+@@ -292,6 +294,14 @@ struct ethtool_fec_stats {
+ 
+ /**
+  * struct ethtool_ops - optional netdev operations
++ * @get_settings: DEPRECATED, use %get_link_ksettings/%set_link_ksettings
++ *	API. Get various device settings including Ethernet link
++ *	settings. The @cmd parameter is expected to have been cleared
++ *	before get_settings is called. Returns a negative error code
++ *	or zero.
++ * @set_settings: DEPRECATED, use %get_link_ksettings/%set_link_ksettings
++ *	API. Set various device settings including Ethernet link
++ *	settings.  Returns a negative error code or zero.
+  * @supported_coalesce_params: supported types of interrupt coalescing.
+  * @supported_ring_params: supported ring params.
+  * @get_drvinfo: Report driver/device information.  Should only set the
+@@ -322,9 +332,8 @@ struct ethtool_fec_stats {
+  *	or zero.
+  * @get_coalesce: Get interrupt coalescing parameters.  Returns a negative
+  *	error code or zero.
+- * @set_coalesce: Set interrupt coalescing parameters.  Supported coalescing
+- *     types should be set in @supported_coalesce_params.
+- *     Returns a negative error code or zero.
++ * @set_coalesce: Set interrupt coalescing parameters.  Returns a negative
++ *	error code or zero.
+  * @get_ringparam: Report ring sizes
+  * @set_ringparam: Set ring sizes.  Returns a negative error code or zero.
+  * @get_pauseparam: Report pause parameters
+@@ -454,9 +463,9 @@ struct ethtool_ops {
+ 			      struct ethtool_eeprom *, u8 *);
+ 	int	(*get_coalesce)(struct net_device *, struct ethtool_coalesce *);
+ 	int	(*set_coalesce)(struct net_device *, struct ethtool_coalesce *);
+-	void    (*get_ringparam)(struct net_device *,
++	void	(*get_ringparam)(struct net_device *,
+ 				 struct ethtool_ringparam *);
+-	int     (*set_ringparam)(struct net_device *,
++	int	(*set_ringparam)(struct net_device *,
+ 				 struct ethtool_ringparam *);
+ 	void	(*get_pauseparam)(struct net_device *,
+ 				  struct ethtool_pauseparam*);
+diff --git a/include/linux/phy.h b/include/linux/phy.h
+index 03eb46c632da..655db68e99a8 100644
+--- a/include/linux/phy.h
++++ b/include/linux/phy.h
+@@ -418,6 +418,7 @@ struct phy_device {
+ 	unsigned autoneg:1;
+ 	/* The most recently read link state */
+ 	unsigned link:1;
++
+ 	enum phy_state state;
+ 
+ 	u32 dev_flags;
+diff --git a/include/net/genetlink.h b/include/net/genetlink.h
+index cd57d2e1188b..61cee458f43b 100644
+--- a/include/net/genetlink.h
++++ b/include/net/genetlink.h
+@@ -141,7 +141,7 @@ static inline int genl_err_attr(struct genl_info *info, int err,
+  * @done: completion callback for dumps
+  */
+ struct genl_ops {
+-	const struct nla_policy *policy;
++	const struct nla_policy	*policy;
+ 	int		       (*doit)(struct sk_buff *skb,
+ 				       struct genl_info *info);
+ 	int		       (*start)(struct netlink_callback *cb);
+diff --git a/include/net/netlink.h b/include/net/netlink.h
+index a87f11b9cf8d..30b4dd1408b4 100644
+--- a/include/net/netlink.h
++++ b/include/net/netlink.h
+@@ -173,7 +173,6 @@ enum {
+ 	NLA_MSECS,
+ 	NLA_NESTED,
+ 	NLA_NESTED_COMPAT,
+-	NLA_NESTED_ARRAY,
+ 	NLA_NUL_STRING,
+ 	NLA_BINARY,
+ 	NLA_S8,
+@@ -228,7 +227,7 @@ enum {
+ struct nla_policy {
+ 	u16		type;
+ 	u16		len;
+-	void		*validation_data;
++	void            *validation_data;
+ };
+ 
+ /**
+diff --git a/include/uapi/linux/ethtool.h b/include/uapi/linux/ethtool.h
+index 0649b8295feb..6f46b6cbc84c 100644
+--- a/include/uapi/linux/ethtool.h
++++ b/include/uapi/linux/ethtool.h
+@@ -228,7 +228,7 @@ enum tunable_id {
+ 	ETHTOOL_TX_COPYBREAK_BUF_SIZE,
+ 	/*
+ 	 * Add your fresh new tunable attribute above and remember to update
+-	 * tunable_strings[] in net/core/ethtool.c
++	 * tunable_strings[] in net/ethtool/common.c
+ 	 */
+ 	__ETHTOOL_TUNABLE_COUNT,
+ };
+@@ -264,7 +264,7 @@ enum phy_tunable_id {
+ 	ETHTOOL_PHY_EDPD,
+ 	/*
+ 	 * Add your fresh new phy tunable attribute above and remember to update
+-	 * phy_tunable_strings[] in net/core/ethtool.c
++	 * phy_tunable_strings[] in net/ethtool/common.c
+ 	 */
+ 	__ETHTOOL_PHY_TUNABLE_COUNT,
+ };
+@@ -1629,12 +1629,9 @@ enum ethtool_link_mode_bit_indices {
+ 	 * macro for bits > 31. The only way to use indices > 31 is to
+ 	 * use the new ETHTOOL_GLINKSETTINGS/ETHTOOL_SLINKSETTINGS API.
+ 	 */
+-#ifndef __GENKSYMS__
+-	__ETHTOOL_LINK_MODE_MASK_NBITS,
+-#else
++
+ 	__ETHTOOL_LINK_MODE_LAST
+ 	  = ETHTOOL_LINK_MODE_FEC_BASER_BIT,
+-#endif
+ };
+ 
+ #define __ETHTOOL_LINK_MODE_LEGACY_MASK(base_name)	\
+diff --git a/net/core/xdp.c b/net/core/xdp.c
+index 978bd4432a73..89b6785cef2a 100644
+--- a/net/core/xdp.c
++++ b/net/core/xdp.c
+@@ -14,9 +14,6 @@
+ #include <net/page_pool.h>
+ 
+ #include <net/xdp.h>
+-#ifndef __GENKSYMS__
+-#include <trace/events/xdp.h>
+-#endif
+ 
+ #define REG_STATE_NEW		0x0
+ #define REG_STATE_REGISTERED	0x1
+diff --git a/net/ethtool/ioctl.c b/net/ethtool/ioctl.c
+index c7f67750ecc4..8069c49e21e1 100644
+--- a/net/ethtool/ioctl.c
++++ b/net/ethtool/ioctl.c
+@@ -156,7 +156,7 @@ static int __ethtool_get_sset_count(struct net_device *dev, int sset)
+ 		return phy_ethtool_get_sset_count(dev->phydev);
+ 
+ 	if (sset == ETH_SS_LINK_MODES)
+-		return __ETHTOOL_LINK_MODE_MASK_NBITS;
++		return __ETHTOOL_LINK_MODE_MASK_ASSERT_NBITS;
+ 
+ 	if (ops->get_sset_count && ops->get_strings)
+ 		return ops->get_sset_count(dev, sset);
+@@ -184,7 +184,7 @@ static void __ethtool_get_strings(struct net_device *dev,
+ 		phy_ethtool_get_strings(dev->phydev, data);
+ 	else if (stringset == ETH_SS_LINK_MODES)
+ 		memcpy(data, link_mode_names,
+-		       __ETHTOOL_LINK_MODE_MASK_NBITS * ETH_GSTRING_LEN);
++		       __ETHTOOL_LINK_MODE_MASK_ASSERT_NBITS * ETH_GSTRING_LEN);
+ 	else
+ 		/* ops->get_strings is valid because checked earlier */
+ 		ops->get_strings(dev, stringset, data);
+-- 
+2.34.1
+

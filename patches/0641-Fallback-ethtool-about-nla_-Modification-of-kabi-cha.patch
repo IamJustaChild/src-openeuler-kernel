@@ -1,0 +1,340 @@
+From 0a054d11626413adc327e60971edacc732ed5803 Mon Sep 17 00:00:00 2001
+From: Algernon <lixiaodong67@huawei.com>
+Date: Wed, 15 Nov 2023 17:09:17 +0800
+Subject: [PATCH 280/283] Fallback ethtool about nla_ Modification of kabi
+ changes caused by the addition of new associations in the policy structure
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN49
+--------------------------------
+
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ Documentation/networking/ethtool-netlink.rst |  2 -
+ include/linux/ethtool.h                      |  4 +-
+ include/net/netlink.h                        | 65 --------------------
+ include/uapi/linux/ethtool_netlink.h         |  2 +-
+ net/ethtool/bitset.c                         |  2 -
+ net/ethtool/fec.c                            |  6 --
+ net/ethtool/netlink.c                        | 14 +----
+ net/ethtool/netlink.h                        | 25 --------
+ net/ethtool/rings.c                          | 14 ++---
+ 9 files changed, 11 insertions(+), 123 deletions(-)
+
+diff --git a/Documentation/networking/ethtool-netlink.rst b/Documentation/networking/ethtool-netlink.rst
+index c0c33704aa96..5855c92c68c3 100644
+--- a/Documentation/networking/ethtool-netlink.rst
++++ b/Documentation/networking/ethtool-netlink.rst
+@@ -247,7 +247,6 @@ Kernel response contents:
+   ``ETHTOOL_A_RINGS_RX_MINI``           u32     size of RX mini ring
+   ``ETHTOOL_A_RINGS_RX_JUMBO``          u32     size of RX jumbo ring
+   ``ETHTOOL_A_RINGS_TX``                u32     size of TX ring
+-  ``ETHTOOL_A_RINGS_RX_BUF_LEN``        u32     size of buffers on the ring
+   ====================================  ======  ===========================
+ 
+ 
+@@ -264,7 +263,6 @@ Request contents:
+   ``ETHTOOL_A_RINGS_RX_MINI``           u32     size of RX mini ring
+   ``ETHTOOL_A_RINGS_RX_JUMBO``          u32     size of RX jumbo ring
+   ``ETHTOOL_A_RINGS_TX``                u32     size of TX ring
+-  ``ETHTOOL_A_RINGS_RX_BUF_LEN``        u32     size of buffers on the ring
+   ====================================  ======  ===========================
+ 
+ Kernel checks that requested ring sizes do not exceed limits reported by
+diff --git a/include/linux/ethtool.h b/include/linux/ethtool.h
+index bf14a439afc2..5b028a126d9a 100644
+--- a/include/linux/ethtool.h
++++ b/include/linux/ethtool.h
+@@ -76,7 +76,7 @@ enum {
+  * @rx_buf_len: Current length of buffers on the rx ring.
+  */
+ struct kernel_ethtool_ringparam {
+-	u32	rx_buf_len;
++	u32 rx_buf_len;
+ };
+ 
+ /**
+@@ -438,7 +438,7 @@ struct ethtool_fec_stats {
+ struct ethtool_ops {
+ #ifndef __GENKSYMS__
+ 	u32     supported_coalesce_params;
+-	u32     supported_ring_params;
++	u32	supported_ring_params;
+ #endif
+ 	int	(*get_settings)(struct net_device *, struct ethtool_cmd *);
+ 	int	(*set_settings)(struct net_device *, struct ethtool_cmd *);
+diff --git a/include/net/netlink.h b/include/net/netlink.h
+index d9c642558255..a87f11b9cf8d 100644
+--- a/include/net/netlink.h
++++ b/include/net/netlink.h
+@@ -191,17 +191,6 @@ enum {
+ 
+ #define NLA_TYPE_MAX (__NLA_TYPE_MAX - 1)
+ 
+-enum nla_policy_validation {
+-	NLA_VALIDATE_NONE,
+-	NLA_VALIDATE_RANGE,
+-	NLA_VALIDATE_RANGE_WARN_TOO_LONG,
+-	NLA_VALIDATE_MIN,
+-	NLA_VALIDATE_MAX,
+-	NLA_VALIDATE_MASK,
+-	NLA_VALIDATE_RANGE_PTR,
+-	NLA_VALIDATE_FUNCTION,
+-};
+-
+ /**
+  * struct nla_policy - attribute validation policy
+  * @type: Type of attribute or NLA_UNSPEC
+@@ -240,62 +229,8 @@ struct nla_policy {
+ 	u16		type;
+ 	u16		len;
+ 	void		*validation_data;
+-#ifndef __GENKSYMS__
+-	u8		validation_type;
+-	union {
+-		const u32 bitfield32_valid;
+-		const u32 mask;
+-		const char *reject_message;
+-		const struct nla_policy *nested_policy;
+-		struct netlink_range_validation *range;
+-		struct netlink_range_validation_signed *range_signed;
+-		struct {
+-			s16 min, max;
+-		};
+-		int (*validate)(const struct nlattr *attr,
+-				struct netlink_ext_ack *extack);
+-		u16 strict_start_type;
+-	};
+-#endif
+ };
+ 
+-#define _NLA_POLICY_NESTED(maxattr, policy) \
+-	{ .type = NLA_NESTED, .nested_policy = policy, .len = maxattr }
+-#define NLA_POLICY_NESTED(policy) \
+-	_NLA_POLICY_NESTED(ARRAY_SIZE(policy) - 1, policy)
+-
+-#define __NLA_IS_UINT_TYPE(tp)						\
+-	(tp == NLA_U8 || tp == NLA_U16 || tp == NLA_U32 || tp == NLA_U64)
+-#define __NLA_IS_SINT_TYPE(tp)						\
+-	(tp == NLA_S8 || tp == NLA_S16 || tp == NLA_S32 || tp == NLA_S64)
+-
+-#define __NLA_ENSURE(condition) BUILD_BUG_ON_ZERO(!(condition))
+-#define NLA_ENSURE_UINT_TYPE(tp)			\
+-	(__NLA_ENSURE(__NLA_IS_UINT_TYPE(tp)) + tp)
+-#define NLA_ENSURE_INT_OR_BINARY_TYPE(tp)		\
+-	(__NLA_ENSURE(__NLA_IS_UINT_TYPE(tp) ||		\
+-		      __NLA_IS_SINT_TYPE(tp) ||		\
+-		      tp == NLA_MSECS ||		\
+-		      tp == NLA_BINARY) + tp)
+-
+-#define NLA_POLICY_MIN(tp, _min) {			\
+-	.type = NLA_ENSURE_INT_OR_BINARY_TYPE(tp),	\
+-	.validation_type = NLA_VALIDATE_MIN,		\
+-	.min = _min,					\
+-}
+-
+-#define NLA_POLICY_MAX(tp, _max) {			\
+-	.type = NLA_ENSURE_INT_OR_BINARY_TYPE(tp),	\
+-	.validation_type = NLA_VALIDATE_MAX,		\
+-	.max = _max,					\
+-}
+-
+-#define NLA_POLICY_MASK(tp, _mask) {			\
+-	.type = NLA_ENSURE_UINT_TYPE(tp),		\
+-	.validation_type = NLA_VALIDATE_MASK,		\
+-	.mask = _mask,					\
+-}
+-
+ /**
+  * struct nl_info - netlink source information
+  * @nlh: Netlink message header of original request
+diff --git a/include/uapi/linux/ethtool_netlink.h b/include/uapi/linux/ethtool_netlink.h
+index a616a033c5be..088ca2aaa76c 100644
+--- a/include/uapi/linux/ethtool_netlink.h
++++ b/include/uapi/linux/ethtool_netlink.h
+@@ -286,7 +286,7 @@ enum {
+ 	ETHTOOL_A_RINGS_RX_MINI,			/* u32 */
+ 	ETHTOOL_A_RINGS_RX_JUMBO,			/* u32 */
+ 	ETHTOOL_A_RINGS_TX,				/* u32 */
+-	ETHTOOL_A_RINGS_RX_BUF_LEN,                     /* u32 */
++	ETHTOOL_A_RINGS_RX_BUF_LEN,			/* u32 */
+ 
+ 	/* add new constants above here */
+ 	__ETHTOOL_A_RINGS_CNT,
+diff --git a/net/ethtool/bitset.c b/net/ethtool/bitset.c
+index 674cbe6f421e..21426d080ada 100644
+--- a/net/ethtool/bitset.c
++++ b/net/ethtool/bitset.c
+@@ -306,8 +306,6 @@ int ethnl_put_bitset32(struct sk_buff *skb, int attrtype, const u32 *val,
+ static const struct nla_policy bitset_policy[ETHTOOL_A_BITSET_MAX + 1] = {
+ 	[ETHTOOL_A_BITSET_UNSPEC]	= { .type = NLA_REJECT },
+ 	[ETHTOOL_A_BITSET_NOMASK]	= { .type = NLA_FLAG },
+-	[ETHTOOL_A_BITSET_SIZE]		= NLA_POLICY_MAX(NLA_U32,
+-							 ETHNL_MAX_BITSET_SIZE),
+ 	[ETHTOOL_A_BITSET_BITS]		= { .type = NLA_NESTED },
+ 	[ETHTOOL_A_BITSET_VALUE]	= { .type = NLA_BINARY },
+ 	[ETHTOOL_A_BITSET_MASK]		= { .type = NLA_BINARY },
+diff --git a/net/ethtool/fec.c b/net/ethtool/fec.c
+index 8738dafd5417..61ee00ef7093 100644
+--- a/net/ethtool/fec.c
++++ b/net/ethtool/fec.c
+@@ -24,10 +24,6 @@ struct fec_reply_data {
+ 
+ #define ETHTOOL_FEC_MASK	((ETHTOOL_FEC_LLRS << 1) - 1)
+ 
+-const struct nla_policy ethnl_fec_get_policy[ETHTOOL_A_FEC_HEADER + 1] = {
+-	[ETHTOOL_A_FEC_HEADER]	= NLA_POLICY_NESTED(ethnl_header_policy_stats),
+-};
+-
+ static void
+ ethtool_fec_to_link_modes(u32 fec, unsigned long *link_modes, u8 *fec_auto)
+ {
+@@ -232,9 +228,7 @@ const struct ethnl_request_ops ethnl_fec_request_ops = {
+ /* FEC_SET */
+ 
+ const struct nla_policy ethnl_fec_set_policy[ETHTOOL_A_FEC_AUTO + 1] = {
+-	[ETHTOOL_A_FEC_HEADER]	= NLA_POLICY_NESTED(ethnl_header_policy),
+ 	[ETHTOOL_A_FEC_MODES]	= { .type = NLA_NESTED },
+-	[ETHTOOL_A_FEC_AUTO]	= NLA_POLICY_MAX(NLA_U8, 1),
+ };
+ 
+ int ethnl_set_fec(struct sk_buff *skb, struct genl_info *info)
+diff --git a/net/ethtool/netlink.c b/net/ethtool/netlink.c
+index f710cea37a96..8b0257ae21a1 100644
+--- a/net/ethtool/netlink.c
++++ b/net/ethtool/netlink.c
+@@ -13,7 +13,7 @@ static u32 ethnl_bcast_seq;
+ 			     ETHTOOL_FLAG_OMIT_REPLY)
+ #define ETHTOOL_FLAGS_STATS (ETHTOOL_FLAGS_BASIC | ETHTOOL_FLAG_STATS)
+ 
+-const struct nla_policy ethnl_header_policy[ETHTOOL_A_HEADER_MAX + 1] = {
++static const struct nla_policy ethnl_header_policy[ETHTOOL_A_HEADER_MAX + 1] = {
+ 	[ETHTOOL_A_HEADER_UNSPEC]	= { .type = NLA_REJECT },
+ 	[ETHTOOL_A_HEADER_DEV_INDEX]	= { .type = NLA_U32 },
+ 	[ETHTOOL_A_HEADER_DEV_NAME]	= { .type = NLA_NUL_STRING,
+@@ -21,14 +21,6 @@ const struct nla_policy ethnl_header_policy[ETHTOOL_A_HEADER_MAX + 1] = {
+ 	[ETHTOOL_A_HEADER_FLAGS]	= { .type = NLA_U32 },
+ };
+ 
+-const struct nla_policy ethnl_header_policy_stats[] = {
+-	[ETHTOOL_A_HEADER_DEV_INDEX]	= { .type = NLA_U32 },
+-	[ETHTOOL_A_HEADER_DEV_NAME]	= { .type = NLA_NUL_STRING,
+-					    .len = ALTIFNAMSIZ - 1 },
+-	[ETHTOOL_A_HEADER_FLAGS]	= NLA_POLICY_MASK(NLA_U32,
+-							  ETHTOOL_FLAGS_STATS),
+-};
+-
+ /**
+  * ethnl_parse_header_dev_get() - parse request header
+  * @req_info:    structure to put results into
+@@ -795,15 +787,11 @@ static const struct genl_ops ethtool_genl_ops[] = {
+ 		.start	= ethnl_default_start,
+ 		.dumpit	= ethnl_default_dumpit,
+ 		.done	= ethnl_default_done,
+-		.policy = ethnl_fec_get_policy,
+-		.maxattr = ARRAY_SIZE(ethnl_fec_get_policy) - 1,
+ 	},
+ 	{
+ 		.cmd	= ETHTOOL_MSG_FEC_SET,
+ 		.flags	= GENL_UNS_ADMIN_PERM,
+ 		.doit	= ethnl_set_fec,
+-		.policy = ethnl_fec_set_policy,
+-		.maxattr = ARRAY_SIZE(ethnl_fec_set_policy) - 1,
+ 	},
+ };
+ 
+diff --git a/net/ethtool/netlink.h b/net/ethtool/netlink.h
+index ebecf06a5a6e..a8be78e21218 100644
+--- a/net/ethtool/netlink.h
++++ b/net/ethtool/netlink.h
+@@ -326,33 +326,8 @@ extern const struct ethnl_request_ops ethnl_wol_request_ops;
+ extern const struct ethnl_request_ops ethnl_features_request_ops;
+ extern const struct ethnl_request_ops ethnl_privflags_request_ops;
+ extern const struct ethnl_request_ops ethnl_rings_request_ops;
+-extern const struct ethnl_request_ops ethnl_channels_request_ops;
+-extern const struct ethnl_request_ops ethnl_coalesce_request_ops;
+-extern const struct ethnl_request_ops ethnl_pause_request_ops;
+-extern const struct ethnl_request_ops ethnl_eee_request_ops;
+-extern const struct ethnl_request_ops ethnl_tsinfo_request_ops;
+ extern const struct ethnl_request_ops ethnl_fec_request_ops;
+ 
+-extern const struct nla_policy ethnl_header_policy[ETHTOOL_A_HEADER_FLAGS + 1];
+-extern const struct nla_policy ethnl_header_policy_stats[ETHTOOL_A_HEADER_FLAGS + 1];
+-extern const struct nla_policy ethnl_strset_get_policy[ETHTOOL_A_STRSET_COUNTS_ONLY + 1];
+-extern const struct nla_policy ethnl_linkinfo_get_policy[ETHTOOL_A_LINKINFO_HEADER + 1];
+-extern const struct nla_policy ethnl_linkinfo_set_policy[ETHTOOL_A_LINKINFO_TP_MDIX_CTRL + 1];
+-extern const struct nla_policy ethnl_linkmodes_get_policy[ETHTOOL_A_LINKMODES_HEADER + 1];
+-extern const struct nla_policy ethnl_linkstate_get_policy[ETHTOOL_A_LINKSTATE_HEADER + 1];
+-extern const struct nla_policy ethnl_debug_get_policy[ETHTOOL_A_DEBUG_HEADER + 1];
+-extern const struct nla_policy ethnl_debug_set_policy[ETHTOOL_A_DEBUG_MSGMASK + 1];
+-extern const struct nla_policy ethnl_wol_get_policy[ETHTOOL_A_WOL_HEADER + 1];
+-extern const struct nla_policy ethnl_wol_set_policy[ETHTOOL_A_WOL_SOPASS + 1];
+-extern const struct nla_policy ethnl_features_get_policy[ETHTOOL_A_FEATURES_HEADER + 1];
+-extern const struct nla_policy ethnl_features_set_policy[ETHTOOL_A_FEATURES_WANTED + 1];
+-extern const struct nla_policy ethnl_privflags_get_policy[ETHTOOL_A_PRIVFLAGS_HEADER + 1];
+-extern const struct nla_policy ethnl_privflags_set_policy[ETHTOOL_A_PRIVFLAGS_FLAGS + 1];
+-extern const struct nla_policy ethnl_rings_get_policy[ETHTOOL_A_RINGS_HEADER + 1];
+-extern const struct nla_policy ethnl_rings_set_policy[ETHTOOL_A_RINGS_RX_BUF_LEN + 1];
+-extern const struct nla_policy ethnl_fec_get_policy[ETHTOOL_A_FEC_HEADER + 1];
+-extern const struct nla_policy ethnl_fec_set_policy[ETHTOOL_A_FEC_AUTO + 1];
+-
+ int ethnl_set_linkinfo(struct sk_buff *skb, struct genl_info *info);
+ int ethnl_set_linkmodes(struct sk_buff *skb, struct genl_info *info);
+ int ethnl_set_debug(struct sk_buff *skb, struct genl_info *info);
+diff --git a/net/ethtool/rings.c b/net/ethtool/rings.c
+index 128e15b10883..8c9b39ce53f9 100644
+--- a/net/ethtool/rings.c
++++ b/net/ethtool/rings.c
+@@ -10,7 +10,7 @@ struct rings_req_info {
+ struct rings_reply_data {
+ 	struct ethnl_reply_data		base;
+ 	struct ethtool_ringparam	ringparam;
+-	struct kernel_ethtool_ringparam	kernel_ringparam;
++	struct kernel_ethtool_ringparam kernel_ringparam;
+ };
+ 
+ #define RINGS_REPDATA(__reply_base) \
+@@ -69,7 +69,7 @@ static int rings_fill_reply(struct sk_buff *skb,
+ {
+ 	const struct rings_reply_data *data = RINGS_REPDATA(reply_base);
+ 	const struct kernel_ethtool_ringparam *kernel_ringparam =
+-						&data->kernel_ringparam;
++					&data->kernel_ringparam;
+ 	const struct ethtool_ringparam *ringparam = &data->ringparam;
+ 
+ 	if ((ringparam->rx_max_pending &&
+@@ -91,10 +91,10 @@ static int rings_fill_reply(struct sk_buff *skb,
+ 	     (nla_put_u32(skb, ETHTOOL_A_RINGS_TX_MAX,
+ 			  ringparam->tx_max_pending) ||
+ 	      nla_put_u32(skb, ETHTOOL_A_RINGS_TX,
+-			  ringparam->tx_pending)))  ||
+-	    (kernel_ringparam->rx_buf_len &&
+-	     (nla_put_u32(skb, ETHTOOL_A_RINGS_RX_BUF_LEN,
+-			  kernel_ringparam->rx_buf_len))))
++			  ringparam->tx_pending))) ||
++		(kernel_ringparam->rx_buf_len &&
++		(nla_put_u32(skb, ETHTOOL_A_RINGS_RX_BUF_LEN,
++			     kernel_ringparam->rx_buf_len))))
+ 		return -EMSGSIZE;
+ 
+ 	return 0;
+@@ -128,7 +128,6 @@ rings_set_policy[ETHTOOL_A_RINGS_MAX + 1] = {
+ 	[ETHTOOL_A_RINGS_RX_MINI]		= { .type = NLA_U32 },
+ 	[ETHTOOL_A_RINGS_RX_JUMBO]		= { .type = NLA_U32 },
+ 	[ETHTOOL_A_RINGS_TX]			= { .type = NLA_U32 },
+-	[ETHTOOL_A_RINGS_RX_BUF_LEN]            = NLA_POLICY_MIN(NLA_U32, 1),
+ };
+ 
+ int ethnl_set_rings(struct sk_buff *skb, struct genl_info *info)
+@@ -174,6 +173,7 @@ int ethnl_set_rings(struct sk_buff *skb, struct genl_info *info)
+ 	ethnl_update_u32(&ringparam.tx_pending, tb[ETHTOOL_A_RINGS_TX], &mod);
+ 	ethnl_update_u32(&kernel_ringparam.rx_buf_len,
+ 			 tb[ETHTOOL_A_RINGS_RX_BUF_LEN], &mod);
++
+ 	ret = 0;
+ 	if (!mod)
+ 		goto out_ops;
+-- 
+2.34.1
+

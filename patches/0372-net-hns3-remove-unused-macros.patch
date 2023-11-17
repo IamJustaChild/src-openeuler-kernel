@@ -1,0 +1,42 @@
+From 6e95de54372965e1b91ff655a93c91ac2e94de29 Mon Sep 17 00:00:00 2001
+From: Colin Ian King <colin.king@canonical.com>
+Date: Sun, 3 Nov 2019 13:15:38 +0000
+Subject: [PATCH 011/283] net: hns3: remove unused macros
+
+mainline inclusion
+from mainline-v5.5-rc1
+commit a5ec65169c6000bb525b45cb5615dd98356dbf73
+category: cleanup
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EJ0A
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=a5ec65169c6000bb525b45cb5615dd98356dbf73
+
+--------------------------------
+
+The macros HCLGE_MPF_ENBALE and HCLGEVF_MPF_ENBALE are defined but never
+used.  I was going to fix the spelling mistake "ENBALE" -> "ENABLE" but
+found these macros are not used, so they can be removed.
+
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+index 2a84772783ef..7c1bbe626b17 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+@@ -235,8 +235,6 @@ enum hclge_evt_cause {
+ 	HCLGE_VECTOR0_EVENT_OTHER,
+ };
+ 
+-#define HCLGE_MPF_ENBALE 1
+-
+ enum HCLGE_MAC_SPEED {
+ 	HCLGE_MAC_SPEED_UNKNOWN = 0,		/* unknown */
+ 	HCLGE_MAC_SPEED_10M	= 10,		/* 10 Mbps */
+-- 
+2.34.1
+

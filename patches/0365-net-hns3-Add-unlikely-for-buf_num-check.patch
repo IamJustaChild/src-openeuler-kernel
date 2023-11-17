@@ -1,0 +1,73 @@
+From 1c09e1a8da3599ede304788c1af8cb8345d3b634 Mon Sep 17 00:00:00 2001
+From: Peng Li <lipeng321@huawei.com>
+Date: Wed, 19 Sep 2018 18:29:48 +0100
+Subject: [PATCH 004/283] net: hns3: Add unlikely for buf_num check
+
+mainline inclusion
+from mainline-v4.20-rc1
+commit 932d1252aded755bfd6f53183ab6211f711c6435
+category: cleanup
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EJ0A
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=932d1252aded755bfd6f53183ab6211f711c6435
+
+--------------------------------
+
+This patch adds unlikely for buf_num check.
+
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: Salil Mehta <salil.mehta@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 8 ++------
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.h | 7 +++++++
+ 2 files changed, 9 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index 1495e972dc89..b184c3e83e05 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -1282,16 +1282,12 @@ static int hns3_skb_linearize(struct hns3_enet_ring *ring, struct sk_buff *skb,
+ 	 */
+ 	if (skb->len > HNS3_MAX_TSO_SIZE ||
+ 	    (!skb_is_gso(skb) && skb->len > HNS3_MAX_NON_TSO_SIZE)) {
+-		u64_stats_update_begin(&ring->syncp);
+-		ring->stats.hw_limitation++;
+-		u64_stats_update_end(&ring->syncp);
++		hns3_ring_stats_update(ring, hw_limitation);
+ 		return -ENOMEM;
+ 	}
+ 
+ 	if (__skb_linearize(skb)) {
+-		u64_stats_update_begin(&ring->syncp);
+-		ring->stats.sw_err_cnt++;
+-		u64_stats_update_end(&ring->syncp);
++		hns3_ring_stats_update(ring, sw_err_cnt);
+ 		return -ENOMEM;
+ 	}
+ 
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
+index ef4463ae26cf..19f83dfb32aa 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
+@@ -604,6 +604,13 @@ static inline bool hns3_nic_resetting(struct net_device *netdev)
+ 
+ #define hns3_buf_size(_ring) ((_ring)->buf_size)
+ 
++#define hns3_ring_stats_update(ring, cnt) do { \
++	typeof(ring) (tmp) = (ring); \
++	u64_stats_update_begin(&(tmp)->syncp); \
++	((tmp)->stats.cnt)++; \
++	u64_stats_update_end(&(tmp)->syncp); \
++} while (0) \
++
+ static inline unsigned int hns3_page_order(struct hns3_enet_ring *ring)
+ {
+ #if (PAGE_SIZE < 8192)
+-- 
+2.34.1
+

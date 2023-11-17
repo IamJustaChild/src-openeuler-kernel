@@ -1,0 +1,697 @@
+From c1ae2604ddee1c0aab234155abcf65a3ca50ab62 Mon Sep 17 00:00:00 2001
+From: Jiaran Zhang <zhangjiaran@huawei.com>
+Date: Sat, 24 Jul 2021 15:44:31 +0800
+Subject: [PATCH 082/283] net: hns3: refactor dev capability and dev spec of
+ debugfs
+
+mainline inclusion
+from mainline-v5.14-rc1
+commit c929bc2ac36efa9344e6c8b8f55f6b8eeebb4393
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMUR
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=c929bc2ac36efa9344e6c8b8f55f6b8eeebb4393
+
+----------------------------------------------------------------------
+
+Currently, the debugfs command for dev capability and dev spec
+are implemented by "echo xxxx > cmd", and record the information
+in dmesg. It's unnecessary and heavy. To improve it, create a
+single file "dev_info" for them, and query them by command
+"cat dev_info", return the result to userspace, rather than
+record in dmesg.
+
+The display style is below:
+$cat dev_info
+dev capability:
+support FD: yes
+support GRO: yes
+support FEC: yes
+support UDP GSO: no
+support PTP: no
+support INT QL: no
+support HW TX csum: no
+support UDP tunnel csum: no
+support TX push: no
+support imp-controlled PHY: no
+support rxd advanced layout: no
+
+dev spec:
+MAC entry num: 0
+MNG entry num: 0
+MAX non tso bd num: 8
+RSS ind tbl size: 512
+RSS key size: 40
+RSS size: 1
+Allocated RSS size: 0
+Task queue pairs numbers: 1
+RX buffer length: 2048
+Desc num per TX queue: 1024
+Desc num per RX queue: 1024
+Total number of enabled TCs: 1
+MAX INT QL: 0
+MAX INT GL: 8160
+MAX TM RATE: 100000
+MAX QSET number: 1024
+
+Signed-off-by: Jiaran Zhang <zhangjiaran@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hnae3.h
+	drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
+	drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.h
+---
+ drivers/net/ethernet/hisilicon/hns3/hnae3.h   | 11 +++
+ .../ethernet/hisilicon/hns3/hns3_debugfs.c    | 92 +++++++++++++++++--
+ .../net/ethernet/hisilicon/hns3/hns3_enet.h   |  1 -
+ .../ethernet/hisilicon/hns3/hns3_ethtool.c    | 14 +--
+ .../hisilicon/hns3/hns3pf/hclge_cmd.h         |  3 +-
+ .../hisilicon/hns3/hns3pf/hclge_debugfs.c     | 70 +++++++-------
+ .../hisilicon/hns3/hns3pf/hclge_main.c        |  8 ++
+ .../hisilicon/hns3/hns3pf/hclge_main.h        |  2 +
+ .../ethernet/hisilicon/hns3/hns3pf/hclge_tm.c | 27 +++---
+ .../ethernet/hisilicon/hns3/hns3pf/hclge_tm.h |  2 +
+ .../hisilicon/hns3/hns3vf/hclgevf_cmd.h       |  8 ++
+ .../hisilicon/hns3/hns3vf/hclgevf_main.c      |  4 +
+ 12 files changed, 180 insertions(+), 62 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3.h b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+index 26286e76877c..6b2969e1346a 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+@@ -255,6 +255,7 @@ enum hnae3_port_base_vlan_state {
+ };
+ 
+ enum hnae3_dbg_cmd {
++	HNAE3_DBG_CMD_TM_NODES,
+ 	HNAE3_DBG_CMD_TM_PRI,
+ 	HNAE3_DBG_CMD_TM_QSET,
+ 	HNAE3_DBG_CMD_TM_MAP,
+@@ -263,7 +264,9 @@ enum hnae3_dbg_cmd {
+ 	HNAE3_DBG_CMD_TC_SCH_INFO,
+ 	HNAE3_DBG_CMD_QOS_PAUSE_CFG,
+ 	HNAE3_DBG_CMD_QOS_PRI_MAP,
++	HNAE3_DBG_CMD_QOS_DSCP_MAP,
+ 	HNAE3_DBG_CMD_QOS_BUF_CFG,
++	HNAE3_DBG_CMD_DEV_INFO,
+ 	HNAE3_DBG_CMD_TX_BD,
+ 	HNAE3_DBG_CMD_RX_BD,
+ 	HNAE3_DBG_CMD_MAC_UC,
+@@ -271,6 +274,7 @@ enum hnae3_dbg_cmd {
+ 	HNAE3_DBG_CMD_MAC_TBL,
+ 	HNAE3_DBG_CMD_MNG_TBL,
+ 	HNAE3_DBG_CMD_LOOPBACK,
++	HNAE3_DBG_CMD_PTP_INFO,
+ 	HNAE3_DBG_CMD_INTERRUPT_INFO,
+ 	HNAE3_DBG_CMD_RESET_INFO,
+ 	HNAE3_DBG_CMD_IMP_INFO,
+@@ -291,9 +295,13 @@ enum hnae3_dbg_cmd {
+ 	HNAE3_DBG_CMD_RX_QUEUE_INFO,
+ 	HNAE3_DBG_CMD_TX_QUEUE_INFO,
+ 	HNAE3_DBG_CMD_FD_TCAM,
++	HNAE3_DBG_CMD_FD_COUNTER,
+ 	HNAE3_DBG_CMD_MAC_TNL_STATUS,
+ 	HNAE3_DBG_CMD_SERV_INFO,
+ 	HNAE3_DBG_CMD_UMV_INFO,
++	HNAE3_DBG_CMD_PAGE_POOL_INFO,
++	HNAE3_DBG_CMD_COAL_INFO,
++	HNAE3_DBG_CMD_WOL_INFO,
+ 	HNAE3_DBG_CMD_UNKNOWN,
+ };
+ 
+@@ -333,10 +341,13 @@ struct hnae3_ring_chain_node {
+ struct hnae3_dev_specs {
+ 	u32 mac_entry_num; /* number of mac-vlan table entry */
+ 	u32 mng_entry_num; /* number of manager table entry */
++	u32 max_tm_rate;
+ 	u16 rss_ind_tbl_size;
+ 	u16 rss_key_size;
+ 	u16 int_ql_max; /* max value of interrupt coalesce based on INT_QL */
++	u16 max_int_gl; /* max value of interrupt coalesce based on INT_GL */
+ 	u8 max_non_tso_bd_num; /* max BD number of one non-TSO packet */
++	u16 max_qset_num;
+ };
+ 
+ struct hnae3_client_ops {
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c b/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
+index 1d86debdc09e..ad7015b3ec80 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
+@@ -134,13 +134,6 @@ static struct hns3_dbg_cmd_info hns3_dbg_cmd[] = {
+ 		.buf_len = HNS3_DBG_READ_LEN,
+ 		.init = hns3_dbg_common_file_init,
+ 	},
+-	{
+-		.name = "mac_tbl",
+-		.cmd = HNAE3_DBG_CMD_MAC_TBL,
+-		.dentry = HNS3_DBG_DENTRY_COMMON,
+-		.buf_len = HNS3_DBG_READ_LEN_1MB,
+-		.init = hns3_dbg_common_file_init,
+-	},
+ 	{
+ 		.name = "mng_tbl",
+ 		.cmd = HNAE3_DBG_CMD_MNG_TBL,
+@@ -316,6 +309,13 @@ static struct hns3_dbg_cmd_info hns3_dbg_cmd[] = {
+ 		.buf_len = HNS3_DBG_READ_LEN,
+ 		.init = hns3_dbg_common_file_init,
+ 	},
++	{
++		.name = "dev_info",
++		.cmd = HNAE3_DBG_CMD_DEV_INFO,
++		.dentry = HNS3_DBG_DENTRY_COMMON,
++		.buf_len = HNS3_DBG_READ_LEN,
++		.init = hns3_dbg_common_file_init,
++	},
+ };
+ 
+ static struct hns3_dbg_cap_info hns3_dbg_cap[] = {
+@@ -659,6 +659,80 @@ static void hns3_dump_rx_bd_info(struct hns3_nic_priv *priv,
+ 	sprintf(result[j++], "NA");
+ }
+ 
++static void
++hns3_dbg_dev_caps(struct hnae3_handle *h, char *buf, int len, int *pos)
++{
++	struct hnae3_ae_dev *ae_dev = pci_get_drvdata(h->pdev);
++	static const char * const str[] = {"no", "yes"};
++	unsigned long *caps = ae_dev->caps;
++	u32 i, state;
++
++	*pos += scnprintf(buf + *pos, len - *pos, "dev capability:\n");
++
++	for (i = 0; i < ARRAY_SIZE(hns3_dbg_cap); i++) {
++		state = test_bit(hns3_dbg_cap[i].cap_bit, caps);
++		*pos += scnprintf(buf + *pos, len - *pos, "%s: %s\n",
++				  hns3_dbg_cap[i].name, str[state]);
++	}
++
++	*pos += scnprintf(buf + *pos, len - *pos, "\n");
++}
++
++static void
++hns3_dbg_dev_specs(struct hnae3_handle *h, char *buf, int len, int *pos)
++{
++	struct hnae3_ae_dev *ae_dev = pci_get_drvdata(h->pdev);
++	struct hnae3_dev_specs *dev_specs = &ae_dev->dev_specs;
++	struct hnae3_knic_private_info *kinfo = &h->kinfo;
++
++	*pos += scnprintf(buf + *pos, len - *pos, "dev_spec:\n");
++	*pos += scnprintf(buf + *pos, len - *pos, "MAC entry num: %u\n",
++			  dev_specs->mac_entry_num);
++	*pos += scnprintf(buf + *pos, len - *pos, "MNG entry num: %u\n",
++			  dev_specs->mng_entry_num);
++	*pos += scnprintf(buf + *pos, len - *pos, "MAX non tso bd num: %u\n",
++			  dev_specs->max_non_tso_bd_num);
++	*pos += scnprintf(buf + *pos, len - *pos, "RSS ind tbl size: %u\n",
++			  dev_specs->rss_ind_tbl_size);
++	*pos += scnprintf(buf + *pos, len - *pos, "RSS key size: %u\n",
++			  dev_specs->rss_key_size);
++	*pos += scnprintf(buf + *pos, len - *pos, "RSS size: %u\n",
++			  kinfo->rss_size);
++	*pos += scnprintf(buf + *pos, len - *pos, "Allocated RSS size: %u\n",
++			  kinfo->req_rss_size);
++	*pos += scnprintf(buf + *pos, len - *pos,
++			  "Task queue pairs numbers: %u\n",
++			  kinfo->num_tqps);
++	*pos += scnprintf(buf + *pos, len - *pos, "RX buffer length: %u\n",
++			  kinfo->rx_buf_len);
++	*pos += scnprintf(buf + *pos, len - *pos, "Desc num per TX queue: %u\n",
++			  kinfo->num_tx_desc);
++	*pos += scnprintf(buf + *pos, len - *pos, "Desc num per RX queue: %u\n",
++			  kinfo->num_rx_desc);
++	*pos += scnprintf(buf + *pos, len - *pos,
++			  "Total number of enabled TCs: %u\n",
++			  kinfo->tc_info.num_tc);
++	*pos += scnprintf(buf + *pos, len - *pos, "MAX INT QL: %u\n",
++			  dev_specs->int_ql_max);
++	*pos += scnprintf(buf + *pos, len - *pos, "MAX INT GL: %u\n",
++			  dev_specs->max_int_gl);
++	*pos += scnprintf(buf + *pos, len - *pos, "MAX TM RATE: %u\n",
++			  dev_specs->max_tm_rate);
++	*pos += scnprintf(buf + *pos, len - *pos, "MAX QSET number: %u\n",
++			  dev_specs->max_qset_num);
++}
++
++static int hns3_dbg_dev_info(struct hnae3_handle *h, char *buf, int len)
++{
++	int pos = 0;
++
++	hns3_dbg_dev_caps(h, buf, len, &pos);
++
++	hns3_dbg_dev_specs(h, buf, len, &pos);
++
++	return 0;
++}
++
+ static int hns3_dbg_rx_bd_info(struct hns3_dbg_data *d, char *buf, int len)
+ {
+ 	char data_str[ARRAY_SIZE(rx_bd_info_items)][HNS3_DBG_DATA_STR_LEN];
+@@ -810,6 +884,10 @@ static const struct hns3_dbg_func hns3_dbg_cmd_func[] = {
+ 		.cmd = HNAE3_DBG_CMD_TX_QUEUE_INFO,
+ 		.dbg_dump = hns3_dbg_tx_queue_info,
+ 	},
++	{
++		.cmd = HNAE3_DBG_CMD_DEV_INFO,
++		.dbg_dump = hns3_dbg_dev_info,
++	},
+ };
+ 
+ static int hns3_dbg_read_cmd(struct hns3_dbg_data *dbg_data,
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
+index c2b465415e8c..85002d1c1fb7 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
+@@ -440,7 +440,6 @@ enum hns3_flow_level_range {
+ 	HNS3_FLOW_ULTRA = 3,
+ };
+ 
+-#define HNS3_INT_GL_MAX			0x1FE0
+ #define HNS3_INT_GL_50K			0x0014
+ #define HNS3_INT_GL_20K			0x0032
+ #define HNS3_INT_GL_18K			0x0036
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+index 4d982cb80f8b..ea26a3fce66b 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+@@ -1141,19 +1141,21 @@ static int hns3_get_coalesce(struct net_device *netdev,
+ static int hns3_check_gl_coalesce_para(struct net_device *netdev,
+ 				       struct ethtool_coalesce *cmd)
+ {
++	struct hnae3_handle *handle = hns3_get_handle(netdev);
++	struct hnae3_ae_dev *ae_dev = pci_get_drvdata(handle->pdev);
+ 	u32 rx_gl, tx_gl;
+ 
+-	if (cmd->rx_coalesce_usecs > HNS3_INT_GL_MAX) {
++	if (cmd->rx_coalesce_usecs > ae_dev->dev_specs.max_int_gl) {
+ 		netdev_err(netdev,
+-			   "Invalid rx-usecs value, rx-usecs range is 0-%d\n",
+-			   HNS3_INT_GL_MAX);
++			   "invalid rx-usecs value, rx-usecs range is 0-%u\n",
++			   ae_dev->dev_specs.max_int_gl);
+ 		return -EINVAL;
+ 	}
+ 
+-	if (cmd->tx_coalesce_usecs > HNS3_INT_GL_MAX) {
++	if (cmd->tx_coalesce_usecs > ae_dev->dev_specs.max_int_gl) {
+ 		netdev_err(netdev,
+-			   "Invalid tx-usecs value, tx-usecs range is 0-%d\n",
+-			   HNS3_INT_GL_MAX);
++			   "invalid tx-usecs value, tx-usecs range is 0-%u\n",
++			   ae_dev->dev_specs.max_int_gl);
+ 		return -EINVAL;
+ 	}
+ 
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+index 022e58235a58..d28546b5af0b 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+@@ -1148,7 +1148,8 @@ struct hclge_dev_specs_0_cmd {
+ 	__le16 rss_key_size;
+ 	__le16 int_ql_max;
+ 	u8 max_non_tso_bd_num;
+-	u8 rsv1[5];
++	u8 rsv1;
++	__le32 max_tm_rate;
+ };
+ 
+ #define HCLGE_DEF_MAX_INT_GL		0x1FE0U
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_debugfs.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_debugfs.c
+index c65abb2c2b09..0517dedae55f 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_debugfs.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_debugfs.c
+@@ -1324,16 +1324,16 @@ static int hclge_dbg_dump_mac_table(struct hclge_dev *hdev, char *buf, int len)
+ 	int j;
+ 
+ 	mc_tbl_len = sizeof(struct hclge_mac_vlan_idx_rd_mc) *
+-		     HCLGE_DBG_MAC_TBL_MAX;
++						HCLGE_DBG_MAC_TBL_MAX;
+ 	mc_mac_tbl = kzalloc(mc_tbl_len, GFP_KERNEL);
+ 	if (!mc_mac_tbl)
+ 		return -ENOMEM;
+ 
+ 	pos += scnprintf(buf + pos, len - pos, "Unicast tab:\n");
+ 	pos += scnprintf(buf + pos, len - pos,
+-			 " index  mac_addr            vlan_id  VMDq1  ");
++					 " index  mac_addr            vlan_id  VMDq1  ");
+ 	pos += scnprintf(buf + pos, len - pos,
+-			 "U_M  mac_en  in_port  E_type  E_Port\n");
++					 "U_M  mac_en  in_port  E_type  E_Port\n");
+ 
+ 	mc_tbl_idx = 0;
+ 	for (i = 0; i < HCLGE_DBG_MAC_TBL_MAX; i++) {
+@@ -1342,13 +1342,13 @@ static int hclge_dbg_dump_mac_table(struct hclge_dev *hdev, char *buf, int len)
+ 			msleep(HCLGE_DBG_PAUSE_TIME);
+ 
+ 		hclge_cmd_setup_basic_desc(&desc[0], HCLGE_PPP_MAC_VLAN_IDX_RD,
+-					   true);
++								true);
+ 		desc[0].flag |= cpu_to_le16(HCLGE_CMD_FLAG_NEXT);
+ 		hclge_cmd_setup_basic_desc(&desc[1], HCLGE_PPP_MAC_VLAN_IDX_RD,
+-					   true);
++								   true);
+ 		desc[1].flag |= cpu_to_le16(HCLGE_CMD_FLAG_NEXT);
+ 		hclge_cmd_setup_basic_desc(&desc[2], HCLGE_PPP_MAC_VLAN_IDX_RD,
+-					   true);
++								   true);
+ 
+ 		mac_rd_cmd = (struct hclge_mac_vlan_idx_rd_cmd *)desc[0].data;
+ 
+@@ -1356,7 +1356,7 @@ static int hclge_dbg_dump_mac_table(struct hclge_dev *hdev, char *buf, int len)
+ 		ret = hclge_cmd_send(&hdev->hw, desc, 3);
+ 		if (ret) {
+ 			dev_err(&hdev->pdev->dev,
+-				"failed to dump mac table, ret = %d\n", ret);
++				    "failed to dump mac table, ret = %d\n", ret);
+ 			kfree(mc_mac_tbl);
+ 			return ret;
+ 		}
+@@ -1367,58 +1367,58 @@ static int hclge_dbg_dump_mac_table(struct hclge_dev *hdev, char *buf, int len)
+ 		if (mac_rd_cmd->entry_type == HCLGE_DBG_MAC_MC_TBL) {
+ 			mc_mac_tbl[mc_tbl_idx].index = i;
+ 			memcpy(mc_mac_tbl[mc_tbl_idx].mac_addr,
+-			       mac_rd_cmd->mac_addr, ETH_ALEN);
++				   mac_rd_cmd->mac_addr, ETH_ALEN);
+ 			memcpy(mc_mac_tbl[mc_tbl_idx].mg_vf_mb,
+-			       desc[1].data, 24);
++				   desc[1].data, 24);
+ 			memcpy(&mc_mac_tbl[mc_tbl_idx].mg_vf_mb[24],
+-			       desc[2].data, 8);
++				   desc[2].data, 8);
+ 			mc_tbl_idx++;
+ 
+ 			continue;
+ 		}
+ 
+ 		pos += scnprintf(buf + pos, len - pos, " %04u   %pM  ",
+-				 i, mac_rd_cmd->mac_addr);
++						 i, mac_rd_cmd->mac_addr);
+ 
+ 		pos += scnprintf(buf + pos, len - pos,
+-				 " %04u     %u      %u    %u       %u        ",
+-				 le16_to_cpu(mac_rd_cmd->vlan_tag),
+-				 mac_rd_cmd->entry_type &
+-				 HCLGE_DBG_MAC_TBL_EN_TYPE,
+-				 mac_rd_cmd->entry_type &
+-				 HCLGE_DBG_MAC_TBL_MC_TYPE,
+-				 mac_rd_cmd->mc_mac_en &
+-				 HCLGE_DBG_MAC_TBL_MAC_EN,
+-				 le16_to_cpu(mac_rd_cmd->port) &
+-				 HCLGE_DBG_MAC_TBL_IN_PORT);
++						 " %04u     %u      %u    %u       %u        ",
++						 le16_to_cpu(mac_rd_cmd->vlan_tag),
++						 mac_rd_cmd->entry_type &
++						 HCLGE_DBG_MAC_TBL_EN_TYPE,
++						 mac_rd_cmd->entry_type &
++						 HCLGE_DBG_MAC_TBL_MC_TYPE,
++						 mac_rd_cmd->mc_mac_en &
++						 HCLGE_DBG_MAC_TBL_MAC_EN,
++						 le16_to_cpu(mac_rd_cmd->port) &
++						 HCLGE_DBG_MAC_TBL_IN_PORT);
+ 
+ 		pos += scnprintf(buf + pos, len - pos,
+-				 "%lu       %04x\n",
+-				 le16_to_cpu(mac_rd_cmd->egress_port) &
+-				 HCLGE_DBG_MAC_TBL_E_PORT_B,
+-				 le16_to_cpu(mac_rd_cmd->egress_port) &
+-				 HCLGE_DBG_MAC_TBL_E_PORT);
++						 "%lu       %04x\n",
++						 le16_to_cpu(mac_rd_cmd->egress_port) &
++						 HCLGE_DBG_MAC_TBL_E_PORT_B,
++						 le16_to_cpu(mac_rd_cmd->egress_port) &
++						 HCLGE_DBG_MAC_TBL_E_PORT);
+ 	}
+ 
+ 	if (mc_tbl_idx > 0) {
+ 		pos += scnprintf(buf + pos, len - pos,
+-				 "Multicast tab: entry number = %u\n",
+-				 mc_tbl_idx);
++						 "Multicast tab: entry number = %u\n",
++						 mc_tbl_idx);
+ 		pos += scnprintf(buf + pos, len - pos,
+-				 " index  mac_addr           UM_MC_RDATA\n");
++						 " index  mac_addr           UM_MC_RDATA\n");
+ 	}
+ 
+ 	for (i = 0; i < mc_tbl_idx; i++) {
+ 		pos += scnprintf(buf + pos, len - pos, " %04u   %pM  ",
+-				 mc_mac_tbl[i].index, mc_mac_tbl[i].mac_addr);
++						 mc_mac_tbl[i].index, mc_mac_tbl[i].mac_addr);
+ 
+ 		for (j = 31; j >= 3; j -= 4)
+ 			pos += scnprintf(buf + pos, len - pos,
+-					 "%02x%02x%02x%02x ",
+-					 mc_mac_tbl[i].mg_vf_mb[j],
+-					 mc_mac_tbl[i].mg_vf_mb[j - 1],
+-					 mc_mac_tbl[i].mg_vf_mb[j - 2],
+-					 mc_mac_tbl[i].mg_vf_mb[j - 3]);
++							 "%02x%02x%02x%02x ",
++							 mc_mac_tbl[i].mg_vf_mb[j],
++							 mc_mac_tbl[i].mg_vf_mb[j - 1],
++							 mc_mac_tbl[i].mg_vf_mb[j - 2],
++							 mc_mac_tbl[i].mg_vf_mb[j - 3]);
+ 
+ 		pos += scnprintf(buf + pos, len - pos, "\n");
+ 	}
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index f81c6f8bb030..358d41ab9bfc 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -1360,6 +1360,9 @@ static void hclge_set_default_dev_specs(struct hclge_dev *hdev)
+ 	ae_dev->dev_specs.max_non_tso_bd_num = HCLGE_MAX_NON_TSO_BD_NUM;
+ 	ae_dev->dev_specs.rss_ind_tbl_size = HCLGE_RSS_IND_TBL_SIZE;
+ 	ae_dev->dev_specs.rss_key_size = HCLGE_RSS_KEY_SIZE;
++	ae_dev->dev_specs.max_qset_num = HCLGE_MAX_QSET_NUM;
++	ae_dev->dev_specs.max_tm_rate = HCLGE_ETHER_MAX_RATE;
++	ae_dev->dev_specs.max_int_gl = HCLGE_DEF_MAX_INT_GL;
+ }
+ 
+ static void hclge_parse_dev_specs(struct hclge_dev *hdev,
+@@ -1367,14 +1370,19 @@ static void hclge_parse_dev_specs(struct hclge_dev *hdev,
+ {
+ 	struct hnae3_ae_dev *ae_dev = pci_get_drvdata(hdev->pdev);
+ 	struct hclge_dev_specs_0_cmd *req0;
++	struct hclge_dev_specs_1_cmd *req1;
+ 
+ 	req0 = (struct hclge_dev_specs_0_cmd *)desc[0].data;
++	req1 = (struct hclge_dev_specs_1_cmd *)desc[1].data;
+ 
+ 	ae_dev->dev_specs.max_non_tso_bd_num = req0->max_non_tso_bd_num;
+ 	ae_dev->dev_specs.rss_ind_tbl_size =
+ 		le16_to_cpu(req0->rss_ind_tbl_size);
++	ae_dev->dev_specs.max_qset_num = le16_to_cpu(req1->max_qset_num);
+ 	ae_dev->dev_specs.int_ql_max = le16_to_cpu(req0->int_ql_max);
+ 	ae_dev->dev_specs.rss_key_size = le16_to_cpu(req0->rss_key_size);
++	ae_dev->dev_specs.max_tm_rate = le32_to_cpu(req0->max_tm_rate);
++	ae_dev->dev_specs.max_int_gl = le16_to_cpu(req1->max_int_gl);
+ }
+ 
+ static int hclge_query_dev_specs(struct hclge_dev *hdev)
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+index 1a262a247701..081f03e8eae5 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+@@ -145,6 +145,8 @@
+ /* Factor used to calculate offset and bitmap of VF num */
+ #define HCLGE_VF_NUM_PER_CMD           64
+ 
++#define HCLGE_MAX_QSET_NUM             1024
++
+ #define HCLGE_DBG_RESET_INFO_LEN	1024
+ 
+ enum HLCGE_PORT_TYPE {
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
+index c92d084bb798..434e6dfca032 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
+@@ -23,8 +23,6 @@ enum hclge_shaper_level {
+ #define HCLGE_SHAPER_BS_U_DEF	5
+ #define HCLGE_SHAPER_BS_S_DEF	20
+ 
+-#define HCLGE_ETHER_MAX_RATE	100000
+-
+ /* hclge_shaper_para_calc: calculate ir parameter for the shaper
+  * @ir: Rate to be config, its unit is Mbps
+  * @shaper_level: the shaper level. eg: port, pg, priority, queueset
+@@ -40,7 +38,8 @@ enum hclge_shaper_level {
+  * @return: 0: calculate sucessful, negative: fail
+  */
+ static int hclge_shaper_para_calc(u32 ir, u8 shaper_level,
+-				  struct hclge_shaper_ir_para *ir_para)
++				  struct hclge_shaper_ir_para *ir_para,
++				  u32 max_tm_rate)
+ {
+ #define DEFAULT_SHAPER_IR_B	126
+ #define DIVISOR_CLK		(1000 * 8)
+@@ -59,7 +58,7 @@ static int hclge_shaper_para_calc(u32 ir, u8 shaper_level,
+ 
+ 	/* Calc tick */
+ 	if (shaper_level >= HCLGE_SHAPER_LVL_CNT ||
+-	    ir > HCLGE_ETHER_MAX_RATE)
++	    ir > max_tm_rate)
+ 		return -EINVAL;
+ 
+ 	tick = tick_array[shaper_level];
+@@ -408,7 +407,7 @@ static int hclge_tm_port_shaper_cfg(struct hclge_dev *hdev)
+ 	int ret;
+ 
+ 	ret = hclge_shaper_para_calc(hdev->hw.mac.speed, HCLGE_SHAPER_LVL_PORT,
+-					&ir_para);
++					&ir_para, hdev->ae_dev->dev_specs.max_tm_rate);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -524,10 +523,10 @@ int hclge_tm_qs_shaper_cfg(struct hclge_vport *vport, int max_tx_rate)
+ 	int ret, i;
+ 
+ 	if (!max_tx_rate)
+-		max_tx_rate = HCLGE_ETHER_MAX_RATE;
++		max_tx_rate = hdev->ae_dev->dev_specs.max_tm_rate;
+ 
+ 	ret = hclge_shaper_para_calc(max_tx_rate, HCLGE_SHAPER_LVL_QSET,
+-				     &ir_para);
++				     &ir_para, hdev->ae_dev->dev_specs.max_tm_rate);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -701,7 +700,8 @@ static void hclge_tm_pg_info_init(struct hclge_dev *hdev)
+ 		hdev->tm_info.pg_info[i].pg_id = i;
+ 		hdev->tm_info.pg_info[i].pg_sch_mode = HCLGE_SCH_MODE_DWRR;
+ 
+-		hdev->tm_info.pg_info[i].bw_limit = HCLGE_ETHER_MAX_RATE;
++		hdev->tm_info.pg_info[i].bw_limit =
++					 hdev->ae_dev->dev_specs.max_tm_rate;
+ 
+ 		if (i != 0)
+ 			continue;
+@@ -764,6 +764,7 @@ static int hclge_tm_pg_to_pri_map(struct hclge_dev *hdev)
+ 
+ static int hclge_tm_pg_shaper_cfg(struct hclge_dev *hdev)
+ {
++	u32 max_tm_rate = hdev->ae_dev->dev_specs.max_tm_rate;
+ 	struct hclge_shaper_ir_para ir_para;
+ 	u32 shaper_para;
+ 	int ret;
+@@ -779,7 +780,7 @@ static int hclge_tm_pg_shaper_cfg(struct hclge_dev *hdev)
+ 		ret = hclge_shaper_para_calc(
+ 					hdev->tm_info.pg_info[i].bw_limit,
+ 					HCLGE_SHAPER_LVL_PG,
+-					&ir_para);
++					&ir_para, max_tm_rate);
+ 		if (ret)
+ 			return ret;
+ 
+@@ -897,6 +898,7 @@ static int hclge_tm_pri_q_qs_cfg(struct hclge_dev *hdev)
+ 
+ static int hclge_tm_pri_tc_base_shaper_cfg(struct hclge_dev *hdev)
+ {
++	u32 max_tm_rate = hdev->ae_dev->dev_specs.max_tm_rate;
+ 	struct hclge_shaper_ir_para ir_para;
+ 	u32 shaper_para;
+ 	int ret;
+@@ -906,7 +908,7 @@ static int hclge_tm_pri_tc_base_shaper_cfg(struct hclge_dev *hdev)
+ 		ret = hclge_shaper_para_calc(
+ 					hdev->tm_info.tc_info[i].bw_limit,
+ 					HCLGE_SHAPER_LVL_PRI,
+-					&ir_para);
++					&ir_para, max_tm_rate);
+ 		if (ret)
+ 			return ret;
+ 
+@@ -940,7 +942,7 @@ static int hclge_tm_pri_vnet_base_shaper_pri_cfg(struct hclge_vport *vport)
+ 	int ret;
+ 
+ 	ret = hclge_shaper_para_calc(vport->bw_limit, HCLGE_SHAPER_LVL_VF,
+-				     &ir_para);
++				     &ir_para, hdev->ae_dev->dev_specs.max_tm_rate);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -969,6 +971,7 @@ static int hclge_tm_pri_vnet_base_shaper_qs_cfg(struct hclge_vport *vport)
+ 	struct hnae3_knic_private_info *kinfo = &vport->nic.kinfo;
+ 	struct hclge_dev *hdev = vport->back;
+ 	struct hclge_shaper_ir_para ir_para;
++	u32 max_tm_rate = hdev->ae_dev->dev_specs.max_tm_rate;
+ 	u32 i;
+ 	int ret;
+ 
+@@ -976,7 +979,7 @@ static int hclge_tm_pri_vnet_base_shaper_qs_cfg(struct hclge_vport *vport)
+ 		ret = hclge_shaper_para_calc(
+ 					hdev->tm_info.tc_info[i].bw_limit,
+ 					HCLGE_SHAPER_LVL_QSET,
+-					&ir_para);
++					&ir_para, max_tm_rate);
+ 		if (ret)
+ 			return ret;
+ 	}
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h
+index f4fb9c7e9c5f..8abb89beaae1 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h
+@@ -19,6 +19,8 @@
+ #define HCLGE_TM_TX_SCHD_DWRR_MSK	BIT(0)
+ #define HCLGE_TM_TX_SCHD_SP_MSK		0xFE
+ 
++#define HCLGE_ETHER_MAX_RATE   100000
++
+ #define HCLGE_TM_PF_MAX_PRI_NUM		8
+ #define HCLGE_TM_PF_MAX_QSET_NUM	8
+ 
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.h
+index 942a1d7406a0..2e857063a6b1 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.h
+@@ -287,6 +287,14 @@ struct hclgevf_dev_specs_0_cmd {
+ 	u8 rsv1[5];
+ };
+ 
++#define HCLGEVF_DEF_MAX_INT_GL         0x1FE0U
++
++struct hclgevf_dev_specs_1_cmd {
++       __le32 rsv0;
++       __le16 max_int_gl;
++       u8 rsv1[18];
++};
++
+ static inline void hclgevf_write_reg(void __iomem *base, u32 reg, u32 value)
+ {
+ 	writel(value, base + reg);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+index 74d2aef34315..db292ca270b8 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+@@ -3043,6 +3043,7 @@ static void hclgevf_set_default_dev_specs(struct hclgevf_dev *hdev)
+ 					HCLGEVF_MAX_NON_TSO_BD_NUM;
+ 	ae_dev->dev_specs.rss_ind_tbl_size = HCLGEVF_RSS_IND_TBL_SIZE;
+ 	ae_dev->dev_specs.rss_key_size = HCLGEVF_RSS_KEY_SIZE;
++	ae_dev->dev_specs.max_int_gl = HCLGEVF_DEF_MAX_INT_GL;
+ }
+ 
+ static void hclgevf_parse_dev_specs(struct hclgevf_dev *hdev,
+@@ -3050,14 +3051,17 @@ static void hclgevf_parse_dev_specs(struct hclgevf_dev *hdev,
+ {
+ 	struct hnae3_ae_dev *ae_dev = pci_get_drvdata(hdev->pdev);
+ 	struct hclgevf_dev_specs_0_cmd *req0;
++	struct hclgevf_dev_specs_1_cmd *req1;
+ 
+ 	req0 = (struct hclgevf_dev_specs_0_cmd *)desc[0].data;
++	req1 = (struct hclgevf_dev_specs_1_cmd *)desc[1].data;
+ 
+ 	ae_dev->dev_specs.max_non_tso_bd_num = req0->max_non_tso_bd_num;
+ 	ae_dev->dev_specs.rss_ind_tbl_size =
+ 					le16_to_cpu(req0->rss_ind_tbl_size);
+ 	ae_dev->dev_specs.int_ql_max = le16_to_cpu(req0->int_ql_max);
+ 	ae_dev->dev_specs.rss_key_size = le16_to_cpu(req0->rss_key_size);
++	ae_dev->dev_specs.max_int_gl = le16_to_cpu(req1->max_int_gl);
+ }
+ 
+ static int hclgevf_query_dev_specs(struct hclgevf_dev *hdev)
+-- 
+2.34.1
+

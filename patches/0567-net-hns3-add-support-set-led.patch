@@ -1,0 +1,191 @@
+From 94fd25546026be2603ecfe063433182d13b145bf Mon Sep 17 00:00:00 2001
+From: shaojijie <shaojijie@huawei.com>
+Date: Sun, 23 Apr 2023 10:19:24 +0800
+Subject: [PATCH 206/283] net: hns3: add support set led
+
+driver inclusion
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN3D
+CVE: NA
+
+----------------------------------------------------------------------
+
+The patch supports the configuration of the position indicator and
+error indicator modes.
+
+Signed-off-by: shaojijie <shaojijie@huawei.com>
+Signed-off-by: Jiantao Xiao <xiaojiantao1@h-partners.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ .../net/ethernet/hisilicon/hns3/hnae3_ext.h   | 13 +++++
+ .../net/ethernet/hisilicon/hns3/hns3_ext.c    | 20 +++++++
+ .../net/ethernet/hisilicon/hns3/hns3_ext.h    |  3 ++
+ .../hisilicon/hns3/hns3pf/hclge_ext.c         | 52 +++++++++++++++++++
+ .../hisilicon/hns3/hns3pf/hclge_ext.h         | 10 ++++
+ 5 files changed, 98 insertions(+)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h b/drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h
+index 36eff4b0a228..6b1b5c630260 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h
+@@ -48,6 +48,19 @@ enum hnae3_ext_opcode {
+ 	HNAE3_EXT_OPC_GET_PORT_FAULT_STATUS,
+ 	HNAE3_EXT_OPC_GET_PORT_TYPE,
+ 	HNAE3_EXT_OPC_SET_MAC_STATE,
++	HNAE3_EXT_OPC_SET_LED,
++	HNAE3_EXT_OPC_GET_LED_SIGNAL,
++};
++
++struct hnae3_led_state_para {
++	u32 type;
++	u32 status;
++};
++
++struct hnae3_lamp_signal {
++	u8 error;
++	u8 locate;
++	u8 activity;
+ };
+ 
+ struct hnae3_pfc_storm_para {
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
+index da1473cbf42b..64ad9be4ec4f 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
+@@ -410,3 +410,23 @@ int nic_set_mac_state(struct net_device *ndev, int enable)
+ 				  &enable, sizeof(enable));
+ }
+ EXPORT_SYMBOL(nic_set_mac_state);
++
++int nic_set_led(struct net_device *ndev, int type, int status)
++{
++	struct hnae3_led_state_para para;
++
++	para.status = status;
++	para.type = type;
++
++	return nic_invoke_pri_ops(ndev, HNAE3_EXT_OPC_SET_LED,
++				  &para, sizeof(para));
++}
++EXPORT_SYMBOL(nic_set_led);
++
++int nic_get_led_signal(struct net_device *ndev,
++		       struct hnae3_lamp_signal *signal)
++{
++	return nic_invoke_pri_ops(ndev, HNAE3_EXT_OPC_GET_LED_SIGNAL,
++				  signal, sizeof(*signal));
++}
++EXPORT_SYMBOL(nic_get_led_signal);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+index 4c57ddb011c3..f47c05c2c660 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+@@ -55,4 +55,7 @@ int nic_get_port_fault_status(struct net_device *ndev,
+ 			      u32 fault_type, u32 *status);
+ int nic_get_port_wire_type(struct net_device *ndev, u32 *wire_type);
+ int nic_set_mac_state(struct net_device *ndev, int enable);
++int nic_set_led(struct net_device *ndev, int type, int status);
++int nic_get_led_signal(struct net_device *ndev,
++		       struct hnae3_lamp_signal *signal);
+ #endif
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+index bf59a796a2c6..4ef891d9613a 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+@@ -638,6 +638,56 @@ static int hclge_set_mac_state(struct hclge_dev *hdev, void *data,
+ 	return ret;
+ }
+ 
++static int hclge_set_led(struct hclge_dev *hdev, void *data,
++			 size_t length)
++{
++	struct hclge_lamp_signal_cmd *para_cmd;
++	struct hnae3_led_state_para *para;
++	struct hclge_desc desc;
++	int ret;
++
++	if (length != sizeof(struct hnae3_led_state_para))
++		return -EINVAL;
++
++	hclge_cmd_setup_basic_desc(&desc, HCLGE_OPC_SET_LED, false);
++	para = (struct hnae3_led_state_para *)data;
++	para_cmd = (struct hclge_lamp_signal_cmd *)desc.data;
++	para_cmd->type = cpu_to_le32(para->type);
++	para_cmd->status = cpu_to_le32(para->status);
++
++	ret = hclge_cmd_send(&hdev->hw, &desc, 1);
++	if (ret)
++		dev_err(&hdev->pdev->dev, "failed to set led, ret = %d\n", ret);
++
++	return ret;
++}
++
++static int hclge_get_led_signal(struct hclge_dev *hdev, void *data,
++				size_t length)
++{
++	struct hclge_lamp_signal_cmd *signal_cmd;
++	struct hnae3_lamp_signal *signal;
++	struct hclge_desc desc;
++	int ret;
++
++	if (length != sizeof(struct hnae3_lamp_signal))
++		return -EINVAL;
++
++	ret = hclge_get_info_from_cmd(hdev, &desc, 1, HCLGE_OPC_SET_LED);
++	if (ret) {
++		dev_err(&hdev->pdev->dev,
++			"failed to get led signal, ret = %d\n", ret);
++		return ret;
++	}
++
++	signal = (struct hnae3_lamp_signal *)data;
++	signal_cmd = (struct hclge_lamp_signal_cmd *)desc.data;
++	signal->error = signal_cmd->error;
++	signal->locate = signal_cmd->locate;
++	signal->activity = signal_cmd->activity;
++	return 0;
++}
++
+ static void hclge_ext_resotre_config(struct hclge_dev *hdev)
+ {
+ 	if (hdev->reset_type != HNAE3_IMP_RESET &&
+@@ -807,6 +857,8 @@ static const hclge_priv_ops_fn hclge_ext_func_arr[] = {
+ 	[HNAE3_EXT_OPC_GET_PORT_FAULT_STATUS] = hclge_get_port_fault_status,
+ 	[HNAE3_EXT_OPC_GET_PORT_TYPE] = hclge_get_port_wire_type,
+ 	[HNAE3_EXT_OPC_SET_MAC_STATE] = hclge_set_mac_state,
++	[HNAE3_EXT_OPC_SET_LED] = hclge_set_led,
++	[HNAE3_EXT_OPC_GET_LED_SIGNAL] = hclge_get_led_signal,
+ };
+ 
+ int hclge_ext_ops_handle(struct hnae3_handle *handle, int opcode,
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h
+index c06b5164accd..dab62a588e53 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h
+@@ -83,6 +83,15 @@ struct hclge_sfp_enable_cmd {
+ 	__le32 rsv[5];
+ };
+ 
++struct hclge_lamp_signal_cmd {
++	__le32 type;
++	__le32 status;
++	u8 error;
++	u8 locate;
++	u8 activity;
++	u8 rsv[13];
++};
++
+ enum hclge_ext_opcode_type {
+ 	HCLGE_OPC_CONFIG_NIC_CLOCK = 0x0060,
+ 	HCLGE_OPC_CONFIG_SWITCH_PARAM = 0x1033,
+@@ -92,6 +101,7 @@ enum hclge_ext_opcode_type {
+ 	HCLGE_OPC_CHIP_ID_GET = 0x7003,
+ 	HCLGE_OPC_GET_CHIP_NUM = 0x7005,
+ 	HCLGE_OPC_GET_PORT_NUM = 0x7006,
++	HCLGE_OPC_SET_LED = 0x7007,
+ 	HCLGE_OPC_DISABLE_NET_LANE = 0x7008,
+ 	HCLGE_OPC_CFG_PAUSE_STORM_PARA = 0x7019,
+ 	HCLGE_OPC_CFG_GET_HILINK_REF_LOS = 0x701B,
+-- 
+2.34.1
+

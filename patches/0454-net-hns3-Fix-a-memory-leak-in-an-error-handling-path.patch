@@ -1,0 +1,52 @@
+From 3e89e60f27d5085eac6cfbaedbc209c781b486f7 Mon Sep 17 00:00:00 2001
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Date: Sat, 24 Jul 2021 15:45:30 +0800
+Subject: [PATCH 093/283] net: hns3: Fix a memory leak in an error handling
+ path in 'hclge_handle_error_info_log()'
+
+mainline inclusion
+from mainline-v5.14-rc1
+commit b40d7af798a0a459d65bd95f34e3dff004eb554a
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EMUR
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=b40d7af798a0a459d65bd95f34e3dff004eb554a
+
+----------------------------------------------------------------------
+
+If this 'kzalloc()' fails we must free some resources as in all the other
+error handling paths of this function.
+
+Fixes: 2e2deee7618b ("net: hns3: add the RAS compatibility adaptation solution")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Jiaran Zhang <zhangjiaran@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Yongxin Li <liyongxin1@huawei.com>
+Signed-off-by: Junxin Chen <chenjunxin1@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+---
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c
+index a4e9aa9c5d6f..3d3057fed4bb 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c
+@@ -2333,8 +2333,10 @@ int hclge_handle_error_info_log(struct hnae3_ae_dev *ae_dev)
+ 	buf_size = buf_len / sizeof(u32);
+ 
+ 	desc_data = kzalloc(buf_len, GFP_KERNEL);
+-	if (!desc_data)
+-		return -ENOMEM;
++	if (!desc_data) {
++		ret = -ENOMEM;
++		goto err_desc;
++	}
+ 
+ 	buf = kzalloc(buf_len, GFP_KERNEL);
+ 	if (!buf) {
+-- 
+2.34.1
+

@@ -1,0 +1,304 @@
+From bdb17a497df12e7315c56647305899cf194db751 Mon Sep 17 00:00:00 2001
+From: shaojijie <shaojijie@huawei.com>
+Date: Thu, 16 Mar 2023 16:00:17 +0800
+Subject: [PATCH 194/283] net: hns3: add supports fast reporting of faulty
+ nodes
+
+driver inclusion
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN3D
+CVE: NA
+
+----------------------------------------------------------------------
+
+Services are switched only when no response is received within 10 seconds.
+As a result, services cannot be switched quickly. Therefore, if the chip
+is not suspended, the NIC sends a specific message to notify other nodes
+of the event. In this way, the service switchover is performed quickly.
+
+Signed-off-by: shaojijie <shaojijie@huawei.com>
+Signed-off-by: Tian Jiang <jiangtian6@h-partners.com>
+Signed-off-by: Jiantao Xiao <xiaojiantao1@h-partners.com>
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hnae3.h
+	drivers/net/ethernet/hisilicon/hns3/hnae3_ext.h
+	drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.c
+	drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
+	drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h
+	drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+---
+ drivers/net/ethernet/hisilicon/hns3/hnae3.h   |  5 +
+ .../hns3/hns3_common/hclge_comm_cmd.c         |  1 +
+ .../hns3/hns3_common/hclge_comm_cmd.h         |  1 +
+ .../net/ethernet/hisilicon/hns3/hns3_ext.c    | 16 +++
+ .../net/ethernet/hisilicon/hns3/hns3_ext.h    |  3 +
+ .../hisilicon/hns3/hns3pf/hclge_ext.c         | 98 +++++++++++++++++++
+ .../hisilicon/hns3/hns3pf/hclge_ext.h         | 29 ++++++
+ .../hisilicon/hns3/hns3pf/hclge_main.h        |  1 +
+ 8 files changed, 154 insertions(+)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3.h b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+index 970ef08ce9cc..838bb4956ee4 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+@@ -103,6 +103,8 @@ enum HNAE3_DEV_CAP_BITS {
+ 	HNAE3_DEV_SUPPORT_CQ_B,
+ 	HNAE3_DEV_SUPPORT_LANE_NUM_B,
+ 	HNAE3_DEV_SUPPORT_WOL_B,
++	HNAE3_DEV_SUPPORT_VF_FAULT_B,
++	HNAE3_DEV_SUPPORT_NOTIFY_PKT_B,
+ };
+ 
+ #define hnae3_ae_dev_fd_supported(ae_dev) \
+@@ -174,6 +176,9 @@ enum HNAE3_DEV_CAP_BITS {
+ #define hnae3_ae_dev_wol_supported(ae_dev) \
+ 	test_bit(HNAE3_DEV_SUPPORT_WOL_B, (ae_dev)->caps)
+ 
++#define hnae3_ae_dev_notify_pkt_supported(ae_dev) \
++	test_bit(HNAE3_DEV_SUPPORT_NOTIFY_PKT_B, (ae_dev)->caps)
++
+ enum HNAE3_PF_CAP_BITS {
+ 	HNAE3_PF_SUPPORT_VLAN_FLTR_MDF_B = 0,
+ };
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.c b/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.c
+index a899b4c535dd..2cb06661bef9 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.c
+@@ -154,6 +154,7 @@ static const struct hclge_comm_caps_bit_map hclge_pf_cmd_caps[] = {
+ 	{HCLGE_COMM_CAP_FD_B, HNAE3_DEV_SUPPORT_FD_B},
+ 	{HCLGE_COMM_CAP_LANE_NUM_B, HNAE3_DEV_SUPPORT_LANE_NUM_B},
+ 	{HCLGE_COMM_CAP_WOL_B, HNAE3_DEV_SUPPORT_WOL_B},
++	{HCLGE_COMM_CAP_NOTIFY_PKT_B, HNAE3_DEV_SUPPORT_NOTIFY_PKT_B},
+ };
+ 
+ static const struct hclge_comm_caps_bit_map hclge_vf_cmd_caps[] = {
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h
+index 13562209f74d..05b8252c2522 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h
+@@ -97,6 +97,7 @@ enum HCLGE_COMM_CAP_BITS {
+ 	HCLGE_COMM_CAP_FD_B = 21,
+ 	HCLGE_COMM_CAP_LANE_NUM_B = 27,
+ 	HCLGE_COMM_CAP_WOL_B = 28,
++	HCLGE_COMM_CAP_NOTIFY_PKT_B = 29,
+ };
+ 
+ enum HCLGE_COMM_API_CAP_BITS {
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
+index 4af709b1dc40..08ef05d76b57 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.c
+@@ -170,3 +170,19 @@ int nic_set_cpu_affinity(struct net_device *ndev, cpumask_t *affinity_mask)
+ 	return ret;
+ }
+ EXPORT_SYMBOL(nic_set_cpu_affinity);
++
++int nic_set_notify_pkt_param(struct net_device *ndev,
++			     struct hnae3_notify_pkt_param *param)
++{
++	return nic_invoke_pri_ops(ndev, HNAE3_EXT_OPC_SET_NOTIFY_PARAM,
++				  param, sizeof(*param));
++}
++EXPORT_SYMBOL(nic_set_notify_pkt_param);
++
++int nic_set_notify_pkt_start(struct net_device *ndev)
++{
++	return nic_invoke_pri_ops(ndev,
++				  HNAE3_EXT_OPC_SET_NOTIFY_START,
++				  NULL, 0);
++}
++EXPORT_SYMBOL(nic_set_notify_pkt_start);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+index c0d943050922..ec661b400f20 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ext.h
+@@ -12,4 +12,7 @@ void nic_chip_recover_handler(struct net_device *ndev,
+ 			      enum hnae3_event_type_custom event_t);
+ int nic_clean_stats64(struct net_device *ndev, struct rtnl_link_stats64 *stats);
+ int nic_set_cpu_affinity(struct net_device *ndev, cpumask_t *affinity_mask);
++int nic_set_notify_pkt_param(struct net_device *ndev,
++			     struct hnae3_notify_pkt_param *param);
++int nic_set_notify_pkt_start(struct net_device *ndev);
+ #endif
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+index a79451ef44d0..ba612b21a8ee 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.c
+@@ -33,6 +33,101 @@ static int hclge_clean_stats64(struct hclge_dev *hdev, void *data,
+ 	return 0;
+ }
+ 
++static int hclge_notify_packet_para_cmd_send(struct hclge_dev *hdev,
++					     struct hclge_notify_pkt_param_cmd *param_cmd)
++{
++#define HCLGE_NOTIFY_PKT_DESC_NUM 4
++
++	struct hclge_desc desc[HCLGE_NOTIFY_PKT_DESC_NUM];
++	u32 i, desc_data_len;
++
++	desc_data_len = ARRAY_SIZE(desc[0].data);
++	for (i = 0; i < HCLGE_NOTIFY_PKT_DESC_NUM; i++) {
++		hclge_cmd_setup_basic_desc(&desc[i], HCLGE_OPC_SET_NOTIFY_PKT,
++					   false);
++		if (i != HCLGE_NOTIFY_PKT_DESC_NUM - 1)
++			desc[i].flag |= cpu_to_le16(HCLGE_COMM_CMD_FLAG_NEXT);
++	}
++
++	for (i = 0; i < HCLGE_NOTIFY_PKT_DESC_NUM * desc_data_len; i++)
++		desc[i / desc_data_len].data[i % desc_data_len] =
++						     *((__le32 *)param_cmd + i);
++
++	return hclge_cmd_send(&hdev->hw, desc, HCLGE_NOTIFY_PKT_DESC_NUM);
++}
++
++static int hclge_set_notify_packet_para(struct hclge_dev *hdev,
++					void *data, size_t length)
++{
++	struct hnae3_notify_pkt_param *param = (struct hnae3_notify_pkt_param *)data;
++	struct hclge_notify_pkt_param_cmd param_cmd;
++	u32 i, pkt_cfg = 0;
++	int ret;
++
++	if (length != sizeof(struct hnae3_notify_pkt_param))
++		return -EINVAL;
++
++	if (!hnae3_ae_dev_notify_pkt_supported(hdev->ae_dev))
++		return -EOPNOTSUPP;
++
++	if (param->enable)
++		pkt_cfg = HCLGE_NOTIFY_PARA_CFG_PKT_EN;
++	hnae3_set_field(pkt_cfg, HCLGE_NOTIFY_PARA_CFG_PKT_NUM_M,
++			HCLGE_NOTIFY_PARA_CFG_PKT_NUM_S, param->num);
++
++	param_cmd.cfg = cpu_to_le32(pkt_cfg);
++	param_cmd.ipg = cpu_to_le32(param->ipg);
++	for (i = 0; i < ARRAY_SIZE(param_cmd.data); i++)
++		param_cmd.data[i] = cpu_to_le32(*((u32 *)param->data + i));
++
++	hnae3_set_bit(param_cmd.vld_cfg, 0, 1);
++	hnae3_set_bit(param_cmd.vld_ipg, 0, 1);
++	hnae3_set_bit(param_cmd.vld_data, 0, 1);
++
++	ret = hclge_notify_packet_para_cmd_send(hdev, &param_cmd);
++	if (ret) {
++		dev_err(&hdev->pdev->dev,
++			"failed to set notify packet content, ret = %d\n", ret);
++		return ret;
++	}
++
++	param->init = 1;
++	memcpy(&hdev->notify_param, param, sizeof(*param));
++	return 0;
++}
++
++static int hclge_set_notify_packet_start(struct hclge_dev *hdev,
++					 void *data, size_t length)
++{
++	u32 pkt_cfg = HCLGE_NOTIFY_PARA_CFG_START_EN;
++	struct hclge_notify_pkt_param_cmd param_cmd;
++	int ret;
++
++	if (!hnae3_ae_dev_notify_pkt_supported(hdev->ae_dev))
++		return -EOPNOTSUPP;
++
++	memset(&param_cmd, 0, sizeof(param_cmd));
++	param_cmd.cfg = cpu_to_le32(pkt_cfg);
++	hnae3_set_bit(param_cmd.vld_cfg, 0, 1);
++
++	ret = hclge_notify_packet_para_cmd_send(hdev, &param_cmd);
++	if (ret)
++		dev_err(&hdev->pdev->dev,
++			"failed to send notify packet, ret = %d\n", ret);
++	return ret;
++}
++
++static void hclge_ext_resotre_config(struct hclge_dev *hdev)
++{
++	if (hdev->reset_type != HNAE3_IMP_RESET &&
++	    hdev->reset_type != HNAE3_GLOBAL_RESET)
++		return;
++
++	if (hdev->notify_param.init)
++		hclge_set_notify_packet_para(hdev, &hdev->notify_param,
++					     sizeof(hdev->notify_param));
++}
++
+ static int hclge_set_reset_task(struct hclge_dev *hdev, void *data,
+ 				size_t length)
+ {
+@@ -162,6 +257,7 @@ void hclge_ext_reset_end(struct hclge_dev *hdev, bool done)
+ 		return;
+ 	}
+ 
++	hclge_ext_resotre_config(hdev);
+ 	hclge_ext_call_event(hdev, HNAE3_RESET_DONE_CUSTOM);
+ 	dev_info(&hdev->pdev->dev, "report reset done!\n");
+ }
+@@ -170,6 +266,8 @@ static const hclge_priv_ops_fn hclge_ext_func_arr[] = {
+ 	[HNAE3_EXT_OPC_RESET] = hclge_set_reset_task,
+ 	[HNAE3_EXT_OPC_EVENT_CALLBACK] = hclge_nic_call_event,
+ 	[HNAE3_EXT_OPC_CLEAN_STATS64] = hclge_clean_stats64,
++	[HNAE3_EXT_OPC_SET_NOTIFY_PARAM] = hclge_set_notify_packet_para,
++	[HNAE3_EXT_OPC_SET_NOTIFY_START] = hclge_set_notify_packet_start,
+ };
+ 
+ int hclge_ext_ops_handle(struct hnae3_handle *handle, int opcode,
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h
+index 1c1b04765e7e..ce8fc17741fc 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_ext.h
+@@ -5,6 +5,35 @@
+ #define __HCLGE_EXT_H
+ #include <linux/types.h>
+ 
++#define HCLGE_NOTIFY_PARA_CFG_PKT_EN		BIT(0)
++#define HCLGE_NOTIFY_PARA_CFG_START_EN		BIT(1)
++#define HCLGE_NOTIFY_PARA_CFG_PKT_NUM_M		GENMASK(5, 2)
++#define HCLGE_NOTIFY_PARA_CFG_PKT_NUM_S		2
++
++struct hclge_pfc_storm_para_cmd {
++	__le32 dir;
++	__le32 enable;
++	__le32 period_ms;
++	__le32 times;
++	__le32 recovery_period_ms;
++	__le32 rsv;
++};
++
++struct hclge_notify_pkt_param_cmd {
++	__le32 cfg;
++	__le32 ipg;
++	__le32 data[16];
++	u8 vld_cfg;
++	u8 vld_ipg;
++	u8 vld_data;
++	u8 rsv[21];
++};
++
++enum hclge_ext_opcode_type {
++	HCLGE_OPC_SET_NOTIFY_PKT = 0x180A,
++	HCLGE_OPC_CFG_PAUSE_STORM_PARA = 0x7019,
++};
++
+ struct hclge_reset_fail_type_map {
+ 	enum hnae3_reset_type reset_type;
+ 	enum hnae3_event_type_custom custom_type;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+index f32c8b52f022..647b0ca14e1c 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+@@ -943,6 +943,7 @@ struct hclge_dev {
+ 	cpumask_t affinity_mask;
+ 	struct irq_affinity_notify affinity_notify;
+ 	struct hclge_ptp *ptp;
++	struct hnae3_notify_pkt_param notify_param;
+ };
+ 
+ /* VPort level vlan tag configuration for TX direction */
+-- 
+2.34.1
+

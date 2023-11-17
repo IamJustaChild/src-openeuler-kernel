@@ -1,0 +1,246 @@
+From 6167109134780f83d165e837c738feb76231fbc4 Mon Sep 17 00:00:00 2001
+From: Hao Lan <lanhao@huawei.com>
+Date: Thu, 25 May 2023 20:20:06 +0800
+Subject: [PATCH 238/283] net: hns3: add tm flush when setting tm
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EN49
+CVE: NA
+
+----------------------------------------------------------------------
+
+When the tm module is configured with traffic, traffic
+may be abnormal. This patch fixes this problem.
+Before the tm module is configured, traffic processing
+should be stopped. After the tm module is configured,
+traffic processing is enabled.
+
+Fixes: 848440544b41 ("net: hns3: Add support of TX Scheduler & Shaper to HNS3 driver")
+Signed-off-by: Hao Lan <lanhao@huawei.com>
+(cherry picked from commit b62afba40728081d30d3471e742e06c1f9d6fdfc)
+Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
+
+ Conflicts:
+	drivers/net/ethernet/hisilicon/hns3/hnae3.h
+	drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h
+	drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
+---
+ drivers/net/ethernet/hisilicon/hns3/hnae3.h   |  3 ++
+ .../hns3/hns3_common/hclge_comm_cmd.c         |  1 +
+ .../hns3/hns3_common/hclge_comm_cmd.h         |  1 +
+ .../ethernet/hisilicon/hns3/hns3_debugfs.c    |  3 ++
+ .../hisilicon/hns3/hns3pf/hclge_cmd.h         |  1 +
+ .../hisilicon/hns3/hns3pf/hclge_dcb.c         | 34 ++++++++++++++++---
+ .../ethernet/hisilicon/hns3/hns3pf/hclge_tm.c | 31 ++++++++++++++++-
+ .../ethernet/hisilicon/hns3/hns3pf/hclge_tm.h |  4 +++
+ 8 files changed, 72 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3.h b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+index 36a7285f68cf..e085e384501c 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+@@ -107,6 +107,7 @@ enum HNAE3_DEV_CAP_BITS {
+ 	HNAE3_DEV_SUPPORT_WOL_B,
+ 	HNAE3_DEV_SUPPORT_VF_FAULT_B,
+ 	HNAE3_DEV_SUPPORT_NOTIFY_PKT_B,
++	HNAE3_DEV_SUPPORT_TM_FLUSH_B,
+ };
+ 
+ #define hnae3_ae_dev_fd_supported(ae_dev) \
+@@ -188,6 +189,8 @@ enum HNAE3_DEV_CAP_BITS {
+ 	test_bit(HNAE3_DEV_SUPPORT_LANE_NUM_B, (ae_dev)->caps)
+ #define hnae3_ae_dev_fec_stats_supported(ae_dev) \
+ 	test_bit(HNAE3_DEV_SUPPORT_FEC_STATS_B, (ae_dev)->caps)
++#define hnae3_ae_dev_tm_flush_supported(hdev) \
++	test_bit(HNAE3_DEV_SUPPORT_TM_FLUSH_B, (hdev)->ae_dev->caps)
+ 
+ enum HNAE3_PF_CAP_BITS {
+ 	HNAE3_PF_SUPPORT_VLAN_FLTR_MDF_B = 0,
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.c b/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.c
+index a3ed8e531b25..cdfce19de621 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.c
+@@ -158,6 +158,7 @@ static const struct hclge_comm_caps_bit_map hclge_pf_cmd_caps[] = {
+ 	{HCLGE_COMM_CAP_LANE_NUM_B, HNAE3_DEV_SUPPORT_LANE_NUM_B},
+ 	{HCLGE_COMM_CAP_WOL_B, HNAE3_DEV_SUPPORT_WOL_B},
+ 	{HCLGE_COMM_CAP_NOTIFY_PKT_B, HNAE3_DEV_SUPPORT_NOTIFY_PKT_B},
++	{HCLGE_COMM_CAP_TM_FLUSH_B, HNAE3_DEV_SUPPORT_TM_FLUSH_B},
+ };
+ 
+ static const struct hclge_comm_caps_bit_map hclge_vf_cmd_caps[] = {
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h
+index 2b8df9b03412..2b9c92a00049 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_common/hclge_comm_cmd.h
+@@ -99,6 +99,7 @@ enum HCLGE_COMM_CAP_BITS {
+ 	HCLGE_COMM_CAP_LANE_NUM_B = 27,
+ 	HCLGE_COMM_CAP_WOL_B = 28,
+ 	HCLGE_COMM_CAP_NOTIFY_PKT_B = 29,
++	HCLGE_COMM_CAP_TM_FLUSH_B = 31,
+ };
+ 
+ enum HCLGE_COMM_API_CAP_BITS {
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c b/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
+index ca2c5e6bd40d..5e4be179cf99 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
+@@ -373,6 +373,9 @@ static struct hns3_dbg_cap_info hns3_dbg_cap[] = {
+ 	}, {
+ 		.name = "support lane num",
+ 		.cap_bit = HNAE3_DEV_SUPPORT_LANE_NUM_B,
++	}, {
++		.name = "support tm flush",
++		.cap_bit = HNAE3_DEV_SUPPORT_TM_FLUSH_B,
+ 	}
+ };
+ 
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+index ef1b6d90bd75..8d1914041bd1 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+@@ -172,6 +172,7 @@ enum hclge_opcode_type {
+ 	HCLGE_OPC_TM_INTERNAL_STS	= 0x0850,
+ 	HCLGE_OPC_TM_INTERNAL_CNT	= 0x0851,
+ 	HCLGE_OPC_TM_INTERNAL_STS_1	= 0x0852,
++	HCLGE_OPC_TM_FLUSH		= 0x0872,
+ 
+ 	/* Packet buffer allocate commands */
+ 	HCLGE_OPC_TX_BUFF_ALLOC		= 0x0901,
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
+index 8a5fc7bd09c6..977dc9648636 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
+@@ -216,6 +216,10 @@ static int hclge_notify_down_uinit(struct hclge_dev *hdev)
+ 	if (ret)
+ 		return ret;
+ 
++	ret = hclge_tm_flush_cfg(hdev, true);
++	if (ret)
++		return ret;
++
+ 	return hclge_notify_client(hdev, HNAE3_UNINIT_CLIENT);
+ }
+ 
+@@ -227,6 +231,10 @@ static int hclge_notify_init_up(struct hclge_dev *hdev)
+ 	if (ret)
+ 		return ret;
+ 
++	ret = hclge_tm_flush_cfg(hdev, false);
++	if (ret)
++		return ret;
++
+ 	return hclge_notify_client(hdev, HNAE3_UP_CLIENT);
+ }
+ 
+@@ -314,6 +322,7 @@ static int hclge_ieee_setpfc(struct hnae3_handle *h, struct ieee_pfc *pfc)
+ 	struct net_device *netdev = h->kinfo.netdev;
+ 	struct hclge_dev *hdev = vport->back;
+ 	u8 i, j, pfc_map, *prio_tc;
++	int last_bad_ret = 0;
+ 	int ret;
+ 
+ 	if (!(hdev->dcbx_cap & DCB_CAP_DCBX_VER_IEEE))
+@@ -352,13 +361,28 @@ static int hclge_ieee_setpfc(struct hnae3_handle *h, struct ieee_pfc *pfc)
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = hclge_buffer_alloc(hdev);
+-	if (ret) {
+-		hclge_notify_client(hdev, HNAE3_UP_CLIENT);
++	ret = hclge_tm_flush_cfg(hdev, true);
++	if (ret)
+ 		return ret;
+-	}
+ 
+-	return hclge_notify_client(hdev, HNAE3_UP_CLIENT);
++	/* No matter whether the following operations are performed
++	 * successfully or not, disabling the tm flush and notify
++	 * the network status to up are necessary.
++	 * Do not return immediately.
++	 */
++	ret = hclge_buffer_alloc(hdev);
++	if (ret)
++		last_bad_ret = ret;
++
++	ret = hclge_tm_flush_cfg(hdev, false);
++	if (ret)
++		last_bad_ret = ret;
++
++	ret = hclge_notify_client(hdev, HNAE3_UP_CLIENT);
++	if (ret)
++		last_bad_ret = ret;
++
++	return last_bad_ret;
+ }
+ 
+ static int hclge_ieee_setapp(struct hnae3_handle *h, struct dcb_app *app)
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
+index 25f39c3fde05..a18b2d2e4bb4 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
+@@ -1345,7 +1345,11 @@ int hclge_tm_schd_setup_hw(struct hclge_dev *hdev)
+ 		return ret;
+ 
+ 	/* Cfg schd mode for each level schd */
+-	return hclge_tm_schd_mode_hw(hdev);
++	ret = hclge_tm_schd_mode_hw(hdev);
++	if (ret)
++		return ret;
++
++	return hclge_tm_flush_cfg(hdev, false);
+ }
+ 
+ static int hclge_pause_param_setup_hw(struct hclge_dev *hdev)
+@@ -1916,3 +1920,28 @@ int hclge_tm_get_port_shaper(struct hclge_dev *hdev,
+ 
+ 	return 0;
+ }
++
++int hclge_tm_flush_cfg(struct hclge_dev *hdev, bool enable)
++{
++	struct hclge_desc desc;
++	int ret;
++
++	if (!hnae3_ae_dev_tm_flush_supported(hdev))
++		return 0;
++
++	hclge_cmd_setup_basic_desc(&desc, HCLGE_OPC_TM_FLUSH, false);
++
++	desc.data[0] = cpu_to_le32(enable ? HCLGE_TM_FLUSH_EN_MSK : 0);
++
++	ret = hclge_cmd_send(&hdev->hw, &desc, 1);
++	if (ret) {
++		dev_err(&hdev->pdev->dev,
++			"failed to config tm flush, ret = %d\n", ret);
++		return ret;
++	}
++
++	if (enable)
++		msleep(HCLGE_TM_FLUSH_TIME_MS);
++
++	return ret;
++}
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h
+index 6dafd954c774..d9dae3e60b9b 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h
+@@ -27,6 +27,9 @@
+ #define HCLGE_DSCP_MAP_TC_BD_NUM	2
+ #define HCLGE_DSCP_TC_SHIFT(n)		(((n) & 1) * 4)
+ 
++#define HCLGE_TM_FLUSH_TIME_MS	10
++#define HCLGE_TM_FLUSH_EN_MSK	BIT(0)
++
+ struct hclge_pg_to_pri_link_cmd {
+ 	u8 pg_id;
+ 	u8 rsvd1[3];
+@@ -232,4 +235,5 @@ int hclge_tm_get_port_shaper(struct hclge_dev *hdev,
+ 			     struct hclge_tm_shaper_para *para);
+ int hclge_up_to_tc_map(struct hclge_dev *hdev);
+ int hclge_dscp_to_tc_map(struct hclge_dev *hdev);
++int hclge_tm_flush_cfg(struct hclge_dev *hdev, bool enable);
+ #endif
+-- 
+2.34.1
+
