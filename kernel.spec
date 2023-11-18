@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0245
+Release: %{hulkrelease}.0246
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -850,7 +850,11 @@ fi
 
 %changelog
 
-* Fri Nov 17 2023 Luo Shengwei <luoshengwei@huawei.com> - 4.19.90-2311.3.0.0245
+* Fri Nov 17 2023 Zhou Kaiqi <zhoukaiqi@huawei.com> - 4.19.90-2311.3.0.0246
+- genirq: Increase the number of IRQ descriptors
+- irqchip: gic-v3: Collection table support muti pages
+
+* Fri Nov 17 2023 Li Xiaodong <lixiaodong67@huawei.com> - 4.19.90-2311.3.0.0245
 - net: hns3: Fix unreasonable modifications caused by rollback extension ringparam parameters
 - net: hns3: Fix ethtool_ Ops&gen_ Improper modification of kabi changes caused by adding members in the ops structure
 - net: hns3: Fix Kabi issue caused by ptp introducing gettimex64()
