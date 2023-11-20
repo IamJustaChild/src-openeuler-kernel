@@ -10,9 +10,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       169
+%global devel_release       170
 %global maintenance_release .0.0
-%global pkg_release         .82
+%global pkg_release         .83
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -919,6 +919,47 @@ fi
 %endif
 
 %changelog
+* Mon Nov 20 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-170.0.0.83
+- !2845 crypto: hisilicon - revert some patch
+- !2902  net/tls: do not free tls_rec on async operation in bpf_exec_tx_verdict()
+- !2791 [sync] PR-1122:  ext4: delete redundant uptodate check for buffer
+- net/tls: do not free tls_rec on async operation in bpf_exec_tx_verdict()
+- !2890 net: ipv6: addrconf: Add the IPv6 link local address of the UB port.
+- net: ipv6: addrconf: Add the IPv6 link local address of the UB port.
+- !2884  LoongArch: fix two cpu hotplug problem
+- !2872 net: hns3: Backport some mainline feature and some hns3 bugfix
+- !2867  netfilter: conntrack: dccp: copy entire header to stack buffer, not just basic one
+- net: hns3: fix VF wrong speed and duplex issue
+- net: hns3: fix VF reset fail issue
+- net: hns3: fix variable may not initialized problem in hns3_init_mac_addr()
+- net: hns3: fix out-of-bounds access may occur when coalesce info is read via debugfs
+- net: hns3: fix incorrect capability bit display for copper port
+- net: hns3: add barrier in vf mailbox reply process
+- net: hns3: fix add VLAN fail issue
+- drivers/perf: hisi: use cpuhp_state_remove_instance_nocalls() for hisi_hns3_pmu uninit process
+- net: hns3: add some link modes for hisilicon device
+- net: hns3: add arp proxy switch in ethtool
+- net: hns3: support arp proxy
+- !2881 soc: hisilicon: kunpeng_hccs: Support the platform with PCC type3 and interrupt ack
+- LoongArch: fix two cpu hotplug problem
+- soc: hisilicon: kunpeng_hccs: Support the platform with PCC type3 and interrupt ack
+- soc: hisilicon: kunpeng_hccs: Add failure log for no _CRS method
+- soc: hisilicon: kunpeng_hccs: Fix some incorrect format strings
+- crypto: hisilicon/qm - prevent soft lockup in receive loop
+- Revert "crypto: hisilicon/qm - prevent soft lockup in qm_poll_req_cb()'s loop"
+- crypto: hisilicon/qm - fix EQ/AEQ interrupt issue
+- Revert "crypto: hisilicon/qm - fix EQ/AEQ interrupt issue"
+- crypto: hisilicon/sec - fix for sgl unmmap problem
+- Revert "crypto: hisilicon/sec - fix for resource leak"
+- vfio/migration: adapts to element naming changes in the vf_state structure
+- crypto: hisilicon/qm: Set the VF QM state register
+- Revert "vfio/hisilicon: modify QM for live migration driver"
+- Revert "crypto: hisilicon/qm: Set the VF QM state register"
+- crypto: hisilicon/qm - remove unneeded hardware cache write back
+- Revert "crypto: hisilicon/qm - remove redundant cache writeback"
+- netfilter: conntrack: dccp: copy entire header to stack buffer, not just basic one
+- ext4: delete redundant uptodate check for buffer
+
 * Thu Nov 16 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-169.0.0.82
 - !2875 Support SRQ Context tracing by debugfs
 - !2868 backport the patch moving ACPI PCC macro definition to common header file
