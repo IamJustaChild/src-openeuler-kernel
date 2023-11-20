@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0246
+Release: %{hulkrelease}.0247
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,9 @@ fi
 %endif
 
 %changelog
+
+* Mon Nov 20 2023 Yu Liao <liaoyu15@huawei.com> - 4.19.90-2311.3.0.0247
+- Backport cpu turbo patches
 
 * Fri Nov 17 2023 Zhou Kaiqi <zhoukaiqi@huawei.com> - 4.19.90-2311.3.0.0246
 - genirq: Increase the number of IRQ descriptors
