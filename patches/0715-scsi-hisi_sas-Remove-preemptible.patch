@@ -1,0 +1,72 @@
+From 0929404331a090441751d87f27dee83b60f48c06 Mon Sep 17 00:00:00 2001
+From: "Ahmed S. Darwish" <a.darwish@linutronix.de>
+Date: Tue, 3 Aug 2021 14:47:28 +0800
+Subject: [PATCH 067/108] scsi: hisi_sas: Remove preemptible()
+
+mainline inclusion
+from mainline-v5.11-rc1
+commit 18577cdcaeeb7a1ca5c3adc4d92ed2ba75699625
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EKNE
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=18577cdcaeeb7a1ca5c3adc4d92ed2ba75699625
+
+----------------------------------------------------------------------
+
+hisi_sas_task_exec() uses preemptible() to see if it's safe to block.  This
+does not work for CONFIG_PREEMPT_COUNT=n kernels in which preemptible()
+always returns 0.
+
+The problem is masked when enabling some of the common Kconfig.debug
+options (like CONFIG_DEBUG_ATOMIC_SLEEP), as they implicitly enable the
+preemption counter.
+
+In general, driver leaf functions should not make logic decisions based on
+the context they're called from. The caller should be the entity
+responsible for explicitly indicating context.
+
+Since hisi_sas_task_exec() already has a gfp_t flags parameter, use it as
+the explicit context marker.
+
+Link: https://lore.kernel.org/r/20201126132952.2287996-3-bigeasy@linutronix.de
+Fixes: 214e702d4b70 ("scsi: hisi_sas: Adjust task reject period during host reset")
+Fixes: 550c0d89d52d ("scsi: hisi_sas: Replace in_softirq() check in hisi_sas_task_exec()")
+Cc: Xiaofei Tan <tanxiaofei@huawei.com>
+Cc: Xiang Chen <chenxiang66@hisilicon.com>
+Cc: John Garry <john.garry@huawei.com>
+Acked-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Ahmed S. Darwish <a.darwish@linutronix.de>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reviewed-by: Ouyangdelong <ouyangdelong@huawei.com>
+Signed-off-by: Nifujia <nifujia1@hisilicon.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/hisi_sas/hisi_sas_main.c
+---
+ drivers/scsi/hisi_sas/hisi_sas_main.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index c0a870202484..4b58e2f3ca03 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -601,9 +601,10 @@ static int hisi_sas_task_exec(struct sas_task *task, gfp_t gfp_flags,
+ 	hisi_hba = dev_to_hisi_hba(device);
+ 	dev = hisi_hba->dev;
+ 
+-	if (unlikely(test_bit(HISI_SAS_REJECT_CMD_BIT, &hisi_hba->flags)))
+-		return -EINVAL;
+-
++	if (unlikely(test_bit(HISI_SAS_REJECT_CMD_BIT, &hisi_hba->flags))) {
++		if (!gfpflags_allow_blocking(gfp_flags))
++			return -EINVAL;
++	}
+ 
+ 	/* protect task_prep and start_delivery sequence */
+ 	rc = hisi_sas_task_prep(task, is_tmf, tmf, &pass, &dq);
+-- 
+2.27.0
+

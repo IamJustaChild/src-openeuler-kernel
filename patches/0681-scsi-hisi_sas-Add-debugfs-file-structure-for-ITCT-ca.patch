@@ -1,0 +1,112 @@
+From 796db3815987915dbc3e60bcf1b4605413040b0c Mon Sep 17 00:00:00 2001
+From: Luo Jiaxing <luojiaxing@huawei.com>
+Date: Thu, 24 Oct 2019 22:08:20 +0800
+Subject: [PATCH 033/108] scsi: hisi_sas: Add debugfs file structure for ITCT
+ cache
+
+mainline inclusion
+from mainline-v5.5-rc1
+commit 357e4fc7a933ed5bfbf1eb2fad9c198afe6a11e1
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F81L
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=357e4fc7a933ed5bfbf1eb2fad9c198afe6a11e1
+
+----------------------------------------------------------------------
+
+Create a file structure which was used to save the memory address for
+ITCT cache at debugfs. This structure is bound to the corresponding debugfs
+file, it can help callback function of debugfs file to get what it needs.
+
+Link: https://lore.kernel.org/r/1571926105-74636-14-git-send-email-john.garry@huawei.com
+Signed-off-by: Luo Jiaxing <luojiaxing@huawei.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/hisi_sas/hisi_sas.h      |  6 +++++-
+ drivers/scsi/hisi_sas/hisi_sas_main.c | 16 ++++++++--------
+ 2 files changed, 13 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas.h b/drivers/scsi/hisi_sas/hisi_sas.h
+index 729eb47f1d5d..505d74780eab 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas.h
++++ b/drivers/scsi/hisi_sas/hisi_sas.h
+@@ -399,6 +399,10 @@ struct hisi_sas_debugfs_iost_cache {
+ 	struct hisi_sas_iost_itct_cache *cache;
+ };
+ 
++struct hisi_sas_debugfs_itct_cache {
++	struct hisi_sas_iost_itct_cache *cache;
++};
++
+ struct hisi_hba {
+ 	/* This must be the first element, used by SHOST_TO_SAS_HA */
+ 	struct sas_ha_struct *p;
+@@ -486,7 +490,7 @@ struct hisi_hba {
+ 	struct hisi_sas_debugfs_itct debugfs_itct;
+ 	u64 debugfs_timestamp;
+ 	struct hisi_sas_debugfs_iost_cache debugfs_iost_cache;
+-	u64 *debugfs_itct_cache;
++	struct hisi_sas_debugfs_itct_cache debugfs_itct_cache;
+ 
+ 	struct dentry *debugfs_dir;
+ 	struct dentry *debugfs_dump_dentry;
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index 30f6cd0fc190..e218a95cfd38 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -2849,7 +2849,7 @@ static void hisi_sas_debugfs_snapshot_ras_reg(struct hisi_hba *hisi_hba)
+ 
+ static void hisi_sas_debugfs_snapshot_itct_reg(struct hisi_hba *hisi_hba)
+ {
+-	void *cachebuf = hisi_hba->debugfs_itct_cache;
++	void *cachebuf = hisi_hba->debugfs_itct_cache.cache;
+ 	void *databuf = hisi_hba->debugfs_itct.itct;
+ 	struct hisi_sas_itct *itct;
+ 	int i;
+@@ -3608,9 +3608,8 @@ static const struct file_operations hisi_sas_debugfs_itct_fops = {
+ 
+ static int hisi_sas_debugfs_itct_cache_show(struct seq_file *s, void *p)
+ {
+-	struct hisi_hba *hisi_hba = s->private;
+-	struct hisi_sas_iost_itct_cache *itct_cache =
+-		(struct hisi_sas_iost_itct_cache *)hisi_hba->debugfs_itct_cache;
++	struct hisi_sas_debugfs_itct_cache *debugfs_itct_cache = s->private;
++	struct hisi_sas_iost_itct_cache *itct_cache = debugfs_itct_cache->cache;
+ 	u32 cache_size = HISI_SAS_IOST_ITCT_CACHE_DW_SZ * 4;
+ 	int i, tab_idx;
+ 	__le64 *itct;
+@@ -3713,7 +3712,8 @@ static void hisi_sas_debugfs_create_files(struct hisi_hba *hisi_hba)
+ 			    &hisi_hba->debugfs_itct,
+ 			    &hisi_sas_debugfs_itct_fops);
+ 
+-	debugfs_create_file("itct_cache", 0400, dump_dentry, hisi_hba,
++	debugfs_create_file("itct_cache", 0400, dump_dentry,
++			    &hisi_hba->debugfs_itct_cache,
+ 			    &hisi_sas_debugfs_itct_cache_fops);
+ 
+ 	debugfs_create_file("axi", 0400, dump_dentry,
+@@ -3804,7 +3804,7 @@ static void hisi_sas_debugfs_release(struct hisi_hba *hisi_hba)
+ 	int i;
+ 
+ 	devm_kfree(dev, hisi_hba->debugfs_iost_cache.cache);
+-	devm_kfree(dev, hisi_hba->debugfs_itct_cache);
++	devm_kfree(dev, hisi_hba->debugfs_itct_cache.cache);
+ 	devm_kfree(dev, hisi_hba->debugfs_iost.iost);
+ 
+ 	for (i = 0; i < hisi_hba->queue_count; i++)
+@@ -3920,8 +3920,8 @@ static int hisi_sas_debugfs_alloc(struct hisi_hba *hisi_hba)
+ 	sz = HISI_SAS_IOST_ITCT_CACHE_NUM *
+ 	     sizeof(struct hisi_sas_iost_itct_cache);
+ 
+-	hisi_hba->debugfs_itct_cache = devm_kmalloc(dev, sz, GFP_KERNEL);
+-	if (!hisi_hba->debugfs_itct_cache)
++	hisi_hba->debugfs_itct_cache.cache = devm_kmalloc(dev, sz, GFP_KERNEL);
++	if (!hisi_hba->debugfs_itct_cache.cache)
+ 		goto fail;
+ 
+ 	/* New memory allocation must be locate before itct */
+-- 
+2.27.0
+

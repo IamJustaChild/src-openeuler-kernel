@@ -1,0 +1,332 @@
+From 50527061356720fb572267227ce06b1267373214 Mon Sep 17 00:00:00 2001
+From: Luo Jiaxing <luojiaxing@huawei.com>
+Date: Tue, 1 Sep 2020 19:13:08 +0800
+Subject: [PATCH 056/108] scsi: hisi_sas: Add BIST support for fixed code
+ pattern
+
+mainline inclusion
+from mainline-v5.10-rc1
+commit 981cc23e741a641ca92c37c7a3df180ced702118
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F81L
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=981cc23e741a641ca92c37c7a3df180ced702118
+
+----------------------------------------------------------------------
+
+Through the new debugfs interface the user can select fixed code
+patterns. Add two new interfaces fixed_code and fixed_code1.
+
+Link: https://lore.kernel.org/r/1598958790-232272-7-git-send-email-john.garry@huawei.com
+Signed-off-by: Luo Jiaxing <luojiaxing@huawei.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/hisi_sas/hisi_sas_main.c
+---
+ drivers/scsi/hisi_sas/hisi_sas.h       | 37 +++++++------
+ drivers/scsi/hisi_sas/hisi_sas_main.c  | 75 ++++++++++++++++++++++++++
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 68 +++++++++++++++++------
+ 3 files changed, 149 insertions(+), 31 deletions(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas.h b/drivers/scsi/hisi_sas/hisi_sas.h
+index 94514b3615e2..f9512b6c2d02 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas.h
++++ b/drivers/scsi/hisi_sas/hisi_sas.h
+@@ -282,21 +282,6 @@ enum {
+ 	HISI_SAS_BIST_LOOPBACK_MODE_REMOTE,
+ };
+ 
+-enum {
+-	HISI_SAS_BIST_CODE_MODE_PRBS7 = 0,
+-	HISI_SAS_BIST_CODE_MODE_PRBS23,
+-	HISI_SAS_BIST_CODE_MODE_PRBS31,
+-	HISI_SAS_BIST_CODE_MODE_JTPAT,
+-	HISI_SAS_BIST_CODE_MODE_CJTPAT,
+-	HISI_SAS_BIST_CODE_MODE_SCRAMBED_0,
+-	HISI_SAS_BIST_CODE_MODE_TRAIN,
+-	HISI_SAS_BIST_CODE_MODE_TRAIN_DONE,
+-	HISI_SAS_BIST_CODE_MODE_HFTP,
+-	HISI_SAS_BIST_CODE_MODE_MFTP,
+-	HISI_SAS_BIST_CODE_MODE_LFTP,
+-	HISI_SAS_BIST_CODE_MODE_FIXED_DATA,
+-};
+-
+ struct hisi_sas_iost_itct_cache {
+ 	u32 data[HISI_SAS_IOST_ITCT_CACHE_DW_SZ];
+ };
+@@ -325,6 +310,27 @@ enum hisi_sas_debugfs_bist_ffe_cfg {
+ 	FFE_CFG_MAX
+ };
+ 
++enum hisi_sas_debugfs_bist_fixed_code {
++	FIXED_CODE,
++	FIXED_CODE_1,
++	FIXED_CODE_MAX
++};
++
++enum {
++	HISI_SAS_BIST_CODE_MODE_PRBS7,
++	HISI_SAS_BIST_CODE_MODE_PRBS23,
++	HISI_SAS_BIST_CODE_MODE_PRBS31,
++	HISI_SAS_BIST_CODE_MODE_JTPAT,
++	HISI_SAS_BIST_CODE_MODE_CJTPAT,
++	HISI_SAS_BIST_CODE_MODE_SCRAMBED_0,
++	HISI_SAS_BIST_CODE_MODE_TRAIN,
++	HISI_SAS_BIST_CODE_MODE_TRAIN_DONE,
++	HISI_SAS_BIST_CODE_MODE_HFTP,
++	HISI_SAS_BIST_CODE_MODE_MFTP,
++	HISI_SAS_BIST_CODE_MODE_LFTP,
++	HISI_SAS_BIST_CODE_MODE_FIXED_DATA,
++};
++
+ struct hisi_sas_hw {
+ 	int (*hw_init)(struct hisi_hba *hisi_hba);
+ 	void (*setup_itct)(struct hisi_hba *hisi_hba,
+@@ -492,6 +498,7 @@ struct hisi_hba {
+ 	u32 bist_loopback_cnt;
+ 	int bist_loopback_enable;
+ 	u32 debugfs_bist_ffe[HISI_SAS_MAX_PHYS][FFE_CFG_MAX];
++	u32 debugfs_bist_fixed_code[FIXED_CODE_MAX];
+ 
+ 	int enable_dix_dif;
+ 	unsigned int *reply_map;
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index a741a597fecf..41b656c0a0cd 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -3797,6 +3797,58 @@ static const struct file_operations hisi_sas_debugfs_trigger_dump_fops = {
+ 	.owner = THIS_MODULE,
+ };
+ 
++static const struct {
++	char *name;
++} hisi_sas_debugfs_ffe_name[FFE_CFG_MAX] = {
++	{ "SAS_1_5_GBPS" },
++	{ "SAS_3_0_GBPS" },
++	{ "SAS_6_0_GBPS" },
++	{ "SAS_12_0_GBPS" },
++	{ "FFE_RESV" },
++	{ "SATA_1_5_GBPS" },
++	{ "SATA_3_0_GBPS" },
++	{ "SATA_6_0_GBPS" },
++};
++
++static ssize_t hisi_sas_debugfs_write(struct file *filp,
++				      const char __user *buf,
++				      size_t count, loff_t *ppos)
++{
++	struct seq_file *m = filp->private_data;
++	u32 *val = m->private;
++	int res;
++
++	res = kstrtouint_from_user(buf, count, 0, val);
++	if (res)
++		return res;
++
++	return count;
++}
++
++static int hisi_sas_debugfs_show(struct seq_file *s, void *p)
++{
++	u32 *val = s->private;
++
++	seq_printf(s, "0x%x\n", *val);
++
++	return 0;
++}
++
++static int hisi_sas_debugfs_open(struct inode *inode, struct file *filp)
++{
++	return single_open(filp, hisi_sas_debugfs_show,
++			   inode->i_private);
++}
++
++static const struct file_operations hisi_sas_debugfs_ops = {
++	.open = hisi_sas_debugfs_open,
++	.read = seq_read,
++	.write = hisi_sas_debugfs_write,
++	.llseek = seq_lseek,
++	.release = single_release,
++	.owner = THIS_MODULE,
++};
++
+ static ssize_t hisi_sas_debugfs_phy_down_cnt_write(struct file *filp,
+ 						    const char __user *buf,
+ 						    size_t count, loff_t *ppos)
+@@ -3894,6 +3946,8 @@ static int hisi_sas_debugfs_alloc(struct hisi_hba *hisi_hba, int dump_index)
+ 	struct device *dev = hisi_hba->dev;
+ 	int p, c, d, r, i;
+ 	size_t sz;
++	struct dentry *ports_dentry;
++	int phy_no;
+ 
+ 	/* create bist structures */
+ 	hisi_hba->debugfs_bist_dentry = debugfs_create_dir("bist",
+@@ -3928,6 +3982,27 @@ static int hisi_sas_debugfs_alloc(struct hisi_hba *hisi_hba, int dump_index)
+ 				 hisi_hba, &hisi_sas_debugfs_bist_enable_ops))
+ 		goto fail;
+ 
++	ports_dentry = debugfs_create_dir("port",
++					  hisi_hba->debugfs_bist_dentry);
++
++	for (phy_no = 0; phy_no < hisi_hba->n_phy; phy_no++) {
++		struct dentry *port_dentry;
++		struct dentry *ffe_dentry;
++		char name[256];
++
++		snprintf(name, 256, "%d", phy_no);
++		port_dentry = debugfs_create_dir(name, ports_dentry);
++		ffe_dentry = debugfs_create_dir("ffe", port_dentry);
++		for (i = 0; i < FFE_CFG_MAX; i++) {
++			if (i == FFE_RESV)
++				continue;
++			debugfs_create_file(hisi_sas_debugfs_ffe_name[i].name,
++					    0600, ffe_dentry,
++					    &hisi_hba->debugfs_bist_ffe[phy_no][i],
++					    &hisi_sas_debugfs_ops);
++		}
++	}
++
+ 	for (r = 0; r < DEBUGFS_REGS_NUM; r++) {
+ 		struct hisi_sas_debugfs_regs *regs =
+ 				&hisi_hba->debugfs_regs[dump_index][r];
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index b45fb3ccc851..761f0cf46770 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -306,6 +306,7 @@
+ #define DMA_RX_STATUS_BUSY_MSK		(0x1 << DMA_RX_STATUS_BUSY_OFF)
+ 
+ #define COARSETUNE_TIME			(PORT_BASE + 0x304)
++#define TXDEEMPH_G1			(PORT_BASE + 0x350)
+ #define ERR_CNT_DWS_LOST		(PORT_BASE + 0x380)
+ #define ERR_CNT_RESET_PROB		(PORT_BASE + 0x384)
+ #define ERR_CNT_INVLD_DW		(PORT_BASE + 0x390)
+@@ -620,7 +621,7 @@ static u32 hisi_sas_phy_read32(struct hisi_hba *hisi_hba,
+ 
+ static void init_reg_v3_hw(struct hisi_hba *hisi_hba)
+ {
+-	int i;
++	int i, j;
+ 
+ 	/* Global registers init */
+ 	hisi_sas_write32(hisi_hba, DLVRY_QUEUE_ENABLE,
+@@ -723,6 +724,13 @@ static void init_reg_v3_hw(struct hisi_hba *hisi_hba)
+ 		/* used for 12G negotiate */
+ 		hisi_sas_phy_write32(hisi_hba, i, COARSETUNE_TIME, 0x1e);
+ 		hisi_sas_phy_write32(hisi_hba, i, AIP_LIMIT, 0x2ffff);
++
++		/* get default FFE configuration for BIST */
++		for (j = 0; j < FFE_CFG_MAX; j++) {
++			u32 val = hisi_sas_phy_read32(hisi_hba, i,
++						      TXDEEMPH_G1 + (j * 0x4));
++			hisi_hba->debugfs_bist_ffe[i][j] = val;
++		}
+ 	}
+ 
+ 	for (i = 0; i < hisi_hba->queue_count; i++) {
+@@ -3319,10 +3327,16 @@ static void hisi_sas_bist_test_prep_v3_hw(struct hisi_hba *hisi_hba)
+ {
+ 	u32 reg_val;
+ 	int phy_no = hisi_hba->bist_loopback_phy_id;
++	int i;
+ 
+ 	/* disable PHY */
+ 	hisi_sas_phy_enable(hisi_hba, phy_no, 0);
+ 
++	/* update FFE */
++	for (i = 0; i < FFE_CFG_MAX; i++)
++		hisi_sas_phy_write32(hisi_hba, phy_no, TXDEEMPH_G1 + (i * 0x4),
++				     hisi_hba->debugfs_bist_ffe[phy_no][i]);
++
+ 	/* disable ALOS */
+ 	reg_val = hisi_sas_phy_read32(hisi_hba, phy_no, SERDES_CFG);
+ 	reg_val |= CFG_ALOS_CHK_DISABLE_MSK;
+@@ -3356,16 +3370,28 @@ static void hisi_sas_bist_test_restore_v3_hw(struct hisi_hba *hisi_hba)
+ 	hisi_sas_phy_enable(hisi_hba, phy_no, 1);
+ }
+ 
++#define SAS_PHY_BIST_CODE_INIT 0x1
++#define SAS_PHY_BIST_CODE1_INIT 0x80
+ static int debugfs_set_bist_v3_hw(struct hisi_hba *hisi_hba, bool enable)
+ {
+ 	u32 reg_val, mode_tmp;
+ 	u32 linkrate = hisi_hba->bist_loopback_linkrate;
+ 	u32 phy_no = hisi_hba->bist_loopback_phy_id;
++	u32 *ffe = hisi_hba->debugfs_bist_ffe[phy_no];
+ 	u32 code_mode = hisi_hba->bist_loopback_code_mode;
+ 	u32 path_mode = hisi_hba->bist_loopback_mode;
++	u32 *fix_code = &hisi_hba->debugfs_bist_fixed_code[0];
++	struct device *dev = hisi_hba->dev;
++
++
++	dev_info(dev, "BIST info:phy%d link_rate=%d code_mode=%d path_mode=%d ffe={0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x} fixed_code={0x%x, 0x%x}\n",
++		 phy_no, linkrate, code_mode, path_mode,
++		 ffe[FFE_SAS_1_5_GBPS], ffe[FFE_SAS_3_0_GBPS],
++		 ffe[FFE_SAS_6_0_GBPS], ffe[FFE_SAS_12_0_GBPS],
++		 ffe[FFE_SATA_1_5_GBPS], ffe[FFE_SATA_3_0_GBPS],
++		 ffe[FFE_SATA_6_0_GBPS], fix_code[FIXED_CODE],
++		 fix_code[FIXED_CODE_1]);
+ 
+-	pr_err("linkrate=%d phy_no=%d code_mode=%d path_mode=%d\n", linkrate,
+-			phy_no, code_mode, path_mode);
+ 	mode_tmp = path_mode ? 2 : 1;
+ 	if (enable) {
+ 		/* some preparations before bist test */
+@@ -3382,27 +3408,37 @@ static int debugfs_set_bist_v3_hw(struct hisi_hba *hisi_hba, bool enable)
+ 		/* set code mode of bit test */
+ 		reg_val = hisi_sas_phy_read32(hisi_hba, phy_no,
+ 					      SAS_PHY_BIST_CTRL);
+-		reg_val &= ~(CFG_BIST_MODE_SEL_MSK |
+-				CFG_LOOP_TEST_MODE_MSK |
+-				CFG_RX_BIST_EN_MSK |
+-				CFG_TX_BIST_EN_MSK |
+-				CFG_BIST_TEST_MSK);
++		reg_val &= ~(CFG_BIST_MODE_SEL_MSK | CFG_LOOP_TEST_MODE_MSK |
++			     CFG_RX_BIST_EN_MSK | CFG_TX_BIST_EN_MSK |
++			     CFG_BIST_TEST_MSK);
+ 		reg_val |= ((code_mode << CFG_BIST_MODE_SEL_OFF) |
+ 			    (mode_tmp << CFG_LOOP_TEST_MODE_OFF) |
+ 			    CFG_BIST_TEST_MSK);
+-		hisi_sas_phy_write32(hisi_hba, phy_no,
+-				     SAS_PHY_BIST_CTRL, reg_val);
++		hisi_sas_phy_write32(hisi_hba, phy_no, SAS_PHY_BIST_CTRL,
++				     reg_val);
+ 
+ 		/*set the bist init data*/
+-		hisi_sas_phy_write32(hisi_hba, phy_no,
+-			SAS_PHY_BIST_CODE, 0x1);
+-		hisi_sas_phy_write32(hisi_hba, phy_no,
+-			SAS_PHY_BIST_CODE1, 0x80);
++		if (code_mode == HISI_SAS_BIST_CODE_MODE_FIXED_DATA) {
++			reg_val = hisi_hba->debugfs_bist_fixed_code[0];
++			hisi_sas_phy_write32(hisi_hba, phy_no,
++					     SAS_PHY_BIST_CODE, reg_val);
++
++			reg_val = hisi_hba->debugfs_bist_fixed_code[1];
++			hisi_sas_phy_write32(hisi_hba, phy_no,
++					     SAS_PHY_BIST_CODE1, reg_val);
++		} else {
++			hisi_sas_phy_write32(hisi_hba, phy_no,
++					     SAS_PHY_BIST_CODE,
++					     SAS_PHY_BIST_CODE_INIT);
++			hisi_sas_phy_write32(hisi_hba, phy_no,
++					     SAS_PHY_BIST_CODE1,
++					     SAS_PHY_BIST_CODE1_INIT);
++		}
+ 
+ 		mdelay(100);
+ 		reg_val |= (CFG_RX_BIST_EN_MSK | CFG_TX_BIST_EN_MSK);
+-		hisi_sas_phy_write32(hisi_hba, phy_no,
+-				     SAS_PHY_BIST_CTRL, reg_val);
++		hisi_sas_phy_write32(hisi_hba, phy_no, SAS_PHY_BIST_CTRL,
++				     reg_val);
+ 
+ 		/* clear error bit */
+ 		mdelay(100);
+-- 
+2.27.0
+

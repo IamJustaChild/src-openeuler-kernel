@@ -1,0 +1,54 @@
+From 8117524e3fc1de6fbe2f0f4d0986073395baccb6 Mon Sep 17 00:00:00 2001
+From: Luo Jiaxing <luojiaxing@huawei.com>
+Date: Fri, 15 May 2020 22:13:43 +0800
+Subject: [PATCH 047/108] scsi: hisi_sas: Modify the commit information for DSM
+ method
+
+mainline inclusion
+from mainline-v5.8-rc1
+commit 1e954d1f002db802937deb87a868c3f62fe1badf
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EKNE
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=1e954d1f002db802937deb87a868c3f62fe1badf
+
+----------------------------------------------------------------------
+
+Make it clear that BIOS may modify some register settings.
+
+Link: https://lore.kernel.org/r/1589552025-165012-3-git-send-email-john.garry@huawei.com
+Signed-off-by: Luo Jiaxing <luojiaxing@huawei.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+---
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index 23eeb3678da2..ec48413dcf1e 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -1010,12 +1010,14 @@ static int hw_init_v3_hw(struct hisi_hba *hisi_hba)
+ 	}
+ 
+ 	/*
+-	 * Switch over to MSI handling due to non-standard PCI implementation.
++	 * This DSM handles some hardware-related configurations:
++	 * 1. Switch over to MSI error handling in kernel
++	 * 2. BIOS *may* reset some register values through this method
+ 	 */
+ 	obj = acpi_evaluate_dsm(ACPI_HANDLE(dev), &guid, 0,
+ 				DSM_FUNC_ERR_HANDLE_MSI, NULL);
+ 	if (!obj)
+-		dev_warn(dev, "Switch over to MSI handling failed\n");
++		dev_warn(dev, "can not find DSM method, ignore\n");
+ 	else
+ 		ACPI_FREE(obj);
+ 
+-- 
+2.27.0
+

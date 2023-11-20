@@ -1,0 +1,44 @@
+From b85bd98ae38cdb6c957ed34ebdff1706b963fd86 Mon Sep 17 00:00:00 2001
+From: Luo Jiaxing <luojiaxing@huawei.com>
+Date: Fri, 15 May 2020 22:13:44 +0800
+Subject: [PATCH 048/108] scsi: hisi_sas: Add SAS_RAS_INTR0 to debugfs register
+ name list
+
+mainline inclusion
+from mainline-v5.8-rc1
+commit 1a0efb55b2bb9e970b8842030ce65d645ddba90c
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EKNE
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=1a0efb55b2bb9e970b8842030ce65d645ddba90c
+
+----------------------------------------------------------------------
+
+Register SAS_RAS_INTR0 can help us to figure out which ECC error has
+occurred. This register is helpful to identify RAS issue, so we add it to
+the list of debugfs register name list for easier retrieval.
+
+Link: https://lore.kernel.org/r/1589552025-165012-4-git-send-email-john.garry@huawei.com
+Signed-off-by: Luo Jiaxing <luojiaxing@huawei.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index ec48413dcf1e..abef129a2290 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -3279,6 +3279,7 @@ static const struct hisi_sas_debugfs_reg debugfs_axi_reg = {
+ };
+ 
+ static const struct hisi_sas_debugfs_reg_lu debugfs_ras_reg_lu[] = {
++	HISI_SAS_DEBUGFS_REG(SAS_RAS_INTR0),
+ 	HISI_SAS_DEBUGFS_REG(SAS_RAS_INTR1),
+ 	HISI_SAS_DEBUGFS_REG(SAS_RAS_INTR0_MASK),
+ 	HISI_SAS_DEBUGFS_REG(SAS_RAS_INTR1_MASK),
+-- 
+2.27.0
+
