@@ -1,0 +1,153 @@
+From 2b7991f02b392f8272d69a9a327ec69a8c2774d8 Mon Sep 17 00:00:00 2001
+From: Luo Jiaxing <luojiaxing@huawei.com>
+Date: Thu, 24 Oct 2019 22:08:25 +0800
+Subject: [PATCH 038/108] scsi: hisi_sas: Record the phy down event in debugfs
+
+mainline inclusion
+from mainline-v5.5-rc1
+commit f873b66119f2d6fc7b932a68df8d77a26357bab6
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F81L
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=f873b66119f2d6fc7b932a68df8d77a26357bab6
+
+----------------------------------------------------------------------
+
+The number of phy down reflects the quality of the link between SAS
+controller and disk. In order to allow the user to confirm the link quality
+of the system, we record the number of phy down for each phy.
+
+The user can check the current phy down count by reading the debugfs file
+corresponding to the specific phy, or clear the phy down count by writing 0
+to the debugfs file.
+
+Link: https://lore.kernel.org/r/1571926105-74636-19-git-send-email-john.garry@huawei.com
+Signed-off-by: Luo Jiaxing <luojiaxing@huawei.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/hisi_sas/hisi_sas_main.c
+---
+ drivers/scsi/hisi_sas/hisi_sas.h       |  1 +
+ drivers/scsi/hisi_sas/hisi_sas_main.c  | 63 ++++++++++++++++++++++++++
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c |  2 +
+ 3 files changed, 66 insertions(+)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas.h b/drivers/scsi/hisi_sas/hisi_sas.h
+index 9eba71ad47fd..6b66c056ecc8 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas.h
++++ b/drivers/scsi/hisi_sas/hisi_sas.h
+@@ -188,6 +188,7 @@ struct hisi_sas_phy {
+ 	enum sas_linkrate	maximum_linkrate;
+ 	u32		code_error_count;
+ 	int enable;
++	atomic_t down_cnt;
+ };
+ 
+ struct hisi_sas_port {
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index d25fbb051bd3..356ebe30b5c0 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -3794,6 +3794,52 @@ static const struct file_operations hisi_sas_debugfs_trigger_dump_fops = {
+ 	.owner = THIS_MODULE,
+ };
+ 
++static ssize_t hisi_sas_debugfs_phy_down_cnt_write(struct file *filp,
++						    const char __user *buf,
++						    size_t count, loff_t *ppos)
++{
++	struct seq_file *s = filp->private_data;
++	struct hisi_sas_phy *phy = s->private;
++	unsigned int set_val;
++	int res;
++
++	res = kstrtouint_from_user(buf, count, 0, &set_val);
++	if (res)
++		return res;
++
++	if (set_val > 0)
++		return -EINVAL;
++
++	atomic_set(&phy->down_cnt, 0);
++
++	return count;
++}
++
++static int hisi_sas_debugfs_phy_down_cnt_show(struct seq_file *s, void *p)
++{
++	struct hisi_sas_phy *phy = s->private;
++
++	seq_printf(s, "%d\n", atomic_read(&phy->down_cnt));
++
++	return 0;
++}
++
++static int hisi_sas_debugfs_phy_down_cnt_open(struct inode *inode,
++					       struct file *filp)
++{
++	return single_open(filp, hisi_sas_debugfs_phy_down_cnt_show,
++			   inode->i_private);
++}
++
++static const struct file_operations hisi_sas_debugfs_phy_down_cnt_ops = {
++	.open = hisi_sas_debugfs_phy_down_cnt_open,
++	.read = seq_read,
++	.write = hisi_sas_debugfs_phy_down_cnt_write,
++	.llseek = seq_lseek,
++	.release = single_release,
++	.owner = THIS_MODULE,
++};
++
+ void hisi_sas_debugfs_work_handler(struct work_struct *work)
+ {
+ 	struct hisi_hba *hisi_hba =
+@@ -3961,6 +4007,21 @@ static int hisi_sas_debugfs_alloc(struct hisi_hba *hisi_hba, int dump_index)
+ 	return -ENOMEM;
+ }
+ 
++static void hisi_sas_debugfs_phy_down_cnt_init(struct hisi_hba *hisi_hba)
++{
++	struct dentry *dir = debugfs_create_dir("phy_down_cnt",
++						hisi_hba->debugfs_dir);
++	char name[16];
++	int phy_no;
++
++	for (phy_no = 0; phy_no < hisi_hba->n_phy; phy_no++) {
++		snprintf(name, 16, "%d", phy_no);
++		debugfs_create_file(name, 0600, dir,
++				    &hisi_hba->phy[phy_no],
++				    &hisi_sas_debugfs_phy_down_cnt_ops);
++	}
++}
++
+ void hisi_sas_debugfs_init(struct hisi_hba *hisi_hba)
+ {
+ 	struct device *dev = hisi_hba->dev;
+@@ -3976,6 +4037,8 @@ void hisi_sas_debugfs_init(struct hisi_hba *hisi_hba)
+ 	hisi_hba->debugfs_dump_dentry =
+ 			debugfs_create_dir("dump", hisi_hba->debugfs_dir);
+ 
++	hisi_sas_debugfs_phy_down_cnt_init(hisi_hba);
++
+ 	for (i = 0; i < hisi_sas_debugfs_dump_count; i++) {
+ 		if (hisi_sas_debugfs_alloc(hisi_hba, i)) {
+ 			debugfs_remove_recursive(hisi_hba->debugfs_dir);
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index e83a5ad2a491..35fee5d5d141 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -1704,6 +1704,8 @@ static irqreturn_t phy_down_v3_hw(int phy_no, struct hisi_hba *hisi_hba)
+ 	u32 phy_state, sl_ctrl, txid_auto;
+ 	struct device *dev = hisi_hba->dev;
+ 
++	atomic_inc(&phy->down_cnt);
++
+ 	del_timer(&phy->timer);
+ 	hisi_sas_phy_write32(hisi_hba, phy_no, PHYCTRL_NOT_RDY_MSK, 1);
+ 
+-- 
+2.27.0
+

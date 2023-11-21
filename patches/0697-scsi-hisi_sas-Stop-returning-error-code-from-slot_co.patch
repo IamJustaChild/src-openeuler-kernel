@@ -1,0 +1,233 @@
+From d637cc02edc2d41441f2d9de0e825949438a0604 Mon Sep 17 00:00:00 2001
+From: John Garry <john.garry@huawei.com>
+Date: Fri, 15 May 2020 22:13:45 +0800
+Subject: [PATCH 049/108] scsi: hisi_sas: Stop returning error code from
+ slot_complete_vX_hw()
+
+mainline inclusion
+from mainline-v5.8-rc1
+commit 1cdee004426164d1b00b66d3f6e7308c3714def6
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EKNE
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=1cdee004426164d1b00b66d3f6e7308c3714def6
+
+----------------------------------------------------------------------
+
+The error codes are never checked, stop returning them.
+
+Link: https://lore.kernel.org/r/1589552025-165012-5-git-send-email-john.garry@huawei.com
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
+	drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
+	drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+---
+ drivers/scsi/hisi_sas/hisi_sas_v1_hw.c | 12 ++++--------
+ drivers/scsi/hisi_sas/hisi_sas_v2_hw.c | 16 ++++++----------
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 16 ++++++----------
+ 3 files changed, 16 insertions(+), 28 deletions(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
+index c21a18703cab..09cc42e66dd5 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
+@@ -1179,15 +1179,14 @@ static void slot_err_v1_hw(struct hisi_hba *hisi_hba,
+ 
+ }
+ 
+-static int slot_complete_v1_hw(struct hisi_hba *hisi_hba,
+-			       struct hisi_sas_slot *slot)
++static void slot_complete_v1_hw(struct hisi_hba *hisi_hba,
++				struct hisi_sas_slot *slot)
+ {
+ 	struct sas_task *task = slot->task;
+ 	struct hisi_sas_device *sas_dev;
+ 	struct device *dev = hisi_hba->dev;
+ 	struct task_status_struct *ts;
+ 	struct domain_device *device;
+-	enum exec_status sts;
+ 	struct hisi_sas_complete_v1_hdr *complete_queue =
+ 			hisi_hba->complete_hdr[slot->cmplt_queue];
+ 	struct hisi_sas_complete_v1_hdr *complete_hdr;
+@@ -1198,7 +1197,7 @@ static int slot_complete_v1_hw(struct hisi_hba *hisi_hba,
+ 	cmplt_hdr_data = le32_to_cpu(complete_hdr->data);
+ 
+ 	if (unlikely(!task || !task->lldd_task || !task->dev))
+-		return -EINVAL;
++		return;
+ 
+ 	ts = &task->task_status;
+ 	device = task->dev;
+@@ -1265,7 +1264,7 @@ static int slot_complete_v1_hw(struct hisi_hba *hisi_hba,
+ 		slot_err_v1_hw(hisi_hba, task, slot);
+ 		if (unlikely(slot->abort)) {
+ 			sas_task_abort(task);
+-			return ts->stat;
++			return;
+ 		}
+ 		goto out;
+ 	}
+@@ -1315,12 +1314,9 @@ static int slot_complete_v1_hw(struct hisi_hba *hisi_hba,
+ 
+ out:
+ 	hisi_sas_slot_task_free(hisi_hba, task, slot, true);
+-	sts = ts->stat;
+ 
+ 	if (task->task_done)
+ 		task->task_done(task);
+-
+-	return sts;
+ }
+ 
+ /* Interrupts */
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
+index c044ce0a0f18..6de3fe10c5be 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
+@@ -2332,8 +2332,8 @@ static void slot_err_v2_hw(struct hisi_hba *hisi_hba,
+ 	}
+ }
+ 
+-static int
+-slot_complete_v2_hw(struct hisi_hba *hisi_hba, struct hisi_sas_slot *slot)
++static void slot_complete_v2_hw(struct hisi_hba *hisi_hba,
++				struct hisi_sas_slot *slot)
+ {
+ 	struct sas_task *task = slot->task;
+ 	struct hisi_sas_device *sas_dev;
+@@ -2341,7 +2341,6 @@ slot_complete_v2_hw(struct hisi_hba *hisi_hba, struct hisi_sas_slot *slot)
+ 	struct task_status_struct *ts;
+ 	struct domain_device *device;
+ 	struct sas_ha_struct *ha;
+-	enum exec_status sts;
+ 	struct hisi_sas_complete_v2_hdr *complete_queue =
+ 			hisi_hba->complete_hdr[slot->cmplt_queue];
+ 	struct hisi_sas_complete_v2_hdr *complete_hdr =
+@@ -2351,7 +2350,7 @@ slot_complete_v2_hw(struct hisi_hba *hisi_hba, struct hisi_sas_slot *slot)
+ 	u32 dw0;
+ 
+ 	if (unlikely(!task || !task->lldd_task || !task->dev))
+-		return -EINVAL;
++		return;
+ 
+ 	ts = &task->task_status;
+ 	device = task->dev;
+@@ -2422,7 +2421,7 @@ slot_complete_v2_hw(struct hisi_hba *hisi_hba, struct hisi_sas_slot *slot)
+ 
+ 		if (unlikely(slot->abort)) {
+ 			sas_task_abort(task);
+-			return ts->stat;
++			return;
+ 		}
+ 		goto out;
+ 	}
+@@ -2474,12 +2473,11 @@ slot_complete_v2_hw(struct hisi_hba *hisi_hba, struct hisi_sas_slot *slot)
+ 	}
+ 
+ out:
+-	sts = ts->stat;
+ 	spin_lock_irqsave(&task->task_state_lock, flags);
+ 	if (task->task_state_flags & SAS_TASK_STATE_ABORTED) {
+ 		spin_unlock_irqrestore(&task->task_state_lock, flags);
+ 		dev_info(dev, "slot complete: task(%pK) aborted\n", task);
+-		return SAS_ABORTED_TASK;
++		return;
+ 	}
+ 	task->task_state_flags |= SAS_TASK_STATE_DONE;
+ 	spin_unlock_irqrestore(&task->task_state_lock, flags);
+@@ -2491,15 +2489,13 @@ slot_complete_v2_hw(struct hisi_hba *hisi_hba, struct hisi_sas_slot *slot)
+ 			spin_unlock_irqrestore(&device->done_lock, flags);
+ 			dev_info(dev, "slot complete: task(%pK) ignored\n",
+ 				 task);
+-			return sts;
++			return;
+ 		}
+ 		spin_unlock_irqrestore(&device->done_lock, flags);
+ 	}
+ 
+ 	if (task->task_done)
+ 		task->task_done(task);
+-
+-	return sts;
+ }
+ 
+ static void prep_ata_v2_hw(struct hisi_hba *hisi_hba,
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index abef129a2290..ecc91ca8a54d 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -2389,8 +2389,8 @@ static int ssp_need_spin_up(struct hisi_sas_slot *slot)
+ 	return 0;
+ }
+ 
+-static int
+-slot_complete_v3_hw(struct hisi_hba *hisi_hba, struct hisi_sas_slot *slot)
++static void slot_complete_v3_hw(struct hisi_hba *hisi_hba,
++				struct hisi_sas_slot *slot)
+ {
+ 	struct sas_task *task = slot->task;
+ 	struct hisi_sas_device *sas_dev;
+@@ -2398,7 +2398,6 @@ slot_complete_v3_hw(struct hisi_hba *hisi_hba, struct hisi_sas_slot *slot)
+ 	struct task_status_struct *ts;
+ 	struct domain_device *device;
+ 	struct sas_ha_struct *ha;
+-	enum exec_status sts;
+ 	struct hisi_sas_complete_v3_hdr *complete_queue =
+ 			hisi_hba->complete_hdr[slot->cmplt_queue];
+ 	struct hisi_sas_complete_v3_hdr *complete_hdr =
+@@ -2408,7 +2407,7 @@ slot_complete_v3_hw(struct hisi_hba *hisi_hba, struct hisi_sas_slot *slot)
+ 	u32 dw0, dw1, dw3;
+ 
+ 	if (unlikely(!task || !task->lldd_task || !task->dev))
+-		return -EINVAL;
++		return;
+ 
+ 	ts = &task->task_status;
+ 	device = task->dev;
+@@ -2518,7 +2517,7 @@ slot_complete_v3_hw(struct hisi_hba *hisi_hba, struct hisi_sas_slot *slot)
+ 			else
+ 				sas_task_abort(task);
+ 
+-			return ts->stat;
++			return;
+ 		}
+ 		goto out;
+ 	}
+@@ -2576,12 +2575,11 @@ slot_complete_v3_hw(struct hisi_hba *hisi_hba, struct hisi_sas_slot *slot)
+ 	}
+ 
+ out:
+-	sts = ts->stat;
+ 	spin_lock_irqsave(&task->task_state_lock, flags);
+ 	if (task->task_state_flags & SAS_TASK_STATE_ABORTED) {
+ 		spin_unlock_irqrestore(&task->task_state_lock, flags);
+ 		dev_info(dev, "slot complete: task(%pK) aborted\n", task);
+-		return SAS_ABORTED_TASK;
++		return;
+ 	}
+ 	task->task_state_flags |= SAS_TASK_STATE_DONE;
+ 	spin_unlock_irqrestore(&task->task_state_lock, flags);
+@@ -2593,15 +2591,13 @@ slot_complete_v3_hw(struct hisi_hba *hisi_hba, struct hisi_sas_slot *slot)
+ 			spin_unlock_irqrestore(&device->done_lock, flags);
+ 			dev_info(dev, "slot complete: task(%pK) ignored\n ",
+ 				 task);
+-			return sts;
++			return;
+ 		}
+ 		spin_unlock_irqrestore(&device->done_lock, flags);
+ 	}
+ 
+ 	if (task->task_done)
+ 		task->task_done(task);
+-
+-	return sts;
+ }
+ 
+ static void hisi_sas_disk_err_handler(struct hisi_hba *hisi_hba,
+-- 
+2.27.0
+

@@ -1,0 +1,75 @@
+From 188031fc5d10d4b702e33dc1b062f9ffe4a27974 Mon Sep 17 00:00:00 2001
+From: Luo Jiaxing <luojiaxing@huawei.com>
+Date: Tue, 1 Sep 2020 19:13:07 +0800
+Subject: [PATCH 055/108] scsi: hisi_sas: Add BIST support for phy FFE
+
+mainline inclusion
+from mainline-v5.10-rc1
+commit 2c4d582322ff412f83f5c538e33c9440a30db73d
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F81L
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=2c4d582322ff412f83f5c538e33c9440a30db73d
+
+----------------------------------------------------------------------
+
+Add BIST support for phy FFE (Feed forward equalizer) setting. The user can
+configure FFE through the new debugfs interface.
+
+FFE is a parameter used for link layer control. It will affect the link
+quality between the SAS controller and the backplane. In the BIST test, the
+FFE interface is provided to assist board testers in optimizing link
+parameters.
+
+The modification of the FFE parameter will affect the test after BIST or
+the normal running of the board. The user should save the initial FFE
+values and restore them after BIST test is complete.
+
+Link: https://lore.kernel.org/r/1598958790-232272-6-git-send-email-john.garry@huawei.com
+Signed-off-by: Luo Jiaxing <luojiaxing@huawei.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/hisi_sas/hisi_sas.h
+	drivers/scsi/hisi_sas/hisi_sas_main.c
+	drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+---
+ drivers/scsi/hisi_sas/hisi_sas.h | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas.h b/drivers/scsi/hisi_sas/hisi_sas.h
+index 6b66c056ecc8..94514b3615e2 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas.h
++++ b/drivers/scsi/hisi_sas/hisi_sas.h
+@@ -313,6 +313,18 @@ enum hisi_sas_debugfs_cache_type {
+ 	HISI_SAS_IOST_CACHE,
+ };
+ 
++enum hisi_sas_debugfs_bist_ffe_cfg {
++	FFE_SAS_1_5_GBPS,
++	FFE_SAS_3_0_GBPS,
++	FFE_SAS_6_0_GBPS,
++	FFE_SAS_12_0_GBPS,
++	FFE_RESV,
++	FFE_SATA_1_5_GBPS,
++	FFE_SATA_3_0_GBPS,
++	FFE_SATA_6_0_GBPS,
++	FFE_CFG_MAX
++};
++
+ struct hisi_sas_hw {
+ 	int (*hw_init)(struct hisi_hba *hisi_hba);
+ 	void (*setup_itct)(struct hisi_hba *hisi_hba,
+@@ -479,6 +491,7 @@ struct hisi_hba {
+ 	int bist_loopback_mode;
+ 	u32 bist_loopback_cnt;
+ 	int bist_loopback_enable;
++	u32 debugfs_bist_ffe[HISI_SAS_MAX_PHYS][FFE_CFG_MAX];
+ 
+ 	int enable_dix_dif;
+ 	unsigned int *reply_map;
+-- 
+2.27.0
+

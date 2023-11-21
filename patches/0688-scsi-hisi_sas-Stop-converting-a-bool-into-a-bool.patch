@@ -1,0 +1,42 @@
+From 40525c4530b6b829cce3711c4c2e3c77d8259a6d Mon Sep 17 00:00:00 2001
+From: John Garry <john.garry@huawei.com>
+Date: Tue, 12 Nov 2019 17:30:59 +0800
+Subject: [PATCH 040/108] scsi: hisi_sas: Stop converting a bool into a bool
+
+mainline inclusion
+from mainline-v5.5-rc1
+commit 964231aa0c7ef53ebc9c2a6889bbc50d8a3f2220
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8F81L
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=964231aa0c7ef53ebc9c2a6889bbc50d8a3f2220
+
+----------------------------------------------------------------------
+
+The !! operator on a bool is pointless, so remove an example in
+hisi_sas_rescan_topology().
+
+Link: https://lore.kernel.org/r/1573551059-107873-5-git-send-email-john.garry@huawei.com
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/hisi_sas/hisi_sas_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index 356ebe30b5c0..ee2b22ba37f9 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -1448,7 +1448,7 @@ static void hisi_sas_rescan_topology(struct hisi_hba *hisi_hba, u32 state)
+ 		struct hisi_sas_phy *phy = &hisi_hba->phy[phy_no];
+ 		struct asd_sas_phy *sas_phy = &phy->sas_phy;
+ 		struct asd_sas_port *sas_port = sas_phy->port;
+-		bool do_port_check = !!(_sas_port != sas_port);
++		bool do_port_check = _sas_port != sas_port;
+ 
+ 		if (!sas_phy->phy->enabled)
+ 			continue;
+-- 
+2.27.0
+

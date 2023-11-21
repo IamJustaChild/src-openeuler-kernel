@@ -1,0 +1,59 @@
+From 45f35ecb26c40f04e11df7a7314bd74d9f7551ed Mon Sep 17 00:00:00 2001
+From: YueHaibing <yuehaibing@huawei.com>
+Date: Mon, 23 Sep 2019 13:40:35 +0800
+Subject: [PATCH 023/108] scsi: hisi_sas: Make three functions static
+
+mainline inclusion
+from mainline-v5.4-rc2
+commit 4b6b1bb68628ec49e4cbfabd8ac17a169f079cd8
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EKNE
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=4b6b1bb68628ec49e4cbfabd8ac17a169f079cd8
+
+----------------------------------------------------------------------
+
+Fix sparse warnings:
+
+drivers/scsi/hisi_sas/hisi_sas_main.c:3686:6:
+ warning: symbol 'hisi_sas_debugfs_release' was not declared. Should it be static?
+drivers/scsi/hisi_sas/hisi_sas_main.c:3708:5:
+ warning: symbol 'hisi_sas_debugfs_alloc' was not declared. Should it be static?
+drivers/scsi/hisi_sas/hisi_sas_main.c:3799:6:
+ warning: symbol 'hisi_sas_debugfs_bist_init' was not declared. Should it be static?
+
+Link: https://lore.kernel.org/r/20190923054035.19036-1-yuehaibing@huawei.com
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Acked-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/hisi_sas/hisi_sas_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index 4e1bdfa370d9..31820f024340 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -3783,7 +3783,7 @@ void hisi_sas_debugfs_work_handler(struct work_struct *work)
+ }
+ EXPORT_SYMBOL_GPL(hisi_sas_debugfs_work_handler);
+ 
+-void hisi_sas_debugfs_release(struct hisi_hba *hisi_hba)
++static void hisi_sas_debugfs_release(struct hisi_hba *hisi_hba)
+ {
+ 	struct device *dev = hisi_hba->dev;
+ 	int i;
+@@ -3805,7 +3805,7 @@ void hisi_sas_debugfs_release(struct hisi_hba *hisi_hba)
+ 		devm_kfree(dev, hisi_hba->debugfs_port_reg[i]);
+ }
+ 
+-int hisi_sas_debugfs_alloc(struct hisi_hba *hisi_hba)
++static int hisi_sas_debugfs_alloc(struct hisi_hba *hisi_hba)
+ {
+ 	const struct hisi_sas_hw *hw = hisi_hba->hw;
+ 	struct device *dev = hisi_hba->dev;
+-- 
+2.27.0
+

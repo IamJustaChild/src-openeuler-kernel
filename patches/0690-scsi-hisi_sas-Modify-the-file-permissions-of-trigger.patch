@@ -1,0 +1,45 @@
+From 5bcbc20e6442a32daf48971070e2f02a4bf524d2 Mon Sep 17 00:00:00 2001
+From: Luo Jiaxing <luojiaxing@huawei.com>
+Date: Mon, 20 Jan 2020 20:22:34 +0800
+Subject: [PATCH 042/108] scsi: hisi_sas: Modify the file permissions of
+ trigger_dump to write only
+
+mainline inclusion
+from mainline-v5.6-rc1
+commit 3cd2f3c35d29a50947a975feffdcbe2d6a2418c0
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EKNE
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=3cd2f3c35d29a50947a975feffdcbe2d6a2418c0
+
+----------------------------------------------------------------------
+
+The trigger_dump file is only used to manually trigger the dump, and did
+not provide a read callback function for it, so its file permission
+setting to 600 is wrong,and should be changed to 200.
+
+Link: https://lore.kernel.org/r/1579522957-4393-5-git-send-email-john.garry@huawei.com
+Signed-off-by: Luo Jiaxing <luojiaxing@huawei.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/hisi_sas/hisi_sas_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index ee2b22ba37f9..7185cc263597 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -4029,7 +4029,7 @@ void hisi_sas_debugfs_init(struct hisi_hba *hisi_hba)
+ 
+ 	hisi_hba->debugfs_dir = debugfs_create_dir(dev_name(dev),
+ 						   hisi_sas_debugfs_dir);
+-	debugfs_create_file("trigger_dump", 0600,
++	debugfs_create_file("trigger_dump", 0200,
+ 			    hisi_hba->debugfs_dir,
+ 			    hisi_hba,
+ 			    &hisi_sas_debugfs_trigger_dump_fops);
+-- 
+2.27.0
+

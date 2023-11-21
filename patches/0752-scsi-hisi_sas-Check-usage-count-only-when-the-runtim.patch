@@ -1,0 +1,62 @@
+From 75e571e9d7ab42b0a9551ec0219045be5c365d60 Mon Sep 17 00:00:00 2001
+From: Yihang Li <liyihang9@huawei.com>
+Date: Thu, 8 Jun 2023 11:04:51 +0800
+Subject: [PATCH 104/108] scsi: hisi_sas: Check usage count only when the
+ runtime PM status is RPM_SUSPENDING
+
+driver inclusion
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F803
+CVE: NA
+
+----------------------------------------------------------------------
+
+Users can suspend the machine with 'echo disk > /sys/power/state', but the
+suspend will fail because the SAS controller cannot be suspended:
+
+[root@localhost ~]# echo freeze > /sys/power/state
+-bash: echo: write error: Device or resource busy
+[15104.142955] PM: suspend entry (s2idle)
+...
+[15104.283465] hisi_sas_v3_hw 0000:32:04.0: entering suspend state
+[15104.283480] hisi_sas_v3_hw 0000:30:04.0: entering suspend state
+[15104.283500] hisi_sas_v3_hw 0000:32:04.0: PM suspend: host status cannot be suspended
+[15104.283508] hisi_sas_v3_hw 0000:30:04.0: PM suspend: host status cannot be suspended
+[15104.283516] hisi_sas_v3_hw 0000:32:04.0: PM: pci_pm_suspend(): suspend_v3_hw+0x0/0x210 [hisi_sas_v3_hw] returns -16
+[15104.283527] hisi_sas_v3_hw 0000:32:04.0: PM: dpm_run_callback(): pci_pm_suspend+0x0/0x1c0 returns -16
+[15104.283524] hisi_sas_v3_hw 0000:30:04.0: PM: pci_pm_suspend(): suspend_v3_hw+0x0/0x210 [hisi_sas_v3_hw] returns -16
+[15104.283533] hisi_sas_v3_hw 0000:32:04.0: PM: failed to suspend async: error -16
+[15104.283536] hisi_sas_v3_hw 0000:30:04.0: PM: dpm_run_callback(): pci_pm_suspend+0x0/0x1c0 returns -16
+[15104.283542] hisi_sas_v3_hw 0000:30:04.0: PM: failed to suspend async: error -16
+
+The problem is that when the ->runtime_suspend() callback suspend_v3_hw()
+is executing, the current runtime PM status is RPM_ACTIVE and the usage
+count of the controller is not 0, so return immediately.
+
+To fix it, Check the device usage count only when the runtime PM status is
+RPM_SUSPENDING.
+
+Signed-off-by: Yihang Li <liyihang9@huawei.com>
+Signed-off-by: xiabing <xiabing12@h-partners.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index e286bfc14eca..373a820f7808 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -5442,7 +5442,8 @@ static int _suspend_v3_hw(struct device *device)
+ 	interrupt_disable_v3_hw(hisi_hba);
+ 
+ #ifdef CONFIG_PM
+-	if (atomic_read(&device->power.usage_count)) {
++	if ((device->power.runtime_status == RPM_SUSPENDING) &&
++	    atomic_read(&device->power.usage_count)) {
+ 		dev_err(dev, "PM suspend: host status cannot be suspended\n");
+ 		rc = -EBUSY;
+ 		goto err_out;
+-- 
+2.27.0
+

@@ -1,0 +1,55 @@
+From 1ff296a7a65974658659d6740768edeea826448a Mon Sep 17 00:00:00 2001
+From: Xiang Chen <chenxiang66@hisilicon.com>
+Date: Fri, 2 Oct 2020 22:30:38 +0800
+Subject: [PATCH 063/108] scsi: hisi_sas: Recover PHY state according to the
+ status before reset
+
+mainline inclusion
+from mainline-v5.10-rc1
+commit 69f4ec1edb136d2d2511d1ef96f94ef0aeecefdf
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F81U
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=69f4ec1edb136d2d2511d1ef96f94ef0aeecefdf
+
+----------------------------------------------------------------------
+
+Currently the PHY state is set according to the state of the PHYs after
+reset. This is invalid as the PHYs are already re-initialized.
+
+Set PHY state according to the state before the reset instead of after.
+
+Link: https://lore.kernel.org/r/1601649038-25534-8-git-send-email-john.garry@huawei.com
+Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/hisi_sas/hisi_sas_main.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index 154bd66a5915..ea1f238b9213 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -1599,7 +1599,6 @@ EXPORT_SYMBOL_GPL(hisi_sas_controller_reset_prepare);
+ void hisi_sas_controller_reset_done(struct hisi_hba *hisi_hba)
+ {
+ 	struct Scsi_Host *shost = hisi_hba->shost;
+-	u32 state;
+ 
+ 	/* Init and wait for PHYs to come up and all libsas event finished. */
+ 	hisi_hba->hw->phys_init(hisi_hba);
+@@ -1615,8 +1614,7 @@ void hisi_sas_controller_reset_done(struct hisi_hba *hisi_hba)
+ 	scsi_unblock_requests(shost);
+ 	clear_bit(HISI_SAS_RESET_BIT, &hisi_hba->flags);
+ 
+-	state = hisi_hba->hw->get_phys_state(hisi_hba);
+-	hisi_sas_rescan_topology(hisi_hba, state);
++	hisi_sas_rescan_topology(hisi_hba, hisi_hba->phy_state);
+ }
+ EXPORT_SYMBOL_GPL(hisi_sas_controller_reset_done);
+ 
+-- 
+2.27.0
+

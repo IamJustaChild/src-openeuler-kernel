@@ -1,0 +1,193 @@
+From 0d1bdb32b173ca4a13619c592d53addb2061674f Mon Sep 17 00:00:00 2001
+From: Xiaofei Tan <tanxiaofei@huawei.com>
+Date: Fri, 25 Jan 2019 22:22:35 +0800
+Subject: [PATCH 003/108] scsi: hisi_sas: Fix losing directly attached disk
+ when hot-plug
+
+mainline inclusion
+from mainline-v5.1-rc1
+commit b6c9b15e44090aee2a7fba646b06ff166f595b16
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EKNE
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=b6c9b15e44090aee2a7fba646b06ff166f595b16
+
+----------------------------------------------------------------------
+
+Hot-plugging SAS wire of direct hard disk backplane may cause disk lost. We
+have done this test with several types of SATA disk from different venders,
+and only two models from Seagate has this problem, ST4000NM0035-1V4107 and
+ST3000VM002-1ET166.
+
+The root cause is that the disk doesn't send D2H frame after OOB finished.
+SAS controller will issue phyup interrupt only when D2H frame is received,
+otherwise, will be waiting there all the time.
+
+When this issue happen, we can find the disk again with link reset.  To fix
+this issue, we setup an timer after OOB finished. If the PHY is not up in
+20s, do link reset. Notes: the 20s is an experience value.
+
+Signed-off-by: Xiaofei Tan <tanxiaofei@huawei.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/hisi_sas/hisi_sas_main.c
+	drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
+	drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+---
+ drivers/scsi/hisi_sas/hisi_sas.h       |  1 +
+ drivers/scsi/hisi_sas/hisi_sas_main.c  | 26 ++++++++++++++++++++++-
+ drivers/scsi/hisi_sas/hisi_sas_v2_hw.c | 26 +----------------------
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 29 ++------------------------
+ 4 files changed, 29 insertions(+), 53 deletions(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas.h b/drivers/scsi/hisi_sas/hisi_sas.h
+index cd64ac88b684..daa64e5aff3e 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas.h
++++ b/drivers/scsi/hisi_sas/hisi_sas.h
+@@ -608,6 +608,7 @@ extern void hisi_sas_init_mem(struct hisi_hba *hisi_hba);
+ extern void hisi_sas_rst_work_handler(struct work_struct *work);
+ extern void hisi_sas_sync_rst_work_handler(struct work_struct *work);
+ extern void hisi_sas_kill_tasklets(struct hisi_hba *hisi_hba);
++extern void hisi_sas_phy_oob_ready(struct hisi_hba *hisi_hba, int phy_no);
+ extern bool hisi_sas_notify_phy_event(struct hisi_sas_phy *phy,
+ 				enum hisi_sas_phy_event event);
+ extern void hisi_sas_release_tasks(struct hisi_hba *hisi_hba);
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index e7ffc5eaabe6..852ece4af0f4 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -915,6 +915,30 @@ bool hisi_sas_notify_phy_event(struct hisi_sas_phy *phy,
+ }
+ EXPORT_SYMBOL_GPL(hisi_sas_notify_phy_event);
+ 
++static void hisi_sas_wait_phyup_timedout(struct timer_list *t)
++{
++	struct hisi_sas_phy *phy = from_timer(phy, t, timer);
++	struct hisi_hba *hisi_hba = phy->hisi_hba;
++	struct device *dev = hisi_hba->dev;
++	int phy_no = phy->sas_phy.id;
++
++	dev_warn(dev, "phy%d wait phyup timeout, issuing link reset\n", phy_no);
++	hisi_sas_notify_phy_event(phy, HISI_PHYE_LINK_RESET);
++}
++
++void hisi_sas_phy_oob_ready(struct hisi_hba *hisi_hba, int phy_no)
++{
++	struct hisi_sas_phy *phy = &hisi_hba->phy[phy_no];
++	struct device *dev = hisi_hba->dev;
++
++	if (!timer_pending(&phy->timer)) {
++		dev_dbg(dev, "phy%d OOB ready\n", phy_no);
++		phy->timer.expires = jiffies + HISI_SAS_WAIT_PHYUP_TIMEOUT * HZ;
++		add_timer(&phy->timer);
++	}
++}
++EXPORT_SYMBOL_GPL(hisi_sas_phy_oob_ready);
++
+ static void hisi_sas_phy_init(struct hisi_hba *hisi_hba, int phy_no)
+ {
+ 	struct hisi_sas_phy *phy = &hisi_hba->phy[phy_no];
+@@ -944,7 +968,7 @@ static void hisi_sas_phy_init(struct hisi_hba *hisi_hba, int phy_no)
+ 
+ 	spin_lock_init(&phy->lock);
+ 
+-	timer_setup(&phy->timer, NULL, 0);
++	timer_setup(&phy->timer, hisi_sas_wait_phyup_timedout, 0);
+ }
+ 
+ /* Wrapper to ensure we track hisi_sas_phy.enable properly */
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
+index f9867176fa14..1b701ec807e8 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
+@@ -2889,30 +2889,6 @@ static const struct hisi_sas_hw_error port_ecc_axi_error[] = {
+ 	},
+ };
+ 
+-static void wait_phyup_timedout_v2_hw(struct timer_list *t)
+-{
+-	struct hisi_sas_phy *phy = from_timer(phy, t, timer);
+-	struct hisi_hba *hisi_hba = phy->hisi_hba;
+-	struct device *dev = hisi_hba->dev;
+-	int phy_no = phy->sas_phy.id;
+-
+-	dev_warn(dev, "phy%d wait phyup timeout, issuing link reset\n", phy_no);
+-	hisi_sas_notify_phy_event(phy, HISI_PHYE_LINK_RESET);
+-}
+-
+-static void phy_oob_ready_v2_hw(struct hisi_hba *hisi_hba, int phy_no)
+-{
+-	struct hisi_sas_phy *phy = &hisi_hba->phy[phy_no];
+-	struct device *dev = hisi_hba->dev;
+-
+-	if (!timer_pending(&phy->timer)) {
+-		dev_dbg(dev, "phy%d OOB ready\n", phy_no);
+-		phy->timer.function = wait_phyup_timedout_v2_hw;
+-		phy->timer.expires = jiffies + HISI_SAS_WAIT_PHYUP_TIMEOUT;
+-		add_timer(&phy->timer);
+-	}
+-}
+-
+ static irqreturn_t int_chnl_int_v2_hw(int irq_no, void *p)
+ {
+ 	struct hisi_hba *hisi_hba = p;
+@@ -2974,7 +2950,7 @@ static irqreturn_t int_chnl_int_v2_hw(int irq_no, void *p)
+ 				phy_bcast_v2_hw(phy_no, hisi_hba);
+ 
+ 			if (irq_value0 & CHL_INT0_PHY_RDY_MSK)
+-				phy_oob_ready_v2_hw(hisi_hba, phy_no);
++				hisi_sas_phy_oob_ready(hisi_hba, phy_no);
+ 
+ 			hisi_sas_phy_write32(hisi_hba, phy_no,
+ 					CHL_INT0, irq_value0
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index 79010d02ad24..cfa9756fb995 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -1916,38 +1916,13 @@ static void handle_chl_int2_v3_hw(struct hisi_hba *hisi_hba, int phy_no)
+ 	hisi_sas_phy_write32(hisi_hba, phy_no, CHL_INT2, irq_value);
+ }
+ 
+-static void wait_phyup_timedout_v3_hw(struct timer_list *t)
+-{
+-	struct hisi_sas_phy *phy = from_timer(phy, t, timer);
+-	struct hisi_hba *hisi_hba = phy->hisi_hba;
+-	struct device *dev = hisi_hba->dev;
+-	int phy_no = phy->sas_phy.id;
+-
+-	dev_warn(dev, "phy%d wait phyup timeout, issuing link reset\n", phy_no);
+-	hisi_sas_notify_phy_event(phy, HISI_PHYE_LINK_RESET);
+-}
+-
+ static void handle_chl_int0_v3_hw(struct hisi_hba *hisi_hba, int phy_no)
+ {
+ 	u32 irq_value0 = hisi_sas_phy_read32(hisi_hba, phy_no, CHL_INT0);
+-	struct device *dev = hisi_hba->dev;
+ 
+-	if (irq_value0 & CHL_INT0_PHY_RDY_MSK) {
+-		struct hisi_sas_phy *phy = &hisi_hba->phy[phy_no];
++	if (irq_value0 & CHL_INT0_PHY_RDY_MSK)
++		hisi_sas_phy_oob_ready(hisi_hba, phy_no);
+ 
+-		dev_dbg(dev, "phy%d OOB ready\n", phy_no);
+-		if (phy->phy_attached)
+-			goto out;
+-
+-		if (!timer_pending(&phy->timer)) {
+-			phy->timer.function = wait_phyup_timedout_v3_hw;
+-			phy->timer.expires = jiffies +
+-					HISI_SAS_WAIT_PHYUP_TIMEOUT;
+-			add_timer(&phy->timer);
+-		}
+-	}
+-
+-out:
+ 	hisi_sas_phy_write32(hisi_hba, phy_no, CHL_INT0,
+ 			     irq_value0 & (~CHL_INT0_SL_RX_BCST_ACK_MSK)
+ 			     & (~CHL_INT0_SL_PHY_ENABLE_MSK)
+-- 
+2.27.0
+

@@ -1,0 +1,53 @@
+From 9513f66b00179c5daa0bbd60c15c461d6f8c9edc Mon Sep 17 00:00:00 2001
+From: Luo Jiaxing <luojiaxing@huawei.com>
+Date: Tue, 3 Aug 2021 14:47:58 +0800
+Subject: [PATCH 076/108] scsi: hisi_sas: Print SATA device SAS address for
+ soft reset failure
+
+mainline inclusion
+from mainline-v5.13-rc1
+commit f4df167ad5a2274c12680ba3e7d816d32d1fc375
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EKNE
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=f4df167ad5a2274c12680ba3e7d816d32d1fc375
+
+----------------------------------------------------------------------
+
+Add (pseudo) SAS address for ATA software reset failure log to assist in
+debugging.
+
+Link: https://lore.kernel.org/r/1617709711-195853-7-git-send-email-john.garry@huawei.com
+Signed-off-by: Luo Jiaxing <luojiaxing@huawei.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reviewed-by: Ouyangdelong <ouyangdelong@huawei.com>
+Signed-off-by: Nifujia <nifujia1@hisilicon.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/hisi_sas/hisi_sas_main.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index edda95fe48d3..b9face46ec0f 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -1376,10 +1376,12 @@ static int hisi_sas_softreset_ata_disk(struct domain_device *device)
+ 			rc = hisi_sas_exec_internal_tmf_task(device, &fis,
+ 							     s, NULL);
+ 			if (rc != TMF_RESP_FUNC_COMPLETE)
+-				dev_err(dev, "ata disk de-reset failed\n");
++				dev_err(dev, "ata disk %016llx de-reset failed\n",
++					SAS_ADDR(device->sas_addr));
+ 		}
+ 	} else {
+-		dev_err(dev, "ata disk reset failed\n");
++		dev_err(dev, "ata disk %016llx reset failed\n",
++			SAS_ADDR(device->sas_addr));
+ 	}
+ 
+ 	if (rc == TMF_RESP_FUNC_COMPLETE)
+-- 
+2.27.0
+

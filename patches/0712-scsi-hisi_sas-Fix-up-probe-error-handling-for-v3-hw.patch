@@ -1,0 +1,111 @@
+From 56f4085b040b8ea37e339aed713024a08dde0c7b Mon Sep 17 00:00:00 2001
+From: Xiang Chen <chenxiang66@hisilicon.com>
+Date: Thu, 7 Jan 2021 07:40:36 +0000
+Subject: [PATCH 064/108] scsi: hisi_sas: Fix up probe error handling for v3 hw
+
+mainline inclusion
+from mainline-v5.11-rc1
+commit 2ebde94f2ea4cffd812ece2f318c2f4922239b1d
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EKNE
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=2ebde94f2ea4cffd812ece2f318c2f4922239b1d
+
+----------------------------------------------------------------------
+
+[ Upstream commit 2ebde94f2ea4cffd812ece2f318c2f4922239b1d ]
+
+Fix some rollbacks in function hisi_sas_v3_probe() and
+interrupt_init_v3_hw().
+
+Link: https://lore.kernel.org/r/1606207594-196362-3-git-send-email-john.garry@huawei.com
+Fixes: 8d98416a55eb ("scsi: hisi_sas: Switch v3 hw to MQ")
+Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Chen Jun <chenjun102@huawei.com>
+Acked-by: Xie XiuQi <xiexiuqi@huawei.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 22 ++++++++--------------
+ 1 file changed, 8 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index 587ab9616340..ed0d0a258145 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -2776,8 +2776,7 @@ static int interrupt_init_v3_hw(struct hisi_hba *hisi_hba)
+ 			      DRV_NAME " phy", hisi_hba);
+ 	if (rc) {
+ 		dev_err(dev, "could not request phy interrupt, rc=%d\n", rc);
+-		rc = -ENOENT;
+-		goto free_irq_vectors;
++		return -ENOENT;
+ 	}
+ 
+ 	rc = devm_request_irq(dev, pci_irq_vector(pdev, PCI_IRQ_CHANNEL),
+@@ -2785,8 +2784,7 @@ static int interrupt_init_v3_hw(struct hisi_hba *hisi_hba)
+ 			      DRV_NAME " channel", hisi_hba);
+ 	if (rc) {
+ 		dev_err(dev, "could not request chnl interrupt, rc=%d\n", rc);
+-		rc = -ENOENT;
+-		goto free_irq_vectors;
++		return -ENOENT;
+ 	}
+ 
+ 	rc = devm_request_irq(dev, pci_irq_vector(pdev, PCI_IRQ_AXI_FATAL),
+@@ -2794,8 +2792,7 @@ static int interrupt_init_v3_hw(struct hisi_hba *hisi_hba)
+ 			      DRV_NAME " fatal", hisi_hba);
+ 	if (rc) {
+ 		dev_err(dev, "could not request fatal interrupt, rc=%d\n", rc);
+-		rc = -ENOENT;
+-		goto free_irq_vectors;
++		return -ENOENT;
+ 	}
+ 
+ 	if (hisi_sas_intr_conv)
+@@ -2815,18 +2812,13 @@ static int interrupt_init_v3_hw(struct hisi_hba *hisi_hba)
+ 		if (rc) {
+ 			dev_err(dev, "could not request cq%d interrupt, rc=%d\n",
+ 				i, rc);
+-			rc = -ENOENT;
+-			goto free_irq_vectors;
++			return -ENOENT;
+ 		}
+ 
+ 		tasklet_init(t, cq_tasklet_v3_hw, (uintptr_t)cq);
+ 	}
+ 
+ 	return 0;
+-
+-free_irq_vectors:
+-	pci_free_irq_vectors(pdev);
+-	return rc;
+ }
+ 
+ static int hisi_sas_v3_init(struct hisi_hba *hisi_hba)
+@@ -3731,7 +3723,7 @@ hisi_sas_v3_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 
+ 	rc = scsi_add_host(shost, dev);
+ 	if (rc)
+-		goto err_out_ha;
++		goto err_out_debugfs;
+ 
+ 	rc = sas_register_ha(sha);
+ 	if (rc)
+@@ -3758,8 +3750,10 @@ hisi_sas_v3_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 
+ err_out_register_ha:
+ 	scsi_remove_host(shost);
+-err_out_ha:
++err_out_debugfs:
+ 	hisi_sas_debugfs_exit(hisi_hba);
++err_out_ha:
++	hisi_sas_free(hisi_hba);
+ 	scsi_host_put(shost);
+ err_out_regions:
+ 	pci_release_regions(pdev);
+-- 
+2.27.0
+

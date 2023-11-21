@@ -1,0 +1,162 @@
+From f7d6e01a03bdad472e3b2bb3b905c91f7ea2015b Mon Sep 17 00:00:00 2001
+From: Luo Jiaxing <luojiaxing@huawei.com>
+Date: Tue, 1 Sep 2020 19:13:06 +0800
+Subject: [PATCH 054/108] scsi: hisi_sas: Make phy index variable name
+ consistent
+
+mainline inclusion
+from mainline-v5.10-rc1
+commit ca06f2cd01d08fe01b155ee774a2c6518b03b275
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F81L
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=ca06f2cd01d08fe01b155ee774a2c6518b03b275
+
+----------------------------------------------------------------------
+
+We use "phy_id" to identify phy in the BIST code but the rest of code
+always uses "phy_no". Change it for consistency.
+
+Link: https://lore.kernel.org/r/1598958790-232272-5-git-send-email-john.garry@huawei.com
+Signed-off-by: Luo Jiaxing <luojiaxing@huawei.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+---
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 52 +++++++++++++-------------
+ 1 file changed, 26 insertions(+), 26 deletions(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index e278d5d8c0d9..b45fb3ccc851 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -3318,69 +3318,69 @@ static void debugfs_snapshot_restore_v3_hw(struct hisi_hba *hisi_hba)
+ static void hisi_sas_bist_test_prep_v3_hw(struct hisi_hba *hisi_hba)
+ {
+ 	u32 reg_val;
+-	int phy_id = hisi_hba->bist_loopback_phy_id;
++	int phy_no = hisi_hba->bist_loopback_phy_id;
+ 
+ 	/* disable PHY */
+-	hisi_sas_phy_enable(hisi_hba, phy_id, 0);
++	hisi_sas_phy_enable(hisi_hba, phy_no, 0);
+ 
+ 	/* disable ALOS */
+-	reg_val = hisi_sas_phy_read32(hisi_hba, phy_id, SERDES_CFG);
++	reg_val = hisi_sas_phy_read32(hisi_hba, phy_no, SERDES_CFG);
+ 	reg_val |= CFG_ALOS_CHK_DISABLE_MSK;
+-	hisi_sas_phy_write32(hisi_hba, phy_id, SERDES_CFG, reg_val);
++	hisi_sas_phy_write32(hisi_hba, phy_no, SERDES_CFG, reg_val);
+ }
+ 
+ static void hisi_sas_bist_test_restore_v3_hw(struct hisi_hba *hisi_hba)
+ {
+ 	u32 reg_val;
+-	int phy_id = hisi_hba->bist_loopback_phy_id;
++	int phy_no = hisi_hba->bist_loopback_phy_id;
+ 
+ 	/* disable loopback */
+-	reg_val = hisi_sas_phy_read32(hisi_hba, phy_id, SAS_PHY_BIST_CTRL);
++	reg_val = hisi_sas_phy_read32(hisi_hba, phy_no, SAS_PHY_BIST_CTRL);
+ 	reg_val &= ~(CFG_RX_BIST_EN_MSK | CFG_TX_BIST_EN_MSK |
+ 		     CFG_BIST_TEST_MSK);
+-	hisi_sas_phy_write32(hisi_hba, phy_id, SAS_PHY_BIST_CTRL, reg_val);
++	hisi_sas_phy_write32(hisi_hba, phy_no, SAS_PHY_BIST_CTRL, reg_val);
+ 
+-	/* enable ALOS*/
+-	reg_val = hisi_sas_phy_read32(hisi_hba, phy_id, SERDES_CFG);
++	/* enable ALOS */
++	reg_val = hisi_sas_phy_read32(hisi_hba, phy_no, SERDES_CFG);
+ 	reg_val &= ~CFG_ALOS_CHK_DISABLE_MSK;
+-	hisi_sas_phy_write32(hisi_hba, phy_id, SERDES_CFG, reg_val);
++	hisi_sas_phy_write32(hisi_hba, phy_no, SERDES_CFG, reg_val);
+ 
+-	/*restore the linkrate*/
+-	reg_val = hisi_sas_phy_read32(hisi_hba, phy_id, PROG_PHY_LINK_RATE);
++	/* restore the linkrate */
++	reg_val = hisi_sas_phy_read32(hisi_hba, phy_no, PROG_PHY_LINK_RATE);
+ 	/* init OOB link rate as 1.5 Gbits */
+ 	reg_val &= ~CFG_PROG_OOB_PHY_LINK_RATE_MSK;
+ 	reg_val |= (0x8 << CFG_PROG_OOB_PHY_LINK_RATE_OFF);
+-	hisi_sas_phy_write32(hisi_hba, phy_id, PROG_PHY_LINK_RATE, reg_val);
++	hisi_sas_phy_write32(hisi_hba, phy_no, PROG_PHY_LINK_RATE, reg_val);
+ 
+ 	/* enable PHY */
+-	hisi_sas_phy_enable(hisi_hba, phy_id, 1);
++	hisi_sas_phy_enable(hisi_hba, phy_no, 1);
+ }
+ 
+ static int debugfs_set_bist_v3_hw(struct hisi_hba *hisi_hba, bool enable)
+ {
+ 	u32 reg_val, mode_tmp;
+ 	u32 linkrate = hisi_hba->bist_loopback_linkrate;
+-	u32 phy_id = hisi_hba->bist_loopback_phy_id;
++	u32 phy_no = hisi_hba->bist_loopback_phy_id;
+ 	u32 code_mode = hisi_hba->bist_loopback_code_mode;
+ 	u32 path_mode = hisi_hba->bist_loopback_mode;
+ 
+-	pr_err("linkrate=%d phy_id=%d code_mode=%d path_mode=%d\n", linkrate,
+-			phy_id, code_mode, path_mode);
++	pr_err("linkrate=%d phy_no=%d code_mode=%d path_mode=%d\n", linkrate,
++			phy_no, code_mode, path_mode);
+ 	mode_tmp = path_mode ? 2 : 1;
+ 	if (enable) {
+ 		/* some preparations before bist test */
+ 		hisi_sas_bist_test_prep_v3_hw(hisi_hba);
+ 
+ 		/* set linkrate of bit test*/
+-		reg_val = hisi_sas_phy_read32(hisi_hba, phy_id,
++		reg_val = hisi_sas_phy_read32(hisi_hba, phy_no,
+ 					      PROG_PHY_LINK_RATE);
+ 		reg_val &= ~CFG_PROG_OOB_PHY_LINK_RATE_MSK;
+ 		reg_val |= (linkrate << CFG_PROG_OOB_PHY_LINK_RATE_OFF);
+-		hisi_sas_phy_write32(hisi_hba, phy_id,
++		hisi_sas_phy_write32(hisi_hba, phy_no,
+ 				     PROG_PHY_LINK_RATE, reg_val);
+ 
+ 		/* set code mode of bit test */
+-		reg_val = hisi_sas_phy_read32(hisi_hba, phy_id,
++		reg_val = hisi_sas_phy_read32(hisi_hba, phy_no,
+ 					      SAS_PHY_BIST_CTRL);
+ 		reg_val &= ~(CFG_BIST_MODE_SEL_MSK |
+ 				CFG_LOOP_TEST_MODE_MSK |
+@@ -3390,27 +3390,27 @@ static int debugfs_set_bist_v3_hw(struct hisi_hba *hisi_hba, bool enable)
+ 		reg_val |= ((code_mode << CFG_BIST_MODE_SEL_OFF) |
+ 			    (mode_tmp << CFG_LOOP_TEST_MODE_OFF) |
+ 			    CFG_BIST_TEST_MSK);
+-		hisi_sas_phy_write32(hisi_hba, phy_id,
++		hisi_sas_phy_write32(hisi_hba, phy_no,
+ 				     SAS_PHY_BIST_CTRL, reg_val);
+ 
+ 		/*set the bist init data*/
+-		hisi_sas_phy_write32(hisi_hba, phy_id,
++		hisi_sas_phy_write32(hisi_hba, phy_no,
+ 			SAS_PHY_BIST_CODE, 0x1);
+-		hisi_sas_phy_write32(hisi_hba, phy_id,
++		hisi_sas_phy_write32(hisi_hba, phy_no,
+ 			SAS_PHY_BIST_CODE1, 0x80);
+ 
+ 		mdelay(100);
+ 		reg_val |= (CFG_RX_BIST_EN_MSK | CFG_TX_BIST_EN_MSK);
+-		hisi_sas_phy_write32(hisi_hba, phy_id,
++		hisi_sas_phy_write32(hisi_hba, phy_no,
+ 				     SAS_PHY_BIST_CTRL, reg_val);
+ 
+ 		/* clear error bit */
+ 		mdelay(100);
+-		hisi_sas_phy_read32(hisi_hba, phy_id, SAS_BIST_ERR_CNT);
++		hisi_sas_phy_read32(hisi_hba, phy_no, SAS_BIST_ERR_CNT);
+ 	} else {
+ 		/* disable bist test and recover it */
+ 		hisi_hba->bist_loopback_cnt += hisi_sas_phy_read32(hisi_hba,
+-				phy_id, SAS_BIST_ERR_CNT);
++				phy_no, SAS_BIST_ERR_CNT);
+ 		hisi_sas_bist_test_restore_v3_hw(hisi_hba);
+ 	}
+ 
+-- 
+2.27.0
+

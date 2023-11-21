@@ -1,0 +1,62 @@
+From 885afeb361cb2e1bde59312a7edddfb9ff443f28 Mon Sep 17 00:00:00 2001
+From: Qi Liu <liuqi115@huawei.com>
+Date: Tue, 15 Nov 2022 23:03:40 +0800
+Subject: [PATCH 088/108] scsi: hisi_sas: Prevent parallel controller reset and
+ control phy command
+
+mainline inclusion
+from mainline-v5.17-rc1
+commit 20c634932ae8978435645b466c99b3fc1a80545a
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F82X
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=20c634932ae8978435645b466c99b3fc1a80545a
+
+----------------------------------------------------------------------
+
+A user may issue a control phy command from sysfs at any time, even if the
+controller is resetting.
+
+If a phy is disabled by hardreset/linkreset command before calling
+get_phys_state() in the reset path, the saved phy state may be incorrect.
+
+To avoid incorrectly recording the phy state, use hisi_hba.sem to ensure
+that the controller reset may not run at the same time as when the phy
+control function is running.
+
+Link: https://lore.kernel.org/r/1639579061-179473-6-git-send-email-john.garry@huawei.com
+Signed-off-by: Qi Liu <liuqi115@huawei.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: xiabing <xiabing12@h-partners.com>
+Reviewed-by: Xiang Chen <chenxiang66@hisilicon.com>
+Reviewed-by: Jason Yan <yanaijie@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/hisi_sas/hisi_sas_main.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index 77188195d198..966308955831 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -1207,6 +1207,7 @@ static int hisi_sas_control_phy(struct asd_sas_phy *sas_phy, enum phy_func func,
+ 	u8 sts = phy->phy_attached;
+ 	int ret = 0;
+ 
++	down(&hisi_hba->sem);
+ 	phy->reset_completion = &completion;
+ 
+ 	switch (func) {
+@@ -1251,6 +1252,7 @@ static int hisi_sas_control_phy(struct asd_sas_phy *sas_phy, enum phy_func func,
+ out:
+ 	phy->reset_completion = NULL;
+ 
++	up(&hisi_hba->sem);
+ 	return ret;
+ }
+ 
+-- 
+2.27.0
+
