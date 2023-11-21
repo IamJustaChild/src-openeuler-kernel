@@ -1,0 +1,93 @@
+From 5b57c5fd3dc7f4d55412395cf972cec8c6b776bf Mon Sep 17 00:00:00 2001
+From: Luo Jiaxing <luojiaxing@huawei.com>
+Date: Thu, 24 Oct 2019 22:08:12 +0800
+Subject: [PATCH 025/108] scsi: hisi_sas: Add timestamp for a debugfs dump
+
+mainline inclusion
+from mainline-v5.5-rc1
+commit d28ed83b769378deefa82456f962e14a4b0afadf
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F81L
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=d28ed83b769378deefa82456f962e14a4b0afadf
+
+----------------------------------------------------------------------
+
+It's useful to know when the dump occurred, so add a timestamp file for
+this.
+
+Link: https://lore.kernel.org/r/1571926105-74636-6-git-send-email-john.garry@huawei.com
+Signed-off-by: Luo Jiaxing <luojiaxing@huawei.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/hisi_sas/hisi_sas.h
+---
+ drivers/scsi/hisi_sas/hisi_sas.h      | 2 ++
+ drivers/scsi/hisi_sas/hisi_sas_main.c | 8 ++++++++
+ 2 files changed, 10 insertions(+)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas.h b/drivers/scsi/hisi_sas/hisi_sas.h
+index 4b974461cb41..70af2568877d 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas.h
++++ b/drivers/scsi/hisi_sas/hisi_sas.h
+@@ -27,6 +27,7 @@
+ #include <linux/property.h>
+ #include <linux/regmap.h>
+ #include <scsi/scsi_common.h>
++#include <linux/timer.h>
+ #include <scsi/sas_ata.h>
+ #include <scsi/libsas.h>
+ 
+@@ -452,6 +453,7 @@ struct hisi_hba {
+ 	struct hisi_sas_iost *debugfs_iost;
+ 	struct hisi_sas_itct *debugfs_itct;
+ 	u64 *debugfs_iost_cache;
++	u64 debugfs_timestamp;
+ 	u64 *debugfs_itct_cache;
+ 
+ 	struct dentry *debugfs_dir;
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index bb0287eed0dc..5c761b49d0de 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -3647,6 +3647,7 @@ static const struct file_operations hisi_sas_debugfs_itct_cache_fops = {
+ 
+ static void hisi_sas_debugfs_create_files(struct hisi_hba *hisi_hba)
+ {
++	u64 *debugfs_timestamp;
+ 	struct dentry *dump_dentry;
+ 	struct dentry *dentry;
+ 	char name[256];
+@@ -3654,11 +3655,15 @@ static void hisi_sas_debugfs_create_files(struct hisi_hba *hisi_hba)
+ 	int c;
+ 	int d;
+ 
++	debugfs_timestamp = &hisi_hba->debugfs_timestamp;
+ 	/* Create dump dir inside device dir */
+ 	dump_dentry = debugfs_create_dir("dump", hisi_hba->debugfs_dir);
+ 
+ 	hisi_hba->debugfs_dump_dentry = dump_dentry;
+ 
++	debugfs_create_u64("timestamp", 0400, dump_dentry,
++			   debugfs_timestamp);
++
+ 	debugfs_create_file("global", 0400, dump_dentry, hisi_hba,
+ 			    &hisi_sas_debugfs_global_fops);
+ 
+@@ -3774,7 +3779,10 @@ void hisi_sas_debugfs_work_handler(struct work_struct *work)
+ {
+ 	struct hisi_hba *hisi_hba =
+ 		container_of(work, struct hisi_hba, debugfs_work);
++	u64 timestamp = local_clock();
+ 
++	do_div(timestamp, NSEC_PER_MSEC);
++	hisi_hba->debugfs_timestamp = timestamp;
+ 	if (hisi_hba->debugfs_snapshot)
+ 		return;
+ 	hisi_hba->debugfs_snapshot = true;
+-- 
+2.27.0
+

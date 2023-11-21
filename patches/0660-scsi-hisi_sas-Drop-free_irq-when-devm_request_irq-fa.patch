@@ -1,0 +1,175 @@
+From 12a777e0d70446a646dea4d16820eba3f6ec0cf2 Mon Sep 17 00:00:00 2001
+From: Xiang Chen <chenxiang66@hisilicon.com>
+Date: Mon, 5 Aug 2019 21:48:08 +0800
+Subject: [PATCH 012/108] scsi: hisi_sas: Drop free_irq() when
+ devm_request_irq() failed
+
+mainline inclusion
+from mainline-v5.4-rc1
+commit e16963f378faf82d307cad2796953f198497c614
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EKNE
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=e16963f378faf82d307cad2796953f198497c614
+
+----------------------------------------------------------------------
+
+It will free irq automatically if devm_request_irq() failed, so drop
+free_irq() if devm_request_irq() failed.
+
+Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
+	drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+---
+ drivers/scsi/hisi_sas/hisi_sas_v2_hw.c | 33 ++++++--------------------
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 22 ++++-------------
+ 2 files changed, 11 insertions(+), 44 deletions(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
+index d1453a6c6dda..bb1efab2b682 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
+@@ -3329,8 +3329,8 @@ static int interrupt_init_v2_hw(struct hisi_hba *hisi_hba)
+ {
+ 	struct platform_device *pdev = hisi_hba->platform_dev;
+ 	struct device *dev = &pdev->dev;
+-	int irq, rc, irq_map[128];
+-	int i, phy_no, fatal_no, queue_no, k;
++	int irq, rc = 0, irq_map[128];
++	int i, phy_no, fatal_no, queue_no;
+ 
+ 	for (i = 0; i < 128; i++)
+ 		irq_map[i] = platform_get_irq(pdev, i);
+@@ -3343,7 +3343,7 @@ static int interrupt_init_v2_hw(struct hisi_hba *hisi_hba)
+ 			dev_err(dev, "irq init: could not request phy interrupt %d, rc=%d\n",
+ 				irq, rc);
+ 			rc = -ENOENT;
+-			goto free_phy_int_irqs;
++			goto err_out;
+ 		}
+ 	}
+ 
+@@ -3357,7 +3357,7 @@ static int interrupt_init_v2_hw(struct hisi_hba *hisi_hba)
+ 			dev_err(dev, "irq init: could not request sata interrupt %d, rc=%d\n",
+ 				irq, rc);
+ 			rc = -ENOENT;
+-			goto free_sata_int_irqs;
++			goto err_out;
+ 		}
+ 	}
+ 
+@@ -3369,7 +3369,7 @@ static int interrupt_init_v2_hw(struct hisi_hba *hisi_hba)
+ 			dev_err(dev, "irq init: could not request fatal interrupt %d, rc=%d\n",
+ 				irq, rc);
+ 			rc = -ENOENT;
+-			goto free_fatal_int_irqs;
++			goto err_out;
+ 		}
+ 	}
+ 
+@@ -3384,34 +3384,15 @@ static int interrupt_init_v2_hw(struct hisi_hba *hisi_hba)
+ 			dev_err(dev, "irq init: could not request cq interrupt %d, rc=%d\n",
+ 				irq, rc);
+ 			rc = -ENOENT;
+-			goto free_cq_int_irqs;
++			goto err_out;
+ 		}
+ 		tasklet_init(t, cq_tasklet_v2_hw, (unsigned long)cq);
+ 	}
+ 
+ 	hisi_hba->nvecs = hisi_hba->queue_count;
+ 	hisi_hba->dq_num_per_node = hisi_hba->queue_count / num_online_nodes();
+-	return 0;
+-
+-free_cq_int_irqs:
+-	for (k = 0; k < queue_no; k++) {
+-		struct hisi_sas_cq *cq = &hisi_hba->cq[k];
+ 
+-		free_irq(irq_map[k + 96], cq);
+-		tasklet_kill(&cq->tasklet);
+-	}
+-free_fatal_int_irqs:
+-	for (k = 0; k < fatal_no; k++)
+-		free_irq(irq_map[k + 81], hisi_hba);
+-free_sata_int_irqs:
+-	for (k = 0; k < phy_no; k++) {
+-		struct hisi_sas_phy *phy = &hisi_hba->phy[k];
+-
+-		free_irq(irq_map[k + 72], phy);
+-	}
+-free_phy_int_irqs:
+-	for (k = 0; k < i; k++)
+-		free_irq(irq_map[k + 1], hisi_hba);
++err_out:
+ 	return rc;
+ }
+ 
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index 19be76c54b4c..75161290bcc7 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -2706,8 +2706,7 @@ static int interrupt_init_v3_hw(struct hisi_hba *hisi_hba)
+ {
+ 	struct device *dev = hisi_hba->dev;
+ 	struct pci_dev *pdev = hisi_hba->pci_dev;
+-	int vectors, rc;
+-	int i, k;
++	int vectors, rc, i;
+ 	int max_dq_num, online_numa_num;
+ 	int max_msi = HISI_SAS_MSI_COUNT_V3_HW, min_msi;
+ 
+@@ -2765,7 +2764,7 @@ static int interrupt_init_v3_hw(struct hisi_hba *hisi_hba)
+ 	if (rc) {
+ 		dev_err(dev, "could not request chnl interrupt, rc=%d\n", rc);
+ 		rc = -ENOENT;
+-		goto free_phy_irq;
++		goto free_irq_vectors;
+ 	}
+ 
+ 	rc = devm_request_irq(dev, pci_irq_vector(pdev, PCI_IRQ_AXI_FATAL),
+@@ -2774,7 +2773,7 @@ static int interrupt_init_v3_hw(struct hisi_hba *hisi_hba)
+ 	if (rc) {
+ 		dev_err(dev, "could not request fatal interrupt, rc=%d\n", rc);
+ 		rc = -ENOENT;
+-		goto free_chnl_interrupt;
++		goto free_irq_vectors;
+ 	}
+ 
+ 	/* Init tasklets for cq only */
+@@ -2792,7 +2791,7 @@ static int interrupt_init_v3_hw(struct hisi_hba *hisi_hba)
+ 			dev_err(dev, "could not request cq%d interrupt, rc=%d\n",
+ 				i, rc);
+ 			rc = -ENOENT;
+-			goto free_cq_irqs;
++			goto free_irq_vectors;
+ 		}
+ 
+ 		tasklet_init(t, cq_tasklet_v3_hw, (uintptr_t)cq);
+@@ -2800,19 +2799,6 @@ static int interrupt_init_v3_hw(struct hisi_hba *hisi_hba)
+ 
+ 	return 0;
+ 
+-free_cq_irqs:
+-	for (k = 0; k < i; k++) {
+-		struct hisi_sas_cq *cq = &hisi_hba->cq[k];
+-		int nr = hisi_sas_intr_conv ? PCI_IRQ_CQ_BASE :
+-					      PCI_IRQ_CQ_BASE + k;
+-
+-		free_irq(pci_irq_vector(pdev, nr), cq);
+-	}
+-	free_irq(pci_irq_vector(pdev, PCI_IRQ_AXI_FATAL), hisi_hba);
+-free_chnl_interrupt:
+-	free_irq(pci_irq_vector(pdev, PCI_IRQ_CHANNEL), hisi_hba);
+-free_phy_irq:
+-	free_irq(pci_irq_vector(pdev, PCI_IRQ_PHY), hisi_hba);
+ free_irq_vectors:
+ 	pci_free_irq_vectors(pdev);
+ 	return rc;
+-- 
+2.27.0
+

@@ -1,0 +1,43 @@
+From 6a76d5c41754a2f4ec27e8cc9881bb7e63ba3a4b Mon Sep 17 00:00:00 2001
+From: Xiang Chen <chenxiang66@hisilicon.com>
+Date: Tue, 12 Nov 2019 17:30:57 +0800
+Subject: [PATCH 039/108] scsi: hisi_sas: Return directly if init hardware
+ failed
+
+mainline inclusion
+from mainline-v5.5-rc1
+commit 547fde8b5a1923050f388caae4f76613b5a620e0
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EKNE
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=547fde8b5a1923050f388caae4f76613b5a620e0
+
+----------------------------------------------------------------------
+
+Need to return directly if init hardware failed.
+
+Fixes: 73a4925d154c ("scsi: hisi_sas: Update all the registers after suspend and resume")
+Link: https://lore.kernel.org/r/1573551059-107873-3-git-send-email-john.garry@huawei.com
+Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index 35fee5d5d141..500fd6e54f38 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -3832,6 +3832,7 @@ static int hisi_sas_v3_resume(struct pci_dev *pdev)
+ 	if (rc) {
+ 		scsi_remove_host(shost);
+ 		pci_disable_device(pdev);
++		return rc;
+ 	}
+ 	hisi_hba->hw->phys_init(hisi_hba);
+ 	sas_resume_ha(sha);
+-- 
+2.27.0
+

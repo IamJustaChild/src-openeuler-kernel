@@ -1,0 +1,50 @@
+From 09a96afdd384a3bded3fad7c03e9ffce83310c64 Mon Sep 17 00:00:00 2001
+From: Yihang Li <liyihang9@huawei.com>
+Date: Fri, 14 Apr 2023 16:20:40 +0800
+Subject: [PATCH 096/108] scsi: hisi_sas: Set a port invalid only if there are
+ no devices attached when refreshing port id
+
+mainline inclusion
+from mainline-v6.2-rc4
+commit f58c89700630da6554b24fd3df293a24874c10c1
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8F82P
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=f58c89700630da6554b24fd3df293a24874c10c1
+
+----------------------------------------------------------------------
+
+Currently the driver sets the port invalid if one phy in the port is not
+enabled, which may cause issues in expander situation. In directly attached
+situation, if phy up doesn't occur in time when refreshing port id, the
+port is incorrectly set to invalid which will also cause disk lost.
+
+Therefore set a port invalid only if there are no devices attached to the
+port.
+
+Signed-off-by: Yihang Li <liyihang9@huawei.com>
+Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
+Link: https://lore.kernel.org/r/1672805000-141102-3-git-send-email-chenxiang66@hisilicon.com
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: xiabing <xiabing12@h-partners.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/hisi_sas/hisi_sas_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index 4f534b8a9206..91146ce048b8 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -1499,7 +1499,7 @@ static void hisi_sas_refresh_port_id(struct hisi_hba *hisi_hba)
+ 				device->linkrate = phy->sas_phy.linkrate;
+ 
+ 			hisi_hba->hw->setup_itct(hisi_hba, sas_dev);
+-		} else
++		} else if (!port->port_attached)
+ 			port->id = 0xff;
+ 	}
+ }
+-- 
+2.27.0
+

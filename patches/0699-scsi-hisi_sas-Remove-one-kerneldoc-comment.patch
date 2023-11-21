@@ -1,0 +1,42 @@
+From ab5e96ce3e7817e404fef6fea5abe06ec027e4a5 Mon Sep 17 00:00:00 2001
+From: John Garry <john.garry@huawei.com>
+Date: Mon, 13 Jul 2020 16:04:31 +0800
+Subject: [PATCH 051/108] scsi: hisi_sas: Remove one kerneldoc comment
+
+mainline inclusion
+from mainline-v5.9-rc1
+commit 3d570a28ee8d7e724fc740019746a6e79c8db06c
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EKNE
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=3d570a28ee8d7e724fc740019746a6e79c8db06c
+
+----------------------------------------------------------------------
+
+The comment for interrupt_init_v2_hw() should not be a kerneldoc
+comment. Remove it.
+
+Link: https://lore.kernel.org/r/1594627471-235395-3-git-send-email-john.garry@huawei.com
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/scsi/hisi_sas/hisi_sas_v2_hw.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
+index 6de3fe10c5be..7e0059d3b3ef 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
+@@ -3317,7 +3317,7 @@ static irq_handler_t fatal_interrupts[HISI_SAS_FATAL_INT_NR] = {
+ 	fatal_axi_int_v2_hw
+ };
+ 
+-/**
++/*
+  * There is a limitation in the hip06 chipset that we need
+  * to map in all mbigen interrupts, even if they are not used.
+  */
+-- 
+2.27.0
+
