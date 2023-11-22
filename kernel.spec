@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2311.3.0
+%global hulkrelease 2311.4.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0248
+Release: %{hulkrelease}.0249
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,59 @@ fi
 %endif
 
 %changelog
+
+* Wed Nov 22 2023 Luo Shengwei <luoshengwei@huawei.com> - 4.19.90-2311.4.0.0249
+- !1935 [openEuler-1.0-LTS] Add Phytium optee driver support
+- !2895  netfilter: conntrack: dccp: copy entire header to stack buffer, not just basic one
+- !2873 Fix SAS start error with maxcpus=1
+- genirq: Take the proposed affinity at face value if force==true
+- optee: add phytium optee driver
+- optee: model OP-TEE as a platform device/driver
+- netfilter: conntrack: dccp: copy entire header to stack buffer, not just basic one
+- irqchip/gic-v3: Always trust the managed affinity provided by the core code
+- genirq: Always limit the affinity to online CPUs
+- genirq/msi: Shutdown managed interrupts with unsatifiable affinities
+- !2508 [openEuler-1.0-LTS] jpeg: Add a Phytium JPEG Engine driver
+- !2522 [openEuler-1.0-LTS] Add support for Phytium SoC RNG
+- !2877  Revert "tcp: fix delayed ACKs for MSS boundary condition"
+- !2693 [openEuler-1.0-LTS] Add support for Phytium QSPI
+- !2402 [openEuler-1.0-LTS] Add Phytium w1 driver support
+- !2403 [openEuler-1.0-LTS] Add Phytium adc driver support
+- !1874 [openEuler-1.0-LTS] Add Phytium mailbox driver support
+- !2024 [openEuler-1.0-LTS] Add Phytium RTC driver support
+- !2682 [openEuler-1.0-LTS] Add support for Phytium MMC
+- !2671 [openEuler-1.0-LTS] phytium dwmac net driver
+- !2676 [openEuler-1.0-LTS] Add Phytium gpio driver support
+- !2604 [openEuler-1.0-LTS] Add support for Phytium SPI
+- !2540 [openEuler-1.0-LTS] Driver for the Phytium keypad port.
+- Revert "tcp: fix delayed ACKs for MSS boundary condition"
+- hwrng: Add support for Phytium SoC RNG
+- jpeg: Add a Phytium JPEG Engine driver
+- !2818  Fix memleak in disassociate_ctty()
+- !2810 drivers/gmjstcm: import CVE-2011-1160 CVE-2011-1162 fixes to tcm.c
+- drivers/gmjstcm: import CVE-2011-1160 CVE-2011-1162 fixes to tcm.c
+- rtc: add phytium rtc driver document
+- rtc: add rtc drivers for Phytium SOCs
+- gpio: add phytium gpio driver
+- dwmac:add phytium dwmac driver
+- mailbox:add phytium mailbox driver document
+- mailbox: add phytium mailbox driver
+- mmc: add phytium mmc driver DT binding docs
+- mmc: add support for Phytium MMC
+- tty: tty_jobctrl: fix pid memleak in disassociate_ctty()
+- Revert "tty: fix pid memleak in disassociate_ctty()"
+- spi: add phytium spi driver DT binding docs
+- spi: add phytium spi support
+- qspi: add phytium qspi driver DT binding docs
+- qspi: add support for Phytium QSPI controller
+- gpio: add phytium gpio driver document
+- dwmac:add phytium dwmac driver DT binding docs
+- adc: add phytium adc driver
+- adc: add phytium adc driver document
+- w1: add phytium w1 driver
+- w1: add phytium w1 driver document
+- KEYPAD: Driver for the Phytium keypad port.
+- KEYPAD: Document for the Phytium keypad port.
 
 * Mon Nov 20 2023 YunYi Yang <yangyunyi2@huawei.com> - 4.19.90-2311.3.0.0248
 - config: arm64: Enable dubugfs config of hisi sas
