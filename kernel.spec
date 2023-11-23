@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0249
+Release: %{hulkrelease}.0250
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,9 @@ fi
 %endif
 
 %changelog
+
+* Thu Nov 23 2023 Keyi Zhong <zhongkeyi1@huawei.com> - 4.19.90-2311.4.0.0250
+- crypto: hisilicon - Add value profile support for kernel
 
 * Wed Nov 22 2023 Luo Shengwei <luoshengwei@huawei.com> - 4.19.90-2311.4.0.0249
 - !1935 [openEuler-1.0-LTS] Add Phytium optee driver support
