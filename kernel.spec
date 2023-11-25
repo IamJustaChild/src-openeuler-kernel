@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0250
+Release: %{hulkrelease}.0251
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,9 @@ fi
 %endif
 
 %changelog
+
+* Sat Nov 25 2023 Zhou Kaiqi <zhoukaiqi@huawei.com> - 4.19.90-2311.4.0.0251
+- Revert "genirq: Increase the number of IRQ descriptors"
 
 * Thu Nov 23 2023 Keyi Zhong <zhongkeyi1@huawei.com> - 4.19.90-2311.4.0.0250
 - crypto: hisilicon - Add value profile support for kernel
