@@ -1,0 +1,57 @@
+From a5d8c7f3131f3a42604f96f80c2d3eeac53d35bb Mon Sep 17 00:00:00 2001
+From: Sean V Kelley <sean.v.kelley@intel.com>
+Date: Thu, 21 Apr 2022 21:49:47 +0800
+Subject: [PATCH 11/21] PCI/ERR: Avoid negated conditional for clarity
+
+mainline inclusion
+from mainline-v5.11-rc1
+commit 3d7d8fc78f4b504819882278fcfe10784eb985fa
+category: feature
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EAHA
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=3d7d8fc78f4b504819882278fcfe10784eb985fa
+
+----------------------------------------------------------------------------
+
+Reverse the sense of the Root Port/Downstream Port conditional for clarity.
+No functional change intended.
+
+Link: https://lore.kernel.org/r/20201121001036.8560-9-sean.v.kelley@intel.com
+Tested-by: Jonathan Cameron <Jonathan.Cameron@huawei.com> # non-native/no RCEC
+Signed-off-by: Sean V Kelley <sean.v.kelley@intel.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Jiefeng Ou <oujiefeng@h-partners.com>
+Reviewed-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Jay Fang <f.fangjian@huawei.com>
+Reviewed-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+---
+ drivers/pci/pcie/err.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/pci/pcie/err.c b/drivers/pci/pcie/err.c
+index f8cb3ab73..35d9dcbdb 100644
+--- a/drivers/pci/pcie/err.c
++++ b/drivers/pci/pcie/err.c
+@@ -197,11 +197,11 @@ pci_ers_result_t pcie_do_recovery(struct pci_dev *dev, enum pci_channel_state st
+ 	 * Error recovery runs on all subordinates of the bridge.  If the
+ 	 * bridge detected the error, it is cleared at the end.
+ 	 */
+-	if (!(type == PCI_EXP_TYPE_ROOT_PORT ||
+-	      type == PCI_EXP_TYPE_DOWNSTREAM))
+-		bridge = pci_upstream_bridge(dev);
+-	else
++	if (type == PCI_EXP_TYPE_ROOT_PORT ||
++	    type == PCI_EXP_TYPE_DOWNSTREAM)
+ 		bridge = dev;
++	else
++		bridge = pci_upstream_bridge(dev);
+ 
+ 	bus = bridge->subordinate;
+ 	pci_dbg(bridge, "broadcast error_detected message\n");
+-- 
+2.27.0
+

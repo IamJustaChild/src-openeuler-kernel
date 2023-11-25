@@ -1,0 +1,88 @@
+From 8f61a3bd168def697a48584b62086238ffdfb9d0 Mon Sep 17 00:00:00 2001
+From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+Date: Mon, 23 Mar 2020 17:26:03 -0700
+Subject: [PATCH 01/21] PCI/ERR: Return status of pcie_do_recovery()
+
+mainline inclusion
+from mainline-v5.7-rc1
+commit e8e5ff2aeec19ade42f0535f4b554a3f6e1a58f7
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EAHA
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=e8e5ff2aeec19ade42f0535f4b554a3f6e1a58f7
+
+----------------------------------------------------------------------------
+
+As per the DPC Enhancements ECN [1], sec 4.5.1, table 4-4, if the OS
+supports Error Disconnect Recover (EDR), it must invalidate the software
+state associated with child devices of the port without attempting to
+access the child device hardware. In addition, if the OS supports DPC, it
+must attempt to recover the child devices if the port implements the DPC
+Capability. If the OS continues operation, the OS must inform the firmware
+of the status of the recovery operation via the _OST method.
+
+Return the result of pcie_do_recovery() so we can report it to firmware via
+_OST.
+
+[1] Downstream Port Containment Related Enhancements ECN, Jan 28, 2019,
+    affecting PCI Firmware Specification, Rev. 3.2
+    https://members.pcisig.com/wg/PCI-SIG/document/12888
+
+Link: https://lore.kernel.org/r/eb60ec89448769349c6722954ffbf2de163155b5.1585000084.git.sathyanarayanan.kuppuswamy@linux.intel.com
+Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/pci/pci.h
+	drivers/pci/pcie/err.c
+---
+ drivers/pci/pci.h      | 2 +-
+ drivers/pci/pcie/err.c | 6 ++++--
+ 2 files changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
+index ff5dde9e6..8ccf608c7 100644
+--- a/drivers/pci/pci.h
++++ b/drivers/pci/pci.h
+@@ -511,7 +511,7 @@ static inline int pci_dev_specific_disable_acs_redir(struct pci_dev *dev)
+ #endif
+ 
+ /* PCI error reporting and recovery */
+-void pcie_do_recovery(struct pci_dev *dev, enum pci_channel_state state,
++pci_ers_result_t pcie_do_recovery(struct pci_dev *dev, enum pci_channel_state state,
+ 		      u32 service);
+ 
+ bool pcie_wait_for_link(struct pci_dev *pdev, bool active);
+diff --git a/drivers/pci/pcie/err.c b/drivers/pci/pcie/err.c
+index 6d3d5b6a5..68093505a 100644
+--- a/drivers/pci/pcie/err.c
++++ b/drivers/pci/pcie/err.c
+@@ -185,7 +185,7 @@ static pci_ers_result_t reset_link(struct pci_dev *dev, u32 service)
+ 	return status;
+ }
+ 
+-void pcie_do_recovery(struct pci_dev *dev, enum pci_channel_state state,
++pci_ers_result_t pcie_do_recovery(struct pci_dev *dev, enum pci_channel_state state,
+ 		      u32 service)
+ {
+ 	pci_ers_result_t status = PCI_ERS_RESULT_CAN_RECOVER;
+@@ -236,11 +236,13 @@ void pcie_do_recovery(struct pci_dev *dev, enum pci_channel_state state,
+ 	pci_aer_clear_device_status(dev);
+ 	pci_cleanup_aer_uncorrect_error_status(dev);
+ 	pci_info(dev, "AER: Device recovery successful\n");
+-	return;
++	return status;
+ 
+ failed:
+ 	pci_uevent_ers(dev, PCI_ERS_RESULT_DISCONNECT);
+ 
+ 	/* TODO: Should kernel panic here? */
+ 	pci_info(dev, "AER: Device recovery failed\n");
++
++	return status;
+ }
+-- 
+2.27.0
+
