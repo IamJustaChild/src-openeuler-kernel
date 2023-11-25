@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0250
+Release: %{hulkrelease}.0251
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,28 @@ fi
 %endif
 
 %changelog
+* Sat Nov 25 2023 YunYi Yang <yangyunyi2@huawei.com> - 4.19.90-2311.4.0.0251
+- PCI: fix kabi change in struct pci_dev
+- PCI/RCEC: Fix RCiEP device to RCEC association
+- PCI/AER: Add RCEC AER error injection support
+- PCI/PME: Add pcie_walk_rcec() to RCEC PME handling
+- PCI/AER: Add pcie_walk_rcec() to RCEC AER handling
+- PCI/ERR: Recover from RCiEP AER errors
+- PCI/ERR: Add pcie_link_rcec() to associate RCiEPs
+- PCI/ERR: Recover from RCEC AER errors
+- PCI/ERR: Clear AER status only when we control AER
+- PCI/ERR: Add pci_walk_bridge() to pcie_do_recovery()
+- PCI/ERR: Avoid negated conditional for clarity
+- PCI/ERR: Use "bridge" for clarity in pcie_do_recovery()
+- PCI/ERR: Simplify by computing pci_pcie_type() once
+- PCI/ERR: Simplify by using pci_upstream_bridge()
+- PCI/ERR: Cache RCEC EA Capability offset in pci_init_capabilities()
+- PCI/ERR: Bind RCEC devices to the Root Port driver
+- PCI/AER: Write AER Capability only when we control it
+- PCI/ERR: Clear PCIe Device Status errors only if OS owns AER
+- PCI/ERR: Rename pci_aer_clear_device_status() to pcie_clear_device_status()
+- PCI/AER: Use "aer" variable for capability offset
+- PCI/ERR: Return status of pcie_do_recovery()
 
 * Thu Nov 23 2023 Keyi Zhong <zhongkeyi1@huawei.com> - 4.19.90-2311.4.0.0250
 - crypto: hisilicon - Add value profile support for kernel

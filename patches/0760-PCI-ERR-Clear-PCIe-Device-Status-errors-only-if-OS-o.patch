@@ -1,0 +1,134 @@
+From 222d54f9162afa5ec231f408b167aa16558bd031 Mon Sep 17 00:00:00 2001
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Date: Mon, 22 Jun 2020 19:35:23 +0800
+Subject: [PATCH 04/21] PCI/ERR: Clear PCIe Device Status errors only if OS
+ owns AER
+
+mainline inclusion
+from mainline-v5.9-rc1
+commit 068c29a248b6ddbfdf7bb150b547569759620d36
+category: bugfix
+bugzilla: https://e.gitee.com/open_euler/dashboard?issue=I8EAHA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=068c29a248b6ddbfdf7bb150b547569759620d36
+
+----------------------------------------------------------------------
+
+pcie_clear_device_status() resets the error bits in the PCIe Device Status
+Register (PCI_EXP_DEVSTA).
+
+Previously we did this unconditionally, but on ACPI systems, the _OSC AER
+bit negotiates control of the AER capability.  Per sec 4.5.1 of the System
+Firmware Intermediary _OSC and DPC Updates ECN [1], this bit also covers
+other error enable/status bits including the following:
+
+  Correctable Error Reporting Enable
+  Non-Fatal Error Reporting Enable
+  Fatal Error Reporting Enable
+  Unsupported Request Reporting Enable
+
+These bits are all in the PCIe Device Control register (the ECN omitted
+"Reporting", but I think that's a typo), so by implication the _OSC AER bit
+also applies to the error status bits in the PCIe Device Status register:
+
+  Correctable Error Detected
+  Non-Fatal Error Detected
+  Fatal Error Detected
+  Unsupported Request Detected
+
+Clear the PCIe Device Status error bits only when the OS controls the AER
+capability and related error enable/status bits.  If platform firmware
+controls the AER capability, firmware is responsible for clearing these
+bits.
+
+One call path leading here is:
+
+  ghes_do_proc
+    ghes_handle_aer
+      aer_recover_queue
+        schedule_work(&aer_recover_work)
+  ...
+  aer_recover_work_func
+    pcie_do_recovery
+      pcie_clear_device_status
+
+[1] System Firmware Intermediary (SFI) _OSC and DPC Updates ECN, Feb 24,
+    2020, affecting PCI Firmware Specification, Rev. 3.2
+    https://members.pcisig.com/wg/PCI-SIG/document/14076
+[bhelgaas: commit log, move test from pcie_clear_device_status() to callers]
+Link: https://lore.kernel.org/r/20200622113523.891666-1-Jonathan.Cameron@huawei.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/pci/pcie/err.c
+---
+ drivers/pci/pcie/aer.c     | 13 ++++++++++++-
+ drivers/pci/pcie/err.c     |  3 ++-
+ drivers/pci/pcie/portdrv.h |  2 ++
+ 3 files changed, 16 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/pci/pcie/aer.c b/drivers/pci/pcie/aer.c
+index a4146f7db..2b6c79bbe 100644
+--- a/drivers/pci/pcie/aer.c
++++ b/drivers/pci/pcie/aer.c
+@@ -344,6 +344,16 @@ bool aer_acpi_firmware_first(void)
+ #define	PCI_EXP_AER_FLAGS	(PCI_EXP_DEVCTL_CERE | PCI_EXP_DEVCTL_NFERE | \
+ 				 PCI_EXP_DEVCTL_FERE | PCI_EXP_DEVCTL_URRE)
+ 
++int pcie_aer_is_native(struct pci_dev *dev)
++{
++	struct pci_host_bridge *host = pci_find_host_bridge(dev->bus);
++
++	if (!dev->aer_cap)
++		return 0;
++
++	return pcie_ports_native || host->native_aer;
++}
++
+ int pci_enable_pcie_error_reporting(struct pci_dev *dev)
+ {
+ 	if (pcie_aer_get_firmware_first(dev))
+@@ -1034,7 +1044,8 @@ static void handle_error_source(struct pci_dev *dev, struct aer_err_info *info)
+ 		if (aer)
+ 			pci_write_config_dword(dev, aer + PCI_ERR_COR_STATUS,
+ 					info->status);
+-		pcie_clear_device_status(dev);
++		if (pcie_aer_is_native(dev))
++			pcie_clear_device_status(dev);
+ 	} else if (info->severity == AER_NONFATAL)
+ 		pcie_do_recovery(dev, pci_channel_io_normal,
+ 				 PCIE_PORT_SERVICE_AER);
+diff --git a/drivers/pci/pcie/err.c b/drivers/pci/pcie/err.c
+index 567e16724..055b45386 100644
+--- a/drivers/pci/pcie/err.c
++++ b/drivers/pci/pcie/err.c
+@@ -233,7 +233,8 @@ pci_ers_result_t pcie_do_recovery(struct pci_dev *dev, enum pci_channel_state st
+ 	pci_dbg(dev, "broadcast resume message\n");
+ 	pci_walk_bus(bus, report_resume, &status);
+ 
+-	pcie_clear_device_status(dev);
++	if (pcie_aer_is_native(dev))
++		pcie_clear_device_status(dev);
+ 	pci_cleanup_aer_uncorrect_error_status(dev);
+ 	pci_info(dev, "AER: Device recovery successful\n");
+ 	return status;
+diff --git a/drivers/pci/pcie/portdrv.h b/drivers/pci/pcie/portdrv.h
+index c42cb76fa..4798047ed 100644
+--- a/drivers/pci/pcie/portdrv.h
++++ b/drivers/pci/pcie/portdrv.h
+@@ -27,8 +27,10 @@ extern bool pcie_ports_dpc_native;
+ 
+ #ifdef CONFIG_PCIEAER
+ int pcie_aer_init(void);
++int pcie_aer_is_native(struct pci_dev *dev);
+ #else
+ static inline int pcie_aer_init(void) { return 0; }
++static inline int pcie_aer_is_native(struct pci_dev *dev) { return 0; }
+ #endif
+ 
+ #ifdef CONFIG_HOTPLUG_PCI_PCIE
+-- 
+2.27.0
+

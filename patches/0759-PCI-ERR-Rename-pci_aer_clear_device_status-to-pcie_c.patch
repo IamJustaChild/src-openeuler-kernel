@@ -1,0 +1,130 @@
+From c3623d39a19138ef735d6b968e8e764e9c9134ea Mon Sep 17 00:00:00 2001
+From: Bjorn Helgaas <bhelgaas@google.com>
+Date: Thu, 16 Jul 2020 17:34:30 -0500
+Subject: [PATCH 03/21] PCI/ERR: Rename pci_aer_clear_device_status() to
+ pcie_clear_device_status()
+
+mainline inclusion
+from mainline-v5.9-rc1
+commit 600a5b4fc8e8f6dad098cd50e0e727cb2a16be46
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/I8EAHA
+CVE: NA
+
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=600a5b4fc8e8f6dad098cd50e0e727cb2a16be46
+
+----------------------------------------------------------------------------
+
+pci_aer_clear_device_status() clears the error bits in the PCIe Device
+Status Register (PCI_EXP_DEVSTA).  Every PCIe device has this register,
+regardless of whether it supports AER.
+
+Rename pci_aer_clear_device_status() to pcie_clear_device_status() to make
+clear that it is PCIe-specific but not AER-specific.  Move it to
+drivers/pci/pci.c, again since it's not AER-specific.  No functional change
+intended.
+
+Link: https://lore.kernel.org/r/20200717195619.766662-1-helgaas@kernel.org
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: YunYi Yang <yangyunyi2@huawei.com>
+
+ Conflicts:
+	drivers/pci/pci.h
+	drivers/pci/pcie/aer.c
+	drivers/pci/pcie/err.c
+---
+ drivers/pci/pci.c      |  8 ++++++++
+ drivers/pci/pci.h      |  3 +--
+ drivers/pci/pcie/aer.c | 10 +---------
+ drivers/pci/pcie/err.c |  2 +-
+ 4 files changed, 11 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index e58fe13c9..a1abe33cc 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -1966,6 +1966,14 @@ int pci_set_pcie_reset_state(struct pci_dev *dev, enum pcie_reset_state state)
+ }
+ EXPORT_SYMBOL_GPL(pci_set_pcie_reset_state);
+ 
++void pcie_clear_device_status(struct pci_dev *dev)
++{
++	u16 sta;
++
++	pcie_capability_read_word(dev, PCI_EXP_DEVSTA, &sta);
++	pcie_capability_write_word(dev, PCI_EXP_DEVSTA, sta);
++}
++
+ /**
+  * pcie_clear_root_pme_status - Clear root port PME interrupt status.
+  * @dev: PCIe root port or event collector.
+diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
+index 8ccf608c7..a29e7fb4a 100644
+--- a/drivers/pci/pci.h
++++ b/drivers/pci/pci.h
+@@ -81,6 +81,7 @@ void pci_refresh_power_state(struct pci_dev *dev);
+ void pci_power_up(struct pci_dev *dev);
+ void pci_disable_enabled_device(struct pci_dev *dev);
+ int pci_finish_runtime_suspend(struct pci_dev *dev);
++void pcie_clear_device_status(struct pci_dev *dev);
+ void pcie_clear_root_pme_status(struct pci_dev *dev);
+ int __pci_pme_wakeup(struct pci_dev *dev, void *ign);
+ void pci_pme_restore(struct pci_dev *dev);
+@@ -615,13 +616,11 @@ void pci_aer_init(struct pci_dev *dev);
+ void pci_aer_exit(struct pci_dev *dev);
+ extern const struct attribute_group aer_stats_attr_group;
+ void pci_aer_clear_fatal_status(struct pci_dev *dev);
+-void pci_aer_clear_device_status(struct pci_dev *dev);
+ #else
+ static inline void pci_no_aer(void) { }
+ static inline void pci_aer_init(struct pci_dev *d) { }
+ static inline void pci_aer_exit(struct pci_dev *d) { }
+ static inline void pci_aer_clear_fatal_status(struct pci_dev *dev) { }
+-static inline void pci_aer_clear_device_status(struct pci_dev *dev) { }
+ #endif
+ 
+ #endif /* DRIVERS_PCI_H */
+diff --git a/drivers/pci/pcie/aer.c b/drivers/pci/pcie/aer.c
+index 71feb30a2..a4146f7db 100644
+--- a/drivers/pci/pcie/aer.c
++++ b/drivers/pci/pcie/aer.c
+@@ -366,14 +366,6 @@ int pci_disable_pcie_error_reporting(struct pci_dev *dev)
+ }
+ EXPORT_SYMBOL_GPL(pci_disable_pcie_error_reporting);
+ 
+-void pci_aer_clear_device_status(struct pci_dev *dev)
+-{
+-	u16 sta;
+-
+-	pcie_capability_read_word(dev, PCI_EXP_DEVSTA, &sta);
+-	pcie_capability_write_word(dev, PCI_EXP_DEVSTA, sta);
+-}
+-
+ int pci_cleanup_aer_uncorrect_error_status(struct pci_dev *dev)
+ {
+ 	int aer = dev->aer_cap;
+@@ -1042,7 +1034,7 @@ static void handle_error_source(struct pci_dev *dev, struct aer_err_info *info)
+ 		if (aer)
+ 			pci_write_config_dword(dev, aer + PCI_ERR_COR_STATUS,
+ 					info->status);
+-		pci_aer_clear_device_status(dev);
++		pcie_clear_device_status(dev);
+ 	} else if (info->severity == AER_NONFATAL)
+ 		pcie_do_recovery(dev, pci_channel_io_normal,
+ 				 PCIE_PORT_SERVICE_AER);
+diff --git a/drivers/pci/pcie/err.c b/drivers/pci/pcie/err.c
+index 68093505a..567e16724 100644
+--- a/drivers/pci/pcie/err.c
++++ b/drivers/pci/pcie/err.c
+@@ -233,7 +233,7 @@ pci_ers_result_t pcie_do_recovery(struct pci_dev *dev, enum pci_channel_state st
+ 	pci_dbg(dev, "broadcast resume message\n");
+ 	pci_walk_bus(bus, report_resume, &status);
+ 
+-	pci_aer_clear_device_status(dev);
++	pcie_clear_device_status(dev);
+ 	pci_cleanup_aer_uncorrect_error_status(dev);
+ 	pci_info(dev, "AER: Device recovery successful\n");
+ 	return status;
+-- 
+2.27.0
+
