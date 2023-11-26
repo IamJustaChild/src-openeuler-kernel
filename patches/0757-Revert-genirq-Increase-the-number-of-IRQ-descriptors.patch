@@ -1,0 +1,28 @@
+From 2e456c7fce71969d073a549305ab17e10074ead8 Mon Sep 17 00:00:00 2001
+From: zhoukaiqi <zhoukaiqi@huawei.com>
+Date: Sat, 25 Nov 2023 18:17:12 +0800
+Subject: [PATCH] Revert "genirq: Increase the number of IRQ descriptors"
+
+This reverts commit e5a8fe52b7e6506767f457f34ed237ae16f1d73f.
+
+Signed-off-by: zhoukaiqi <zhoukaiqi@huawei.com>
+---
+ kernel/irq/internals.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/kernel/irq/internals.h b/kernel/irq/internals.h
+index 176daa503ad5..f29d6982b3ce 100644
+--- a/kernel/irq/internals.h
++++ b/kernel/irq/internals.h
+@@ -12,7 +12,7 @@
+ #include <linux/sched/clock.h>
+ 
+ #ifdef CONFIG_SPARSE_IRQ
+-# define IRQ_BITMAP_BITS	(1 << 19)
++# define IRQ_BITMAP_BITS	(NR_IRQS + 8196)
+ #else
+ # define IRQ_BITMAP_BITS	NR_IRQS
+ #endif
+-- 
+2.27.0
+
