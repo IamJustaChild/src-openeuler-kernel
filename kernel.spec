@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2311.4.0
+%global hulkrelease 2311.5.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0251
+Release: %{hulkrelease}.0252
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,23 @@ fi
 %endif
 
 %changelog
+
+* Tue Nov 28 2023 Li Xiaodong <lixiaodong67@huawei.com> - 4.19.90-2311.5.0.0252
+- !3000 [openEuler-1.0-LTS] add Phytium drivers CONFIG
+- arm64: config: add config for Phytium drivers
+- !2908  mm/migrate.c: fix potential indeterminate pte entry in migrate_vma_insert_page()
+- !2869  mm, memory_hotplug: update pcp lists everytime onlining a memory block
+- !2805  sched/fair: Refill bandwidth before scaling
+- !2804  signal: Properly set TRACE_SIGNAL_LOSE_INFO in __send_signal
+- !2960  Add script to check & update openeuler_defconfig
+- config: update openeuler_defconfig for arm64
+- config: update openeuler_defconfig for x86
+- kconfig: Add script to check & update openeuler_defconfig
+- kbuild: ensure full rebuild when the compiler is updated
+- mm/migrate.c: fix potential indeterminate pte entry in migrate_vma_insert_page()
+- mm, memory_hotplug: update pcp lists everytime onlining a memory block
+- sched/fair: Refill bandwidth before scaling
+- signal: Properly set TRACE_SIGNAL_LOSE_INFO in __send_signal
 
 * Sat Nov 25 2023 Zhou Kaiqi <zhoukaiqi@huawei.com> - 4.19.90-2311.4.0.0251
 - Revert "genirq: Increase the number of IRQ descriptors"
