@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0252
+Release: %{hulkrelease}.0253
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,9 @@ fi
 %endif
 
 %changelog
+* Tue Nov 28 2023 Yuan Zhang <zhangyuan162@huawei.com> - 4.19.90-2311.5.0.0253
+- arm64: cpufeature: Extract capped perfmon fields
+- KVM: arm64: limit PMU version to PMUv3 for ARMv8.1
 
 * Tue Nov 28 2023 Li Xiaodong <lixiaodong67@huawei.com> - 4.19.90-2311.5.0.0252
 - !3000 [openEuler-1.0-LTS] add Phytium drivers CONFIG
