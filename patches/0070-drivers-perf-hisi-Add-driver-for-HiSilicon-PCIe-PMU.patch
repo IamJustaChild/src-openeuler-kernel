@@ -1,4 +1,4 @@
-From 67e9f6f7130ec835cb534be5bf37b3b18af3eec5 Mon Sep 17 00:00:00 2001
+From e98cf35d17750cf47499bdb6c315cb92e78374ee Mon Sep 17 00:00:00 2001
 From: Qi Liu <liuqi115@huawei.com>
 Date: Tue, 9 Aug 2022 23:06:41 +0800
 Subject: [PATCH 29/55] drivers/perf: hisi: Add driver for HiSilicon PCIe PMU
@@ -57,16 +57,16 @@ First, change the judgementation priority of event type to the first.
 Second, move the event->cpu assginment to the last.
 ---
  MAINTAINERS                            |   5 +-
- arch/arm64/configs/openeuler_defconfig |   3 +-
+ arch/arm64/configs/openeuler_defconfig |   4 +-
  drivers/perf/hisilicon/Kconfig         |   9 +
  drivers/perf/hisilicon/Makefile        |   2 +
  drivers/perf/hisilicon/hisi_pcie_pmu.c | 951 +++++++++++++++++++++++++
  include/linux/cpuhotplug.h             |   3 +
- 6 files changed, 971 insertions(+), 2 deletions(-)
+ 6 files changed, 972 insertions(+), 2 deletions(-)
  create mode 100644 drivers/perf/hisilicon/hisi_pcie_pmu.c
 
 diff --git a/MAINTAINERS b/MAINTAINERS
-index f8ea3138d341..b4f1e5147b72 100644
+index b13d5fc74242..55733353eded 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
 @@ -6660,8 +6660,11 @@ F:	Documentation/devicetree/bindings/net/hisilicon*.txt
@@ -83,23 +83,37 @@ index f8ea3138d341..b4f1e5147b72 100644
  F:	Documentation/perf/hisi-pmu.rst
  
 diff --git a/arch/arm64/configs/openeuler_defconfig b/arch/arm64/configs/openeuler_defconfig
-index b4d263c1f95b..6a7497f2df95 100644
+index a7fcc2a5fe75..a9184c606898 100644
 --- a/arch/arm64/configs/openeuler_defconfig
 +++ b/arch/arm64/configs/openeuler_defconfig
-@@ -5103,11 +5103,12 @@ CONFIG_ARM_PMU=y
- CONFIG_ARM_PMU_ACPI=y
- CONFIG_ARM_SMMU_V3_PMU=y
- # CONFIG_ARM_DSU_PMU is not set
--CONFIG_HISI_PMU=m
- CONFIG_QCOM_L2_PMU=y
- CONFIG_QCOM_L3_PMU=y
+@@ -5788,6 +5788,7 @@ CONFIG_QCOM_L3_PMU=y
  CONFIG_XGENE_PMU=y
  CONFIG_ARM_SPE_PMU=y
-+CONFIG_HISI_PMU=m
+ CONFIG_HISI_PMU=m
 +CONFIG_HISI_PCIE_PMU=m
  CONFIG_RAS=y
  
  #
+@@ -5813,10 +5814,10 @@ CONFIG_NVMEM=y
+ #
+ # CONFIG_STM is not set
+ # CONFIG_INTEL_TH is not set
++CONFIG_HISI_PTT=m
+ # CONFIG_FPGA is not set
+ # CONFIG_FSI is not set
+ CONFIG_TEE=m
+-CONFIG_HISI_PTT=m
+ 
+ #
+ # TEE drivers
+@@ -6491,6 +6492,7 @@ CONFIG_SECTION_MISMATCH_WARN_ONLY=y
+ CONFIG_ARCH_WANT_FRAME_POINTERS=y
+ CONFIG_FRAME_POINTER=y
+ # CONFIG_DEBUG_FORCE_WEAK_PER_CPU is not set
++# CONFIG_PGO_KERNEL is not set
+ CONFIG_MAGIC_SYSRQ=y
+ CONFIG_MAGIC_SYSRQ_DEFAULT_ENABLE=0x1
+ CONFIG_MAGIC_SYSRQ_SERIAL=y
 diff --git a/drivers/perf/hisilicon/Kconfig b/drivers/perf/hisilicon/Kconfig
 index c5d1b7019fff..5546218b5598 100644
 --- a/drivers/perf/hisilicon/Kconfig
