@@ -12,7 +12,7 @@
 %global upstream_sublevel   0
 %global devel_release       171
 %global maintenance_release .0.0
-%global pkg_release         .84
+%global pkg_release         .85
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -205,12 +205,6 @@ language to use the interface to manipulate perf events.
 # with_perf
 %endif
 
-%package -n bpftool
-Summary: Inspection and simple manipulation of eBPF programs and maps
-%description -n bpftool
-This package contains the bpftool, which allows inspection and simple
-manipulation of eBPF programs and maps.
-
 %package source
 Summary: the kernel source
 %description source
@@ -234,10 +228,6 @@ package or when debugging this package.\
 
 %debuginfo_template -n kernel
 %files -n kernel-debuginfo -f debugfiles.list
-
-%debuginfo_template -n bpftool
-%files -n bpftool-debuginfo -f bpftool-debugfiles.list
-%{expand:%%global _find_debuginfo_opts %{?_find_debuginfo_opts} -p '.*%{_sbindir}/bpftool.*(\.debug)?|XXX' -o bpftool-debugfiles.list}
 
 %debuginfo_template -n kernel-tools
 %files -n kernel-tools-debuginfo -f kernel-tools-debugfiles.list
@@ -680,10 +670,6 @@ install -pm0644 tools/kvm/kvm_stat/kvm_stat.1 %{buildroot}/%{_mandir}/man1/
 install -pm0644 tools/perf/Documentation/*.1 %{buildroot}/%{_mandir}/man1/
 %endif
 
-# bpftool
-pushd tools/bpf/bpftool
-make DESTDIR=%{buildroot} prefix=%{_prefix} bash_compdir=%{_sysconfdir}/bash_completion.d/ mandir=%{_mandir} install doc-install
-popd
 # cpupower
 make -C tools/power/cpupower DESTDIR=%{buildroot} libdir=%{_libdir} mandir=%{_mandir} CPUFREQ_BENCH=false install
 rm -f %{buildroot}%{_libdir}/*.{a,la}
@@ -892,24 +878,6 @@ fi
 %{_includedir}/cpufreq.h
 %{_includedir}/cpuidle.h
 
-%files -n bpftool
-%{_sbindir}/bpftool
-%{_sysconfdir}/bash_completion.d/bpftool
-%{_mandir}/man8/bpftool-cgroup.8.gz
-%{_mandir}/man8/bpftool-map.8.gz
-%{_mandir}/man8/bpftool-prog.8.gz
-%{_mandir}/man8/bpftool-perf.8.gz
-%{_mandir}/man8/bpftool.8.gz
-%{_mandir}/man8/bpftool-btf.8.gz
-%{_mandir}/man8/bpftool-feature.8.gz
-%{_mandir}/man8/bpftool-gen.8.gz
-%{_mandir}/man8/bpftool-iter.8.gz
-%{_mandir}/man8/bpftool-link.8.gz
-%{_mandir}/man8/bpftool-net.8.gz
-%{_mandir}/man8/bpftool-struct_ops.8.gz
-%{_mandir}/man7/bpf-helpers.7.gz
-%license linux-%{KernelVer}/COPYING
-
 %if 0%{?with_source}
 %files source
 %defattr(-,root,root)
@@ -919,6 +887,9 @@ fi
 %endif
 
 %changelog
+* Mon Nov 27 2023 liuxin <liuxin350@huawei.com> - 5.10.0-171.0.0.85
+- remove bpftool from kernel package, now build bpftool from src-openeuler/bpftool
+
 * Wed Nov 22 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-171.0.0.84
 - !2932 Revert "net: hns3: add command queue trace for hns3"
 - Revert "net: hns3: add command queue trace for hns3"
