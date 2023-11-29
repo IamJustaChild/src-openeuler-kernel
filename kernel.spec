@@ -17,8 +17,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .55.0
-%global pkg_release         .134
+%global maintenance_release .56.0
+%global pkg_release         .135
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -942,6 +942,62 @@ fi
 %endif
 
 %changelog
+* Wed Nov 29 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.56.0.135
+- !2998 [sync] PR-2902:  net/tls: do not free tls_rec on async operation in bpf_exec_tx_verdict()
+- !2903 [sync] PR-2867:  netfilter: conntrack: dccp: copy entire header to stack buffer, not just basic one
+- !830 [sync] PR-739: Fix kvm-unit-tests  vmx_cr4_osxsave_test  case failed
+- !832 [sync] PR-601: fix  test_vmxon failed
+- net/tls: do not free tls_rec on async operation in bpf_exec_tx_verdict()
+- !2975 Add script to check & update openeuler_defconfig
+- config: update openeuler_defconfig for arm64
+- config: update openeuler_defconfig for x86
+- kconfig: Add script to check & update openeuler_defconfig
+- Revert "kconfig: Add script to update openeuler_defconfig"
+- !1563 [sync] PR-1527:  arm64/mpam: fix missing kfree domain's ctrl_val arrray
+- !2045 [sync] PR-1327:  Huawei BMA: To fix the bug in the iBMA driver code
+- !1897 [sync] PR-1853:  ring-buffer: Fix deadloop issue on reading trace_pipe
+- !1942 [sync] PR-1900:  tracing: Fix cpu buffers unavailable due to 'record_disabled' missed
+- !1984 [sync] PR-1905:  tracing: Fix memleak due to race between current_tracer and trace
+- !2653 [sync] PR-2377:  tracing: Backport bugfixes
+- !1401 [sync] PR-1399:  bpf: cpumap: Fix memory leak in cpu_map_update_elem
+- !2634 [sync] PR-2615:  preempt/dynamic: Fix setup_preempt_mode() return value
+- !1809 [sync] PR-1768:  bonding: Fix incorrect deletion of ETH_P_8021AD protocol vid from slaves
+- !2812 [sync] PR-2716:  ext4: recheck buffer valid after page unlock
+- !1372 [sync] PR-1353:  ubifs mainline bugfix patch backport
+- !1409 [sync] PR-1354:  ubi: Fix return value overwrite issue in try_write_vid_and_data()
+- !891 [sync] PR-886:  net: sched: fix NULL pointer dereference in mq_attach
+- !901 [sync] PR-890:  ethtool: ioctl: fix potential NULL deref in ethtool_set_coalesce()
+- !2020 [sync] PR-1965:  crypto:padata: Fix return err for PADATA_RESET
+- !1789 [sync] PR-1650:  mm: disable kernelcore=mirror when no mirror memory
+- !1513 [sync] PR-1357:  SUNRPC: Ensure that the gssproxy client can start in a connected state
+- netfilter: conntrack: dccp: copy entire header to stack buffer, not just basic one
+- !2749 [sync] PR-2683:  fix memcgv1 oom meminfo bug
+- ext4: recheck buffer valid after page unlock
+- memcg: dump memory.stat during cgroup OOM for v1
+- memcg: use seq_buf_do_printk() with mem_cgroup_print_oom_meminfo()
+- seq_buf: Add seq_buf_do_printk() helper
+- seq_buf: Add seq_buf_terminate() API
+- ring-buffer: Do not attempt to read past "commit"
+- ring-buffer: Do not swap cpu_buffer during resize process
+- preempt/dynamic: Fix setup_preempt_mode() return value
+- Huawei BMA: To fix the bug in the iBMA driver code
+- crypto:padata: Fix return err for PADATA_RESET
+- tracing: Fix memleak due to race between current_tracer and trace
+- tracing: Fix cpu buffers unavailable due to 'record_disabled' missed
+- ring-buffer: Fix deadloop issue on reading trace_pipe
+- bonding: Fix incorrect deletion of ETH_P_8021AD protocol vid from slaves
+- mm: disable kernelcore=mirror when no mirror memory
+- arm64/mpam: fix missing kfree domain's ctrl_val arrray
+- SUNRPC: Ensure that the gssproxy client can start in a connected state
+- ubi: Fix return value overwrite issue in try_write_vid_and_data()
+- bpf: cpumap: Fix memory leak in cpu_map_update_elem
+- ubifs: Fix memory leak in do_rename
+- ubifs: Free memory for tmpfile name
+- ethtool: ioctl: fix potential NULL deref in ethtool_set_coalesce()
+- net: sched: fix NULL pointer dereference in mq_attach
+- KVM: nVMX: Inject #GP, not #UD, if "generic" VMXON CR0/CR4 check fails
+- kvm: x86: Sink cpuid update into vendor-specific set_cr4 functions
+
 * Wed Nov 15 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.55.0.134
 - !2859  bugfix for CVE-2022-45884
 - media: dvb-core: Fix use-after-free due to race at dvb_register_device()
