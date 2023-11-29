@@ -770,7 +770,9 @@ if [ `uname -i` == "aarch64" ] &&
 fi
 
 %postun
-%{_sbindir}/new-kernel-pkg --rminitrd --rmmoddep --remove %{KernelVer} || exit $?
+if [ ! -e /boot/vmlinuz-%{KernelVer} ]; then
+    %{_sbindir}/new-kernel-pkg --rminitrd --rmmoddep --remove %{KernelVer} || exit $?
+fi
 if [ -x %{_sbindir}/weak-modules ]
 then
     %{_sbindir}/weak-modules --remove-kernel %{KernelVer} || exit $?
