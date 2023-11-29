@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       153
-%global maintenance_release .33.0
-%global pkg_release         .110
+%global maintenance_release .34.0
+%global pkg_release         .111
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -910,6 +910,97 @@ fi
 %endif
 
 %changelog
+* Wed Nov 29 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.34.0.111
+- !2999 [sync] PR-2902:  net/tls: do not free tls_rec on async operation in bpf_exec_tx_verdict()
+- !1722 [sync] PR-1597: Fix the bugs of 3SNIC driver compilation failure while using clang
+- !2904 [sync] PR-2867:  netfilter: conntrack: dccp: copy entire header to stack buffer, not just basic one
+- !3012  config: update openeuler_defconfig for x86 with gcc 10.3.1
+- config: update openeuler_defconfig for x86 with gcc 10.3.1
+- net/tls: do not free tls_rec on async operation in bpf_exec_tx_verdict()
+- !2974 Add script to check & update openeuler_defconfig
+- config: update openeuler_defconfig for arm64
+- config: update openeuler_defconfig for x86
+- kconfig: Add script to check & update openeuler_defconfig
+- Revert "kconfig: Add script to update openeuler_defconfig"
+- !2433 [sync] PR-2326: fix CVE-2023-20569
+- !1564 [sync] PR-1527:  arm64/mpam: fix missing kfree domain's ctrl_val arrray
+- !2910 [sync] PR-1613:  arm64/mpam: implement CPU_PM notifier
+- !2044 [sync] PR-1327:  Huawei BMA: To fix the bug in the iBMA driver code
+- !1898 [sync] PR-1853:  ring-buffer: Fix deadloop issue on reading trace_pipe
+- !1943 [sync] PR-1900:  tracing: Fix cpu buffers unavailable due to 'record_disabled' missed
+- !1985 [sync] PR-1905:  tracing: Fix memleak due to race between current_tracer and trace
+- !2654 [sync] PR-2377:  tracing: Backport bugfixes
+- !2931 revert: : ab873cbbab39 x86/microcode: Rip out the OLD_INTERFACE
+- !1741 [sync] PR-1734:  arm64/mpam: mark partid non-exclusive if self-owned
+- !2901  mm/hugetlb: fix parameter passed to allocate bootmem memory
+- !1403 [sync] PR-1399:  bpf: cpumap: Fix memory leak in cpu_map_update_elem
+- Revert "x86/microcode: Rip out the OLD_INTERFACE"
+- !2635 [sync] PR-2615:  preempt/dynamic: Fix setup_preempt_mode() return value
+- !1810 [sync] PR-1768:  bonding: Fix incorrect deletion of ETH_P_8021AD protocol vid from slaves
+- !2813 [sync] PR-2716:  ext4: recheck buffer valid after page unlock
+- !1410 [sync] PR-1353:  ubifs mainline bugfix patch backport
+- !1373 [sync] PR-1354:  ubi: Fix return value overwrite issue in try_write_vid_and_data()
+- !892 [sync] PR-886:  net: sched: fix NULL pointer dereference in mq_attach
+- !902 [sync] PR-890:  ethtool: ioctl: fix potential NULL deref in ethtool_set_coalesce()
+- !2021 [sync] PR-1965:  crypto:padata: Fix return err for PADATA_RESET
+- arm64/mpam: implement CPU_PM notifier
+- !1514 [sync] PR-1357:  SUNRPC: Ensure that the gssproxy client can start in a connected state
+- netfilter: conntrack: dccp: copy entire header to stack buffer, not just basic one
+- !2750 [sync] PR-2683:  fix memcgv1 oom meminfo bug
+- mm/hugetlb: fix parameter passed to allocate bootmem memory
+- ext4: recheck buffer valid after page unlock
+- memcg: dump memory.stat during cgroup OOM for v1
+- memcg: use seq_buf_do_printk() with mem_cgroup_print_oom_meminfo()
+- seq_buf: Add seq_buf_do_printk() helper
+- seq_buf: Add seq_buf_terminate() API
+- ring-buffer: Do not attempt to read past "commit"
+- ring-buffer: Do not swap cpu_buffer during resize process
+- preempt/dynamic: Fix setup_preempt_mode() return value
+- kabi: Allow extra bugsints (bsc#1213927).
+- x86/cpufeatures: Fix abi breakage caused by NCAPINTS in cpufeature header file.
+- tools arch x86: Sync the msr-index.h copy with the kernel sources
+- objtool/x86: Fix SRSO mess
+- x86/srso: Correct the mitigation status when SMT is disabled
+- objtool/x86: Fixup frame-pointer vs rethunk
+- x86/srso: Disable the mitigation on unaffected configurations
+- x86/retpoline: Don't clobber RFLAGS during srso_safe_ret()
+- x86/cpu: Cleanup the untrain mess
+- x86/cpu: Rename srso_(.*)_alias to srso_alias_1
+- x86/cpu: Rename original retbleed methods
+- x86/cpu: Clean up SRSO return thunk mess
+- x86/alternative: Make custom return thunk unconditional
+- x86/cpu: Fix up srso_safe_ret() and __x86_return_thunk()
+- x86/cpu: Fix __x86_return_thunk symbol type
+- x86/ibt: Add ANNOTATE_NOENDBR
+- objtool: Add frame-pointer-specific function ignore
+- x86/srso: Fix build breakage with the LLVM linker
+- x86/srso: Tie SBPB bit setting to microcode patch detection
+- x86/srso: Fix return thunks in generated code
+- x86/srso: Add IBPB on VMEXIT
+- x86/srso: Add IBPB
+- x86/srso: Add SRSO_NO support
+- x86/srso: Add IBPB_BRTYPE support
+- x86/srso: Add a Speculative RAS Overflow mitigation
+- x86/cpu, kvm: Add support for CPUID_80000021_EAX
+- x86/bugs: Increase the x86 bugs vector size to two u32s
+- tools headers cpufeatures: Sync with the kernel sources
+- Huawei BMA: To fix the bug in the iBMA driver code
+- crypto:padata: Fix return err for PADATA_RESET
+- tracing: Fix memleak due to race between current_tracer and trace
+- tracing: Fix cpu buffers unavailable due to 'record_disabled' missed
+- ring-buffer: Fix deadloop issue on reading trace_pipe
+- bonding: Fix incorrect deletion of ETH_P_8021AD protocol vid from slaves
+- arm64/mpam: mark partid non-exclusive if self-owned
+- Fix the bugs of 3SNIC driver compilation failure while using clang
+- arm64/mpam: fix missing kfree domain's ctrl_val arrray
+- SUNRPC: Ensure that the gssproxy client can start in a connected state
+- ubi: Fix return value overwrite issue in try_write_vid_and_data()
+- ubifs: Fix memory leak in do_rename
+- ubifs: Free memory for tmpfile name
+- bpf: cpumap: Fix memory leak in cpu_map_update_elem
+- ethtool: ioctl: fix potential NULL deref in ethtool_set_coalesce()
+- net: sched: fix NULL pointer dereference in mq_attach
+
 * Wed Nov 15 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.33.0.110
 - !2858 [sync] PR-2851:  bugfix for CVE-2022-45884
 - media: dvb-core: Fix use-after-free due to race at dvb_register_device()
