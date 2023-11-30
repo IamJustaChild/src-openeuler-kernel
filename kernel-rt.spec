@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       153
-%global maintenance_release .2.0
-%global pkg_release         .60
+%global maintenance_release .34.0
+%global pkg_release         .111
 %global rt_release          .rt62
 
 %define with_debuginfo 1
@@ -52,11 +52,17 @@ Source0: kernel.tar.gz
 Source10: sign-modules
 Source11: x509.genkey
 Source12: extra_certificates
-Source13: pubring.gpg
+# openEuler RPM PGP certificates:
+# 1. openeuler <openeuler@compass-ci.com>
+Source13: RPM-GPG-KEY-openEuler-compass-ci
+# 2. private OBS <defaultkey@localobs>
+Source14: RPM-GPG-KEY-openEuler-localobs
+Source15: process_pgp_certs.sh
 
 %if 0%{?with_kabichk}
 Source18: check-kabi
 Source20: Module.kabi_aarch64
+Source21: Module.kabi_x86_64
 %endif
 
 Source200: mkgrub-menu-aarch64.sh
@@ -97,7 +103,7 @@ BuildRequires: audit-libs-devel
 BuildRequires: pciutils-devel gettext
 BuildRequires: rpm-build, elfutils
 BuildRequires: numactl-devel python3-devel glibc-static python3-docutils
-BuildRequires: perl-generators perl(Carp) libunwind-devel gtk2-devel libbabeltrace-devel java-1.8.0-openjdk perl-devel
+BuildRequires: perl-generators perl(Carp) libunwind-devel gtk2-devel libbabeltrace-devel java-1.8.0-openjdk java-1.8.0-openjdk-devel perl-devel
 AutoReq: no
 AutoProv: yes
 
@@ -107,7 +113,7 @@ Conflicts: mdadm < 3.2.1-5 nfs-utils < 1.0.7-12 oprofile < 0.9.1-2 ppp < 2.4.3-3
 Conflicts: reiserfs-utils < 3.6.19-2 selinux-policy-targeted < 1.25.3-14 squashfs-tools < 4.0
 Conflicts: udev < 063-6 util-linux < 2.12 wireless-tools < 29-3 xfsprogs < 2.6.13-4
 
-Provides: kernel-rt-aarch64 = %{version}-%{release} kernel-rt-drm = 4.3.0 kernel-rt-drm-nouveau = 16 kernel-rt-modeset = 1
+Provides: kernel-rt-%{_target_cpu} = %{version}-%{release} kernel-rt-drm = 4.3.0 kernel-rt-drm-nouveau = 16 kernel-rt-modeset = 1
 Provides: kernel-rt-uname-r = %{KernelVer} kernel-rt=%{KernelVer}
 
 Requires: dracut >= 001-7 grubby >= 8.28-2 initscripts >= 8.11.1-1 linux-firmware >= 20100806-2 module-init-tools >= 3.16-2
@@ -118,6 +124,9 @@ ExclusiveOS: Linux
 %if %{with_perf}
 BuildRequires: flex xz-devel libzstd-devel
 BuildRequires: java-devel
+%ifarch aarch64
+BuildRequires: OpenCSD
+%endif
 %endif
 
 BuildRequires: dwarves
@@ -267,7 +276,12 @@ tar -xjf %{SOURCE9998}
 mv kernel linux-%{KernelVer}
 cd linux-%{KernelVer}
 
-cp %{SOURCE13} certs
+# process PGP certs
+cp %{SOURCE13} .
+cp %{SOURCE14} .
+cp %{SOURCE15} .
+sh %{SOURCE15}
+cp pubring.gpg certs
 
 %if 0%{?with_patch}
 cp %{SOURCE9000} .
@@ -345,8 +359,7 @@ make ARCH=%{Arch} modules %{?_smp_mflags}
 %if 0%{?with_kabichk}
     chmod 0755 %{SOURCE18}
     if [ -e $RPM_SOURCE_DIR/Module.kabi_%{_target_cpu} ]; then
-        ##%{SOURCE18} -k $RPM_SOURCE_DIR/Module.kabi_%{_target_cpu} -s Module.symvers || exit 1
-	echo "**** NOTE: now don't check Kabi. ****"
+        %{SOURCE18} -k $RPM_SOURCE_DIR/Module.kabi_%{_target_cpu} -s Module.symvers || exit 1
     else
         echo "**** NOTE: Cannot find reference Module.kabi file. ****"
     fi
@@ -360,8 +373,14 @@ make ARCH=%{Arch} modules %{?_smp_mflags}
 ## make tools
 %if %{with_perf}
 # perf
+%ifarch aarch64
+# aarch64 make perf with CORESIGHT=1
+%global perf_make \
+    make EXTRA_CFLAGS="-Wl,-z,now -g -Wall -fstack-protector-strong -fPIC" EXTRA_PERFLIBS="-fpie -pie" %{?_smp_mflags} -s V=1 WERROR=0 NO_LIBUNWIND=1 HAVE_CPLUS_DEMANGLE=1 NO_GTK2=1 NO_LIBNUMA=1 NO_STRLCPY=1 CORESIGHT=1 prefix=%{_prefix}
+%else
 %global perf_make \
     make EXTRA_CFLAGS="-Wl,-z,now -g -Wall -fstack-protector-strong -fPIC" EXTRA_PERFLIBS="-fpie -pie" %{?_smp_mflags} -s V=1 WERROR=0 NO_LIBUNWIND=1 HAVE_CPLUS_DEMANGLE=1 NO_GTK2=1 NO_LIBNUMA=1 NO_STRLCPY=1 prefix=%{_prefix}
+%endif
 %if 0%{?with_python2}
 %global perf_python2 -C tools/perf PYTHON=%{__python2}
 %global perf_python3 -C tools/python3-perf PYTHON=%{__python3}
@@ -426,6 +445,9 @@ popd
 pushd tools/kvm/kvm_stat/
 make %{?_smp_mflags} man
 popd
+pushd tools/netacc
+make BPFTOOL=../../tools/bpf/bpftool/bpftool
+popd
 
 %install
 %if 0%{?with_source}
@@ -455,10 +477,12 @@ popd
 install -m 644 .config $RPM_BUILD_ROOT/boot/config-%{KernelVer}
 install -m 644 System.map $RPM_BUILD_ROOT/boot/System.map-%{KernelVer}
 
-gzip -c9 < Module.symvers > $RPM_BUILD_ROOT/boot/symvers-%{KernelVer}.gz
+%if 0%{?with_kabichk}
+    gzip -c9 < Module.symvers > $RPM_BUILD_ROOT/boot/symvers-%{KernelVer}.gz
+%endif
 
 mkdir -p $RPM_BUILD_ROOT%{_sbindir}
-install -m 755 %{SOURCE200} $RPM_BUILD_ROOT%{_sbindir}/mkgrub-menu-%{devel_release}.sh
+install -m 755 %{SOURCE200} $RPM_BUILD_ROOT%{_sbindir}/mkgrub-menu-%{version}-%{devel_release}%{?maintenance_release}%{?pkg_release}.sh
 
 
 %if 0%{?with_debuginfo}
@@ -702,6 +726,9 @@ popd
 pushd tools/kvm/kvm_stat
 make INSTALL_ROOT=%{buildroot} install-tools
 popd
+pushd tools/netacc
+make INSTALL_ROOT=%{buildroot} install
+popd
 
 %define __spec_install_post\
 %{?__debug_package:%{__debug_install_post}}\
@@ -716,7 +743,7 @@ popd
 %preun
 if [ `uname -i` == "aarch64" ] &&
         [ -f /boot/EFI/grub2/grub.cfg ]; then
-    /usr/bin/sh  %{_sbindir}/mkgrub-menu-%{devel_release}.sh %{version}-%{devel_release}.aarch64  /boot/EFI/grub2/grub.cfg  remove
+    /usr/bin/sh  %{_sbindir}/mkgrub-menu-%{version}-%{devel_release}%{?maintenance_release}%{?pkg_release}.sh %{version}-%{release}.aarch64  /boot/EFI/grub2/grub.cfg  remove
 fi
 
 %postun
@@ -736,7 +763,7 @@ fi
 %{_sbindir}/new-kernel-pkg --package kernel --rpmposttrans %{KernelVer} || exit $?
 if [ `uname -i` == "aarch64" ] &&
         [ -f /boot/EFI/grub2/grub.cfg ]; then
-	/usr/bin/sh %{_sbindir}/mkgrub-menu-%{devel_release}.sh %{version}-%{devel_release}.aarch64  /boot/EFI/grub2/grub.cfg  update
+	/usr/bin/sh %{_sbindir}/mkgrub-menu-%{version}-%{devel_release}%{?maintenance_release}%{?pkg_release}.sh %{version}-%{release}.aarch64  /boot/EFI/grub2/grub.cfg  update
 fi
 if [ -x %{_sbindir}/weak-modules ]
 then
@@ -776,7 +803,9 @@ fi
 %ifarch aarch64
 /boot/dtb-*
 %endif
+%if 0%{?with_kabichk}
 /boot/symvers-*
+%endif
 /boot/System.map-*
 /boot/vmlinuz-*
 %ghost /boot/initramfs-%{KernelVer}.img
@@ -850,6 +879,8 @@ fi
 %{_bindir}/gpio-watch
 %{_mandir}/man1/kvm_stat*
 %{_bindir}/kvm_stat
+%{_sbindir}/net-acc
+%{_sbindir}/tuned_acc/redis_acc
 %{_libdir}/libcpupower.so.0
 %{_libdir}/libcpupower.so.0.0.1
 %license linux-%{KernelVer}/COPYING
@@ -886,6 +917,9 @@ fi
 %endif
 
 %changelog
+* Thu Nov 30 2023 kylin-mayukun <mayukun@kylinos.cn> - 5.10.0-153.34.0.60
+- update kernel-rt version to 5.10.0-153.34.0
+
 * Mon Jun  5 2023 zhangyuanhang <zhangyuanhang@kylinos.cn> - 5.10.0-153.2.0.60
 - update kernel-rt version to 5.10.0-153.2.0
 
