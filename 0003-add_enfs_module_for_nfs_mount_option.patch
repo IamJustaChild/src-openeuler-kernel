@@ -1,6 +1,6 @@
 diff --git a/fs/nfs/enfs/Makefile b/fs/nfs/enfs/Makefile
 new file mode 100644
-index 000000000000..6e83eb23c668
+index 000000000..6e83eb23c
 --- /dev/null
 +++ b/fs/nfs/enfs/Makefile
 @@ -0,0 +1,18 @@
@@ -24,7 +24,7 @@ index 000000000000..6e83eb23c668
 +enfs-y += pm_state.o
 diff --git a/fs/nfs/enfs/enfs.h b/fs/nfs/enfs/enfs.h
 new file mode 100644
-index 000000000000..be3d95220088
+index 000000000..be3d95220
 --- /dev/null
 +++ b/fs/nfs/enfs/enfs.h
 @@ -0,0 +1,62 @@
@@ -92,7 +92,7 @@ index 000000000000..be3d95220088
 +#endif
 diff --git a/fs/nfs/enfs/enfs_init.c b/fs/nfs/enfs/enfs_init.c
 new file mode 100644
-index 000000000000..4b55608191a7
+index 000000000..4b5560819
 --- /dev/null
 +++ b/fs/nfs/enfs/enfs_init.c
 @@ -0,0 +1,98 @@
@@ -196,7 +196,7 @@ index 000000000000..4b55608191a7
 +module_exit(exit_enfs);
 diff --git a/fs/nfs/enfs/enfs_multipath_client.c b/fs/nfs/enfs/enfs_multipath_client.c
 new file mode 100644
-index 000000000000..63c02898a42c
+index 000000000..63c02898a
 --- /dev/null
 +++ b/fs/nfs/enfs/enfs_multipath_client.c
 @@ -0,0 +1,340 @@
@@ -542,7 +542,7 @@ index 000000000000..63c02898a42c
 +}
 diff --git a/fs/nfs/enfs/enfs_multipath_client.h b/fs/nfs/enfs/enfs_multipath_client.h
 new file mode 100644
-index 000000000000..208f7260690d
+index 000000000..208f72606
 --- /dev/null
 +++ b/fs/nfs/enfs/enfs_multipath_client.h
 @@ -0,0 +1,26 @@
@@ -574,7 +574,7 @@ index 000000000000..208f7260690d
 +#endif
 diff --git a/fs/nfs/enfs/enfs_multipath_parse.c b/fs/nfs/enfs/enfs_multipath_parse.c
 new file mode 100644
-index 000000000000..868782b0a628
+index 000000000..868782b0a
 --- /dev/null
 +++ b/fs/nfs/enfs/enfs_multipath_parse.c
 @@ -0,0 +1,600 @@
@@ -1180,7 +1180,7 @@ index 000000000000..868782b0a628
 +}
 diff --git a/fs/nfs/enfs/enfs_multipath_parse.h b/fs/nfs/enfs/enfs_multipath_parse.h
 new file mode 100644
-index 000000000000..d5a36b2eb63b
+index 000000000..d5a36b2eb
 --- /dev/null
 +++ b/fs/nfs/enfs/enfs_multipath_parse.h
 @@ -0,0 +1,22 @@

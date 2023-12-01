@@ -1,5 +1,5 @@
 diff --git a/include/linux/sunrpc/clnt.h b/include/linux/sunrpc/clnt.h
-index 8aa865bce4f6..89178f78de8c 100644
+index 8aa865b..0425aaa 100644
 --- a/include/linux/sunrpc/clnt.h
 +++ b/include/linux/sunrpc/clnt.h
 @@ -70,6 +70,10 @@ struct rpc_clnt {
@@ -23,7 +23,7 @@ index 8aa865bce4f6..89178f78de8c 100644
  };
  
  struct rpc_add_xprt_test {
-@@ -221,6 +228,12 @@ bool rpc_clnt_xprt_switch_has_addr(struct rpc_clnt *clnt,
+@@ -221,6 +228,13 @@ bool rpc_clnt_xprt_switch_has_addr(struct rpc_clnt *clnt,
  			const struct sockaddr *sap);
  void rpc_cleanup_clids(void);
  
@@ -31,13 +31,14 @@ index 8aa865bce4f6..89178f78de8c 100644
 +int
 +rpc_clnt_test_xprt(struct rpc_clnt *clnt, struct rpc_xprt *xprt,
 +		   const struct rpc_call_ops *ops, void *data, int flags);
++struct rpc_xprt *rpc_task_get_next_xprt(struct rpc_clnt *clnt);
 +#endif /* CONFIG_ENFS */
 +
  static inline int rpc_reply_expected(struct rpc_task *task)
  {
  	return (task->tk_msg.rpc_proc != NULL) &&
 diff --git a/include/linux/sunrpc/sched.h b/include/linux/sunrpc/sched.h
-index ad2e243f3f03..124f5a0faf3e 100644
+index ad2e243..124f5a0 100644
 --- a/include/linux/sunrpc/sched.h
 +++ b/include/linux/sunrpc/sched.h
 @@ -90,6 +90,9 @@ struct rpc_task {
@@ -72,10 +73,10 @@ index ad2e243f3f03..124f5a0faf3e 100644
  {
 diff --git a/include/linux/sunrpc/sunrpc_enfs_adapter.h b/include/linux/sunrpc/sunrpc_enfs_adapter.h
 new file mode 100644
-index 000000000000..28abedcf5cf6
+index 0000000..cdd7fa6
 --- /dev/null
 +++ b/include/linux/sunrpc/sunrpc_enfs_adapter.h
-@@ -0,0 +1,128 @@
+@@ -0,0 +1,135 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/* Client-side SUNRPC ENFS adapter header.
 + * Copyright (c) 2023. Huawei Technologies Co., Ltd. All rights reserved.
@@ -112,6 +113,7 @@ index 000000000000..28abedcf5cf6
 +	void (*adjust_task_timeout)(struct rpc_task *task, void *condition);
 +	void (*init_task_req)(struct rpc_task *task, struct rpc_rqst *req);
 +	bool (*prepare_transmit)(struct rpc_task *task);
++	void (*set_transport)(struct rpc_task *task, struct rpc_clnt *clnt);
 +};
 +
 +extern struct rpc_multipath_ops __rcu *multipath_ops;
@@ -134,7 +136,8 @@ index 000000000000..28abedcf5cf6
 +void rpc_multipath_ops_init_task_req(struct rpc_task *task,
 +				     struct rpc_rqst *req);
 +bool rpc_multipath_ops_prepare_transmit(struct rpc_task *task);
-+
++void rpc_multipath_ops_set_transport(struct rpc_task *task,
++				struct rpc_clnt *clnt);
 +#else
 +static inline struct rpc_xprt *rpc_task_get_xprt(struct rpc_clnt *clnt,
 +						 struct rpc_xprt *xprt)
@@ -202,10 +205,15 @@ index 000000000000..28abedcf5cf6
 +	return false;
 +}
 +
++static inline void
++rpc_multipath_ops_set_transport(struct rpc_task *task, struct rpc_clnt *clnt)
++{
++}
++
 +#endif
 +#endif // _SUNRPC_ENFS_ADAPTER_H_
 diff --git a/include/linux/sunrpc/xprt.h b/include/linux/sunrpc/xprt.h
-index ccfacca1eba9..2e47b3577947 100644
+index ccfacca..2e47b35 100644
 --- a/include/linux/sunrpc/xprt.h
 +++ b/include/linux/sunrpc/xprt.h
 @@ -279,6 +279,10 @@ struct rpc_xprt {
@@ -220,21 +228,22 @@ index ccfacca1eba9..2e47b3577947 100644
  
  #if defined(CONFIG_SUNRPC_BACKCHANNEL)
 diff --git a/include/linux/sunrpc/xprtmultipath.h b/include/linux/sunrpc/xprtmultipath.h
-index af1257c030d2..d54e4dbbbf34 100644
+index af1257c..5677a46 100644
 --- a/include/linux/sunrpc/xprtmultipath.h
 +++ b/include/linux/sunrpc/xprtmultipath.h
-@@ -22,6 +22,10 @@ struct rpc_xprt_switch {
+@@ -22,6 +22,11 @@ struct rpc_xprt_switch {
  	const struct rpc_xprt_iter_ops *xps_iter_ops;
  
  	struct rcu_head		xps_rcu;
 +#if IS_ENABLED(CONFIG_ENFS)
 +	unsigned int		xps_nactive;
 +	atomic_long_t		xps_queuelen;
++	unsigned long		xps_tmp_time;
 +#endif
  };
  
  struct rpc_xprt_iter {
-@@ -69,4 +73,8 @@ extern struct rpc_xprt *xprt_iter_get_next(struct rpc_xprt_iter *xpi);
+@@ -69,4 +74,8 @@ extern struct rpc_xprt *xprt_iter_get_next(struct rpc_xprt_iter *xpi);
  
  extern bool rpc_xprt_switch_has_addr(struct rpc_xprt_switch *xps,
  		const struct sockaddr *sap);
@@ -244,7 +253,7 @@ index af1257c030d2..d54e4dbbbf34 100644
 +#endif
  #endif
 diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
-index 0fc540b0d183..5ad3f18eb1c0 100644
+index 0fc540b..ebdcd02 100644
 --- a/net/sunrpc/clnt.c
 +++ b/net/sunrpc/clnt.c
 @@ -37,6 +37,7 @@
@@ -297,28 +306,30 @@ index 0fc540b0d183..5ad3f18eb1c0 100644
  	if (clnt != NULL) {
  		/* Remove from client task list */
  		spin_lock(&clnt->cl_lock);
-@@ -999,14 +1014,29 @@ void rpc_task_release_client(struct rpc_task *task)
+@@ -999,14 +1014,31 @@ void rpc_task_release_client(struct rpc_task *task)
  
  		rpc_release_client(clnt);
  	}
 -	rpc_task_release_transport(task);
-+	
++
 +	if (!IS_ENABLED(CONFIG_ENFS))
 +		rpc_task_release_transport(task);
 +
  }
  
 +#if IS_ENABLED(CONFIG_ENFS)
-+static struct rpc_xprt *
++struct rpc_xprt *
 +rpc_task_get_next_xprt(struct rpc_clnt *clnt)
 +{
 +	return rpc_task_get_xprt(clnt, xprt_iter_get_next(&clnt->cl_xpi));
 +}
++EXPORT_SYMBOL_GPL(rpc_task_get_next_xprt);
 +#endif
 +
  static
  void rpc_task_set_transport(struct rpc_task *task, struct rpc_clnt *clnt)
  {
++	rpc_multipath_ops_set_transport(task, clnt);
  	if (!task->tk_xprt)
 +#if IS_ENABLED(CONFIG_ENFS)
 +		task->tk_xprt = rpc_task_get_next_xprt(clnt);
@@ -328,7 +339,7 @@ index 0fc540b0d183..5ad3f18eb1c0 100644
  }
  
  static
-@@ -1597,6 +1627,14 @@ call_reserveresult(struct rpc_task *task)
+@@ -1597,6 +1629,14 @@ call_reserveresult(struct rpc_task *task)
  		return;
  	case -EIO:	/* probably a shutdown */
  		break;
@@ -343,7 +354,7 @@ index 0fc540b0d183..5ad3f18eb1c0 100644
  	default:
  		printk(KERN_ERR "%s: unrecognized error %d, exiting\n",
  				__func__, status);
-@@ -1962,6 +2000,10 @@ call_transmit(struct rpc_task *task)
+@@ -1962,6 +2002,10 @@ call_transmit(struct rpc_task *task)
  		return;
  	if (!xprt_prepare_transmit(task))
  		return;
@@ -354,7 +365,7 @@ index 0fc540b0d183..5ad3f18eb1c0 100644
  	task->tk_action = call_transmit_status;
  	/* Encode here so that rpcsec_gss can use correct sequence number. */
  	if (rpc_task_need_encode(task)) {
-@@ -2277,6 +2319,7 @@ call_timeout(struct rpc_task *task)
+@@ -2277,6 +2321,7 @@ call_timeout(struct rpc_task *task)
  
  retry:
  	task->tk_action = call_bind;
@@ -362,7 +373,21 @@ index 0fc540b0d183..5ad3f18eb1c0 100644
  	task->tk_status = 0;
  }
  
-@@ -2961,3 +3004,30 @@ rpc_clnt_swap_deactivate(struct rpc_clnt *clnt)
+@@ -2798,8 +2843,12 @@ int rpc_clnt_add_xprt(struct rpc_clnt *clnt,
+ 		xprt->ops->set_connect_timeout(xprt,
+ 				connect_timeout,
+ 				reconnect_timeout);
+-
++#if IS_ENABLED(CONFIG_ENFS)
++	if (!clnt->cl_enfs)
++		rpc_xprt_switch_set_roundrobin(xps);
++#else
+ 	rpc_xprt_switch_set_roundrobin(xps);
++#endif
+ 	if (setup) {
+ 		ret = setup(clnt, xps, xprt, data);
+ 		if (ret != 0)
+@@ -2961,3 +3010,30 @@ rpc_clnt_swap_deactivate(struct rpc_clnt *clnt)
  }
  EXPORT_SYMBOL_GPL(rpc_clnt_swap_deactivate);
  #endif /* CONFIG_SUNRPC_SWAP */
@@ -394,7 +419,7 @@ index 0fc540b0d183..5ad3f18eb1c0 100644
 +EXPORT_SYMBOL_GPL(rpc_clnt_test_xprt);
 +#endif
 diff --git a/net/sunrpc/sched.c b/net/sunrpc/sched.c
-index a873c92a4898..2254fea0e863 100644
+index a873c92..2254fea 100644
 --- a/net/sunrpc/sched.c
 +++ b/net/sunrpc/sched.c
 @@ -20,7 +20,7 @@
@@ -421,10 +446,10 @@ index a873c92a4898..2254fea0e863 100644
  		task->tk_action = rpc_prepare_task;
 diff --git a/net/sunrpc/sunrpc_enfs_adapter.c b/net/sunrpc/sunrpc_enfs_adapter.c
 new file mode 100644
-index 000000000000..c1543545c6de
+index 0000000..106ad73
 --- /dev/null
 +++ b/net/sunrpc/sunrpc_enfs_adapter.c
-@@ -0,0 +1,214 @@
+@@ -0,0 +1,225 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/* Client-side SUNRPC ENFS adapter header.
 + * Copyright (c) 2023. Huawei Technologies Co., Ltd. All rights reserved.
@@ -639,8 +664,19 @@ index 000000000000..c1543545c6de
 +	rpc_multipath_ops_put(mops);
 +	return false;
 +}
++
++void rpc_multipath_ops_set_transport(struct rpc_task *task,
++				     struct rpc_clnt *clnt)
++{
++	struct rpc_multipath_ops *mops = NULL;
++
++	mops = rpc_multipath_ops_get();
++	if (mops && mops->set_transport)
++		mops->set_transport(task, clnt);
++	rpc_multipath_ops_put(mops);
++}
 diff --git a/net/sunrpc/xprt.c b/net/sunrpc/xprt.c
-index c912bf20faa2..c2b63b3d5217 100644
+index c912bf2..c2b63b3 100644
 --- a/net/sunrpc/xprt.c
 +++ b/net/sunrpc/xprt.c
 @@ -48,6 +48,7 @@
@@ -651,7 +687,7 @@ index c912bf20faa2..c2b63b3d5217 100644
  #include <linux/rcupdate.h>
  
  #include <trace/events/sunrpc.h>
-@@ -259,6 +260,9 @@ int xprt_reserve_xprt(struct rpc_xprt *xprt, struct rpc_task *task)
+@@ -259,6 +260,9 @@ out_sleep:
  	dprintk("RPC: %5u failed to lock transport %p\n",
  			task->tk_pid, xprt);
  	task->tk_timeout = 0;
@@ -721,7 +757,7 @@ index c912bf20faa2..c2b63b3d5217 100644
  	 * Tear down transport state and free the rpc_xprt
  	 */
 diff --git a/net/sunrpc/xprtmultipath.c b/net/sunrpc/xprtmultipath.c
-index 6ebaa58b4eff..f6a004ee7a27 100644
+index 6ebaa58..f6a004e 100644
 --- a/net/sunrpc/xprtmultipath.c
 +++ b/net/sunrpc/xprtmultipath.c
 @@ -18,6 +18,7 @@
