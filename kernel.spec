@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0253
+Release: %{hulkrelease}.0254
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,14 @@ fi
 %endif
 
 %changelog
+* Tue Dec 02 2023 YunYi Yang <yangyunyi2@huawei.com> - 4.19.90-2311.5.0.0254
+- scsi: sd: Update DIX config every time sd_revalidate_disk() is called
+- scsi: sd: Reorganize DIF/DIX code to avoid calling revalidate twice
+- scsi: libsas: Update SATA dev FIS in sas_ata_task_done()
+- scsi: hisi_sas: Fix SATA devices missing issue during I_T nexus reset
+- scsi: libsas: Add smp_ata_check_ready_type()
+- scsi: hisi_sas: Use sas_ata_wait_after_reset() in IT nexus reset
+
 * Tue Nov 28 2023 Yuan Zhang <zhangyuan162@huawei.com> - 4.19.90-2311.5.0.0253
 - arm64: cpufeature: Extract capped perfmon fields
 - KVM: arm64: limit PMU version to PMUv3 for ARMv8.1
