@@ -1,6 +1,6 @@
 diff --git a/fs/nfs/enfs/enfs_config.c b/fs/nfs/enfs/enfs_config.c
 new file mode 100644
-index 000000000000..a0ca93114a92
+index 000000000..a0ca93114
 --- /dev/null
 +++ b/fs/nfs/enfs/enfs_config.c
 @@ -0,0 +1,378 @@
@@ -384,7 +384,7 @@ index 000000000000..a0ca93114a92
 +}
 diff --git a/fs/nfs/enfs/enfs_config.h b/fs/nfs/enfs/enfs_config.h
 new file mode 100644
-index 000000000000..4eff0ccc3e01
+index 000000000..4eff0ccc3
 --- /dev/null
 +++ b/fs/nfs/enfs/enfs_config.h
 @@ -0,0 +1,31 @@
@@ -421,7 +421,7 @@ index 000000000000..4eff0ccc3e01
 +#endif // ENFS_CONFIG_H
 diff --git a/fs/nfs/enfs/enfs_errcode.h b/fs/nfs/enfs/enfs_errcode.h
 new file mode 100644
-index 000000000000..ffa0890889cf
+index 000000000..ffa089088
 --- /dev/null
 +++ b/fs/nfs/enfs/enfs_errcode.h
 @@ -0,0 +1,16 @@
@@ -443,7 +443,7 @@ index 000000000000..ffa0890889cf
 +#endif // ENFS_ERRCODE_H
 diff --git a/fs/nfs/enfs/enfs_log.h b/fs/nfs/enfs/enfs_log.h
 new file mode 100644
-index 000000000000..e12f8f3aefca
+index 000000000..e12f8f3ae
 --- /dev/null
 +++ b/fs/nfs/enfs/enfs_log.h
 @@ -0,0 +1,24 @@
@@ -473,7 +473,7 @@ index 000000000000..e12f8f3aefca
 +#endif  // ENFS_ERRCODE_H
 diff --git a/fs/nfs/enfs/failover_com.h b/fs/nfs/enfs/failover_com.h
 new file mode 100644
-index 000000000000..c52940da232e
+index 000000000..c52940da2
 --- /dev/null
 +++ b/fs/nfs/enfs/failover_com.h
 @@ -0,0 +1,23 @@
@@ -502,10 +502,10 @@ index 000000000000..c52940da232e
 +#endif // FAILOVER_COMMON_H
 diff --git a/fs/nfs/enfs/failover_path.c b/fs/nfs/enfs/failover_path.c
 new file mode 100644
-index 000000000000..dadb913b94d2
+index 000000000..2f5387216
 --- /dev/null
 +++ b/fs/nfs/enfs/failover_path.c
-@@ -0,0 +1,206 @@
+@@ -0,0 +1,212 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (c) Huawei Technologies Co., Ltd. 2023-2023. All rights reserved.
@@ -534,10 +534,16 @@ index 000000000000..dadb913b94d2
 +
 +static void failover_retry_path(struct rpc_task *task)
 +{
-+	xprt_release(task);
-+	rpc_init_task_retry_counters(task);
-+	rpc_task_release_transport(task);
-+	rpc_restart_call(task);
++	int ret;
++
++	ret = rpc_restart_call(task);
++
++	if (ret == 1) {
++		xprt_release(task);
++		rpc_init_task_retry_counters(task);
++		rpc_task_release_transport(task);
++		task->tk_xprt = rpc_task_get_next_xprt(task->tk_client);
++	}
 +}
 +
 +static void failover_retry_path_delay(struct rpc_task *task, int32_t delay)
@@ -714,7 +720,7 @@ index 000000000000..dadb913b94d2
 +}
 diff --git a/fs/nfs/enfs/failover_path.h b/fs/nfs/enfs/failover_path.h
 new file mode 100644
-index 000000000000..180d8dc80673
+index 000000000..9159ada07
 --- /dev/null
 +++ b/fs/nfs/enfs/failover_path.h
 @@ -0,0 +1,16 @@
@@ -736,7 +742,7 @@ index 000000000000..180d8dc80673
 +#endif // FAILOVER_PATH_H
 diff --git a/fs/nfs/enfs/failover_time.c b/fs/nfs/enfs/failover_time.c
 new file mode 100644
-index 000000000000..866ea82d13fc
+index 000000000..866ea82d1
 --- /dev/null
 +++ b/fs/nfs/enfs/failover_time.c
 @@ -0,0 +1,99 @@
@@ -841,7 +847,7 @@ index 000000000000..866ea82d13fc
 +}
 diff --git a/fs/nfs/enfs/failover_time.h b/fs/nfs/enfs/failover_time.h
 new file mode 100644
-index 000000000000..ede25b577a2a
+index 000000000..ede25b577
 --- /dev/null
 +++ b/fs/nfs/enfs/failover_time.h
 @@ -0,0 +1,16 @@
@@ -863,7 +869,7 @@ index 000000000000..ede25b577a2a
 +#endif // FAILOVER_TIME_H
 diff --git a/fs/nfs/enfs/init.h b/fs/nfs/enfs/init.h
 new file mode 100644
-index 000000000000..d81af9b02402
+index 000000000..d81af9b02
 --- /dev/null
 +++ b/fs/nfs/enfs/init.h
 @@ -0,0 +1,16 @@
@@ -885,7 +891,7 @@ index 000000000000..d81af9b02402
 +#endif
 diff --git a/fs/nfs/enfs/mgmt_init.c b/fs/nfs/enfs/mgmt_init.c
 new file mode 100644
-index 000000000000..122790775fe8
+index 000000000..122790775
 --- /dev/null
 +++ b/fs/nfs/enfs/mgmt_init.c
 @@ -0,0 +1,21 @@
@@ -912,7 +918,7 @@ index 000000000000..122790775fe8
 +}
 diff --git a/fs/nfs/enfs/mgmt_init.h b/fs/nfs/enfs/mgmt_init.h
 new file mode 100644
-index 000000000000..779732740008
+index 000000000..779732740
 --- /dev/null
 +++ b/fs/nfs/enfs/mgmt_init.h
 @@ -0,0 +1,17 @@
@@ -935,7 +941,7 @@ index 000000000000..779732740008
 +#endif // MGMT_INIT_H
 diff --git a/fs/nfs/enfs/pm_ping.c b/fs/nfs/enfs/pm_ping.c
 new file mode 100644
-index 000000000000..9ecbe9a7716f
+index 000000000..9ecbe9a77
 --- /dev/null
 +++ b/fs/nfs/enfs/pm_ping.c
 @@ -0,0 +1,420 @@
@@ -1361,7 +1367,7 @@ index 000000000000..9ecbe9a7716f
 +}
 diff --git a/fs/nfs/enfs/pm_ping.h b/fs/nfs/enfs/pm_ping.h
 new file mode 100644
-index 000000000000..8b159b286fba
+index 000000000..8b159b286
 --- /dev/null
 +++ b/fs/nfs/enfs/pm_ping.h
 @@ -0,0 +1,32 @@
@@ -1399,10 +1405,10 @@ index 000000000000..8b159b286fba
 +#endif // PM_PING_H
 diff --git a/fs/nfs/enfs/pm_state.c b/fs/nfs/enfs/pm_state.c
 new file mode 100644
-index 000000000000..8dd520ebfeef
+index 000000000..279028dc0
 --- /dev/null
 +++ b/fs/nfs/enfs/pm_state.c
-@@ -0,0 +1,157 @@
+@@ -0,0 +1,156 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (c) Huawei Technologies Co., Ltd. 2023-2023. All rights reserved.
@@ -1462,7 +1468,6 @@ index 000000000000..8dd520ebfeef
 +
 +	cur_state = atomic_read(&ctx->path_state);
 +	if (cur_state == state) {
-+		enfs_log_debug("The xprt is already {%d}.\n", state);
 +		xprt_put(xprt);
 +		return;
 +	}
@@ -1562,7 +1567,7 @@ index 000000000000..8dd520ebfeef
 +}
 diff --git a/fs/nfs/enfs/pm_state.h b/fs/nfs/enfs/pm_state.h
 new file mode 100644
-index 000000000000..469af998d1ef
+index 000000000..469af998d
 --- /dev/null
 +++ b/fs/nfs/enfs/pm_state.h
 @@ -0,0 +1,27 @@
