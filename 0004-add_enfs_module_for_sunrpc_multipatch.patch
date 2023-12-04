@@ -1,9 +1,9 @@
 diff --git a/fs/nfs/enfs/enfs_multipath.c b/fs/nfs/enfs/enfs_multipath.c
 new file mode 100644
-index 000000000000..7a58cab74869
+index 000000000..d49dc91e1
 --- /dev/null
 +++ b/fs/nfs/enfs/enfs_multipath.c
-@@ -0,0 +1,627 @@
+@@ -0,0 +1,654 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (c) Huawei Technologies Co., Ltd. 2023-2023. All rights reserved.
@@ -60,16 +60,40 @@ index 000000000000..7a58cab74869
 +
 +static DECLARE_WAIT_QUEUE_HEAD(path_attach_wait_queue);
 +
-+
-+static void sockaddr_set_port(struct sockaddr *addr, int port)
++/**
++ * set socket port.
++ * @ns: need transform to network byte order
++ */
++static void sockaddr_set_port(struct sockaddr *addr, __be16 port, bool ns)
 +{
 +	switch (addr->sa_family) {
 +	case AF_INET:
-+		((struct sockaddr_in *)addr)->sin_port = htons(port);
++		((struct sockaddr_in *)addr)->sin_port =
++			ns ? htons(port) : port;
 +		break;
 +	case AF_INET6:
-+		((struct sockaddr_in6 *)addr)->sin6_port = htons(port);
++		((struct sockaddr_in6 *)addr)->sin6_port =
++			ns ? htons(port) : port;
 +		break;
++	}
++}
++
++static __be16 get_rpc_clnt_port(struct rpc_clnt *clnt)
++{
++	struct sockaddr_storage ss;
++	struct sockaddr *addr = (struct sockaddr *)&ss;
++
++	rpc_peeraddr(clnt, (struct sockaddr *)&ss, sizeof(ss));
++	switch (addr->sa_family) {
++	case AF_INET:
++		return ((struct sockaddr_in *)addr)->sin_port;
++
++	case AF_INET6:
++		return ((struct sockaddr_in6 *)addr)->sin6_port;
++
++	default:
++		enfs_log_error("not support family:%d.\n", addr->sa_family);
++		return -1;
 +	}
 +}
 +
@@ -176,12 +200,14 @@ index 000000000000..7a58cab74869
 +			struct xprt_attach_info *attach_info)
 +{
 +	int err = 0;
++	__be16 port;
 +
 +	xprtargs->srcaddr = (struct sockaddr *)attach_info->localAddress;
 +	xprtargs->dstaddr = (struct sockaddr *)attach_info->remoteAddress;
 +
-+	sockaddr_set_port((struct sockaddr *)attach_info->localAddress, 2049);
-+	sockaddr_set_port((struct sockaddr *)attach_info->remoteAddress, 2049);
++	port = get_rpc_clnt_port(clnt);
++	sockaddr_set_port((struct sockaddr *)attach_info->remoteAddress, port,
++					  false);
 +	print_enfs_multipath_addr((struct sockaddr *)attach_info->localAddress,
 +				(struct sockaddr *)attach_info->remoteAddress);
 +
@@ -634,7 +660,7 @@ index 000000000000..7a58cab74869
 +}
 diff --git a/fs/nfs/enfs/enfs_multipath.h b/fs/nfs/enfs/enfs_multipath.h
 new file mode 100644
-index 000000000000..3c58b0c4cdf7
+index 000000000..3c58b0c4c
 --- /dev/null
 +++ b/fs/nfs/enfs/enfs_multipath.h
 @@ -0,0 +1,23 @@
@@ -663,7 +689,7 @@ index 000000000000..3c58b0c4cdf7
 +#endif // ENFS_MULTIPATH_H
 diff --git a/fs/nfs/enfs/enfs_path.c b/fs/nfs/enfs/enfs_path.c
 new file mode 100644
-index 000000000000..7355f8c2f672
+index 000000000..7355f8c2f
 --- /dev/null
 +++ b/fs/nfs/enfs/enfs_path.c
 @@ -0,0 +1,47 @@
@@ -716,7 +742,7 @@ index 000000000000..7355f8c2f672
 +}
 diff --git a/fs/nfs/enfs/enfs_path.h b/fs/nfs/enfs/enfs_path.h
 new file mode 100644
-index 000000000000..97b1ef3730b8
+index 000000000..97b1ef373
 --- /dev/null
 +++ b/fs/nfs/enfs/enfs_path.h
 @@ -0,0 +1,12 @@
@@ -734,7 +760,7 @@ index 000000000000..97b1ef3730b8
 +#endif  // ENFS_PATH_H
 diff --git a/fs/nfs/enfs/enfs_proc.c b/fs/nfs/enfs/enfs_proc.c
 new file mode 100644
-index 000000000000..53fa1a07642f
+index 000000000..53fa1a076
 --- /dev/null
 +++ b/fs/nfs/enfs/enfs_proc.c
 @@ -0,0 +1,545 @@
@@ -1285,7 +1311,7 @@ index 000000000000..53fa1a07642f
 +}
 diff --git a/fs/nfs/enfs/enfs_proc.h b/fs/nfs/enfs/enfs_proc.h
 new file mode 100644
-index 000000000000..321951031c2e
+index 000000000..321951031
 --- /dev/null
 +++ b/fs/nfs/enfs/enfs_proc.h
 @@ -0,0 +1,21 @@
@@ -1312,7 +1338,7 @@ index 000000000000..321951031c2e
 +#endif
 diff --git a/fs/nfs/enfs/enfs_remount.c b/fs/nfs/enfs/enfs_remount.c
 new file mode 100644
-index 000000000000..3b7d6a03d78a
+index 000000000..3b7d6a03d
 --- /dev/null
 +++ b/fs/nfs/enfs/enfs_remount.c
 @@ -0,0 +1,220 @@
@@ -1538,7 +1564,7 @@ index 000000000000..3b7d6a03d78a
 +}
 diff --git a/fs/nfs/enfs/enfs_remount.h b/fs/nfs/enfs/enfs_remount.h
 new file mode 100644
-index 000000000000..c7a1dcbb65b9
+index 000000000..c7a1dcbb6
 --- /dev/null
 +++ b/fs/nfs/enfs/enfs_remount.h
 @@ -0,0 +1,14 @@
@@ -1558,7 +1584,7 @@ index 000000000000..c7a1dcbb65b9
 +#endif
 diff --git a/fs/nfs/enfs/enfs_roundrobin.c b/fs/nfs/enfs/enfs_roundrobin.c
 new file mode 100644
-index 000000000000..4e4eda784a3e
+index 000000000..4e4eda784
 --- /dev/null
 +++ b/fs/nfs/enfs/enfs_roundrobin.c
 @@ -0,0 +1,255 @@
@@ -1819,7 +1845,7 @@ index 000000000000..4e4eda784a3e
 +};
 diff --git a/fs/nfs/enfs/enfs_roundrobin.h b/fs/nfs/enfs/enfs_roundrobin.h
 new file mode 100644
-index 000000000000..b72b088a6258
+index 000000000..b72b088a6
 --- /dev/null
 +++ b/fs/nfs/enfs/enfs_roundrobin.h
 @@ -0,0 +1,9 @@
