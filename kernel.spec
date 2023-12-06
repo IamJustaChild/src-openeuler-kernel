@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0255
+Release: %{hulkrelease}.0256
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,9 @@ fi
 %endif
 
 %changelog
+* Thu Dec 07 2023 YunYi Yang <yangyunyi2@huawei.com> - 4.19.90-2312.1.0.0256
+- Add a patch style checker for guard
+
 * Wed Dec 06 2023 YunYi Yang <yangyunyi2@huawei.com> - 4.19.90-2312.1.0.0255
 - !3158  mm: don't let userspace spam allocations warnings
 - mm: don't let userspace spam allocations warnings
