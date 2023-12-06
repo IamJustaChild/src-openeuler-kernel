@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0253
+Release: %{hulkrelease}.0254
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,9 @@ fi
 %endif
 
 %changelog
+* Sat Dec 2 2023 Zhang Mingqian <zhangmingqian.zhang@huawei.com> - 4.19.90-2311.5.0.0254
+- bug fix for enfs, when diconnect many sockets io is hang
+
 * Tue Nov 28 2023 Yuan Zhang <zhangyuan162@huawei.com> - 4.19.90-2311.5.0.0253
 - arm64: cpufeature: Extract capped perfmon fields
 - KVM: arm64: limit PMU version to PMUv3 for ARMv8.1
@@ -1342,7 +1345,7 @@ fi
 - drivers/gmjstcm: fix a dev_err() call in spi tcm device probe
 - SCSI: SSSRAID: Support 3SNIC 3S5XX serial RAID/HBA  controllers
 
-* TUE Nov 14 2023  YunYi Yang <yangyunyi2@huawei.com> - 4.19.90-2311.2.0.0243
+* Tue Nov 14 2023  YunYi Yang <yangyunyi2@huawei.com> - 4.19.90-2311.2.0.0243
 - config: arm64: Build HiSilicon SPI/SFC driver as module
 - spi: hisi-sfc-v3xx: drop unnecessary ACPI_PTR and related ifendif protection
 - spi: hisi-sfc-v3xx: fix potential irq race condition

@@ -1,5 +1,5 @@
 diff --git a/fs/nfs/client.c b/fs/nfs/client.c
-index 7d02dc52209d..50820a8a684a 100644
+index 7d02dc522..b1194a3fb 100644
 --- a/fs/nfs/client.c
 +++ b/fs/nfs/client.c
 @@ -48,7 +48,7 @@
@@ -19,17 +19,34 @@ index 7d02dc52209d..50820a8a684a 100644
  	kfree(clp);
  }
  EXPORT_SYMBOL_GPL(nfs_free_client);
-@@ -330,6 +331,9 @@ static struct nfs_client *nfs_match_client(const struct nfs_client_initdata *dat
+@@ -324,11 +325,26 @@ static struct nfs_client *nfs_match_client(const struct nfs_client_initdata *dat
+ 			continue;
+ 		/* Match the full socket address */
+ 		if (!rpc_cmp_addr_port(sap, clap))
++#if IS_ENABLED(CONFIG_ENFS)
++		{
++			if (data->enfs_option != NULL)
++				continue;
++			else {
++				if (IS_ERR(clp->cl_rpcclient) ||
++				!rpc_clnt_xprt_switch_has_addr(
++					clp->cl_rpcclient, sap))
++					continue;
++			}
++		}
++#else
+ 			/* Match all xprt_switch full socket addresses */
+ 			if (IS_ERR(clp->cl_rpcclient) ||
+                             !rpc_clnt_xprt_switch_has_addr(clp->cl_rpcclient,
  							   sap))
  				continue;
- 
++#endif
 +		if (!nfs_multipath_client_match(clp, data))
 +			continue;
-+
+ 
  		refcount_inc(&clp->cl_count);
  		return clp;
- 	}
-@@ -512,6 +516,9 @@ int nfs_create_rpc_client(struct nfs_client *clp,
+@@ -512,6 +528,9 @@ int nfs_create_rpc_client(struct nfs_client *clp,
  		.program	= &nfs_program,
  		.version	= clp->rpc_ops->version,
  		.authflavor	= flavor,
@@ -39,7 +56,7 @@ index 7d02dc52209d..50820a8a684a 100644
  	};
  
  	if (test_bit(NFS_CS_DISCRTRY, &clp->cl_flags))
-@@ -634,6 +641,13 @@ struct nfs_client *nfs_init_client(struct nfs_client *clp,
+@@ -634,6 +653,13 @@ struct nfs_client *nfs_init_client(struct nfs_client *clp,
  	/* the client is already initialised */
  	if (clp->cl_cons_state == NFS_CS_READY)
  		return clp;
@@ -53,7 +70,7 @@ index 7d02dc52209d..50820a8a684a 100644
  
  	/*
  	 * Create a client RPC handle for doing FSSTAT with UNIX auth only
-@@ -666,6 +680,9 @@ static int nfs_init_server(struct nfs_server *server,
+@@ -666,6 +692,9 @@ static int nfs_init_server(struct nfs_server *server,
  		.net = data->net,
  		.timeparms = &timeparms,
  		.init_flags = (1UL << NFS_CS_REUSEPORT),
@@ -65,10 +82,10 @@ index 7d02dc52209d..50820a8a684a 100644
  	int error;
 diff --git a/fs/nfs/enfs_adapter.c b/fs/nfs/enfs_adapter.c
 new file mode 100644
-index 000000000000..7fde5b6fae90
+index 000000000..e0f3841c1
 --- /dev/null
 +++ b/fs/nfs/enfs_adapter.c
-@@ -0,0 +1,273 @@
+@@ -0,0 +1,276 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Client-side ENFS adapter.
@@ -285,7 +302,8 @@ index 000000000000..7fde5b6fae90
 +{
 +	int ret = 0;
 +	struct enfs_adapter_ops *ops;
-+	struct nfs_parsed_mount_data *parsed_data = (struct nfs_parsed_mount_data *)data;
++	struct nfs_parsed_mount_data *parsed_data =
++		(struct nfs_parsed_mount_data *)data;
 +
 +	if (!parsed_data->enfs_option)
 +		return 0;
@@ -295,7 +313,8 @@ index 000000000000..7fde5b6fae90
 +
 +	ops = nfs_multipath_router_get();
 +	if (ops != NULL && ops->remount_ip_list != NULL)
-+		ret = ops->remount_ip_list(nfs_client, parsed_data->enfs_option);
++		ret = ops->remount_ip_list(nfs_client,
++			parsed_data->enfs_option);
 +	nfs_multipath_router_put(ops);
 +	return ret;
 +}
@@ -312,9 +331,10 @@ index 000000000000..7fde5b6fae90
 +{
 +	char *string;
 +	int rc;
++
 +	string = match_strdup(args);
 +	if (string == NULL) {
-+		printk(KERN_INFO "NFS: not enough memory to parse option\n");
++		pr_info("NFS: not enough memory to parse option\n");
 +		return 0;
 +	}
 +	rc = enfs_parse_mount_options(get_nfs_multi_path_opt(token),
@@ -325,26 +345,26 @@ index 000000000000..7fde5b6fae90
 +	case  0:
 +		return 1;
 +	case -ENOMEM:
-+		printk(KERN_INFO "NFS: not enough memory to parse option\n");
++		pr_info("NFS: not enough memory to parse option\n");
 +		return 0;
 +	case -ENOSPC:
-+		printk(KERN_INFO "NFS: param is more than supported limit: %d\n", rc);
++		pr_info("NFS: param is more than supported limit: %d\n", rc);
 +		return 0;
 +	case -EINVAL:
-+		printk(KERN_INFO "NFS: bad IP address specified: %s\n", p);
++		pr_info("NFS: bad IP address specified: %s\n", p);
 +		return 0;
 +	case -ENOTSUPP:
-+		printk(KERN_INFO "NFS: bad IP address specified: %s\n", p);
++		pr_info("NFS: bad IP address specified: %s\n", p);
 +		return 0;
 +	case -EOPNOTSUPP:
-+		printk(KERN_INFO "NFS: bad IP address specified: %s\n", p);
++		pr_info("NFS: bad IP address specified: %s\n", p);
 +		return 0;
 +	}
 +	return 1;
 +}
 diff --git a/fs/nfs/enfs_adapter.h b/fs/nfs/enfs_adapter.h
 new file mode 100644
-index 000000000000..c7483ca1222a
+index 000000000..98b4e3292
 --- /dev/null
 +++ b/fs/nfs/enfs_adapter.h
 @@ -0,0 +1,116 @@
@@ -465,7 +485,7 @@ index 000000000000..c7483ca1222a
 +#endif // CONFIG_ENFS
 +#endif // _NFS_MULTIPATH_H_
 diff --git a/fs/nfs/internal.h b/fs/nfs/internal.h
-index 0ce5a90640c4..84ac82dbb300 100644
+index 0ce5a9064..84ac82dbb 100644
 --- a/fs/nfs/internal.h
 +++ b/fs/nfs/internal.h
 @@ -93,6 +93,9 @@ struct nfs_client_initdata {
@@ -500,7 +520,7 @@ index 0ce5a90640c4..84ac82dbb300 100644
  extern void nfs_start_io_read(struct inode *inode);
  extern void nfs_end_io_read(struct inode *inode);
 diff --git a/fs/nfs/nfs4client.c b/fs/nfs/nfs4client.c
-index 1350ea673672..f97646b9882e 100644
+index 1350ea673..f97646b98 100644
 --- a/fs/nfs/nfs4client.c
 +++ b/fs/nfs/nfs4client.c
 @@ -10,7 +10,7 @@
@@ -612,7 +632,7 @@ index 1350ea673672..f97646b9882e 100644
  	if (error != 0) {
  		nfs_server_insert_lists(server);
 diff --git a/fs/nfs/super.c b/fs/nfs/super.c
-index a05e1eb2c3fd..f26bdaa45fca 100644
+index a05e1eb2c..168da9700 100644
 --- a/fs/nfs/super.c
 +++ b/fs/nfs/super.c
 @@ -51,7 +51,6 @@
@@ -727,7 +747,7 @@ index a05e1eb2c3fd..f26bdaa45fca 100644
 +		case Opt_remote_dnslist:
 +			rc = enfs_check_mount_parse_info(p,
 +					token, mnt, args);
-+			if (rc != 1) 
++			if (rc != 1)
 +				return rc;
 +			break;
 +		case Opt_enfs_info:
@@ -757,7 +777,7 @@ index a05e1eb2c3fd..f26bdaa45fca 100644
  	return error;
  }
 diff --git a/include/linux/nfs_fs_sb.h b/include/linux/nfs_fs_sb.h
-index 7023ae64e3d7..2c19678afe8d 100644
+index 7023ae64e..2c19678af 100644
 --- a/include/linux/nfs_fs_sb.h
 +++ b/include/linux/nfs_fs_sb.h
 @@ -123,6 +123,11 @@ struct nfs_client {
