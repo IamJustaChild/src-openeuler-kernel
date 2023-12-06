@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2311.5.0
+%global hulkrelease 2312.1.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0254
+Release: %{hulkrelease}.0255
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,26 @@ fi
 %endif
 
 %changelog
+* Wed Dec 06 2023 YunYi Yang <yangyunyi2@huawei.com> - 4.19.90-2312.1.0.0255
+- !3158  mm: don't let userspace spam allocations warnings
+- mm: don't let userspace spam allocations warnings
+- !2781  cpufreq: Abort show()/store() for half-initialized policies
+- !3118  sched: smart grid: check is active in affinity timer
+- sched: smart grid: check is active in affinity timer
+- !2977  Backport crypto bugfix
+- !3071  perf/core: Fix perf_mmap fail when CONFIG_PERF_USE_VMALLOC enabled
+- perf/core: Fix perf_mmap fail when CONFIG_PERF_USE_VMALLOC enabled
+- !3038  ipv4: igmp: fix refcnt uaf issue when receiving igmp query packet
+- !3031  x86/mce/amd: Publish the bank pointer only after setup has succeeded
+- !3030  x86/mce/inject: Fix a wrong assignment of i_mce.status
+- ipv4: igmp: fix refcnt uaf issue when receiving igmp query packet
+- x86/mce/amd: Publish the bank pointer only after setup has succeeded
+- x86/mce/inject: Fix a wrong assignment of i_mce.status
+- crypto: fix kabi broken in struct crypto_instance
+- crypto: api - Use work queue in crypto_destroy_instance
+- cpufreq: make interface functions and lock holding state clear
+- cpufreq: Abort show()/store() for half-initialized policies
+
 * Sat Dec 2 2023 Zhang Mingqian <zhangmingqian.zhang@huawei.com> - 4.19.90-2311.5.0.0254
 - bug fix for enfs, when diconnect many sockets io is hang
 
