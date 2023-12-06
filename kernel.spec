@@ -10,9 +10,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       174
+%global devel_release       175
 %global maintenance_release .0.0
-%global pkg_release         .87
+%global pkg_release         .88
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -887,6 +887,55 @@ fi
 %endif
 
 %changelog
+* Wed Dec 06 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-175.0.0.88
+- !3220 KVM: arm64: vtimer/virt_dev irq bypass support
+- !3092 [OLK-5.10]KVM: arm64: Add host/guest KVM-PTP support
+- !3206  Two bugfix patch about memcg swap qos
+- !3212  drivers/perf: hisi: UC PMU support statistics in power saving mode
+- KVM: arm64: update arm64 openeuler_defconfig for CONFIG_VIRT_PLAT_DEV
+- KVM: arm64: sdev: Support virq bypass by INT/VSYNC command
+- KVM: arm64: kire: irq routing entry cached the relevant cache data
+- KVM: arm64: Introduce shadow device
+- virt_plat_dev: Register the virt platform device driver
+- irqchip/gic-v3-its: Add virt platform devices MSI support
+- irqchip/gic-v3-its: Alloc/Free device id from pools for virtual devices
+- irqchip/gic-v3-its: Introduce the reserved device ID pools
+- mbigen: Sets the regs related to vtimer irqbypass
+- KVM: arm64: vgic-v3: Clearing pending status of vtimer on guest reset
+- mbigen: vtimer: add support for MBIX1_CPPI_NEGEDGE_CLR_EN_SETR(CLRR)
+- KVM: arm64: arch_timer: Make vtimer_irqbypass a Distributor attr
+- KVM: arm64: vtimer: Expose HW-based vtimer interrupt in debugfs
+- KVM: arm64: GICv4.1: Allow non-trapping WFI when using direct vtimer interrupt
+- KVM: arm64: GICv4.1: Add support for MBIGEN save/restore
+- KVM: arm64: arch_timer: Rework vcpu init/reset logic
+- KVM: arm64: arch_timer: Probe vtimer irqbypass capability
+- KVM: arm64: GICv4.1: Enable vtimer vPPI irqbypass config
+- KVM: arm64: GICv4.1: Add direct injection capability to PPI registers
+- KVM: arm64: vgic: Add helper for vtimer vppi info register
+- KVM: arm64: GICv4.1: Inform the HiSilicon vtimer irqbypass capability
+- irqchip/gic-v4.1: Probe vtimer irqbypass capability at RD level
+- irqchip/gic-v4.1: Rework its_alloc_vcpu_sgis() to support vPPI allocation
+- irqchip/gic-v4.1: Rework get/set_irqchip_state callbacks of GICv4.1-sgi chip
+- irqchip/gic-v4.1: Extend VSGI command to support the new vPPI
+- irqchip/gic-v4.1: Detect ITS vtimer interrupt bypass capability
+- mbigen: vtimer mbigen driver support
+- kabi: fix kabi broken in struct clocksource and system_time_snapshot
+- drivers/perf: hisi: UC PMU support statistics in power saving mode
+- memcg: fix use-after-free of mm_struct
+- mm/swap_slots: fix out-of-bounds access of percpu area
+- KVM: arm64: update arm64 openeuler_defconfig for CONFIG_PTP_1588_CLOCK_KVM
+- KVM: arm64: fix compile error
+- ptp: fix error print of ptp_kvm on X86_64 platform
+- KVM: arm64: Fix Function ID typo for PTP_KVM service
+- ptp: Don't print an error if ptp_kvm is not supported
+- ptp: arm/arm64: Enable ptp_kvm for arm/arm64
+- KVM: arm64: Add support for the KVM PTP service
+- clocksource: Add clocksource id for arm arch counter
+- time: Add mechanism to recognize clocksource in time_get_snapshot
+- ptp: Reorganize ptp_kvm.c to make it arch-independent
+- KVM: arm64: Advertise KVM UID to guests via SMCCC
+- arm/arm64: Probe for the presence of KVM hypervisor
+
 * Tue Dec 05 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-174.0.0.87
 - !3214  bring mc support to page eject
 - mm: page_eject: Add mc support during offline page
