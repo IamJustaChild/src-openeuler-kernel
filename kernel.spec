@@ -10,9 +10,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       175
+%global devel_release       176
 %global maintenance_release .0.0
-%global pkg_release         .88
+%global pkg_release         .89
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -887,6 +887,24 @@ fi
 %endif
 
 %changelog
+* Thu Dec 07 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-176.0.0.89
+- !3226  hinic: ethtool: Allow userspace to set more aggregation params
+- !3259 mbigen: vtimer: isolate mbigen vtimer funcs with macro
+- mbigen: vtimer: isolate mbigen vtimer funcs with macro
+- !3215 net: hns: fix fake link up on xge port and fix wrong head when modify the tx feature when sending packets
+- !2946  LoongArch: disable 40bit user space by default
+- net: hns: fix fake link up on xge port
+- net: hns: fix wrong head when modify the tx feature when sending packets
+- !2987  fix CFS bandwidth vs. hrtimer self deadlock
+- !3005 [sync] PR-1617: LoonArch: KVM: fix vcpu timer
+- !3161  fs: Fix error checking for d_hash_and_lookup()
+- hinic: ethtool: Allow userspace to set more aggregation params
+- fs: Fix error checking for d_hash_and_lookup()
+- LoongArch: KVM: fix vcpu timer functions
+- cpu/hotplug: fix kabi breakage in enum cpuhp_state
+- hrtimers: Push pending hrtimers away from outgoing CPU earlier
+- LoongArch: disable 40bit user space by default
+
 * Wed Dec 06 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-175.0.0.88
 - !3220 KVM: arm64: vtimer/virt_dev irq bypass support
 - !3092 [OLK-5.10]KVM: arm64: Add host/guest KVM-PTP support
