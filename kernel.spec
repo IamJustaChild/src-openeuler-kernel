@@ -116,7 +116,7 @@ Conflicts: reiserfs-utils < 3.6.19-2 selinux-policy-targeted < 1.25.3-14 squashf
 Conflicts: udev < 063-6 util-linux < 2.12 wireless-tools < 29-3 xfsprogs < 2.6.13-4
 
 Provides: kernel-%{_target_cpu} = %{version}-%{release} kernel-drm = 4.3.0 kernel-drm-nouveau = 16 kernel-modeset = 1
-Provides: kernel-uname-r = %{KernelVer} kernel=%{KernelVer}
+Provides: kernel-uname-r = %{KernelVer} kernel=%{KernelVer} test_ods = %{version}-%{release}
 
 Requires: dracut >= 001-7 grubby >= 8.28-2 initscripts >= 8.11.1-1 linux-firmware >= 20100806-2 module-init-tools >= 3.16-2
 
@@ -160,7 +160,6 @@ against the %{KernelVer} kernel package.
 
 %package tools
 Summary: Assortment of tools for the Linux kernel
-Provides: %{name}-tools-libs
 Obsoletes: %{name}-tools-libs
 Provides:  cpufreq-utils = 1:009-0.6.p1
 Provides:  cpufrequtils = 1:009-0.6.p1
@@ -475,6 +474,7 @@ cd linux-%{KernelVer}
 #tar cf - --exclude SCCS --exclude BitKeeper --exclude .svn --exclude CVS --exclude .pc --exclude .hg --exclude .git --exclude=.tmp_versions --exclude=*vmlinux* --exclude=*.o --exclude=*.ko --exclude=*.cmd --exclude=Documentation --exclude=.config.old --exclude=.missing-syscalls.d --exclude=patches . | tar xf - -C %{buildroot}/usr/src/linux-%{KernelVer}
 
 mkdir -p $RPM_BUILD_ROOT/boot
+touch $RPM_BUILD_ROOT/%{_libdir}/test_file.txt
 dd if=/dev/zero of=$RPM_BUILD_ROOT/boot/initramfs-%{KernelVer}.img bs=1M count=20
 
 %ifarch loongarch64
@@ -845,6 +845,7 @@ fi
 /lib/modules/%{KernelVer}/source
 /lib/modules/%{KernelVer}/build
 /usr/src/kernels/%{KernelVer}
+%{_libdir}/test_file.txt
 
 %files headers
 %defattr (-, root, root)
@@ -5923,7 +5924,8 @@ fi
 - objtool: Fix code relocs vs weak symbols
 - x86/alternative: Add debug prints to apply_retpolines()
 - x86/alternative: Try inline spectre_v2=retpoline,amd
-- x86/alternative: Handle Jcc __x86_indirect_thunk_eg
+- x86/alternative: Handle Jcc __x86_indirect_thunk_
+eg
 - x86/insn-eval: Handle return values from the decoder
 - x86/pat: Fix x86_has_pat_wp()
 - serial: 8250: Fix PM usage_count for console handover
