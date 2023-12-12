@@ -1,5 +1,5 @@
 %define with_signmodules  1
-%define with_kabichk 0
+%define with_kabichk 1
 
 %define modsign_cmd %{SOURCE10}
 
@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       176
+%global devel_release       177
 %global maintenance_release .0.0
-%global pkg_release         .90
+%global pkg_release         .91
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -64,6 +64,7 @@ Source15: process_pgp_certs.sh
 %if 0%{?with_kabichk}
 Source18: check-kabi
 Source20: Module.kabi_aarch64
+Source21: Module.kabi_x86_64
 %endif
 
 Source200: mkgrub-menu-aarch64.sh
@@ -101,7 +102,7 @@ BuildRequires: audit-libs-devel
 BuildRequires: pciutils-devel gettext
 BuildRequires: rpm-build, elfutils
 BuildRequires: numactl-devel python3-devel glibc-static python3-docutils
-BuildRequires: perl-generators perl(Carp) libunwind-devel gtk2-devel libbabeltrace-devel java-1.8.0-openjdk perl-devel
+BuildRequires: perl-generators perl(Carp) libunwind-devel gtk2-devel libbabeltrace-devel java-1.8.0-openjdk java-1.8.0-openjdk-devel perl-devel
 
 %if 0%{?openEuler_sign_rsa}
 BuildRequires: sign-openEuler
@@ -353,8 +354,7 @@ make ARCH=%{Arch} modules %{?_smp_mflags}
 %if 0%{?with_kabichk}
     chmod 0755 %{SOURCE18}
     if [ -e $RPM_SOURCE_DIR/Module.kabi_%{_target_cpu} ]; then
-        ##%{SOURCE18} -k $RPM_SOURCE_DIR/Module.kabi_%{_target_cpu} -s Module.symvers || exit 1
-	echo "**** NOTE: now don't check Kabi. ****"
+        %{SOURCE18} -k $RPM_SOURCE_DIR/Module.kabi_%{_target_cpu} -s Module.symvers || exit 1
     else
         echo "**** NOTE: Cannot find reference Module.kabi file. ****"
     fi
@@ -485,7 +485,9 @@ popd
 install -m 644 .config $RPM_BUILD_ROOT/boot/config-%{KernelVer}
 install -m 644 System.map $RPM_BUILD_ROOT/boot/System.map-%{KernelVer}
 
-gzip -c9 < Module.symvers > $RPM_BUILD_ROOT/boot/symvers-%{KernelVer}.gz
+%if 0%{?with_kabichk}
+    gzip -c9 < Module.symvers > $RPM_BUILD_ROOT/boot/symvers-%{KernelVer}.gz
+%endif
 
 mkdir -p $RPM_BUILD_ROOT%{_sbindir}
 install -m 755 %{SOURCE200} $RPM_BUILD_ROOT%{_sbindir}/mkgrub-menu-%{devel_release}.sh
@@ -809,7 +811,9 @@ fi
 %ifarch aarch64
 /boot/dtb-*
 %endif
+%if 0%{?with_kabichk}
 /boot/symvers-*
+%endif
 /boot/System.map-*
 /boot/vmlinuz-*
 %ghost /boot/initramfs-%{KernelVer}.img
@@ -907,6 +911,87 @@ fi
 %endif
 
 %changelog
+* Tue Dec 12 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-177.0.0.91
+- Fix kernel rpm build failure that libperf-jvmti.so is missing
+- Enable kabi checking and adapt the check-kabi script
+- Update openEuler-22.03-LTS-SP3 KABI whitelists for aarch64 and x86_64
+- !3360  arm64: cpufeature: Add missing .field_width for system registers
+- arm64: cpufeature: Add missing .field_width for system registers
+- !3093 backport adding GNR support for Intel PCIe gen5 NTB
+- !3329  iommu/arm-smmu-v3: Add a SYNC command to avoid broken page table prefetch
+- iommu/arm-smmu-v3: Add a SYNC command to avoid broken page table prefetch
+- !3320  Make the rcache depot scale better
+- !3274  Fixed some memory leak issues of the Perf tool
+- iommu/iova: Manage the depot list size
+- iommu/iova: Make the rcache depot scale better
+- iommu/iova: change IOVA_MAG_SIZE to 127 to save memory
+- Revert "iommu/iova: increase the iova_rcache depot max size to 128"
+- Revert "config: enable set the max iova mag size to 128"
+- Revert "iommu/iova: move IOVA_MAX_GLOBAL_MAGS outside of IOMMU_SUPPORT"
+- !3303 net: hns3: Add support for some CMIS transceiver modules and synchronize some CMIS transceiver
+- !3304 roh/core: Synchronously update the mac address of the vlan device when configuring the vlan device ip
+- net: hns3: fix kernel crash when devlink reload during vf initialization
+- net: hns3: fix kernel crash when devlink reload during pf initialization
+- net: hns3: fix wrong judgment condition issue
+- !3301 unic: Change the max frame size sent to firmware
+- roh/core: Synchronously update the mac address of the vlan device when configuring the vlan device ip
+- net: hns3: Add support for some CMIS transceiver modules
+- net: sfp: Synchronize some CMIS transceiver modules from ethtool
+- !3221 Backport x86 patches from upstream 5.10.189
+- unic: Change the max frame size sent to firmware
+- !3222  md/raid5: fix miscalculation of 'end_sector' in raid5_read_one_chunk()
+- !3269  iommu/arm-smmu-v3: disable stall for quiet_cd
+- !3254  icmp: Fix a data-race around sysctl_icmp_errors_use_inbound_ifaddr.
+- !3219 crypto: hisiilicon some bugfixs and cleanup
+- perf header: Fix one memory leakage in perf_event__fprintf_event_update()
+- perf hisi-ptt: Fix one memory leakage in hisi_ptt_process_auxtrace_event()
+- perf hisi-ptt: Fix memory leak in lseek failure handling
+- !3256 RDMA/hns: Cleanups of some optimize code
+- !3257 net: hns3: add input parameters checking and arp cleancode
+- iommu/arm-smmu-v3: disable stall for quiet_cd
+- net: hns3: add input parameters checking
+- net: hns3: arp cleancode
+- RDMA/hns: Use macro instead of magic number
+- RDMA/hns: Cleanup for debugfs
+- RDMA/hns: Add more check for bonding-unsupported cases
+- RDMA/hns: Improve readability of check_bond_support()
+- RDMA/hns: Fix the spin_lock and spin_unlock objects are inconsistent
+- RDMA/hns: Remove useless NULL check in hns_roce_get_netdev()
+- RDMA/hns: Refactor mtr find
+- RDMA/hns: Remove unused parameters detected by -Wextra
+- RDMA/hns: Remove extra blank line in get_sge_num_from_max_inl_data()
+- RDMA/hns: Replace magic number when fill ADDR to HW
+- kabi: Fix kabi breakage caused by c1e70ec46591
+- icmp: Fix a data-race around sysctl_icmp_errors_use_inbound_ifaddr.
+- x86/fpu: Set X86_FEATURE_OSXSAVE feature after enabling OSXSAVE in CR4
+- x86/mm: Initialize text poking earlier
+- mm: Move mm_cachep initialization to mm_init()
+- x86/mm: Use mm_alloc() in poking_init()
+- x86/mm: fix poking_init() for Xen PV guests
+- x86/xen: Fix secondary processors' FPU initialization
+- x86/fpu: Move FPU initialization into arch_cpu_finalize_init()
+- x86/fpu: Mark init functions __init
+- x86/fpu: Remove cpuinfo argument from init functions
+- init, x86: Move mem_encrypt_init() into arch_cpu_finalize_init()
+- init: Invoke arch_cpu_finalize_init() earlier
+- init: Remove check_bugs() leftovers
+- x86/cpu: Switch to arch_cpu_finalize_init()
+- md/raid5: fix miscalculation of 'end_sector' in raid5_read_one_chunk()
+- crypto: hisilicon/qm - reset device before enabling it
+- crypto: hisilicon/qm - add stop function by hardware
+- crypto: hisilicon/qm - remove duplicate configurations
+- crypto: hisilicon/qm - dump important registers values before resetting
+- crypto: hisilicon/qm - support get device state
+- crypto: hisilicon/hpre - mask cluster timeout error
+- crypto: hisilicon/qm - modify interrupt resource application process
+- crypto: hisilicon/sec2: fix memory use-after-free issue
+- crypto: hisilicon/qm - increase the maximum waiting timeout interval of the moilbox.
+- crypto: hisilicon/sec2 - optimize the error return process
+- vfio/migration - delete a dbg function
+- crypto: hisilicon/qm - delete a dbg function
+- crypto: hisilicon/qm - add size check in qm set algs
+- ntb: intel: add GNR support for Intel PCIe gen5 NTB
+
 * Tue Dec 12 2023 zhaoxiaoqiang11 <zhaoxiaoqiang11@jd.com> - 5.10.0-176.0.0.90
 - adapt spec for arm64 64kb page build
 
