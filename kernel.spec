@@ -16,7 +16,7 @@
 
 %define modsign_cmd %{SOURCE10}
 
-%global Arch $(echo %{_host_cpu} | sed -e s/i.86/x86/ -e s/x86_64/x86/ -e s/aarch64.*/arm64/ -e s/riscv.*/riscv/)
+%global Arch $(echo %{_host_cpu} | sed -e s/i.86/x86/ -e s/x86_64/x86/ -e s/aarch64.*/arm64/ -e s/riscv.*/riscv/ -e s/powerpc64le/powerpc)
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 %global debuginfodir /usr/lib/debug
@@ -129,7 +129,7 @@ Provides: kernel-uname-r = %{KernelVer} kernel=%{KernelVer}
 
 Requires: dracut >= 001-7 grubby >= 8.28-2 initscripts >= 8.11.1-1 linux-firmware >= 20100806-2 module-init-tools >= 3.16-2
 
-ExclusiveArch: noarch aarch64 i686 x86_64 riscv64
+ExclusiveArch: noarch aarch64 i686 x86_64 riscv64 ppc64le
 ExclusiveOS: Linux
 
 %if %{with_perf}
@@ -138,7 +138,9 @@ BuildRequires: java-devel
 %endif
 
 BuildRequires: dwarves
+%ifnarch ppc64le
 BuildRequires: clang >= 10.0.0
+%endif
 BuildRequires: llvm
 %if %{with clang_lto}
 BuildRequires: lld
