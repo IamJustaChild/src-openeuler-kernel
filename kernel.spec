@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2312.1.0
+%global hulkrelease 2312.3.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0229
+Release: %{hulkrelease}.0230
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,53 @@ fi
 %endif
 
 %changelog
+
+* Tue Dec 12 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2312.3.0.0230
+- !3347  tun: avoid double free in tun_free_netdev
+- tun: avoid double free in tun_free_netdev
+- !3239  net: hns: fix fake link up
+- !3113 KVM: arm64: limit PMU version to PMUv3 for ARMv8.1
+- !3281  LTS patch backport
+- !3122  nvme: retain split access workaround for capability reads
+- !3262  icmp: Fix a data-race around sysctl_icmp_errors_use_inbound_ifaddr.
+- net: fix kabi broken in struct netns_xfrm
+- xfrm: fix a data-race in xfrm_gen_index()
+- !3276  linux-4.19.y inclusion
+- !3263  workqueue: Override implicit ordered attribute in workqueue_apply_unbound_cpumask()
+- !3267  x86/cpu: Fix AMD erratum #1485 on Zen4-based CPUs
+- dccp/tcp: Call security_inet_conn_request() after setting IPv6 addresses.
+- can: dev: can_restart(): fix race condition between controller restart and netif_carrier_on()
+- can: dev: can_restart(): don't crash kernel if carrier is OK
+- can: dev: move driver related infrastructure into separate subdir
+- ipv6: avoid atomic fragment on GSO packets
+- tcp_metrics: do not create an entry from tcp_init_metrics()
+- tcp_metrics: properly set tp->snd_ssthresh in tcp_init_metrics()
+- tcp_metrics: add missing barriers on delete
+- tcp: tsq: relax tcp_small_queue_check() when rtx queue contains a single skb
+- tcp: fix excessive TLP and RACK timeouts from HZ rounding
+- genirq/matrix: Exclude managed interrupts in irq_matrix_allocated()
+- ACPI: sysfs: Fix create_pnp_modalias() and create_of_modalias()
+- ACPI: irq: Fix incorrect return value in acpi_register_gsi()
+- ext4: move 'ix' sanity check to corrent position
+- vfs: fix readahead(2) on block devices
+- overlayfs: set ctime when setting mtime and atime
+- quota: Fix slow quotaoff
+- mcb: remove is_added flag from mcb_device struct
+- sched,idle,rcu: Push rcu_idle deeper into the idle path
+- cgroup: Remove duplicates in cgroup v1 tasks file
+- x86/cpu: Fix AMD erratum #1485 on Zen4-based CPUs
+- workqueue: Override implicit ordered attribute in workqueue_apply_unbound_cpumask()
+- icmp: Fix a data-race around sysctl_icmp_errors_use_inbound_ifaddr.
+- net: hns: update hns version to 23.12.1
+- net: hns: fix fake link up on xge port
+- !3021  fix CFS bandwidth vs. hrtimer self deadlock
+- !3202  regmap: fix NULL deref on lookup
+- regmap: fix NULL deref on lookup
+- KVM: arm64: limit PMU version to PMUv3 for ARMv8.1
+- arm64: cpufeature: Extract capped perfmon fields
+- nvme: retain split access workaround for capability reads
+- cpu/hotplug: fix kabi breakage in enum cpuhp_state
+- hrtimers: Push pending hrtimers away from outgoing CPU earlier
 
 * Tue Dec 05 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2312.1.0.0229
 - !3158  mm: don't let userspace spam allocations warnings
