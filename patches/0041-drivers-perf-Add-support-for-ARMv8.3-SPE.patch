@@ -35,12 +35,12 @@ Reviewed-by: Shaokun Zhang <zhangshaokun@hisilicon.com>
 Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
 Signed-off-by: hongrongxuan <hongrongxuan@huawei.com>
 ---
- arch/arm64/include/asm/sysreg.h |  9 ++++++++-
+ arch/arm64/include/asm/sysreg.h |  8 +++++++-
  drivers/perf/arm_spe_pmu.c      | 17 +++++++++++++++--
- 2 files changed, 23 insertions(+), 3 deletions(-)
+ 2 files changed, 22 insertions(+), 3 deletions(-)
 
 diff --git a/arch/arm64/include/asm/sysreg.h b/arch/arm64/include/asm/sysreg.h
-index 0fd51d253648..f993af239247 100644
+index 242273a04af9..4a3427c2feb5 100644
 --- a/arch/arm64/include/asm/sysreg.h
 +++ b/arch/arm64/include/asm/sysreg.h
 @@ -252,7 +252,11 @@
@@ -56,16 +56,15 @@ index 0fd51d253648..f993af239247 100644
  
  #define SYS_PMSLATFR_EL1		sys_reg(3, 0, 9, 9, 6)
  #define SYS_PMSLATFR_EL1_MINLAT_SHIFT	0
-@@ -619,6 +623,9 @@
- #define ID_AA64DFR0_TRACEVER_SHIFT	4
+@@ -620,6 +624,8 @@
  #define ID_AA64DFR0_DEBUGVER_SHIFT	0
  
-+#define ID_AA64DFR0_PMSVER_8_2		0x1
-+#define ID_AA64DFR0_PMSVER_8_3		0x2
-+
- #define ID_ISAR5_RDM_SHIFT		24
- #define ID_ISAR5_CRC32_SHIFT		16
- #define ID_ISAR5_SHA2_SHIFT		12
+ #define ID_AA64DFR0_PMUVER_8_1          0x4
++#define ID_AA64DFR0_PMSVER_8_2          0x1
++#define ID_AA64DFR0_PMSVER_8_3          0x2
+ 
+ #define ID_DFR0_PERFMON_SHIFT           24
+ 
 diff --git a/drivers/perf/arm_spe_pmu.c b/drivers/perf/arm_spe_pmu.c
 index af84f3a61e96..74318410774c 100644
 --- a/drivers/perf/arm_spe_pmu.c
