@@ -138,7 +138,9 @@ BuildRequires: java-devel
 %endif
 
 BuildRequires: dwarves
+%ifnarch ppc64le
 BuildRequires: clang >= 10.0.0
+%endif
 BuildRequires: llvm
 %if %{with clang_lto}
 BuildRequires: lld
