@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       177
+%global devel_release       178
 %global maintenance_release .0.0
-%global pkg_release         .91
+%global pkg_release         .92
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -911,6 +911,16 @@ fi
 %endif
 
 %changelog
+* Thu Dec 14 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-178.0.0.92
+- !3374  cpumask: cleanup nr_cpu_ids vs nr_cpumask_bits mess
+- config: Add FORCE_NR_CPUS to openeuler_defconfig
+- powerpc/64: don't refer nr_cpu_ids in asm code when it's undefined
+- lib/cpumask: add FORCE_NR_CPUS config option
+- lib/cpumask: deprecate nr_cpumask_bits
+- lib/cpumask: delete misleading comment
+- smp: add set_nr_cpu_ids()
+- smp: don't declare nr_cpu_ids if NR_CPUS == 1
+
 * Tue Dec 12 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-177.0.0.91
 - Fix kernel rpm build failure that libperf-jvmti.so is missing
 - Enable kabi checking and adapt the check-kabi script
