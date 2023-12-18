@@ -11,7 +11,7 @@
 %global upstream_sublevel   0
 %global devel_release       178
 %global maintenance_release .0.0
-%global pkg_release         .83
+%global pkg_release         .84
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -103,6 +103,11 @@ BuildRequires: pciutils-devel gettext
 BuildRequires: rpm-build, elfutils
 BuildRequires: numactl-devel python3-devel glibc-static python3-docutils
 BuildRequires: perl-generators perl(Carp) libunwind-devel gtk2-devel libbabeltrace-devel java-1.8.0-openjdk java-1.8.0-openjdk-devel perl-devel
+
+%if 0%{?openEuler_sign_rsa}
+BuildRequires: sign-openEuler
+%endif
+
 AutoReq: no
 AutoProv: yes
 
@@ -466,6 +471,23 @@ mkdir -p $RPM_BUILD_ROOT/boot
 dd if=/dev/zero of=$RPM_BUILD_ROOT/boot/initramfs-%{KernelVer}.img bs=1M count=20
 
 install -m 755 $(make -s image_name) $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}
+
+%if 0%{?openEuler_sign_rsa}
+    echo "start sign"
+    %ifarch %arm aarch64
+	gunzip -c $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}>$RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip.efi
+	/opt/sign-openEuler/client --config /opt/sign-openEuler/config.toml add --key-name default-x509ee --file-type efi-image --key-type x509ee --sign-type authenticode $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip.efi
+	mv $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip.efi $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip
+	gzip -c $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip>$RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}
+	rm -f $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip
+    %endif
+    %ifarch x86_64
+	mv $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer} $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.efi
+	/opt/sign-openEuler/client --config /opt/sign-openEuler/config.toml add --key-name default-x509ee --file-type efi-image --key-type x509ee --sign-type authenticode $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.efi
+	mv $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.efi $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}
+    %endif
+%endif
+
 pushd $RPM_BUILD_ROOT/boot
 sha512hmac ./vmlinuz-%{KernelVer} >./.vmlinuz-%{KernelVer}.hmac
 popd
@@ -921,6 +943,9 @@ fi
 %endif
 
 %changelog
+* Sat Dec 16 2023 huangzq6 <huangzhenqiang2@huawei.com> - 5.10.0-178.0.0.84
+- add signature for vmlinux
+
 * Thu Dec 14 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-178.0.0.83
 - !3374  cpumask: cleanup nr_cpu_ids vs nr_cpumask_bits mess
 - config: Add FORCE_NR_CPUS to openeuler_defconfig
