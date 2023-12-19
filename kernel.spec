@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2312.3.0
+%global hulkrelease 2312.4.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0230
+Release: %{hulkrelease}.0231
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,11 @@ fi
 %endif
 
 %changelog
+
+* Tue Dec 19 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2312.4.0.0231
+- !3426  Revert "hrtimers: Push pending hrtimers away from outgoing CPU earlier"
+- Revert "hrtimers: Push pending hrtimers away from outgoing CPU earlier"
+- Revert "cpu/hotplug: fix kabi breakage in enum cpuhp_state"
 
 * Tue Dec 12 2023 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2312.3.0.0230
 - !3347  tun: avoid double free in tun_free_netdev
