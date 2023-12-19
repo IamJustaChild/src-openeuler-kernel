@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       178
+%global devel_release       179
 %global maintenance_release .0.0
-%global pkg_release         .92
+%global pkg_release         .93
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -911,6 +911,45 @@ fi
 %endif
 
 %changelog
+* Tue Dec 19 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-179.0.0.93
+- !3463  Support node_reclaim_distance adjust
+- !3427  tcp: Disable header prediction for MD5 flow.
+- !3421  backport some network patches
+- config: enable COBFIG_ARCH_CUSTOM_NUMA_DISTANCE for arm64
+- arm64/numa: Support node_reclaim_distance adjust for arch
+- !3461  Revert "mm/mempolicy: don't handle MPOL_LOCA
+- Revert "mm/mempolicy: don't handle MPOL_LOCAL like a fake MPOL_PREFERRED policy"
+- !3422  sch_netem: fix issues in netem_change() vs get_dist_table()
+- !3415 Some bugfix for hns3
+- !3404 Add the verification operation after the  bus recovery operation obtains resources through the ACPI
+- !3424 mbigen: vtimer: disable vtimer mbigen probe when vtimer_irqbypass disabled
+- tcp: Disable header prediction for MD5 flow.
+- !3375  locking/osq_lock: Avoid false sharing in optimistic_spin_node
+- mbigen: vtimer: disable vtimer mbigen probe when vtimer_irqbypass disabled
+- !3413 Backport bugfixes for hns
+- net: hns3: add use limit for 1D torus feature
+- net: hns3: add new 200G link modes for hisilicon device
+- sch_netem: fix issues in netem_change() vs get_dist_table()
+- net: use indirect calls helpers for sk_exit_memory_pressure()
+- tcp: check local var (timeo) before socket fields in one test
+- tcp: avoid indirect calls to sock_rfree
+- tcp: add RETPOLINE mitigation to sk_backlog_rcv
+- tcp: small optimization in tcp recvmsg()
+- net: cache align tcp_memory_allocated, tcp_sockets_allocated
+- RDMA/hns: Fix missing parameter check in set_write_notify_param()
+- RDMA/hns: Fix incorrect bond clear during slave increase event
+- RDMA/hns: Add cap_flag check for check_vf_support()
+- RDMA/hns: Fix memory leak in POE debugfs
+- net: hns3: Disable SerDes serial loopback for HiLink H60
+- Add the verification operation after the bus recovery operation obtains resources through the ACPI
+- !3390  mm/userswap: modify the USWAP registration flag
+- !3376  mm/mempolicy: check preferred_node rather than nodes for MPOL_PREFERRED
+- !3346  smart_grid: cpufreq: clear offline and isolated CPU in warm CPUs
+- mm/userswap: modify the USWAP registration flag
+- mm/mempolicy: check preferred_node rather than nodes for MPOL_PREFERRED
+- locking/osq_lock: Avoid false sharing in optimistic_spin_node
+- smart_grid: cpufreq: clear offline and isolated CPU in warm CPUs
+
 * Thu Dec 14 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-178.0.0.92
 - !3374  cpumask: cleanup nr_cpu_ids vs nr_cpumask_bits mess
 - config: Add FORCE_NR_CPUS to openeuler_defconfig
