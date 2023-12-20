@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2312.3.0
+%global hulkrelease 2312.4.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0256
+Release: %{hulkrelease}.0257
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,11 @@ fi
 %endif
 
 %changelog
+* Wed Dec 20 2023 YunYi Yang <yangyunyi2@huawei.com> - 4.19.90-2312.4.0.0257
+- !3426  Revert "hrtimers: Push pending hrtimers away from outgoing CPU earlier"
+- Revert "hrtimers: Push pending hrtimers away from outgoing CPU earlier"
+- Revert "cpu/hotplug: fix kabi breakage in enum cpuhp_state"
+
 * Tue Dec 12 2023 YunYi Yang <yangyunyi2@huawei.com> - 4.19.90-2312.3.0.0256
 - !3347  tun: avoid double free in tun_free_netdev
 - tun: avoid double free in tun_free_netdev
@@ -1453,7 +1458,7 @@ fi
 - mtd: spi-nor: Add support for mx25u12835f
 - spi: add support for octal mode I/O data transfer
 
-* TUE Nov 14 2023  Li Xiaodong <lixiaodong67@huawei.com> - 4.19.90-2311.2.0.0242
+* Tue Nov 14 2023  Li Xiaodong <lixiaodong67@huawei.com> - 4.19.90-2311.2.0.0242
 - !2793  handle uninitialized numa nodes gracefully.
 - !2789 linux-4.19.y inclusion
 - arch/x86/mm/numa: Do not initialize nodes twice
