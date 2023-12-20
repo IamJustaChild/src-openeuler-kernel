@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       153
-%global maintenance_release .35.0
-%global pkg_release         .112
+%global maintenance_release .36.0
+%global pkg_release         .113
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -910,6 +910,49 @@ fi
 %endif
 
 %changelog
+* Wed Dec 20 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.36.0.113
+- !3294 [sync] PR-2843:  Add error handle for sd
+- !3291 [sync] PR-3222:  md/raid5: fix miscalculation of 'end_sector' in raid5_read_one_chunk()
+- !3253  Add error handle for driver
+- !3353 RDMA/hns: Add support more netdev speed
+- RDMA/hns: Fix port active speed
+- RDMA/core: Add support more netdev speed
+- !3327 [sync] PR-3320:  Make the rcache depot scale better
+- iommu/iova: Manage the depot list size
+- iommu/iova: Make the rcache depot scale better
+- iommu/iova: change IOVA_MAG_SIZE to 127 to save memory
+- Revert "iommu/iova: increase the iova_rcache depot max size to 128"
+- Revert "config: enable set the max iova mag size to 128"
+- Revert "iommu/iova: move IOVA_MAX_GLOBAL_MAGS outside of IOMMU_SUPPORT"
+- scsi: sd: Clean up sdkp if device_add_disk() failed
+- scsi: sd: Add error handling support for add_disk()
+- md/raid5: fix miscalculation of 'end_sector' in raid5_read_one_chunk()
+- nbd: fix uaf in nbd_open
+- mtd/ubi/block: Fix uaf problem in ubiblock_cleanup
+- mtd/ubi/block: Fix null pointer dereference issue in error path
+- mtd/ubi/block: add error handling support for add_disk()
+- ubi: use blk_mq_alloc_disk and blk_cleanup_disk
+- scsi: sr: Add error handling support for add_disk()
+- scsi: sd: Clean up sdkp if device_add_disk() failed
+- scsi: sd: Add error handling support for add_disk()
+- block/brd: add error handling support for add_disk()
+- brd: convert to blk_alloc_disk/blk_cleanup_disk
+- nvme: add error handling support for add_disk()
+- nvme: use blk_mq_alloc_disk
+- block: add a flag to make put_disk on partially initalized disks safer
+- nbd: add error handling support for add_disk()
+- nbd: fix order of cleaning up the queue and freeing the tagset
+- nbd: use blk_mq_alloc_disk and blk_cleanup_disk
+- loop: add error handling support for add_disk()
+- loop: fix order of cleaning up the queue and freeing the tagset
+- loop: use blk_mq_alloc_disk and blk_cleanup_disk
+- blk-mq: fix an IS_ERR() vs NULL bug
+- blk-mq: add the blk_mq_alloc_disk APIs
+- block: add blk_alloc_disk and blk_cleanup_disk APIs
+- nbd: Revert redundant patches of nbd first_minor
+- !3231 [sync] PR-3161:  fs: Fix error checking for d_hash_and_lookup()
+- fs: Fix error checking for d_hash_and_lookup()
+
 * Tue Dec 05 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.35.0.112
 - !3195 [sync] PR-3128:  fix ksmbd to release the ones allocated for async work
 - !3003 [sync] PR-1656:  Revert "arm64/mpam: Fix mpam corrupt when cpu online"
