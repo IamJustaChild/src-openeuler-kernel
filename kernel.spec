@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       179
+%global devel_release       182
 %global maintenance_release .0.0
-%global pkg_release         .93
+%global pkg_release         .95
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -911,6 +911,25 @@ fi
 %endif
 
 %changelog
+* Mon Dec 25 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-182.0.0.95
+- !3553  kernel: update SP3 OPENEULER_MINOR and introduced OPENEULER_LTS
+- openEuler: introduced OPENEULER_LTS to identify LTS Release
+- kernel: update SP3 OPENEULER_MINOR value to 3
+
+* Sun Dec 24 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-181.0.0.94
+- !3535 Bugfixes for RDMA/hns
+- !3519  tick/broadcast-hrtimer: Prevent the timer device on broadcast duty CPU from being disabled
+- RDMA/hns: Fix Use-After-Free of rsv_qp
+- RDMA/hns: Fix init check of VFs on RoCE bonding slaves
+- Revert "RDMA/hns: Add cap_flag check for check_vf_support()"
+- !3504 net: hns3: fix kernel crash when 1588 is received on HIP08 devices
+- tick/broadcast-hrtimer: Prevent the timer device on broadcast duty CPU from being disabled
+- !3508  roh/hns3: Fix the processing flow of ROH CMDq during the reset process.
+- roh/hns3: Fix the processing flow of ROH CMDq during the reset process.
+- net: hns3: fix kernel crash when 1588 is received on HIP08 devices
+- !3084 [OLK-5.10] add Phytium DRM drivers CONFIG
+- arm64: config: add Phytium Drm config
+
 * Tue Dec 19 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-179.0.0.93
 - !3463  Support node_reclaim_distance adjust
 - !3427  tcp: Disable header prediction for MD5 flow.
