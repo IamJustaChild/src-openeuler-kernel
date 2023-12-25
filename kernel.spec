@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       181
+%global devel_release       182
 %global maintenance_release .0.0
-%global pkg_release         .94
+%global pkg_release         .95
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -911,6 +911,11 @@ fi
 %endif
 
 %changelog
+* Mon Dec 25 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-182.0.0.95
+- !3553  kernel: update SP3 OPENEULER_MINOR and introduced OPENEULER_LTS
+- openEuler: introduced OPENEULER_LTS to identify LTS Release
+- kernel: update SP3 OPENEULER_MINOR value to 3
+
 * Sun Dec 24 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-181.0.0.94
 - !3535 Bugfixes for RDMA/hns
 - !3519  tick/broadcast-hrtimer: Prevent the timer device on broadcast duty CPU from being disabled
