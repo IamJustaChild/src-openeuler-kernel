@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       153
-%global maintenance_release .36.0
-%global pkg_release         .113
+%global maintenance_release .37.0
+%global pkg_release         .114
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -910,6 +910,17 @@ fi
 %endif
 
 %changelog
+* Wed Dec 27 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.37.0.114
+- !3626  ipv4: igmp: fix refcnt uaf issue when receiving igmp query packet
+- !3620  netfilter: nft_set_pipapo: skip inactive elements during set walk
+- ipv4: igmp: fix refcnt uaf issue when receiving igmp query packet
+- netfilter: nft_set_pipapo: skip inactive elements during set walk
+- !3596 [sync] PR-3583:  tty: n_gsm: fix the UAF caused by race condition in gsm_cleanup_mux
+- tty: n_gsm: fix the UAF caused by race condition in gsm_cleanup_mux
+- !3577  perf/core: Fix CVE-2023-6931
+- perf: Fix perf_event_validate_size() lockdep splat
+- perf: Fix perf_event_validate_size()
+
 * Wed Dec 20 2023 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.36.0.113
 - !3294 [sync] PR-2843:  Add error handle for sd
 - !3291 [sync] PR-3222:  md/raid5: fix miscalculation of 'end_sector' in raid5_read_one_chunk()
