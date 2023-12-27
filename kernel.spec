@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2312.4.0
+%global hulkrelease 2312.6.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0257
+Release: %{hulkrelease}.0258
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,22 @@ fi
 %endif
 
 %changelog
+* Wed Dec 27 2023 YunYi Yang <yangyunyi2@huawei.com> - 4.19.90-2312.6.0.0258
+- !3607  Fix CVE-2023-6546
+- !3606  perf/core: Fix CVE-2023-6931
+- tty: n_gsm: fix the UAF caused by race condition in gsm_cleanup_mux
+- tty: n_gsm: fix restart handling via CLD command
+- perf: Fix perf_event_validate_size() lockdep splat
+- perf: Fix perf_event_validate_size()
+- !3417  SCSI: hisi_raid: support SPxxx serial RAID/HBA controllers
+- !3531 Fix kernel panic occurs during ISO installation on the 20.03 SP3/SP4
+- i2c: hisi: Only handle the interrupt of the driver's transfer
+- i2c: hisi: Only use the completion interrupt to finish the transfer
+- i2c: hisi: Avoid redundant interrupts
+- !3483  net: Remove acked SYN flag from packet in the transmit queue correctly
+- net: Remove acked SYN flag from packet in the transmit queue correctly
+- SCSI: hisi_raid: support SPxxx serial RAID/HBA controllers
+
 * Wed Dec 20 2023 YunYi Yang <yangyunyi2@huawei.com> - 4.19.90-2312.4.0.0257
 - !3426  Revert "hrtimers: Push pending hrtimers away from outgoing CPU earlier"
 - Revert "hrtimers: Push pending hrtimers away from outgoing CPU earlier"
