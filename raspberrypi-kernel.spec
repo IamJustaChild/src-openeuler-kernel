@@ -8,7 +8,7 @@
 
 Name:	 raspberrypi-kernel
 Version: 5.10.0
-Release: %{hulkrelease}.20
+Release: %{hulkrelease}.21
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -41,6 +41,17 @@ ExclusiveOS: Linux
 
 %description
 The Linux Kernel image for RaspberryPi.
+
+%package devel
+Summary: Development package for building kernel modules to match the %{KernelVer} raspberrypi-kernel
+AutoReqProv: no
+Provides: raspberrypi-kernel-devel-uname-r = %{KernelVer}
+Provides: raspberrypi-kernel-devel-%{_target_cpu} = %{version}-%{release}
+Requires: perl findutils
+
+%description devel
+This package provides raspberrypi kernel headers and makefiles sufficient to build modules
+against the %{KernelVer} raspberrypi-kernel package.
 
 %prep
 %setup -q -n kernel-%{version} -c
@@ -84,6 +95,71 @@ if ls arch/%{Arch}/boot/dts/overlays/*.dtb > /dev/null 2>&1; then
     install -m 644 $(find arch/%{Arch}/boot/dts/overlays/ -name "*.dtb") $RPM_BUILD_ROOT/boot/dtb-%{KernelVer}/overlays/
 fi
 install -m 644 arch/%{Arch}/boot/dts/overlays/README $RPM_BUILD_ROOT/boot/dtb-%{KernelVer}/overlays/
+
+mkdir -p $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build
+
+############ to do collect devel file  #########
+# 1. Makefile And Kconfig, .config sysmbol
+# 2. scrpits dir
+# 3. .h file
+find -type f \( -name "Makefile*" -o -name "Kconfig*" \) -exec cp --parents {} $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build \;
+for f in Module.symvers System.map Module.markers .config;do
+    test -f $f || continue
+    cp $f $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build
+done
+
+cp -a scripts $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build
+if [ -d arch/%{Arch}/scripts ]; then
+    cp -a arch/%{Arch}/scripts $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build/arch/%{_arch} || :
+fi
+if [ -f arch/%{Arch}/*lds ]; then
+    cp -a arch/%{Arch}/*lds $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build/arch/%{_arch}/ || :
+fi
+find $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build/scripts/ -name "*.o" -exec rm -rf {} \;
+
+if [ -d arch/%{Arch}/include ]; then
+    cp -a --parents arch/%{Arch}/include $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build/
+fi
+cp -a include $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build/include
+
+if [ -f arch/%{Arch}/kernel/module.lds ]; then
+    cp -a --parents arch/%{Arch}/kernel/module.lds $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build/
+fi
+
+# module.lds is moved to scripts by commit 596b0474d3d9 in linux 5.10.
+if [ -f scripts/module.lds ]; then
+    cp -a --parents scripts/module.lds $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build/
+fi
+
+%ifarch aarch64
+    cp -a --parents arch/arm/include/asm $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build/
+%endif
+
+# copy objtool for raspberrypi-kernel-devel (needed for building external modules)
+if grep -q CONFIG_STACK_VALIDATION=y .config; then
+    mkdir -p $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build/tools/objtool
+    cp -a tools/objtool/objtool $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build/tools/objtool
+fi
+
+# Make sure the Makefile and version.h have a matching timestamp so that
+# external modules can be built
+touch -r $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build/Makefile $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build/include/generated/uapi/linux/version.h
+touch -r $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build/.config $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build/include/generated/autoconf.h
+# for make prepare
+if [ ! -f $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build/include/config/auto.conf ];then
+    cp .config $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build/include/config/auto.conf
+fi
+
+mkdir -p %{buildroot}/usr/src/kernels
+mv $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build $RPM_BUILD_ROOT/usr/src/kernels/%{KernelVer}
+
+find $RPM_BUILD_ROOT/usr/src/kernels/%{KernelVer} -name ".*.cmd" -exec rm -f {} \;
+
+pushd $RPM_BUILD_ROOT/lib/modules/%{KernelVer}
+ln -sf /usr/src/kernels/%{KernelVer} build
+ln -sf build source
+popd
+
 
 %postun
 version_old=0
@@ -155,6 +231,19 @@ if ls /boot/dtb-%{KernelVer}/overlays/*.dtb > /dev/null 2>&1; then
 fi
 install -m 644 /boot/dtb-%{KernelVer}/overlays/README /boot/overlays/
 
+%post devel
+if [ -f /etc/sysconfig/kernel ]
+then
+    . /etc/sysconfig/kernel || exit $?
+fi
+if [ "$HARDLINK" != "no" -a -x /usr/sbin/hardlink ]
+then
+    (cd /usr/src/kernels/%{KernelVer} &&
+     /usr/bin/find . -type f | while read f; do
+       hardlink -c /usr/src/kernels/*.oe*.*/$f $f
+     done)
+fi
+
 
 %files
 %defattr (-, root, root)
@@ -165,7 +254,18 @@ install -m 644 /boot/dtb-%{KernelVer}/overlays/README /boot/overlays/
 /boot/dtb-*
 /lib/modules/%{KernelVer}
 
+%files devel
+%defattr (-, root, root)
+%doc
+/lib/modules/%{KernelVer}/source
+/lib/modules/%{KernelVer}/build
+/usr/src/kernels/%{KernelVer}
+
 %changelog
+
+* Wed Jan 10 2024 heppen <hepeng68@huawei.com> - 5.10.0-183.0.0.21
+- add subpackage raspberrypi-kernel-devel
+
 * Wed Jan 10 2024 Yafen Fang <yafen@iscas.ac.cn> - 5.10.0-183.0.0.20
 - update kernel version to openEuler 5.10.0-183.0.0
 
