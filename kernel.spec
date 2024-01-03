@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2312.6.0
+%global hulkrelease 2401.1.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0258
+Release: %{hulkrelease}.0259
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,29 @@ fi
 %endif
 
 %changelog
+
+* Tue Jan 02 2024 YunYi Yang <yangyunyi2@huawei.com> - 4.19.90-2401.1.0.0259
+- !3660  atm: Fix Use-After-Free in do_vcc_ioctl
+- !3687  Bluetooth: af_bluetooth: Fix Use-After-Free in bt_sock_recvmsg
+- Bluetooth: af_bluetooth: Fix Use-After-Free in bt_sock_recvmsg
+- !3672  smb: client: fix potential OOB in smb2_dump_detail()
+- !3671  smb: client: fix OOB in smbCalcSize()
+- !3627  jbd2: fix soft lockup in journal_finish_inode_data_buffers()
+- !3189  fs: don't audit the capability check in simple_xattr_list()
+- smb: client: fix potential OOB in smb2_dump_detail()
+- smb: client: fix OOB in smbCalcSize()
+- !3555  net: check vlan filter feature in vlan_vids_add_by_dev() and vlan_vids_del_by_dev()
+- atm: Fix Use-After-Free in do_vcc_ioctl
+- !3592  CVE-2023-35827 patchset
+- !3449  Fix data-races around
+- jbd2: fix soft lockup in journal_finish_inode_data_buffers()
+- ravb: Fix races between ravb_tx_timeout_work() and net related ops
+- ravb: Fix use-after-free issue in ravb_tx_timeout_work()
+- net: check vlan filter feature in vlan_vids_add_by_dev() and vlan_vids_del_by_dev()
+- ip: Fix data-races around sysctl_ip_no_pmtu_disc.
+- ip: Fix data-races around sysctl_ip_fwd_update_priority.
+- fs: don't audit the capability check in simple_xattr_list()
+
 * Wed Dec 27 2023 YunYi Yang <yangyunyi2@huawei.com> - 4.19.90-2312.6.0.0258
 - !3607  Fix CVE-2023-6546
 - !3606  perf/core: Fix CVE-2023-6931
