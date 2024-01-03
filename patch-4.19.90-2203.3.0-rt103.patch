@@ -22423,13 +22423,6 @@ index 1e9e2ab25..199c75e03 100644
 +	ubsan_epilogue();
  }
  EXPORT_SYMBOL(__ubsan_handle_load_invalid_value);
-diff --git a/localversion-rt b/localversion-rt
-new file mode 100644
-index 000000000..e0a0b11b0
---- /dev/null
-+++ b/localversion-rt
-@@ -0,0 +1 @@
-+-rt103
 diff --git a/mm/Kconfig b/mm/Kconfig
 index e607d1576..cef749b67 100644
 --- a/mm/Kconfig

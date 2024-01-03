@@ -32,7 +32,7 @@
 
 Name:	 kernel-rt
 Version: 4.19.90
-Release: %{hulkrelease}.rt103.0141
+Release: %{hulkrelease}.rt103.0142
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -814,6 +814,8 @@ fi
 %endif
 
 %changelog
+* Thu Aug 10 2023 lixinhong <lixinhong@xfusion.com> - 4.19.90-2203.3.0.0142
+- fix bug that system failed to start after the kernel rpm package was installed
 
 * Tue Mar 15 2022 Laibin Qiu <qiulaibin@huawei.com> - 4.19.90-2203.3.0.0141
 - crypto: pcrypt - Fix user-after-free on module unload
