@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2401.1.0
+%global hulkrelease 2401.3.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0233
+Release: %{hulkrelease}.0234
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,50 @@ fi
 %endif
 
 %changelog
+
+* Tue Jan 09 2024 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2401.3.0.0234
+- !3768  iomap: add support to track dirty state of sub pages
+- !3845  netfilter: ctnetlink: fix possible refcount leak in ctnetlink_create_conntrack()
+- !3847  nvmet: nul-terminate the NQNs passed in the connect command
+- !3863 linux-4.19.y inclusion(4.19.299..4.19.303) part2
+- team: Fix use-after-free when an option instance allocation fails
+- packet: Move reference count in packet_sock to atomic_long_t
+- tcp: do not accept ACK of bytes we never sent
+- ipv4: ip_gre: Avoid skb_pull() failure in ipgre_xmit()
+- ipv6: fix potential NULL deref in fib6_add()
+- ipv4: Correct/silence an endian warning in __ip_do_redirect
+- net: sched: fix race condition in qdisc_graft()
+- macvlan: Don't propagate promisc change to lower dev in passthru
+- ppp: limit MRU to 64K
+- tty: Fix uninit-value access in ppp_sync_receive()
+- net: annotate data-races around sk->sk_dst_pending_confirm
+- net: annotate data-races around sk->sk_tx_queue_mapping
+- !3862 linux-4.19.y inclusion(4.19.299..4.19.303) part1
+- ring-buffer: Fix memory leak of free page
+- arm64: mm: Always make sw-dirty PTEs hw-dirty in pte_modify
+- asm-generic: qspinlock: fix queued_spin_value_unlocked() implementation
+- Revert "PCI: acpiphp: Reassign resources on bridge if necessary"
+- x86/CPU/AMD: Check vendor in the AMD microcode callback
+- genirq/generic_chip: Make irq_remove_generic_chip() irqdomain aware
+- audit: don't WARN_ON_ONCE(!current->mm) in audit_exe_compare()
+- audit: don't take task_lock() in audit_exe_compare() code path
+- nvmet: nul-terminate the NQNs passed in the connect command
+- netfilter: ctnetlink: fix possible refcount leak in ctnetlink_create_conntrack()
+- !3823 [sync] PR-3822:  ext4: fix kernel BUG in 'ext4_write_inline_data_end()'
+- ext4: fix kernel BUG in 'ext4_write_inline_data_end()'
+- !3803  net/sched: cbs: Fix not adding cbs instance to list
+- net/sched: cbs: Fix not adding cbs instance to list
+- !3770  ext4: fix uninitialized ratelimit_state->lock access in __ext4_fill_super()
+- ext4: fix uninitialized ratelimit_state->lock access in __ext4_fill_super()
+- iomap: add support to track dirty state of sub pages
+- !3757  Fix bugs from LTS patches
+- devcoredump: Send uevent once devcd is ready
+- devcoredump : Serialize devcd_del work
+- driver core: Release all resources during unbind before updating device links
+- !3716  appletalk: Fix Use-After-Free in atalk_ioctl
+- !3667  net/rose: Fix Use-After-Free in rose_ioctl
+- appletalk: Fix Use-After-Free in atalk_ioctl
+- net/rose: Fix Use-After-Free in rose_ioctl
 
 * Tue Jan 02 2024 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2401.1.0.0233
 - !3660  atm: Fix Use-After-Free in do_vcc_ioctl
