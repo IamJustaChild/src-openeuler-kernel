@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       178
+%global devel_release       183
 %global maintenance_release .0.0
-%global pkg_release         .84
+%global pkg_release         .85
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -943,6 +943,145 @@ fi
 %endif
 
 %changelog
+* Wed Jan 10 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-183.0.0.85
+- !3848 [22.03-LTS-SP3] Bug fix for KVM MMU
+- !3562  tty: n_gsm: fix the UAF caused by race condition in gsm_cleanup_mux
+- !3776  Revert "sched: clear credit count in error branch"
+- !3746  smart_grid: make sure hot zone have the highest priority
+- !3810 Some cleanup and bugfix for HNS3
+- !3804 MAINTAINERS: Update maintainers of HiSilicon RoCE
+- !3756  md: mainline backport
+- KVM: x86/mmu: Allocate pml4_root for guest PAE mode shadowing
+- !3694  Fix tow CVEs of CIFS
+- openEuler/MAINTAINERS: Update maintainers of HiSilicon RoCE
+- MAINTAINERS: Add Youming Luo as Hisilicon RoCE maintainer
+- !3822  ext4: fix kernel BUG in 'ext4_write_inline_data_end()'
+- !3793  cppc_cpufreq: use policy->cpu in cppc_set_perf()
+- ext4: fix kernel BUG in 'ext4_write_inline_data_end()'
+- !3811 drivers: net: ub: dev: network_mgmt: Modified OLK5.10 ub compilation missing header files.
+- network_mgmt: Modified OLK5.10 ub compilation missing header files.
+- net: hns3: set the freed pointers to NULL when lifetime is not end
+- net: hns3: remove unnecessary variables initialization
+- net: hns3: unsigned value not need to judge to be less than 0
+- !3769  tls: suppress wakeups unless we have a full record
+- !3570  perf/core: Fix CVE-2023-6931
+- MAINTAINERS: Add Chengchang Tang as Hisilicon RoCE maintainer
+- MAINTAINERS: Update maintainers of HiSilicon RoCE
+- !3659  atm: Fix Use-After-Free in do_vcc_ioctl
+- !3771  ext4: fix uninitialized ratelimit_state->lock access in __ext4_fill_super()
+- cppc_cpufreq: use policy->cpu as driver of frequency setting
+- cppc_cpufreq: clean up cpu, cpu_num and cpunum variable use
+- cppc_cpufreq: get cpunum from fb_ctrs instead of smp_processor_id()
+- Revert "sched: clear credit count in error branch"
+- ext4: fix uninitialized ratelimit_state->lock access in __ext4_fill_super()
+- tls: suppress wakeups unless we have a full record
+- !3668  net/rose: Fix Use-After-Free in rose_ioctl
+- !3480 drivers: net: ub: dev: network_mgmt: ip_notify: ip_notify: Merge the openEuler modification  suggestions.
+- !3686  Bluetooth: af_bluetooth: Fix Use-After-Free in bt_sock_recvmsg
+- !3594  CVE-2023-35827 patchset
+- !3552  block: warn once for each partition in bio_check_ro()
+- !3466  livepatch/core: Disable support for replacing
+- !3715  appletalk: Fix Use-After-Free in atalk_ioctl
+- md: fix error handling in md_alloc
+- md: Constify attribute_group structs
+- md: fix mddev->kobj lifetime
+- md: properly unwind when failing to add the kobject in md_alloc
+- md: extend disks_mutex coverage
+- md: add the bitmap group to the default groups for the md kobject
+- md: add error handling support for add_disk()
+- md: convert to blk_alloc_disk/blk_cleanup_disk
+- md/raid10: fix improper BUG_ON() in raise_barrier()
+- md: use msleep() in md_notify_reboot()
+- md: fix double free of mddev->private in autorun_array()
+- !3637  jbd2: fix soft lockup in journal_finish_inode_data_buffers()
+- smart_grid: make sure hot zone have the highest priority
+- !3459 reset idlest_cpu if not meet the conditions for preferred CPU
+- !3272  x86/kprobes: Fix the error judgment for debug exceptions
+- !3447  dm: add error handling support for add_disk()
+- !3420  md: protect md_thread with rcu
+- !3379  md: do not return existing mddevs from mddev_find_or_alloc
+- appletalk: Fix Use-After-Free in atalk_ioctl
+- smb: client: fix potential OOB in smb2_dump_detail()
+- smb: client: fix OOB in smbCalcSize()
+- Bluetooth: af_bluetooth: Fix Use-After-Free in bt_sock_recvmsg
+- net/rose: Fix Use-After-Free in rose_ioctl
+- atm: Fix Use-After-Free in do_vcc_ioctl
+- jbd2: fix soft lockup in journal_finish_inode_data_buffers()
+- !3617  netfilter: nft_set_pipapo: skip inactive elements during set walk
+- netfilter: nft_set_pipapo: skip inactive elements during set walk
+- ravb: Fix races between ravb_tx_timeout_work() and net related ops
+- ravb: Fix use-after-free issue in ravb_tx_timeout_work()
+- perf: Fix perf_event_validate_size() lockdep splat
+- perf: Fix perf_event_validate_size()
+- tty: n_gsm: fix the UAF caused by race condition in gsm_cleanup_mux
+- !3553  kernel: update SP3 OPENEULER_MINOR and introduced OPENEULER_LTS
+- openEuler: introduced OPENEULER_LTS to identify LTS Release
+- kernel: update SP3 OPENEULER_MINOR value to 3
+- block: fix kabi broken in struct hd_part
+- block: warn once for each partition in bio_check_ro()
+- !3535 Bugfixes for RDMA/hns
+- !3519  tick/broadcast-hrtimer: Prevent the timer device on broadcast duty CPU from being disabled
+- RDMA/hns: Fix Use-After-Free of rsv_qp
+- RDMA/hns: Fix init check of VFs on RoCE bonding slaves
+- Revert "RDMA/hns: Add cap_flag check for check_vf_support()"
+- !3504 net: hns3: fix kernel crash when 1588 is received on HIP08 devices
+- tick/broadcast-hrtimer: Prevent the timer device on broadcast duty CPU from being disabled
+- !3508  roh/hns3: Fix the processing flow of ROH CMDq during the reset process.
+- roh/hns3: Fix the processing flow of ROH CMDq during the reset process.
+- net: hns3: fix kernel crash when 1588 is received on HIP08 devices
+- !3084 [OLK-5.10] add Phytium DRM drivers CONFIG
+- network_mgmt: Merge the openEuler modification suggestions.
+- livepatch/core: Disable support for replacing
+- !3463  Support node_reclaim_distance adjust
+- !3427  tcp: Disable header prediction for MD5 flow.
+- !3421  backport some network patches
+- config: enable COBFIG_ARCH_CUSTOM_NUMA_DISTANCE for arm64
+- arm64/numa: Support node_reclaim_distance adjust for arch
+- !3461  Revert "mm/mempolicy: don't handle MPOL_LOCA
+- Revert "mm/mempolicy: don't handle MPOL_LOCAL like a fake MPOL_PREFERRED policy"
+- sched/fair: reset idlest_cpu if not meet the conditions for preferred CPU
+- dm: add error handling support for add_disk()
+- !3422  sch_netem: fix issues in netem_change() vs get_dist_table()
+- !3415 Some bugfix for hns3
+- !3404 Add the verification operation after the  bus recovery operation obtains resources through the ACPI
+- !3424 mbigen: vtimer: disable vtimer mbigen probe when vtimer_irqbypass disabled
+- tcp: Disable header prediction for MD5 flow.
+- !3375  locking/osq_lock: Avoid false sharing in optimistic_spin_node
+- mbigen: vtimer: disable vtimer mbigen probe when vtimer_irqbypass disabled
+- !3413 Backport bugfixes for hns
+- net: hns3: add use limit for 1D torus feature
+- net: hns3: add new 200G link modes for hisilicon device
+- sch_netem: fix issues in netem_change() vs get_dist_table()
+- net: use indirect calls helpers for sk_exit_memory_pressure()
+- tcp: check local var (timeo) before socket fields in one test
+- tcp: avoid indirect calls to sock_rfree
+- tcp: add RETPOLINE mitigation to sk_backlog_rcv
+- tcp: small optimization in tcp recvmsg()
+- net: cache align tcp_memory_allocated, tcp_sockets_allocated
+- md: protect md_thread with rcu
+- md/bitmap: factor out a helper to set timeout
+- md/bitmap: always wake up md_thread in timeout_store
+- dm-raid: remove useless checking in raid_message()
+- md: factor out a helper to wake up md_thread directly
+- RDMA/hns: Fix missing parameter check in set_write_notify_param()
+- RDMA/hns: Fix incorrect bond clear during slave increase event
+- RDMA/hns: Add cap_flag check for check_vf_support()
+- RDMA/hns: Fix memory leak in POE debugfs
+- net: hns3: Disable SerDes serial loopback for HiLink H60
+- Add the verification operation after the bus recovery operation obtains resources through the ACPI
+- !3390  mm/userswap: modify the USWAP registration flag
+- !3376  mm/mempolicy: check preferred_node rather than nodes for MPOL_PREFERRED
+- !3346  smart_grid: cpufreq: clear offline and isolated CPU in warm CPUs
+- mm/userswap: modify the USWAP registration flag
+- md: do not return existing mddevs from mddev_find_or_alloc
+- md: refactor mddev_find_or_alloc
+- md: factor out a mddev_alloc_unit helper from mddev_find
+- mm/mempolicy: check preferred_node rather than nodes for MPOL_PREFERRED
+- locking/osq_lock: Avoid false sharing in optimistic_spin_node
+- smart_grid: cpufreq: clear offline and isolated CPU in warm CPUs
+- x86/kprobes: Fix the error judgment for debug exceptions
+- arm64: config: add Phytium Drm config
+
 * Sat Dec 16 2023 huangzq6 <huangzhenqiang2@huawei.com> - 5.10.0-178.0.0.84
 - add signature for vmlinux
 
