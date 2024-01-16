@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2401.3.0
+%global hulkrelease 2401.4.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0234
+Release: %{hulkrelease}.0235
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,12 @@ fi
 %endif
 
 %changelog
+
+* Tue Jan 16 2024 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2401.4.0.0235
+- !4006  crypto: hisilicon/sec2: fix memory use-after-free issue
+- crypto: hisilicon/sec2: fix memory use-after-free issue
+- !3923  net: bridge: multicast: fix UAF of net_bridge
+- net: bridge: multicast: fix UAF of net_bridge
 
 * Tue Jan 09 2024 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2401.3.0.0234
 - !3768  iomap: add support to track dirty state of sub pages
