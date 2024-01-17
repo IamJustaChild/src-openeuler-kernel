@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       183
+%global devel_release       184
 %global maintenance_release .0.0
-%global pkg_release         .96
+%global pkg_release         .97
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -911,6 +911,26 @@ fi
 %endif
 
 %changelog
+* Wed Jan 17 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-184.0.0.97
+- !3981  vhost: use kzalloc() instead of kmalloc() followed by memset()
+- !3418 [sync] PR-2918: fix some bugs in loongarch kvm
+- !3912  net: bridge: multicast: fix UAF of net_bridge
+- !3982  ACPI: CPPC: Assume no transition latency if no PCCT
+- ACPI: CPPC: Assume no transition latency if no PCCT
+- vhost: use kzalloc() instead of kmalloc() followed by memset()
+- !3972  arm64: make cma=0 as default for openeuler
+- arm64: make cma=0 as default for openeuler
+- !3940 net: hns3: fix the cmdq reset command times out when all VFs are enabled and the queue is full.
+- !3925 udma: add capability of DWQE in RC mode
+- hns3 udma: add support of DWQE in create qp
+- net: hns3: fix reset timeout under full functions and queues
+- !3915  nvmet: nul-terminate the NQNs passed in the connect command
+- nvmet: nul-terminate the NQNs passed in the connect command
+- net: bridge: multicast: fix UAF of net_bridge
+- loongarch/kvm: disable hugepage during migration process
+- loongarch/kvm: Fix oneshot timer emulation
+- loongarch/kvm: Remove SW timer switch when vcpu is halt polling
+
 * Wed Jan 10 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-183.0.0.96
 - !3848 [22.03-LTS-SP3] Bug fix for KVM MMU
 - !3562  tty: n_gsm: fix the UAF caused by race condition in gsm_cleanup_mux
