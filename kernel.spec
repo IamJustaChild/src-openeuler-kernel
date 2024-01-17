@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2401.3.0
+%global hulkrelease 2401.4.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0260
+Release: %{hulkrelease}.0261
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,12 @@ fi
 %endif
 
 %changelog
+* Wed Jan 17 2024 YunYi Yang <yangyunyi2@huawei.com> - 4.19.90-2401.4.0.0261
+- !4006  crypto: hisilicon/sec2: fix memory use-after-free issue
+- crypto: hisilicon/sec2: fix memory use-after-free issue
+- !3923  net: bridge: multicast: fix UAF of net_bridge
+- net: bridge: multicast: fix UAF of net_bridge
+
 * Wed Jan 10 2024 YunYi Yang <yangyunyi2@huawei.com> - 4.19.90-2401.3.0.0260
 - !3768  iomap: add support to track dirty state of sub pages
 - !3845  netfilter: ctnetlink: fix possible refcount leak in ctnetlink_create_conntrack()
