@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       153
-%global maintenance_release .38.0
-%global pkg_release         .115
+%global maintenance_release .39.0
+%global pkg_release         .116
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -910,6 +910,31 @@ fi
 %endif
 
 %changelog
+* Wed Jan 17 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.39.0.116
+- !4002  Revert "ubi: ensure that VID header offset + VID header size <= alloc, size"
+- !3988 [sync] PR-3715:  appletalk: Fix Use-After-Free in atalk_ioctl
+- !3991 [sync] PR-3668:  net/rose: Fix Use-After-Free in rose_ioctl
+- !3978 Bugfixes for RDMA/hns
+- !3985 [sync] PR-3915:  nvmet: nul-terminate the NQNs passed in the connect command
+- !3797 [sync] PR-3771:  ext4: fix uninitialized ratelimit_state->lock access in __ext4_fill_super()
+- Revert "ubi: ensure that VID header offset + VID header size <= alloc, size"
+- !3764 [sync] PR-3686:  Bluetooth: af_bluetooth: Fix Use-After-Free in bt_sock_recvmsg
+- net/rose: Fix Use-After-Free in rose_ioctl
+- appletalk: Fix Use-After-Free in atalk_ioctl
+- nvmet: nul-terminate the NQNs passed in the connect command
+- RDMA/hns: Fix congestions control algorithm type for UD
+- RDMA/hns: Fix a missing validation check for sl
+- RDMA/hns: Add a max length of gid table
+- RDMA/hns: Fix printing level of asynchronous events
+- RDMA/hns: Remove unnecessary QP type checks
+- RDMA/hns: Rename the interrupts
+- !3938 RDMA/hns: Response dmac to userspace
+- RDMA/hns: Response dmac to userspace
+- !3879 [sync] PR-3466:  livepatch/core: Disable support for replacing
+- livepatch/core: Disable support for replacing
+- ext4: fix uninitialized ratelimit_state->lock access in __ext4_fill_super()
+- Bluetooth: af_bluetooth: Fix Use-After-Free in bt_sock_recvmsg
+
 * Wed Jan 10 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.38.0.115
 - !3855 [sync] PR-3694:  Fix tow CVEs of CIFS
 - !3766 [sync] PR-3594:  CVE-2023-35827 patchset
