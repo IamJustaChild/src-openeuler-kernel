@@ -17,8 +17,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .59.0
-%global pkg_release         .138
+%global maintenance_release .60.0
+%global pkg_release         .139
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -942,6 +942,20 @@ fi
 %endif
 
 %changelog
+* Wed Jan 17 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.60.0.139
+- !3987 [sync] PR-3715:  appletalk: Fix Use-After-Free in atalk_ioctl
+- !3990 [sync] PR-3668:  net/rose: Fix Use-After-Free in rose_ioctl
+- !3984 [sync] PR-3915:  nvmet: nul-terminate the NQNs passed in the connect command
+- !3796 [sync] PR-3771:  ext4: fix uninitialized ratelimit_state->lock access in __ext4_fill_super()
+- !3772 [sync] PR-3686:  Bluetooth: af_bluetooth: Fix Use-After-Free in bt_sock_recvmsg
+- net/rose: Fix Use-After-Free in rose_ioctl
+- appletalk: Fix Use-After-Free in atalk_ioctl
+- nvmet: nul-terminate the NQNs passed in the connect command
+- !3878 [sync] PR-3466:  livepatch/core: Disable support for replacing
+- livepatch/core: Disable support for replacing
+- ext4: fix uninitialized ratelimit_state->lock access in __ext4_fill_super()
+- Bluetooth: af_bluetooth: Fix Use-After-Free in bt_sock_recvmsg
+
 * Wed Jan 10 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.59.0.138
 - !3854 [sync] PR-3694:  Fix tow CVEs of CIFS
 - !3765 [sync] PR-3594:  CVE-2023-35827 patchset
