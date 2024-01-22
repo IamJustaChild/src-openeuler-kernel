@@ -1,11 +1,10 @@
 %define with_signmodules  1
 %ifarch loongarch64
 %define with_kabichk 0
-%define with_bpftool 0
 %else
-%define with_bpftool 1
 %define with_kabichk 1
 %endif
+%define with_bpftool 0
 
 %define modsign_cmd %{SOURCE10}
 
@@ -18,7 +17,7 @@
 %global upstream_sublevel   0
 %global devel_release       136
 %global maintenance_release .60.0
-%global pkg_release         .139
+%global pkg_release         .140
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -942,6 +941,9 @@ fi
 %endif
 
 %changelog
+* Sat Jan 20 2024 liuxin <liuxin350@huawei.com> - 5.10.0-136.60.0.140
+- remove bpftool from kernel package, now build bpftool from src-openeuler/bpftool
+
 * Wed Jan 17 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.60.0.139
 - !3987 [sync] PR-3715:  appletalk: Fix Use-After-Free in atalk_ioctl
 - !3990 [sync] PR-3668:  net/rose: Fix Use-After-Free in rose_ioctl
