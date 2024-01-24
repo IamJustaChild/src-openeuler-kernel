@@ -17,8 +17,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       60
-%global maintenance_release .122.0
-%global pkg_release         .149
+%global maintenance_release .123.0
+%global pkg_release         .150
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -932,6 +932,25 @@ fi
 %endif
 
 %changelog
+* Wed Jan 24 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-60.123.0.150
+- !4129 [sync] PR-4100:  netfilter: nf_tables: fix pointer math issue in nft_byteorder_eval()
+- !4125 [sync] PR-4022:  netfilter: nf_tables: Reject tables of unsupported family
+- !4055  ext4: correct return value of ext4_convert_meta_bg
+- !4061  ext4: synchronize the casefold bugfix from the mainline
+- netfilter: nf_tables: fix pointer math issue in nft_byteorder_eval()
+- netfilter: nf_tables: Reject tables of unsupported family
+- !4077 [sync] PR-4069:  tipc: fix a potential deadlock on &tx->lock
+- !4073 [sync] PR-4064:  smb: client: fix OOB in receive_encrypted_standard()
+- tipc: fix a potential deadlock on &tx->lock
+- smb: client: fix OOB in receive_encrypted_standard()
+- !4040 [sync] PR-3981:  vhost: use kzalloc() instead of kmalloc() followed by memset()
+- ext4: improve error handling from ext4_dirhash()
+- ext4: reject casefold inode flag without casefold feature
+- ext4: correct return value of ext4_convert_meta_bg
+- !4016  mm/filemap: avoid buffered read/write race to read inconsistent data
+- vhost: use kzalloc() instead of kmalloc() followed by memset()
+- mm/filemap: avoid buffered read/write race to read inconsistent data
+
 * Wed Jan 17 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-60.122.0.149
 - !3986 [sync] PR-3715:  appletalk: Fix Use-After-Free in atalk_ioctl
 - !3989 [sync] PR-3668:  net/rose: Fix Use-After-Free in rose_ioctl
