@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2401.4.0
+%global hulkrelease 2401.5.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0261
+Release: %{hulkrelease}.0262
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,27 @@ fi
 %endif
 
 %changelog
+* Wed Jan 24 2024 hongrongxuan <hongrongxuan@huawei.com> - 4.19.90-2401.5.0.0262
+- !4101  netfilter: nf_tables: fix pointer math issue in nft_byteorder_eval()
+- !2954 spi: phytium: fix phytium_spi_irq panic on boot
+- netfilter: nf_tables: fix pointer math issue in nft_byteorder_eval()
+- !4067  fix CVE-2022-48619
+- !4080  rtnetlink: Reject negative ifindexes in RTM_NEWLINK
+- rtnetlink: Reject negative ifindexes in RTM_NEWLINK
+- Revert "rtnetlink: Reject negative ifindexes in RTM_NEWLINK"
+- !4065  smb: client: fix OOB in receive_encrypted_standard()
+- !4021  netfilter: nf_tables: Reject tables of unsupported family
+- Input: add bounds checking to input_set_capability()
+- smb: client: fix OOB in receive_encrypted_standard()
+- !4039  crypto: hisilicon/qm: fix several issues
+- !4025  crypto: hisilicon - replace 'smp_processor_id' with the raw version of the macro
+- !3980  vhost: use kzalloc() instead of kmalloc() followed by memset()
+- crypto: hisilicon/qm: fix several issues
+- crypto: hisilicon - replace 'smp_processor_id' with the raw version of the macro
+- netfilter: nf_tables: Reject tables of unsupported family
+- vhost: use kzalloc() instead of kmalloc() followed by memset()
+- spi: phytium: fix phytium_spi_irq panic on boot
+
 * Wed Jan 17 2024 YunYi Yang <yangyunyi2@huawei.com> - 4.19.90-2401.4.0.0261
 - !4006  crypto: hisilicon/sec2: fix memory use-after-free issue
 - crypto: hisilicon/sec2: fix memory use-after-free issue
