@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       184
+%global devel_release       185
 %global maintenance_release .0.0
-%global pkg_release         .97
+%global pkg_release         .98
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -911,6 +911,107 @@ fi
 %endif
 
 %changelog
+* Wed Jan 24 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-185.0.0.98
+- !4138 KVM: arm64: arch_timer: init ret for kvm_timer_enable
+- !3689 Intel: Backport Sierra Forest(SRF) core PMU support to OLK-5.10
+- !4134  fs:/dcache.c: fix negative dentry limit not complete problem
+- !4136 udma: change the way of query dfx resource
+- !4054  ext4: correct return value of ext4_convert_meta_bg
+- !4058  ext4: synchronize the casefold bugfix from the mainline.
+- hns3 udma: change way of query dfx resource
+- fs:/dcache.c: fix negative dentry limit not complete problem
+- KVM: arm64: arch_timer: init ret for kvm_timer_enable
+- !4100  netfilter: nf_tables: fix pointer math issue in nft_byteorder_eval()
+- !3975  md/raid1-10: limit the number of plugged bio
+- !3998  cpufreq: CPPC: Fix performance/frequency conversion
+- !4022  netfilter: nf_tables: Reject tables of unsupported family
+- netfilter: nf_tables: fix pointer math issue in nft_byteorder_eval()
+- !4090  ida: Fix crash in ida_free when the bitmap is empty
+- !4091  x86/quirks: Add parameter to clear MSIs early
+- x86/quirks: Add parameter to clear MSIs early on boot
+- x86/PCI: Export find_cap() to be used in early PCI code
+- ida: Fix crash in ida_free when the bitmap is empty
+- !4019  mm/filemap: avoid buffered read/write race to read inconsistent data
+- !4069  tipc: fix a potential deadlock on &tx->lock
+- !4064  smb: client: fix OOB in receive_encrypted_standard()
+- tipc: fix a potential deadlock on &tx->lock
+- smb: client: fix OOB in receive_encrypted_standard()
+- !4024 udma: add mailbox description printing.
+- ext4: improve error handling from ext4_dirhash()
+- ext4: reject casefold inode flag without casefold feature
+- ext4: correct return value of ext4_convert_meta_bg
+- hns3 udma: add print mailbox description
+- netfilter: nf_tables: Reject tables of unsupported family
+- mm/filemap: avoid buffered read/write race to read inconsistent data
+- cpufreq: CPPC: Fix performance/frequency conversion
+- md/raid1-10: fix casting from randomized structure in raid1_submit_write()
+- md/raid1-10: limit the number of plugged bio
+- md/raid1-10: don't handle pluged bio by daemon thread
+- md/md-bitmap: add a new helper to unplug bitmap asynchrously
+- md/raid1-10: submit write io directly if bitmap is not enabled
+- md/raid1-10: factor out a helper to submit normal write
+- md/raid1-10: factor out a helper to add bio to plug
+- md/raid10: prevent soft lockup while flush writes
+- md: raid1/raid10: drop pending_cnt
+- md: drop queue limitation for RAID1 and RAID10
+- Revert "md/raid10: fix softlockup in raid10_unplug"
+- perf/x86/intel: Add a quirk for the calculation of the number of counters on Alder Lake
+- perf/x86/intel: Fix fixed counter check warning for some Alder Lake
+- perf/x86/intel: Add Crestmont PMU
+- x86/cpu: Update Hybrids
+- x86/cpu: Fix Crestmont uarch
+- x86/cpu: Fix Gracemont uarch
+- perf/x86/msr: Add Meteor Lake support
+- perf/x86/cstate: Add Meteor Lake support
+- perf/x86/intel: Support Architectural PerfMon Extension leaf
+- x86/cpufeatures: Add Architectural PerfMon Extension bit
+- perf/x86: Support Retire Latency
+- perf/x86: Add Meteor Lake support
+- perf: Add PMU_FORMAT_ATTR_SHOW
+- perf/x86/intel: Fix unchecked MSR access error for Alder Lake N
+- x86/cpu: Add CPU model numbers for Meteor Lake
+- perf/x86/intel: Fix PEBS data source encoding for ADL
+- perf/x86/intel: Fix PEBS memory access info encoding for ADL
+- perf/x86/uncore: Add new Alder Lake and Raptor Lake support
+- perf/x86/uncore: Clean up uncore_pci_ids[]
+- perf/x86/cstate: Add new Alder Lake and Raptor Lake support
+- perf/x86/msr: Add new Alder Lake and Raptor Lake support
+- perf/x86: Add new Alder Lake and Raptor Lake support
+- x86/cpu: Add new Alderlake and Raptorlake CPU model numbers
+- perf/x86/uncore: Add Raptor Lake uncore support
+- perf/x86/msr: Add Raptor Lake CPU support
+- perf/x86/cstate: Add Raptor Lake support
+- perf/x86: Add Intel Raptor Lake support
+- perf/x86/intel/uncore: Add IMC uncore support for ADL
+- x86/cpu: Drop spurious underscore from RAPTOR_LAKE #define
+- x86/cpu: Add Raptor Lake to Intel family
+- perf/x86/intel: Apply mid ACK for small core
+- perf/x86/rapl: Add support for Intel Alder Lake
+- perf/x86/cstate: Add Alder Lake CPU support
+- perf/x86/msr: Add Alder Lake CPU support
+- perf/x86/intel/uncore: Add Alder Lake support
+- perf: Extend PERF_TYPE_HARDWARE and PERF_TYPE_HW_CACHE
+- perf/x86/intel: Add Alder Lake Hybrid support
+- perf/x86: Support filter_match callback
+- perf/x86/intel: Add attr_update for Hybrid PMUs
+- perf/x86: Add structures for the attributes of Hybrid PMUs
+- perf/x86: Register hybrid PMUs
+- perf/x86: Factor out x86_pmu_show_pmu_cap
+- perf/x86: Remove temporary pmu assignment in event_init
+- perf/x86/intel: Factor out intel_pmu_check_extra_regs
+- perf/x86/intel: Factor out intel_pmu_check_event_constraints
+- perf/x86/intel: Factor out intel_pmu_check_num_counters
+- perf/x86: Hybrid PMU support for extra_regs
+- perf/x86: Hybrid PMU support for event constraints
+- perf/x86: Hybrid PMU support for hardware cache event
+- perf/x86: Hybrid PMU support for unconstrained
+- perf/x86: Hybrid PMU support for counters
+- perf/x86: Hybrid PMU support for intel_ctrl
+- perf/x86/intel: Hybrid PMU support for perf capabilities
+- x86/cpu: Add helper function to get the type of the current hybrid CPU
+- x86/cpufeatures: Enumerate Intel Hybrid Technology feature bit
+- perf/x86/intel: Add Tremont Topdown support
+
 * Wed Jan 17 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-184.0.0.97
 - !3981  vhost: use kzalloc() instead of kmalloc() followed by memset()
 - !3418 [sync] PR-2918: fix some bugs in loongarch kvm
