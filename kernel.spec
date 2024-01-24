@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       153
-%global maintenance_release .39.0
-%global pkg_release         .117
+%global maintenance_release .40.0
+%global pkg_release         .118
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -878,6 +878,25 @@ fi
 %endif
 
 %changelog
+* Wed Jan 24 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.40.0.118
+- !4131 [sync] PR-4100:  netfilter: nf_tables: fix pointer math issue in nft_byteorder_eval()
+- !4127 [sync] PR-4022:  netfilter: nf_tables: Reject tables of unsupported family
+- !4057  ext4: correct return value of ext4_convert_meta_bg
+- !4059  ext4: synchronize the casefold bugfix from the mainline
+- netfilter: nf_tables: fix pointer math issue in nft_byteorder_eval()
+- netfilter: nf_tables: Reject tables of unsupported family
+- !4079 [sync] PR-4069:  tipc: fix a potential deadlock on &tx->lock
+- !4075 [sync] PR-4064:  smb: client: fix OOB in receive_encrypted_standard()
+- !4018  mm/filemap: avoid buffered read/write race to read inconsistent data
+- tipc: fix a potential deadlock on &tx->lock
+- smb: client: fix OOB in receive_encrypted_standard()
+- !4042 [sync] PR-3981:  vhost: use kzalloc() instead of kmalloc() followed by memset()
+- ext4: improve error handling from ext4_dirhash()
+- ext4: reject casefold inode flag without casefold feature
+- ext4: correct return value of ext4_convert_meta_bg
+- vhost: use kzalloc() instead of kmalloc() followed by memset()
+- mm/filemap: avoid buffered read/write race to read inconsistent data
+
 * Sat Jan 20 2024 liuxin <liuxin350@huawei.com> - 5.10.0-153.39.0.117
 - remove bpftool from kernel package, now build bpftool from src-openeuler/bpftool
 
