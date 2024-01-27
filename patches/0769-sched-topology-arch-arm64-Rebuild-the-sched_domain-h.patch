@@ -1,0 +1,58 @@
+From 7a8dde1b4f0ca6155e72ac0c24bbadd78b1952bb Mon Sep 17 00:00:00 2001
+From: Morten Rasmussen <morten.rasmussen@arm.com>
+Date: Fri, 20 Jul 2018 14:32:33 +0100
+Subject: [PATCH 12/19] sched/topology, arch/arm64: Rebuild the sched_domain
+ hierarchy when the CPU capacity changes
+
+mainline inclusion
+from mainline-v4.20-rc1
+commit 3ba09df4b8b6e3f01ed6381e8fb890840fd0bca3
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I5W44S
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=3ba09df4b8b6e3f01ed6381e8fb890840fd0bca3
+
+----------------------------------------------------------------------
+
+Asymmetric CPU capacity can not necessarily be determined accurately at
+the time the initial sched_domain hierarchy is built during boot. It is
+therefore necessary to be able to force a full rebuild of the hierarchy
+later triggered by the arch_topology driver. A full rebuild requires the
+arch-code to implement arch_update_cpu_topology() which isn't yet
+implemented for arm64. This patch points the arm64 implementation to
+arch_topology driver to ensure that full hierarchy rebuild happens when
+needed.
+
+Signed-off-by: Morten Rasmussen <morten.rasmussen@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: dietmar.eggemann@arm.com
+Cc: valentin.schneider@arm.com
+Cc: vincent.guittot@linaro.org
+Link: http://lkml.kernel.org/r/1532093554-30504-4-git-send-email-morten.rasmussen@arm.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Jiang Yi <jiangyi38@hisilicon.com>
+---
+ arch/arm64/include/asm/topology.h | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/arch/arm64/include/asm/topology.h b/arch/arm64/include/asm/topology.h
+index 164e26035653..7f0de9ec65f7 100644
+--- a/arch/arm64/include/asm/topology.h
++++ b/arch/arm64/include/asm/topology.h
+@@ -50,6 +50,9 @@ int pcibus_to_node(struct pci_bus *bus);
+ /* Replace task scheduler's default cpu-invariant accounting */
+ #define arch_scale_cpu_capacity topology_get_cpu_scale
+ 
++/* Enable topology flag updates */
++#define arch_update_cpu_topology topology_update_cpu_topology
++
+ #include <asm-generic/topology.h>
+ 
+ #endif /* _ASM_ARM_TOPOLOGY_H */
+-- 
+2.23.0
+

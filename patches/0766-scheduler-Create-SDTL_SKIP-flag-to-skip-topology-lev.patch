@@ -1,0 +1,77 @@
+From 86ef1e50a2a6a271baf972c3fa5a11e91bf69533 Mon Sep 17 00:00:00 2001
+From: Tim Chen <tim.c.chen@linux.intel.com>
+Date: Fri, 3 Dec 2021 12:32:38 -0800
+Subject: [PATCH 09/19] scheduler: Create SDTL_SKIP flag to skip topology level
+
+kunpeng inclusion
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I5W44S
+Reference: https://lore.kernel.org/lkml/cover.1638563225.git.tim.c.chen@linux.intel.com/
+
+----------------------------------------------------------------------
+
+A system admin may not want to use cluster scheduling.  Make changes to
+allow cluster topology level to be skipped when building sched domains.
+
+Create SDTL_SKIP bit on the sched_domain_topology_level flag so we can
+check if the cluster topology level should be skipped when building
+sched domains.
+
+Signed-off-by: Tim Chen <tim.c.chen@linux.intel.com>
+Signed-off-by: Jie Liu <liujie375@h-partners.com>
+
+Conflicts:
+	kernel/sched/topology.c
+
+Signed-off-by: Jiang Yi <jiangyi38@hisilicon.com>
+---
+ include/linux/sched/topology.h |  1 +
+ kernel/sched/topology.c        | 12 ++++++++++--
+ 2 files changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/include/linux/sched/topology.h b/include/linux/sched/topology.h
+index 55eec54e7f1e..ae4ba452c111 100644
+--- a/include/linux/sched/topology.h
++++ b/include/linux/sched/topology.h
+@@ -187,6 +187,7 @@ typedef const struct cpumask *(*sched_domain_mask_f)(int cpu);
+ typedef int (*sched_domain_flags_f)(void);
+ 
+ #define SDTL_OVERLAP	0x01
++#define SDTL_SKIP	0x02
+ 
+ struct sd_data {
+ 	struct sched_domain *__percpu *sd;
+diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
+index eda15f08577f..887e2d06d98a 100644
+--- a/kernel/sched/topology.c
++++ b/kernel/sched/topology.c
+@@ -1330,8 +1330,16 @@ static struct sched_domain_topology_level default_topology[] = {
+ static struct sched_domain_topology_level *sched_domain_topology =
+ 	default_topology;
+ 
++static struct sched_domain_topology_level *
++next_tl(struct sched_domain_topology_level *tl)
++{
++	while (tl->mask && tl->flags & SDTL_SKIP)
++		++tl;
++	return tl;
++}
++
+ #define for_each_sd_topology(tl)			\
+-	for (tl = sched_domain_topology; tl->mask; tl++)
++	for (tl = next_tl(sched_domain_topology); tl->mask; tl = next_tl(++tl))
+ 
+ void set_sched_topology(struct sched_domain_topology_level *tl)
+ {
+@@ -1872,7 +1880,7 @@ build_sched_domains(const struct cpumask *cpu_map, struct sched_domain_attr *att
+ 		for_each_sd_topology(tl) {
+ 			sd = build_sched_domain(tl, cpu_map, attr, sd, i);
+ 			has_cluster |= sd->flags & SD_CLUSTER;
+-			if (tl == sched_domain_topology)
++			if (tl == next_tl(sched_domain_topology))
+ 				*per_cpu_ptr(d.sd, i) = sd;
+ 			if (tl->flags & SDTL_OVERLAP)
+ 				sd->flags |= SD_OVERLAP;
+-- 
+2.23.0
+

@@ -1,0 +1,128 @@
+From 9af57e69c315e5898098a00433fdf56613529fac Mon Sep 17 00:00:00 2001
+From: Heiko Carstens <hca@linux.ibm.com>
+Date: Mon, 29 Nov 2021 14:03:08 +0100
+Subject: [PATCH 03/19] topology/sysfs: export cluster attributes only if an
+ architectures has support
+
+mainline inclusion
+from mainline-v5.17-rc1
+commit e795707703b32fecdd7467afcc33ff1e92416c05
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I4GEZS
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=e795707703b32fecdd7467afcc33ff1e92416c05
+
+----------------------------------------------------------------------
+
+The cluster_id and cluster_cpus topology sysfs attributes have been
+added with commit c5e22feffdd7 ("topology: Represent clusters of CPUs
+within a die").
+
+They are currently only used for x86, arm64, and riscv (via generic
+arch topology), however they are still present with bogus default
+values for all other architectures. Instead of enforcing such new
+sysfs attributes to all architectures, make them only optional visible
+if an architecture opts in by defining both the topology_cluster_id
+and topology_cluster_cpumask attributes.
+
+This is similar to what was done when the book and drawer topology
+levels were introduced: avoid useless and therefore confusing sysfs
+attributes for architectures which cannot make use of them.
+
+This should not break any existing applications, since this is a
+new interface introduced with the v5.16 merge window.
+
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Link: https://lore.kernel.org/r/20211129130309.3256168-3-hca@linux.ibm.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+Conflicts:
+	Documentation/admin-guide/cputopology.rst
+	drivers/base/topology.c
+	include/linux/topology.h
+
+Signed-off-by: Jiang Yi <jiangyi38@hisilicon.com>
+---
+ Documentation/cputopology.txt | 3 +++
+ drivers/base/topology.c       | 8 ++++++++
+ include/linux/topology.h      | 4 ++++
+ 3 files changed, 15 insertions(+)
+
+diff --git a/Documentation/cputopology.txt b/Documentation/cputopology.txt
+index acd55bf0c718..e6645ff18994 100644
+--- a/Documentation/cputopology.txt
++++ b/Documentation/cputopology.txt
+@@ -94,6 +94,9 @@ Architecture-neutral, drivers/base/topology.c, exports these attributes.
+ However, the book and drawer related sysfs files will only be created if
+ CONFIG_SCHED_BOOK and CONFIG_SCHED_DRAWER are selected, respectively.
+ 
++The cluster hierarchy related sysfs files will only be created if an
++architecture provides the related macros as described below.
++
+ CONFIG_SCHED_BOOK and CONFIG_SCHED_DRAWER are currently only used on s390,
+ where they reflect the cpu and cache hierarchy.
+ 
+diff --git a/drivers/base/topology.c b/drivers/base/topology.c
+index 7e4bdf65e27a..66ebcf05030f 100644
+--- a/drivers/base/topology.c
++++ b/drivers/base/topology.c
+@@ -46,8 +46,10 @@ static DEVICE_ATTR_RO(physical_package_id);
+ define_id_show_func(die_id);
+ static DEVICE_ATTR_RO(die_id);
+ 
++#ifdef TOPOLOGY_CLUSTER_SYSFS
+ define_id_show_func(cluster_id);
+ static DEVICE_ATTR_RO(cluster_id);
++#endif
+ 
+ define_id_show_func(core_id);
+ static DEVICE_ATTR_RO(core_id);
+@@ -60,9 +62,11 @@ define_siblings_show_func(core_siblings, core_cpumask);
+ static DEVICE_ATTR_RO(core_siblings);
+ static DEVICE_ATTR_RO(core_siblings_list);
+ 
++#ifdef TOPOLOGY_CLUSTER_SYSFS
+ define_siblings_show_func(cluster_cpus, cluster_cpumask);
+ static DEVICE_ATTR_RO(cluster_cpus);
+ static DEVICE_ATTR_RO(cluster_cpus_list);
++#endif
+ 
+ #ifdef CONFIG_SCHED_BOOK
+ define_id_show_func(book_id);
+@@ -83,14 +87,18 @@ static DEVICE_ATTR_RO(drawer_siblings_list);
+ static struct attribute *default_attrs[] = {
+ 	&dev_attr_physical_package_id.attr,
+ 	&dev_attr_die_id.attr,
++#ifdef TOPOLOGY_CLUSTER_SYSFS
+ 	&dev_attr_cluster_id.attr,
++#endif
+ 	&dev_attr_core_id.attr,
+ 	&dev_attr_thread_siblings.attr,
+ 	&dev_attr_thread_siblings_list.attr,
+ 	&dev_attr_core_siblings.attr,
+ 	&dev_attr_core_siblings_list.attr,
++#ifdef TOPOLOGY_CLUSTER_SYSFS
+ 	&dev_attr_cluster_cpus.attr,
+ 	&dev_attr_cluster_cpus_list.attr,
++#endif
+ #ifdef CONFIG_SCHED_BOOK
+ 	&dev_attr_book_id.attr,
+ 	&dev_attr_book_siblings.attr,
+diff --git a/include/linux/topology.h b/include/linux/topology.h
+index 58f8a9e9d90b..9033a952ee68 100644
+--- a/include/linux/topology.h
++++ b/include/linux/topology.h
+@@ -182,6 +182,10 @@ static inline int cpu_to_mem(int cpu)
+ 
+ #endif	/* [!]CONFIG_HAVE_MEMORYLESS_NODES */
+ 
++#if defined(topology_cluster_id) && defined(topology_cluster_cpumask)
++#define TOPOLOGY_CLUSTER_SYSFS
++#endif
++
+ #ifndef topology_physical_package_id
+ #define topology_physical_package_id(cpu)	((void)(cpu), -1)
+ #endif
+-- 
+2.23.0
+

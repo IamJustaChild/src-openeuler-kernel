@@ -1,0 +1,46 @@
+From d63e50cf6b8afe84463fccc775965e765d840f95 Mon Sep 17 00:00:00 2001
+From: Guan Jing <guanjing6@huawei.com>
+Date: Wed, 30 Nov 2022 18:23:26 +0800
+Subject: [PATCH 19/19] sched/fair:ARM64 enables SIS_UTIL and disables SIS_PROP
+
+hulk inclusion
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I61E4M
+CVE: NA
+
+--------------------------------
+
+When doing wakeups, attempt to limit superfluous scans of the LLC domain.
+ARM64 enables SIS_UTIL and disables SIS_PROP to search idle CPU based on
+sum of util_avg.
+
+Signed-off-by: Guan Jing <guanjing6@huawei.com>
+Reviewed-by: Zhang Qiao <zhangqiao22@huawei.com>
+Reviewed-by: Chen Hui <judy.chenhui@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Signed-off-by: Xue Sinian <xuesinian@huawei.com>
+---
+ kernel/sched/features.h | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/kernel/sched/features.h b/kernel/sched/features.h
+index beda3a619bb9..f25619f2c0de 100644
+--- a/kernel/sched/features.h
++++ b/kernel/sched/features.h
+@@ -56,8 +56,13 @@ SCHED_FEAT(TTWU_QUEUE, true)
+  * When doing wakeups, attempt to limit superfluous scans of the LLC domain.
+  */
+ SCHED_FEAT(SIS_AVG_CPU, false)
++#ifdef CONFIG_ARM64
+ SCHED_FEAT(SIS_PROP, false)
+ SCHED_FEAT(SIS_UTIL, true)
++#else
++SCHED_FEAT(SIS_PROP, true)
++SCHED_FEAT(SIS_UTIL, false)
++#endif
+ 
+ #ifdef CONFIG_SCHED_STEAL
+ /*
+-- 
+2.23.0
+
