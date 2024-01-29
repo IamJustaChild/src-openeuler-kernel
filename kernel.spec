@@ -16,7 +16,7 @@
 
 %define modsign_cmd %{SOURCE10}
 
-%global Arch $(echo %{_host_cpu} | sed -e s/i.86/x86/ -e s/x86_64/x86/ -e s/aarch64.*/arm64/ -e s/riscv.*/riscv/)
+%global Arch $(echo %{_host_cpu} | sed -e s/i.86/x86/ -e s/x86_64/x86/ -e s/aarch64.*/arm64/ -e s/riscv.*/riscv/ -e s/powerpc64le/powerpc/)
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 %global debuginfodir /usr/lib/debug
@@ -129,7 +129,7 @@ Provides: kernel-uname-r = %{KernelVer} kernel=%{KernelVer}
 
 Requires: dracut >= 001-7 grubby >= 8.28-2 initscripts >= 8.11.1-1 linux-firmware >= 20100806-2 module-init-tools >= 3.16-2
 
-ExclusiveArch: noarch aarch64 i686 x86_64 riscv64
+ExclusiveArch: noarch aarch64 i686 x86_64 riscv64 ppc64le
 ExclusiveOS: Linux
 
 %if %{with_perf}
@@ -932,6 +932,9 @@ fi
 %endif
 
 %changelog
+* Mon Jan 29 2024 jiahua.yu <jiahua.yu@shingroup.cn> - 6.6.0-6.0.0.4
+- init support for arch ppc64le
+
 * Tue Jan 23 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 6.6.0-6.0.0.3
 - !4087  backport two page_owner patchsets:
 - mm/page_owner: record and dump free_pid and free_tgid
