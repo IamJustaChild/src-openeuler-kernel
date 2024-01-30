@@ -1,0 +1,38 @@
+From 51bf9d798b7d76c74d3c1012758220ebcf67bf38 Mon Sep 17 00:00:00 2001
+From: Yicong Yang <yangyicong@hisilicon.com>
+Date: Mon, 13 Feb 2023 10:48:54 +0800
+Subject: [PATCH 772/774] scheduler: Disable cluster scheduling by default
+
+kunpeng inclusion
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I5W44S
+
+----------------------------------------------------------------------
+
+Disable cluster scheduling by default since it's not a universal win.
+User can choose to enable it through sysctl or at boot time according to
+their scenario.
+
+Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
+Signed-off-by: Jie Liu <liujie375@h-partners.com>
+Signed-off-by: Jiang Yi <jiangyi38@hisilicon.com>
+---
+ kernel/sched/topology.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
+index fdc3ae9e1bc0..1cc9ec74d24b 100644
+--- a/kernel/sched/topology.c
++++ b/kernel/sched/topology.c
+@@ -1347,7 +1347,7 @@ void set_sched_cluster(void)
+ }
+ 
+ /* set via /proc/sys/kernel/sched_cluster */
+-unsigned int __read_mostly sysctl_sched_cluster = 1;
++unsigned int __read_mostly sysctl_sched_cluster;
+ 
+ static DEFINE_MUTEX(sched_cluster_mutex);
+ int sched_cluster_handler(struct ctl_table *table, int write,
+-- 
+2.33.0
+

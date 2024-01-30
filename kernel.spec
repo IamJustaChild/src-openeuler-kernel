@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0262
+Release: %{hulkrelease}.0263
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,27 @@ fi
 %endif
 
 %changelog
+* Mon Jan 29 2024 Xue Sinian <xuesinian@huawei.com> - 4.19.90-2401.5.0.0263
+- sched/fair: ARM64 enables SIS_UTIL and disables SIS_PROP
+- sched/fair: Fix kabi borken in sched_domain_shared
+- sched/fair: Introduce SIS_UTIL to search idle CPU based on sum of util_avg
+- sched:Open the kernel configuration for cluster.
+- scheduler: Disable cluster scheduling by default
+- scheduler: Add boot time enabling/disabling of cluster scheduling
+- scheduler: Add runtime knob sysctl_sched_cluster
+- sched/topology, arch/arm64: Rebuild the sched_domain hierarchy when the CPU capacity changes
+- sched/topology, drivers/base/arch_topology: Rebuild the sched_domain hierarchy when capacities change
+- sysctl: add a new register_sysctl_init() interface
+- scheduler: Create SDTL_SKIP flag to skip topology level
+- sched/fair: Scan cluster before scanning LLC in wake-up path
+- sched: Add per_cpu cluster domain info and cpus_share_lowest_cache API
+- arch_topology: Make cluster topology span at least SMT CPUs
+- arch_topology: Limit span of cpu_clustergroup_mask()
+- topology: Remove unused cpu_cluster_mask()
+- topology/sysfs: export cluster attributes only if an architectures has support
+- sched: Add cluster scheduler level in core and related Kconfig for ARM64
+- topology: Represent clusters of CPUs within a die
+
 * Wed Jan 24 2024 hongrongxuan <hongrongxuan@huawei.com> - 4.19.90-2401.5.0.0262
 - !4101  netfilter: nf_tables: fix pointer math issue in nft_byteorder_eval()
 - !2954 spi: phytium: fix phytium_spi_irq panic on boot
