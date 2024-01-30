@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2401.5.0
+%global hulkrelease 2402.1.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0236
+Release: %{hulkrelease}.0237
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,38 @@ fi
 %endif
 
 %changelog
+
+* Tue Jan 30 2024 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2402.1.0.0237
+- !4277  fs:/dcache.c: fix negative dentry limit not complete problem
+- !4288  net/rds: Fix UBSAN: array-index-out-of-bounds in rds_cmsg_recv
+- !4299  smb: client: fix NULL deref in asn1_ber_decoder()
+- smb: client: fix NULL deref in asn1_ber_decoder()
+- net/rds: Fix UBSAN: array-index-out-of-bounds in rds_cmsg_recv
+- !4228  fix spinlock already unlocked in inet_csk_reqsk_queue_add' bug
+- fs:/dcache.c: fix negative dentry limit not complete problem
+- !4235  nfc: nci: fix possible NULL pointer dereference in send_acknowledge()
+- !4255  drm/amdgpu: Fix potential fence use-after-free v2
+- !4209  dhugetlb: skip unexpected migration
+- drm/amdgpu: Fix potential fence use-after-free v2
+- !4231  crypto: hisilicon/qm - drop unnecessary IS_ENABLE(CONFIG_NUMA) check
+- nfc: nci: fix possible NULL pointer dereference in send_acknowledge()
+- crypto: hisilicon/qm - drop unnecessary IS_ENABLE(CONFIG_NUMA) check
+- ipv6: init the accept_queue's spinlocks in inet6_create
+- tcp: make sure init the accept_queue's spinlocks once
+- !4212  netlink: fix potential sleeping issue in mqueue_flush_file
+- netlink: fix potential sleeping issue in mqueue_flush_file
+- dhugetlb: skip unexpected migration
+- dhugetlb: introduce page_belong_to_dynamic_hugetlb() function
+- !3944  time: Handle negative seconds correctly in timespec64_to_ns()
+- !3943  timerqueue: Use rb_entry_safe() in timerqueue_getnext()
+- !3942  efi/x86: Map the entire EFI vendor string before copying it
+- !4166  sched/fair: Fix qos_timer deadlock when cpuhp offline
+- sched/fair: Fix qos_timer deadlock when cpuhp offline
+- !4137  sctp: fix potential deadlock on &net->sctp.addr_wq_lock
+- sctp: fix potential deadlock on &net->sctp.addr_wq_lock
+- time: Handle negative seconds correctly in timespec64_to_ns()
+- timerqueue: Use rb_entry_safe() in timerqueue_getnext()
+- efi/x86: Map the entire EFI vendor string before copying it
 
 * Tue Jan 23 2024 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2401.5.0.0236
 - !4101  netfilter: nf_tables: fix pointer math issue in nft_byteorder_eval()
