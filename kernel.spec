@@ -17,8 +17,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       60
-%global maintenance_release .123.0
-%global pkg_release         .150
+%global maintenance_release .124.0
+%global pkg_release         .151
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -932,6 +932,26 @@ fi
 %endif
 
 %changelog
+* Wed Jan 31 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-60.124.0.151
+- !4324 [sync] PR-4266:  ksmbd: fix slab-out-of-bounds in smb_strndup_from_utf16()
+- !4289  fs:/dcache.c: fix negative dentry limit not complete problem
+- !4285 [sync] PR-4257:  nfc: nci: fix possible NULL pointer dereference in send_acknowledge()
+- ksmbd: fix slab-out-of-bounds in smb_strndup_from_utf16()
+- !4263 [sync] PR-4255:  drm/amdgpu: Fix potential fence use-after-free v2
+- fs:/dcache.c: fix negative dentry limit not complete problem
+- nfc: nci: fix possible NULL pointer dereference in send_acknowledge()
+- !4222 [sync] PR-4213:  netlink: fix potential sleeping issue in mqueue_flush_file
+- !4205 [sync] PR-4203:  mm/dynamic_hugetlb: skip unexpected migration
+- !4004  ext4: fix some ext4_lblk_t overflow issues
+- drm/amdgpu: Fix potential fence use-after-free v2
+- netlink: fix potential sleeping issue in mqueue_flush_file
+- mm/dynamic_hugetlb: skip unexpected migration
+- ext4: prevent the normalized size from exceeding EXT_MAX_BLOCKS
+- ext4: avoid overlapping preallocations due to overflow
+- ext4: fix BUG in ext4_mb_new_inode_pa() due to overflow
+- ext4: add two helper functions extent_logical_end() and pa_logical_end()
+- ext4: Fix best extent lstart adjustment logic in ext4_mb_new_inode_pa()
+
 * Wed Jan 24 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-60.123.0.150
 - !4129 [sync] PR-4100:  netfilter: nf_tables: fix pointer math issue in nft_byteorder_eval()
 - !4125 [sync] PR-4022:  netfilter: nf_tables: Reject tables of unsupported family
