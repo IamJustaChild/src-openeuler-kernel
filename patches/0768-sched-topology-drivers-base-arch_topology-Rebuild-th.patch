@@ -1,0 +1,87 @@
+From de72c7e79c7f5d295f0d42322269e24a37bb0701 Mon Sep 17 00:00:00 2001
+From: Morten Rasmussen <morten.rasmussen@arm.com>
+Date: Fri, 20 Jul 2018 14:32:32 +0100
+Subject: [PATCH 11/19] sched/topology, drivers/base/arch_topology: Rebuild the
+ sched_domain hierarchy when capacities change
+
+mainline inclusion
+from mainline-v4.20-rc1
+commit bb1fbdd3c3fd12b612c7d8cdf13bd6bfeebdefa3
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I5W44S
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=bb1fbdd3c3fd12b612c7d8cdf13bd6bfeebdefa3
+
+----------------------------------------------------------------------
+
+The setting of SD_ASYM_CPUCAPACITY depends on the per-CPU capacities.
+These might not have their final values when the hierarchy is initially
+built as the values depend on cpufreq to be initialized or the values
+being set through sysfs. To ensure that the flags are set correctly we
+need to rebuild the sched_domain hierarchy whenever the reported per-CPU
+capacity (arch_scale_cpu_capacity()) changes.
+
+This patch ensure that a full sched_domain rebuild happens when CPU
+capacity changes occur.
+
+Signed-off-by: Morten Rasmussen <morten.rasmussen@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: dietmar.eggemann@arm.com
+Cc: valentin.schneider@arm.com
+Cc: vincent.guittot@linaro.org
+Link: http://lkml.kernel.org/r/1532093554-30504-3-git-send-email-morten.rasmussen@arm.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+
+Conflicts:
+	drivers/base/arch_topology.c
+
+Signed-off-by: Jiang Yi <jiangyi38@hisilicon.com>
+---
+ drivers/base/arch_topology.c  | 8 ++++++++
+ include/linux/arch_topology.h | 1 +
+ 2 files changed, 9 insertions(+)
+
+diff --git a/drivers/base/arch_topology.c b/drivers/base/arch_topology.c
+index 729dded51e7b..5ef5e0198f9e 100644
+--- a/drivers/base/arch_topology.c
++++ b/drivers/base/arch_topology.c
+@@ -14,6 +14,7 @@
+ #include <linux/slab.h>
+ #include <linux/string.h>
+ #include <linux/sched/topology.h>
++#include <linux/cpuset.h>
+ 
+ DEFINE_PER_CPU(unsigned long, freq_scale) = SCHED_CAPACITY_SCALE;
+ 
+@@ -67,6 +68,13 @@ static int register_cpu_capacity_sysctl(void)
+ }
+ subsys_initcall(register_cpu_capacity_sysctl);
+ 
++static int update_topology;
++
++int topology_update_cpu_topology(void)
++{
++	return update_topology;
++}
++
+ static u32 capacity_scale;
+ static u32 *raw_capacity;
+ 
+diff --git a/include/linux/arch_topology.h b/include/linux/arch_topology.h
+index 80c28bfce557..a0889776a9e0 100644
+--- a/include/linux/arch_topology.h
++++ b/include/linux/arch_topology.h
+@@ -9,6 +9,7 @@
+ #include <linux/percpu.h>
+ 
+ void topology_normalize_cpu_scale(void);
++int topology_update_cpu_topology(void);
+ 
+ struct device_node;
+ bool topology_parse_cpu_capacity(struct device_node *cpu_node, int cpu);
+-- 
+2.23.0
+
