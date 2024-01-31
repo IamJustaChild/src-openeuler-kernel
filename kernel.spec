@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       185
+%global devel_release       186
 %global maintenance_release .0.0
-%global pkg_release         .87
+%global pkg_release         .88
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -943,6 +943,109 @@ fi
 %endif
 
 %changelog
+* Wed Jan 31 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-186.0.0.88
+- !4327 【OLK-5.10】cgroup_writeback: fix deadlock in cgroup1_writeback
+- !4280 v2  fs:/dcache.c: fix negative dentry limit not complete problem
+- !4321  io_uring/af_unix: disable sending io_uring over sockets
+- !4290  net/rds: Fix UBSAN: array-index-out-of-bounds in rds_cmsg_recv
+- cgroup_writeback: fix deadlock in cgroup1_writeback
+- !4266  ksmbd: fix slab-out-of-bounds in smb_strndup_from_utf16()
+- io_uring/af_unix: disable sending io_uring over sockets
+- !4262 [sync] PR-4255:  drm/amdgpu: Fix potential fence use-after-free v2
+- !4268  linux Mainline ubifs Fix Patch bacnport to 5.10
+- net/rds: Fix UBSAN: array-index-out-of-bounds in rds_cmsg_recv
+- !4270  fix spinlock already unlocked in inet_csk_reqsk_queue_add' bug
+- fs:/dcache.c: fix negative dentry limit not complete problem
+- Revert "fs:/dcache.c: fix negative dentry limit not complete problem"
+- !4257  nfc: nci: fix possible NULL pointer dereference in send_acknowledge()
+- !4032 intel: add TPMI base driver support for GNR
+- !3372 Cluster scheduler support
+- ipv6: init the accept_queue's spinlocks in inet6_create
+- tcp: make sure init the accept_queue's spinlocks once
+- ubifs: fix possible dereference after free
+- ubi: block: Fix use-after-free in ubiblock_cleanup
+- Revert "mtd/ubi/block: Fix uaf problem in ubiblock_cleanup"
+- !4003  ext4: fix some ext4_lblk_t overflow issues
+- ksmbd: fix slab-out-of-bounds in smb_strndup_from_utf16()
+- drm/amdgpu: Fix potential fence use-after-free v2
+- nfc: nci: fix possible NULL pointer dereference in send_acknowledge()
+- !4149  block: remove precise_iostat
+- !4213  netlink: fix potential sleeping issue in mqueue_flush_file
+- !4121 Init support for ppc64le
+- netlink: fix potential sleeping issue in mqueue_flush_file
+- !4203  mm/dynamic_hugetlb: skip unexpected migration
+- mm/dynamic_hugetlb: skip unexpected migration
+- !3228  net: txgbe: Fix memleak in txgbe_calc_eeprom_checksum()
+- !4167  sched/fair: Fix qos_timer deadlock when cpuhp offline
+- !3134  Add MODULE_FIRMWARE() for FIRMWARE_TG357766.
+- !4015  drm/amdgpu: correct the amdgpu runtime dereference usage count
+- !4014  drm/dp_mst: Fix NULL deref in get_mst_branch_device_by_guid_helper()
+- !4013  drm/amdgpu: correct chunk_ptr to a pointer to chunk.
+- !4012  drm/amdgpu: Fix a null pointer access when the smc_rreg pointer is NULL
+- !4010  drm/amd/display: Exit idle optimizations before attempt to access PHY
+- !3955  drm/radeon: possible buffer overflow
+- !3634 Intel: Backport Granite Rapids(GNR) core PMU support to OLK-5.10
+- sched/fair: Fix qos_timer deadlock when cpuhp offline
+- block: remove precise_iostat
+- arch: powerpc: add openeuler_defconfig file support for ppc64le compile
+- sched,x86: enable CONFIG_SCHED_CLUSTER in openeuler_defconfig
+- tools headers cpufeatures: Sync with the kernel sources
+- topology: Remove unused cpu_cluster_mask()
+- sched,x86: Don't use cluster topology for x86 hybrid CPUs
+- x86/smp: Factor out parts of native_smp_prepare_cpus()
+- sched,x86: Fix L2 cache mask
+- sched: Add cluster scheduler level for x86
+- x86/cpufeatures: Enumerate Intel Hybrid Technology feature bit
+- config: update PMT and TPMI openeuler_defconfig for x86
+- platform/x86/intel/vsec: Fix xa_alloc memory leak
+- platform/x86/intel/tpmi: Add defines to get version information
+- platform/x86/intel/tpmi: Add debugfs support for read/write blocked
+- platform/x86/intel/tpmi: Add debugfs interface
+- lib/string_helpers: Introduce parse_int_array_user()
+- lib/cmdline: Allow get_options() to take 0 to validate the input
+- platform/x86/intel/tpmi: Read feature control status
+- platform/x86/intel/tpmi: Prevent overflow for cap_offset
+- platform/x86/intel: tpmi: Remove hardcoded unit and offset
+- platform/x86/intel: tpmi: Revise the comment of intel_vsec_add_aux
+- platform/x86/intel: tpmi: Fix double free in tpmi_create_device()
+- platform/x86/intel/tpmi: Fix double free reported by Smatch
+- platform/x86/intel/tpmi: ADD tpmi external interface for tpmi feature drivers
+- platform/x86/intel/tpmi: Process CPU package mapping
+- platform/x86/intel: Intel TPMI enumeration driver
+- platform/x86/intel: vsec: Use intel_vsec_dev_release() to simplify init() error cleanup
+- platform/x86/intel: vsec: Explicitly enable capabilities
+- platform/x86/intel: vsec: Fix a memory leak in intel_vsec_add_aux
+- platform/x86/intel/vsec: Use mutex for ida_alloc() and ida_free()
+- platform/x86/intel/vsec: Support private data
+- platform/x86/intel/vsec: Enhance and Export intel_vsec_add_aux()
+- platform/x86/intel/vsec: Add TPMI ID
+- platform/x86/intel/vsec: Fix wrong type for local status variables
+- platform/x86/intel/vsec: Add PCI error recovery support to Intel PMT
+- platform/x86/intel/pmt: Ignore uninitialized entries
+- platform/x86/intel/pmt: Add INTEL_PMT module namespace
+- platform/x86/intel/pmt: telemetry: Fix fixed region handling
+- platform/x86/intel/vsec: Rework early hardware code
+- platform/x86/intel: Fix pmt_crashlog array reference
+- platform/x86/intel: Fix 'rmmod pmt_telemetry' panic
+- platform/x86/intel: Move intel_pmt from MFD to Auxiliary Bus
+- driver core: auxiliary bus: Add driver data helpers
+- drm/amdgpu: correct the amdgpu runtime dereference usage count
+- drm/dp_mst: Fix NULL deref in get_mst_branch_device_by_guid_helper()
+- drm/amdgpu: correct chunk_ptr to a pointer to chunk.
+- drm/amdgpu: Fix a null pointer access when the smc_rreg pointer is NULL
+- drm/amd/display: Exit idle optimizations before attempt to access PHY
+- ext4: prevent the normalized size from exceeding EXT_MAX_BLOCKS
+- ext4: avoid overlapping preallocations due to overflow
+- ext4: fix BUG in ext4_mb_new_inode_pa() due to overflow
+- ext4: add two helper functions extent_logical_end() and pa_logical_end()
+- drm/radeon: possible buffer overflow
+- perf/x86/intel: Fix the FRONTEND encoding on GNR and MTL
+- perf/x86/cstate: Add Granite Rapids support
+- perf/x86/msr: Add Granite Rapids
+- perf/x86/intel: Add Granite Rapids
+- net: txgbe: Fix memleak in txgbe_calc_eeprom_checksum()
+- Add MODULE_FIRMWARE() for FIRMWARE_TG357766.
+
 * Tue Jan 25 2024 jiahua.yu <jiahua.yu@shingroup.cn> - 5.10.0-185.0.0.88
 - init support for arch ppc64le
 
