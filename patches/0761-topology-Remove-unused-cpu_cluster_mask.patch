@@ -1,0 +1,49 @@
+From 70b392a77b5436b9020266a55cb80ad048c2ffba Mon Sep 17 00:00:00 2001
+From: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Date: Fri, 13 May 2022 11:34:33 +0200
+Subject: [PATCH 04/19] topology: Remove unused cpu_cluster_mask()
+
+mainline inclusion
+from mainline-v5.19-rc1
+commit 15f214f9bdb7c1f560b4bf863c5a72ff53b442a4
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I4GEZS
+Reference: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=15f214f9bdb7c1f560b4bf863c5a72ff53b442a4
+
+------------------------------------------------------------------------
+
+default_topology[] uses cpu_clustergroup_mask() for the CLS level
+(guarded by CONFIG_SCHED_CLUSTER) which is currently provided by x86
+(arch/x86/kernel/smpboot.c) and arm64 (drivers/base/arch_topology.c).
+
+Fixes: 778c558f49a2 ("sched: Add cluster scheduler level in core and related Kconfig for ARM64")
+Acked-by: Barry Song <baohua@kernel.org>
+Signed-off-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Link: https://lore.kernel.org/r/20220513093433.425163-1-dietmar.eggemann@arm.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Jiang Yi <jiangyi38@hisilicon.com>
+---
+ include/linux/topology.h | 7 -------
+ 1 file changed, 7 deletions(-)
+
+diff --git a/include/linux/topology.h b/include/linux/topology.h
+index 9033a952ee68..9a7753fcae6a 100644
+--- a/include/linux/topology.h
++++ b/include/linux/topology.h
+@@ -215,13 +215,6 @@ static inline const struct cpumask *cpu_smt_mask(int cpu)
+ }
+ #endif
+ 
+-#if defined(CONFIG_SCHED_CLUSTER) && !defined(cpu_cluster_mask)
+-static inline const struct cpumask *cpu_cluster_mask(int cpu)
+-{
+-	return topology_cluster_cpumask(cpu);
+-}
+-#endif
+-
+ static inline const struct cpumask *cpu_cpu_mask(int cpu)
+ {
+ 	return cpumask_of_node(cpu_to_node(cpu));
+-- 
+2.23.0
+

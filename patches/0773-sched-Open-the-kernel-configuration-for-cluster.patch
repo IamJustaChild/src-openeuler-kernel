@@ -1,0 +1,35 @@
+From 43a06b04e4eb28df96358685784e7e1f1de03f17 Mon Sep 17 00:00:00 2001
+From: Jie Liu <liujie375@h-partners.com>
+Date: Mon, 24 Oct 2022 09:34:57 +0800
+Subject: [PATCH 16/19] sched:Open the kernel configuration for cluster.
+
+kunpeng inclusion
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/I5W44S
+
+----------------------------------------------------------------------
+
+In the past configuration, CONFIG_SCHED_CLUSTER was not set. Now, we need
+to open the configuration.
+
+Signed-off-by: Jie Liu <liujie375@h-partners.com>
+Signed-off-by: Jiang Yi <jiangyi38@hisilicon.com>
+---
+ arch/arm64/configs/openeuler_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm64/configs/openeuler_defconfig b/arch/arm64/configs/openeuler_defconfig
+index ded320901f60..8314f1fe1aec 100644
+--- a/arch/arm64/configs/openeuler_defconfig
++++ b/arch/arm64/configs/openeuler_defconfig
+@@ -421,6 +421,7 @@ CONFIG_ARM64_PA_BITS=48
+ CONFIG_SCHED_MC=y
+ # CONFIG_SCHED_SMT is not set
+ CONFIG_NR_CPUS=1024
++CONFIG_SCHED_CLUSTER=y
+ CONFIG_HOTPLUG_CPU=y
+ # CONFIG_ARM64_BOOTPARAM_HOTPLUG_CPU0 is not set
+ CONFIG_ARM64_ERR_RECOV=y
+-- 
+2.23.0
+
