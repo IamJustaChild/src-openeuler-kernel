@@ -25,7 +25,7 @@
 %global upstream_sublevel   0
 %global devel_release       6
 %global maintenance_release .0.0
-%global pkg_release         .3
+%global pkg_release         .4
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -932,6 +932,9 @@ fi
 %endif
 
 %changelog
+* Wed Jan 31 2024 Jialin Zhang <zhangjialin11@huawei.com> - 6.6.0-6.0.0.4
+- Module.kabi_aarch64 and Module.kabi_x86_64 v1
+
 * Tue Jan 23 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 6.6.0-6.0.0.3
 - !4087  backport two page_owner patchsets:
 - mm/page_owner: record and dump free_pid and free_tgid
