@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2402.1.0
+%global hulkrelease 2402.4.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0237
+Release: %{hulkrelease}.0238
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,29 @@ fi
 %endif
 
 %changelog
+
+* Mon Feb 05 2024 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2402.4.0.0238
+- !4454  netfilter: nf_tables: reject QUEUE/DROP verdict parameters
+- netfilter: nf_tables: reject QUEUE/DROP verdict parameters
+- !4411 v2  drm/atomic: Fix potential use-after-free in nonblocking commits
+- !4412 v3  Save and restore msg_namelen in sock_sendmsg
+- net: Save and restore msg_namelen in sock_sendmsg
+- net: prevent rewrite of msg_name in sock_sendmsg()
+- !4399  net: dst: Optimized route gc
+- drm/atomic: Fix potential use-after-free in nonblocking commits
+- !4392 linux-4.19.y inclusion
+- !4369  mm/filemap: avoid buffered read/write race to read inconsistent data
+- net/dst: use a smaller percpu_counter batch for dst entries accounting
+- net: add a route cache full diagnostic message
+- net: check dev->gso_max_size in gso_features_check()
+- net: warn if gso_type isn't set for a GSO SKB
+- mm: fix unmap_mapping_range high bits shift bug
+- x86/alternatives: Sync core before enabling interrupts
+- mm/filemap: avoid buffered read/write race to read inconsistent data
+- !4360  net/sched: sch_hfsc: upgrade 'rt' to 'sc' when it becomes a inner curve
+- !4320  io_uring/af_unix: disable sending io_uring over sockets
+- net/sched: sch_hfsc: upgrade 'rt' to 'sc' when it becomes a inner curve
+- io_uring/af_unix: disable sending io_uring over sockets
 
 * Tue Jan 30 2024 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2402.1.0.0237
 - !4277  fs:/dcache.c: fix negative dentry limit not complete problem
