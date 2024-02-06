@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       186
+%global devel_release       187
 %global maintenance_release .0.0
-%global pkg_release         .88
+%global pkg_release         .89
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -943,6 +943,31 @@ fi
 %endif
 
 %changelog
+* Tue Feb 06 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-187.0.0.89
+- !4496 [sync] PR-4362:  ubifs: Queue up space reservation tasks if retrying many times
+- !4461  netfilter: nf_tables: reject QUEUE/DROP verdict parameters
+- ubifs: Queue up space reservation tasks if retrying many times
+- !4484 v4  Using smmu IIDR registers
+- iommu/arm-smmu-v3: Enable iotlb_sync_map according to SMMU_IIDR
+- Revert "iommu/arm-smmu-v3: Add a SYNC command to avoid broken page table prefetch"
+- netfilter: nf_tables: reject QUEUE/DROP verdict parameters
+- !3861  nvme: sanitize metadata bounce buffer for reads
+- !4256  scsi: core: Always send batch on reset or error handling command
+- scsi: core: Always send batch on reset or error handling command
+- Revert "scsi: core: Add scsi_prot_ref_tag() helper"
+- Revert "scsi: core: Introduce scsi_get_sector()"
+- Revert "scsi: core: Make scsi_get_lba() return the LBA"
+- Revert "scsi: core: Use scsi_cmd_to_rq() instead of scsi_cmnd.request"
+- Revert "scsi: core: Use a structure member to track the SCSI command submitter"
+- Revert "scsi: core: Always send batch on reset or error handling command"
+- scsi: core: Always send batch on reset or error handling command
+- scsi: core: Use a structure member to track the SCSI command submitter
+- scsi: core: Use scsi_cmd_to_rq() instead of scsi_cmnd.request
+- scsi: core: Make scsi_get_lba() return the LBA
+- scsi: core: Introduce scsi_get_sector()
+- scsi: core: Add scsi_prot_ref_tag() helper
+- nvme: sanitize metadata bounce buffer for reads
+
 * Wed Jan 31 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-186.0.0.88
 - !4327 【OLK-5.10】cgroup_writeback: fix deadlock in cgroup1_writeback
 - !4280 v2  fs:/dcache.c: fix negative dentry limit not complete problem
