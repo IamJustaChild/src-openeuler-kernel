@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       153
-%global maintenance_release .41.0
-%global pkg_release         .119
+%global maintenance_release .42.0
+%global pkg_release         .120
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -878,6 +878,65 @@ fi
 %endif
 
 %changelog
+* Tue Feb 06 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.42.0.120
+- !4499 [sync] PR-4362:  ubifs: Queue up space reservation tasks if retrying many times
+- !4448 [sync] PR-4321:  io_uring/af_unix: disable sending io_uring over sockets
+- ubifs: Queue up space reservation tasks if retrying many times
+- !4097 [sync] PR-4090:  ida: Fix crash in ida_free when the bitmap is empty
+- !4421 v2  drm/atomic: Fix potential use-after-free in nonblocking commits
+- io_uring/af_unix: disable sending io_uring over sockets
+- !4119 [sync] PR-3975:  md/raid1-10: limit the number of plugged bio
+- !4276 [sync] PR-3134:  Add MODULE_FIRMWARE() for FIRMWARE_TG357766.
+- drm/atomic: Fix potential use-after-free in nonblocking commits
+- !3860 [sync] PR-3756:  md: mainline backport
+- !4283 [sync] PR-4270:  fix spinlock already unlocked in inet_csk_reqsk_queue_add' bug
+- !4234 [sync] PR-3228:  net: txgbe: Fix memleak in txgbe_calc_eeprom_checksum()
+- !4195 [sync] PR-4015:  drm/amdgpu: correct the amdgpu runtime dereference usage count
+- !4192 [sync] PR-4014:  drm/dp_mst: Fix NULL deref in get_mst_branch_device_by_guid_helper()
+- !4189 [sync] PR-4013:  drm/amdgpu: correct chunk_ptr to a pointer to chunk.
+- !4188 [sync] PR-4012:  drm/amdgpu: Fix a null pointer access when the smc_rreg pointer is NULL
+- !4184 [sync] PR-4010:  drm/amd/display: Exit idle optimizations before attempt to access PHY
+- !4183 [sync] PR-3955:  drm/radeon: possible buffer overflow
+- !4227 [sync] PR-4149:  block: remove precise_iostat
+- !4350 [sync] PR-4268:  linux Mainline ubifs Fix Patch bacnport to 5.10
+- ubifs: fix possible dereference after free
+- ubi: block: Fix use-after-free in ubiblock_cleanup
+- Revert "mtd/ubi/block: Fix uaf problem in ubiblock_cleanup"
+- ipv6: init the accept_queue's spinlocks in inet6_create
+- tcp: make sure init the accept_queue's spinlocks once
+- Add MODULE_FIRMWARE() for FIRMWARE_TG357766.
+- net: txgbe: Fix memleak in txgbe_calc_eeprom_checksum()
+- block: remove precise_iostat
+- drm/amdgpu: correct the amdgpu runtime dereference usage count
+- drm/dp_mst: Fix NULL deref in get_mst_branch_device_by_guid_helper()
+- drm/amdgpu: correct chunk_ptr to a pointer to chunk.
+- drm/amdgpu: Fix a null pointer access when the smc_rreg pointer is NULL
+- drm/amd/display: Exit idle optimizations before attempt to access PHY
+- drm/radeon: possible buffer overflow
+- md/raid1-10: fix casting from randomized structure in raid1_submit_write()
+- md/raid1-10: limit the number of plugged bio
+- md/raid1-10: don't handle pluged bio by daemon thread
+- md/md-bitmap: add a new helper to unplug bitmap asynchrously
+- md/raid1-10: submit write io directly if bitmap is not enabled
+- md/raid1-10: factor out a helper to submit normal write
+- md/raid1-10: factor out a helper to add bio to plug
+- md/raid10: prevent soft lockup while flush writes
+- md: raid1/raid10: drop pending_cnt
+- md: drop queue limitation for RAID1 and RAID10
+- Revert "md/raid10: fix softlockup in raid10_unplug"
+- ida: Fix crash in ida_free when the bitmap is empty
+- md: fix error handling in md_alloc
+- md: Constify attribute_group structs
+- md: fix mddev->kobj lifetime
+- md: properly unwind when failing to add the kobject in md_alloc
+- md: extend disks_mutex coverage
+- md: add the bitmap group to the default groups for the md kobject
+- md: add error handling support for add_disk()
+- md: convert to blk_alloc_disk/blk_cleanup_disk
+- md/raid10: fix improper BUG_ON() in raise_barrier()
+- md: use msleep() in md_notify_reboot()
+- md: fix double free of mddev->private in autorun_array()
+
 * Wed Jan 31 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.41.0.119
 - !4336 [sync] PR-4289:  fs:/dcache.c: fix negative dentry limit not complete problem
 - !4326 [sync] PR-4266:  ksmbd: fix slab-out-of-bounds in smb_strndup_from_utf16()
