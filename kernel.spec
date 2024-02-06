@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .62.0
-%global pkg_release         .142
+%global maintenance_release .63.0
+%global pkg_release         .143
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,77 @@ fi
 %endif
 
 %changelog
+* Tue Feb 06 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.63.0.143
+- !4498 [sync] PR-4362:  ubifs: Queue up space reservation tasks if retrying many times
+- !4447 [sync] PR-4321:  io_uring/af_unix: disable sending io_uring over sockets
+- ubifs: Queue up space reservation tasks if retrying many times
+- !4096 [sync] PR-4090:  ida: Fix crash in ida_free when the bitmap is empty
+- !4420 v2  drm/atomic: Fix potential use-after-free in nonblocking commits
+- io_uring/af_unix: disable sending io_uring over sockets
+- !4118 [sync] PR-3975:  md/raid1-10: limit the number of plugged bio
+- drm/atomic: Fix potential use-after-free in nonblocking commits
+- !3859 [sync] PR-3756:  md: mainline backport
+- !4282 [sync] PR-4270:  fix spinlock already unlocked in inet_csk_reqsk_queue_add' bug
+- !4239 [sync] PR-3228:  net: txgbe: Fix memleak in txgbe_calc_eeprom_checksum()
+- !3362 [sync] PR-1680:  nvme-pci: fix doorbell buffer value endianness
+- !3361 [sync] PR-2188:  nvme-pci: fix mempool alloc size
+- !3023 [sync] PR-1666:  nvme-pci: fix timeout request state check
+- !3359 [sync] PR-2287:  scsi: lpfc: Fix ioremap issues in lpfc_sli4_pci_mem_setup()
+- !3358 [sync] PR-2286:  scsi: lpfc: Prevent lpfc_debugfs_lockstat_write() buffer overflow
+- !3355 [sync] PR-1779:  nvme-pci: clear the prp2 field when not used
+- !3354 [sync] PR-1778:  nvme-pci: fix DMA direction of unmapping integrity data
+- !4194 [sync] PR-4015:  drm/amdgpu: correct the amdgpu runtime dereference usage count
+- !4191 [sync] PR-4014:  drm/dp_mst: Fix NULL deref in get_mst_branch_device_by_guid_helper()
+- !4187 [sync] PR-4013:  drm/amdgpu: correct chunk_ptr to a pointer to chunk.
+- !4186 [sync] PR-4012:  drm/amdgpu: Fix a null pointer access when the smc_rreg pointer is NULL
+- !4182 [sync] PR-4010:  drm/amd/display: Exit idle optimizations before attempt to access PHY
+- !4181 [sync] PR-3955:  drm/radeon: possible buffer overflow
+- !4226 [sync] PR-4149:  block: remove precise_iostat
+- !4349 [sync] PR-4268:  linux Mainline ubifs Fix Patch bacnport to 5.10
+- ubifs: fix possible dereference after free
+- ubi: block: Fix use-after-free in ubiblock_cleanup
+- Revert "mtd/ubi/block: Fix uaf problem in ubiblock_cleanup"
+- ipv6: init the accept_queue's spinlocks in inet6_create
+- tcp: make sure init the accept_queue's spinlocks once
+- net: txgbe: Fix memleak in txgbe_calc_eeprom_checksum()
+- block: remove precise_iostat
+- drm/amdgpu: correct the amdgpu runtime dereference usage count
+- drm/dp_mst: Fix NULL deref in get_mst_branch_device_by_guid_helper()
+- drm/amdgpu: correct chunk_ptr to a pointer to chunk.
+- drm/amdgpu: Fix a null pointer access when the smc_rreg pointer is NULL
+- drm/amd/display: Exit idle optimizations before attempt to access PHY
+- drm/radeon: possible buffer overflow
+- md/raid1-10: fix casting from randomized structure in raid1_submit_write()
+- md/raid1-10: limit the number of plugged bio
+- md/raid1-10: don't handle pluged bio by daemon thread
+- md/md-bitmap: add a new helper to unplug bitmap asynchrously
+- md/raid1-10: submit write io directly if bitmap is not enabled
+- md/raid1-10: factor out a helper to submit normal write
+- md/raid1-10: factor out a helper to add bio to plug
+- md/raid10: prevent soft lockup while flush writes
+- md: raid1/raid10: drop pending_cnt
+- md: drop queue limitation for RAID1 and RAID10
+- Revert "md/raid10: fix softlockup in raid10_unplug"
+- ida: Fix crash in ida_free when the bitmap is empty
+- md: fix error handling in md_alloc
+- md: Constify attribute_group structs
+- md: fix mddev->kobj lifetime
+- md: properly unwind when failing to add the kobject in md_alloc
+- md: extend disks_mutex coverage
+- md: add the bitmap group to the default groups for the md kobject
+- md: add error handling support for add_disk()
+- md: convert to blk_alloc_disk/blk_cleanup_disk
+- md/raid10: fix improper BUG_ON() in raise_barrier()
+- md: use msleep() in md_notify_reboot()
+- md: fix double free of mddev->private in autorun_array()
+- nvme-pci: fix doorbell buffer value endianness
+- nvme-pci: fix mempool alloc size
+- scsi: lpfc: Fix ioremap issues in lpfc_sli4_pci_mem_setup()
+- scsi: lpfc: Prevent lpfc_debugfs_lockstat_write() buffer overflow
+- nvme-pci: clear the prp2 field when not used
+- nvme-pci: fix DMA direction of unmapping integrity data
+- nvme-pci: fix timeout request state check
+
 * Wed Jan 31 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.62.0.142
 - !4335 [sync] PR-4289:  fs:/dcache.c: fix negative dentry limit not complete problem
 - !4325 [sync] PR-4266:  ksmbd: fix slab-out-of-bounds in smb_strndup_from_utf16()
