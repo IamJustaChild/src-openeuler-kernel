@@ -23,9 +23,9 @@
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       6
+%global devel_release       9
 %global maintenance_release .0.0
-%global pkg_release         .3
+%global pkg_release         .4
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -932,6 +932,677 @@ fi
 %endif
 
 %changelog
+* Wed Feb 7 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 6.6.0-9.0.0.4
+- !4545 add sw64 architecture support
+- sw64: add signal handling support
+- sw64: add system call support
+- sw64: add hugetlb support
+- sw64: add memory management
+- sw64: add hardware match support
+- sw64: add process management
+- sw64: add exception handling support
+- sw64: add irq handling support
+- sw64: add timer support
+- sw64: add topology setup routine
+- sw64: add boot and setup routines
+- sw64: add some other headers
+- sw64: add ELF support
+- sw64: add common headers
+- sw64: add atomic/locking headers
+- sw64: add CPU definition headers
+- sw64: add build infrastructure
+- !4423  kabi: reserve space for pci subsystem and thread_info
+- kabi: reserve space for pci subsystem related structure
+- kabi: reserve space for thread_info structure
+- !3997 [OLK-6.6] openEuler-24.03 Phytium S2500 IPMI adaption
+- ipmi_si: Phytium S2500 workaround for MMIO-based IPMI
+- !3841 Add support for Hygon family 18h model 5h HD-Audio
+- ALSA: hda: Fix single byte writing issue for Hygon family 18h model 5h
+- ALSA: hda: Add support for Hygon family 18h model 5h HD-Audio
+- !3835 Add support for Hygon model 6h L3 PMU
+- perf/x86/uncore: Add L3 PMU support for Hygon family 18h model 6h
+- !3698 enable ARM64/X86_64 CONFIG_MPTCP/CONFIG_MPTCP_IPV6 config
+- mptcp: enable config CONFIG_MPTCP and CONFIG_MPTCP_IPV6
+- !3696 enable ARM64/X86 CONFIG_XDP_SOCKET、CONFIG_XDP_SOCKETS_DIAG config
+- xdp: enable config CONFIG_XDP_SOCKETS and CONFIG_XDP_SOCKETS_DIAG
+- !3183 [OLK-6.6] Add support Zhaoxin GPIO pinctrl
+- configs: add CONFIG_PINCTRL_ZHAOXIN and KX7000 to m
+- Add support Zhaoxin GPIO pinctrl
+- !4539  nvme: kabi: KABI reservation for nvme_ctrl
+- nvme: kabi: KABI reservation for nvme_ctrl
+- !4527 v3  block: kabi: KABI reservation for blk-cgroup
+- block: kabi: KABI reservation for blk-cgroup
+- !4554 v3  kabi: Reserve KABI slots for fs module
+- sysfs: kabi: Reserve KABI slots for bin_attribute struct
+- profs: kabi: Reserve KABI slots for proc_ops struct
+- dax: kabi: Reserve KABI slots for dax_* struct
+- fs: kabi: Reserve KABI slots for nameidata struct
+- xattr: kabi: Reserve KABI slots for xattr_handler struct
+- kernfs: kabi: Reserve KABI slots for kernfs_* struct
+- fanotify: kabi: Reserve KABI slots for fsnotify_* struct
+- fscrypt: kabi: Reserve KABI slots for fscrypt_operations struct
+- !3932  [OLK-6.6] 同步OLK-5.10 SMMU HTTU补丁
+- iommu/arm-smmu-v3: Add Arm SMMU HTTU config
+- vfio/iommu_type1: Add support for manual dirty log clear
+- vfio/iommu_type1: Optimize dirty bitmap population based on iommu HWDBM
+- vfio/iommu_type1: Add HWDBM status maintenance
+- iommu/arm-smmu-v3: Realize support_dirty_log iommu ops
+- iommu/arm-smmu-v3: Realize clear_dirty_log iommu ops
+- iommu/arm-smmu-v3: Realize sync_dirty_log iommu ops
+- iommu/arm-smmu-v3: Realize switch_dirty_log iommu ops
+- iommu/arm-smmu-v3: Add feature detection for BBML
+- iommu/arm-smmu-v3: Enable HTTU for stage1 with io-pgtable mapping
+- iommu/io-pgtable-arm: Add and realize clear_dirty_log ops
+- iommu/io-pgtable-arm: Add and realize sync_dirty_log ops
+- iommu/io-pgtable-arm: Add and realize merge_page ops
+- iommu/io-pgtable-arm: Add and realize split_block ops
+- iommu/io-pgtable-arm: Add __arm_lpae_set_pte
+- iommu/io-pgtable-arm: Add quirk ARM_HD and ARM_BBMLx
+- iommu: Introduce dirty log tracking framework
+- iommu/arm-smmu-v3: Add support for Hardware Translation Table Update
+- !4560 v5  block: reserve kabi space for general block layer structures
+- block: reserve kabi space for general block layer structures
+- !4168  Reserve syscall entries for kabi compatibility
+- kabi: Reserve syscall entries for kabi compatibility
+- arch: Reserve map_shadow_stack() syscall number for all architectures
+- !4532 v2  fscache: reserve kabi for fscache structures
+- fscache: reserve kabi for fscache structures
+- !4543 v2  fs/dcache: kabi: KABI reservation for dentry
+- fs/dcache: kabi: KABI reservation for dentry
+- !4533  quota: kabi: KABI reservation for quota
+- quota: kabi: KABI reservation for quota
+- !4528 v3  jbd2: kabi: KABI reservation for jbd2
+- jbd2: kabi: KABI reservation for jbd2
+- !4483  block: kabi: KABI reservation for iocontext
+- block: kabi: KABI reservation for iocontext
+- !4455  scsi: iscsi: kabi: KABI reservation for scsi_transport_iscsi.h
+- scsi: iscsi: kabi: KABI reservation for scsi_transport_iscsi.h
+- !4456  scsi: scsi_transport_fc: kabi: KABI reservation for scsi_transport_fc
+- scsi: scsi_transport_fc: kabi: KABI reservation for scsi_transport_fc
+- !4472  nvmet-fc: kabi: KABI reservation for nvme_fc_port_template
+- nvmet-fc: kabi: KABI reservation for nvme_fc_port_template
+- !4474  scsi: libsas: kabi: KABI reservation for libsas
+- scsi: libsas: kabi: KABI reservation for libsas
+- !4463 RDMA/hns: Backport bugfix
+- RDMA/hns: Fix memory leak in free_mr_init()
+- RDMA/hns: Remove unnecessary checks for NULL in mtr_alloc_bufs()
+- RDMA/hns: Add a max length of gid table
+- RDMA/hns: Response dmac to userspace
+- RDMA/hns: Rename the interrupts
+- RDMA/hns: Support SW stats with debugfs
+- RDMA/hns: Add debugfs to hns RoCE
+- RDMA/hns: Fix inappropriate err code for unsupported operations
+- !3838 Add support for Hygon model 4h EDAC
+- EDAC/amd64: Adjust UMC channel for Hygon family 18h model 6h
+- EDAC/amd64: Add support for Hygon family 18h model 6h
+- EDAC/amd64: Add support for Hygon family 18h model 5h
+- EDAC/mce_amd: Use struct cpuinfo_x86.logical_die_id for Hygon NodeId
+- EDAC/amd64: Adjust address translation for Hygon family 18h model 4h
+- EDAC/amd64: Add support for Hygon family 18h model 4h
+- EDAC/amd64: Get UMC channel from the 6th nibble for Hygon
+- !4408 v2  kabi: reserve space for struct acpi_device and acpi_scan_handler
+- kabi: reserve space for struct acpi_device and acpi_scan_handler
+- !4495  KABI reservation for driver
+- audit: kabi: Remove extra semicolons
+- ipmi: kabi: KABI reservation for ipmi
+- mmc: kabi: KABI reservation for mmc
+- mtd: kabi: KABI reservation for mtd
+- tty: kabi: KABI reservation for tty
+- !3831 Add support for loading Hygon microcode
+- x86/microcode/hygon: Add microcode loading support for Hygon processors
+- !4356 【OLK-6.6】AMD: support the UMC Performance Counters for Zen4
+- perf vendor events amd: Add Zen 4 memory controller events
+- perf/x86/amd/uncore: Pass through error code for initialization failures, instead of -ENODEV
+- perf/x86/amd/uncore: Fix uninitialized return value in amd_uncore_init()
+- perf/x86/amd/uncore: Add memory controller support
+- perf/x86/amd/uncore: Add group exclusivity
+- perf/x86/amd/uncore: Use rdmsr if rdpmc is unavailable
+- perf/x86/amd/uncore: Move discovery and registration
+- perf/x86/amd/uncore: Refactor uncore management
+- !4494 v2  writeback: kabi: KABI reservation for writeback
+- writeback: kabi: KABI reservation for writeback
+- !4491  sched/rt: Fix possible warn when push_rt_task
+- sched/rt: Fix possible warn when push_rt_task
+- !4396 [OLK-6.6] perf/x86/zhaoxin/uncore: add NULL pointer check after kzalloc
+- perf/x86/zhaoxin/uncore: add NULL pointer check after kzalloc
+- !4405  mm: improve performance of accounted kernel memory allocations
+- mm: kmem: properly initialize local objcg variable in current_obj_cgroup()
+- mm: kmem: reimplement get_obj_cgroup_from_current()
+- percpu: scoped objcg protection
+- mm: kmem: scoped objcg protection
+- mm: kmem: make memcg keep a reference to the original objcg
+- mm: kmem: add direct objcg pointer to task_struct
+- mm: kmem: optimize get_obj_cgroup_from_current()
+- !4500  fs: kabi: KABI reservation for vfs
+- fs: kabi: KABI reservation for vfs
+- !4505  iov_iter: kabi: KABI reservation for iov_iter
+- iov_iter: kabi: KABI reservation for iov_iter
+- !4486 v2  openeuler_defconfig: enable CONFIG_PAGE_CACHE_LIMIT
+- openeuler_defconfig: enable CONFIG_PAGE_CACHE_LIMIT
+- !4489 【OLK-6.6】AMD: fix brstack event for AMD Zen CPU
+- perf/x86/amd: Reject branch stack for IBS events
+- !4376 [OLK-6.6] Add Phytium Display Engine support to the OLK-6.6.
+- DRM: Phytium display DRM doc
+- DRM: Phytium display DRM driver
+- !4385 v2  sched: remove __GENKSYMS__ used
+- sched: remove __GENKSYMS__ used
+- !4449  memory tiering: calculate abstract distance based on ACPI HMAT
+- dax, kmem: calculate abstract distance with general interface
+- acpi, hmat: calculate abstract distance with HMAT
+- acpi, hmat: refactor hmat_register_target_initiators()
+- memory tiering: add abstract distance calculation algorithms management
+- !4362  ubifs: Queue up space reservation tasks if retrying many times
+- ubifs: Queue up space reservation tasks if retrying many times
+- !4450  change zswap's default allocator to zsmalloc
+- openeuler_defconfig: set ZSWAP_ZPOOL_DEFAULT to ZSMALLOC
+- zswap: change zswap's default allocator to zsmalloc
+- !4298 misc for controlling fd
+- cgroup/misc: support cgroup misc to control fd
+- filescgroup: add adapter for legacy and misc cgroup
+- filescgroup: rename filescontrol.c to legacy-filescontrol.c
+- filescgroup: Add CONFIG_CGROUP_FILES at files_cgroup in files_struct
+- filescgroup: remove files of dfl_cftypes.
+- !4173  block: remove precise_iostat
+- block: remove precise_iostat
+- !4481  cred: kabi: KABI reservation for cred
+- cred: kabi: KABI reservation for cred
+- !4418  KABI: Add reserve space for sched structures
+- KABI: Reserve space for fwnode.h
+- KABI: Reserve space for struct module
+- fork: Allocate a new task_struct_resvd object for fork task
+- KABI: Add reserve space for sched structures
+- !4355 v4  kabi reserve for memcg and cgroup_bpf
+- cgroup_bpf/kabi: reserve space for cgroup_bpf related structures
+- memcg/kabi: reserve space for memcg related structures
+- !4476  net/kabi: Reserve space for net structures
+- net/kabi: Reserve space for net structures
+- !4440 v2  kabi:dma:add kabi reserve for dma_map_ops structure
+- kabi:dma:add kabi reserve for dma_map_ops structure
+- !4479  mm/memcontrol: fix out-of-bound access in mem_cgroup_sysctls_init
+- mm/memcontrol: fix out-of-bound access in mem_cgroup_sysctls_init
+- !4429  Remove unnecessary KABI reservation
+- crypto: kabi: Removed unnecessary KABI reservation
+- !4211  blk-mq: avoid housekeeping CPUs scheduling a worker on a non-housekeeping CPU
+- blk-mq: avoid housekeeping CPUs scheduling a worker on a non-housekeeping CPU
+- !4407  sched/topology: Fix cpus hotplug deadlock in check_node_limit()
+- sched/topology: Fix cpus hotplug deadlock in check_node_limit()
+- !4351  kabi: net: reserve space for net subsystem related structure
+- kabi: net: reserve space for net subsystem related structure
+- !4453  arm64/ascend: Make enable_oom_killer feature depends on ASCEND_FEATURE
+- arm64/ascend: Make enable_oom_killer feature depends on ASCEND_FEATURE
+- !4386  fix static scanning issues
+- bond: fix static scanning issue with bond_broadcast_arp_or_nd_table_header
+- tcp: fix static scanning issue with sysctl_local_port_allocation
+- !4403 v2  kabi: net: reserve space for net related structure
+- kabi: net: reserve space for net related structure
+- !4406 v2  net/kabi: reserve space for net related structures
+- net/kabi: reserve space for net related structures
+- !4398 v2  vfs: reserve kabi space for vfs related structures
+- vfs: reserve kabi space for vfs related structures
+- !4372  kabi: reserve space for struct rate_sample
+- kabi: reserve space for struct rate_sample
+- !4322  cgroup_writeback: fix deadlock
+- cgroup_writeback: fix deadlock in cgroup1_writeback
+- !4414 Support srq record doorbell and support query srq context
+- RDMA/hns: Support SRQ record doorbell
+- RDMA/hns: Support SRQ restrack ops for hns driver
+- RDMA/core: Add support to dump SRQ resource in RAW format
+- RDMA/core: Add dedicated SRQ resource tracker function
+- !4165  tlb: reserve fields for struct mmu_gather
+- tlb: reserve fields for struct mmu_gather
+- !4178  OLK-6.6 cred backport for kabi reserve
+- cred: get rid of CONFIG_DEBUG_CREDENTIALS
+- groups: Convert group_info.usage to refcount_t
+- cred: switch to using atomic_long_t
+- cred: add get_cred_many and put_cred_many
+- !4343 v3  reserve KABI slots for file system or storage related structures
+- mtd: kabi: Reserve KABI slots for mtd_device_xxx_register() related structures
+- pipe: kabi: Reserve KABI slots for pipe_inode_info structure
+- exportfs: kabi: Reserve KABI slots for export_operations structure
+- !4200  Expose swapcache stat for memcg v1
+- memcg: remove unused do_memsw_account in memcg1_stat_format
+- memcg: expose swapcache stat for memcg v1
+- !4140 backport some patches for kunpeng hccs
+- soc: hisilicon: kunpeng_hccs: Support the platform with PCC type3 and interrupt ack
+- doc: kunpeng_hccs: Fix incorrect email domain name
+- soc: hisilicon: kunpeng_hccs: Remove an unused blank line
+- soc: hisilicon: kunpeng_hccs: Add failure log for no _CRS method
+- soc: hisilicon: kunpeng_hccs: Fix some incorrect format strings
+- soc/hisilicon: kunpeng_hccs: Convert to platform remove callback returning void
+- soc: kunpeng_hccs: Migrate to use generic PCC shmem related macros
+- hwmon: (xgene) Migrate to use generic PCC shmem related macros
+- i2c: xgene-slimpro: Migrate to use generic PCC shmem related macros
+- ACPI: PCC: Add PCC shared memory region command and status bitfields
+- !3641  Make the cpuinfo_cur_freq interface read correctly
+- cpufreq: CPPC: Keep the target core awake when reading its cpufreq rate
+- arm64: cpufeature: Export cpu_has_amu_feat()
+- !4410  config: Update openeuler_defconfig base on current
+- config: x86: Update openeuler_defconfig base on current source code
+- config: arm64: Update openeuler_defconfig base on current source code
+- !4400 v2  soc: hisilicon: hisi_hbmdev: Fix compile error
+- soc: hisilicon: hisi_hbmdev: Fix compile error
+- !4397 v2  cryptd: kabi: Fixed boot panic
+- cryptd: kabi: Fixed boot panic
+- !4393 [OLK-6.6] crypto: sm4: fix the build warning issue of sm4 driver
+- crypto: sm4: fix the build warning issue of sm4 driver
+- !4368 cgroup/misc: fix compiling waring
+- cgroup/misc: fix compiling waring
+- !4364 [OLK-6.6] crypto: sm3/sm4: fix zhaoxin sm3/sm4 driver file name mismatch issue
+- crypto: sm3/sm4: fix zhaoxin sm3/sm4 driver file name mismatch issue
+- !4204  arm64: Turn on CONFIG_IPI_AS_NMI in openeuler_defconfig
+- arm64: Turn on CONFIG_IPI_AS_NMI in openeuler_defconfig
+- !4314  tracing: Reserve kabi fields
+- tracing: Reserve kabi fields
+- !4301 v3  kabi: reserve space for cpu cgroup and cpuset cgroup related structures
+- kabi: reserve space for cpu cgroup and cpuset cgroup related structures
+- !4177  kabi: reserve space for bpf related structures
+- kabi: reserve space for bpf related structures
+- !4354 v7  KABI reservation for IMA and crypto
+- ima: kabi: KABI reservation for IMA
+- crypto: kabi: KABI reservation for crypto
+- !4346 v2  pciehp: fix a race between pciehp and removing operations by sysfs
+- pciehp: fix a race between pciehp and removing operations by sysfs
+- !4146  tcp: fix compilation issue when CONFIG_SYSCTL is disabled
+- tcp: fix compilation issue when CONFIG_SYSCTL is disabled
+- !4066  smb: client: fix OOB in receive_encrypted_standard()
+- smb: client: fix OOB in receive_encrypted_standard()
+- !3995  net: config: enable network config
+- net: config: enable network config
+- !3745 【OLK-6.6】Support SMT control on arm64
+- config: enable CONFIG_HOTPLUG_SMT for arm64
+- arm64: Kconfig: Enable HOTPLUG_SMT
+- arm64: topology: Support SMT control on ACPI based system
+- arch_topology: Support SMT control for OF based system
+- arch_topology: Support basic SMT control for the driver
+- !4000  audit: kabi: KABI reservation for audit
+- audit: kabi: KABI reservation for audit
+- !4249  ubifs: fix possible dereference after free
+- ubifs: fix possible dereference after free
+- !3178 [OLK-6.6] Driver for Zhaoxin SM3 and SM4 algorithm
+- configs: Add Zhaoxin SM3 and SM4 algorithm configs
+- Add support for Zhaoxin GMI SM4 Block Cipher algorithm
+- Add support for Zhaoxin GMI SM3 Secure Hash algorithm
+- !4219  Initial cleanups for vCPU hotplug
+- riscv: convert to use arch_cpu_is_hotpluggable()
+- riscv: Switch over to GENERIC_CPU_DEVICES
+- LoongArch: convert to use arch_cpu_is_hotpluggable()
+- LoongArch: Use the __weak version of arch_unregister_cpu()
+- LoongArch: Switch over to GENERIC_CPU_DEVICES
+- x86/topology: convert to use arch_cpu_is_hotpluggable()
+- x86/topology: use weak version of arch_unregister_cpu()
+- x86/topology: Switch over to GENERIC_CPU_DEVICES
+- arm64: convert to arch_cpu_is_hotpluggable()
+- arm64: setup: Switch over to GENERIC_CPU_DEVICES using arch_register_cpu()
+- drivers: base: Print a warning instead of panic() when register_cpu() fails
+- drivers: base: Move cpu_dev_init() after node_dev_init()
+- drivers: base: add arch_cpu_is_hotpluggable()
+- drivers: base: Implement weak arch_unregister_cpu()
+- drivers: base: Allow parts of GENERIC_CPU_DEVICES to be overridden
+- drivers: base: Use present CPUs in GENERIC_CPU_DEVICES
+- ACPI: Move ACPI_HOTPLUG_CPU to be disabled on arm64 and riscv
+- Loongarch: remove arch_*register_cpu() exports
+- x86/topology: remove arch_*register_cpu() exports
+- x86: intel_epb: Don't rely on link order
+- arch_topology: Make register_cpu_capacity_sysctl() tolerant to late CPUs
+- arm64, irqchip/gic-v3, ACPI: Move MADT GICC enabled check into a helper
+- ACPI: scan: Rename acpi_scan_device_not_present() to be about enumeration
+- ACPI: scan: Use the acpi_device_is_present() helper in more places
+- !4215  pci: Enable acs for QLogic HBA cards
+- pci: Enable acs for QLogic HBA cards
+- !4267  ksmbd: fix slab-out-of-bounds in smb_strndup_from_utf16()
+- ksmbd: fix slab-out-of-bounds in smb_strndup_from_utf16()
+- !4317 [OLK-6.6] cputemp: zhaoxin: fix HWMON_THERMAL namespace not import issue
+- cputemp: zhaoxin: fix HWMON_THERMAL namespace not import issue.
+- !3682 cgroup and ns kabi reserve
+- cgroup/misc: reserve kabi for future misc development
+- cgroup/psi: reserve kabi for future psi development
+- namespace: kabi: reserve for future namespace development
+- cgroup: kabi: reserve space for cgroup frame
+- !4291 fs:/dcache.c: fix negative dentry limit not complete problem
+- fs:/dcache.c: fix negative dentry limit not complete problem
+- !4292 powerpc: Add PVN support for HeXin C2000 processor
+- powerpc: Add PVN support for HeXin C2000 processor
+- !3129 [OLK-6.6] Driver for Zhaoxin AES and SHA algorithm
+- Add Zhaoxin aes/sha items in openeuler_config
+- Add support for Zhaoxin SHA algorithm
+- Add support for Zhaoxin AES algorithm
+- !3959  kabi: mm: add kabi reserve for mm structure
+- kabi: mm: add kabi reserve for mm structure
+- !4046 [OLK-6.6] Add gic support for Phytium S2500
+- Add gic support for Phytium S2500
+- !3126 [OLK-6.6] Driver for Zhaoxin HW Random Number Generator
+- Add CONFIG_HW_RANDOM_ZHAOXIN in openeuler_defconfig
+- Add support for Zhaoxin HW Random Number Generator
+- !3169 [OLK-6.6] x86/perf: Add uncore performance events support for Zhaoxin CPU
+- x86/perf: Add uncore performance events support for Zhaoxin CPU
+- !3187 [OLK-6.6] Add support for Zhaoxin I2C controller
+- configs: add CONFIG_I2C_ZHAOXIN to m
+- Add support for Zhaoxin I2C controller
+- !4164  arch/mm/fault: fix major fault accounting when retrying under per-VMA lock
+- arch/mm/fault: fix major fault accounting when retrying under per-VMA lock
+- !3903  kabi: Reserve space for perf subsystem related structures
+- kabi: Reserve space for perf subsystem related structures
+- !4128  drm/qxl: Fix missing free_irq
+- drm/qxl: Fix missing free_irq
+- !4050  kabi: net: reserve space for net
+- kabi: net: reserve space for net sunrpc subsystem related structure
+- kabi: net: reserve space for net rdma subsystem related structure
+- kabi: net: reserve space for net netfilter subsystem related structure
+- kabi: net: reserve space for net can subsystem related structure
+- kabi: net: reserve space for net bpf subsystem related structure
+- kabi: net: reserve space for net base subsystem related structure
+- !3774 [OLK-6.6] sched/fair: Scan cluster before scanning LLC in wake-up path
+- sched/fair: Use candidate prev/recent_used CPU if scanning failed for cluster wakeup
+- sched/fair: Scan cluster before scanning LLC in wake-up path
+- sched: Add cpus_share_resources API
+- !3125 [OLK-6.6] Driver for Zhaoxin Serial ATA IDE
+- configs: enable CONFIG_SATA_ZHAOXIN to y
+- Add support for Zhaoxin Serial ATA IDE.
+- !4044  Set CONFIG_NODES_SHIFT to 8
+- openeuler_defconfig: set CONFIG_NODES_SHIFT to 8 for both x86_64/ARM64
+- x86/Kconfig: allow NODES_SHIFT to be set on MAXSMP
+- !3840 Remove Hygon SMBus IMC detecting
+- i2c-piix4: Remove the IMC detecting for Hygon SMBus
+- !3839 Add support for Hygon model 4h k10temp
+- hwmon/k10temp: Add support for Hygon family 18h model 5h
+- hwmon/k10temp: Add support for Hygon family 18h model 4h
+- !3837 Add support for Hygon model 4h northbridge
+- x86/amd_nb: Add support for Hygon family 18h model 6h
+- x86/amd_nb: Add support for Hygon family 18h model 5h
+- x86/amd_nb: Add northbridge support for Hygon family 18h model 4h
+- x86/amd_nb: Add Hygon family 18h model 4h PCI IDs
+- !4199  Support large folio for mlock
+- mm: mlock: avoid folio_within_range() on KSM pages
+- mm: mlock: update mlock_pte_range to handle large folio
+- mm: handle large folio when large folio in VM_LOCKED VMA range
+- mm: add functions folio_in_range() and folio_within_vma()
+- !4147  arm64: Add CONFIG_IPI_AS_NMI to IPI as NMI feature
+- arm64: Add CONFIG_IPI_AS_NMI to IPI as NMI feature
+- !4159 Backport iommufd dirty tracking from v6.7
+- iommu/vt-d: Set variable intel_dirty_ops to static
+- iommufd/selftest: Fix _test_mock_dirty_bitmaps()
+- iommufd/selftest: Fix page-size check in iommufd_test_dirty()
+- iommu/vt-d: Enhance capability check for nested parent domain allocation
+- iommufd/selftest: Test IOMMU_HWPT_GET_DIRTY_BITMAP_NO_CLEAR flag
+- iommufd/selftest: Test out_capabilities in IOMMU_GET_HW_INFO
+- iommufd/selftest: Test IOMMU_HWPT_GET_DIRTY_BITMAP
+- iommufd/selftest: Test IOMMU_HWPT_SET_DIRTY_TRACKING
+- iommufd/selftest: Test IOMMU_HWPT_ALLOC_DIRTY_TRACKING
+- iommufd/selftest: Expand mock_domain with dev_flags
+- iommu/vt-d: Access/Dirty bit support for SS domains
+- iommu/amd: Access/Dirty bit support in IOPTEs
+- iommu/amd: Add domain_alloc_user based domain allocation
+- iommufd: Add a flag to skip clearing of IOPTE dirty
+- iommufd: Add capabilities to IOMMU_GET_HW_INFO
+- iommufd: Add IOMMU_HWPT_GET_DIRTY_BITMAP
+- iommufd: Add IOMMU_HWPT_SET_DIRTY_TRACKING
+- iommufd: Add a flag to enforce dirty tracking on attach
+- iommufd: Correct IOMMU_HWPT_ALLOC_NEST_PARENT description
+- iommu: Add iommu_domain ops for dirty tracking
+- iommufd/iova_bitmap: Move symbols to IOMMUFD namespace
+- vfio: Move iova_bitmap into iommufd
+- vfio/iova_bitmap: Export more API symbols
+- iommufd/selftest: Rework TEST_LENGTH to test min_size explicitly
+- iommu/vt-d: Add domain_alloc_user op
+- iommufd/selftest: Add domain_alloc_user() support in iommu mock
+- iommufd/selftest: Iterate idev_ids in mock_domain's alloc_hwpt test
+- iommufd: Support allocating nested parent domain
+- iommufd: Flow user flags for domain allocation to domain_alloc_user()
+- iommufd: Use the domain_alloc_user() op for domain allocation
+- iommu: Add new iommu op to create domains owned by userspace
+- !4109  PCI: add a member in 'struct pci_bus' to record the original 'pci_ops'
+- PCI: add a member in 'struct pci_bus' to record the original 'pci_ops'
+- !4108  PCI/AER: increments pci bus reference count in aer-inject process
+- PCI/AER: increments pci bus reference count in aer-inject process
+- !4114  pci: do not save 'PCI_BRIDGE_CTL_BUS_RESET'
+- pci: do not save 'PCI_BRIDGE_CTL_BUS_RESET'
+- !4113  PCI: check BIR before mapping MSI-X Table
+- PCI: check BIR before mapping MSI-X Table
+- !4112  PCI: Fail MSI-X mapping if MSI-X Table offset is out of range of BAR space
+- PCI: Fail MSI-X mapping if MSI-X Table offset is out of range of BAR space
+- !4110  PCI: Add MCFG quirks for some Hisilicon Chip host controllers
+- PCI: Add MCFG quirks for some Hisilicon Chip host controllers
+- !4111  sysrq: avoid concurrently info printing by 'sysrq-trigger'
+- sysrq: avoid concurrently info printing by 'sysrq-trigger'
+- !4107  ntp: Avoid undefined behaviour in second_overflow()
+- ntp: Avoid undefined behaviour in second_overflow()
+- !4105  PCI/sysfs: Take reference on device to be removed
+- PCI/sysfs: Take reference on device to be removed
+- !3836 Add support for Hygon model 4h QoS
+- x86/resctrl: Add Hygon QoS support
+- !4154  Add per-node vmstat info and memcg info
+- mm/vmstat: move pgdemote_* out of CONFIG_NUMA_BALANCING
+- mm/vmstat: move pgdemote_* to per-node stats
+- mm: memcg: add THP swap out info for anonymous reclaim
+- !4170  mm/ksm: generalize ksm_process_profit
+- mm/ksm: generalize ksm_process_profit
+- !4120  arm_mpam: support mpam feature in OLK-6.6
+- arm_mpam: control memory bandwidth with hard limit flag
+- fs/resctrl: Remove the limit on the number of CLOSID
+- arm_mpam: resctrl: Update the rmid reallocation limit
+- arm_mpam: resctrl: Call resctrl_exit() in the event of errors
+- arm_mpam: resctrl: Tell resctrl about cpu/domain online/offline
+- perf/arm-cmn: Stop claiming all the resources
+- arm64: mpam: Select ARCH_HAS_CPU_RESCTRL
+- arm_mpam: resctrl: Add dummy definition for free running counters
+- arm_mpam: resctrl: Add empty definitions for fine-grained enables
+- arm_mpam: resctrl: Add empty definitions for pseudo lock
+- untested: arm_mpam: resctrl: Allow monitors to be configured
+- arm_mpam: resctrl: Add resctrl_arch_rmid_read() and resctrl_arch_reset_rmid()
+- arm_mpam: resctrl: Allow resctrl to allocate monitors
+- untested: arm_mpam: resctrl: Add support for mbm counters
+- untested: arm_mpam: resctrl: Add support for MB resource
+- arm_mpam: resctrl: Add rmid index helpers
+- arm64: mpam: Add helpers to change a tasks and cpu mpam partid/pmg values
+- arm_mpam: resctrl: Add CDP emulation
+- arm_mpam: resctrl: Implement helpers to update configuration
+- arm_mpam: resctrl: Add resctrl_arch_get_config()
+- arm_mpam: resctrl: Implement resctrl_arch_reset_resources()
+- arm_mpam: resctrl: Pick a value for num_rmid
+- arm_mpam: resctrl: Pick the caches we will use as resctrl resources
+- arm_mpam: resctrl: Add boilerplate cpuhp and domain allocation
+- arm_mpam: Add helper to reset saved mbwu state
+- arm_mpam: Use long MBWU counters if supported
+- arm_mpam: Probe for long/lwd mbwu counters
+- arm_mpam: Track bandwidth counter state for overflow and power management
+- arm_mpam: Add mpam_msmon_read() to read monitor value
+- arm_mpam: Add helpers to allocate monitors
+- arm_mpam: Probe and reset the rest of the features
+- arm_mpam: Allow configuration to be applied and restored during cpu online
+- arm_mpam: Use the arch static key to indicate when mpam is enabled
+- arm_mpam: Register and enable IRQs
+- arm_mpam: Extend reset logic to allow devices to be reset any time
+- arm_mpam: Add a helper to touch an MSC from any CPU
+- arm_mpam: Reset MSC controls from cpu hp callbacks
+- arm_mpam: Merge supported features during mpam_enable() into mpam_class
+- arm_mpam: Probe the hardware features resctrl supports
+- arm_mpam: Probe MSCs to find the supported partid/pmg values
+- arm_mpam: Add cpuhp callbacks to probe MSC hardware
+- arm_mpam: Add MPAM MSC register layout definitions
+- arm_mpam: Add the class and component structures for ris firmware described
+- arm_mpam: Add probe/remove for mpam msc driver and kbuild boiler plate
+- dt-bindings: arm: Add MPAM MSC binding
+- ACPI / MPAM: Parse the MPAM table
+- drivers: base: cacheinfo: Add helper to find the cache size from cpu+level
+- cacheinfo: Expose the code to generate a cache-id from a device_node
+- cacheinfo: Set cache 'id' based on DT data
+- cacheinfo: Allow for >32-bit cache 'id'
+- ACPI / PPTT: Add a helper to fill a cpumask from a cache_id
+- ACPI / PPTT: Add a helper to fill a cpumask from a processor container
+- ACPI / PPTT: Find PPTT cache level by ID
+- ACPI / PPTT: Provide a helper to walk processor containers
+- untested: KVM: arm64: Force guest EL1 to use user-space's partid configuration
+- arm64: mpam: Context switch the MPAM registers
+- KVM: arm64: Disable MPAM visibility by default, and handle traps
+- KVM: arm64: Fix missing traps of guest accesses to the MPAM registers
+- arm64: cpufeature: discover CPU support for MPAM
+- arm64: head.S: Initialise MPAM EL2 registers and disable traps
+- x86/resctrl: Move the filesystem portions of resctrl to live in '/fs/'
+- x86/resctrl: Move the filesystem bits to headers visible to fs/resctrl
+- fs/resctrl: Add boiler plate for external resctrl code
+- x86/resctrl: Drop __init/__exit on assorted symbols
+- x86/resctrl: Describe resctrl's bitmap size assumptions
+- x86/resctrl: Claim get_domain_from_cpu() for resctrl
+- x86/resctrl: Move get_config_index() to a header
+- x86/resctrl: Move thread_throttle_mode_init() to be managed by resctrl
+- x86/resctrl: Make resctrl_arch_pseudo_lock_fn() take a plr
+- x86/resctrl: Make prefetch_disable_bits belong to the arch code
+- x86/resctrl: Allow an architecture to disable pseudo lock
+- x86/resctrl: Allow resctrl_arch_mon_event_config_write() to return an error
+- x86/resctrl: Change mon_event_config_{read,write}() to be arch helpers
+- x86/resctrl: Add resctrl_arch_is_evt_configurable() to abstract BMEC
+- x86/resctrl: Export the is_mbm_*_enabled() helpers to asm/resctrl.h
+- x86/resctrl: Stop using the for_each_*_rdt_resource() walkers
+- x86/resctrl: Move max_{name,data}_width into resctrl code
+- x86/resctrl: Move monitor exit work to a restrl exit call
+- x86/resctrl: Move monitor init work to a resctrl init call
+- x86/resctrl: Add a resctrl helper to reset all the resources
+- x86/resctrl: Move resctrl types to a separate header
+- x86/resctrl: Wrap resctrl_arch_find_domain() around rdt_find_domain()
+- x86/resctrl: Export resctrl fs's init function
+- x86/resctrl: Remove rdtgroup from update_cpu_closid_rmid()
+- x86/resctrl: Add helper for setting CPU default properties
+- x86/resctrl: Move ctrlval string parsing links away from the arch code
+- x86/resctrl: Add a helper to avoid reaching into the arch code resource list
+- x86/resctrl: Separate arch and fs resctrl locks
+- x86/resctrl: Move domain helper migration into resctrl_offline_cpu()
+- x86/resctrl: Add CPU offline callback for resctrl work
+- x86/resctrl: Allow overflow/limbo handlers to be scheduled on any-but cpu
+- x86/resctrl: Add CPU online callback for resctrl work
+- x86/resctrl: Add helpers for system wide mon/alloc capable
+- x86/resctrl: Make rdt_enable_key the arch's decision to switch
+- x86/resctrl: Move alloc/mon static keys into helpers
+- x86/resctrl: Make resctrl_mounted checks explicit
+- x86/resctrl: Allow arch to allocate memory needed in resctrl_arch_rmid_read()
+- x86/resctrl: Allow resctrl_arch_rmid_read() to sleep
+- x86/resctrl: Queue mon_event_read() instead of sending an IPI
+- x86/resctrl: Add cpumask_any_housekeeping() for limbo/overflow
+- x86/resctrl: Move CLOSID/RMID matching and setting to use helpers
+- x86/resctrl: Allocate the cleanest CLOSID by searching closid_num_dirty_rmid
+- x86/resctrl: Use __set_bit()/__clear_bit() instead of open coding
+- x86/resctrl: Track the number of dirty RMID a CLOSID has
+- x86/resctrl: Allow RMID allocation to be scoped by CLOSID
+- x86/resctrl: Access per-rmid structures by index
+- x86/resctrl: Track the closid with the rmid
+- x86/resctrl: Move rmid allocation out of mkdir_rdt_prepare()
+- x86/resctrl: Create helper for RMID allocation and mondata dir creation
+- x86/resctrl: kfree() rmid_ptrs from resctrl_exit()
+- tick/nohz: Move tick_nohz_full_mask declaration outside the #ifdef
+- x86/resctrl: Display RMID of resource group
+- x86/resctrl: Add support for the files of MON groups only
+- x86/resctrl: Display CLOSID for resource group
+- x86/resctrl: Introduce "-o debug" mount option
+- x86/resctrl: Move default group file creation to mount
+- x86/resctrl: Unwind properly from rdt_enable_ctx()
+- x86/resctrl: Rename rftype flags for consistency
+- x86/resctrl: Simplify rftype flag definitions
+- x86/resctrl: Add multiple tasks to the resctrl group at once
+- x86/resctrl: Fix remaining kernel-doc warnings
+- !3834 Add support for Hygon model 4h IOAPIC
+- iommu/hygon: Add support for Hygon family 18h model 4h IOAPIC
+- !3830 Add support for Hygon model 5h CPU cache
+- x86/cpu: Get LLC ID for Hygon family 18h model 5h
+- !3311 Add support for Hygon model 4h CPU topology
+- x86/cpu/hygon: Fix __max_die_per_package for Hygon family 18h model 4h
+- !3124 [OLK-6.6] Add support for Zhaoxin HDAC and codec
+- ALSA: hda: Add support of Zhaoxin NB HDAC codec
+- ALSA: hda: Add support of Zhaoxin NB HDAC
+- ALSA: hda: Add support of Zhaoxin SB HDAC
+- !3098 [OLK-6.6] Add support for Zhaoxin Processors
+- x86/cpu: Add detect extended topology for Zhaoxin CPUs
+- x86/cpufeatures: Add Zhaoxin feature bits
+- !3742 arch/powerpc: add ppc little endian openuler defconfig
+- arch/powerpc: add ppc little endian openuler defconfig
+- !4099 Intel: Backport SRF LBR branch counter support to kernel v6.6
+- perf/x86/intel: Support branch counters logging
+- perf/x86/intel: Reorganize attrs and is_visible
+- perf: Add branch_sample_call_stack
+- perf/x86: Add PERF_X86_EVENT_NEEDS_BRANCH_STACK flag
+- perf: Add branch stack counters
+- !3177 [OLK-6.6] Add MWAIT Cx support for Zhaoxin CPUs
+- Add MWAIT Cx support for Zhaoxin CPUs
+- !3170 [OLK-6.6] rtc: Fix set RTC time delay 500ms on some Zhaoxin SOCs
+- rtc: Fix set RTC time delay 500ms on some Zhaoxin SOCs
+- !3131 [OLK-6.6] Driver for Zhaoxin CPU core temperature monitoring
+- Add CONFIG_SENSORS_ZHAOXIN_CPUTEMP in openeuler_defconfig
+- Add support for Zhaoxin core temperature monitoring
+- !3102 [OLK-6.6] x86/mce: Add Centaur MCA support
+- x86/mce: Add Centaur MCA support
+- !4116 Intel: Backport GNR/SRF PMU uncore support to kernel v6.6
+- perf/x86/intel/uncore: Support Sierra Forest and Grand Ridge
+- perf/x86/intel/uncore: Support IIO free-running counters on GNR
+- perf/x86/intel/uncore: Support Granite Rapids
+- perf/x86/uncore: Use u64 to replace unsigned for the uncore offsets array
+- perf/x86/intel/uncore: Generic uncore_get_uncores and MMIO format of SPR
+- !4115 Intel: Backport In Field Scan(IFS) SAF & Array BIST support for GNR & SRF
+- platform/x86/intel/ifs: ARRAY BIST for Sierra Forest
+- platform/x86/intel/ifs: Add new error code
+- platform/x86/intel/ifs: Add new CPU support
+- platform/x86/intel/ifs: Metadata validation for start_chunk
+- platform/x86/intel/ifs: Validate image size
+- platform/x86/intel/ifs: Gen2 Scan test support
+- platform/x86/intel/ifs: Gen2 scan image loading
+- platform/x86/intel/ifs: Refactor image loading code
+- platform/x86/intel/ifs: Store IFS generation number
+- !4103 [OLK-6.6] Intel: microcode restructuring backport
+- x86/setup: Make relocated_ramdisk a local variable of relocate_initrd()
+- x86/microcode/intel: Add a minimum required revision for late loading
+- x86/microcode: Prepare for minimal revision check
+- x86/microcode: Handle "offline" CPUs correctly
+- x86/apic: Provide apic_force_nmi_on_cpu()
+- x86/microcode: Protect against instrumentation
+- x86/microcode: Rendezvous and load in NMI
+- x86/microcode: Replace the all-in-one rendevous handler
+- x86/microcode: Provide new control functions
+- x86/microcode: Add per CPU control field
+- x86/microcode: Add per CPU result state
+- x86/microcode: Sanitize __wait_for_cpus()
+- x86/microcode: Clarify the late load logic
+- x86/microcode: Handle "nosmt" correctly
+- x86/microcode: Clean up mc_cpu_down_prep()
+- x86/microcode: Get rid of the schedule work indirection
+- x86/microcode: Mop up early loading leftovers
+- x86/microcode/amd: Use cached microcode for AP load
+- x86/microcode/amd: Cache builtin/initrd microcode early
+- x86/microcode/amd: Cache builtin microcode too
+- x86/microcode/amd: Use correct per CPU ucode_cpu_info
+- x86/microcode: Remove pointless apply() invocation
+- x86/microcode/intel: Rework intel_find_matching_signature()
+- x86/microcode/intel: Reuse intel_cpu_collect_info()
+- x86/microcode/intel: Rework intel_cpu_collect_info()
+- x86/microcode/intel: Unify microcode apply() functions
+- x86/microcode/intel: Switch to kvmalloc()
+- x86/microcode/intel: Save the microcode only after a successful late-load
+- x86/microcode/intel: Simplify early loading
+- x86/microcode/intel: Cleanup code further
+- x86/microcode/intel: Simplify and rename generic_load_microcode()
+- x86/microcode/intel: Simplify scan_microcode()
+- x86/microcode/intel: Rip out mixed stepping support for Intel CPUs
+- x86/microcode/32: Move early loading after paging enable
+- x86/boot/32: Temporarily map initrd for microcode loading
+- x86/microcode: Provide CONFIG_MICROCODE_INITRD32
+- x86/boot/32: Restructure mk_early_pgtbl_32()
+- x86/boot/32: De-uglify the 2/3 level paging difference in mk_early_pgtbl_32()
+- x86/boot: Use __pa_nodebug() in mk_early_pgtbl_32()
+- x86/boot/32: Disable stackprotector and tracing for mk_early_pgtbl_32()
+- x86/microcode/amd: Fix snprintf() format string warning in W=1 build
+- !4102 Intel: Backport Sierra Forest(SRF) perf cstate support to kernel OLK-6.6
+- perf/x86/intel/cstate: Add Grand Ridge support
+- perf/x86/intel/cstate: Add Sierra Forest support
+- x86/smp: Export symbol cpu_clustergroup_mask()
+- perf/x86/intel/cstate: Cleanup duplicate attr_groups
+- !4104  arm64: Add the arm64.nolse command line option
+- arm64: Add the arm64.nolse command line option
+- !4093 introduce smart_grid zone
+- smart_grid: introduce smart_grid cmdline
+- smart_grid: cpufreq: introduce smart_grid cpufreq control
+- smart_grid: introduce smart_grid_strategy_ctrl sysctl
+- smart_grid: introduce /proc/pid/smart_grid_level
+- sched: introduce smart grid qos zone
+- config: enable CONFIG_QOS_SCHED_SMART_GRID by default
+- sched: smart grid: init sched_grid_qos structure on QOS purpose
+- sched: Introduce smart grid scheduling strategy for cfs
+
 * Tue Jan 23 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 6.6.0-6.0.0.3
 - !4087  backport two page_owner patchsets:
 - mm/page_owner: record and dump free_pid and free_tgid
