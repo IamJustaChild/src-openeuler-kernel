@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0264
+Release: %{hulkrelease}.0265
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,9 @@ fi
 %endif
 
 %changelog
+* Mon Feb 19 2024 yangjunshuo <yangjunshuo@huawei.com> - 4.19.90-2402.4.0.0265
+- !4524 fix spi: hisi-sfc-v3xx: Return IRQ_NONE if no interrupts were detected
+
 * Mon Feb 05 2024 hongrongxuan <hongrongxuan@huawei.com> - 4.19.90-2402.4.0.0264
 - !4454  netfilter: nf_tables: reject QUEUE/DROP verdict parameters
 - netfilter: nf_tables: reject QUEUE/DROP verdict parameters
