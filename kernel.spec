@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       187
+%global devel_release       188
 %global maintenance_release .0.0
-%global pkg_release         .100
+%global pkg_release         .101
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -911,6 +911,34 @@ fi
 %endif
 
 %changelog
+* Wed Feb 21 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-188.0.0.101
+- !4605  arm64/mpam: support resctrl fs to show mounting option
+- !4604  arm64/mpam: Skip updates of unrelated ctrl type
+- !4602  arm64/mpam: support MPAM v0.1 version
+- !4521  xen-netback: don't produce zero-size SKB frags
+- arm64/mpam: support resctrl fs to show mounting option
+- arm64/mpam: Skip updates of unrelated ctrl type
+- arm64/mpam: support MPAM v0.1 version
+- !4588  fs,hugetlb: fix NULL pointer dereference in hugetlbs_fill_super
+- !4531  fs:/dcache.c: fix negative dentry flag warning in dentry_free
+- !4580  printk: fix double unlock issue in logbuf_lock
+- fs,hugetlb: fix NULL pointer dereference in hugetlbs_fill_super
+- !4524 fix spi: hisi-sfc-v3xx: Return IRQ_NONE if no interrupts were detected
+- spi: hisi-sfc-v3xx: return IRQ_NONE if no interrupts were detected
+- !4562 v4  tracing: Backport bugfixes
+- printk: fix double unlock issue in logbuf_lock
+- trace: Fix kabi breakage in struct trace_event_file
+- tracing: Fix uaf issue when open the hist or hist_debug file
+- tracing: Have event inject files inc the trace array ref count
+- tracing: Have trace_event_file have ref counters
+- tracing: Increase trace array ref count on enable and filter files
+- fs:/dcache.c: fix negative dentry flag warning in dentry_free
+- xen-netback: don't produce zero-size SKB frags
+- !4431 v2  patchset for CVE-2023-52340
+- ipv6: fix kabi change in struct dst_ops
+- ipv6: Document that max_size sysctl is deprecated
+- ipv6: remove max_size check inline with ipv4
+
 * Tue Feb 06 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-187.0.0.100
 - !4496 [sync] PR-4362:  ubifs: Queue up space reservation tasks if retrying many times
 - !4461  netfilter: nf_tables: reject QUEUE/DROP verdict parameters
