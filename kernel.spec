@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2402.4.0
+%global hulkrelease 2402.5.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0264
+Release: %{hulkrelease}.0265
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,22 @@ fi
 %endif
 
 %changelog
+* Wed Feb 21 2024 hongrongxuan <hongrongxuan@huawei.com> - 4.19.90-2402.5.0.0265
+- !4601 v2  xen-netback: don't produce zero-size SKB frags
+- xen-netback: don't produce zero-size SKB frags
+- !4583  net: hns3: fix a bug and modify the hns3 driver version
+- net: hns3: update hns3 version to 24.2.1
+- net: hns3: fix tm port shapping of fibre port is incorrect after driver initialization
+- !4552 v4  CVE-2023-52340
+- !4526 v2  fs:/dcache.c: fix negative dentry flag warning in dentry_free
+- ipv6: fix kabi broken in struct dst_ops
+- ipv6: Document that max_size sysctl is deprecated
+- ipv6: remove max_size check inline with ipv4
+- !4538  fix kprobe reenter bug
+- arm64/openeuler_defconfig: add not set config to fix compiling error
+- tracing/kprobes: Do the notrace functions check without kprobes on ftrace
+- fs:/dcache.c: fix negative dentry flag warning in dentry_free
+
 * Mon Feb 05 2024 hongrongxuan <hongrongxuan@huawei.com> - 4.19.90-2402.4.0.0264
 - !4454  netfilter: nf_tables: reject QUEUE/DROP verdict parameters
 - netfilter: nf_tables: reject QUEUE/DROP verdict parameters
