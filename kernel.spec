@@ -17,8 +17,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       60
-%global maintenance_release .125.0
-%global pkg_release         .152
+%global maintenance_release .126.0
+%global pkg_release         .153
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -932,6 +932,28 @@ fi
 %endif
 
 %changelog
+* Wed Feb 21 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-60.126.0.153
+- !4515 [sync] PR-4431: v2  patchset for CVE-2023-52340
+- !4443 [sync] PR-4290:  net/rds: Fix UBSAN: array-index-out-of-bounds in rds_cmsg_recv
+- !4613 [sync] PR-4521:  xen-netback: don't produce zero-size SKB frags
+- !4591  sctp: fix potential deadlock on &net->sctp.addr_wq_lock
+- !4548 [sync] PR-4461:  netfilter: nf_tables: reject QUEUE/DROP verdict parameters
+- !4607 [sync] PR-4588:  fs,hugetlb: fix NULL pointer dereference in hugetlbs_fill_super
+- xen-netback: don't produce zero-size SKB frags
+- !4585 [sync] PR-4562: v4  tracing: Backport bugfixes
+- fs,hugetlb: fix NULL pointer dereference in hugetlbs_fill_super
+- sctp: fix potential deadlock on &net->sctp.addr_wq_lock
+- trace: Fix kabi breakage in struct trace_event_file
+- tracing: Fix uaf issue when open the hist or hist_debug file
+- tracing: Have event inject files inc the trace array ref count
+- tracing: Have trace_event_file have ref counters
+- tracing: Increase trace array ref count on enable and filter files
+- netfilter: nf_tables: reject QUEUE/DROP verdict parameters
+- ipv6: fix kabi change in struct dst_ops
+- ipv6: Document that max_size sysctl is deprecated
+- ipv6: remove max_size check inline with ipv4
+- net/rds: Fix UBSAN: array-index-out-of-bounds in rds_cmsg_recv
+
 * Tue Feb 06 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-60.125.0.152
 - !4497 [sync] PR-4362:  ubifs: Queue up space reservation tasks if retrying many times
 - !4446 [sync] PR-4321:  io_uring/af_unix: disable sending io_uring over sockets
