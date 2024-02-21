@@ -23,9 +23,9 @@
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       9
+%global devel_release       10
 %global maintenance_release .0.0
-%global pkg_release         .5
+%global pkg_release         .6
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -932,6 +932,158 @@ fi
 %endif
 
 %changelog
+* Wed Feb 21 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 6.6.0-10.0.0.6
+- !4598 [OLK-6.6] Add iommu support for Phytium S2500
+- Add iommu support for Phytium S2500
+- !4596 add sw64 architecture support
+- sw64: fix build support
+- sw64: add dynamic turning on/off cores support
+- sw64: add dynamic frequency scaling support
+- sw64: add kgdb support
+- sw64: add jump_label support
+- sw64: add uprobe support
+- sw64: add kprobe support
+- sw64: add kernel relocation support
+- sw64: add ftrace support
+- sw64: add hibernation support
+- sw64: add suspend support
+- sw64: add eBPF JIT support
+- sw64: add kdump support
+- sw64: add kexec support
+- sw64: add perf events support
+- sw64: add qspinlock support
+- sw64: add stacktrace support
+- !4567  Support feature TWED
+- KVM: arm64: Make use of TWED feature
+- arm64: cpufeature: TWED support detection
+- !4383 [OLK-6.6] kabi: add more x86/cpu reservations in cpu feature bits and bug bits
+- kabi: reserve x86 cpu bug fields
+- kabi: reserve x86 cpu capability fields
+- !3695 x86: Add x86 related kabi reservations
+- x86: Add x86 related kabi reservations
+- !4589  fs,hugetlb: fix NULL pointer dereference in hugetlbs_fill_super
+- fs,hugetlb: fix NULL pointer dereference in hugetlbs_fill_super
+- !4451 v5  kabi reserve patches
+- kabi: reserve space for arm64 cpufeature related structure
+- kabi: reserve space for power management related structure
+- energy_model: Add kabi_reserve
+- pm: pm.h: Add kabi_reserve
+- pm: pm_domain.h: Add kabi_reserve
+- drm: drm_gem.h: Add kabi_reserve
+- drm: drm_fourcc.h: Add kabi_reserve
+- drm: drm_file.h: Add kabi_reserve
+- drm: drm_fb_helper.h: Add kabi_reserve
+- drm: drm_drv.h: Add kabi_reserve
+- drm: drm_device.h: Add kabi_reserve
+- drm: drm_crtc.h: Add kabi_reserve
+- drm: drm_connector.h: Add kabi_reserve
+- drm: drm_client.h: Add kabi_reserve
+- drm: drm_atomic.h: Add kabi_reserve
+- irqdomain: Add kabi_reserve in irqdomain
+- irq_desc: Add kabi_reserve in irq_desc
+- irq: Add kabi_reserve in irq
+- interrupt: Add kabi_reserve in interrupt.h
+- msi: Add kabi_reserve in msi.h
+- kabi: reserve space for struct cpu_stop_work
+- KABI: reserve space for struct input_dev
+- !4557  Add ZONE_EXTMEM to avoid kabi broken
+- openeuler_defconfig: enable CONFIG_ZONE_EXTMEM for arm64
+- mm: add ZONE_EXTMEM for future extension to avoid kabi broken
+- !4569 add sw64 architecture support
+- sw64: add KVM support
+- sw64: add EFI support
+- sw64: add DMA support
+- sw64: add ACPI support
+- sw64: add device trees
+- sw64: add MSI support
+- sw64: add PCI support
+- sw64: add default configs
+- sw64: add NUMA support
+- sw64: add SMP support
+- sw64: add VDSO support
+- sw64: add some library functions
+- sw64: add some other routines
+- sw64: add some common routines
+- sw64: add module support
+- sw64: add basic IO support
+- sw64: add FPU support
+- !3498  fuse: reserve space for future expansion
+- kabi:fuse: reserve space for future expansion
+- !4435 v2  kabi: reserve space for struct ptp_clock
+- kabi: reserve space for struct ptp_clock
+- !4584 v5  kabi reserve
+- kabi: reserve space for struct clocksource
+- kabi: reserve space for struct timer_list
+- kabi: reserve space for struct ptp_clock_info
+- kabi: reserve space for posix clock related structure
+- kabi: reserve space for hrtimer related structures
+- kabi: reserve space for kobject related structures
+- !4049  openeuler_defconfig: Disable new HW_RANDOM support for arm64
+- openeuler_defconfig: Disable new HW_RANDOM support for arm64
+- !4582 cgroup/hugetlb: hugetlb accounting
+- mm: memcg: fix split queue list crash when large folio migration
+- hugetlb: memcg: account hugetlb-backed memory in memory controller
+- memcontrol: only transfer the memcg data for migration
+- memcontrol: add helpers for hugetlb memcg accounting
+- !4347 【OLK-6.6】AMD: CXL RCH Protocol Error Handling supporting
+- openeuler_defconfig: Enable CONFIG_PCIEAER_CXL=y
+- cxl/hdm: Fix && vs || bug
+- cxl/pci: Change CXL AER support check to use native AER
+- cxl/core/regs: Rework cxl_map_pmu_regs() to use map->dev for devm
+- cxl/core/regs: Rename phys_addr in cxl_map_component_regs()
+- PCI/AER: Unmask RCEC internal errors to enable RCH downstream port error handling
+- PCI/AER: Forward RCH downstream port-detected errors to the CXL.mem dev handler
+- cxl/pci: Disable root port interrupts in RCH mode
+- cxl/pci: Add RCH downstream port error logging
+- cxl/pci: Map RCH downstream AER registers for logging protocol errors
+- cxl/pci: Update CXL error logging to use RAS register address
+- PCI/AER: Refactor cper_print_aer() for use by CXL driver module
+- cxl/pci: Add RCH downstream port AER register discovery
+- cxl/port: Remove Component Register base address from struct cxl_port
+- cxl/pci: Remove Component Register base address from struct cxl_dev_state
+- cxl/hdm: Use stored Component Register mappings to map HDM decoder capability
+- cxl/pci: Store the endpoint's Component Register mappings in struct cxl_dev_state
+- cxl/port: Pre-initialize component register mappings
+- cxl/port: Rename @comp_map to @reg_map in struct cxl_register_map
+- !4390 [OLK-6.6] Add kdump support for Phytium S2500
+- Add kdump support for Phytium S2500
+- !4459 v2  Introduce page eject for arm64
+- config: update defconfig for PAGE_EJECT
+- mm: page_eject: Introuduce page ejection
+- mm/memory-failure: introduce soft_online_page
+- mm/hwpoison: Export symbol soft_offline_page
+- !3699 [OLK-6.6] Enable CONFIG_IOMMUFD and CONFIG_VFIO_DEVICE_CDEV in x86/arm64 defconfig
+- defconfig: enable CONFIG_IOMMUFD and CONFIG_VFIO_DEVICE_CDEV
+- !4571  scsi: iscsi: kabi: KABI reservation for iscsi_transport
+- scsi: iscsi: kabi: KABI reservation for iscsi_transport
+- !4546 RDMA/hns: Support MR management
+- RDMA/hns: Simplify 'struct hns_roce_hem' allocation
+- RDMA/hns: Support adaptive PBL hopnum
+- RDMA/hns: Support flexible umem page size
+- RDMA/hns: Alloc MTR memory before alloc_mtt()
+- RDMA/hns: Refactor mtr_init_buf_cfg()
+- RDMA/hns: Refactor mtr find
+- !4576 v6  Add support for ecmdq
+- iommu/arm-smmu-v3: Allow disabling ECMDQs at boot time
+- iommu/arm-smmu-v3: Add support for less than one ECMDQ per core
+- iommu/arm-smmu-v3: Add arm_smmu_ecmdq_issue_cmdlist() for non-shared ECMDQ
+- iommu/arm-smmu-v3: Ensure that a set of associated commands are inserted in the same ECMDQ
+- iommu/arm-smmu-v3: Add support for ECMDQ register mode
+- !3697 enable ARM64/X86 CONFIG_BPF_LSM config
+- lsm: enable CONFIG_BPF_LSM for use bpf in lsm program
+- !4537  mainline cgroup bufix
+- cgroup: use legacy_name for cgroup v1 disable info
+- blk-cgroup: bypass blkcg_deactivate_policy after destroying
+- cgroup: Check for ret during cgroup1_base_files cft addition
+- !4438  kabi: reserve space for workqueue subsystem related structure
+- kabi: reserve space for workqueue subsystem related structure
+- !4570 v2  scsi: reserve space for structures in scsi
+- scsi: reserve space for structures in scsi
+- !4566 v2  reserve kabi space for some structures
+- libnvdimm: reserve space for structures in libnvdimm
+- ata: libata: reserve space for structures in libata
+- elevator: reserve space for structures in elevator
+
 * Wed Feb 7 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 6.6.0-9.0.0.5
 - !4545 add sw64 architecture support
 - sw64: add signal handling support
