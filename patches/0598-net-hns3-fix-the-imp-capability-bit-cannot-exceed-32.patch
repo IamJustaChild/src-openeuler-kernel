@@ -39,7 +39,7 @@ index ec9aa9233506..36a7285f68cf 100644
 +#include <linux/bitmap.h>
  #include <net/pkt_cls.h>
  
- #define HNAE3_MOD_VERSION "23.7.1"
+ #define HNAE3_MOD_VERSION "24.2.1"
 @@ -428,7 +429,7 @@ struct hnae3_ae_dev {
  #ifndef __GENKSYMS__
  	struct hnae3_dev_specs dev_specs;
