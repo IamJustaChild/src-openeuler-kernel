@@ -1,8 +1,8 @@
-From e3c2384cd05be7f3e2b7f9eedd6803855dde8569 Mon Sep 17 00:00:00 2001
+From 95aa028615d507dd1843676a6c1245b9b0b3a3a6 Mon Sep 17 00:00:00 2001
 From: Guangbin Huang <huangguangbin2@huawei.com>
 Date: Thu, 18 Nov 2021 20:44:45 +0800
-Subject: [PATCH 146/283] net: hns3: add update ethtool advertised link modes
- for FIBRE port when autoneg off
+Subject: [PATCH] net: hns3: add update ethtool advertised link modes for FIBRE
+ port when autoneg off
 
 mainline inclusion
 from mainline-v5.16-rc1
@@ -37,7 +37,7 @@ Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
  2 files changed, 94 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-index 85087927a7f3..2169c60aad03 100644
+index 842ccc673304..a07534583b2d 100644
 --- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
 +++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
 @@ -2994,12 +2994,90 @@ static void hclge_update_link_status(struct hclge_dev *hdev)
@@ -145,17 +145,17 @@ index 85087927a7f3..2169c60aad03 100644
  	}
  }
  
-@@ -3253,7 +3331,7 @@ static int hclge_update_port_info(struct hclge_dev *hdev)
+@@ -3256,7 +3334,7 @@ static int hclge_update_port_info(struct hclge_dev *hdev)
  
  	if (hdev->ae_dev->dev_version >= HNAE3_DEVICE_VERSION_V2) {
  		if (mac->speed_type == QUERY_ACTIVE_SPEED) {
 -			hclge_update_port_capability(mac);
 +			hclge_update_port_capability(hdev, mac);
+ 			if (mac->speed != speed)
+ 				(void)hclge_tm_port_shaper_cfg(hdev);
  			return 0;
- 		}
- 		return hclge_cfg_mac_speed_dup(hdev, mac->speed,
 diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
-index ad786ae8ae4a..7acf0f091b40 100644
+index a3d94306aa72..048bac08f1bf 100644
 --- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
 +++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
 @@ -1069,6 +1069,15 @@ static inline int hclge_get_queue_id(struct hnae3_queue *queue)
@@ -175,5 +175,5 @@ index ad786ae8ae4a..7acf0f091b40 100644
  {
  	return !!hdev->reset_pending;
 -- 
-2.34.1
+2.27.0
 
