@@ -746,7 +746,7 @@ index 9d739033daab..f32c8b52f022 100644
 -#include "hnae3.h"
 +#include "hnae3_ext.h"
  
- #define HCLGE_MOD_VERSION "23.7.1"
+ #define HCLGE_MOD_VERSION "24.2.1"
  #define HCLGE_DRIVER_NAME "hclge"
 @@ -1168,4 +1168,7 @@ void hclge_unregister_sysfs(struct hclge_dev *hdev);
  int hclge_cfg_mac_speed_dup_hw(struct hclge_dev *hdev, int speed, u8 duplex);

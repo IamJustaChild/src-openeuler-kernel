@@ -68,7 +68,7 @@ index 19f83dfb32aa..ac1659c18b16 100644
  
  #include "hnae3.h"
  
--#define HNS3_MOD_VERSION "23.7.1"
+-#define HNS3_MOD_VERSION "24.2.1"
 -
 -extern char hns3_driver_version[];
 -
