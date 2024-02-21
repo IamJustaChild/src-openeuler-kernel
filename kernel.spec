@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       153
-%global maintenance_release .42.0
-%global pkg_release         .120
+%global maintenance_release .43.0
+%global pkg_release         .121
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -878,6 +878,61 @@ fi
 %endif
 
 %changelog
+* Wed Feb 21 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.43.0.121
+- !4517 [sync] PR-4431: v2  patchset for CVE-2023-52340
+- !4445 [sync] PR-4290:  net/rds: Fix UBSAN: array-index-out-of-bounds in rds_cmsg_recv
+- !4615 [sync] PR-4521:  xen-netback: don't produce zero-size SKB frags
+- !4593  sctp: fix potential deadlock on &net->sctp.addr_wq_lock
+- !4550 [sync] PR-4461:  netfilter: nf_tables: reject QUEUE/DROP verdict parameters
+- !4609 [sync] PR-4588:  fs,hugetlb: fix NULL pointer dereference in hugetlbs_fill_super
+- xen-netback: don't produce zero-size SKB frags
+- !4587 [sync] PR-4562: v4  tracing: Backport bugfixes
+- fs,hugetlb: fix NULL pointer dereference in hugetlbs_fill_super
+- !3369 [sync] 22.03 LTS SP2 sync vdpa patches from branch OLK-5.10
+- sctp: fix potential deadlock on &net->sctp.addr_wq_lock
+- trace: Fix kabi breakage in struct trace_event_file
+- tracing: Fix uaf issue when open the hist or hist_debug file
+- tracing: Have event inject files inc the trace array ref count
+- tracing: Have trace_event_file have ref counters
+- tracing: Increase trace array ref count on enable and filter files
+- netfilter: nf_tables: reject QUEUE/DROP verdict parameters
+- ipv6: fix kabi change in struct dst_ops
+- ipv6: Document that max_size sysctl is deprecated
+- ipv6: remove max_size check inline with ipv4
+- net/rds: Fix UBSAN: array-index-out-of-bounds in rds_cmsg_recv
+- vdpa: add vmstate header file
+- vhost-vdpa: add reset state params to indicate reset level
+- vhost-vdpa: allow set feature VHOST_F_LOG_ALL when been negotiated.
+- vhost-vdpa: fix compile warnings
+- arm64: openeuler_defconfig: add VDPA config
+- vhost-vdpa: fix msi irq request err
+- vhost-vdpa: Allow transparent MSI IOV
+- export iommu_get_resv_regions and iommu_set_resv_regions
+- vhost: add VHOST feature VHOST_BACKEND_F_BYTEMAPLOG
+- vhost-vdpa: add uAPI for device migration status
+- vdpa: add vdpa device migration status ops
+- vhost-vdpa: add uAPI for device buffer
+- vdpa: add device state operations
+- vhost-vdpa: add uAPI for logging
+- vdpa: add log operations
+- tools include UAPI: Sync linux/vhost.h with the kernel sources
+- vdpa: add get_backend_features vdpa operation
+- virtio: fix virtio transitional ids
+- virtio: update virtio id table, add transitional ids
+- PCI/IOV: Add pci_iov_vf_id() to get VF index
+- vhost_vdpa: support PACKED when setting-getting vring_base
+- vhost_vdpa: tell vqs about the negotiated
+- vhost_vdpa: fix unmap process in no-batch mode
+- vhost-vdpa: use bind_mm/unbind_mm device callbacks
+- vdpa: add bind_mm/unbind_mm callbacks
+- vhost-vdpa: vhost_vdpa_alloc_domain() should be using a const struct bus_type *
+- vhost-vdpa: free iommu domain after last use during cleanup
+- vhost-vdpa: uAPI to resume the device
+- vhost-vdpa: Introduce RESUME backend feature bit
+- vdpa: Add resume operation
+- vhost_vdpa: fix the crash in unmap a large memory
+- vhost-vdpa: fix an iotlb memory leak
+
 * Tue Feb 06 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.42.0.120
 - !4499 [sync] PR-4362:  ubifs: Queue up space reservation tasks if retrying many times
 - !4448 [sync] PR-4321:  io_uring/af_unix: disable sending io_uring over sockets
