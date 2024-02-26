@@ -25,7 +25,7 @@
 %global upstream_sublevel   0
 %global devel_release       10
 %global maintenance_release .0.0
-%global pkg_release         .6
+%global pkg_release         .7
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -115,6 +115,11 @@ BuildRequires: pciutils-devel gettext
 BuildRequires: rpm-build, elfutils
 BuildRequires: numactl-devel python3-devel glibc-static python3-docutils
 BuildRequires: perl-generators perl(Carp) libunwind-devel gtk2-devel libbabeltrace-devel java-1.8.0-openjdk java-1.8.0-openjdk-devel perl-devel
+
+%if 0%{?openEuler_sign_rsa}
+BuildRequires: sign-openEuler
+%endif
+
 AutoReq: no
 AutoProv: yes
 
@@ -494,6 +499,23 @@ mkdir -p $RPM_BUILD_ROOT/boot
 dd if=/dev/zero of=$RPM_BUILD_ROOT/boot/initramfs-%{KernelVer}.img bs=1M count=20
 
 install -m 755 $(make -s image_name) $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}
+
+%if 0%{?openEuler_sign_rsa}
+    echo "start sign"
+    %ifarch %arm aarch64
+	gunzip -c $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}>$RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip.efi
+	/opt/sign-openEuler/client --config /opt/sign-openEuler/config.toml add --key-name default-x509ee --file-type efi-image --key-type x509ee --sign-type authenticode $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip.efi
+	mv $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip.efi $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip
+	gzip -c $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip>$RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}
+	rm -f $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip
+    %endif
+    %ifarch x86_64
+	mv $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer} $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.efi
+	/opt/sign-openEuler/client --config /opt/sign-openEuler/config.toml add --key-name default-x509ee --file-type efi-image --key-type x509ee --sign-type authenticode $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.efi
+	mv $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.efi $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}
+    %endif
+%endif
+
 pushd $RPM_BUILD_ROOT/boot
 sha512hmac ./vmlinuz-%{KernelVer} >./.vmlinuz-%{KernelVer}.hmac
 popd
@@ -932,6 +954,9 @@ fi
 %endif
 
 %changelog
+* Mon Feb 26 2024 huangzq6 <huangzhenqiang2@huawei.com> - 6.6.0-10.0.0.7
+- add signature for vmlinux
+
 * Wed Feb 21 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 6.6.0-10.0.0.6
 - !4598 [OLK-6.6] Add iommu support for Phytium S2500
 - Add iommu support for Phytium S2500
