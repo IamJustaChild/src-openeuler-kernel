@@ -17,8 +17,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       60
-%global maintenance_release .126.0
-%global pkg_release         .153
+%global maintenance_release .127.0
+%global pkg_release         .154
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -932,6 +932,29 @@ fi
 %endif
 
 %changelog
+* Tue Feb 27 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-60.127.0.154
+- !4466 [sync] PR-4256:  scsi: core: Always send batch on reset or error handling command
+- !4681 [sync] PR-4662: v3  CVE-2023-52435
+- !4691  ALSA: hda: fix a possible null-pointer dereference due to data race in snd_hdac_regmap_sync()
+- ALSA: hda: fix a possible null-pointer dereference due to data race in snd_hdac_regmap_sync()
+- !4625 [sync] PR-4531:  fs:/dcache.c: fix negative dentry flag warning in dentry_free
+- net: Fix compile warning in skb_segment()
+- net: prevent mss overflow in skb_segment()
+- fs:/dcache.c: fix negative dentry flag warning in dentry_free
+- scsi: core: Always send batch on reset or error handling command
+- Revert "scsi: core: Add scsi_prot_ref_tag() helper"
+- Revert "scsi: core: Introduce scsi_get_sector()"
+- Revert "scsi: core: Make scsi_get_lba() return the LBA"
+- Revert "scsi: core: Use scsi_cmd_to_rq() instead of scsi_cmnd.request"
+- Revert "scsi: core: Use a structure member to track the SCSI command submitter"
+- Revert "scsi: core: Always send batch on reset or error handling command"
+- scsi: core: Always send batch on reset or error handling command
+- scsi: core: Use a structure member to track the SCSI command submitter
+- scsi: core: Use scsi_cmd_to_rq() instead of scsi_cmnd.request
+- scsi: core: Make scsi_get_lba() return the LBA
+- scsi: core: Introduce scsi_get_sector()
+- scsi: core: Add scsi_prot_ref_tag() helper
+
 * Wed Feb 21 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-60.126.0.153
 - !4515 [sync] PR-4431: v2  patchset for CVE-2023-52340
 - !4443 [sync] PR-4290:  net/rds: Fix UBSAN: array-index-out-of-bounds in rds_cmsg_recv
