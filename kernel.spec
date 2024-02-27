@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2402.5.0
+%global hulkrelease 2402.6.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0239
+Release: %{hulkrelease}.0240
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,15 @@ fi
 %endif
 
 %changelog
+
+* Tue Feb 27 2024 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2402.6.0.0240
+- !4701 v2  mlxsw: spectrum_acl_tcam: Fix NULL pointer dereference in error path
+- !4684 v3  CVE-2023-52435
+- mlxsw: spectrum_acl_tcam: Fix NULL pointer dereference in error path
+- net: Fix compile warning in skb_segment()
+- net: prevent mss overflow in skb_segment()
+- !4643  f2fs: explicitly null-terminate the xattr list
+- f2fs: explicitly null-terminate the xattr list
 
 * Wed Feb 21 2024 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2402.5.0.0239
 - !4601 v2  xen-netback: don't produce zero-size SKB frags
