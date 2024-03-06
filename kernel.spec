@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2402.6.0
+%global hulkrelease 2403.1.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0240
+Release: %{hulkrelease}.0241
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,93 @@ fi
 %endif
 
 %changelog
+
+* Wed Mar 06 2024 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2403.1.0.0241
+- !4947  powerpc/64s: Fix pte update for kernel memory on radix
+- !4932  phy: ti: phy-omap-usb2: Fix NULL pointer dereference for SRP
+- powerpc/64s: Fix pte update for kernel memory on radix
+- !4874 v2  net: openvswitch: limit the number of recursions from action sets
+- !4920  ARM: footbridge: remove personal server platform
+- !4887  KVM: Destroy I/O bus devices on unregister failure _after_ sync'ing SRCU
+- !4918 v3  usb: hub: Guard against accesses to uninitialized BOS descriptors
+- !4936  i2c: validate user data in compat ioctl
+- i2c: validate user data in compat ioctl
+- !4898  platform/x86: dell-smbios-wmi: Fix oops on rmmod dell_smbios
+- !4879  KVM: Stop looking for coalesced MMIO zones if the bus is destroyed
+- !4869  Fix CVE-2021-46941
+- phy: ti: phy-omap-usb2: Fix NULL pointer dereference for SRP
+- !4904  i2c: sprd: fix reference leak when pm_runtime_get_sync fails
+- !4859  hfsplus: prevent corruption in shrinking truncate
+- !4877  i2c: Fix a potential use after free
+- ARM: footbridge: fix PCI interrupt mapping
+- !4888 v3  media: dvbdev: Fix memory leak in dvb_media_device_free()
+- usb: hub: Guard against accesses to uninitialized BOS descriptors
+- !4825  sched/membarrier: reduce the ability to hammer on sys_membarrier
+- !4882  Input: appletouch - initialize work before device registration
+- !4876  backport patch to fix CVE-2021-47077
+- !4899  net: qualcomm: rmnet: fix global oob in rmnet_policy
+- i2c: sprd: fix reference leak when pm_runtime_get_sync fails
+- !4892  Bluetooth: rfcomm: Fix null-ptr-deref in rfcomm_check_security
+- !4881  i2c: cadence: fix reference leak when pm_runtime_get_sync fails
+- net: qualcomm: rmnet: fix global oob in rmnet_policy
+- platform/x86: dell-smbios-wmi: Fix oops on rmmod dell_smbios
+- !4865  Input: powermate - fix use-after-free in powermate_config_complete
+- !4860  apparmor: avoid crash when parsed profile name is empty
+- Bluetooth: rfcomm: Fix null-ptr-deref in rfcomm_check_security
+- media: dvbdev: Fix memory leak in dvb_media_device_free()
+- KVM: Destroy I/O bus devices on unregister failure _after_ sync'ing SRCU
+- Input: appletouch - initialize work before device registration
+- i2c: cadence: fix reference leak when pm_runtime_get_sync fails
+- KVM: Stop looking for coalesced MMIO zones if the bus is destroyed
+- i2c: Fix a potential use after free
+- ARM: 9064/1: hw_breakpoint: Do not directly check the event's overflow_handler hook
+- net: openvswitch: limit the number of recursions from action sets
+- usb: dwc3: core: Do not perform GCTL_CORE_SOFTRESET during bootup
+- usb: dwc3: core: balance phy init and exit
+- usb: dwc3: core: Do core softreset when switch mode
+- Input: powermate - fix use-after-free in powermate_config_complete
+- !4856  bus: qcom: Put child node before return
+- apparmor: avoid crash when parsed profile name is empty
+- hfsplus: prevent corruption in shrinking truncate
+- bus: qcom: Put child node before return
+- !4828  Drivers: hv: vmbus: Use after free in __vmbus_open()
+- !4806 v2  media: pvrusb2: fix use after free on context disconnection
+- !4777  drivers/amd/pm: fix a use-after-free in kv_parse_power_table
+- !4819 v2  fix CVE-2020-36782
+- !4833  openvswitch: fix stack OOB read while fragmenting IPv4 packets
+- !4677  f2fs: fix to avoid dirent corruption
+- !4804  CVE-2023-52451 backport to 4.19 v2
+- openvswitch: fix stack OOB read while fragmenting IPv4 packets
+- Drivers: hv: vmbus: Use after free in __vmbus_open()
+- !4778 v3  Revert "memcg: fix a UAF problem in drain_all_stock()"
+- sched/membarrier: reduce the ability to hammer on sys_membarrier
+- i2c: imx-lpi2c: fix reference leak when pm_runtime_get_sync fails
+- PM: runtime: Add pm_runtime_resume_and_get to deal with usage counter
+- !4812  parisc: Clear stale IIR value on instruction access rights trap
+- parisc: Clear stale IIR value on instruction access rights trap
+- media: pvrusb2: fix use after free on context disconnection
+- powerpc/pseries/memhp: Fix access beyond end of drmem array
+- powerpc/pseries/memhotplug: Quieten some DLPAR operations
+- !4758  binder: signal epoll threads of self-work
+- !4746  KVM: arm64: vgic-its: Avoid potential UAF in LPI translation cache
+- Revert "memcg: fix a UAF problem in drain_all_stock()"
+- drivers/amd/pm: fix a use-after-free in kv_parse_power_table
+- !4751 [sync] PR-4623: i2c: Optimized the value setting of maxwrite limit to  fifo depth - 1
+- !4707  mtd: Fix gluebi NULL pointer dereference caused by ftl notifier
+- !4686  mlxsw: spectrum_acl_tcam: Fix stack corruption
+- binder: signal epoll threads of self-work
+- !4710  CVE-2021-46904 for openEuler1.0
+- i2c: hisi: Add clearing tx aempty interrupt operation
+- i2c: hisi: Optimized the value setting of maxwrite limit to fifo depth - 1
+- !4671  uio: Fix use-after-free in uio_open
+- KVM: arm64: vgic-its: Avoid potential UAF in LPI translation cache
+- net: hso: fix NULL-deref on disconnect regression
+- net: hso: fix null-ptr-deref during tty device unregistration
+- usb: hso: check for return value in hso_serial_common_create()
+- mtd: Fix gluebi NULL pointer dereference caused by ftl notifier
+- mlxsw: spectrum_acl_tcam: Fix stack corruption
+- f2fs: fix to avoid dirent corruption
+- uio: Fix use-after-free in uio_open
 
 * Tue Feb 27 2024 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2402.6.0.0240
 - !4701 v2  mlxsw: spectrum_acl_tcam: Fix NULL pointer dereference in error path
