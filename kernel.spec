@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       153
-%global maintenance_release .44.0
-%global pkg_release         .122
+%global maintenance_release .45.0
+%global pkg_release         .123
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -878,6 +878,28 @@ fi
 %endif
 
 %changelog
+* Wed Mar 06 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.45.0.123
+- !4957 [sync] PR-4868:  net: openvswitch: limit the number of recursions from action sets
+- !4962 [sync] PR-4940:  apparmor: avoid crash when parsed profile name is empty
+- !4934  arm64: head.S: always initialize PSTATE
+- apparmor: avoid crash when parsed profile name is empty
+- net: openvswitch: limit the number of recursions from action sets
+- arm64: head.S: always initialize PSTATE
+- !4864  ext4: regenerate buddy after block freeing failed if under fc replay
+- ext4: regenerate buddy after block freeing failed if under fc replay
+- !4756 [sync] PR-4737:  blk-mq: fix IO hang from sbitmap wakeup race
+- !4816 [sync] PR-4702:  efivarfs: force RO when remounting if SetVariable is not supported
+- !4797 [sync] PR-4747:  KVM: arm64: vgic-its: Avoid potential UAF in LPI translation cache
+- efivarfs: force RO when remounting if SetVariable is not supported
+- !4768 [sync] PR-4729:  serial: 8250: omap: Don't skip resource freeing if pm_runtime_resume_and_get() failed
+- !4793 v2  gfs2: Fix kernel NULL pointer dereference in gfs2_rgrp_dump
+- KVM: arm64: vgic-its: Avoid potential UAF in LPI translation cache
+- gfs2: Fix kernel NULL pointer dereference in gfs2_rgrp_dump
+- serial: 8250: omap: Don't skip resource freeing if pm_runtime_resume_and_get() failed
+- blk-mq: fix IO hang from sbitmap wakeup race
+- !4724 [sync] PR-4694: v2  mlxsw: spectrum_acl_tcam: Fix NULL pointer dereference in error path
+- mlxsw: spectrum_acl_tcam: Fix NULL pointer dereference in error path
+
 * Tue Feb 27 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.44.0.122
 - !4468 [sync] PR-4256:  scsi: core: Always send batch on reset or error handling command
 - !4683 [sync] PR-4662: v3  CVE-2023-52435
