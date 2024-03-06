@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       189
+%global devel_release       190
 %global maintenance_release .0.0
-%global pkg_release         .102
+%global pkg_release         .103
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -911,6 +911,161 @@ fi
 %endif
 
 %changelog
+* Wed Mar 06 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-190.0.0.103
+- !4928  drm/bridge: sii902x: Fix probing race issue
+- !4931  phy: ti: phy-omap-usb2: Fix NULL pointer dereference for SRP
+- !4809  netfilter: nft_set_rbtree: skip end interval element from gc
+- !4940  apparmor: avoid crash when parsed profile name is empty
+- !4901  fix CVE-2021-47036
+- !4868  net: openvswitch: limit the number of recursions from action sets
+- apparmor: avoid crash when parsed profile name is empty
+- phy: ti: phy-omap-usb2: Fix NULL pointer dereference for SRP
+- !4861  ext4: regenerate buddy after block freeing failed if under fc replay
+- drm/bridge: sii902x: Fix probing race issue
+- !4857  x86/srso: Add SRSO mitigation for Hygon processors
+- !4657 perf/x86/amd/uncore: Fix memory leak for events array
+- !4902 [sync] PR-4865:  Input: powermate - fix use-after-free in powermate_config_complete
+- Input: powermate - fix use-after-free in powermate_config_complete
+- udp: properly flush normal packet at GRO time
+- udp: skip L4 aggregation for UDP tunnel packets
+- !4891  Bluetooth: rfcomm: Fix null-ptr-deref in rfcomm_check_security
+- Bluetooth: rfcomm: Fix null-ptr-deref in rfcomm_check_security
+- net: openvswitch: limit the number of recursions from action sets
+- ext4: regenerate buddy after block freeing failed if under fc replay
+- x86/srso: Add SRSO mitigation for Hygon processors
+- !4847  btrfs: mainline backport
+- !4529 crypto: hisilicon/qm - add bracket protection for macro parameters
+- btrfs: fix deadlock when cloning inline extents and using qgroups
+- btrfs: do not start and wait for delalloc on snapshot roots on transaction commit
+- !4678  f2fs: fix to avoid dirent corruption
+- !4742  block: add check that partition length needs to be aligned with block size
+- !4805  CVE-2023-52451 backport to OLK-5.10 v2
+- !4803  CVE-2024-26583
+- !4794  serial: imx: fix tx statemachine deadlock
+- !4702  efivarfs: force RO when remounting if SetVariable is not supported
+- netfilter: nft_set_rbtree: skip end interval element from gc
+- !4790 v2  gfs2: Fix kernel NULL pointer dereference in gfs2_rgrp_dump
+- powerpc/pseries/memhp: Fix access beyond end of drmem array
+- powerpc/pseries/memhotplug: Quieten some DLPAR operations
+- tls: fix race between tx work scheduling and socket close
+- tls: fix race between async notify and socket close
+- net: tls: factor out tls_*crypt_async_wait()
+- tls: rx: simplify async wait
+- !4764  binder: signal epoll threads of self-work
+- !4674 Backport 5.10.193- 5.10.194 LTS patches from upstream
+- !4747  KVM: arm64: vgic-its: Avoid potential UAF in LPI translation cache
+- serial: imx: fix tx statemachine deadlock
+- gfs2: Fix kernel NULL pointer dereference in gfs2_rgrp_dump
+- !3123 Add pcie acs and no-bus-reset quirk for mucse Nics
+- !4772  x86/fpu: Stop relying on userspace for info to fault in xsave buffer
+- x86/fpu: Stop relying on userspace for info to fault in xsave buffer
+- !4729  serial: 8250: omap: Don't skip resource freeing if pm_runtime_resume_and_get() failed
+- binder: signal epoll threads of self-work
+- !4690  CVE-2024-26586
+- !4737  blk-mq: fix IO hang from sbitmap wakeup race
+- KVM: arm64: vgic-its: Avoid potential UAF in LPI translation cache
+- !4672  uio: Fix use-after-free in uio_open
+- block: add check that partition length needs to be aligned with block size
+- blk-mq: fix IO hang from sbitmap wakeup race
+- !4706  mtd: Fix gluebi NULL pointer dereference caused by ftl notifier
+- serial: 8250: omap: Don't skip resource freeing if pm_runtime_resume_and_get() failed
+- mtd: Fix gluebi NULL pointer dereference caused by ftl notifier
+- efivarfs: force RO when remounting if SetVariable is not supported
+- mlxsw: spectrum_acl_tcam: Fix stack corruption
+- mlxsw: spectrum_acl_tcam: Reorder functions to avoid forward declarations
+- mlxsw: spectrum_acl_tcam: Make fini symmetric to init
+- mlxsw: spectrum_acl_tcam: Add missing mutex_destroy()
+- mlxsw: spectrum: Use 'bitmap_zalloc()' when applicable
+- mlxsw: spectrum_acl_erp: Fix error flow of pool allocation failure
+- f2fs: fix to avoid dirent corruption
+- rcu-tasks: Add trc_inspect_reader() checks for exiting critical section
+- rcu-tasks: Wait for trc_read_check_handler() IPIs
+- rcu-tasks: Fix IPI failure handling in trc_wait_for_one_reader
+- Revert "MIPS: Alchemy: fix dbdma2"
+- Revert "drm/amdgpu: install stub fence into potential unused fence pointers"
+- mhi: pci_generic: Fix implicit conversion warning
+- ARM: module: Use module_init_layout_section() to spot init sections
+- arm64: module: Use module_init_layout_section() to spot init sections
+- arm64: module-plts: inline linux/moduleloader.h
+- module: Expose module_init_layout_section()
+- ASoC: Intel: sof_sdw: include rt711.h for RT711 JD mode
+- dma-buf/sw_sync: Avoid recursive lock during fence signal
+- pinctrl: renesas: rza2: Add lock around pinctrl_generic{{add,remove}_group,{add,remove}_function}
+- clk: Fix undefined reference to `clk_rate_exclusive_{get,put}'
+- scsi: core: raid_class: Remove raid_component_add()
+- scsi: snic: Fix double free in snic_tgt_create()
+- ASoC: rt711: add two jack detection modes
+- drm/i915: Fix premature release of request's reusable memory
+- cgroup/cpuset: Free DL BW in case can_attach() fails
+- sched/deadline: Create DL BW alloc, free & check overflow interface
+- cgroup/cpuset: Iterate only if DEADLINE tasks are present
+- sched/cpuset: Keep track of SCHED_DEADLINE task in cpusets
+- sched/cpuset: Bring back cpuset_mutex
+- cgroup/cpuset: Rename functions dealing with DEADLINE accounting
+- timers/nohz: Switch to ONESHOT_STOPPED in the low-res handler when the tick is stopped
+- tick: Detect and fix jiffies update stall
+- torture: Fix hang during kthread shutdown phase
+- drm/display/dp: Fix the DP DSC Receiver cap size
+- drm/vmwgfx: Fix shader stage validation
+- PCI: acpiphp: Use pci_assign_unassigned_bridge_resources() only for non-root bus
+- media: vcodec: Fix potential array out-of-bounds in encoder queue_setup
+- of: dynamic: Refactor action prints to not use "%pOF" inside devtree_lock
+- radix tree: remove unused variable
+- lib/clz_ctz.c: Fix __clzdi2() and __ctzdi2() for 32-bit kernels
+- batman-adv: Fix batadv_v_ogm_aggr_send memory leak
+- batman-adv: Fix TT global entry leak when client roamed back
+- batman-adv: Do not get eth header before batadv_check_management_packet
+- batman-adv: Don't increase MTU when set by user
+- batman-adv: Trigger events for auto adjusted MTU
+- selinux: set next pointer before attaching to list
+- nfsd: Fix race to FREE_STATEID and cl_revoked
+- NFS: Fix a use after free in nfs_direct_join_group()
+- mm: add a call to flush_cache_vmap() in vmap_pfn()
+- clk: Fix slab-out-of-bounds error in devm_clk_release()
+- NFSv4: Fix dropped lock for racing OPEN and delegation return
+- ibmveth: Use dcbf rather than dcbfl
+- bonding: fix macvlan over alb bond support
+- net: remove bond_slave_has_mac_rcu()
+- rtnetlink: Reject negative ifindexes in RTM_NEWLINK
+- rtnetlink: return ENODEV when ifname does not exist and group is given
+- netfilter: nf_tables: fix out of memory error handling
+- net/sched: fix a qdisc modification with ambiguous command request
+- igb: Avoid starting unnecessary workqueues
+- ice: fix receive buffer size miscalculation
+- net: bcmgenet: Fix return value check for fixed_phy_register()
+- net: bgmac: Fix return value check for fixed_phy_register()
+- ipvlan: Fix a reference count leak warning in ipvlan_ns_exit()
+- dccp: annotate data-races in dccp_poll()
+- sock: annotate data-races around prot->memory_pressure
+- octeontx2-af: SDP: fix receive link config
+- rbd: prevent busy loop when requesting exclusive lock
+- rbd: retrieve and check lock owner twice before blocklisting
+- rbd: make get_lock_owner_info() return a single locker or NULL
+- libceph, rbd: ignore addr->type while comparing in some cases
+- drm/amd/display: check TG is non-null before checking if enabled
+- drm/amd/display: do not wait for mpc idle if tg is disabled
+- ALSA: pcm: Fix potential data race at PCM memory allocation helpers
+- dm integrity: reduce vmalloc space footprint on 32-bit architectures
+- dm integrity: increase RECALC_SECTORS to improve recalculate speed
+- fbdev: fix potential OOB read in fast_imageblit()
+- fbdev: Fix sys_imageblit() for arbitrary image widths
+- fbdev: Improve performance of sys_imageblit()
+- MIPS: cpu-features: Use boot_cpu_type for CPU type based features
+- MIPS: cpu-features: Enable octeon_cache by cpu_type
+- fs: dlm: fix mismatch of plock results from userspace
+- fs: dlm: use dlm_plock_info for do_unlock_close
+- fs: dlm: change plock interrupted message to debug again
+- fs: dlm: add pid to debug log
+- dlm: replace usage of found with dedicated list iterator variable
+- dlm: improve plock logging if interrupted
+- PCI: acpiphp: Reassign resources on bridge if necessary
+- xprtrdma: Remap Receive buffers after a reconnect
+- NFSv4: fix out path in __nfs4_get_acl_uncached
+- uio: Fix use-after-free in uio_open
+- perf/x86/amd/uncore: Fix memory leak for events array
+- crypto: hisilicon/qm - add bracket protection for macro parameters
+- PCI: Add pcie acs and no-bus-reset quirk for mucse Nics
+
 * Tue Feb 27 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-189.0.0.102
 - !4694 v2  mlxsw: spectrum_acl_tcam: Fix NULL pointer dereference in error path
 - mlxsw: spectrum_acl_tcam: Fix NULL pointer dereference in error path
