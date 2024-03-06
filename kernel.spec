@@ -17,8 +17,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       60
-%global maintenance_release .127.0
-%global pkg_release         .154
+%global maintenance_release .128.0
+%global pkg_release         .155
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -932,6 +932,24 @@ fi
 %endif
 
 %changelog
+* Wed Mar 06 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-60.128.0.155
+- !4955 [sync] PR-4868:  net: openvswitch: limit the number of recursions from action sets
+- !4960 [sync] PR-4940:  apparmor: avoid crash when parsed profile name is empty
+- !4951  arm64: head.S: always initialize PSTATE
+- apparmor: avoid crash when parsed profile name is empty
+- net: openvswitch: limit the number of recursions from action sets
+- arm64: head.S: always initialize PSTATE
+- !4754 [sync] PR-4737:  blk-mq: fix IO hang from sbitmap wakeup race
+- !4813 [sync] PR-4702:  efivarfs: force RO when remounting if SetVariable is not supported
+- !4795 [sync] PR-4747:  KVM: arm64: vgic-its: Avoid potential UAF in LPI translation cache
+- efivarfs: force RO when remounting if SetVariable is not supported
+- !4791 v2  gfs2: Fix kernel NULL pointer dereference in gfs2_rgrp_dump
+- KVM: arm64: vgic-its: Avoid potential UAF in LPI translation cache
+- gfs2: Fix kernel NULL pointer dereference in gfs2_rgrp_dump
+- blk-mq: fix IO hang from sbitmap wakeup race
+- !4722 [sync] PR-4694: v2  mlxsw: spectrum_acl_tcam: Fix NULL pointer dereference in error path
+- mlxsw: spectrum_acl_tcam: Fix NULL pointer dereference in error path
+
 * Tue Feb 27 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-60.127.0.154
 - !4466 [sync] PR-4256:  scsi: core: Always send batch on reset or error handling command
 - !4681 [sync] PR-4662: v3  CVE-2023-52435
