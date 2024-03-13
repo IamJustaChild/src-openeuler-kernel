@@ -23,9 +23,9 @@
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       10
+%global devel_release       11
 %global maintenance_release .0.0
-%global pkg_release         .7
+%global pkg_release         .8
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -145,6 +145,7 @@ BuildRequires: java-devel
 BuildRequires: dwarves
 BuildRequires: clang >= 10.0.0
 BuildRequires: llvm
+BuildRequires: llvm-devel
 %if %{with clang_lto}
 BuildRequires: lld
 %endif
@@ -954,6 +955,664 @@ fi
 %endif
 
 %changelog
+* Tue Mar 12 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 6.6.0-11.0.0.8
+- !4776 [OLK-6.6] kabi:reserve space for msi expansion
+- [OLK-6.6] kabi:reserve space for msi expansion
+- !5041 [OLK-6.6] support the AMD Zen5 Turin
+- x86/CPU/AMD: Add more models to X86_FEATURE_ZEN5
+- x86/CPU/AMD: Add X86_FEATURE_ZEN5
+- x86/CPU/AMD: Add X86_FEATURE_ZEN1
+- x86/CPU/AMD: Drop now unused CPU erratum checking function
+- x86/CPU/AMD: Get rid of amd_erratum_1485[]
+- x86/CPU/AMD: Get rid of amd_erratum_400[]
+- x86/CPU/AMD: Get rid of amd_erratum_383[]
+- x86/CPU/AMD: Get rid of amd_erratum_1054[]
+- x86/CPU/AMD: Move the DIV0 bug detection to the Zen1 init function
+- x86/CPU/AMD: Move Zenbleed check to the Zen2 init function
+- x86/CPU/AMD: Rename init_amd_zn() to init_amd_zen_common()
+- x86/CPU/AMD: Call the spectral chicken in the Zen2 init function
+- x86/CPU/AMD: Move erratum 1076 fix into the Zen1 init function
+- x86/CPU/AMD: Move the Zen3 BTC_NO detection to the Zen3 init function
+- x86/CPU/AMD: Carve out the erratum 1386 fix
+- x86/CPU/AMD: Add ZenX generations flags
+- !5036 [OLK-6.6] Do not serialize MSR accesses on AMD
+- x86/barrier: Do not serialize MSR accesses on AMD
+- !5134  modpost: Optimize symbol search from linear to binary search
+- modpost: Optimize symbol search from linear to binary search
+- !4826 add sw64 architecture support
+- drivers: vfio: add sw64 support
+- drivers: usb: add sw64 support
+- drivers: tty: add sw64 support
+- drivers: spi: add sw64 support
+- drivers: scsi: add sw64 support
+- drivers: rtc: add sw64 rtc support
+- drivers: qemu_fw_cfg: add sw64 support
+- drivers: platform: add sw64 support
+- drivers: pci: add sw64 support
+- drivers: misc: add sw64 support
+- drivers: mfd: add sw64 support
+- drivers: irqchip: add sw64 support
+- drivers: iommu: add sw64 support
+- drivers: i2c: add sw64 support
+- drivers: hwmon: add sw64 support
+- drivers: gpio: add sw64 support
+- drivers: efi: add sw64 support
+- !4927 ima: digest list new support modsig
+- ima: digest list new support modsig
+- !4971 net: hns3: backport some patch from kernel 6.7
+- net: hns3: add some link modes for hisilicon device
+- net: hns3: add vf fault detect support
+- net: hns3: add hns3 vf fault detect cap bit support
+- !5040 [OLK-6.6] Add support for Vendor Defined Error Types in Einj Module
+- ACPI: APEI: EINJ: Add support for vendor defined error types
+- platform/chrome: cros_ec_debugfs: Fix permissions for panicinfo
+- fs: debugfs: Add write functionality to debugfs blobs
+- ACPI: APEI: EINJ: Refactor available_error_type_show()
+- !5039 [OLK-6.6] Fix disabling memory if DVSEC CXL Range does not match a CFMWS window
+- cxl/pci: Fix disabling memory if DVSEC CXL Range does not match a CFMWS window
+- !5047  Backport etmem swapcache recalim feature to OLK 6.6
+- etmem: add swapcache reclaim to etmem
+- etmem: Expose symbol reclaim_folio_list
+- !4514 [OLK-6.6] kabi: IOMMU subsystem reservation
+- kabi: IOMMU reservations
+- kabi: bus_type, device_driver, dev_pm_ops reservation
+- !5056  erofs: fix handling kern_mount() failure
+- erofs: fix handling kern_mount() failure
+- !5059  dm: limit the number of targets and parameter size area
+- dm: limit the number of targets and parameter size area
+- !5021  LoongArch: fix some known issue and update defconfig
+- LoongArch: enable CONFIG_DEBUG_INFO_BTF by default
+- net: stmmac: fix potential double free of dma descriptor resources
+- drm/radeon: Workaround radeon driver bug for Loongson
+- irqchip/loongson-liointc: Set different isr for differnt core
+- LoongArch: kdump: Add high memory reservation
+- LoongArch: Fix kdump failure on v40 interface specification
+- LoongArch: kexec: Add compatibility with old interfaces
+- LoongArch: kdump: Add memory reservation for old kernel
+- LoongArch: defconfig: Enable a large number of configurations
+- irqchip/loongson-pch-pic: 7a1000 int_clear reg must use 64bit write.
+- LoongArch: Remove generic irq migration
+- LoongArch: Adapted SECTION_SIZE_BITS with page size
+- !4689  Remove WQ_FLAG_BOOKMARK flag
+- sched: remove wait bookmarks
+- filemap: remove use of wait bookmarks
+- !5024 v2  vmemmap optimize bugfix
+- mm: hugetlb_vmemmap: allow alloc vmemmap pages fallback to other nodes
+- mm: hugetlb_vmemmap: fix hugetlb page number decrease failed on movable nodes
+- !4653 [OLK-6.6] Add support for Mucse Network Adapter(N10/N400)
+- drivers: initial support for rnp drivers from Mucse Technology
+- !4935 RDMA/hns: Support userspace configuring congestion control algorithm with QP granularity
+- RDMA/hns: Support userspace configuring congestion control algorithm with QP granularity
+- RDMA/hns: Fix mis-modifying default congestion control algorithm
+- !4993 v3  kworker: Fix the problem of ipsan performance degradation
+- Add kernel compilation configuration options
+- iscsi: use dynamic single thread workqueue to improve performance
+- workqueue: add member for NUMA aware order workqueue and implement NUMA affinity for single thread workqueue
+- !4930  erofs: fix lz4 inplace decompression
+- erofs: fix lz4 inplace decompression
+- !4082 【OLK-6.6】KVM: arm64: vtimer irq bypass support
+- mbigen: probe mbigen driver with arch_initcall
+- mbigen: vtimer: disable vtimer mbigen probe when vtimer_irqbypass disabled
+- mbigen: Sets the regs related to vtimer irqbypass
+- KVM: arm64: vgic-v3: Clearing pending status of vtimer on guest reset
+- mbigen: vtimer: add support for MBIX1_CPPI_NEGEDGE_CLR_EN_SETR(CLRR)
+- KVM: arm64: arch_timer: Make vtimer_irqbypass a Distributor attr
+- KVM: arm64: vtimer: Expose HW-based vtimer interrupt in debugfs
+- KVM: arm64: GICv4.1: Allow non-trapping WFI when using direct vtimer interrupt
+- KVM: arm64: GICv4.1: Add support for MBIGEN save/restore
+- KVM: arm64: arch_timer: Rework vcpu init/reset logic
+- KVM: arm64: arch_timer: Probe vtimer irqbypass capability
+- KVM: arm64: GICv4.1: Enable vtimer vPPI irqbypass config
+- KVM: arm64: GICv4.1: Add direct injection capability to PPI registers
+- KVM: arm64: vgic: Add helper for vtimer vppi info register
+- KVM: arm64: GICv4.1: Inform the HiSilicon vtimer irqbypass capability
+- irqchip/gic-v4.1: Probe vtimer irqbypass capability at RD level
+- irqchip/gic-v4.1: Rework its_alloc_vcpu_sgis() to support vPPI allocation
+- irqchip/gic-v4.1: Rework get/set_irqchip_state callbacks of GICv4.1-sgi chip
+- irqchip/gic-v4.1: Extend VSGI command to support the new vPPI
+- irqchip/gic-v4.1: Detect ITS vtimer interrupt bypass capability
+- mbigen: vtimer mbigen driver support
+- mbigen: vtimer: isolate mbigen vtimer funcs with macro
+- !4875 [OLK-6.6] backport latest v6.8 iommu fixes
+- iommufd/selftest: Don't check map/unmap pairing with HUGE_PAGES
+- iommufd: Fix protection fault in iommufd_test_syz_conv_iova
+- iommufd/selftest: Fix mock_dev_num bug
+- iommufd: Fix iopt_access_list_id overwrite bug
+- iommu/sva: Fix SVA handle sharing in multi device case
+- !4867  ext4: regenerate buddy after block freeing failed if under fc replay
+- ext4: regenerate buddy after block freeing failed if under fc replay
+- !4851  cachefiles: fix memory leak in cachefiles_add_cache()
+- cachefiles: fix memory leak in cachefiles_add_cache()
+- !4913 RDMA/hns: Support SCC parameter configuration and reporting of the down/up event of the HNS RoCE network port
+- RDMA/hns: Add support for sending port down event fastly
+- RDMA/hns: Deliver net device event to ofed
+- RDMA/hns: Support congestion control algorithm parameter configuration
+- !4670 crypto HiSilicon round main line code
+- crypto: hisilicon/qm - change function type to void
+- crypto: hisilicon/qm - obtain stop queue status
+- crypto: hisilicon/qm - add stop function by hardware
+- crypto: hisilicon/sec - remove unused parameter
+- crypto: hisilicon/sec2 - fix some cleanup issues
+- crypto: hisilicon/sec2 - modify nested macro call
+- crypto: hisilicon/sec2 - updates the sec DFX function register
+- crypto: hisilicon - Fix smp_processor_id() warnings
+- crypto: hisilicon/qm - dump important registers values before resetting
+- crypto: hisilicon/qm - support get device state
+- crypto: hisilicon/sec2 - optimize the error return process
+- crypto: hisilicon/qm - delete a dbg function
+- crypto: hisilicon/sec2 - Remove cfb and ofb
+- crypto: hisilicon/zip - save capability registers in probe process
+- crypto: hisilicon/sec2 - save capability registers in probe process
+- crypto: hisilicon/hpre - save capability registers in probe process
+- crypto: hisilicon/qm - save capability registers in qm init process
+- crypto: hisilicon/qm - add a function to set qm algs
+- crypto: hisilicon/qm - add comments and remove redundant array element
+- crypto: hisilicon/qm - simplify the status of qm
+- crypto: hisilicon/sgl - small cleanups for sgl.c
+- crypto: hisilicon/zip - add zip comp high perf mode configuration
+- crypto: hisilicon/qm - remove incorrect type cast
+- crypto: hisilicon/qm - print device abnormal information
+- crypto: hisilicon/trng - Convert to platform remove callback returning void
+- crypto: hisilicon/sec - Convert to platform remove callback returning void
+- crypto: hisilicon/qm - fix EQ/AEQ interrupt issue
+- crypto: hisilicon/qm - alloc buffer to set and get xqc
+- crypto: hisilicon/qm - check function qp num before alg register
+- crypto: hisilicon/qm - fix the type value of aeq
+- crypto: hisilicon/sec - fix for sgl unmmap problem
+- crypto: hisilicon/zip - remove zlib and gzip
+- crypto: hisilicon/zip - support deflate algorithm
+- uacce: make uacce_class constant
+- !4725 [OLK-6.6] merge upstream net-v6.7 all wangxun patches
+- net: fill in MODULE_DESCRIPTION()s for wx_lib
+- wangxun: select CONFIG_PHYLINK where needed
+- net: wangxun: add ethtool_ops for msglevel
+- net: wangxun: add coalesce options support
+- net: wangxun: add ethtool_ops for ring parameters
+- net: wangxun: add flow control support
+- net: ngbe: convert phylib to phylink
+- net: txgbe: use phylink bits added in libwx
+- net: libwx: add phylink to libwx
+- net: wangxun: remove redundant kernel log
+- net: ngbe: add ethtool stats support
+- net: txgbe: add ethtool stats support
+- net: wangxun: move MDIO bus implementation to the library
+- net: libwx: fix memory leak on free page
+- net: libwx: support hardware statistics
+- net: wangxun: fix changing mac failed when running
+- !4841 Intel-sig: intel_idle: add Sierra Forest SoC support on 6.6
+- intel_idle: add Sierra Forest SoC support
+- !4834 ras: fix return type of log_arm_hw_error when not add CONFIG_RAS_ARM_EVENT_INFO config
+- ras: fix return type of log_arm_hw_error when not add CONFIG_RAS_ARM_EVENT_INFO config
+- !4845  PCI: Avoid potential out-of-bounds read in pci_dev_for_each_resource()
+- PCI: Avoid potential out-of-bounds read in pci_dev_for_each_resource()
+- !4773 Add loongarch kernel kvm support
+- loongarch/kernel: Fix loongarch compilation error
+- LoongArch: KVM: Add returns to SIMD stubs
+- LoongArch: KVM: Streamline kvm_check_cpucfg() and improve comments
+- LoongArch: KVM: Rename _kvm_get_cpucfg() to _kvm_get_cpucfg_mask()
+- LoongArch: KVM: Fix input validation of _kvm_get_cpucfg() & kvm_check_cpucfg()
+- irqchip/loongson-eiointc: Use correct struct type in eiointc_domain_alloc()
+- LoongArch: KVM: Add LASX (256bit SIMD) support
+- LoongArch: KVM: Add LSX (128bit SIMD) support
+- LoongArch: KVM: Fix timer emulation with oneshot mode
+- LoongArch: KVM: Remove kvm_acquire_timer() before entering guest
+- LoongArch: KVM: Allow to access HW timer CSR registers always
+- LoongArch: KVM: Remove SW timer switch when vcpu is halt polling
+- LoongArch: KVM: Optimization for memslot hugepage checking
+- LoongArch: Implement constant timer shutdown interface
+- LoongArch: KVM: Add maintainers for LoongArch KVM
+- LoongArch: KVM: Supplement kvm document about LoongArch-specific part
+- LoongArch: KVM: Enable kvm config and add the makefile
+- LoongArch: KVM: Implement vcpu world switch
+- LoongArch: KVM: Implement kvm exception vectors
+- LoongArch: KVM: Implement handle fpu exception
+- LoongArch: KVM: Implement handle mmio exception
+- LoongArch: KVM: Implement handle gspr exception
+- LoongArch: KVM: Implement handle idle exception
+- LoongArch: KVM: Implement handle iocsr exception
+- LoongArch: KVM: Implement handle csr exception
+- LoongArch: KVM: Implement kvm mmu operations
+- LoongArch: KVM: Implement virtual machine tlb operations
+- LoongArch: KVM: Implement vcpu timer operations
+- LoongArch: KVM: Implement misc vcpu related interfaces
+- LoongArch: KVM: Implement vcpu load and vcpu put operations
+- LoongArch: KVM: Implement vcpu interrupt operations
+- LoongArch: KVM: Implement fpu operations for vcpu
+- LoongArch: KVM: Implement basic vcpu ioctl interfaces
+- LoongArch: KVM: Implement basic vcpu interfaces
+- LoongArch: KVM: Add vcpu related header files
+- LoongArch: KVM: Implement VM related functions
+- LoongArch: KVM: Implement kvm hardware enable, disable interface
+- LoongArch: KVM: Implement kvm module related interface
+- LoongArch: KVM: Add kvm related header files
+- !3951 【OLK-6.6】KVM/arm64: support virt_dev irqbypass
+- KVM: arm64: update arm64 openeuler_defconfig for CONFIG_VIRT_PLAT_DEV
+- KVM: arm64: sdev: Support virq bypass by INT/VSYNC command
+- KVM: arm64: kire: irq routing entry cached the relevant cache data
+- KVM: arm64: Introduce shadow device
+- virt_plat_dev: Register the virt platform device driver
+- irqchip/gic-v3-its: Add virt platform devices MSI support
+- irqchip/gic-v3-its: Alloc/Free device id from pools for virtual devices
+- irqchip/gic-v3-its: Introduce the reserved device ID pools
+- !4425 【OLK-6.6】arm64/nmi: Support for FEAT_NMI
+- irqchip/gic-v3: Fix hard LOCKUP caused by NMI being masked
+- config: enable CONFIG_ARM64_NMI and CONFIG_HARDLOCKUP_DETECTOR_PERF for arm64
+- irqchip/gic-v3: Implement FEAT_GICv3_NMI support
+- arm64/nmi: Add Kconfig for NMI
+- arm64/nmi: Add handling of superpriority interrupts as NMIs
+- arm64/irq: Document handling of FEAT_NMI in irqflags.h
+- arm64/entry: Don't call preempt_schedule_irq() with NMIs masked
+- arm64/nmi: Manage masking for superpriority interrupts along with DAIF
+- KVM: arm64: Hide FEAT_NMI from guests
+- arm64/cpufeature: Detect PE support for FEAT_NMI
+- arm64/idreg: Add an override for FEAT_NMI
+- arm64/hyp-stub: Enable access to ALLINT
+- arm64/asm: Introduce assembly macros for managing ALLINT
+- arm64/sysreg: Add definitions for immediate versions of MSR ALLINT
+- arm64/booting: Document boot requirements for FEAT_NMI
+- !4679  f2fs: fix to avoid dirent corruption
+- f2fs: fix to avoid dirent corruption
+- !4730  coresight: trbe: Enable ACPI based devices
+- coresight: trbe: Enable ACPI based TRBE devices
+- coresight: trbe: Add a representative coresight_platform_data for TRBE
+- !4807 [OLK-6.6] Intel: backport KVM LAM from v6.8 to OLK-6.6
+- KVM: x86: Use KVM-governed feature framework to track "LAM enabled"
+- KVM: x86: Advertise and enable LAM (user and supervisor)
+- KVM: x86: Virtualize LAM for user pointer
+- KVM: x86: Virtualize LAM for supervisor pointer
+- KVM: x86: Untag addresses for LAM emulation where applicable
+- KVM: x86: Introduce get_untagged_addr() in kvm_x86_ops and call it in emulator
+- KVM: x86: Remove kvm_vcpu_is_illegal_gpa()
+- KVM: x86: Add & use kvm_vcpu_is_legal_cr3() to check CR3's legality
+- KVM: x86/mmu: Drop non-PA bits when getting GFN for guest's PGD
+- KVM: x86: Add X86EMUL_F_INVLPG and pass it in em_invlpg()
+- KVM: x86: Add an emulation flag for implicit system access
+- KVM: x86: Consolidate flags for __linearize()
+- !4700  efivarfs: force RO when remounting if SetVariable is not supported
+- efivarfs: force RO when remounting if SetVariable is not supported
+- !4785  Support PV-sched feature
+- KVM: arm64: Support the vCPU preemption check
+- KVM: arm64: Add interface to support vCPU preempted check
+- KVM: arm64: Support pvsched preempted via shared structure
+- KVM: arm64: Implement PV_SCHED_FEATURES call
+- KVM: arm64: Document PV-sched interface
+- !4629 add sw64 architecture support
+- drivers: cpufreq: add sw64 support
+- drivers: clocksource: add sw64 support
+- drivers: acpi: add sw64 support
+- selftests: fix sw64 support
+- perf: fix sw64 support
+- perf: add sw64 support
+- tools: fix basic sw64 support
+- tools: add basic sw64 support
+- sw64: fix ftrace support
+- sw64: fix audit support
+- sw64: fix kexec support
+- sw64: fix PCI support
+- sw64: fix KVM support
+- sw64: fix module support
+- sw64: fix ACPI support
+- sw64: fix rrk support
+- sw64: fix ELF support
+- !4727 RAS: Report ARM processor information to userspace
+- RAS: Report ARM processor information to userspace
+- !4769 [sync] PR-4729:  serial: 8250: omap: Don't skip resource freeing if pm_runtime_resume_and_get() failed
+- serial: 8250: omap: Don't skip resource freeing if pm_runtime_resume_and_get() failed
+- !4781  x86/fpu: Stop relying on userspace for info to fault in xsave buffer
+- x86/fpu: Stop relying on userspace for info to fault in xsave buffer
+- !4787 v2  gfs2: Fix kernel NULL pointer dereference in gfs2_rgrp_dump
+- gfs2: Fix kernel NULL pointer dereference in gfs2_rgrp_dump
+- !4789 v2  fix CVE-2024-26590
+- erofs: fix inconsistent per-file compression format
+- erofs: simplify compression configuration parser
+- !4736 PCIe and miniIO OLK-5.10 branch partial code round OLK-6.6 branch
+- xhci:fix USB xhci controller issue
+- spi: hisi-sfc-v3xx: return IRQ_NONE if no interrupts were detected
+- Add the verification operation after the bus recovery operation obtains resources through the ACPI
+- i2c: hisi: Add gpio bus recovery support
+- gpio: hisi: Fix format specifier
+- perf hisi-ptt: Fix one memory leakage in hisi_ptt_process_auxtrace_event()
+- Fix the header file location error and adjust the function and structure version.
+- hwtracing: hisi_ptt: Don't try to attach a task
+- hwtracing: hisi_ptt: Optimize the trace data committing
+- hwtracing: hisi_ptt: Handle the interrupt in hardirq context
+- hwtracing: hisi_ptt: Disable interrupt after trace end
+- !4802  Export vcpu stat via debugfs
+- kvm: debugfs: add EXIT_REASON_PREEMPTION_TIMER to vcpu_stat
+- kvm: debugfs: add fastpath msr_wr exits to debugfs statistics
+- kvm: debugfs: Export x86 kvm exits to vcpu_stat
+- kvm: debugfs: aarch64 export cpu time related items to debugfs
+- kvm: debugfs: export remaining aarch64 kvm exit reasons to debugfs
+- kvm: debugfs: Export vcpu stat via debugfs
+- !4676 [OLK-6.6] kabi/iommu: Backport patches from upstream and maintainer tree
+- iommu/sva: Restore SVA handle sharing
+- iommu/arm-smmu-v3: Do not use GFP_KERNEL under as spinlock
+- Revert "iommu/arm-smmu: Convert to domain_alloc_paging()"
+- iommu/vt-d: Fix constant-out-of-range warning
+- iommu/vt-d: Set SSADE when attaching to a parent with dirty tracking
+- iommu/vt-d: Add missing dirty tracking set for parent domain
+- iommu/vt-d: Wrap the dirty tracking loop to be a helper
+- iommu/vt-d: Remove domain parameter for intel_pasid_setup_dirty_tracking()
+- iommu/vt-d: Add missing device iotlb flush for parent domain
+- iommu/vt-d: Update iotlb in nested domain attach
+- iommu/vt-d: Add missing iotlb flush for parent domain
+- iommu/vt-d: Add __iommu_flush_iotlb_psi()
+- iommu/vt-d: Track nested domains in parent
+- iommu: Make iommu_report_device_fault() return void
+- iommu: Make iopf_group_response() return void
+- iommu: Track iopf group instead of last fault
+- iommu: Improve iopf_queue_remove_device()
+- iommu: Use refcount for fault data access
+- iommu: Refine locking for per-device fault data management
+- iommu: Separate SVA and IOPF
+- iommu: Make iommu_queue_iopf() more generic
+- iommu: Prepare for separating SVA and IOPF
+- iommu: Merge iommu_fault_event and iopf_fault
+- iommu: Remove iommu_[un]register_device_fault_handler()
+- iommu: Merge iopf_device_param into iommu_fault_param
+- iommu: Cleanup iopf data structure definitions
+- iommu: Remove unrecoverable fault data
+- iommu/arm-smmu-v3: Remove unrecoverable faults reporting
+- iommu: Move iommu fault data to linux/iommu.h
+- iommu/iova: use named kmem_cache for iova magazines
+- iommu/iova: Reorganise some code
+- iommu/iova: Tidy up iova_cache_get() failure
+- selftests/iommu: fix the config fragment
+- iommufd: Reject non-zero data_type if no data_len is provided
+- iommufd/iova_bitmap: Consider page offset for the pages to be pinned
+- iommufd/selftest: Add mock IO hugepages tests
+- iommufd/selftest: Hugepage mock domain support
+- iommufd/selftest: Refactor mock_domain_read_and_clear_dirty()
+- iommufd/selftest: Refactor dirty bitmap tests
+- iommufd/iova_bitmap: Handle recording beyond the mapped pages
+- iommufd/selftest: Test u64 unaligned bitmaps
+- iommufd/iova_bitmap: Switch iova_bitmap::bitmap to an u8 array
+- iommufd/iova_bitmap: Bounds check mapped::pages access
+- powerpc/iommu: Fix the missing iommu_group_put() during platform domain attach
+- powerpc: iommu: Bring back table group release_ownership() call
+- iommu: Allow ops->default_domain to work when !CONFIG_IOMMU_DMA
+- iommufd/selftest: Check the bus type during probe
+- iommu/vt-d: Add iotlb flush for nested domain
+- iommufd: Add data structure for Intel VT-d stage-1 cache invalidation
+- iommufd/selftest: Add coverage for IOMMU_HWPT_INVALIDATE ioctl
+- iommufd/selftest: Add IOMMU_TEST_OP_MD_CHECK_IOTLB test op
+- iommufd/selftest: Add mock_domain_cache_invalidate_user support
+- iommu: Add iommu_copy_struct_from_user_array helper
+- iommufd: Add IOMMU_HWPT_INVALIDATE
+- iommu: Add cache_invalidate_user op
+- iommu: Don't reserve 0-length IOVA region
+- iommu/sva: Fix memory leak in iommu_sva_bind_device()
+- iommu/dma: Trace bounce buffer usage when mapping buffers
+- iommu/tegra: Use tegra_dev_iommu_get_stream_id() in the remaining places
+- acpi: Do not return struct iommu_ops from acpi_iommu_configure_id()
+- iommu: Mark dev_iommu_priv_set() with a lockdep
+- iommu: Mark dev_iommu_get() with lockdep
+- iommu/of: Use -ENODEV consistently in of_iommu_configure()
+- iommmu/of: Do not return struct iommu_ops from of_iommu_configure()
+- iommu: Remove struct iommu_ops *iommu from arch_setup_dma_ops()
+- iommu: Set owner token to SVA domain
+- mm: Deprecate pasid field
+- iommu: Support mm PASID 1:n with sva domains
+- mm: Add structure to keep sva information
+- iommu: Add mm_get_enqcmd_pasid() helper function
+- iommu/vt-d: Remove mm->pasid in intel_sva_bind_mm()
+- iommu: Change kconfig around IOMMU_SVA
+- iommu: Extend LPAE page table format to support custom allocators
+- iommu: Allow passing custom allocators to pgtable drivers
+- iommu: Clean up open-coded ownership checks
+- iommu: Retire bus ops
+- iommu/arm-smmu: Don't register fwnode for legacy binding
+- iommu: Decouple iommu_domain_alloc() from bus ops
+- iommu: Validate that devices match domains
+- iommu: Decouple iommu_present() from bus ops
+- iommu: Factor out some helpers
+- iommu: Map reserved memory as cacheable if device is coherent
+- iommu/vt-d: Move inline helpers to header files
+- iommu/vt-d: Remove unused vcmd interfaces
+- iommu/vt-d: Remove unused parameter of intel_pasid_setup_pass_through()
+- iommu/vt-d: Refactor device_to_iommu() to retrieve iommu directly
+- iommu/virtio: Add ops->flush_iotlb_all and enable deferred flush
+- iommu/virtio: Make use of ops->iotlb_sync_map
+- iommu/arm-smmu: Convert to domain_alloc_paging()
+- iommu/arm-smmu: Pass arm_smmu_domain to internal functions
+- iommu/arm-smmu: Implement IOMMU_DOMAIN_BLOCKED
+- iommu/arm-smmu: Convert to a global static identity domain
+- iommu/arm-smmu: Reorganize arm_smmu_domain_add_master()
+- iommu/arm-smmu-v3: Remove ARM_SMMU_DOMAIN_NESTED
+- iommu/arm-smmu-v3: Master cannot be NULL in arm_smmu_write_strtab_ent()
+- iommu/arm-smmu-v3: Add a type for the STE
+- iommu/apple-dart: Fix spelling mistake "grups" -> "groups"
+- iommu/apple-dart: Use readl instead of readl_relaxed for consistency
+- iommu/apple-dart: Add support for t8103 USB4 DART
+- iommu/apple-dart: Write to all DART_T8020_STREAM_SELECT
+- dt-bindings: iommu: dart: Add t8103-usb4-dart compatible
+- iommufd: Do not UAF during iommufd_put_object()
+- iommufd: Add iommufd_ctx to iommufd_put_object()
+- iommu/vt-d: Support enforce_cache_coherency only for empty domains
+- iommu: Flow ERR_PTR out from __iommu_domain_alloc()
+- iommu/dma: Use a large flush queue and timeout for shadow_on_flush
+- iommu/dma: Allow a single FQ in addition to per-CPU FQs
+- iommu/s390: Disable deferred flush for ISM devices
+- s390/pci: Use dma-iommu layer
+- s390/pci: prepare is_passed_through() for dma-iommu
+- iommu: Allow .iotlb_sync_map to fail and handle s390's -ENOMEM return
+- iommu/dart: Remove the force_bypass variable
+- iommu/dart: Call apple_dart_finalize_domain() as part of alloc_paging()
+- iommu/dart: Convert to domain_alloc_paging()
+- iommu/dart: Move the blocked domain support to a global static
+- iommu/dart: Use static global identity domains
+- iommufd: Convert to alloc_domain_paging()
+- iommu/vt-d: Use ops->blocked_domain
+- iommu/vt-d: Update the definition of the blocking domain
+- iommu: Move IOMMU_DOMAIN_BLOCKED global statics to ops->blocked_domain
+- iommu: change iommu_map_sgtable to return signed values
+- powerpc/iommu: Do not do platform domain attach atctions after probe
+- iommu: Fix return code in iommu_group_alloc_default_domain()
+- iommu: Do not use IOMMU_DOMAIN_DMA if CONFIG_IOMMU_DMA is not enabled
+- iommu: Remove duplicate include
+- iommu: Improve map/unmap sanity checks
+- iommu: Retire map/unmap ops
+- iommu/tegra-smmu: Update to {map,unmap}_pages
+- iommu/sun50i: Update to {map,unmap}_pages
+- iommu/rockchip: Update to {map,unmap}_pages
+- iommu/omap: Update to {map,unmap}_pages
+- iommu/exynos: Update to {map,unmap}_pages
+- iommu/omap: Convert to generic_single_device_group()
+- iommu/ipmmu-vmsa: Convert to generic_single_device_group()
+- iommu/rockchip: Convert to generic_single_device_group()
+- iommu/sprd: Convert to generic_single_device_group()
+- iommu/sun50i: Convert to generic_single_device_group()
+- iommu: Add generic_single_device_group()
+- iommu: Remove useless group refcounting
+- iommu: Convert remaining simple drivers to domain_alloc_paging()
+- iommu: Convert simple drivers with DOMAIN_DMA to domain_alloc_paging()
+- iommu: Add ops->domain_alloc_paging()
+- iommu: Add __iommu_group_domain_alloc()
+- iommu: Require a default_domain for all iommu drivers
+- iommu/sun50i: Add an IOMMU_IDENTITIY_DOMAIN
+- iommu/mtk_iommu: Add an IOMMU_IDENTITIY_DOMAIN
+- iommu/ipmmu: Add an IOMMU_IDENTITIY_DOMAIN
+- iommu/qcom_iommu: Add an IOMMU_IDENTITIY_DOMAIN
+- iommu: Remove ops->set_platform_dma_ops()
+- iommu/msm: Implement an IDENTITY domain
+- iommu/omap: Implement an IDENTITY domain
+- iommu/tegra-smmu: Support DMA domains in tegra
+- iommu/tegra-smmu: Implement an IDENTITY domain
+- iommu/exynos: Implement an IDENTITY domain
+- iommu: Allow an IDENTITY domain as the default_domain in ARM32
+- iommu: Reorganize iommu_get_default_domain_type() to respect def_domain_type()
+- iommu/mtk_iommu_v1: Implement an IDENTITY domain
+- iommu/tegra-gart: Remove tegra-gart
+- iommu/fsl_pamu: Implement a PLATFORM domain
+- iommu: Add IOMMU_DOMAIN_PLATFORM for S390
+- powerpc/iommu: Setup a default domain and remove set_platform_dma_ops
+- iommu: Add IOMMU_DOMAIN_PLATFORM
+- iommu: Add iommu_ops->identity_domain
+- iommu/vt-d: debugfs: Support dumping a specified page table
+- iommu/vt-d: debugfs: Create/remove debugfs file per {device, pasid}
+- iommu/vt-d: debugfs: Dump entry pointing to huge page
+- iommu/virtio: Add __counted_by for struct viommu_request and use struct_size()
+- iommu/arm-smmu-v3-sva: Remove bond refcount
+- iommu/arm-smmu-v3-sva: Remove unused iommu_sva handle
+- iommu/arm-smmu-v3: Rename cdcfg to cd_table
+- iommu/arm-smmu-v3: Update comment about STE liveness
+- iommu/arm-smmu-v3: Cleanup arm_smmu_domain_finalise
+- iommu/arm-smmu-v3: Move CD table to arm_smmu_master
+- iommu/arm-smmu-v3: Refactor write_ctx_desc
+- iommu/arm-smmu-v3: move stall_enabled to the cd table
+- iommu/arm-smmu-v3: Encapsulate ctx_desc_cfg init in alloc_cd_tables
+- iommu/arm-smmu-v3: Replace s1_cfg with cdtab_cfg
+- iommu/arm-smmu-v3: Move ctx_desc out of s1_cfg
+- iommu/tegra-smmu: Drop unnecessary error check for for debugfs_create_dir()
+- powerpc: Remove extern from function implementations
+- iommufd: Organize the mock domain alloc functions closer to Joerg's tree
+- iommu/vt-d: Disallow read-only mappings to nest parent domain
+- iommu/vt-d: Add nested domain allocation
+- iommu/vt-d: Set the nested domain to a device
+- iommu/vt-d: Make domain attach helpers to be extern
+- iommu/vt-d: Add helper to setup pasid nested translation
+- iommu/vt-d: Add helper for nested domain allocation
+- iommu/vt-d: Extend dmar_domain to support nested domain
+- iommufd: Add data structure for Intel VT-d stage-1 domain allocation
+- iommufd/selftest: Add coverage for IOMMU_HWPT_ALLOC with nested HWPTs
+- iommufd/selftest: Add nested domain allocation for mock domain
+- iommu: Add iommu_copy_struct_from_user helper
+- iommufd: Add a nested HW pagetable object
+- iommu: Pass in parent domain with user_data to domain_alloc_user op
+- iommufd: Share iommufd_hwpt_alloc with IOMMUFD_OBJ_HWPT_NESTED
+- iommufd: Derive iommufd_hwpt_paging from iommufd_hw_pagetable
+- iommufd/device: Wrap IOMMUFD_OBJ_HWPT_PAGING-only configurations
+- iommufd: Rename IOMMUFD_OBJ_HW_PAGETABLE to IOMMUFD_OBJ_HWPT_PAGING
+- iommu: Add IOMMU_DOMAIN_NESTED
+- iommufd: Only enforce cache coherency in iommufd_hw_pagetable_alloc
+- iommufd: Fix spelling errors in comments
+- !4767  reserve space for arch related structures
+- kabi: reserve space for struct mfd_cell
+- kabi: reserve space for struct irq_work
+- !4709  mtd: Fix gluebi NULL pointer dereference caused by ftl notifier
+- mtd: Fix gluebi NULL pointer dereference caused by ftl notifier
+- !4738  blk-mq: fix IO hang from sbitmap wakeup race
+- blk-mq: fix IO hang from sbitmap wakeup race
+- !4561  sched: migtate user interface from smart grid to sched bpf
+- sched: migtate user interface from smart grid to sched bpf
+- !4026 [OLK-6.6]Add support for Mont-TSSE
+- add support for Mont-TSSE Driver
+- !4564 v2  reserve space for arm64 related structures
+- kabi: reserve space for processor.h
+- kabi: reserve space for fb.h
+- kabi: reserve space for efi.h
+- !4675 v5  Backport vDPA migration support patches
+- vdpa: add CONFIG_VHOST_VDPA_MIGRATION
+- vdpa: add vmstate header file
+- vhost-vdpa: add reset state params to indicate reset level
+- vhost-vdpa: allow set feature VHOST_F_LOG_ALL when been negotiated.
+- vhost-vdpa: fix msi irq request err
+- vhost-vdpa: Allow transparent MSI IOV
+- vhost: add VHOST feature VHOST_BACKEND_F_BYTEMAPLOG
+- vhost-vdpa: add uAPI for device migration status
+- vdpa: add vdpa device migration status ops
+- vhost-vdpa: add uAPI for device buffer
+- vdpa: add device state operations
+- vhost-vdpa: add uAPI for logging
+- vdpa: add log operations
+- !4660 Intel: Backport to fix In Field Scan(IFS) SAF for GNR & SRF
+- platform/x86/intel/ifs: Call release_firmware() when handling errors.
+- !4652 RDMA/hns: Support SCC context query and DSCP configuration.
+- RDMA/hns: Support DSCP of userspace
+- RDMA/hns: Append SCC context to the raw dump of QP Resource
+- !4628  fs:/dcache.c: fix negative dentry flag warning in dentry_free
+- fs:/dcache.c: fix negative dentry flag warning in dentry_free
+- !4654 hisi_ptt: Move type check to the beginning of hisi_ptt_pmu_event_init()
+- hwtracing: hisi_ptt: Move type check to the beginning of hisi_ptt_pmu_event_init()
+- !3880 ima: Add IMA digest lists extension
+- ima: add default INITRAMFS_FILE_METADATA and EVM_DEFAULT_HASH CONFIG
+- ima: don't allow control characters in policy path
+- ima: Add max size for IMA digest database
+- config: add digest list options for arm64 and x86
+- evm: Propagate choice of HMAC algorithm in evm_crypto.c
+- ima: Execute parser to upload digest lists not recognizable by the kernel
+- evm: Extend evm= with x509. allow_metadata_writes and complete values
+- ima: Add parser keyword to the policy
+- ima: Allow direct upload of digest lists to securityfs
+- ima: Search key in the built-in keyrings
+- certs: Introduce search_trusted_key()
+- KEYS: Provide a function to load keys from a PGP keyring blob
+- KEYS: Introduce load_pgp_public_keyring()
+- KEYS: Provide PGP key description autogeneration
+- KEYS: PGP data parser
+- PGPLIB: Basic packet parser
+- PGPLIB: PGP definitions (RFC 4880)
+- rsa: add parser of raw format
+- mpi: introduce mpi_key_length()
+- ima: Add Documentation/security/IMA-digest-lists.txt
+- ima: Introduce appraise_exec_immutable policy
+- ima: Introduce appraise_exec_tcb policy
+- ima: Introduce exec_tcb policy
+- ima: Add meta_immutable appraisal type
+- evm: Add support for digest lists of metadata
+- ima: Add support for appraisal with digest lists
+- ima: Add support for measurement with digest lists
+- ima: Load all digest lists from a directory at boot time
+- ima: Introduce new hook DIGEST_LIST_CHECK
+- ima: Introduce new securityfs files
+- ima: Prevent usage of digest lists not measured or appraised
+- ima: Add parser of compact digest list
+- ima: Use ima_show_htable_value to show violations and hash table data
+- ima: Generalize policy file operations
+- ima: Generalize ima_write_policy() and raise uploaded data size limit
+- ima: Generalize ima_read_policy()
+- ima: Allow choice of file hash algorithm for measurement and audit
+- ima: Add enforce-evm and log-evm modes to strictly check EVM status
+- init: Add kernel option to force usage of tmpfs for rootfs
+- gen_init_cpio: add support for file metadata
+- initramfs: read metadata from special file METADATA!!!
+- initramfs: add file metadata
+- !4542  Support feature TLBI DVMBM
+- KVM: arm64: Implement the capability of DVMBM
+- KVM: arm64: Add kvm_arch::sched_cpus and sched_lock
+- KVM: arm64: Add kvm_vcpu_arch::sched_cpus and pre_sched_cpus
+- KVM: arm64: Probe and configure DVMBM capability on HiSi CPUs
+- KVM: arm64: Support a new HiSi CPU type
+- KVM: arm64: Only probe Hisi ncsnp feature on Hisi CPUs
+- KVM: arm64: Add support for probing Hisi ncsnp capability
+- KVM: arm64: Probe Hisi CPU TYPE from ACPI/DTB
+- !4661 [OLK-6.6] Fix gic support for Phytium S2500
+- Enable CONFIG_ARCH_PHYTIUM
+- Fix gic support for Phytium S2500
+- !4644  f2fs: explicitly null-terminate the xattr list
+- f2fs: explicitly null-terminate the xattr list
+- !4637  Using smmu IIDR registers
+- iommu/arm-smmu-v3: Enable iotlb_sync_map according to SMMU_IIDR
+- Revert "iommu/arm-smmu-v3: Add a SYNC command to avoid broken page table prefetch"
+- !4506  ubi: fastmap: Optimize ubi wl algorithm to improve flash service life
+- ubi: fastmap: Add control in 'UBI_IOCATT' ioctl to reserve PEBs for filling pools
+- ubi: fastmap: Add module parameter to control reserving filling pool PEBs
+- ubi: fastmap: Fix lapsed wear leveling for first 64 PEBs
+- ubi: fastmap: Get wl PEB even ec beyonds the 'max' if free PEBs are run out
+- ubi: fastmap: may_reserve_for_fm: Don't reserve PEB if fm_anchor exists
+- ubi: fastmap: Remove unneeded break condition while filling pools
+- ubi: fastmap: Wait until there are enough free PEBs before filling pools
+- ubi: fastmap: Use free pebs reserved for bad block handling
+- ubi: Replace erase_block() with sync_erase()
+- ubi: fastmap: Allocate memory with GFP_NOFS in ubi_update_fastmap
+- ubi: fastmap: erase_block: Get erase counter from wl_entry rather than flash
+- ubi: fastmap: Fix missed ec updating after erasing old fastmap data block
+- !4624 6.6: i2c: Optimized the value setting of maxwrite limit to fifo depth - 1
+- i2c: hisi: Add clearing tx aempty interrupt operation
+- i2c: hisi: Optimized the value setting of maxwrite limit to fifo depth - 1
+- !4631  Add kabi reserve
+- drm/ttm: Add kabi reserve in ttm_tt.h
+- drm/ttm: Add kabi reserve in ttm_resource.h
+- drm/ttm: Add kabi reserve in ttm_bo.h
+- drm: Add kabi reserve in drm_gpu_scheduler.h
+- drm: Add kabi reserve in drm_syncobj.h
+- drm: Add kabi reserve in drm_plane.h
+- drm: Add kabi reserve in drm_modeset_lock.h
+- drm: Add kabi reserve in drm_mode_config.h
+- sbitmap: Add kabi reserve
+- xarray: Reserve kabi for xa_state
+- delayacct: Reserve kabi for task_delay_info
+
 * Mon Feb 26 2024 huangzq6 <huangzhenqiang2@huawei.com> - 6.6.0-10.0.0.7
 - add signature for vmlinux
 
