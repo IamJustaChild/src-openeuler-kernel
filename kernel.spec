@@ -17,8 +17,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       60
-%global maintenance_release .128.0
-%global pkg_release         .155
+%global maintenance_release .129.0
+%global pkg_release         .156
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -932,6 +932,51 @@ fi
 %endif
 
 %changelog
+* Wed Mar 13 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-60.129.0.156
+- !5153 [sync] PR-4645:  f2fs: explicitly null-terminate the xattr list
+- !5146 [sync] PR-4925: v2  btrfs: do not ASSERT() if the newly created subvolume already got read
+- !4667 [sync] PR-4646:  binder: fix use-after-free in shinker's callback
+- !4830 [sync] PR-4803:  CVE-2024-26583
+- f2fs: explicitly null-terminate the xattr list
+- !4748 [sync] PR-4672:  uio: Fix use-after-free in uio_open
+- !5068 [sync] PR-5033: v3  Remove WQ_FLAG_BOOKMARK flag
+- btrfs: fix double free of anonymous device after snapshot creation failure
+- btrfs: do not ASSERT() if the newly created subvolume already got read
+- !5083 [sync] PR-5058:  net: fix possible store tearing in neigh_periodic_work()
+- !5085 [sync] PR-5064:  net: rds: Fix possible NULL-pointer dereference
+- !5125 [sync] PR-4891:  Bluetooth: rfcomm: Fix null-ptr-deref in rfcomm_check_security
+- !5079 [sync] PR-5051:  dm: limit the number of targets and parameter size area
+- !5000 [sync] PR-4988:  ieee802154: ca8210: Fix a potential UAF in ca8210_probe
+- Bluetooth: rfcomm: Fix null-ptr-deref in rfcomm_check_security
+- !4838 [sync] PR-4742:  block: add check that partition length needs to be aligned with block size
+- !5065 [sync] PR-5032:  net/sched: act_ct: fix wild memory access when clearing fragments
+- net: rds: Fix possible NULL-pointer dereference
+- net: fix possible store tearing in neigh_periodic_work()
+- dm: limit the number of targets and parameter size area
+- sched: remove wait bookmarks
+- filemap: remove use of wait bookmarks
+- net/sched: act_ct: fix wild memory access when clearing fragments
+- !4984 [sync] PR-4339: 修复pmem_legacy_device未被编译问题
+- !4963 [sync] PR-4901:  fix CVE-2021-47036
+- !5011  nilfs2: fix potential use after free in nilfs_gccache_submit_read_data()
+- !5005 [sync] PR-4979:  CVE-2021-47028
+- nilfs2: fix potential use after free in nilfs_gccache_submit_read_data()
+- mt76: mt7915: fix txrate reporting
+- mt76: mt7915: rename mt7915_mcu_get_rate_info to mt7915_mcu_get_tx_rate
+- !4731 [sync] PR-4706:  mtd: Fix gluebi NULL pointer dereference caused by ftl notifier
+- ieee802154: ca8210: Fix a potential UAF in ca8210_probe
+- pmem: compile pmem legacy device while libnvdimm as a module
+- udp: properly flush normal packet at GRO time
+- udp: skip L4 aggregation for UDP tunnel packets
+- block: add check that partition length needs to be aligned with block size
+- tls: fix race between tx work scheduling and socket close
+- tls: fix race between async notify and socket close
+- net: tls: factor out tls_*crypt_async_wait()
+- tls: rx: simplify async wait
+- uio: Fix use-after-free in uio_open
+- mtd: Fix gluebi NULL pointer dereference caused by ftl notifier
+- binder: fix use-after-free in shinker's callback
+
 * Wed Mar 06 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-60.128.0.155
 - !4955 [sync] PR-4868:  net: openvswitch: limit the number of recursions from action sets
 - !4960 [sync] PR-4940:  apparmor: avoid crash when parsed profile name is empty
