@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2403.1.0
+%global hulkrelease 2403.2.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0241
+Release: %{hulkrelease}.0242
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,136 @@ fi
 %endif
 
 %changelog
+
+* Wed Mar 13 2024 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2403.2.0.0242
+- !5133  CVE-2021-46926
+- !5136  NFS: fs_context: validate UDP retrans to prevent shift out-of-bounds
+- !5052 v3  Remove WQ_FLAG_BOOKMARK flag
+- !5140 linux-4.19.y inclusion(4.19.305..4.19.307) part3
+- dmaengine: fix is_slave_direction() return false when DMA_DEV_TO_DEV
+- NFS: fs_context: validate UDP retrans to prevent shift out-of-bounds
+- ALSA: hda: intel-sdw-acpi: harden detection of controller
+- soundwire: intel: filter SoundWire controller device search
+- !5114  fix CVE-2023-52578
+- !5119  crypto: scomp - fix req->dst buffer overflow
+- !5101  EDAC/thunderx: Fix possible out-of-bounds string access
+- !5094  HID: logitech-hidpp: Fix kernel crash on receiver USB disconnect
+- crypto: scomp - fix req->dst buffer overflow
+- net: fix kabi check warning
+- net: Fix unwanted sign extension in netdev_stats_to_stats64()
+- net: bridge: use DEV_STATS_INC()
+- net: add atomic_long_t to net_device_stats fields
+- !5092  wifi: mac80211: fix potential key use-after-free
+- EDAC/thunderx: Fix possible out-of-bounds string access
+- !5095 linux-4.19.y inclusion(4.19.305..4.19.307) part 2
+- !5090  drm: bridge/panel: Cleanup connector on bridge detach
+- !5088  uio_hv_generic: Fix a memory leak in error handling paths
+- !4952  scsi: qedf: Add pointer checks in qedf_update_link_speed()
+- !5076 v3  CVE-2021-47074
+- netfilter: nft_compat: reject unused compat flag
+- ppp_async: limit MRU to 64K
+- inet: read sk->sk_family once in inet_recv_error()
+- bonding: remove print in bond_verify_device_path
+- af_unix: fix lockdep positive in sk_diag_dump_icons()
+- net: ipv4: fix a memleak in ip_setup_cork
+- ipv6: Ensure natural alignment of const ipv6 loopback and router addresses
+- virtio_net: Fix "‘%d’ directive writing between 1 and 11 bytes into a region of size 10" warnings
+- bonding: return -ENOMEM instead of BUG in alb_upper_dev_walk
+- SUNRPC: Fix a suspicious RCU usage warning
+- tcp: Add memory barrier to tcp_push()
+- vlan: skip nested type that is not IFLA_VLAN_QOS_MAPPING
+- md: Whenassemble the array, consult the superblock of the freshest device
+- jbd2: correct the printing of write_flags in jbd2_write_superblock()
+- !5073  RDMA/rxe: Clear all QP fields if creation failed
+- !5077  RDMA/rxe: Return CQE error if invalid lkey was supplied
+- !5055 linux-4.19.y inclusion(4.19.305..4.19.307) part 1
+- HID: logitech-hidpp: Fix kernel crash on receiver USB disconnect
+- wifi: mac80211: fix potential key use-after-free
+- drm: bridge/panel: Cleanup connector on bridge detach
+- uio_hv_generic: Fix a memory leak in error handling paths
+- of: unittest: Fix of_count_phandle_with_args() expected value message
+- of: unittest: Fix compile in the non-dynamic case
+- RDMA/rxe: Return CQE error if invalid lkey was supplied
+- nvme-loop: fix memory leak in nvme_loop_create_ctrl()
+- nvme-loop: don't put ctrl on nvme_init_ctrl error
+- !5060  net: fix possible store tearing in neigh_periodic_work()
+- RDMA/rxe: Clear all QP fields if creation failed
+- net: fix possible store tearing in neigh_periodic_work()
+- of: Fix double free in of_parse_phandle_with_args_map
+- pmdomain: core: Move the unused cleanup to a _sync initcall
+- tick/sched: Preserve number of idle sleeps across CPU hotplug events
+- acpi: property: Let args be NULL in __acpi_node_get_property_reference
+- tick-sched: Fix idle and iowait sleeptime accounting vs CPU hotplug
+- ACPI: LPIT: Avoid u32 multiplication overflow
+- audit: Send netlink ACK before setting connection in auditd_set
+- crypto: scompress - return proper error code for allocation failure
+- crypto: af_alg - Disallow multiple in-flight AIO requests
+- x86/mm/ident_map: Use gbpages only where full GB page should be mapped.
+- mm/writeback: fix possible divide-by-zero in wb_dirty_limits(), again
+- !5046  usb: gadget: f_fs: Clear ffs_eventfd in ffs_data_clear.
+- sched: remove wait bookmarks
+- filemap: remove use of wait bookmarks
+- usb: gadget: f_fs: Clear ffs_eventfd in ffs_data_clear.
+- !4929  scsi: pm80xx: Avoid leaking tags when processing OPC_INB_SET_CONTROLLER_CONFIG command
+- !4752  block: add check that partition length needs to be aligned with block size
+- !4735  blk-mq: fix IO hang from sbitmap wakeup race
+- !3864  nvme: sanitize metadata bounce buffer for reads
+- !4946  NFC: st21nfca: Fix memory leak in device probe and remove
+- !4999  CVE-2021-46984
+- !4938  crypto: qat - ADF_STATUS_PF_RUNNING should be set after adf_dev_init
+- !4990  vt: fix memory overlapping when deleting chars in the buffer
+- !4978  nilfs2: fix potential use after free in nilfs_gccache_submit_read_data()
+- !5018  ethernet:enic: Fix a use after free bug in enic_hard_start_xmit
+- !4992  bnxt_en: Fix RX consumer index logic in the error path.
+- !4997  Fixed CVE-2023-52504
+- !4982  i2c: img-scb: fix reference leak when pm_runtime_get_sync fails
+- !4983  net:emac/emac-mac: Fix a use after free in emac_mac_tx_buf_send
+- !4995  mpam/mpam_ctrlmon: update monitor config with its parent's ctrl_val
+- !4974  arm64/mpam: set default feedback of last_cmd_status interface as null string
+- !4975  arm64/mpam: support resctrl fs to show mounting option
+- !4973  arm64/mpam: Skip updates of unrelated ctrl type
+- ethernet:enic: Fix a use after free bug in enic_hard_start_xmit
+- !4996  soundwire: stream: fix memory leak in stream config error path
+- !4817 v2  io_uring: fix overflows checks in provide buffers
+- kyber: fix kabi broken in ->bio_merge()
+- kyber: fix out of bounds access when preempted
+- x86/alternatives: Disable KASAN in apply_alternatives()
+- soundwire: stream: fix memory leak in stream config error path
+- mpam/mpam_ctrlmon: update monitor config with its parent's ctrl_val
+- bnxt_en: Fix RX consumer index logic in the error path.
+- !4969  CVE-2021-46990
+- vt: fix memory overlapping when deleting chars in the buffer
+- !4945  ieee802154: ca8210: Fix a potential UAF in ca8210_probe
+- !4944  perf/x86/lbr: Filter vsyscall addresses
+- !4967  i2c: xiic: fix reference leak when pm_runtime_get_sync fails
+- !4970  binder: fix async_free_space accounting for empty parcels
+- !4919 v2  HID: usbhid: fix info leak in hid_submit_ctrl
+- !4980  net: usb: smsc75xx: Fix uninit-value access in __smsc75xx_read_reg
+- net:emac/emac-mac: Fix a use after free in emac_mac_tx_buf_send
+- i2c: img-scb: fix reference leak when pm_runtime_get_sync fails
+- net: usb: smsc75xx: Fix uninit-value access in __smsc75xx_read_reg
+- !4949  CVE-2021-47024
+- nilfs2: fix potential use after free in nilfs_gccache_submit_read_data()
+- arm64/mpam: support resctrl fs to show mounting option
+- arm64/mpam: set default feedback of last_cmd_status interface as null string
+- arm64/mpam: Skip updates of unrelated ctrl type
+- binder: fix async_free_space accounting for empty parcels
+- powerpc/64s: Fix crashes when toggling entry flush barrier
+- i2c: xiic: fix reference leak when pm_runtime_get_sync fails
+- scsi: qedf: Add pointer checks in qedf_update_link_speed()
+- vsock/virtio: free queued packets when closing socket
+- vsock/virtio: discard packets only when socket is really closed
+- virtio_vsock: Fix race condition in virtio_transport_recv_pkt
+- NFC: st21nfca: Fix memory leak in device probe and remove
+- ieee802154: ca8210: Fix a potential UAF in ca8210_probe
+- perf/x86/lbr: Filter vsyscall addresses
+- crypto: qat - ADF_STATUS_PF_RUNNING should be set after adf_dev_init
+- scsi: pm80xx: Avoid leaking tags when processing OPC_INB_SET_CONTROLLER_CONFIG command
+- HID: usbhid: fix info leak in hid_submit_ctrl
+- io_uring: fix overflows checks in provide buffers
+- block: add check that partition length needs to be aligned with block size
+- blk-mq: fix IO hang from sbitmap wakeup race
+- nvme: sanitize metadata bounce buffer for reads
 
 * Wed Mar 06 2024 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2403.1.0.0241
 - !4947  powerpc/64s: Fix pte update for kernel memory on radix
