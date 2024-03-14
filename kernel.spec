@@ -11,7 +11,7 @@
 %global upstream_sublevel   0
 %global devel_release       191
 %global maintenance_release .0.0
-%global pkg_release         .94
+%global pkg_release         .95
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -128,6 +128,9 @@ ExclusiveOS: Linux
 %if %{with_perf}
 BuildRequires: flex xz-devel libzstd-devel
 BuildRequires: java-devel
+%ifarch aarch64
+BuildRequires: OpenCSD
+%endif
 %endif
 
 BuildRequires: dwarves
@@ -378,8 +381,14 @@ make ARCH=%{Arch} modules %{?_smp_mflags}
 ## make tools
 %if %{with_perf}
 # perf
+%ifarch aarch64
+# aarch64 make perf with CORESIGHT=1
+%global perf_make \
+    make EXTRA_CFLAGS="-Wl,-z,now -g -Wall -fstack-protector-strong -fPIC" EXTRA_PERFLIBS="-fpie -pie" %{?_smp_mflags} -s V=1 WERROR=0 NO_LIBUNWIND=1 HAVE_CPLUS_DEMANGLE=1 NO_GTK2=1 NO_LIBNUMA=1 NO_STRLCPY=1 CORESIGHT=1 prefix=%{_prefix}
+%else
 %global perf_make \
     make EXTRA_CFLAGS="-Wl,-z,now -g -Wall -fstack-protector-strong -fPIC" EXTRA_PERFLIBS="-fpie -pie" %{?_smp_mflags} -s V=1 WERROR=0 NO_LIBUNWIND=1 HAVE_CPLUS_DEMANGLE=1 NO_GTK2=1 NO_LIBNUMA=1 NO_STRLCPY=1 prefix=%{_prefix}
+%endif
 %if 0%{?with_python2}
 %global perf_python2 -C tools/perf PYTHON=%{__python2}
 %global perf_python3 -C tools/python3-perf PYTHON=%{__python3}
@@ -943,6 +952,9 @@ fi
 %endif
 
 %changelog
+* Thu Mar 14 2024 Bing Xia <xiabing12@h-partners.com> - 5.10.0-191.0.0.95
+- perf: add CoreSight trace component support on aarch64 platform
+
 * Wed Mar 13 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-191.0.0.94
 - !5152  arm64/mpam: Remove warning about no msc corresponding to the online cpu
 - arm64/mpam: Remove warning about no msc corresponding to the online cpu
