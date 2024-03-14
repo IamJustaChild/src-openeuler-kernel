@@ -25,7 +25,7 @@
 %global upstream_sublevel   0
 %global devel_release       14
 %global maintenance_release .0.0
-%global pkg_release         .10
+%global pkg_release         .11
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -140,6 +140,9 @@ ExclusiveOS: Linux
 %if %{with_perf}
 BuildRequires: flex xz-devel libzstd-devel
 BuildRequires: java-devel
+%ifarch aarch64
+BuildRequires: OpenCSD
+%endif
 %endif
 
 BuildRequires: dwarves
@@ -413,8 +416,14 @@ TargetImage=$(basename $(make -s image_name))
 ## make tools
 %if %{with_perf}
 # perf
+%ifarch aarch64
+# aarch64 make perf with CORESIGHT=1
+%global perf_make \
+    make %{?clang_make_opts} EXTRA_LDFLAGS="%[ "%{toolchain}" == "clang" ? "-z now" : "" ]" EXTRA_CFLAGS="%[ "%{toolchain}" == "clang" ? "" : "-Wl,-z,now" ] -g -Wall -fstack-protector-strong -fPIC" EXTRA_PERFLIBS="-fpie -pie" %{?_smp_mflags} -s V=1 WERROR=0 NO_LIBUNWIND=1 HAVE_CPLUS_DEMANGLE=1 NO_GTK2=1 NO_LIBNUMA=1 NO_STRLCPY=1 CORESIGHT=1 prefix=%{_prefix}
+%else
 %global perf_make \
     make %{?clang_make_opts} EXTRA_LDFLAGS="%[ "%{toolchain}" == "clang" ? "-z now" : "" ]" EXTRA_CFLAGS="%[ "%{toolchain}" == "clang" ? "" : "-Wl,-z,now" ] -g -Wall -fstack-protector-strong -fPIC" EXTRA_PERFLIBS="-fpie -pie" %{?_smp_mflags} -s V=1 WERROR=0 NO_LIBUNWIND=1 HAVE_CPLUS_DEMANGLE=1 NO_GTK2=1 NO_LIBNUMA=1 NO_STRLCPY=1 prefix=%{_prefix}
+%endif
 %if 0%{?with_python2}
 %global perf_python2 -C tools/perf PYTHON=%{__python2}
 %global perf_python3 -C tools/python3-perf PYTHON=%{__python3}
@@ -955,6 +964,9 @@ fi
 %endif
 
 %changelog
+* Thu Mar 28 2024 Bing Xia <xiabing12@h-partners.com> - 6.6.0-14.0.0.11
+- perf: add CoreSight trace component support on aarch64 platform
+
 * Wed Mar 27 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 6.6.0-14.0.0.10
 - !5524 [OLK-6.6] fix 0day bugs reported by CI robot for Mont-TSSE
 - fix 0 day bugs for Mont-TSSE Driver
