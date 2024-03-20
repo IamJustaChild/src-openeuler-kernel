@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2403.2.0
+%global hulkrelease 2403.3.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0269
+Release: %{hulkrelease}.0270
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,43 @@ fi
 %endif
 
 %changelog
+
+* Wed Mar 20 2024 hongrongxuan <hongrongxuan@huawei.com> - 4.19.90-2403.3.0.0270
+- !5306  FS:JFS:UBSAN:array-index-out-of-bounds in dbAdjTree
+- !5347  s390/ptrace: handle setting of fpc register correctly
+- !5309  drm/msm/dpu: Add mutex lock in control vblank irq
+- s390/ptrace: handle setting of fpc register correctly
+- !5267  llc: call sock_orphan() at release time
+- drm/msm/dpu: Add mutex lock in control vblank irq
+- FS:JFS:UBSAN:array-index-out-of-bounds in dbAdjTree
+- !5241  powerpc/lib: Validate size for vector operations
+- !5246  ceph: fix deadlock or deadcode of misusing dget()
+- !5268  crypto: algif_aead - fix uninitialized ctx->init
+- crypto: algif_aead - fix uninitialized ctx->init
+- llc: call sock_orphan() at release time
+- !5220  powerpc/mm: Fix null-pointer dereference in pgtable_cache_add
+- !5196  drm: Don't unref the same fb many times by mistake due to deadlock handling
+- ceph: fix deadlock or deadcode of misusing dget()
+- powerpc/lib: Validate size for vector operations
+- !5210 v2  Fix CVE-2022-48629 and CVE-2022-48630
+- powerpc/mm: Fix null-pointer dereference in pgtable_cache_add
+- !5175  arm64/mpam: Fix use-after-free when deleting resource groups
+- !5163  nfc: nci: assert requested protocol is valid
+- !5172  CVE-2023-52502 for openEuler-1.0-LTS
+- crypto: qcom-rng - fix infinite loop on requests not multiple of WORD_SZ
+- crypto: qcom-rng - ensure buffer for generate is completely filled
+- drm: Don't unref the same fb many times by mistake due to deadlock handling
+- !5177  net: nfc: llcp: Add lock when modifying device list
+- !5157  RDMA/srp: Do not call scsi_done() from srp_abort()
+- net: nfc: llcp: Add lock when modifying device list
+- arm64/mpam: Fix use-after-free when deleting resource groups
+- arm64/mpam: remove kernfs_get() calls() and add kernfs_put() calls to prevent refcount leak
+- !5142  arm64/mpam: Expand the monitor number of the resctrl root
+- net: nfc: fix races in nfc_llcp_sock_get() and nfc_llcp_sock_get_sn()
+- nfc: constify several pointers to u8, char and sk_buff
+- nfc: nci: assert requested protocol is valid
+- RDMA/srp: Do not call scsi_done() from srp_abort()
+- arm64/mpam: Expand the monitor number of the resctrl root
 
 * Wed Mar 13 2024 hongrongxuan <hongrongxuan@huawei.com> - 4.19.90-2403.2.0.0269
 - !5133  CVE-2021-46926
