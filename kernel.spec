@@ -25,7 +25,7 @@
 %global upstream_sublevel   0
 %global devel_release       10
 %global maintenance_release .0.0
-%global pkg_release         .7
+%global pkg_release         .8
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -69,6 +69,11 @@ Source12: extra_certificates
 Source13: RPM-GPG-KEY-openEuler-compass-ci
 Source14: process_pgp_certs.sh
 
+%if 0%{?openEuler_sign_rsa}
+Source15: openeuler_kernel_cert.cer
+Source16: sign-modules-openeuler
+%endif
+
 %if 0%{?with_kabichk}
 Source18: check-kabi
 Source20: Module.kabi_aarch64
@@ -92,7 +97,7 @@ Patch0003: 0003-x86_energy_perf_policy-clang-compile-support.patch
 Patch0004: 0004-turbostat-clang-compile-support.patch
 
 #BuildRequires:
-BuildRequires: module-init-tools, patch >= 2.5.4, bash >= 2.03, tar
+BuildRequires: module-init-tools, patch >= 2.5.4, bash >= 2.03, tar, llvm-devel
 BuildRequires: bzip2, xz, findutils, gzip, m4, perl, make >= 3.78, diffutils, gawk
 BuildRequires: libcap-devel, libcap-ng-devel, rsync
 BuildRequires: gcc >= 3.4.2, binutils >= 2.12
@@ -115,10 +120,6 @@ BuildRequires: pciutils-devel gettext
 BuildRequires: rpm-build, elfutils
 BuildRequires: numactl-devel python3-devel glibc-static python3-docutils
 BuildRequires: perl-generators perl(Carp) libunwind-devel gtk2-devel libbabeltrace-devel java-1.8.0-openjdk java-1.8.0-openjdk-devel perl-devel
-
-%if 0%{?openEuler_sign_rsa}
-BuildRequires: sign-openEuler
-%endif
 
 AutoReq: no
 AutoProv: yes
@@ -390,6 +391,14 @@ sed -i 's/# CONFIG_LTO_CLANG_FULL is not set/CONFIG_LTO_CLANG_FULL=y/' .config
 sed -i 's/CONFIG_LTO_NONE=y/# CONFIG_LTO_NONE is not set/' .config
 %endif
 
+%if 0%{?openEuler_sign_rsa}
+    cp %{SOURCE15} ./certs/openeuler-cert.pem
+    # close kernel native signature
+    sed -i 's/CONFIG_MODULE_SIG_KEY=.*$/CONFIG_MODULE_SIG_KEY=""/g' .config
+    sed -i 's/CONFIG_SYSTEM_TRUSTED_KEYS=.*$/CONFIG_SYSTEM_TRUSTED_KEYS="certs\/openeuler-cert.pem"/g' .config
+    sed -i 's/CONFIG_MODULE_SIG_ALL=y$/CONFIG_MODULE_SIG_ALL=n/g' .config
+%endif
+
 TargetImage=$(basename $(make -s image_name))
 
 %{make} ARCH=%{Arch} $TargetImage %{?_smp_mflags}
@@ -504,14 +513,16 @@ install -m 755 $(make -s image_name) $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}
     echo "start sign"
     %ifarch %arm aarch64
 	gunzip -c $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}>$RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip.efi
-	/opt/sign-openEuler/client --config /opt/sign-openEuler/config.toml add --key-name default-x509ee --file-type efi-image --key-type x509ee --sign-type authenticode $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip.efi
+	sh /usr/lib/rpm/brp-ebs-sign --efi $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip.efi
+	mv $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip.efi.sig $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip.efi
 	mv $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip.efi $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip
 	gzip -c $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip>$RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}
 	rm -f $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip
     %endif
     %ifarch x86_64
 	mv $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer} $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.efi
-	/opt/sign-openEuler/client --config /opt/sign-openEuler/config.toml add --key-name default-x509ee --file-type efi-image --key-type x509ee --sign-type authenticode $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.efi
+	sh /usr/lib/rpm/brp-ebs-sign --efi $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.efi
+	mv $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.efi.sig $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.efi
 	mv $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.efi $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}
     %endif
 %endif
@@ -595,6 +606,15 @@ popd
     fi \
     find $RPM_BUILD_ROOT/lib/modules/ -type f -name '*.ko' | xargs -n1 -P`nproc --all` xz; \
 %{nil}
+
+%if 0%{?openEuler_sign_rsa}
+%define __modsign_install_post \
+    if [ "%{with_signmodules}" -eq "1" ];then \
+        sh %{SOURCE16} $RPM_BUILD_ROOT/lib/modules/%{KernelVer} || exit 1 \
+    fi \
+    find $RPM_BUILD_ROOT/lib/modules/ -type f -name '*.ko' | xargs -n1 -P`nproc --all` xz; \
+%{nil}
+%endif
 
 # deal with header
 %{make} ARCH=%{Arch} INSTALL_HDR_PATH=$RPM_BUILD_ROOT/usr KBUILD_SRC= headers_install
@@ -954,6 +974,9 @@ fi
 %endif
 
 %changelog
+* Thu Mar 21 2024 jinlun <jinlun@huawei.com> - 6.6.0-10.0.0.8
+- Support generating moudle/kernel signature with openEuler signature platform
+
 * Mon Feb 26 2024 huangzq6 <huangzhenqiang2@huawei.com> - 6.6.0-10.0.0.7
 - add signature for vmlinux
 
