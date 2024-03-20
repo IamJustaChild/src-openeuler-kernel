@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .67.0
-%global pkg_release         .147
+%global maintenance_release .68.0
+%global pkg_release         .148
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,60 @@ fi
 %endif
 
 %changelog
+* Wed Mar 20 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.68.0.148
+- !5344  CVE-2023-52447
+- !5366 v2  CVE-2023-52452
+- !5360  iommu/arm-smmu-v3: Disable ECMDQ before reset
+- bpf: Fix accesses to uninit stack slots
+- bpf: Fix verification of indirect var-off stack access
+- bpf: Allow reads from uninit stack
+- bpf: expose bpf_strtol and bpf_strtoul to all program types
+- bpf, verifier: Fix memory leak in array reallocation for stack state
+- bpf: verifier: Use copy_array for jmp_history
+- bpf: verifier: Improve function state reallocation
+- iommu/arm-smmu-v3: Disable ECMDQ before reset
+- !5182 [sync] PR-4805:  CVE-2023-52451 backport to OLK-5.10 v2
+- bpf: Fix kabi breakage in struct bpf_map and struct bpf_map_ops
+- bpf: Defer the free of inner map when necessary
+- bpf: Set need_defer as false when clearing fd array during map free
+- bpf: Add map and need_defer parameters to .map_fd_put_ptr()
+- !5278 [sync] PR-5246:  ceph: fix deadlock or deadcode of misusing dget()
+- !5294 [sync] PR-5240:  powerpc/lib: Validate size for vector operations
+- powerpc/lib: Validate size for vector operations
+- !5226 [sync] PR-5197:  drm: Don't unref the same fb many times by mistake due to deadlock handling
+- !4853 [sync] PR-4847:  btrfs: mainline backport
+- ceph: fix deadlock or deadcode of misusing dget()
+- !5204  Upgrade driver for Broadcom NIC BCM57414
+- !5192 [sync] PR-5164:  nfc: nci: assert requested protocol is valid
+- !5185 [sync] PR-5156:  RDMA/srp: Do not call scsi_done() from srp_abort()
+- !5124 [sync] PR-5109:  CVE-2024-26586
+- !5098 [sync] PR-5078:  RDMA/rxe: Return CQE error if invalid lkey was supplied
+- drm: Don't unref the same fb many times by mistake due to deadlock handling
+- !5201 [sync] PR-5178:  net: nfc: llcp: Add lock when modifying device list
+- Add MODULE_FIRMWARE() for FIRMWARE_TG357766.
+- bnxt_en: Implement .set_port / .unset_port UDP tunnel callbacks
+- bnxt_en: Query default VLAN before VNIC setup on a VF
+- bnxt_en: Don't issue AP reset during ethtool's reset operation
+- net: bcmgenet: Restore phy_stop() depending upon suspend/close
+- net: bcmgenet: Remove phy_stop() from bcmgenet_netif_stop()
+- net: nfc: llcp: Add lock when modifying device list
+- nfc: nci: assert requested protocol is valid
+- RDMA/srp: Do not call scsi_done() from srp_abort()
+- !5166 [sync] PR-5117:  fix CVE-2023-52527
+- powerpc/pseries/memhp: Fix access beyond end of drmem array
+- powerpc/pseries/memhotplug: Quieten some DLPAR operations
+- l2tp: pass correct message length to ip6_append_data
+- ipv4, ipv6: Fix handling of transhdrlen in __ip{,6}_append_data()
+- mlxsw: spectrum_acl_tcam: Fix stack corruption
+- mlxsw: spectrum_acl_tcam: Reorder functions to avoid forward declarations
+- mlxsw: spectrum_acl_tcam: Make fini symmetric to init
+- mlxsw: spectrum_acl_tcam: Add missing mutex_destroy()
+- mlxsw: spectrum: Use 'bitmap_zalloc()' when applicable
+- mlxsw: spectrum_acl_erp: Fix error flow of pool allocation failure
+- RDMA/rxe: Return CQE error if invalid lkey was supplied
+- btrfs: fix deadlock when cloning inline extents and using qgroups
+- btrfs: do not start and wait for delalloc on snapshot roots on transaction commit
+
 * Wed Mar 13 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.67.0.147
 - !5154 [sync] PR-4645:  f2fs: explicitly null-terminate the xattr list
 - !5147 [sync] PR-4925: v2  btrfs: do not ASSERT() if the newly created subvolume already got read
