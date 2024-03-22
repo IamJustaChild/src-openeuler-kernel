@@ -25,7 +25,7 @@
 %global upstream_sublevel   0
 %global devel_release       12
 %global maintenance_release .0.0
-%global pkg_release         .8
+%global pkg_release         .9
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -955,6 +955,8 @@ fi
 %endif
 
 %changelog
+* Fri Mar 22 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 6.6.0-12.0.0.9
+
 * Thu Mar 14 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 6.6.0-12.0.0.8
 - !5174 [OLK-6.6][sync from OLK-5.10] Introduce multiple LPI translation caches
 - KVM:arm64:vgic update openEuler's config's to enable MULTI_LPI_TRANSLATE_CACHE
