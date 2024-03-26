@@ -23,9 +23,9 @@
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       13
+%global devel_release       14
 %global maintenance_release .0.0
-%global pkg_release         .9
+%global pkg_release         .10
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -955,6 +955,8 @@ fi
 %endif
 
 %changelog
+* Tue Mar 26 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 6.6.0-14.0.0.10
+
 * Fri Mar 22 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 6.6.0-13.0.0.9
 - !5424  block: Fix iterating over an empty bio with bio_for_each_folio_all
 - block: Fix iterating over an empty bio with bio_for_each_folio_all
