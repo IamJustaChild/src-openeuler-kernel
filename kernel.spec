@@ -17,8 +17,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       60
-%global maintenance_release .130.0
-%global pkg_release         .157
+%global maintenance_release .131.0
+%global pkg_release         .158
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -932,6 +932,36 @@ fi
 %endif
 
 %changelog
+* Wed Mar 27 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-60.131.0.158
+- !5533  media: pvrusb2: fix use after free on context disconnection
+- !5447  Fix CVE-2021-47094
+- !5501 [sync] PR-5316: v2  iomap: add support to track dirty state of sub pages
+- media: pvrusb2: fix use after free on context disconnection
+- !5137 [sync] PR-4933:  scsi: pm80xx: Avoid leaking tags when processing OPC_INB_SET_CONTROLLER_CONFIG command
+- iomap: add support to track dirty state of sub pages
+- !5027 [sync] PR-4987:  net: usb: smsc75xx: Fix uninit-value access in __smsc75xx_read_reg
+- !5438 [sync] PR-5286:  serial: sc16is7xx: convert from _raw_ to _noinc_ regmap functions for FIFO
+- !5323  jfs: fix slab-out-of-bounds Read in dtSearch
+- !5328  UBSAN: array-index-out-of-bounds in dtSplitRoot
+- !5435 [sync] PR-5355:  CVE-2023-52593
+- !5310  FS:JFS:UBSAN:array-index-out-of-bounds in dbAdjTree
+- KVM: x86/mmu: Don't advance iterator after restart due to yielding
+- KVM: x86/mmu: Factor out tdp_iter_return_to_root
+- !5389 [sync] PR-5259:  CVE-2024-26627​
+- serial: sc16is7xx: convert from _raw_ to _noinc_ regmap functions for FIFO
+- wifi: wfx: fix possible NULL pointer dereference in wfx_set_mfp_ap()
+- scsi: core: Move scsi_host_busy() out of host lock if it is for per-command
+- scsi: core: Move scsi_host_busy() out of host lock for waking up EH handler
+- !5371 [sync] PR-5313:  bus: mhi: host: Add alignment check for event ring read pointer
+- !5287 [sync] PR-5231:  af_unix: fix lockdep positive in sk_diag_dump_icons()
+- bus: mhi: host: Add alignment check for event ring read pointer
+- UBSAN: array-index-out-of-bounds in dtSplitRoot
+- jfs: fix slab-out-of-bounds Read in dtSearch
+- FS:JFS:UBSAN:array-index-out-of-bounds in dbAdjTree
+- af_unix: fix lockdep positive in sk_diag_dump_icons()
+- scsi: pm80xx: Avoid leaking tags when processing OPC_INB_SET_CONTROLLER_CONFIG command
+- net: usb: smsc75xx: Fix uninit-value access in __smsc75xx_read_reg
+
 * Wed Mar 20 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-60.130.0.157
 - !5343  CVE-2023-52447
 - !5365 v2  CVE-2023-52452
