@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       192
+%global devel_release       193
 %global maintenance_release .0.0
-%global pkg_release         .105
+%global pkg_release         .106
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -911,6 +911,77 @@ fi
 %endif
 
 %changelog
+* Wed Mar 27 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-193.0.0.106
+- !5521  md/raid5: fix atomicity violation in raid5_cache_count
+- !5494  mm/sparsemem: fix race in accessing memory_section->usage
+- !5516  netfilter: nf_tables: disallow timeout for anonymous sets
+- !5441  net/sched: act_ct: fix skb leak and crash on ooo frags
+- !5519  scsi: lpfc: Fix a possible data race in lpfc_unregister_fcf_rescan()
+- !5445  KVM: x86/mmu: Don't advance iterator after restart due to yielding
+- !5510  bus: mhi: host: Drop chan lock before queuing buffers
+- !5466  wifi: ath9k: Fix potential array-index-out-of-bounds read in ath9k_htc_txstatus()
+- !5491  CVE-2024-26640
+- md/raid5: fix atomicity violation in raid5_cache_count
+- scsi: lpfc: Fix a possible data race in lpfc_unregister_fcf_rescan()
+- netfilter: nf_tables: disallow timeout for anonymous sets
+- !5495  llc: Drop support for ETH_P_TR_802_2.
+- !5496  llc: make llc_ui_sendmsg() more robust against bonding changes
+- !5266  llc: call sock_orphan() at release time
+- bus: mhi: host: Drop chan lock before queuing buffers
+- !5500  pstore/ram: Fix crash when setting number of cpus to an odd number
+- !5460 v2  crypto: lib/mpi - Fix unexpected pointer access in mpi_ec_init
+- pstore/ram: Fix crash when setting number of cpus to an odd number
+- !5368  media: pvrusb2: fix use after free on context disconnection
+- llc: make llc_ui_sendmsg() more robust against bonding changes
+- llc: Drop support for ETH_P_TR_802_2.
+- mm/sparsemem: fix race in accessing memory_section->usage
+- tcp: add sanity checks to rx zerocopy
+- net-zerocopy: Refactor frag-is-remappable test.
+- !5269  printk: avoid deadlock in panic
+- !5316 v2  iomap: add support to track dirty state of sub pages
+- !5075  x86/reboot: VMCLEAR active VMCSes before emergency reboot
+- !5385 v3  enable arm64_pbha by default
+- !5093  wifi: mac80211: fix potential key use-after-free
+- wifi: ath9k: Fix potential array-index-out-of-bounds read in ath9k_htc_txstatus()
+- !5327  UBSAN: array-index-out-of-bounds in dtSplitRoot
+- !5322  jfs: fix slab-out-of-bounds Read in dtSearch
+- crypto: lib/mpi - Fix unexpected pointer access in mpi_ec_init
+- !5308  FS:JFS:UBSAN:array-index-out-of-bounds in dbAdjTree
+- KVM: x86/mmu: Don't advance iterator after restart due to yielding
+- net/sched: act_ct: fix skb leak and crash on ooo frags
+- !5286  serial: sc16is7xx: convert from _raw_ to _noinc_ regmap functions for FIFO
+- !5232  jfs: fix cve issue
+- !5348  s390/ptrace: handle setting of fpc register correctly
+- !5317  KVM: s390: fix setting of fpc register
+- !5259  CVE-2024-26627​
+- config: Enable ARM64_PBHA by default
+- arm64: mm: pagemap: Export pbha bit0 info
+- arm64: mm: Hide pbha_bit0 in procfs if pbha is not enabled
+- arm64: mm: Do not show info during startup if pbha is not enabled
+- mm: cpufeature: Make update_pbha_perf_only_bit static
+- arm64: mm: Cleanup in pbha_bit0_pte_range
+- proc: introduce proc_hide_ents to hide proc files
+- !5339  binder: fix race between mmput() and do_exit()
+- !5253  tomoyo: fix UAF write bug in tomoyo_write_control()
+- media: pvrusb2: fix use after free on context disconnection
+- s390/ptrace: handle setting of fpc register correctly
+- binder: fix race between mmput() and do_exit()
+- UBSAN: array-index-out-of-bounds in dtSplitRoot
+- jfs: fix slab-out-of-bounds Read in dtSearch
+- KVM: s390: fix setting of fpc register
+- iomap: add support to track dirty state of sub pages
+- FS:JFS:UBSAN:array-index-out-of-bounds in dbAdjTree
+- serial: sc16is7xx: convert from _raw_ to _noinc_ regmap functions for FIFO
+- printk: avoid deadlock in panic
+- llc: call sock_orphan() at release time
+- scsi: core: Move scsi_host_busy() out of host lock if it is for per-command
+- scsi: core: Move scsi_host_busy() out of host lock for waking up EH handler
+- tomoyo: fix UAF write bug in tomoyo_write_control()
+- jfs: fix array-index-out-of-bounds in diNewExt
+- jfs: fix uaf in jfs_evict_inode
+- wifi: mac80211: fix potential key use-after-free
+- x86/reboot: VMCLEAR active VMCSes before emergency reboot
+
 * Wed Mar 20 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-192.0.0.105
 - !5342  CVE-2023-52447
 - !5364 v2  CVE-2023-52452
