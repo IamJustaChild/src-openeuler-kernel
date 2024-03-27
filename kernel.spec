@@ -23,9 +23,9 @@
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       13
+%global devel_release       14
 %global maintenance_release .0.0
-%global pkg_release         .9
+%global pkg_release         .10
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -955,6 +955,82 @@ fi
 %endif
 
 %changelog
+* Wed Mar 27 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 6.6.0-14.0.0.10
+- !5524 [OLK-6.6] fix 0day bugs reported by CI robot for Mont-TSSE
+- fix 0 day bugs for Mont-TSSE Driver
+- !5284 [OLK-6.6] fs/address_space: move i_mmap_rwsem to mitigate a false sharing with i_mmap.
+- fs/address_space: move i_mmap_rwsem to mitigate a false sharing with i_mmap.
+- !5280  Add Huawei Intelligent Network Card Driver: hinic3
+- net/hinic3: add huawei/hinic3 driver
+- !5179  Update Huawei Intelligent Network Card Driver: hinic
+- net/hinic: Update Huawei Intelligent Network Card Driver: hinic
+- !5523 enable openeuler_defconfig HISI_ACC_VFIO_PCI=m
+- openeuler_defconfig: enable HISI_ACC_VFIO_PCI=m
+- !5529 arch/powerpc: open BTF relevant configs in openuler defconfig
+- arch/powerpc: open BTF relevant configs in openuler defconfig
+- !5541 RDMA/hns: Backport bugfixes
+- RDMA/hns: Refactor hns_roce_alloc_ucontext()
+- RDMA/hns: Fix missing reset notification by user space driver
+- RDMA/hns: Kernel notify usr space to stop ring db
+- RDMA/hns: Support flexible wqe buffer page size
+- !5464 net: hns3: backport some driver feature enhancement
+- net: hns3: default select PAGE_POOL_STATS
+- net: hns3: support set/get VxLAN rule of rx flow director by ethtool
+- net: ethtool: add VxLAN to the NFC API
+- net: hns3: add support for ROH ras
+- net: hns3: fix bug for init roh client instance
+- net: hns3: HNAE3 framework add support for ROH client
+- net: hns3: add support handling tx dhcp packets for ROH
+- net: hns3: support arp proxy
+- net: hns3: add arp proxy switch in ethtool
+- net: hns3: support tc limit rate
+- net: hns3: support tc command with max rate parameter
+- net: hns3: add ROH MAC type definitions and support query MAC type
+- net: hns3: Add support for some CMIS transceiver modules
+- net: sfp: Synchronize some CMIS transceiver modules from ethtool
+- net: hns3: add command queue trace for hns3
+- net: hns3: dump more reg info based on ras mod
+- net: hns3: add support for page_pool_get_stats
+- net: hns3: add support to query scc version by devlink info
+- net: hns3: correct the logic of hclge_sync_vf_qb_mode()
+- net: hns3: add support for FD counter
+- net: hns3: allocate fd counter for queue bonding
+- net: hns3: refactor the debugfs for dumping FD tcam
+- net: hns3: add queue bonding mode support for VF
+- net: hns3: add support for queue bonding mode of flow director
+- !5426 BTC's bugfix  for openeuler OLK-6.6
+- ipmi: Add erratum 162102203 config to enable workaround for SMS message processing timeout
+- ipmi: Errata workaround to prevent SMS message processing timeout
+- !5049 [OLK-6.6]Add pcie acs and no-bus-reset quirk for mucse Nics
+- Add pcie acs and no-bus-reset quirk for mucse Nics
+- !5354  iommu/arm-smmu-v3: Disable ECMDQ before reset
+- iommu/arm-smmu-v3: Disable ECMDQ before reset
+- !5061 [OLK-6.6] riscv: Update openeuler_defconfig to support sg2042 SoC
+- riscv: Update openeuler_defconfig to support sg2042 SoC
+- !5427 crypto/trng: Remove the automatic loading of the hisi_trng driver
+- crypto/trng: Remove the automatic loading of the hisi_trng driver
+- crypto: hisilicon/trng - use %u to print u32 variables
+- !5492  Backport Introduce __mt_dup() to improve the performance of fork()
+- fork: use __mt_dup() to duplicate maple tree in dup_mmap()
+- maple_tree: preserve the tree attributes when destroying maple tree
+- maple_tree: update check_forking() and bench_forking()
+- maple_tree: skip other tests when BENCH is enabled
+- maple_tree: update the documentation of maple tree
+- maple_tree: add test for mtree_dup()
+- radix tree test suite: align kmem_cache_alloc_bulk() with kernel behavior.
+- maple_tree: introduce interfaces __mt_dup() and mtree_dup()
+- maple_tree: introduce {mtree,mas}_lock_nested()
+- maple_tree: add mt_free_one() and mt_attr() helpers
+- radix tree test suite: fix allocation calculation in kmem_cache_alloc_bulk()
+- !5334 v4  iommu/iova: avoid softlockup in fq_flush_timeout
+- iommu/iova: avoid softlockup in fq_flush_timeout
+- !5412 [OLK-6.6] perf/x86/amd: Miscellaneous fixes
+- perf vendor events amd: Fix Zen 4 cache latency events
+- perf/x86/amd/lbr: Discard erroneous branch entries
+- perf/x86/amd/core: Avoid register reset when CPU is dead
+- !5376  Bluetooth: rfcomm: Fix null-ptr-deref in rfcomm_check_security
+- Bluetooth: rfcomm: Fix null-ptr-deref in rfcomm_check_security
+
 * Fri Mar 22 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 6.6.0-13.0.0.9
 - !5424  block: Fix iterating over an empty bio with bio_for_each_folio_all
 - block: Fix iterating over an empty bio with bio_for_each_folio_all
