@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2403.3.0
+%global hulkrelease 2403.4.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0243
+Release: %{hulkrelease}.0244
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,73 @@ fi
 %endif
 
 %changelog
+
+* Wed Mar 27 2024 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2403.4.0.0244
+- !5539  spi: spi-fsl-dspi: Fix a resource leak in an error handling path
+- !5542  round lts patches
+- !5520  scsi: lpfc: Fix a possible data race in lpfc_unregister_fcf_rescan()
+- l2tp: pass correct message length to ip6_append_data
+- ipv6: Fix signed integer overflow in l2tp_ip6_sendmsg
+- spi: spi-fsl-dspi: Fix a resource leak in an error handling path
+- !5514 CVE-2021-47110
+- !5497  llc: Drop support for ETH_P_TR_802_2.
+- !5498  llc: make llc_ui_sendmsg() more robust against bonding changes
+- !5490  tcp: add sanity checks to rx zerocopy
+- scsi: lpfc: Fix a possible data race in lpfc_unregister_fcf_rescan()
+- x86/kvm: Do not try to disable kvmclock if it was not enabled
+- x86/kvm: Disable kvmclock on all CPUs on shutdown
+- !5502  pstore/ram: Fix crash when setting number of cpus to an odd number
+- !5477  Fixed CVE-2021-47112
+- pstore/ram: Fix crash when setting number of cpus to an odd number
+- llc: make llc_ui_sendmsg() more robust against bonding changes
+- llc: Drop support for ETH_P_TR_802_2.
+- tcp: add sanity checks to rx zerocopy
+- !5479  jfs: fix cve-2023-52600
+- !5478  jfs: fix array-index-out-of-bounds in diNewExt
+- !5485  nfsd: fix use-after-free due to delegation race
+- nfsd: fix use-after-free due to delegation race
+- !5281  printk: avoid deadlock in panic
+- jfs: fix uaf in jfs_evict_inode
+- JFS: fix memleak in jfs_mount
+- jfs: fix array-index-out-of-bounds in diNewExt
+- x86/kvm: Teardown PV features on boot CPU as well
+- !5465  wifi: ath9k: Fix potential array-index-out-of-bounds read in ath9k_htc_txstatus()
+- !5361  btrfs: abort in rename_exchange if we fail to insert the second ref
+- !5254  tomoyo: fix UAF write bug in tomoyo_write_control()
+- !5321  UBSAN: array-index-out-of-bounds in dtSplitRoot
+- !5455  CVE-2021-47114
+- wifi: ath9k: Fix potential array-index-out-of-bounds read in ath9k_htc_txstatus()
+- !5320  jfs: fix slab-out-of-bounds Read in dtSearch
+- ocfs2: issue zeroout to EOF blocks
+- ocfs2: fix zero out valid data
+- ocfs2: fix data corruption by fallocate
+- !5374  hwrng: core - Fix page fault dead lock on mmap-ed hwrng
+- !5418 [sync] PR-5317:  KVM: s390: fix setting of fpc register
+- !5272  net/smc: fix illegal rmb_desc access in SMC-D connection dump
+- !5274  phonet/pep: refuse to enable an unbound pipe
+- !5359  CVE-2021-47121 and CVE-2021-47122
+- KVM: s390: fix setting of fpc register
+- !5358 v5  CVE-2023-52595
+- !5336  binder: fix race between mmput() and do_exit()
+- hwrng: core - Fix page fault dead lock on mmap-ed hwrng
+- btrfs: abort in rename_exchange if we fail to insert the second ref
+- net: caif: fix memory leak in caif_device_notify
+- net: caif: fix memory leak in cfusbl_device_notify
+- net: caif: add proper error handling
+- net: caif: added cfserl_release function
+- rt2x00: Fix kabi breakage in struct rt2x00lib_ops
+- wifi: rt2x00: restart beacon queue when hardware reset
+- rt2x00: clear up IV's on key removal
+- rt2x00: clear IV's on start to fix AP mode regression
+- rt2800: add pre_reset_hw callback
+- rt2800: do not nullify initialization vector data
+- binder: fix race between mmput() and do_exit()
+- UBSAN: array-index-out-of-bounds in dtSplitRoot
+- jfs: fix slab-out-of-bounds Read in dtSearch
+- printk: avoid deadlock in panic
+- phonet/pep: refuse to enable an unbound pipe
+- net/smc: fix illegal rmb_desc access in SMC-D connection dump
+- tomoyo: fix UAF write bug in tomoyo_write_control()
 
 * Wed Mar 20 2024 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2403.3.0.0243
 - !5306  FS:JFS:UBSAN:array-index-out-of-bounds in dbAdjTree
