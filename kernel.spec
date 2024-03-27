@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .68.0
-%global pkg_release         .148
+%global maintenance_release .69.0
+%global pkg_release         .149
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,33 @@ fi
 %endif
 
 %changelog
+* Wed Mar 27 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.69.0.149
+- !5534  media: pvrusb2: fix use after free on context disconnection
+- !5503 [sync] PR-5316: v2  iomap: add support to track dirty state of sub pages
+- media: pvrusb2: fix use after free on context disconnection
+- !5138 [sync] PR-4933:  scsi: pm80xx: Avoid leaking tags when processing OPC_INB_SET_CONTROLLER_CONFIG command
+- !5028 [sync] PR-4987:  net: usb: smsc75xx: Fix uninit-value access in __smsc75xx_read_reg
+- iomap: add support to track dirty state of sub pages
+- !5439 [sync] PR-5286:  serial: sc16is7xx: convert from _raw_ to _noinc_ regmap functions for FIFO
+- !5324  jfs: fix slab-out-of-bounds Read in dtSearch
+- !5329  UBSAN: array-index-out-of-bounds in dtSplitRoot
+- !5436 [sync] PR-5355:  CVE-2023-52593
+- !5311  FS:JFS:UBSAN:array-index-out-of-bounds in dbAdjTree
+- !5390 [sync] PR-5259:  CVE-2024-26627​
+- serial: sc16is7xx: convert from _raw_ to _noinc_ regmap functions for FIFO
+- wifi: wfx: fix possible NULL pointer dereference in wfx_set_mfp_ap()
+- scsi: core: Move scsi_host_busy() out of host lock if it is for per-command
+- scsi: core: Move scsi_host_busy() out of host lock for waking up EH handler
+- !5372 [sync] PR-5313:  bus: mhi: host: Add alignment check for event ring read pointer
+- !5288 [sync] PR-5231:  af_unix: fix lockdep positive in sk_diag_dump_icons()
+- bus: mhi: host: Add alignment check for event ring read pointer
+- UBSAN: array-index-out-of-bounds in dtSplitRoot
+- jfs: fix slab-out-of-bounds Read in dtSearch
+- FS:JFS:UBSAN:array-index-out-of-bounds in dbAdjTree
+- af_unix: fix lockdep positive in sk_diag_dump_icons()
+- scsi: pm80xx: Avoid leaking tags when processing OPC_INB_SET_CONTROLLER_CONFIG command
+- net: usb: smsc75xx: Fix uninit-value access in __smsc75xx_read_reg
+
 * Wed Mar 20 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.68.0.148
 - !5344  CVE-2023-52447
 - !5366 v2  CVE-2023-52452
