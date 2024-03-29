@@ -23,9 +23,9 @@
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       14
+%global devel_release       15
 %global maintenance_release .0.0
-%global pkg_release         .11
+%global pkg_release         .12
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -964,6 +964,202 @@ fi
 %endif
 
 %changelog
+* Fri Mar 29 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 6.6.0-15.0.0.12
+- !5470 [OLK-6.6] Add support for Mucse Virtual Function Network Adapter(N500/n210)
+- drivers: initial support for rnpgbevf drivers from Mucse Technology
+- !3164 [OLK-6.6] Fix CRC32C instruction low performance issue
+- crypto: x86/crc32c-intel - Don't match some Zhaoxin CPUs
+- !5547 Synchronizing upstream patch
+- LoongArch: KVM: Set reserved bits as zero in CPUCFG
+- LoongArch: KVM: Do not restart SW timer when it is expired
+- LoongArch: KVM: Start SW timer only when vcpu is blocking
+- irqchip/loongson-eiointc: Remove explicit interrupt affinity restore on resume
+- irqchip/loongson-eiointc: Skip handling if there is no pending irq
+- !3182 [OLK-6.6] Add support for Zhaoxin GMI SM2 Secure Hash algorithm
+- configs: add CONFIG_CRYPTO_SM2_ZHAOXIN_GMI to m
+- Add support for Zhaoxin GMI SM2 Secure Hash algorithm
+- !5578  SCSI: hisi_raid: support SPxxx serial RAID/HBA controllers
+- SCSI: hisi_raid: support SPxxx serial RAID/HBA controllers
+- !5641  userfaultfd: early return in dup_userfaultfd()
+- userfaultfd: early return in dup_userfaultfd()
+- !5629 v3  Mitigate a vmap lock contention
+- mm: vmalloc: refactor vmalloc_dump_obj() function
+- mm: vmalloc: improve description of vmap node layer
+- mm: vmalloc: add a shrinker to drain vmap pools
+- mm: vmalloc: set nr_nodes based on CPUs in a system
+- mm: vmalloc: support multiple nodes in vmallocinfo
+- mm: vmalloc: support multiple nodes in vread_iter
+- mm: vmalloc: add a scan area of VA only once
+- mm: vmalloc: offload free_vmap_area_lock lock
+- mm: vmalloc: remove global purge_vmap_area_root rb-tree
+- mm/vmalloc: remove vmap_area_list
+- mm: vmalloc: remove global vmap_area_root rb-tree
+- mm: vmalloc: move vmap_init_free_space() down in vmalloc.c
+- mm: vmalloc: rename adjust_va_to_fit_type() function
+- mm: vmalloc: add va_alloc() helper
+- mm: Introduce vmap_page_range() to map pages in PCI address space
+- mm: Introduce VM_SPARSE kind and vm_area_[un]map_pages().
+- mm: Enforce VM_IOREMAP flag and range in ioremap_page_range.
+- mm/vmalloc: fix the unchecked dereference warning in vread_iter()
+- !5609  Adding Huawei BMA driver
+- configs: add config BMA to config files
+- Huawei BMA: Adding Huawei BMA driver: cdev_veth_drv
+- Huawei BMA: Adding Huawei BMA driver: host_kbox_drv
+- Huawei BMA: Adding Huawei BMA driver: host_veth_drv
+- Huawei BMA: Adding Huawei BMA driver: host_cdev_drv
+- Huawei BMA: Adding Huawei BMA driver: host_edma_drv
+- !5613  mm: backport rmap interface overhaul
+- mm/memory: fix folio_set_dirty() vs. folio_mark_dirty() in zap_pte_range()
+- mm/huge_memory: fix folio_set_dirty() vs. folio_mark_dirty()
+- mm/rmap: silence VM_WARN_ON_FOLIO() in __folio_rmap_sanity_checks()
+- mm: remove one last reference to page_add_*_rmap()
+- mm/rmap: rename COMPOUND_MAPPED to ENTIRELY_MAPPED
+- mm: convert page_try_share_anon_rmap() to folio_try_share_anon_rmap_[pte|pmd]()
+- mm/rmap: remove page_try_dup_anon_rmap()
+- mm/memory: page_try_dup_anon_rmap() -> folio_try_dup_anon_rmap_pte()
+- mm/huge_memory: page_try_dup_anon_rmap() -> folio_try_dup_anon_rmap_pmd()
+- mm/rmap: introduce folio_try_dup_anon_rmap_[pte|ptes|pmd]()
+- mm/rmap: convert page_dup_file_rmap() to folio_dup_file_rmap_[pte|ptes|pmd]()
+- mm/rmap: remove page_remove_rmap()
+- Documentation: stop referring to page_remove_rmap()
+- mm: userswap: page_remove_rmap() -> folio_remove_rmap_pte()
+- mm/rmap: page_remove_rmap() -> folio_remove_rmap_pte()
+- mm/migrate_device: page_remove_rmap() -> folio_remove_rmap_pte()
+- mm/memory: page_remove_rmap() -> folio_remove_rmap_pte()
+- mm/ksm: page_remove_rmap() -> folio_remove_rmap_pte()
+- mm/khugepaged: page_remove_rmap() -> folio_remove_rmap_pte()
+- mm/huge_memory: page_remove_rmap() -> folio_remove_rmap_pmd()
+- kernel/events/uprobes: page_remove_rmap() -> folio_remove_rmap_pte()
+- mm/rmap: introduce folio_remove_rmap_[pte|ptes|pmd]()
+- mm/rmap: remove RMAP_COMPOUND
+- mm/rmap: remove page_add_anon_rmap()
+- mm/memory: page_add_anon_rmap() -> folio_add_anon_rmap_pte()
+- mm/swapfile: page_add_anon_rmap() -> folio_add_anon_rmap_pte()
+- mm/ksm: page_add_anon_rmap() -> folio_add_anon_rmap_pte()
+- mm/migrate: page_add_anon_rmap() -> folio_add_anon_rmap_pte()
+- mm/huge_memory: page_add_anon_rmap() -> folio_add_anon_rmap_pmd()
+- mm/huge_memory: batch rmap operations in __split_huge_pmd_locked()
+- mm/rmap: introduce folio_add_anon_rmap_[pte|ptes|pmd]()
+- mm/rmap: factor out adding folio mappings into __folio_add_rmap()
+- mm/rmap: remove page_add_file_rmap()
+- mm/userfaultfd: page_add_file_rmap() -> folio_add_file_rmap_pte()
+- mm/migrate: page_add_file_rmap() -> folio_add_file_rmap_pte()
+- mm/huge_memory: page_add_file_rmap() -> folio_add_file_rmap_pmd()
+- mm/memory: page_add_file_rmap() -> folio_add_file_rmap_[pte|pmd]()
+- mm/rmap: convert folio_add_file_rmap_range() into folio_add_file_rmap_[pte|ptes|pmd]()
+- mm/rmap: add hugetlb sanity checks for anon rmap handling
+- mm/rmap: introduce and use hugetlb_try_share_anon_rmap()
+- mm/rmap: introduce and use hugetlb_try_dup_anon_rmap()
+- mm/rmap: introduce and use hugetlb_add_file_rmap()
+- mm/rmap: introduce and use hugetlb_remove_rmap()
+- mm/rmap: rename hugepage_add* to hugetlb_add*
+- mm/khugepaged: convert collapse_pte_mapped_thp() to use folios
+- mm/khugepaged: convert alloc_charge_hpage() to use folios
+- mm/khugepaged: convert is_refcount_suitable() to use folios
+- mm/khugepaged: convert hpage_collapse_scan_pmd() to use folios
+- mm/khugepaged: convert __collapse_huge_page_isolate() to use folios
+- !5543 v2  locking/qspinlock: Add CNA support for ARM64
+- config/arm64: Enable numa aware qspinlock by default
+- locking/qspinlock: Add CNA support for ARM64 without pvspinlock
+- !5555 v2  ACPI/arm64: add support for virtual cpu hotplug
+- arm64/psci: Add undefined error message printing for psci_x_cpu_on
+- cpumask: Add enabled cpumask for present CPUs that can be brought online
+- ACPI: Add _OSC bits to advertise OS support for toggling CPU present/enabled
+- arm64: document virtual CPU hotplug's expectations
+- ACPI: processor: Only call arch_unregister_cpu() if HOTPLUG_CPU is selected
+- ACPI: add support to register CPUs based on the _STA enabled bit
+- arm64: psci: Ignore DENIED CPUs
+- irqchip/gic-v3: Add support for ACPI's disabled but 'online capable' CPUs
+- irqchip/gic-v3: Don't return errors from gic_acpi_match_gicc()
+- ACPICA: Add new MADT GICC flags fields
+- arm64: acpi: Move get_cpu_for_acpi_id() to a header
+- ACPI: Warn when the present bit changes but the feature is not enabled
+- ACPI: Check _STA present bit before making CPUs not present
+- ACPI: convert acpi_processor_post_eject() to use IS_ENABLED()
+- ACPI: Add post_eject to struct acpi_scan_handler for cpu hotplug
+- ACPI: Rename acpi_processor_hotadd_init and remove pre-processor guards
+- ACPI: Move acpi_bus_trim_one() before acpi_scan_hot_remove()
+- ACPI: Rename ACPI_HOTPLUG_CPU to include 'present'
+- ACPI: processor: Register all CPUs from acpi_processor_get_info()
+- ACPI: processor: Register CPUs that are online, but not described in the DSDT
+- ACPI: processor: Add support for processors described as container packages
+- ACPI: Only enumerate enabled (or functional) devices
+- !5461 [OLK-6.6] Add support for Mucse Virtual Function Network Adapter(N10)
+- drivers: initial support for rnpvf drivers from Mucse Technology
+- !5526 Intel: Backport QuickAssist Technology(QAT) in-tree driver
+- Enable Intel QAT_4XXX as kernel module
+- crypto: qat - make ring to service map common for QAT GEN4
+- crypto: qat - fix ring to service map for dcc in 420xx
+- crypto: qat - fix ring to service map for dcc in 4xxx
+- crypto: qat - fix comment structure
+- crypto: qat - remove unnecessary description from comment
+- crypto: qat - remove double initialization of value
+- crypto: qat - avoid division by zero
+- crypto: qat - removed unused macro in adf_cnv_dbgfs.c
+- crypto: qat - remove unused macros in qat_comp_alg.c
+- crypto: qat - uninitialized variable in adf_hb_error_inject_write()
+- Documentation: qat: fix auto_reset section
+- crypto: qat - resolve race condition during AER recovery
+- crypto: qat - change SLAs cleanup flow at shutdown
+- crypto: qat - improve aer error reset handling
+- crypto: qat - limit heartbeat notifications
+- crypto: qat - add auto reset on error
+- crypto: qat - add fatal error notification
+- crypto: qat - re-enable sriov after pf reset
+- crypto: qat - update PFVF protocol for recovery
+- crypto: qat - disable arbitration before reset
+- crypto: qat - add fatal error notify method
+- crypto: qat - add heartbeat error simulator
+- crypto: qat - use kcalloc_node() instead of kzalloc_node()
+- crypto: qat - avoid memcpy() overflow warning
+- crypto: qat - fix arbiter mapping generation algorithm for QAT 402xx
+- crypto: qat - generate dynamically arbiter mappings
+- crypto: qat - add support for ring pair level telemetry
+- crypto: qat - add support for device telemetry
+- crypto: qat - add admin msgs for telemetry
+- crypto: qat - include pci.h for GET_DEV()
+- crypto: qat - add support for 420xx devices
+- crypto: qat - move fw config related structures
+- crypto: qat - relocate portions of qat_4xxx code
+- crypto: qat - change signature of uof_get_num_objs()
+- crypto: qat - relocate and rename get_service_enabled()
+- crypto: qat - add NULL pointer check
+- crypto: qat - fix mutex ordering in adf_rl
+- crypto: qat - fix error path in add_update_sla()
+- crypto: qat - add sysfs_added flag for rate limiting
+- crypto: qat - add sysfs_added flag for ras
+- crypto: qat - prevent underflow in rp2srv_store()
+- units: add missing header
+- seq_file: add helper macro to define attribute for rw file
+- crypto: qat - move adf_cfg_services
+- crypto: qat - add num_rps sysfs attribute
+- crypto: qat - add rp2svc sysfs attribute
+- crypto: qat - add rate limiting sysfs interface
+- crypto: qat - add rate limiting feature to qat_4xxx
+- crypto: qat - add retrieval of fw capabilities
+- crypto: qat - add bits.h to icp_qat_hw.h
+- units: Add BYTES_PER_*BIT
+- crypto: qat - move admin api
+- crypto: qat - count QAT GEN4 errors
+- crypto: qat - add error counters
+- crypto: qat - add handling of errors from ERRSOU3 for QAT GEN4
+- crypto: qat - add adf_get_aram_base() helper function
+- crypto: qat - add handling of compression related errors for QAT GEN4
+- crypto: qat - add handling of errors from ERRSOU2 for QAT GEN4
+- crypto: qat - add reporting of errors from ERRSOU1 for QAT GEN4
+- crypto: qat - add reporting of correctable errors for QAT GEN4
+- crypto: qat - add infrastructure for error reporting
+- crypto: qat - add cnv_errors debugfs file
+- crypto: qat - add pm_status debugfs file
+- crypto: qat - refactor included headers
+- crypto: qat - add namespace to driver
+- crypto: qat - Remove zlib-deflate
+- crypto: qat - Annotate struct adf_fw_counters with __counted_by
+- crypto: qat - do not shadow error code
+- crypto: qat - refactor deprecated strncpy
+- crypto: qat - Use list_for_each_entry() helper
+- Documentation: ABI: debugfs-driver-qat: fix fw_counters path
+
 * Thu Mar 28 2024 Bing Xia <xiabing12@h-partners.com> - 6.6.0-14.0.0.11
 - perf: add CoreSight trace component support on aarch64 platform
 
