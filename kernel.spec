@@ -25,7 +25,7 @@
 %global upstream_sublevel   0
 %global devel_release       15
 %global maintenance_release .0.0
-%global pkg_release         .12
+%global pkg_release         .13
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -488,6 +488,10 @@ popd
 pushd tools/kvm/kvm_stat/
 %{make} %{?_smp_mflags} man
 popd
+# netacc
+pushd tools/netacc
+make BPFTOOL=../../tools/bpf/bpftool/bpftool
+popd
 
 %install
 %if 0%{?with_source}
@@ -784,6 +788,10 @@ popd
 pushd tools/kvm/kvm_stat
 %{make} INSTALL_ROOT=%{buildroot} install-tools
 popd
+# netacc
+pushd tools/netacc
+make INSTALL_ROOT=%{buildroot} install
+popd
 
 %define __spec_install_post\
 %{?__debug_package:%{__debug_install_post}}\
@@ -930,6 +938,8 @@ fi
 %{_bindir}/gpio-watch
 %{_mandir}/man1/kvm_stat*
 %{_bindir}/kvm_stat
+%{_sbindir}/net-acc
+%{_sbindir}/tuned_acc/netacc
 %{_libdir}/libcpupower.so.1
 %{_libdir}/libcpupower.so.0.0.1
 %license linux-%{KernelVer}/COPYING
@@ -964,6 +974,9 @@ fi
 %endif
 
 %changelog
+* Sat Mar 30 2024 Liu Jian <liujian56@huawei.com> - 6.6.0-15.0.0.13
+- And net-acc tool to kernel-tools.
+
 * Fri Mar 29 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 6.6.0-15.0.0.12
 - !5470 [OLK-6.6] Add support for Mucse Virtual Function Network Adapter(N500/n210)
 - drivers: initial support for rnpgbevf drivers from Mucse Technology
