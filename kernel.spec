@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       153
-%global maintenance_release .48.0
-%global pkg_release         .126
+%global maintenance_release .49.0
+%global pkg_release         .127
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -878,6 +878,37 @@ fi
 %endif
 
 %changelog
+* Mon Apr 01 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.49.0.127
+- !5683 [sync] PR-5266:  llc: call sock_orphan() at release time
+- !5691  net: nfc: fix races in nfc_llcp_sock_get() and nfc_llcp_sock_get_sn()
+- !5687 [sync] PR-5253:  tomoyo: fix UAF write bug in tomoyo_write_control()
+- net: nfc: fix races in nfc_llcp_sock_get() and nfc_llcp_sock_get_sn()
+- tomoyo: fix UAF write bug in tomoyo_write_control()
+- llc: call sock_orphan() at release time
+- !5434 [sync] PR-5232:  jfs: fix cve issue
+- !5639 [sync] PR-5617: v4  Fix I/O high when memory almost met memcg limit
+- !5666 [sync] PR-5580:  CVE-2023-52622
+- ext4: avoid online resizing failures due to oversized flex bg
+- ext4: unify the type of flexbg_size to unsigned int
+- ext4: remove unnecessary check from alloc_flex_gd()
+- !5649 [sync] PR-5493:  arm64/mpam: Fix repeated enabling in mpam_enable()
+- !5636 [sync] PR-5518:  dm: revert partial fix for redundant bio-based IO accounting
+- !5633 [sync] PR-5521:  md/raid5: fix atomicity violation in raid5_cache_count
+- arm64/mpam: Fix repeated enabling in mpam_enable()
+- !5620 [sync] PR-5606:  mm/mlock: return EINVAL for illegal user memory range in mlock
+- mm/readahead: don't decrease mmap_miss when folio has workingset flags
+- mm/readahead: break read-ahead loop if filemap_add_folio return -ENOMEM
+- !5611 [sync] PR-5447:  Fix CVE-2021-47094
+- dm: revert partial fix for redundant bio-based IO accounting
+- md/raid5: fix atomicity violation in raid5_cache_count
+- mm/mlock: return EINVAL for illegal user memory range in mlock
+- KVM: x86/mmu: Don't advance iterator after restart due to yielding
+- KVM: x86/mmu: Factor out tdp_iter_return_to_root
+- !5472  jfs: fix array-index-out-of-bounds in dbAdjTree
+- jfs: fix array-index-out-of-bounds in dbAdjTree
+- jfs: fix array-index-out-of-bounds in diNewExt
+- jfs: fix uaf in jfs_evict_inode
+
 * Wed Mar 27 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.48.0.126
 - !5535  media: pvrusb2: fix use after free on context disconnection
 - !5504 [sync] PR-5316: v2  iomap: add support to track dirty state of sub pages
