@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .69.0
-%global pkg_release         .149
+%global maintenance_release .70.0
+%global pkg_release         .150
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,45 @@ fi
 %endif
 
 %changelog
+* Mon Apr 01 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.70.0.150
+- !5682 [sync] PR-5266:  llc: call sock_orphan() at release time
+- !5690  net: nfc: fix races in nfc_llcp_sock_get() and nfc_llcp_sock_get_sn()
+- !5686 [sync] PR-5253:  tomoyo: fix UAF write bug in tomoyo_write_control()
+- net: nfc: fix races in nfc_llcp_sock_get() and nfc_llcp_sock_get_sn()
+- tomoyo: fix UAF write bug in tomoyo_write_control()
+- llc: call sock_orphan() at release time
+- !5433 [sync] PR-5232:  jfs: fix cve issue
+- !5638 [sync] PR-5617: v4  Fix I/O high when memory almost met memcg limit
+- !5665 [sync] PR-5580:  CVE-2023-52622
+- ext4: avoid online resizing failures due to oversized flex bg
+- ext4: unify the type of flexbg_size to unsigned int
+- ext4: remove unnecessary check from alloc_flex_gd()
+- !5648 [sync] PR-5493:  arm64/mpam: Fix repeated enabling in mpam_enable()
+- !5416 v2  mpt3sas bugfix
+- !5635 [sync] PR-5518:  dm: revert partial fix for redundant bio-based IO accounting
+- !5632 [sync] PR-5521:  md/raid5: fix atomicity violation in raid5_cache_count
+- arm64/mpam: Fix repeated enabling in mpam_enable()
+- mm/readahead: don't decrease mmap_miss when folio has workingset flags
+- mm/readahead: break read-ahead loop if filemap_add_folio return -ENOMEM
+- !5619 [sync] PR-5606:  mm/mlock: return EINVAL for illegal user memory range in mlock
+- !5610 [sync] PR-5447:  Fix CVE-2021-47094
+- dm: revert partial fix for redundant bio-based IO accounting
+- md/raid5: fix atomicity violation in raid5_cache_count
+- mm/mlock: return EINVAL for illegal user memory range in mlock
+- KVM: x86/mmu: Don't advance iterator after restart due to yielding
+- KVM: x86/mmu: Factor out tdp_iter_return_to_root
+- !5475  jfs: fix array-index-out-of-bounds in dbAdjTree
+- jfs: fix array-index-out-of-bounds in dbAdjTree
+- jfs: fix array-index-out-of-bounds in diNewExt
+- jfs: fix uaf in jfs_evict_inode
+- scsi: mpt3sas: Fix loop logic
+- scsi: mpt3sas: Perform additional retries if doorbell read returns 0
+- scsi: mpt3sas: Fix NULL pointer access in mpt3sas_transport_port_add()
+- scsi: mpt3sas: Remove usage of dma_get_required_mask() API
+- scsi: mpt3sas: Don't change DMA mask while reallocating pools
+- scsi: mpt3sas: Fix a memory leak
+- scsi: mpt3sas: Fix possible resource leaks in mpt3sas_transport_port_add()
+
 * Wed Mar 27 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.69.0.149
 - !5534  media: pvrusb2: fix use after free on context disconnection
 - !5503 [sync] PR-5316: v2  iomap: add support to track dirty state of sub pages
