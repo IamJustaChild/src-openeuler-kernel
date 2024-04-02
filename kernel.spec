@@ -17,8 +17,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       60
-%global maintenance_release .131.0
-%global pkg_release         .158
+%global maintenance_release .132.0
+%global pkg_release         .159
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -932,6 +932,34 @@ fi
 %endif
 
 %changelog
+* Mon Apr 01 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-60.132.0.159
+- !5681 [sync] PR-5266:  llc: call sock_orphan() at release time
+- !5689  net: nfc: fix races in nfc_llcp_sock_get() and nfc_llcp_sock_get_sn()
+- !5685 [sync] PR-5253:  tomoyo: fix UAF write bug in tomoyo_write_control()
+- net: nfc: fix races in nfc_llcp_sock_get() and nfc_llcp_sock_get_sn()
+- tomoyo: fix UAF write bug in tomoyo_write_control()
+- llc: call sock_orphan() at release time
+- !5432 [sync] PR-5232:  jfs: fix cve issue
+- !5637 [sync] PR-5617: v4  Fix I/O high when memory almost met memcg limit
+- !5664 [sync] PR-5580:  CVE-2023-52622
+- ext4: avoid online resizing failures due to oversized flex bg
+- ext4: unify the type of flexbg_size to unsigned int
+- ext4: remove unnecessary check from alloc_flex_gd()
+- !5646 [sync] PR-5493:  arm64/mpam: Fix repeated enabling in mpam_enable()
+- !5634 [sync] PR-5518:  dm: revert partial fix for redundant bio-based IO accounting
+- !5631 [sync] PR-5521:  md/raid5: fix atomicity violation in raid5_cache_count
+- arm64/mpam: Fix repeated enabling in mpam_enable()
+- mm/readahead: don't decrease mmap_miss when folio has workingset flags
+- mm/readahead: break read-ahead loop if filemap_add_folio return -ENOMEM
+- !5618 [sync] PR-5606:  mm/mlock: return EINVAL for illegal user memory range in mlock
+- dm: revert partial fix for redundant bio-based IO accounting
+- md/raid5: fix atomicity violation in raid5_cache_count
+- mm/mlock: return EINVAL for illegal user memory range in mlock
+- !5471  jfs: fix array-index-out-of-bounds in dbAdjTree
+- jfs: fix array-index-out-of-bounds in dbAdjTree
+- jfs: fix array-index-out-of-bounds in diNewExt
+- jfs: fix uaf in jfs_evict_inode
+
 * Wed Mar 27 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-60.131.0.158
 - !5533  media: pvrusb2: fix use after free on context disconnection
 - !5447  Fix CVE-2021-47094
