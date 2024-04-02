@@ -25,7 +25,7 @@
 %global upstream_sublevel   0
 %global devel_release       15
 %global maintenance_release .0.0
-%global pkg_release         .13
+%global pkg_release         .14
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -68,6 +68,11 @@ Source12: extra_certificates
 # 1. openeuler <openeuler@compass-ci.com>
 Source13: RPM-GPG-KEY-openEuler-compass-ci
 Source14: process_pgp_certs.sh
+
+%if 0%{?openEuler_sign_rsa}
+Source15: openeuler_kernel_cert.cer
+Source16: sign-modules-openeuler
+%endif
 
 %if 0%{?with_kabichk}
 Source18: check-kabi
@@ -115,10 +120,6 @@ BuildRequires: pciutils-devel gettext
 BuildRequires: rpm-build, elfutils
 BuildRequires: numactl-devel python3-devel glibc-static python3-docutils
 BuildRequires: perl-generators perl(Carp) libunwind-devel gtk2-devel libbabeltrace-devel java-1.8.0-openjdk java-1.8.0-openjdk-devel perl-devel
-
-%if 0%{?openEuler_sign_rsa}
-BuildRequires: sign-openEuler
-%endif
 
 AutoReq: no
 AutoProv: yes
@@ -394,6 +395,14 @@ sed -i 's/# CONFIG_LTO_CLANG_FULL is not set/CONFIG_LTO_CLANG_FULL=y/' .config
 sed -i 's/CONFIG_LTO_NONE=y/# CONFIG_LTO_NONE is not set/' .config
 %endif
 
+%if 0%{?openEuler_sign_rsa}
+    cp %{SOURCE15} ./certs/openeuler-cert.pem
+    # close kernel native signature
+    sed -i 's/CONFIG_MODULE_SIG_KEY=.*$/CONFIG_MODULE_SIG_KEY=""/g' .config
+    sed -i 's/CONFIG_SYSTEM_TRUSTED_KEYS=.*$/CONFIG_SYSTEM_TRUSTED_KEYS="certs\/openeuler-cert.pem"/g' .config
+    sed -i 's/CONFIG_MODULE_SIG_ALL=y$/CONFIG_MODULE_SIG_ALL=n/g' .config
+%endif
+
 TargetImage=$(basename $(make -s image_name))
 
 %{make} ARCH=%{Arch} $TargetImage %{?_smp_mflags}
@@ -522,14 +531,16 @@ install -m 755 $(make -s image_name) $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}
     echo "start sign"
     %ifarch %arm aarch64
 	gunzip -c $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}>$RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip.efi
-	/opt/sign-openEuler/client --config /opt/sign-openEuler/config.toml add --key-name default-x509ee --file-type efi-image --key-type x509ee --sign-type authenticode $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip.efi
+	sh /usr/lib/rpm/brp-ebs-sign --efi $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip.efi
+	mv $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip.efi.sig $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip.efi
 	mv $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip.efi $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip
 	gzip -c $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip>$RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}
 	rm -f $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip
     %endif
     %ifarch x86_64
 	mv $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer} $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.efi
-	/opt/sign-openEuler/client --config /opt/sign-openEuler/config.toml add --key-name default-x509ee --file-type efi-image --key-type x509ee --sign-type authenticode $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.efi
+	sh /usr/lib/rpm/brp-ebs-sign --efi $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.efi
+	mv $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.efi.sig $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.efi
 	mv $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.efi $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}
     %endif
 %endif
@@ -613,6 +624,15 @@ popd
     fi \
     find $RPM_BUILD_ROOT/lib/modules/ -type f -name '*.ko' | xargs -n1 -P`nproc --all` xz; \
 %{nil}
+
+%if 0%{?openEuler_sign_rsa}
+%define __modsign_install_post \
+    if [ "%{with_signmodules}" -eq "1" ];then \
+sh %{SOURCE16} $RPM_BUILD_ROOT/lib/modules/%{KernelVer} || exit 1 \
+    fi \
+    find $RPM_BUILD_ROOT/lib/modules/ -type f -name '*.ko' | xargs -n1 -P`nproc --all` xz; \
+%{nil}
+%endif
 
 # deal with header
 %{make} ARCH=%{Arch} INSTALL_HDR_PATH=$RPM_BUILD_ROOT/usr KBUILD_SRC= headers_install
@@ -978,6 +998,9 @@ fi
 %endif
 
 %changelog
+* Tue Apr 2 2024 jinlun <jinlun@huawei.com> - 6.6.0-15.0.0.14
+- Support generating moudle/kernel signature with openEuler signature platform
+
 * Sat Mar 30 2024 Liu Jian <liujian56@huawei.com> - 6.6.0-15.0.0.13
 - And net-acc tool to kernel-tools.
 
