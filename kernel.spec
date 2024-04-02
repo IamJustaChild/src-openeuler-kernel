@@ -23,9 +23,9 @@
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       15
+%global devel_release       16
 %global maintenance_release .0.0
-%global pkg_release         .14
+%global pkg_release         .15
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -998,6 +998,154 @@ fi
 %endif
 
 %changelog
+* Tue Apr 02 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 6.6.0-16.0.0.15
+- !5647 hisilicon - some bugfix and cleanup
+- crypto: hisilicon/sec2: fix memory use-after-free issue
+- crypto: hisilicon/qm - hardware error does not reset during binding/unbinding
+- crypto: hisilicon/qm - check device status before sending mailbox
+- crypto: hisilicon/qm - mask error bit before flr
+- crypto: hisilicon/qm - fix the pf2vf timeout when global reset
+- crypto: hisilicon/qm - obtain the mailbox configuration at one time
+- crypto: hisilicon/hpre - mask cluster timeout error
+- crypto: hisilicon/qm - disable same error report before resetting
+- crypto: hisilicon/qm - modify interrupt processing resource application
+- crypto: hisilicon/qm - reset device before enabling it
+- openeuler_defconfig: enable HISI_ACC_VFIO_PCI=m
+- Revert "openeuler_defconfig: enable HISI_ACC_VFIO_PCI=m"
+- !5509  ext4: Validate inode pa before using preallocation blocks
+- ext4: Validate inode pa before using preallocation blocks
+- !5630 scsi: sd: try more retries of START_STOP when resuming scsi device
+- scsi: sd: try more retries of START_STOP when resuming scsi device
+- !5561 roh: backport roh driver feature support
+- roh/hns3: Fix the processing flow of ROH CMDq during the reset process.
+- roh/core: Synchronously update the mac address of the vlan device when configuring the vlan device ip
+- roh/hns3: Fix ROH multi-BD cmdq issue
+- roh/hns3: Add support for roh dfx(debugfs)
+- roh/hns3: Add support for roh reset
+- roh/core: Add support for inetaddr notifier in roh/core
+- roh/hns3: Add support for roh abnormal interruption
+- roh/core: Add roh device sysfs node
+- roh/hns3: Add ROH cmdq interface support
+- roh/hns3: Add ROH hns3 driver and register a ROH device
+- roh/core: Add ROH device driver
+- net: hns3: add support for ROH reset
+- net: hns3: intercept invalid MAC address setting in ROH
+- !5703  openeuler_defconfig: Disable CONFIG_PREEMPT_DYNAMIC for x86
+- openeuler_defconfig: Disable CONFIG_PREEMPT_DYNAMIC for x86
+- !5513 [OLK-6.6] SCSI: SSSRAID: Support 3SNIC 3S5XX serial RAID/HBA controllers
+- SCSI: SSSRAID: Support 3SNIC 3S5XX serial RAID/HBA controllers
+- !5582 [OLK-6.6]Open CONFIG_LZ4_COMPRESS option for x86_64 architecture
+- Open CONFIG_LZ4_COMPRESS option for x86_64 architecture
+- !5688 v3  Optimize compaction
+- mm/compaction: optimize >0 order folio compaction with free page split.
+- mm/compaction: add support for >0 order folio memory compaction.
+- mm/compaction: enable compacting >0 order folios.
+- mm/page_alloc: remove unused fpi_flags in free_pages_prepare()
+- mm/compaction: introduce NR_PAGE_ORDERS and MAX_PAGE_ORDER
+- mm: compaction: limit the suitable target page order to be less than cc->order
+- mm: compaction: update the cc->nr_migratepages when allocating or freeing the freepages
+- mm: compaction: avoid fast_isolate_freepages blindly choose improper pageblock
+- mm: add page_rmappable_folio() wrapper
+- mm: page_alloc: check the order of compound page even when the order is zero
+- mm/compaction: factor out code to test if we should run compaction for target order
+- mm/compaction: improve comment of is_via_compact_memory
+- mm/compaction: remove repeat compact_blockskip_flush check in reset_isolation_suitable
+- mm/compaction: correctly return failure with bogus compound_order in strict mode
+- mm/compaction: call list_is_{first}/{last} more intuitively in move_freelist_{head}/{tail}
+- mm/compaction: use correct list in move_freelist_{head}/{tail}
+- !5655 add steal time software breakpoint pv ipi  support for loongarch kvm
+- LoongArch: Add steal time support in guest side
+- LoongArch: KVM: Add steal time support in kvm side
+- irqchip/loongson-eiointc: Add virt extension support
+- LoongArch: KVM: Add software breakpoint support
+- Documentation: KVM: Add hypercall for LoongArch
+- LoongArch: Add pv ipi support on guest kernel side
+- LoongArch: KVM: Add pv ipi support on kvm side
+- LoongArch: KVM: Add vcpu search support from physical cpuid
+- LoongArch: KVM: Add cpucfg area for kvm hypervisor
+- LoongArch: KVM: Add hypercall instruction emulation support
+- LoongArch/smp: Refine some ipi functions on LoongArch platform
+- !5653  arm64: Enable hardware NMI for perf events NMI
+- arm64: Enable hardware NMI for perf events NMI
+- !5667  configs: arm64: Enable CONFIG_ACPI_AGDI and CONFIG_ACPI_FFH
+- configs: arm64: Enable CONFIG_ACPI_AGDI and CONFIG_ACPI_FFH
+- !5669  disable CONFIG_CMDLINE_FROM_BOOTLOADER CONFIG_INITRAMFS_PRESERVE_MTIME in 6.6
+- configs: disable CONFIG_CMDLINE_FROM_BOOTLOADER CONFIG_INITRAMFS_PRESERVE_MTIME in 6.6
+- !5663  arm64: transparent contiguous PTEs for user mappings
+- arm64: configs: enable ARM64_CONTPTE
+- tools/mm: add thpmaps script to dump THP usage info
+- mm: make folio_pte_batch available outside of mm/memory.c
+- arm64/mm: automatically fold contpte mappings
+- arm64/mm: __always_inline to improve fork() perf
+- arm64/mm: implement pte_batch_hint()
+- mm: add pte_batch_hint() to reduce scanning in folio_pte_batch()
+- arm64/mm: implement new [get_and_]clear_full_ptes() batch APIs
+- arm64/mm: implement new wrprotect_ptes() batch API
+- arm64/mm: wire up PTE_CONT for user mappings
+- arm64/mm: dplit __flush_tlb_range() to elide trailing DSB
+- arm64/mm: new ptep layer to manage contig bit
+- arm64/mm: convert ptep_clear() to ptep_get_and_clear()
+- arm64/mm: convert set_pte_at() to set_ptes(..., 1)
+- arm64/mm: convert READ_ONCE(*ptep) to ptep_get(ptep)
+- mm: tidy up pte_next_pfn() definition
+- x86/mm: convert pte_next_pfn() to pte_advance_pfn()
+- arm64/mm: convert pte_next_pfn() to pte_advance_pfn()
+- mm: introduce pte_advance_pfn() and use for pte_next_pfn()
+- mm: thp: batch-collapse PMD with set_ptes()
+- mm: clarify the spec for set_ptes()
+- mm: memory: move mem_cgroup_charge() into alloc_anon_folio()
+- mm: memory: use folio_prealloc() in wp_page_copy()
+- mm: memory: use a folio in do_cow_fault()
+- mm: memory: rename page_copy_prealloc() to folio_prealloc()
+- !5662 v4  Introduce dynamic pool feature part 2
+- mm/dynamic_pool: Wrap some core functions with dpool prefix
+- mm/dynamic_pool: disable irq for dynamic_pool lock
+- mm/dynamic_pool: don't set subpool for page from dynamic pool
+- mm/dynamic_pool: skip unexpected migration
+- mm/mem_reliable: Fallback to dpool if reliable memory is not enough
+- mm/mem_reliable: Treat page from dhugetlb pool as unreliable page
+- mm/dynamic_pool: Stop alloc reliable page from dynamic pool
+- !5621  irqchip/gic-v3: Fix a system stall when using pseudo NMI with CONFIG_ARM64_NMI closed
+- irqchip/gic-v3: Fix a system stall when using pseudo NMI with CONFIG_ARM64_NMI closed
+- !5656 v3  mm: backport fork/unmap/zap optimize
+- mm/memory: fix missing pte marker for !page on pte zaps
+- mm/memory: optimize unmap/zap with PTE-mapped THP
+- mm/mmu_gather: improve cond_resched() handling with large folios and expensive page freeing
+- mm/mmu_gather: add __tlb_remove_folio_pages()
+- mm/mmu_gather: add tlb_remove_tlb_entries()
+- mm/mmu_gather: define ENCODED_PAGE_FLAG_DELAY_RMAP
+- mm/mmu_gather: pass "delay_rmap" instead of encoded page to __tlb_remove_page_size()
+- mm/memory: factor out zapping folio pte into zap_present_folio_pte()
+- mm/memory: further separate anon and pagecache folio handling in zap_present_pte()
+- mm/memory: handle !page case in zap_present_pte() separately
+- mm/memory: factor out zapping of present pte into zap_present_pte()
+- mm/memory: ignore writable bit in folio_pte_batch()
+- mm/memory: ignore dirty/accessed/soft-dirty bits in folio_pte_batch()
+- mm/memory: optimize fork() with PTE-mapped THP
+- mm/memory: pass PTE to copy_present_pte()
+- mm/memory: factor out copying the actual PTE in copy_present_pte()
+- powerpc/mm: use pte_next_pfn() in set_ptes()
+- arm/mm: use pte_next_pfn() in set_ptes()
+- mm/pgtable: make pte_next_pfn() independent of set_ptes()
+- sparc/pgtable: define PFN_PTE_SHIFT
+- s390/pgtable: define PFN_PTE_SHIFT
+- riscv/pgtable: define PFN_PTE_SHIFT
+- powerpc/pgtable: define PFN_PTE_SHIFT
+- nios2/pgtable: define PFN_PTE_SHIFT
+- arm/pgtable: define PFN_PTE_SHIFT
+- arm64/mm: make set_ptes() robust when OAs cross 48-bit boundary
+- arm64: Mark the 'addr' argument to set_ptes() and __set_pte_at() as unused
+- arm64/mm: Hoist synchronization out of set_ptes() loop
+- mm: convert mm_counter_file() to take a folio
+- mm: convert mm_counter() to take a folio
+- mm: convert to should_zap_page() to should_zap_folio()
+- mm: use pfn_swap_entry_folio() in copy_nonpresent_pte()
+- mm: use pfn_swap_entry_to_folio() in zap_huge_pmd()
+- mm: use pfn_swap_entry_folio() in __split_huge_pmd_locked()
+- s390: use pfn_swap_entry_folio() in ptep_zap_swap_entry()
+- mprotect: use pfn_swap_entry_folio
+- mm: add pfn_swap_entry_folio()
+
 * Tue Apr 2 2024 Jin Lun <jinlun@huawei.com> - 6.6.0-15.0.0.14
 - Support generating moudle/kernel signature with openEuler signature platform
 
