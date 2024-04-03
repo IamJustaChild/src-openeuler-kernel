@@ -16,6 +16,23 @@
 
 %define modsign_cmd %{SOURCE10}
 
+%if 0%{?openEuler_sign_rsa}
+# Use the open-source signature when the EBS permission is insufficient.
+# Now only the admin user in EBS can send the signature request. But the
+# user triggering the acces control build task and the personal build
+# task is non-admin. Inorder to avoid build failures caused by failed
+# signing, use the open-source signature.
+# The flag_openEuler_has_sign_perm used in the rpm execution phase
+# The openEuler_has_sign_perm used in the rpm execution phase
+
+%define openEuler_check_EBS_perm openEuler_has_sign_perm=0 \
+echo "" >> test_openEuler_sign.ko \
+sh /usr/lib/rpm/brp-ebs-sign --module test_openEuler_sign.ko || \
+[ $? -ne 2 ] && openEuler_has_sign_perm=1 \
+%global flag_openEuler_has_sign_perm $openEuler_has_sign_perm \
+rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
+%endif
+
 %global Arch $(echo %{_host_cpu} | sed -e s/i.86/x86/ -e s/x86_64/x86/ -e s/aarch64.*/arm64/ -e s/riscv.*/riscv/ -e s/powerpc64le/powerpc/)
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
@@ -25,7 +42,7 @@
 %global upstream_sublevel   0
 %global devel_release       19
 %global maintenance_release .0.0
-%global pkg_release         .19
+%global pkg_release         .20
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -64,10 +81,6 @@ Source0: kernel.tar.gz
 Source10: sign-modules
 Source11: x509.genkey
 Source12: extra_certificates
-# openEuler RPM PGP certificates:
-# 1. openeuler <openeuler@compass-ci.com>
-Source13: RPM-GPG-KEY-openEuler-compass-ci
-Source14: process_pgp_certs.sh
 
 %if 0%{?openEuler_sign_rsa}
 Source15: openeuler_kernel_cert.cer
@@ -288,7 +301,6 @@ package or when debugging this package.\
 %endif
 
 %prep
-
 %setup -q -n kernel-%{version} -c
 
 %if 0%{?with_patch}
@@ -297,12 +309,6 @@ tar -xjf %{SOURCE9998}
 
 mv kernel linux-%{KernelVer}
 cd linux-%{KernelVer}
-
-# process PGP certs
-cp %{SOURCE13} .
-cp %{SOURCE14} .
-sh %{SOURCE14}
-cp pubring.gpg certs
 
 %if 0%{?with_patch}
 cp %{SOURCE9000} .
@@ -396,11 +402,14 @@ sed -i 's/CONFIG_LTO_NONE=y/# CONFIG_LTO_NONE is not set/' .config
 %endif
 
 %if 0%{?openEuler_sign_rsa}
-    cp %{SOURCE15} ./certs/openeuler-cert.pem
+    %{openEuler_check_EBS_perm}
+    if [ $openEuler_has_sign_perm -eq 1 ]; then
+        cp %{SOURCE15} ./certs/openeuler-cert.pem
     # close kernel native signature
-    sed -i 's/CONFIG_MODULE_SIG_KEY=.*$/CONFIG_MODULE_SIG_KEY=""/g' .config
-    sed -i 's/CONFIG_SYSTEM_TRUSTED_KEYS=.*$/CONFIG_SYSTEM_TRUSTED_KEYS="certs\/openeuler-cert.pem"/g' .config
-    sed -i 's/CONFIG_MODULE_SIG_ALL=y$/CONFIG_MODULE_SIG_ALL=n/g' .config
+        sed -i 's/CONFIG_MODULE_SIG_KEY=.*$/CONFIG_MODULE_SIG_KEY=""/g' .config
+        sed -i 's/CONFIG_SYSTEM_TRUSTED_KEYS=.*$/CONFIG_SYSTEM_TRUSTED_KEYS="certs\/openeuler-cert.pem"/g' .config
+        sed -i 's/CONFIG_MODULE_SIG_ALL=y$/CONFIG_MODULE_SIG_ALL=n/g' .config
+    fi
 %endif
 
 TargetImage=$(basename $(make -s image_name))
@@ -528,21 +537,24 @@ dd if=/dev/zero of=$RPM_BUILD_ROOT/boot/initramfs-%{KernelVer}.img bs=1M count=2
 install -m 755 $(make -s image_name) $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}
 
 %if 0%{?openEuler_sign_rsa}
-    echo "start sign"
-    %ifarch %arm aarch64
-	gunzip -c $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}>$RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip.efi
-	sh /usr/lib/rpm/brp-ebs-sign --efi $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip.efi
-	mv $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip.efi.sig $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip.efi
-	mv $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip.efi $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip
-	gzip -c $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip>$RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}
-	rm -f $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip
-    %endif
-    %ifarch x86_64
-	mv $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer} $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.efi
-	sh /usr/lib/rpm/brp-ebs-sign --efi $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.efi
-	mv $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.efi.sig $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.efi
-	mv $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.efi $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}
-    %endif
+    %{openEuler_check_EBS_perm}
+    if [ $openEuler_has_sign_perm -eq 1 ]; then
+        echo "start sign"
+        %ifarch %arm aarch64
+	    gunzip -c $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}>$RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip.efi
+	    sh /usr/lib/rpm/brp-ebs-sign --efi $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip.efi
+	    mv $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip.efi.sig $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip.efi
+	    mv $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip.efi $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip
+	    gzip -c $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip>$RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}
+	    rm -f $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip
+        %endif
+        %ifarch x86_64
+	    mv $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer} $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.efi
+	    sh /usr/lib/rpm/brp-ebs-sign --efi $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.efi
+	    mv $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.efi.sig $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.efi
+	    mv $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.efi $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}
+        %endif
+    fi
 %endif
 
 pushd $RPM_BUILD_ROOT/boot
@@ -628,7 +640,14 @@ popd
 %if 0%{?openEuler_sign_rsa}
 %define __modsign_install_post \
     if [ "%{with_signmodules}" -eq "1" ];then \
-sh %{SOURCE16} $RPM_BUILD_ROOT/lib/modules/%{KernelVer} || exit 1 \
+        if [ %flag_openEuler_has_sign_perm -eq 1 ]; then \
+            sh %{SOURCE16} $RPM_BUILD_ROOT/lib/modules/%{KernelVer} || exit 1 \
+        else \
+            cp certs/signing_key.pem . \
+            cp certs/signing_key.x509 . \
+            chmod 0755 %{modsign_cmd} \
+            %{modsign_cmd} $RPM_BUILD_ROOT/lib/modules/%{KernelVer} || exit 1 \
+        fi \
     fi \
     find $RPM_BUILD_ROOT/lib/modules/ -type f -name '*.ko' | xargs -n1 -P`nproc --all` xz; \
 %{nil}
@@ -1000,6 +1019,11 @@ fi
 %endif
 
 %changelog
+* Fri Apr 12 2024 Jin Lun <jinlun@huawei.com> - 6.6.0-19.0.0.20
+- Remove PGP certificates.
+- Optimize the signing process, if the project has no permission
+  to send sign request, use the kernel native signing.
+
 * Wed Apr 10 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-19.0.0.19
 - !5877  optimize eevdf scheduler
 - sched/eevdf: Skip eligibility check for current entity during wakeup preemption
