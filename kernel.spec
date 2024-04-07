@@ -23,9 +23,9 @@
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       16
+%global devel_release       17
 %global maintenance_release .0.0
-%global pkg_release         .15
+%global pkg_release         .16
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -998,6 +998,33 @@ fi
 %endif
 
 %changelog
+* Sun Apr 07 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 6.6.0-17.0.0.16
+- !5695 v2  Disable OLK-6.6 configs
+- arm64: configs: Disable PROBE_EVENTS_BTF_ARGS
+- x86: configs: Disable PROBE_EVENTS_BTF_ARGS
+- x86: configs: Disable X86_KERNEL_IBT
+- x86: configs: Disable CRASH_HOTPLUG
+- !5733  fix port vlan filter not disabled problem in dynamic vlan mode
+- net: hns3: fix port vlan filter not disabled problem in dynamic vlan mode
+- !5734  arch/mm/fault: accelerate pagefault when badaccess
+- x86: mm: accelerate pagefault when badaccess
+- arm64: mm: accelerate pagefault when VM_FAULT_BADACCESS
+- !5657  Backport slub performance optimization
+- mm/slub: remove unused parameter in next_freelist_entry()
+- mm/slub: remove full list manipulation for non-debug slab
+- mm/slub: directly load freelist from cpu partial slab in the likely case
+- slub: Update frozen slabs documentations in the source
+- slub: Rename all *unfreeze_partials* functions to *put_partials*
+- slub: Optimize deactivate_slab()
+- slub: Delay freezing of partial slabs
+- slub: Introduce freeze_slab()
+- slub: Prepare __slab_free() for unfrozen partial slab out of node partial list
+- slub: Keep track of whether slub is on the per-node partial list
+- slub: Change get_partial() interfaces to return slab
+- slub: Reflow ___slab_alloc()
+- !5699  sr9800: Add check for usbnet_get_endpoints
+- sr9800: Add check for usbnet_get_endpoints
+
 * Tue Apr 02 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 6.6.0-16.0.0.15
 - !5647 hisilicon - some bugfix and cleanup
 - crypto: hisilicon/sec2: fix memory use-after-free issue
