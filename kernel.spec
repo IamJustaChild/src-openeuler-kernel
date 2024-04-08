@@ -23,9 +23,9 @@
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       17
+%global devel_release       18
 %global maintenance_release .0.0
-%global pkg_release         .16
+%global pkg_release         .17
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -998,6 +998,29 @@ fi
 %endif
 
 %changelog
+* Mon Apr 08 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 6.6.0-18.0.0.17
+- !5768  resctrl: fix undefined reference to lockdep_is_cpus_held()
+- fs/resctrl: Move rdtgroup_setup_default() out of init.text section
+- resctrl: fix undefined reference to lockdep_is_cpus_held()
+- !5769  Revert "KVM: arm64: Disable MPAM visibility by default, and handle traps"
+- Revert "KVM: arm64: Disable MPAM visibility by default, and handle traps"
+- !5744  Backport maple_tree: iterator state changes
+- lib/maple_tree.c: fix build error due to hotfix alteration
+- maple_tree: mtree_range_walk() clean up
+- maple_tree: don't find node end in mtree_lookup_walk()
+- maple_tree: use maple state end for write operations
+- maple_tree: remove mas_searchable()
+- maple_tree: separate ma_state node from status
+- maple_tree: clean up inlines for some functions
+- maple_tree: use cached node end in mas_destroy()
+- maple_tree: use cached node end in mas_next()
+- maple_tree: add end of node tracking to the maple state
+- maple_tree: move debug check to __mas_set_range()
+- maple_tree: make mas_erase() more robust
+- maple_tree: remove unnecessary default labels from switch statements
+- !5725  ALSA: sh: aica: reorder cleanup operations to avoid UAF bugs
+- ALSA: sh: aica: reorder cleanup operations to avoid UAF bugs
+
 * Sun Apr 07 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 6.6.0-17.0.0.16
 - !5695 v2  Disable OLK-6.6 configs
 - arm64: configs: Disable PROBE_EVENTS_BTF_ARGS
