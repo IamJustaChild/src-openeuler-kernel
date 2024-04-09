@@ -16,7 +16,7 @@
 
 %define modsign_cmd %{SOURCE10}
 
-%global Arch $(echo %{_host_cpu} | sed -e s/i.86/x86/ -e s/x86_64/x86/ -e s/aarch64.*/arm64/ -e s/riscv.*/riscv/)
+%global Arch $(echo %{_host_cpu} | sed -e s/i.86/x86/ -e s/x86_64/x86/ -e s/aarch64.*/arm64/ -e s/riscv.*/riscv/ -e s/powerpc64le/powerpc/)
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 %global debuginfodir /usr/lib/debug
@@ -25,7 +25,7 @@
 %global upstream_sublevel   0
 %global devel_release       18
 %global maintenance_release .0.0
-%global pkg_release         .17
+%global pkg_release         .18
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -135,7 +135,7 @@ Provides: kernel-uname-r = %{KernelVer} kernel=%{KernelVer}
 
 Requires: dracut >= 001-7 grubby >= 8.28-2 initscripts >= 8.11.1-1 linux-firmware >= 20100806-2 module-init-tools >= 3.16-2
 
-ExclusiveArch: noarch aarch64 i686 x86_64 riscv64
+ExclusiveArch: noarch aarch64 i686 x86_64 riscv64 ppc64le
 ExclusiveOS: Linux
 
 %if %{with_perf}
@@ -646,7 +646,9 @@ find $RPM_BUILD_ROOT/usr/include -name "\.*"  -exec rm -rf {} \;
 %endif
 
 # deal with vdso
+%ifnarch ppc64le
 %{make} -s ARCH=%{Arch} INSTALL_MOD_PATH=$RPM_BUILD_ROOT vdso_install KERNELRELEASE=%{KernelVer}
+%endif
 if [ ! -s ldconfig-kernel.conf ]; then
     echo "# Placeholder file, no vDSO hwcap entries used in this kernel." >ldconfig-kernel.conf
 fi
@@ -998,6 +1000,9 @@ fi
 %endif
 
 %changelog
+* Mon Apr 08 2024 Ren Zhijie <zhijie.ren@shingroup.cn> - 6.6.0-18.0.0.18
+- add support for arch ppc64le
+
 * Mon Apr 08 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 6.6.0-18.0.0.17
 - !5768  resctrl: fix undefined reference to lockdep_is_cpus_held()
 - fs/resctrl: Move rdtgroup_setup_default() out of init.text section
