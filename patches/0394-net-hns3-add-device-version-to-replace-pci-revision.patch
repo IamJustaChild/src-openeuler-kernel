@@ -1,4 +1,4 @@
-From acbb6b40a74fc79a356273a4ade6e30e7f5a82f8 Mon Sep 17 00:00:00 2001
+From 5db2eb55a287e72dc05fd56d30512bb825cfe481 Mon Sep 17 00:00:00 2001
 From: Huazhong Tan <tanhuazhong@huawei.com>
 Date: Thu, 15 Jun 2023 14:40:50 +0800
 Subject: [PATCH] net: hns3: add device version to replace pci revision
@@ -36,7 +36,7 @@ Signed-off-by: Xiaodong Li <lixiaodong67@huawei.com>
  10 files changed, 110 insertions(+), 81 deletions(-)
 
 diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3.h b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
-index 19a8f315aa43..971239db844a 100644
+index d29fb23197bb..ac366fae4b28 100644
 --- a/drivers/net/ethernet/hisilicon/hns3/hnae3.h
 +++ b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
 @@ -36,6 +36,12 @@
@@ -386,7 +386,7 @@ index 9338f030842c..55990ba4b30e 100644
  		dev_err(dev, "ROCEE Non-Fatal RAS error identified\n");
  		hclge_handle_rocee_ras_error(ae_dev);
 diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-index 1248534f3376..d1cf21f86119 100644
+index 42de0b2f6020..ec28f78b712d 100644
 --- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
 +++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
 @@ -739,7 +739,7 @@ static int hclge_get_sset_count(struct hnae3_handle *handle, int stringset)
@@ -486,10 +486,10 @@ index 1248534f3376..d1cf21f86119 100644
  
 -	if (hdev->pdev->revision >= HNAE3_REVISION_ID_21) {
 +	if (hdev->ae_dev->dev_version >= HNAE3_DEVICE_VERSION_V2) {
+ 		bool enable = true;
+ 
  		/* for revision 0x21, vf vlan filter is per function */
- 		for (i = 0; i < hdev->num_alloc_vport; i++) {
- 			vport = &hdev->vport[i];
-@@ -9256,7 +9257,7 @@ static int hclge_set_vf_vlan_filter(struct hnae3_handle *handle, int vfid,
+@@ -9261,7 +9262,7 @@ static int hclge_set_vf_vlan_filter(struct hnae3_handle *handle, int vfid,
  	u16 state;
  	int ret;
  
@@ -498,7 +498,7 @@ index 1248534f3376..d1cf21f86119 100644
  		return -EOPNOTSUPP;
  
  	vport = hclge_get_vf_vport(hdev, vfid);
-@@ -10553,7 +10554,7 @@ static int hclge_set_vf_spoofchk(struct hnae3_handle *handle, int vf,
+@@ -10558,7 +10559,7 @@ static int hclge_set_vf_spoofchk(struct hnae3_handle *handle, int vf,
  	u32 new_spoofchk = enable ? 1 : 0;
  	int ret;
  
@@ -507,7 +507,7 @@ index 1248534f3376..d1cf21f86119 100644
  		return -EOPNOTSUPP;
  
  	vport = hclge_get_vf_vport(hdev, vf);
-@@ -10586,7 +10587,7 @@ static int hclge_reset_vport_spoofchk(struct hclge_dev *hdev)
+@@ -10591,7 +10592,7 @@ static int hclge_reset_vport_spoofchk(struct hclge_dev *hdev)
  	int ret;
  	int i;
  
