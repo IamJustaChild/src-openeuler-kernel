@@ -17,8 +17,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       60
-%global maintenance_release .132.0
-%global pkg_release         .159
+%global maintenance_release .133.0
+%global pkg_release         .160
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -932,6 +932,67 @@ fi
 %endif
 
 %changelog
+* Wed Apr 10 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-60.133.0.160
+- !5942  CVE-2021-46926
+- !5944 [sync] PR-5861:  ksmbd: fix uaf in smb20_oplock_break_ack
+- !5936 [sync] PR-5911:  CVE-2023-52484
+- !5932 [sync] PR-5895:  i2c: i801: Fix block process call transactions
+- !5927 [sync] PR-5863:  CVE-2024-26788
+- !5908 [sync] PR-4928:  drm/bridge: sii902x: Fix probing race issue
+- !5782  ext4: avoid allocating blocks from corrupted group in ext4_mb_try_best_found()
+- !5918 [sync] PR-5870:  drivers/amd/pm: fix a use-after-free in kv_parse_power_table
+- !5903 [sync] PR-4931:  phy: ti: phy-omap-usb2: Fix NULL pointer dereference for SRP
+- ksmbd: fix uaf in smb20_oplock_break_ack
+- ALSA: hda: intel-sdw-acpi: harden detection of controller
+- iommu/arm-smmu-v3: Fix soft lockup triggered by arm_smmu_mm_invalidate_range
+- iommu/arm-smmu-v3: Fix size calculation in arm_smmu_mm_invalidate_range()
+- !5907 [sync] PR-5811:  Fixed CVE-2021-47037
+- !5871 [sync] PR-4794:  serial: imx: fix tx statemachine deadlock
+- !4907 [sync] PR-4865:  Input: powermate - fix use-after-free in powermate_config_complete
+- i2c: i801: Fix block process call transactions
+- dmaengine: fsl-qdma: init irq after reg initialization
+- !5896 [sync] PR-5808:  nilfs2: fix hang in nilfs_lookup_dirty_data_buffers()
+- !5888 [sync] PR-5832:  CVE-2023-52467
+- drivers/amd/pm: fix a use-after-free in kv_parse_power_table
+- drm/bridge: sii902x: Fix probing race issue
+- ASoC: q6afe-clocks: fix reprobing of the driver
+- ASoC: q6afe-clocks: fix warning on symbol scope
+- phy: ti: phy-omap-usb2: Fix NULL pointer dereference for SRP
+- nilfs2: fix hang in nilfs_lookup_dirty_data_buffers()
+- !5748  ksmbd: fix global oob in ksmbd_nl_policy
+- mfd: syscon: Fix null pointer dereference in of_syscon_register()
+- serial: imx: fix tx statemachine deadlock
+- !5826 [sync] PR-5785:  net: qualcomm: rmnet: fix global oob in rmnet_policy
+- !5817 [sync] PR-5780:  bpf: Reject variable offset alu on PTR_TO_FLOW_KEYS
+- !4799 [sync] PR-4764:  binder: signal epoll threads of self-work
+- !5790  usb: hub: Guard against accesses to uninitialized BOS descriptors
+- !5797 [sync] PR-5788: v2  Patches to Fix CVE-2023-52454
+- !5820 [sync] PR-5789:  perf/x86/lbr: Filter vsyscall addresses
+- net: qualcomm: rmnet: fix global oob in rmnet_policy
+- !5775 [sync] PR-5724:  ALSA: sh: aica: reorder cleanup operations to avoid UAF bugs
+- perf/x86/lbr: Filter vsyscall addresses
+- bpf: Reject variable offset alu on PTR_TO_FLOW_KEYS
+- !5764 [sync] PR-5642:  btrfs: don't abort filesystem when attempting to snapshot deleted subvolume
+- nvmet-tcp: Fix the H2C expected PDU len calculation
+- nvmet-tcp: Fix a kernel panic when host sends an invalid H2C PDU length
+- usb: hub: Guard against accesses to uninitialized BOS descriptors
+- ext4: avoid allocating blocks from corrupted group in ext4_mb_try_best_found()
+- ALSA: sh: aica: reorder cleanup operations to avoid UAF bugs
+- btrfs: don't abort filesystem when attempting to snapshot deleted subvolume
+- ksmbd: fix global oob in ksmbd_nl_policy
+- !5704 [sync] PR-5507:  ext4: Validate inode pa before using preallocation blocks
+- !5708  ext4: dio: Put endio under
+- ext4: Optimize endio process for DIO overwrites
+- iomap: Add a IOMAP_DIO_MAY_INLINE_COMP flag
+- iomap: pass a flags argument to iomap_dio_rw
+- iomap: rename the flags variable in __iomap_dio_rw
+- iomap: add IOMAP_DIO_INLINE_COMP
+- iomap: use an unsigned type for IOMAP_DIO_* defines
+- iomap: cleanup up iomap_dio_bio_end_io()
+- ext4: Validate inode pa before using preallocation blocks
+- Input: powermate - fix use-after-free in powermate_config_complete
+- binder: signal epoll threads of self-work
+
 * Mon Apr 01 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-60.132.0.159
 - !5681 [sync] PR-5266:  llc: call sock_orphan() at release time
 - !5689  net: nfc: fix races in nfc_llcp_sock_get() and nfc_llcp_sock_get_sn()
