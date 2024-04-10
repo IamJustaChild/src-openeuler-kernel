@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       153
-%global maintenance_release .49.0
-%global pkg_release         .127
+%global maintenance_release .50.0
+%global pkg_release         .128
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -878,6 +878,73 @@ fi
 %endif
 
 %changelog
+* Wed Apr 10 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.50.0.128
+- !5940  CVE-2021-46926
+- !5946 [sync] PR-5861:  ksmbd: fix uaf in smb20_oplock_break_ack
+- !5938 [sync] PR-5911:  CVE-2023-52484
+- !5934 [sync] PR-5895:  i2c: i801: Fix block process call transactions
+- !5929 [sync] PR-5863:  CVE-2024-26788
+- !5910 [sync] PR-4928:  drm/bridge: sii902x: Fix probing race issue
+- !5783  ext4: avoid allocating blocks from corrupted group in ext4_mb_try_best_found()
+- !5917 [sync] PR-5870:  drivers/amd/pm: fix a use-after-free in kv_parse_power_table
+- !5902 [sync] PR-4931:  phy: ti: phy-omap-usb2: Fix NULL pointer dereference for SRP
+- ksmbd: fix uaf in smb20_oplock_break_ack
+- ALSA: hda: intel-sdw-acpi: harden detection of controller
+- iommu/arm-smmu-v3: Fix soft lockup triggered by arm_smmu_mm_invalidate_range
+- iommu/arm-smmu-v3: Fix size calculation in arm_smmu_mm_invalidate_range()
+- !5914 [sync] PR-5811:  Fixed CVE-2021-47037
+- !5873 [sync] PR-4794:  serial: imx: fix tx statemachine deadlock
+- !4910 [sync] PR-4865:  Input: powermate - fix use-after-free in powermate_config_complete
+- i2c: i801: Fix block process call transactions
+- dmaengine: fsl-qdma: init irq after reg initialization
+- !5898 [sync] PR-5808:  nilfs2: fix hang in nilfs_lookup_dirty_data_buffers()
+- !5890 [sync] PR-5832:  CVE-2023-52467
+- drivers/amd/pm: fix a use-after-free in kv_parse_power_table
+- ASoC: q6afe-clocks: fix reprobing of the driver
+- ASoC: q6afe-clocks: fix warning on symbol scope
+- drm/bridge: sii902x: Fix probing race issue
+- phy: ti: phy-omap-usb2: Fix NULL pointer dereference for SRP
+- nilfs2: fix hang in nilfs_lookup_dirty_data_buffers()
+- !5750  ksmbd: fix global oob in ksmbd_nl_policy
+- mfd: syscon: Fix null pointer dereference in of_syscon_register()
+- serial: imx: fix tx statemachine deadlock
+- !5828 [sync] PR-5785:  net: qualcomm: rmnet: fix global oob in rmnet_policy
+- !5818 [sync] PR-5780:  bpf: Reject variable offset alu on PTR_TO_FLOW_KEYS
+- !5814 [sync] PR-5787:  bpf: fix check for attempt to corrupt spilled pointer
+- !4801 [sync] PR-4764:  binder: signal epoll threads of self-work
+- !5792  usb: hub: Guard against accesses to uninitialized BOS descriptors
+- !5799 [sync] PR-5788: v2  Patches to Fix CVE-2023-52454
+- !5819 [sync] PR-5789:  perf/x86/lbr: Filter vsyscall addresses
+- net: qualcomm: rmnet: fix global oob in rmnet_policy
+- !5777 [sync] PR-5724:  ALSA: sh: aica: reorder cleanup operations to avoid UAF bugs
+- !4780 [sync] PR-4772:  x86/fpu: Stop relying on userspace for info to fault in xsave buffer
+- perf/x86/lbr: Filter vsyscall addresses
+- bpf: Reject variable offset alu on PTR_TO_FLOW_KEYS
+- bpf: fix check for attempt to corrupt spilled pointer
+- !5766 [sync] PR-5642:  btrfs: don't abort filesystem when attempting to snapshot deleted subvolume
+- nvmet-tcp: Fix the H2C expected PDU len calculation
+- nvmet-tcp: Fix a kernel panic when host sends an invalid H2C PDU length
+- usb: hub: Guard against accesses to uninitialized BOS descriptors
+- ext4: avoid allocating blocks from corrupted group in ext4_mb_try_best_found()
+- ALSA: sh: aica: reorder cleanup operations to avoid UAF bugs
+- btrfs: don't abort filesystem when attempting to snapshot deleted subvolume
+- ksmbd: fix global oob in ksmbd_nl_policy
+- !5721 [sync] PR-5506:  ext4: dio: Put endio under irq context for overwrite
+- ext4: Optimize endio process for DIO overwrites
+- iomap: Add a IOMAP_DIO_MAY_INLINE_COMP flag
+- iomap: pass a flags argument to iomap_dio_rw
+- iomap: rename the flags variable in __iomap_dio_rw
+- iomap: add IOMAP_DIO_INLINE_COMP
+- iomap: use an unsigned type for IOMAP_DIO_* defines
+- iomap: cleanup up iomap_dio_bio_end_io()
+- !5706 [sync] PR-5507:  ext4: Validate inode pa before using preallocation blocks
+- !5692  arm64/mpam: support MPAM v0.1 version
+- ext4: Validate inode pa before using preallocation blocks
+- arm64/mpam: support MPAM v0.1 version
+- Input: powermate - fix use-after-free in powermate_config_complete
+- binder: signal epoll threads of self-work
+- x86/fpu: Stop relying on userspace for info to fault in xsave buffer
+
 * Mon Apr 01 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.49.0.127
 - !5683 [sync] PR-5266:  llc: call sock_orphan() at release time
 - !5691  net: nfc: fix races in nfc_llcp_sock_get() and nfc_llcp_sock_get_sn()
