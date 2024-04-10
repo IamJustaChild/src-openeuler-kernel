@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2403.4.0
+%global hulkrelease 2404.1.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0271
+Release: %{hulkrelease}.0272
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,120 @@ fi
 %endif
 
 %changelog
+
+* Tue Apr 09 2024 hongrongxuan <hongrongxuan@huawei.com> - 4.19.90-2404.1.0.0272
+- !5874  scsi: hisi_sas: Update disk locked timeout to 7 seconds
+- scsi: hisi_sas: Update disk locked timeout to 7 seconds
+- !5841  fixup CVE-2024-26751
+- !5834  CVE-2021-47144
+- ARM: ep93xx: Add terminator to gpiod_lookup_table
+- drm/amd/amdgpu: fix refcount leak
+- !5796  netfilter: nft_limit: reject configurations that cause integer overflow
+- netfilter: nft_limit: reject configurations that cause integer overflow
+- !5755  sh: push-switch: Reorder cleanup operations to avoid use-after-free bug
+- !5767 v5  net: fec: fix the potential memory leak in fec_enet_init()
+- !5718  CVE-2024-26654
+- net: fec: fix the potential memory leak in fec_enet_init()
+- !5722  btrfs: don't abort filesystem when attempting to snapshot deleted subvolume
+- sh: push-switch: Reorder cleanup operations to avoid use-after-free bug
+- !5727  fix CVE-2021-47101
+- !5531  ip6_tunnel: fix NEXTHDR_FRAGMENT handling in ip6_tnl_parse_tlv_enc_lim()
+- !5715  net: hns3: updates 2024.04.02
+- !5710 v2  ip6_tunnel: make sure to pull inner header in __ip6_tnl_rcv()
+- asix: fix wrong return value in asix_check_host_enable()
+- asix: fix uninit-value in asix_mdio_read()
+- net: asix: fix uninit value bugs
+- btrfs: don't abort filesystem when attempting to snapshot deleted subvolume
+- !5700  sr9800: Add check for usbnet_get_endpoints
+- !5680  USB: usbfs: Don't WARN about excessively large memory allocations
+- !5679  fix CVE-2023-52587
+- ALSA: sh: aica: reorder cleanup operations to avoid UAF bugs
+- ALSA: aica: Fix a long-time build breakage
+- !5713 v2  tipc: wait and exit until all work queues are done
+- net: hns3: update hns3 version to 24.3.1
+- net: hns3: fix port vlan filter not disabled problem in dynamic vlan mode
+- !5696  NFS: Fix an Oopsable condition in __nfs_pageio_add_request()
+- tipc: wait and exit until all work queues are done
+- ip6_tunnel: make sure to pull inner header in __ip6_tnl_rcv()
+- !5702  ext4: Validate inode pa before using preallocation blocks
+- !5694  tipc: skb_linearize the head skb when reassembling msgs
+- ext4: Validate inode pa before using preallocation blocks
+- !5674  mac80211: fix locking in ieee80211_start_ap error path
+- !5672  arm64/mpam_ctrlmon: Update ctrl group config with rdtgrp's partid
+- sr9800: Add check for usbnet_get_endpoints
+- !5528  btrfs: do not BUG_ON in link_to_fixup_dir
+- NFS: Fix an Oopsable condition in __nfs_pageio_add_request()
+- tipc: skb_linearize the head skb when reassembling msgs
+- !5522  md/raid5: fix atomicity violation in raid5_cache_count
+- USB: usbfs: Don't WARN about excessively large memory allocations
+- IB/ipoib: Fix mcast list locking
+- RDMA/IPoIB: Fix error code return in ipoib_mcast_join
+- mac80211: fix locking in ieee80211_start_ap error path
+- arm64/mpam: Allocate new partid for the created ctrl group
+- arm64/mpam_ctrlmon: Update ctrl group config with rdtgrp's partid
+- !5581  CVE-2023-52622
+- !5658 v2  CVE-2021-47131
+- !5645 [sync] PR-5493:  arm64/mpam: Fix repeated enabling in mpam_enable()
+- !5559  fix CVE-2021-47173
+- !5575  net: dsa: fix a crash if ->get_sset_count() fails
+- net/tls: Use RCU API to access tls_ctx->netdev
+- net/tls: Remove the context from the list in tls_device_down
+- tls: Fix context leak on tls_device_down
+- net/tls: Resolve KABI break when backport bugfix of CVE-2021-47131
+- net/tls: Fix use-after-free after the TLS device goes down and up
+- net/tls: Replace TLS_RX_SYNC_RUNNING with RCU
+- !5625  i2c: i801: Don't generate an interrupt on bus reset
+- !5517  dm: revert partial fix for redundant bio-based IO accounting
+- arm64/mpam: Fix repeated enabling in mpam_enable()
+- !5481  jfs: fix array-index-out-of-bounds in dbAdjTree
+- !5572  mld: fix panic in mld_newpack()
+- !5565  tracing: Ensure visibility when inserting an element into tracing_map
+- !5571 v2  mm/mlock: return EINVAL for illegal user memory range in mlock
+- i2c: i801: Don't generate an interrupt on bus reset
+- !5587  Fix CVE-2021-47171
+- !5579  mm: ksm: fix use-after-free kasan report in ksm_might_need_to_copy
+- !5573  Fix CVE-2021-47160
+- !5564  serial: rp2: use 'request_firmware' instead of 'request_firmware_nowait'
+- !5560  drm/amdgpu: Fix a use-after-free
+- net: usb: fix possible use-after-free in smsc75xx_bind
+- net: usb: fix memory leak in smsc75xx_bind
+- ext4: avoid online resizing failures due to oversized flex bg
+- ext4: unify the type of flexbg_size to unsigned int
+- ext4: remove unnecessary check from alloc_flex_gd()
+- mm: ksm: fix use-after-free kasan report in ksm_might_need_to_copy
+- !5558  net: fujitsu: fix potential null-ptr-deref
+- !5556  NFC: nci: fix memory leak in nci_allocate_device
+- net: dsa: fix a crash if ->get_sset_count() fails
+- net: dsa: mt7530: fix VLAN traffic leaks again
+- net: dsa: mt7530: fix VLAN traffic leaks
+- mld: fix panic in mld_newpack()
+- mm/mlock: return EINVAL for illegal user memory range in mlock
+- tracing: Ensure visibility when inserting an element into tracing_map
+- serial: rp2: use 'request_firmware' instead of 'request_firmware_nowait'
+- !5552  net/smc: remove device from smcd_dev_list after failed device_add()
+- !5290  crypto: algif_aead - Only wake up when ctx->more is zero
+- !5446  keys: safe concurrent user->{session,uid}_keyring access
+- drm/amdgpu: Fix a use-after-free
+- !5550  pciehp: clear p_slot->work.data after powering off a slot
+- usb: misc: fix improper handling of refcount in uss720_probe()
+- misc/uss720: fix memory leak in uss720_probe
+- !5515  netfilter: nf_tables: disallow timeout for anonymous sets
+- !5538  netfilter: nf_tables: disallow anonymous set with timeout flag
+- net: fujitsu: fix potential null-ptr-deref
+- NFC: nci: fix memory leak in nci_allocate_device
+- net/smc: remove device from smcd_dev_list after failed device_add()
+- pciehp: clear p_slot->work.data after powering off a slot
+- netfilter: nf_tables: disallow anonymous set with timeout flag
+- ip6_tunnel: fix NEXTHDR_FRAGMENT handling in ip6_tnl_parse_tlv_enc_lim()
+- btrfs: do not BUG_ON in link_to_fixup_dir
+- md/raid5: fix atomicity violation in raid5_cache_count
+- dm: revert partial fix for redundant bio-based IO accounting
+- netfilter: nf_tables: disallow timeout for anonymous sets
+- jfs: fix array-index-out-of-bounds in dbAdjTree
+- keys: safe concurrent user->{session,uid}_keyring access
+- crypto: af_alg - Work around empty control messages without MSG_MORE
+- crypto: af_alg - Fix regression on empty requests
+- crypto: algif_aead - Only wake up when ctx->more is zero
 
 * Wed Mar 27 2024 hongrongxuan <hongrongxuan@huawei.com> - 4.19.90-2403.4.0.0271
 - !5539  spi: spi-fsl-dspi: Fix a resource leak in an error handling path
