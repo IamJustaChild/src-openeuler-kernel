@@ -23,9 +23,9 @@
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       18
+%global devel_release       19
 %global maintenance_release .0.0
-%global pkg_release         .18
+%global pkg_release         .19
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -1000,6 +1000,56 @@ fi
 %endif
 
 %changelog
+* Wed Apr 10 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-19.0.0.19
+- !5877  optimize eevdf scheduler
+- sched/eevdf: Skip eligibility check for current entity during wakeup preemption
+- sched/eevdf: O(1) fastpath for task selection
+- sched/eevdf: Sort the rbtree by virtual deadline
+- !5922  Some fixes and cleanups for SAS
+- Revert "scsi: hisi_sas: Disable SATA disk phy for severe I_T nexus reset failure"
+- scsi: hisi_sas: Add slave_destroy interface for v3 hw
+- scsi: hisi_sas: Modify the deadline for ata_wait_after_reset()
+- scsi: libsas: Allocation SMP request is aligned to ARCH_DMA_MINALIGN
+- scsi: libsas: Add a helper sas_get_sas_addr_and_dev_type()
+- scsi: libsas: Fix disk not being scanned in after being removed
+- scsi: hisi_sas: Remove redundant checks for automatic debugfs dump
+- scsi: hisi_sas: Check usage count only when the runtime PM status is RPM_SUSPENDING
+- scsi: hisi_sas: Handle the NCQ error returned by D2H frame
+- scsi: hisi_sas: Remove hisi_hba->timer for v3 hw
+- scsi: hisi_sas: Check whether debugfs is enabled before removing or releasing it
+- scsi: hisi_sas: Fix a deadlock issue related to automatic dump
+- scsi: hisi_sas: Allocate DFX memory during dump trigger
+- scsi: hisi_sas: Directly call register snapshot instead of using workqueue
+- !5546 support 3snic NIC
+- support 3SNIC 910/920/930 NIC
+- !5869  KVM: arm64: vgic-its: use vgic_get_irq_kref() before vgic_put_irq()
+- KVM: arm64: vgic-its: use vgic_get_irq_kref() before vgic_put_irq()
+- !5878 ima:Dont check xattr when loading digest lists
+- ima:Dont check xattr when loading digest lists
+- !5800  firmware: arm_sdei: Move sdei_cpuhp_up/down() before lockup_detector_online_cpu()
+- firmware: arm_sdei: Move sdei_cpuhp_up/down() before lockup_detector_online_cpu()
+- !3175 [OLK-6.6] x86/tsc: Make cur->adjusted values in package#1 to be the same
+- x86/tsc: Make cur->adjusted values in package#1 to be the same
+- !5022 [devel-6.6] perf/x86/zhaoxin/uncore: Add KX-7000 support
+- perf/x86/zhaoxin/uncore: Add KX-7000 support
+- !5652 [OLK-6.6] i2c: zhaoxin: update support for Zhaoxin I2C controller
+- i2c: zhaoxin: update support for Zhaoxin I2C controller
+- !4475 [OLK-6.6] Update zhaoxin cputemp driver with using the same MSR uniformly
+- Update zhaoxin cputemp driver with using the same MSR uniformly
+- !5813 [intel]OLK-tdx-guest-configs-6.6
+- Enable Intel TDX guest as kernel module
+- !5723 vfio/migration: some bugfix
+- hisi_acc_vfio_pci: obtain the mailbox configuration at one time
+- vfio/migration: remove unused local variable
+- vfio/migration: bugfix cache write-back issue
+- vfio/migration: add eq and aeq interruption restore
+- vfio/migration: bugfix some driver code
+- vfio/migration: added map length page alignment
+- !5707 [OLK-6.6] Fix warnings for RNPGBE driver
+- RNPGBE: NET: Fix wanrings
+- !5659 [OLK-6.6] Fix warnings for RNP driver
+- RNP: Fix warnings
+
 * Mon Apr 08 2024 Ren Zhijie <zhijie.ren@shingroup.cn> - 6.6.0-18.0.0.18
 - add support for arch ppc64le
 
