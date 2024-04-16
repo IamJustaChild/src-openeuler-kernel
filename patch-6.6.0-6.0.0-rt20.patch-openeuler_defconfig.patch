@@ -1,0 +1,73 @@
+From 3811fee3da4d1713015759b5dafb3aed36162fcc Mon Sep 17 00:00:00 2001
+From: zhangyu <zhangyu4@kylinos.cn>
+Date: Mon, 29 Jan 2024 10:48:59 +0800
+Subject: [PATCH] patch-6.6.0-6.0.0-rt20.patch-openeuler_defconfig
+
+---
+ arch/arm64/configs/openeuler_defconfig | 4 ++--
+ arch/x86/configs/openeuler_defconfig   | 7 ++++---
+ 2 files changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/arch/arm64/configs/openeuler_defconfig b/arch/arm64/configs/openeuler_defconfig
+index 236afa22d..ac9b18b13 100644
+--- a/arch/arm64/configs/openeuler_defconfig
++++ b/arch/arm64/configs/openeuler_defconfig
+@@ -97,7 +97,7 @@ CONFIG_PREEMPT_NONE=y
+ # CONFIG_PREEMPT is not set
+ # CONFIG_PREEMPT_DYNAMIC is not set
+ # CONFIG_SCHED_CORE is not set
+-
++CONFIG_PREEMPT_RT=y
+ #
+ # CPU/Task time and stats accounting
+ #
+@@ -722,7 +722,7 @@ CONFIG_HAVE_KVM_IRQ_BYPASS=y
+ CONFIG_HAVE_KVM_VCPU_RUN_PID_CHANGE=y
+ CONFIG_KVM_XFER_TO_GUEST_WORK=y
+ CONFIG_KVM_GENERIC_HARDWARE_ENABLING=y
+-CONFIG_VIRTUALIZATION=y
++# CONFIG_VIRTUALIZATION is not set
+ CONFIG_KVM=y
+ # CONFIG_NVHE_EL2_DEBUG is not set
+ 
+diff --git a/arch/x86/configs/openeuler_defconfig b/arch/x86/configs/openeuler_defconfig
+index 834be2749..243dc4485 100644
+--- a/arch/x86/configs/openeuler_defconfig
++++ b/arch/x86/configs/openeuler_defconfig
+@@ -110,13 +110,14 @@ CONFIG_BPF_SCHED=y
+ # end of BPF subsystem
+ 
+ CONFIG_PREEMPT_BUILD=y
+-CONFIG_PREEMPT_NONE=y
++# CONFIG_PREEMPT_NONE is not set
+ # CONFIG_PREEMPT_VOLUNTARY is not set
+ # CONFIG_PREEMPT is not set
+ CONFIG_PREEMPT_COUNT=y
+ CONFIG_PREEMPTION=y
+ CONFIG_PREEMPT_DYNAMIC=y
+ # CONFIG_SCHED_CORE is not set
++CONFIG_PREEMPT_RT=y
+ 
+ #
+ # CPU/Task time and stats accounting
+@@ -248,7 +249,7 @@ CONFIG_SYSCTL=y
+ CONFIG_HAVE_UID16=y
+ CONFIG_SYSCTL_EXCEPTION_TRACE=y
+ CONFIG_HAVE_PCSPKR_PLATFORM=y
+-# CONFIG_EXPERT is not set
++CONFIG_EXPERT=y
+ CONFIG_UID16=y
+ CONFIG_MULTIUSER=y
+ CONFIG_SGETMASK_SYSCALL=y
+@@ -739,7 +740,7 @@ CONFIG_HAVE_KVM_NO_POLL=y
+ CONFIG_KVM_XFER_TO_GUEST_WORK=y
+ CONFIG_HAVE_KVM_PM_NOTIFIER=y
+ CONFIG_KVM_GENERIC_HARDWARE_ENABLING=y
+-CONFIG_VIRTUALIZATION=y
++# CONFIG_VIRTUALIZATION is not set
+ CONFIG_KVM=m
+ CONFIG_KVM_INTEL=m
+ CONFIG_X86_SGX_KVM=y
+-- 
+2.33.0
+
