@@ -40,9 +40,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       19
+%global devel_release       20
 %global maintenance_release .0.0
-%global pkg_release         .20
+%global pkg_release         .21
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -1019,6 +1019,88 @@ fi
 %endif
 
 %changelog
+* Tue Apr 16 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 6.6.0-20.0.0.21
+- !6048 improve 3SNIC 910/920/930 NIC driver
+- improve 3SNIC 910/920/930 NIC driver
+- !5815 v2  Support NMI in the virtual machine
+- KVM: arm64: vgic-v3: Handle traps of ICV_NMIAR1_EL1
+- arm64: Decouple KVM from CONFIG_ARM64_NMI
+- KVM: arm64: Handle traps of ALLINT
+- KVM: arm64: Allow GICv3.3 NMI if the host supports it
+- KVM: arm64: vgic-v3: Don't inject an NMI if the vcpu doesn't have FEAT_NMI
+- KVM: arm64: Don't trap ALLINT accesses if the vcpu has FEAT_NMI
+- KVM: arm64: Allow userspace to control ID_AA64PFR1_EL1.NMI
+- KVM: arm64: vgic-debug: Add the NMI field to the debug output
+- KVM: arm64: vgic-v3: Add userspace selection for GICv3.3 NMI
+- KVM: arm64: vgic-v3: Add support for GIC{D,R}_INMIR registers
+- KVM: arm64: vgic-v3: Use the NMI attribute as part of the AP-list sorting
+- KVM: arm64: vgic-v4: Propagate the NMI state into the GICv4.1 VSGI configuration
+- KVM: arm64: vgic-v3: Make NMI priority RES0
+- KVM: arm64: vgic-v3: Allow the NMI state to make it into the LRs
+- KVM: arm64: vgic-v3: Upgrade AP1Rn to 64bit.
+- !5752 【OLK-6.6】Add Chengdu BeiZhongWangXin Technology N5/N6 Series Network Card Driver
+- drivers: add Chengdu BeiZhongWangXin Technology N5/N6 Series Network Card Driver
+- !5730 [OLK-6.6] Fix warnings for RNPGBEVF driver
+- RNPGBEVF: NET: Fix wanrings
+- !5726 [OLK-6.6] Fix warnings for RNPVF driver
+- RNPVF: NET: Fix wanrings
+- !5854 [OLK-6.6] Make Cluster Scheduling Configurable
+- scheduler: Disable cluster scheduling by default
+- scheduler: Add boot time enabling/disabling of cluster scheduling
+- scheduler: Add runtime knob sysctl_sched_cluster
+- scheduler: Create SDTL_SKIP flag to skip topology level
+- !6068  mm: batch mm counter updating in filemap_map_pages()
+- mm: filemap: batch mm counter updating in filemap_map_pages()
+- mm: move mm counter updating out of set_pte_range()
+- !5931  irqchip/gicv3-its: Add workaround for hip09 ITS erratum 162100801
+- irqchip/gicv3-its: Add workaround for hip09 ITS erratum 162100801
+- !5678 v2  KVM: arm64: Translate logic cluster id to physical cluster id when updating lsudvmbm
+- KVM: arm64: Translate logic cluster id to physical cluster id when updating lsudvmbm
+- !5972 Perf-related bugfix
+- docs: perf: Fix build warning of hisi-pcie-pmu.rst
+- drivers/perf: hisi_pcie: Merge find_related_event() and get_event_idx()
+- drivers/perf: hisi_pcie: Relax the check on related events
+- drivers/perf: hisi_pcie: Check the target filter properly
+- drivers/perf: hisi_pcie: Add more events for counting TLP bandwidth
+- drivers/perf: hisi_pcie: Fix incorrect counting under metric mode
+- drivers/perf: hisi_pcie: Introduce hisi_pcie_pmu_get_event_ctrl_val()
+- drivers/perf: hisi_pcie: Rename hisi_pcie_pmu_{config,clear}_filter()
+- drivers/perf: hisi: Enable HiSilicon Erratum 162700402 quirk for HIP09
+- docs: perf: Update usage for target filter of hisi-pcie-pmu
+- !6063 RDMA/hns: Some bugfixes and cleanups
+- RDMA/hns: Fix long waiting cmd event when reset
+- RDMA/hns: Fix the overflow risk of hem_list_calc_ba_range()
+- RDMA/hns: Fix simultaneous reset and resource deregistration
+- RDMA/hns: Fix cpu stuck by printings during reset
+- RDMA/hns: Fix missing capacities in query_device()
+- RDMA/hns: Fix missing resetting notify
+- RDMA/hns: Remove extra blank line in get_sge_num_from_max_inl_data()
+- RDMA/hns: Use complete parentheses in macros
+- RDMA/hns: fix iommu_map_sg() failed when MR bigger than 4G
+- !6069 RDMA/hns: support roh
+- RDMA/hns: Support RDMA_CM in ROH mode
+- RDMA/hns: Support for ROH
+- RDMA/hns: Add new device ID
+- !6008  locking/osq_lock: Avoid false sharing in optimistic_spin_node
+- locking/osq_lock: Avoid false sharing in optimistic_spin_node
+- !5774  irqdomain: Fix driver re-inserting failures when IRQs not being freed
+- irqdomain: Fix driver re-inserting failures when IRQs not being freed
+- !5709 【OLK-6.6】configs: arm64: Enable CONFIG_DLM
+- configs: arm64: Enable CONFIG_DLM
+- !5971 RDMA/hns: Support hns roce DCA mode
+- RDMA/hns: Fix DCA's dependence on ib_uverbs
+- RDMA/hns: Fixes concurrent ressetting and post_recv in DCA mode
+- RDMA/hns: Optimize user DCA perfermance by sharing DCA status
+- RDMA/hns: Add debugfs support for DCA
+- RDMA/hns: Add DCA support for kernel space
+- RDMA/hns: Add method to query WQE buffer's address
+- RDMA/hns: Add method to detach WQE buffer
+- RDMA/hns: Setup the configuration of WQE addressing to QPC
+- RDMA/hns: Add method for attaching WQE buffer
+- RDMA/hns: Configure DCA mode for the userspace QP
+- RDMA/hns: Add method for shrinking DCA memory pool
+- RDMA/hns: Introduce DCA for RC QP
+
 * Fri Apr 12 2024 Jin Lun <jinlun@huawei.com> - 6.6.0-19.0.0.20
 - Remove PGP certificates.
 - Optimize the signing process, if the project has no permission
