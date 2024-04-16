@@ -40,9 +40,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       19
+%global devel_release       20
 %global maintenance_release .0.0
-%global pkg_release         .20
+%global pkg_release         .22
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -1019,6 +1019,10 @@ fi
 %endif
 
 %changelog
+* Tue Apr 16 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 6.6.0-20.0.0.22
+
+* Tue Apr 16 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 6.6.0-20.0.0.21
+
 * Fri Apr 12 2024 Jin Lun <jinlun@huawei.com> - 6.6.0-19.0.0.20
 - Remove PGP certificates.
 - Optimize the signing process, if the project has no permission
