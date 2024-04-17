@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2404.1.0
+%global hulkrelease 2404.2.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0245
+Release: %{hulkrelease}.0246
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,81 @@ fi
 %endif
 
 %changelog
+
+* Wed Apr 17 2024 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2404.2.0.0246
+- !6231 v2  drm/vkms: call drm_atomic_helper_shutdown before drm_dev_put()
+- !6083  can: j1939: Fix UAF in j1939_sk_match_filter during setsockopt(SO_J1939_FILTER)
+- !6160  net/sched: act_mirred: don't override retval if we already lost the skb
+- drm/vkms: call drm_atomic_helper_shutdown before drm_dev_put()
+- !6152  Fix CVE-2024-26812
+- !6139  iavf: free q_vectors before queues in iavf_disable_vf
+- !6164  CVE-2021-47194
+- !6123  xen/events: close evtchn after mapping cleanup
+- cfg80211: call cfg80211_stop_ap when switch from P2P_GO type
+- net/sched: act_mirred: don't override retval if we already lost the skb
+- vfio/pci: Create persistent INTx handler
+- vfio: Introduce interface to flush virqfd inject workqueue
+- !6053  net: ip_tunnel: prevent perpetual headroom growth
+- !6002  KVM: s390: vsie: fix race during shadow creation
+- iavf: free q_vectors before queues in iavf_disable_vf
+- !6102  Fix CVE-2024-27437
+- !6070  Fix CVE-2024-26686
+- !6049  wifi: mac80211: fix race condition on enabling fast-xmit
+- !5916  ext4: fix double-free of blocks due to wrong extents moved_len
+- xen/events: close evtchn after mapping cleanup
+- !6099  vfio/pci: Lock external INTx masking ops
+- !6032  gtp: fix use-after-free and null-ptr-deref in gtp_genl_dump_pdp()
+- !5899  dm-crypt: don't modify the data when using authenticated encryption
+- vfio/pci: Disable auto-enable of exclusive INTx IRQ
+- genirq: Add IRQF_NO_AUTOEN for request_irq/nmi()
+- vfio/pci: Lock external INTx masking ops
+- !6042  nilfs2: fix data corruption in dsync block recovery for small block sizes
+- !6030  Fix CVE-2024-26685
+- !6015  btrfs: don't drop extent_map for free space inode on write error
+- !5963  btrfs: dev-replace: properly validate device names
+- can: j1939: Fix UAF in j1939_sk_match_filter during setsockopt(SO_J1939_FILTER)
+- fs/proc: do_task_stat: use sig->stats_lock to gather the threads/children stats
+- fs/proc: do_task_stat: move thread_group_cputime_adjusted() outside of lock_task_sighand()
+- fs/proc: do_task_stat: use __for_each_thread()
+- exit: Use the correct exit_code in /proc/<pid>/stat
+- net: ip_tunnel: prevent perpetual headroom growth
+- wifi: mac80211: fix race condition on enabling fast-xmit
+- !5999  mm/swap: fix race when skipping swapcache
+- nilfs2: fix data corruption in dsync block recovery for small block sizes
+- !6019  net/sched: act_mirred: use the backlog for mirred ingress
+- !6010  PM / devfreq: Synchronize devfreq_monitor_[start/stop
+- !5846  ext4: avoid allocating blocks from corrupted group in ext4_mb_find_by_goal()
+- gtp: fix use-after-free and null-ptr-deref in gtp_genl_dump_pdp()
+- !5994  ipv6: sr: fix possible use-after-free and null-ptr-deref
+- nilfs2: fix potential bug in end_buffer_async_write
+- nilfs2: fix buffer corruption due to concurrent device reads
+- !5951  RDMA/qedr: Fix qedr_create_user_qp error flow
+- net/sched: act_mirred: use the backlog for mirred ingress
+- btrfs: don't drop extent_map for free space inode on write error
+- PM / devfreq: Synchronize devfreq_monitor_[start/stop]
+- !5961  fbdev: savage: Error out if pixclock equals zero
+- KVM: s390: vsie: fix race during shadow creation
+- mm/swap: fix race when skipping swapcache
+- ipv6: sr: fix possible use-after-free and null-ptr-deref
+- !5875 v3  CVE-2024-26771
+- !5926  RDMA/srpt: Support specifying the srpt_service_guid parameter
+- btrfs: dev-replace: properly validate device names
+- fbdev: savage: Error out if pixclock equals zero
+- !5778  ext4: avoid allocating blocks from corrupted group in ext4_mb_try_best_found()
+- RDMA/qedr: Fix qedr_create_user_qp error flow
+- !5830  fbdev: sis: Error out if pixclock equals zero
+- RDMA/srpt: Support specifying the srpt_service_guid parameter
+- ext4: fix double-free of blocks due to wrong extents moved_len
+- dm-crypt: don't modify the data when using authenticated encryption
+- !5807  nilfs2: fix hang in nilfs_lookup_dirty_data_buffers()
+- dmaengine: ti: edma: Add some null pointer checks to the edma_probe
+- dmaengine: ti: edma: Fix error return code in edma_probe()
+- dmaengine: ti: edma: add missed operations
+- dmaengine: ti: edma: fix missed failure handling
+- ext4: avoid allocating blocks from corrupted group in ext4_mb_find_by_goal()
+- fbdev: sis: Error out if pixclock equals zero
+- nilfs2: fix hang in nilfs_lookup_dirty_data_buffers()
+- ext4: avoid allocating blocks from corrupted group in ext4_mb_try_best_found()
 
 * Tue Apr 09 2024 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2404.1.0.0245
 - !5874  scsi: hisi_sas: Update disk locked timeout to 7 seconds
