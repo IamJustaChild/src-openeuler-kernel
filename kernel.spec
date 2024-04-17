@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .71.0
-%global pkg_release         .151
+%global maintenance_release .72.0
+%global pkg_release         .152
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,80 @@ fi
 %endif
 
 %changelog
+* Wed Apr 17 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.72.0.152
+- !6181 [sync] PR-5093:  wifi: mac80211: fix potential key use-after-free
+- !6217  RDMA/siw: Fix connection failure handling
+- !6238 [sync] PR-6186:  Fixed CVE-2023-52504
+- !6234 [sync] PR-6193:  uio_hv_generic: Fix another memory leak in error handling paths
+- !6235 [sync] PR-6192:  arm64: dts: qcom: sdm845-db845c: Mark cont splash memory region as reserved
+- x86/alternatives: Disable KASAN in apply_alternatives()
+- arm64: dts: qcom: sdm845-db845c: Mark cont splash memory region as reserved
+- uio_hv_generic: Fix another memory leak in error handling paths
+- !6197  tee: amdtee: fix use-after-free vulnerability in amdtee_close_session
+- !6189 [sync] PR-5466:  wifi: ath9k: Fix potential array-index-out-of-bounds read in ath9k_htc_txstatus()
+- RDMA/siw: Fix connection failure handling
+- !6114  cifs: Fix UAF in cifs_demultiplex_thread()
+- tee: amdtee: fix use-after-free vulnerability in amdtee_close_session
+- wifi: ath9k: Fix potential array-index-out-of-bounds read in ath9k_htc_txstatus()
+- !6173 [sync] PR-6137:  vfio/pci: Lock external INTx masking ops
+- wifi: mac80211: fix potential key use-after-free
+- !6126  fix-CVE-2021-47101-openEuler-22.03-LTS-SP1
+- vfio/pci: Lock external INTx masking ops
+- !6155 [sync] PR-5717: v2  fix CVE-2023-52587
+- !6149 [sync] PR-6101:  vfio/pci: Disable auto-enable of exclusive INTx IRQ
+- !6142 [sync] PR-6047:  hv_netvsc: Fix race condition between netvsc_probe and netvsc_remove
+- !6132 [sync] PR-4923:  mm/damon/vaddr-test: fix memory leak in damon_do_test_apply_three_regions()
+- !5420 [sync] PR-5317:  KVM: s390: fix setting of fpc register
+- IB/ipoib: Fix mcast list locking
+- RDMA/IPoIB: Fix error code return in ipoib_mcast_join
+- vfio/pci: Disable auto-enable of exclusive INTx IRQ
+- !5130 [sync] PR-5113:  fix CVE-2023-52578
+- !5121 [sync] PR-5062:  team: fix null-ptr-deref when team device type is changed
+- hv_netvsc: Fix race condition between netvsc_probe and netvsc_remove
+- !6118  wifi: rt2x00: restart beacon queue when hardware reset
+- !6055 [sync] PR-6017:  drm/amdgpu: fix use-after-free bug
+- !6120  dma-debug: don't call __dma_entry_alloc_check_leak() under free_entries_lock
+- mm/damon/vaddr-test: fix memory leak in damon_do_test_apply_three_regions()
+- asix: fix wrong return value in asix_check_host_enable()
+- asix: fix uninit-value in asix_mdio_read()
+- net: asix: fix uninit value bugs
+- dma-debug: don't call __dma_entry_alloc_check_leak() under free_entries_lock
+- wifi: rt2x00: restart beacon queue when hardware reset
+- cifs: Fix UAF in cifs_demultiplex_thread()
+- !6078 [sync] PR-5973:  EDAC/thunderx: Fix possible out-of-bounds string access
+- !6043 [sync] PR-5995:  mm/swap: fix race when skipping swapcache
+- !6023 [sync] PR-5970:  fixup CVE-2024-26751
+- !6035 [sync] PR-5969:  fbdev: savage: Error out if pixclock equals zero
+- EDAC/thunderx: Fix possible out-of-bounds string access
+- !5849  ext4: avoid allocating blocks from corrupted group in ext4_mb_find_by_goal()
+- !6059  fs/ntfs3: fix CVE-2023-52640
+- fs/ntfs3: Fix oob in ntfs_listxattr
+- fs/ntfs3: fix panic about slab-out-of-bounds caused by ntfs_list_ea()
+- ntfs: Fix panic about slab-out-of-bounds caused by ntfs_listxattr()
+- drm/amdgpu: fix use-after-free bug
+- mm/swap: fix race when skipping swapcache
+- !5988 [sync] PR-5901:  CVE-2024-26695
+- !5981 [sync] PR-5812:  afs: Increase buffer size in afs_update_volume_status()
+- fbdev: savage: Error out if pixclock equals zero
+- ARM: ep93xx: Add terminator to gpiod_lookup_table
+- !5948 [sync] PR-5831:  fbdev: sis: Error out if pixclock equals zero
+- !5959 [sync] PR-5884:  KVM: arm64: vgic-its: Fix CVE-2024-26598 fix patch issue
+- !5843 [sync] PR-5348:  s390/ptrace: handle setting of fpc register correctly
+- crypto: ccp - Fix null pointer dereference in __sev_platform_shutdown_locked
+- !5857  dmaengine: ti: edma: Add some null pointer checks to the edma_probe
+- afs: Increase buffer size in afs_update_volume_status()
+- KVM: arm64: vgic-its: Fix CVE-2024-26598 fix patch issue
+- fbdev: sis: Error out if pixclock equals zero
+- dmaengine: ti: edma: Add some null pointer checks to the edma_probe
+- ext4: avoid allocating blocks from corrupted group in ext4_mb_find_by_goal()
+- s390/ptrace: handle setting of fpc register correctly
+- KVM: s390: fix setting of fpc register
+- net: fix kabi check warning
+- net: Fix unwanted sign extension in netdev_stats_to_stats64()
+- net: bridge: use DEV_STATS_INC()
+- net: add atomic_long_t to net_device_stats fields
+- team: fix null-ptr-deref when team device type is changed
+
 * Wed Apr 10 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.71.0.151
 - !5941  CVE-2021-46926
 - !5945 [sync] PR-5861:  ksmbd: fix uaf in smb20_oplock_break_ack
