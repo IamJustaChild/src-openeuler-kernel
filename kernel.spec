@@ -40,9 +40,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       20
+%global devel_release       21
 %global maintenance_release .0.0
-%global pkg_release         .21
+%global pkg_release         .22
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -1019,6 +1019,46 @@ fi
 %endif
 
 %changelog
+* Sat Apr 20 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-21.0.0.22
+- !6201 v2  mm: some optimization about hugetlb and thp
+- mm: filemap: try to enable THP for exec mapping
+- mm/khugepaged: keep mm in mm_slot without MMF_DISABLE_THP check
+- mm/khugepaged: bypassing unnecessary scans with MMF_DISABLE_THP check
+- mm: mmap: no need to call khugepaged_enter_vma() for stack
+- mm: remove VM_EXEC requirement for THP eligibility
+- mm: thp_get_unmapped_area must honour topdown preference
+- mm: huge_memory: don't force huge page alignment on 32 bit
+- mm: mmap: map MAP_STACK to VM_NOHUGEPAGE
+- mm: align larger anonymous mappings on THP boundaries
+- fs/hugetlbfs/inode.c: mm/memory-failure.c: fix hugetlbfs hwpoison handling
+- mm/hugetlb: have CONFIG_HUGETLB_PAGE select CONFIG_XARRAY_MULTI
+- mm/filemap: remove hugetlb special casing in filemap.c
+- mm/filemap: clarify filemap_fault() comments for not uptodate case
+- mm: huge_memory: batch tlb flush when splitting a pte-mapped THP
+- !6230  xarray: inline xas_descend to improve performance
+- xarray: inline xas_descend to improve performance
+- !5891  Fix several compilation warnings for hinic driver
+- net/hinic: Fix several compilation warnings with aarch64-openEuler-linux toolchain
+- !6244  arm64: enable CONFIG_ARM64_MPAM in openeuler_defconfig
+- arm64: enable CONFIG_ARM64_MPAM in openeuler_defconfig
+- !6105  fix some issues for arm64 machine check safe
+- ACPI: APEI: handle synchronous exceptions in task work to send correct SIGBUS si_code
+- mm: memory-failure: move return value documentation to function declaration
+- ACPI: APEI: send SIGBUS to current task if synchronous memory error not recovered
+- arm64: add machine check safe sysctl interface
+- arm64: introduce copy_mc_to_kernel() implementation
+- arm64: support copy_mc_[user]_highpage()
+- arm64: Get rid of ARM64_HAS_NO_HW_PREFETCH
+- mm/hwpoison: return -EFAULT when copy fail in copy_mc_[user]_highpage()
+- arm64: add support for ARCH_HAS_COPY_MC
+- Revert "arm64: add support for machine check error safe"
+- Revert "arm64: add uaccess to machine check safe"
+- Revert "mm/hwpoison: return -EFAULT when copy fail in copy_mc_[user]_highpage()"
+- Revert "arm64: support copy_mc_[user]_highpage()"
+- Revert "arm64: introduce copy_mc_to_kernel() implementation"
+- Revert "arm64: add machine check safe sysctl interface"
+- Revert "kasan: fix the compilation error for memcpy_mcs()"
+
 * Tue Apr 16 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 6.6.0-20.0.0.21
 - !6048 improve 3SNIC 910/920/930 NIC driver
 - improve 3SNIC 910/920/930 NIC driver
