@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2404.2.0
+%global hulkrelease 2404.3.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0246
+Release: %{hulkrelease}.0247
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,53 @@ fi
 %endif
 
 %changelog
+
+* Wed Apr 24 2024 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2404.3.0.0247
+- !6313  fixup CVE-2024-26908
+- !6447  can: j1939: prevent deadlock by changing j1939_socks_lock to rwlock
+- !6309 v5  ima: Avoid blocking in RCU read-side critical section
+- !6405  wifi: ath10k: fix NULL pointer dereference in ath10k_wmi_tlv_op_pull_mgmt_tx_compl_ev()
+- !6466  bpf: Fix hashtab overflow check on 32-bit arches
+- !6396  tracing/trigger: Fix to return error if failed to alloc snapshot
+- !6278  Bluetooth: Avoid potential use-after-free in hci_error_reset
+- bpf: Fix hashtab overflow check on 32-bit arches
+- can: j1939: prevent deadlock by changing j1939_socks_lock to rwlock
+- !6203  ALSA: usb-audio: fix null pointer dereference on pointer cs_desc
+- !6292  aoe: fix the potential use-after-free problem in aoecmd_cfg_pkts
+- !6301 v2  tipc: Check the bearer type before calling tipc_udp_nl_bearer_add()
+- wifi: ath10k: fix NULL pointer dereference in ath10k_wmi_tlv_op_pull_mgmt_tx_compl_ev()
+- !6266  usb: typec: tipd: Remove WARN_ON in tps6598x_block_read
+- tracing/trigger: Fix to return error if failed to alloc snapshot
+- !6290  CVE-2024-24861
+- x86/xen: Add some null pointer checking to smp.c
+- ima: Avoid blocking in RCU read-side critical section
+- !6269  scsi: lpfc: Fix list_add() corruption in lpfc_drain_txq()
+- !6276  wifi: brcmfmac: Fix use-after-free bug in brcmf_cfg80211_detach
+- tipc: Check the bearer type before calling tipc_udp_nl_bearer_add()
+- !6277  gtp: fix use-after-free and null-ptr-deref in gtp_newlink()
+- !6275  arp: Prevent overflow in arp_req_get().
+- !6280  scsi: advansys: Fix kernel pointer leak
+- !6177  arm64/mpam: Not allowed setting 0 to cache portion bit mask
+- !6176  arm64/mpam: return EOPNOTSUPP when changing rmid of monitor group or resource group with monitor
+- aoe: fix the potential use-after-free problem in aoecmd_cfg_pkts
+- media: xc4000: Fix atomicity violation in xc4000_get_frequency
+- !6075  Fix CVE-2024-26764
+- scsi: advansys: Fix kernel pointer leak
+- Bluetooth: Avoid potential use-after-free in hci_error_reset
+- gtp: fix use-after-free and null-ptr-deref in gtp_newlink()
+- wifi: brcmfmac: Fix use-after-free bug in brcmf_cfg80211_detach
+- arp: Prevent overflow in arp_req_get().
+- !6084  netlink: Fix kernel-infoleak-after-free in __skb_datagram_iter
+- scsi: lpfc: Fix list_add() corruption in lpfc_drain_txq()
+- usb: typec: tipd: Remove WARN_ON in tps6598x_block_read
+- !6246  ubi: Check for too small LEB size in VTBL code
+- ubi: Check for too small LEB size in VTBL code
+- ALSA: usb-audio: fix null pointer dereference on pointer cs_desc
+- arm64/mpam: Not allowed setting 0 to cache portion bit mask
+- arm64/mpam: return EOPNOTSUPP when changing rmid of monitor group or resource group with monitor
+- netlink: Fix kernel-infoleak-after-free in __skb_datagram_iter
+- fs/aio: Check IOCB_AIO_RW before the struct aio_kiocb conversion
+- fs/aio: Restrict kiocb_set_cancel_fn() to I/O submitted via libaio
 
 * Wed Apr 17 2024 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2404.2.0.0246
 - !6231 v2  drm/vkms: call drm_atomic_helper_shutdown before drm_dev_put()
