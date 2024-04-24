@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       196
+%global devel_release       197
 %global maintenance_release .0.0
-%global pkg_release         .98
+%global pkg_release         .99
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -952,6 +952,85 @@ fi
 %endif
 
 %changelog
+* Wed Apr 24 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-197.0.0.99
+- !5273  net/smc: fix illegal rmb_desc access in SMC-D connection dump
+- !6486  devlink: fix possible use-after-free and memory leaks in devlink_init()
+- !6515  fix CVE-2023-52498
+- !5468  media: mtk-jpeg: Fix use after free bug due to error path handling in mtk_jpeg_dec_device_run
+- !6314  fixup CVE-2024-26908
+- PM: sleep: Fix error handling in dpm_prepare()
+- PM: sleep: Fix possible deadlocks in core system-wide PM code
+- PM: core: Remove unnecessary (void *) conversions
+- PM: sleep: Avoid calling put_device() under dpm_list_mtx
+- PM: sleep: Use dev_printk() when possible
+- async: Introduce async_schedule_dev_nocall()
+- async: Split async_schedule_node_domain()
+- !6316  scsi: fnic: Move fnic_fnic_flush_tx() to a work queue
+- !6399  wifi: wilc1000: prevent use-after-free on vif when cleaning up all interfaces
+- !6407  wifi: ath10k: fix NULL pointer dereference in ath10k_wmi_tlv_op_pull_mgmt_tx_compl_ev()
+- !6455  CVE-2021-47182
+- devlink: fix possible use-after-free and memory leaks in devlink_init()
+- !6423  tracing/trigger: Fix to return error if failed to alloc snapshot
+- scsi: core: Fix scsi_mode_sense() buffer length handling
+- scsi: core: Reshuffle response handling in scsi_mode_sense()
+- !6281 v2  net/mlx5: Update error handler for UCTX and UMEM
+- !6428  net/sched: flower: Fix unable to handle page fault bug in fl_init
+- !6267  wifi: brcmfmac: Fix use-after-free bug in brcmf_cfg80211_detach
+- !6279  Bluetooth: Avoid potential use-after-free in hci_error_reset
+- !6259  arp: Prevent overflow in arp_req_get().
+- !6312  fix CVE-2024-24861 for 5.10
+- !6308 v3  ima: Avoid blocking in RCU read-side critical section
+- net/sched: flower: Fix unable to handle page fault bug in fl_init
+- tracing/trigger: Fix to return error if failed to alloc snapshot
+- !6291  aoe: fix the potential use-after-free problem in aoecmd_cfg_pkts
+- wifi: ath10k: fix NULL pointer dereference in ath10k_wmi_tlv_op_pull_mgmt_tx_compl_ev()
+- wifi: wilc1000: prevent use-after-free on vif when cleaning up all interfaces
+- !6295 hns3 udma: adjustment of the maximum number of Jettys
+- !6202  ALSA: usb-audio: fix null pointer dereference on pointer cs_desc
+- scsi: fnic: Move fnic_fnic_flush_tx() to a work queue
+- !6294 [sync] PR-6177:  arm64/mpam: Not allowed setting 0 to cache portion bit mask
+- !6293 [sync] PR-6176:  arm64/mpam: return EOPNOTSUPP when changing rmid of monitor group or resource group with monitor
+- !6284  net/mlx5e: CT, Fix multiple allocations and memleak of mod acts
+- x86/xen: Add some null pointer checking to smp.c
+- media: xc4000: Fix atomicity violation in xc4000_get_frequency
+- ima: Avoid blocking in RCU read-side critical section
+- !6076  Fix CVE-2024-26764
+- arm64/mpam: Not allowed setting 0 to cache portion bit mask
+- arm64/mpam: return EOPNOTSUPP when changing rmid of monitor group or resource group with monitor
+- aoe: fix the potential use-after-free problem in aoecmd_cfg_pkts
+- hns3 udma: adjustment of the maximum number of Jettys
+- !6263 udma: fix a bug of jfr record_db
+- net/mlx5e: CT, Fix multiple allocations and memleak of mod acts
+- net/mlx5: Update error handler for UCTX and UMEM
+- Bluetooth: Avoid potential use-after-free in hci_error_reset
+- !6262 scsi: hisi_sas: Remove hisi_hba->timer for v3 hw
+- !5965  Fix CVE-2023-52441 and integrate the pre-patch
+- !6086  netfilter: nft_chain_filter: handle NETDEV_UNREGISTER for inet/ingress basechain
+- !6085  netlink: Fix kernel-infoleak-after-free in __skb_datagram_iter
+- wifi: brcmfmac: Fix use-after-free bug in brcmf_cfg80211_detach
+- scsi: hisi_sas: Remove hisi_hba->timer for v3 hw
+- hns3 udma: fixes errors related to jfr RECORD_DB.
+- arp: Prevent overflow in arp_req_get().
+- !6199  writeback fix softlockup
+- !6087  net/sched: act_mirred: don't override retval if we already lost the skb
+- !6082  can: j1939: Fix UAF in j1939_sk_match_filter during setsockopt(SO_J1939_FILTER)
+- !6058  net: ip_tunnel: prevent perpetual headroom growth
+- ALSA: usb-audio: fix null pointer dereference on pointer cs_desc
+- cgroup_writeback: fix softlockup for blkcg->memcg_list
+- net/sched: act_mirred: don't override retval if we already lost the skb
+- netfilter: nft_chain_filter: handle NETDEV_UNREGISTER for inet/ingress basechain
+- netlink: Fix kernel-infoleak-after-free in __skb_datagram_iter
+- can: j1939: Fix UAF in j1939_sk_match_filter during setsockopt(SO_J1939_FILTER)
+- fs/aio: Check IOCB_AIO_RW before the struct aio_kiocb conversion
+- fs/aio: Restrict kiocb_set_cancel_fn() to I/O submitted via libaio
+- net: ip_tunnel: prevent perpetual headroom growth
+- ksmbd: fix out of bounds in init_smb2_rsp_hdr()
+- ksmbd: fix slab-out-of-bounds in init_smb2_rsp_hdr
+- ksmbd: return unsupported error on smb1 mount
+- ksmbd: return STATUS_NOT_SUPPORTED on unsupported smb2.0 dialect
+- media: mtk-jpeg: Fix use after free bug due to error path handling in mtk_jpeg_dec_device_run
+- net/smc: fix illegal rmb_desc access in SMC-D connection dump
+
 * Wed Apr 17 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-196.0.0.98
 - !6074  Fix CVE-2024-26787
 - !6193  uio_hv_generic: Fix another memory leak in error handling paths
