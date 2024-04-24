@@ -40,9 +40,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       21
+%global devel_release       22
 %global maintenance_release .0.0
-%global pkg_release         .24
+%global pkg_release         .25
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -1053,6 +1053,50 @@ fi
 %endif
 
 %changelog
+* Wed Apr 24 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 6.6.0-22.0.0.25
+- !6467 RDMA/hns: Some bugfixes and cleanups
+- RDMA/hns: Fix incorrect variable usage in scc_attr_is_visible()
+- RDMA/hns: Fix null pointer when alloc_scc_param() fails
+- RDMA/hns: Fix scc_param delay_work to execute after sysfs shutdown
+- RDMA/hns: Add mutex_destroy() to destroy the mutex
+- RDMA/hns: Fix a potential Sleep-in-Atomic-Context
+- !6468 v2  scsi: fnic: Move fnic_fnic_flush_tx() to a work queue
+- scsi: fnic: Move fnic_fnic_flush_tx() to a work queue
+- !6439 v3  m: convert mm's rss stats to use atomic mode
+- mm: convert mm's rss stats to use atomic mode
+- percpu_counter: introduce atomic mode for percpu_counter
+- !6424  mm/migrate: correct nr_failed in migrate_pages_sync()
+- mm/migrate: add nr_split to trace_mm_migrate_pages stats.
+- mm/migrate: correct nr_failed in migrate_pages_sync()
+- !6390  nfs: fix panic when nfs4_ff_layout_prepare_ds() fails
+- nfs: fix panic when nfs4_ff_layout_prepare_ds() fails
+- !5482 [OLK-6.6] crypto: update zhaoxin-aes for __pcpu_unique_paes_last_cword
+- crypto: update zhaoxin-aes for __pcpu_unique_paes_last_cword
+- !3171 [OLK-6.6] ata: libata: disabling PhyRdy Change Interrupt based on actual LPM capability
+- ata: libata: disabling PhyRdy Change Interrupt based on actual LPM capability
+- !6443  f2fs: fix NULL pointer dereference in f2fs_submit_page_write()
+- f2fs: fix NULL pointer dereference in f2fs_submit_page_write()
+- !6261 RDMA/hns: Some bugfixes and cleanups
+- RDMA/hns: Modify the print level of CQE error
+- RDMA/hns: Add mutex_destroy()
+- RDMA/hns: Fix GMV table pagesize
+- RDMA/hns: Fix mismatch exception rollback
+- RDMA/hns: Fix UAF for cq async event
+- RDMA/hns: Fix deadlock on SRQ async events.
+- RDMA/hns: Remove unused parameters and variables
+- RDMA/hns: Use macro instead of magic number
+- RDMA/hns: Fix return value in hns_roce_map_mr_sg
+- !6265 tpm_tis: Avoid warning splat at shutdown
+- tpm,tpm_tis: Avoid warning splat at shutdown
+- !6402  bpf: Add missing BPF_LINK_TYPE invocations
+- bpf: Add missing BPF_LINK_TYPE invocations
+- !6256 [OLK-6.6] bugfix from upstream v6.9 for AMD EPYC perf
+- perf/x86/amd/core: Define a proper ref-cycles event for Zen 4 and later
+- perf/x86/amd/core: Update and fix stalled-cycles-* events for Zen 2 and later
+- perf/x86/amd/lbr: Use freeze based on availability
+- !6134 v3  rootfs: Fix support for rootfstype= when root= is given
+- rootfs: Fix support for rootfstype= when root= is given
+
 * Tue Apr 23 2024 Hongchen Zhang <zhanghongchen@loongson.cn> - 6.6.0-21.0.0.24
 - add LoongArch support
 
