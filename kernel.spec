@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .72.0
-%global pkg_release         .152
+%global maintenance_release .73.0
+%global pkg_release         .153
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,51 @@ fi
 %endif
 
 %changelog
+* Wed Apr 24 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.73.0.153
+- !6414 [sync] PR-5510:  bus: mhi: host: Drop chan lock before queuing buffers
+- !6143 [sync] PR-6103:  riscv: Sparse-Memory/vmemmap out-of-bounds fix
+- !6535 [sync] PR-5222:  powerpc/mm: Fix null-pointer dereference in pgtable_cache_add
+- !6538 [sync] PR-5273:  net/smc: fix illegal rmb_desc access in SMC-D connection dump
+- !6529 [sync] PR-5468:  media: mtk-jpeg: Fix use after free bug due to error path handling in mtk_jpeg_dec_device_run
+- !6298  sp1 fix deadlock in cgroup1_writeback
+- !6497 [sync] PR-6407:  wifi: ath10k: fix NULL pointer dereference in ath10k_wmi_tlv_op_pull_mgmt_tx_compl_ev()
+- net/smc: fix illegal rmb_desc access in SMC-D connection dump
+- powerpc/mm: Fix null-pointer dereference in pgtable_cache_add
+- !6506 [sync] PR-5773:  patches for CVE-2023-52617
+- !6502 [sync] PR-5772:  firmware: arm_scmi: Check mailbox/SMT channel for consistency
+- !6518  Fix CVE-2023-52498
+- media: mtk-jpeg: Fix use after free bug due to error path handling in mtk_jpeg_dec_device_run
+- PM: sleep: Fix error handling in dpm_prepare()
+- PM: sleep: Fix possible deadlocks in core system-wide PM code
+- PM: core: Remove unnecessary (void *) conversions
+- PM: sleep: Avoid calling put_device() under dpm_list_mtx
+- PM: sleep: Use dev_printk() when possible
+- async: Introduce async_schedule_dev_nocall()
+- async: Split async_schedule_node_domain()
+- PCI: switchtec: Fix an error handling path in switchtec_pci_probe()
+- PCI: switchtec: Fix stdev_release() crash after surprise hot remove
+- firmware: arm_scmi: Check mailbox/SMT channel for consistency
+- !6488 [sync] PR-6455:  CVE-2021-47182
+- wifi: ath10k: fix NULL pointer dereference in ath10k_wmi_tlv_op_pull_mgmt_tx_compl_ev()
+- !6433 [sync] PR-6312:  fix CVE-2024-24861 for 5.10
+- scsi: core: Fix scsi_mode_sense() buffer length handling
+- scsi: core: Reshuffle response handling in scsi_mode_sense()
+- media: xc4000: Fix atomicity violation in xc4000_get_frequency
+- !6411 [sync] PR-5195:  dmaengine: fix NULL pointer in channel unregistration function
+- bus: mhi: host: Drop chan lock before queuing buffers
+- dmaengine: fix NULL pointer in channel unregistration function
+- cgroup_writeback: fix softlockup for blkcg->memcg_list
+- cgroup_writeback: fix deadlock in cgroup1_writeback
+- !6081  Fix CVE-2024-26764
+- !5967  Fix CVE-2023-52441 and integrate the pre-patch
+- riscv: Sparse-Memory/vmemmap out-of-bounds fix
+- fs/aio: Check IOCB_AIO_RW before the struct aio_kiocb conversion
+- fs/aio: Restrict kiocb_set_cancel_fn() to I/O submitted via libaio
+- ksmbd: fix out of bounds in init_smb2_rsp_hdr()
+- ksmbd: fix slab-out-of-bounds in init_smb2_rsp_hdr
+- ksmbd: return unsupported error on smb1 mount
+- ksmbd: return STATUS_NOT_SUPPORTED on unsupported smb2.0 dialect
+
 * Wed Apr 17 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.72.0.152
 - !6181 [sync] PR-5093:  wifi: mac80211: fix potential key use-after-free
 - !6217  RDMA/siw: Fix connection failure handling
