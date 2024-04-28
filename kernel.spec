@@ -40,9 +40,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       22
+%global devel_release       23
 %global maintenance_release .0.0
-%global pkg_release         .25
+%global pkg_release         .26
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -1053,6 +1053,106 @@ fi
 %endif
 
 %changelog
+* Sun Apr 28 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-23.0.0.26
+- !6306 【OLK-6.6】fix compiling problem in bzwx N5/N6 series NIC drivers
+- drivers: fix compiling problem in bzwx N5/N6 series NIC drivers
+- !6692  ipvlan: enable CONFIG_IPVLAN_L2E option in openeuler config
+- ipvlan: enable CONFIG_IPVLAN_L2E option in openeuler config
+- !6632  ext4: use iomap for regular file's buffered IO path and enable large foilo
+- ext4: add mount option for buffered IO iomap path
+- ext4: don't mark IOMAP_F_DIRTY for buffer write
+- ext4: enable large folio for regular file with iomap buffered IO path
+- filemap: support disable large folios on active inode
+- ext4: partial enable iomap for regular file's buffered IO path
+- ext4: fall back to buffer_head path for defrag
+- ext4: writeback partial blocks before zeroing out range
+- ext4: implement zero_range iomap path
+- ext4: implement mmap iomap path
+- ext4: implement writeback iomap path
+- ext4: implement buffered write iomap path
+- ext4: implement buffered read iomap path
+- ext4: add a new iomap aops for regular file's buffered IO path
+- ext4: introduce seq counter for the extent status entry
+- ext4: factor out ext4_map_create_blocks() to allocate new blocks
+- ext4: use reserved metadata blocks when splitting extent on endio
+- ext4: make ext4_da_map_blocks() buffer_head unaware
+- ext4: make ext4_insert_delayed_block() insert multi-blocks
+- ext4: factor out check for whether a cluster is allocated
+- ext4: make ext4_da_reserve_space() reserve multi-clusters
+- ext4: make ext4_es_insert_delayed_block() insert multi-blocks
+- ext4: drop iblock parameter
+- ext4: trim delalloc extent
+- ext4: check the extent status again before inserting delalloc block
+- ext4: factor out a common helper to query extent map
+- ext4: make ext4_set_iomap() recognize IOMAP_DELALLOC map type
+- ext4: make ext4_map_blocks() distinguish delalloc only extent
+- ext4: add a hole extent entry in cache after punch
+- ext4: convert to exclusive lock while inserting delalloc extents
+- ext4: refactor ext4_da_map_blocks()
+- iomap: do some small logical cleanup in buffered write
+- iomap: make iomap_write_end() return a boolean
+- iomap: use a new variable to handle the written bytes in iomap_write_iter()
+- iomap: don't increase i_size if it's not a write operation
+- iomap: drop the write failure handles when unsharing and zeroing
+- xfs: convert delayed extents to unwritten when zeroing post eof blocks
+- xfs: make xfs_bmapi_convert_delalloc() to allocate the target offset
+- xfs: make the seq argument to xfs_bmapi_convert_delalloc() optional
+- xfs: match lock mode in xfs_buffered_write_iomap_begin()
+- iomap: add pos and dirty_len into trace_iomap_writepage_map
+- iomap: pass the length of the dirty region to ->map_blocks
+- iomap: map multiple blocks at a time
+- iomap: submit ioends immediately
+- iomap: factor out a iomap_writepage_map_block helper
+- iomap: only call mapping_set_error once for each failed bio
+- iomap: don't chain bios
+- iomap: move the iomap_sector sector calculation out of iomap_add_to_ioend
+- iomap: clean up the iomap_alloc_ioend calling convention
+- iomap: move all remaining per-folio logic into iomap_writepage_map
+- iomap: factor out a iomap_writepage_handle_eof helper
+- iomap: move the PF_MEMALLOC check to iomap_writepages
+- iomap: move the io_folios field out of struct iomap_ioend
+- iomap: treat inline data in iomap_writepage_map as an I/O error
+- iomap: clear the per-folio dirty bits on all writeback failures
+- !6625 v2  perf data convert: Fix segfault when converting to json when cpu_desc isn't set
+- perf data convert: Fix segfault when converting to json when cpu_desc isn't set
+- !6647  infiniband/hw/hiroce3: Add Huawei Intelligent Network Card RDMA Driver
+- infiniband/hw/hiroce3: Add Huawei Intelligent Network Card RDMA Driver
+- net/ethernet/huawei/hinic3: Add the CQM on which the RDMA depends
+- !6624  hisi-acc-vfio-pci:add DFX for acc migration driver
+- hisi_acc_vfio_pci: add exception error handling
+- hisi-acc-vfio-pci:add DFX for acc migration driver
+- !6658  sched: disable sched_autogroup by default
+- sched: disable sched_autogroup by default
+- !6626  Backport page fault and fork optimization
+- mm: swapfile: check usable swap device in __folio_throttle_swaprate()
+- mm/filemap: optimize filemap folio adding
+- lib/xarray: introduce a new helper xas_get_order
+- lib/xarray: introduce a new helper xas_get_order
+- mm/filemap: clean up hugetlb exclusion code
+- mm/filemap: return early if failed to allocate memory for split
+- mm: memory: check userfaultfd_wp() in vmf_orig_pte_uffd_wp()
+- !6179 crypto: hisilicon - fixed some code security review issues
+- crypto: hisilicon/debugfs - Resolve the problem of applying for redundant space in sq dump
+- crypto: hisilicon/sec - Fix memory leak for sec resource release
+- crypto: hisilicon - Adjust debugfs creation and release order
+- crypto: hisilicon/qm - Add the default processing branch
+- crypto: hisilicon/debugfs - Fix the processing logic issue in the debugfs creation
+- crypto: hisilicon/sgl - Delete redundant parameter verification
+- crypto: hisilicon/debugfs - Fix debugfs uninit process issue
+- crypto: hisilicon/sec - Add the condition for configuring the sriov function
+- crypto: hisilicon/zip - fix the missing CRYPTO_ALG_ASYNC in cra_flags
+- !6400  btrfs: fix data race at btrfs_use_block_rsv() when accessing block reserve
+- btrfs: fix data race at btrfs_use_block_rsv() when accessing block reserve
+- !6444  Fix CVE-2024-26869
+- f2fs: fix to truncate meta inode pages forcely
+- f2fs: introduce f2fs_invalidate_internal_cache() for cleanup
+- !6585  ACPI: processor_idle: Fix memory leak in acpi_processor_power_exit()
+- ACPI: processor_idle: Fix memory leak in acpi_processor_power_exit()
+- !6251  ubi: Check for too small LEB size in VTBL code
+- ubi: Check for too small LEB size in VTBL code
+- !6418  media: pvrusb2: fix uaf in pvr2_context_set_notify
+- media: pvrusb2: fix uaf in pvr2_context_set_notify
+
 * Wed Apr 24 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 6.6.0-22.0.0.25
 - !6467 RDMA/hns: Some bugfixes and cleanups
 - RDMA/hns: Fix incorrect variable usage in scc_attr_is_visible()
