@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2404.3.0
+%global hulkrelease 2405.1.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0247
+Release: %{hulkrelease}.0248
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,117 @@ fi
 %endif
 
 %changelog
+
+* Tue May 07 2024 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2405.1.0.0248
+- !6858  CVE-2024-26883
+- !6836  fs: sysfs: Fix reference leak in sysfs_break_active_protection()
+- !6845  erofs: fix pcluster use-after-free on UP platforms
+- !6827  fat: fix uninitialized field in nostale filehandles
+- !6807  CVE-2024-26923
+- !6847  ALSA: emu10k1: Fix out of bounds access in snd_emu10k1_pcm_channel_alloc()
+- bpf: Fix stackmap overflow check on 32-bit arches
+- bpf: Check for integer overflow when using roundup_pow_of_two()
+- !6758  CVE-2022-48664
+- ALSA: emu10k1: Fix out of bounds access in snd_emu10k1_pcm_channel_alloc()
+- erofs: fix pcluster use-after-free on UP platforms
+- fs: sysfs: Fix reference leak in sysfs_break_active_protection()
+- !6795  rtmutex: Add acquire semantics for rtmutex lock acquisition slow path
+- fat: fix uninitialized field in nostale filehandles
+- !6777  tun: Fix xdp_rxq_info's queue_index when detaching
+- !6803  scsi: target: core: Add TMF to tmr_list handling
+- af_unix: Suppress false-positive lockdep splat for spin_lock() in __unix_gc().
+- af_unix: Fix garbage collector racing against connect()
+- scsi: target: core: Add TMF to tmr_list handling
+- !6705  quota: fix CVE-2024-26878
+- rtmutex: Add acquire semantics for rtmutex lock acquisition slow path
+- tun: Fix xdp_rxq_info's queue_index when detaching
+- !6674  cifs: fix underflow in parse_server_interfaces()
+- !6494 v2  oom_kill.c: futex: delay the OOM reaper to allow time for proper futex cleanup
+- !6745  PCI/IOV: Improve performance of creating VFs concurrently
+- !6754  binder: check offset alignment in binder_get_object()
+- !6746 v3  openEuler-1.0-LTS: bugfix for mm
+- !6716  CVE-2024-26922
+- btrfs: fix hang during unmount when stopping a space reclaim worker
+- Btrfs: fix crash during unmount due to race with delayed inode workers
+- binder: check offset alignment in binder_get_object()
+- !6652  geneve: make sure to pull inner header in geneve_rx()
+- mm/madvise: fix potential pte_unmap_unlock pte error
+- PCI/IOV: Improve performance of creating VFs concurrently
+- !6664  drm/bridge: adv7511: fix crash on irq during probe
+- !6653  net/ipv6: avoid possible UAF in ip6_route_mpath_notify()
+- !6510  cachefiles: fix memory leak in cachefiles_add_cache()
+- drm/amdgpu: validate the parameters of bo mapping operations more clearly
+- amdgpu: validate offset_in_bo of drm_amdgpu_gem_va
+- drm/amdgpu: restrict bo mapping within gpu address limits
+- drm/amdgpu: check alignment on CPU page for bo map
+- quota: Fix potential NULL pointer dereference
+- quota: check time limit when back out space/inode change
+- quota: code cleanup for __dquot_alloc_space()
+- !6662  sched/rt: Disallow writing invalid values to sched_rt_period_us
+- !6661  sched/rt: sysctl_sched_rr_timeslice show default timeslice after reset
+- !6659  sched/rt: Fix sysctl_sched_rr_timeslice intial value
+- !6578  drm/mediatek: Fix a null pointer crash in mtk_drm_crtc_finish_page_flip
+- !6641  CVE-2024-26863
+- cifs: fix underflow in parse_server_interfaces()
+- !6646  fix race between rebuild scheduler domains and hotplug work
+- drm/bridge: adv7511: fix crash on irq during probe
+- sched/rt: Disallow writing invalid values to sched_rt_period_us
+- sched/rt: sysctl_sched_rr_timeslice show default timeslice after reset
+- sched/rt: Fix sysctl_sched_rr_timeslice intial value
+- !6642 v3  x86/hyperv: Fix NULL deref in set_hv_tscchange_cb() if Hyper-V setup fails
+- net/ipv6: avoid possible UAF in ip6_route_mpath_notify()
+- geneve: make sure to pull inner header in geneve_rx()
+- !6621  amdkfd: use calloc instead of kzalloc to avoid integer overflow
+- cpuset: fix race between rebuild scheduler domains and hotplug work
+- !6617  net/bnx2x: Prevent access to a freed page in page_pool
+- !6611  net: ip_tunnel: make sure to pull inner header in ip_tunnel_rcv()
+- x86/hyperv: Fix NULL deref in set_hv_tscchange_cb() if Hyper-V setup fails
+- hsr: Fix uninit-value access in hsr_get_node()
+- net: hsr: fix placement of logical operator in a multi-line statement
+- !6397  btrfs: fix data race at btrfs_use_block_rsv() when accessing block reserve
+- !6616  drm/amdgpu: Reset IH OVERFLOW_CLEAR bit
+- amdkfd: use calloc instead of kzalloc to avoid integer overflow
+- net/bnx2x: Prevent access to a freed page in page_pool
+- drm/amdgpu: Reset IH OVERFLOW_CLEAR bit
+- net: ip_tunnel: make sure to pull inner header in ip_tunnel_rcv()
+- !6525 v2  CVE-2024-24860 bugfix
+- !6478  do_sys_name_to_handle(): use kzalloc() to fix kernel-infoleak
+- !6582  ACPI: processor_idle: Fix memory leak in acpi_processor_power_exit()
+- !6577  media: rc: bpf attach/detach requires write permission
+- !6560  IB/hfi1: Fix a memleak in init_credit_return
+- !6420  tty: fix read of tty->pgrp outside of ctrl_lock
+- !6436  dm: call the resume method on internal suspend
+- !6562  nfc: nci: free rx_data_reassembly skb on NCI device cleanup
+- !6481  CVE-2024-26875
+- ACPI: processor_idle: Fix memory leak in acpi_processor_power_exit()
+- drm/mediatek: Fix a null pointer crash in mtk_drm_crtc_finish_page_flip
+- media: rc: bpf attach/detach requires write permission
+- !6495  RDMA/srpt: Do not register event handler until srpt device is fully setup
+- !6457  CVE-2024-26813
+- nfc: nci: free rx_data_reassembly skb on NCI device cleanup
+- IB/hfi1: Fix a memleak in init_credit_return
+- !6517  scsi: lpfc: Fix link down processing to address NULL pointer dereference
+- !6521  netfilter: nf_conntrack_h323: Add protection for bmp length out of range
+- !6454  CVE-2021-47182
+- Bluetooth: Fix atomicity violation in {min,max}_key_size_set
+- Bluetooth: Move {min,max}_key_size debugfs into hci_debugfs_create_le
+- netfilter: nf_conntrack_h323: Add protection for bmp length out of range
+- scsi: lpfc: Fix link down processing to address NULL pointer dereference
+- cachefiles: fix memory leak in cachefiles_add_cache()
+- RDMA/srpt: Do not register event handler until srpt device is fully setup
+- mm: oom_kill: fix KABI broken by "oom_kill.c: futex: delay the OOM reaper to allow time for proper futex cleanup"
+- oom_kill.c: futex: delay the OOM reaper to allow time for proper futex cleanup
+- sched: Allocate a new task_struct_resvd object for fork task
+- media: pvrusb2: fix uaf in pvr2_context_set_notify
+- do_sys_name_to_handle(): use kzalloc() to fix kernel-infoleak
+- vfio/platform: Create persistent IRQ handlers
+- vfio/platform: Disable virqfds on cleanup
+- scsi: core: Fix scsi_mode_sense() buffer length handling
+- scsi: core: Reshuffle response handling in scsi_mode_sense()
+- scsi: core: Fixup calling convention for scsi_mode_sense()
+- dm: call the resume method on internal suspend
+- tty: fix read of tty->pgrp outside of ctrl_lock
+- btrfs: fix data race at btrfs_use_block_rsv() when accessing block reserve
 
 * Wed Apr 24 2024 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2404.3.0.0247
 - !6313  fixup CVE-2024-26908
