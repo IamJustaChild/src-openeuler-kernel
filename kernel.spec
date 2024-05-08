@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .73.0
-%global pkg_release         .153
+%global maintenance_release .74.0
+%global pkg_release         .154
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,55 @@ fi
 %endif
 
 %changelog
+* Wed May 08 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.74.0.154
+- !6426 [sync] PR-6291:  aoe: fix the potential use-after-free problem in aoecmd_cfg_pkts
+- !6902  bpf: Fix DEVMAP_HASH overflow check on 32-bit arches
+- !6920  bpf: Fix hashtab overflow check on 32-bit arches
+- !6926  firmware: arm_scmi: Harden accesses to the reset domains
+- !6922  bpf: Fix stackmap overflow check on 32-bit arches
+- !6864 [sync] PR-6835:  kprobes: Fix check for probe enabled in kill_kprobe()
+- !6898 [sync] PR-6592:  net: ip_tunnel: make sure to pull inner header in ip_tunnel_rcv()
+- firmware: arm_scmi: Harden accesses to the reset domains
+- bpf: Fix stackmap overflow check on 32-bit arches
+- bpf: Fix hashtab overflow check on 32-bit arches
+- bpf: Fix DEVMAP_HASH overflow check on 32-bit arches
+- net: ip_tunnel: make sure to pull inner header in ip_tunnel_rcv()
+- !6644 [sync] PR-6623:  amdkfd: use calloc instead of kzalloc to avoid integer overflow
+- kprobes: Fix check for probe enabled in kill_kprobe()
+- !6388 [sync] PR-6202:  ALSA: usb-audio: fix null pointer dereference on pointer cs_desc
+- !6628 [sync] PR-6485:  CVE-2024-26843
+- !6752 [sync] PR-6677: v3  olk-5.10: bugfix for mm
+- mm/madvise: fix potential pte_unmap_unlock pte error
+- mm/page_alloc: always attempt to allocate at least one page during bulk allocation
+- !6505  cachefiles: fix memory leak in cachefiles_add_cache()
+- !6687 [sync] PR-6580:  drm/mediatek: Fix a null pointer crash in mtk_drm_crtc_finish_page_flip
+- drm/mediatek: Fix a null pointer crash in mtk_drm_crtc_finish_page_flip
+- !6637 [sync] PR-6561:  md: fix kmemleak of rdev->serial
+- amdkfd: use calloc instead of kzalloc to avoid integer overflow
+- !6598 [sync] PR-6584:  ACPI: processor_idle: Fix memory leak in acpi_processor_power_exit()
+- !6607 [sync] PR-6579:  media: rc: bpf attach/detach requires write permission
+- !6606 [sync] PR-6568:  IB/hfi1: Fix a memleak in init_credit_return
+- !6614 [sync] PR-6543:  net: ice: Fix potential NULL pointer dereference in ice_bridge_setlink()
+- !6603 [sync] PR-6520:  firmware: arm_scmi: Fix double free in SMC transport cleanup path
+- md: fix kmemleak of rdev->serial
+- firmware: arm_scmi: Fix double free in SMC transport cleanup path
+- efi: runtime: Fix potential overflow of soft-reserved region size
+- !6249  ubi: Check for too small LEB size in VTBL code
+- net: ice: Fix potential NULL pointer dereference in ice_bridge_setlink()
+- !6449 [sync] PR-6281: v2  net/mlx5: Update error handler for UCTX and UMEM
+- media: rc: bpf attach/detach requires write permission
+- IB/hfi1: Fix a memleak in init_credit_return
+- ACPI: processor_idle: Fix memory leak in acpi_processor_power_exit()
+- !6476  do_sys_name_to_handle(): use kzalloc() to fix kernel-infoleak
+- !6575 [sync] PR-6417:  media: pvrusb2: fix uaf in pvr2_context_set_notify
+- media: pvrusb2: fix uaf in pvr2_context_set_notify
+- cachefiles: fix memory leak in cachefiles_add_cache()
+- do_sys_name_to_handle(): use kzalloc() to fix kernel-infoleak
+- net/mlx5: Update error handler for UCTX and UMEM
+- aoe: fix the potential use-after-free problem in aoecmd_cfg_pkts
+- ALSA: usb-audio: fix null pointer dereference on pointer cs_desc
+- ubi: Check for too small LEB size in VTBL code
+
 * Wed Apr 24 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.73.0.153
 - !6414 [sync] PR-5510:  bus: mhi: host: Drop chan lock before queuing buffers
 - !6143 [sync] PR-6103:  riscv: Sparse-Memory/vmemmap out-of-bounds fix
