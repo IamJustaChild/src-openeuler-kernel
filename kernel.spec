@@ -40,9 +40,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       24
+%global devel_release       25
 %global maintenance_release .0.0
-%global pkg_release         .27
+%global pkg_release         .28
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -1053,6 +1053,40 @@ fi
 %endif
 
 %changelog
+* Thu May 09 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-25.0.0.28
+- !6930  fix general protection fault in update_cpumask
+- cgroup/cpuset: fix general protection fault in update_cpumask
+- !6905 v2  arm64: mmap: disable align larger anonymous mappings on THP boundaries
+- arm64: mmap: disable align larger anonymous mappings on THP boundaries
+- !7015  Fixes and cleanups to fs-writeback
+- fs/writeback: remove unnecessary return in writeback_inodes_sb
+- fs/writeback: correct comment of __wakeup_flusher_threads_bdi
+- fs/writeback: only calculate dirtied_before when b_io is empty
+- fs/writeback: remove unused parameter wb of finish_writeback_work
+- fs/writeback: bail out if there is no more inodes for IO and queued once
+- fs/writeback: avoid to writeback non-expired inode in kupdate writeback
+- !6581  LoongArch: fix KASLR can not be disabled by nokaslr when boot from old BPI
+- LoongArch: fix KASLR can not be disabled by nokaslr when boot from old BPI
+- !6483  LoongArch: fix boot error caused by ioremap_page_range error
+- LoongArch: fix boot error caused by ioremap_page_range error
+- !6759 net: hns3: backport some maillist patches
+- net: hns3: move constants from hclge_debugfs.h to hclge_debugfs.c
+- net: hns3: dump more reg info based on ras mod
+- net: hns3: add command queue trace for hns3
+- net: hns3: add support to query scc version by devlink info
+- net: hns3: revert "net: hns3: dump more reg info based on ras mod"
+- net: hns3: revert "net: hns3: add command queue trace for hns3"
+- net: hns3: revert "net: hns3: add support to query scc version by devlink info"
+- !7011 v3  bugfix patches from OLK-5.10
+- x86/quirks: Add parameter to clear MSIs early on boot
+- x86/PCI: Export find_cap() to be used in early PCI code
+- !6844  block: fix deadlock between bd_link_disk_holder and partition scan
+- block: fix deadlock between bd_link_disk_holder and partition scan
+- !5879 [OLK-6.6] Fix 'duplicate symbol rnp10_netdev_ops' error  for RNPGBE driver with x86_64-allyesconfig
+- RNPGBE: NET: Fix 'duplicate symbol rnp10_netdev_ops' errors
+- !5836 [OLK-6.6] Fix "'snprintf' output between 10 and 37 bytes into a destination of size 24" warning for RNP driver with loongarch-allmodconfig
+- RNP: NET: Fix "'snprintf' output between 10 and 37 bytes into a 	  destination of size 24" wanrings
+
 * Wed May 08 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-24.0.0.27
 - !6824  Introduce CONFIG_ARCH_CUSTOM_NUMA_DISTANCE
 - config: enable COBFIG_ARCH_CUSTOM_NUMA_DISTANCE for arm64
