@@ -25,7 +25,7 @@
 %global upstream_sublevel   0
 %global devel_release       12
 %global maintenance_release .0.0
-%global pkg_release         .8
+%global pkg_release         .9
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -54,8 +54,8 @@
 #default is enabled. You can disable it with --without option
 %define with_perf    %{?_without_perf: 0} %{?!_without_perf: 1}
 
-Name:	 kernel%{?package64kb}
-Version: %{upstream_version}.%{upstream_sublevel}
+Name:	 haoc-kernel
+Version: 6.6.0
 Release: %{devel_release}%{?maintenance_release}%{?pkg_release}
 Summary: Linux Kernel
 License: GPLv2
@@ -958,6 +958,8 @@ fi
 %endif
 
 %changelog
+* Tue Mar 26 2024 Liu Zhehui <liuzhh@zgclab.edu.cn> - 6.6.0-12.0.0.9
+- Add HAOC patch and spec for openEuler-24.03-LTS
 * Thu Mar 14 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 6.6.0-12.0.0.8
 - !5174 [OLK-6.6][sync from OLK-5.10] Introduce multiple LPI translation caches
 - KVM:arm64:vgic update openEuler's config's to enable MULTI_LPI_TRANSLATE_CACHE
