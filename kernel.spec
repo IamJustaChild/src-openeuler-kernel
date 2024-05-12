@@ -40,9 +40,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       25
+%global devel_release       26
 %global maintenance_release .0.0
-%global pkg_release         .29
+%global pkg_release         .30
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -1059,6 +1059,127 @@ fi
 %endif
 
 %changelog
+* Sat May 11 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-26.0.0.30
+- !7198 v2  mm: prepare more high-order pages on pcplist
+- mm: prepare more high-order pages to be stored on the per-cpu lists
+- mm: page_alloc: use the correct THP order for THP PCP
+- !7196 v3  Backport folio feature and bugfix
+- mm: madvise: avoid split during MADV_PAGEOUT and MADV_COLD
+- mm: vmscan: avoid split during shrink_folio_list()
+- mm: swap: allow storage of all mTHP orders
+- mm: swap: update get_swap_pages() to take folio order
+- mm: swap: simplify struct percpu_cluster
+- mm: swap: free_swap_and_cache_nr() as batched free_swap_and_cache()
+- mm: swap: remove CLUSTER_FLAG_HUGE from swap_cluster_info:flags
+- mm/madvise: don't forget to leave lazy MMU mode in madvise_cold_or_pageout_pte_range()
+- mm/madvise: add cond_resched() in madvise_cold_or_pageout_pte_range()
+- mm: support multi-size THP numa balancing
+- mm: factor out the numa mapping rebuilding into a new helper
+- mm: alloc_anon_folio: avoid doing vma_thp_gfp_mask in fallback cases
+- huge_memory.c: document huge page splitting rules more thoroughly
+- mm: convert folio_estimated_sharers() to folio_likely_mapped_shared()
+- mm/migrate: split source folio if it is on deferred split list
+- mm: hold PTL from the first PTE while reclaiming a large folio
+- madvise:madvise_cold_or_pageout_pte_range(): allow split while folio_estimated_sharers = 0
+- mm/filemap: don't decrease mmap_miss when folio has workingset flag
+- mm/readahead: break read-ahead loop if filemap_add_folio return -ENOMEM
+- arm64: mm: swap: support THP_SWAP on hardware with MTE
+- mm: remove PageAnonExclusive assertions in unuse_pte()
+- mm: remove struct page from get_shadow_from_swap_cache
+- selftests: mm: fix unused and uninitialized variable warning
+- XArray: set the marks correctly when splitting an entry
+- mm/huge_memory: check new folio order when split a folio
+- mm: huge_memory: enable debugfs to split huge pages to any order
+- mm: thp: split huge page to any lower order pages
+- mm: page_owner: add support for splitting to any order in split page_owner
+- mm: memcg: make memcg huge page split support any order split
+- mm/page_owner: use order instead of nr in split_page_owner()
+- mm/memcg: use order instead of nr in split_page_memcg()
+- mm: support order-1 folios in the page cache
+- mm/huge_memory: only split PMD mapping when necessary in unmap_folio()
+- selftests/mm: split_huge_page_test: conform test to TAP format output
+- mm: huge_memory: use more folio api in __split_huge_page_tail()
+- mm/vmalloc: fix return value of vb_alloc if size is 0
+- mm: use memalloc_nofs_save() in page_cache_ra_order()
+- mm: madvise: pageout: ignore references rather than clearing young
+- mm: ratelimit stat flush from workingset shrinker
+- mm, oom:dump_tasks add rss detailed information printing
+- arm64/mm: improve comment in contpte_ptep_get_lockless()
+- arm64/mm: export contpte symbols only to GPL users
+- mm: page_alloc: enforce minimum zone size to do high atomic reserves
+- mm: page_alloc: correct high atomic reserve calculations
+- mm: fix draining remote pageset
+- !7190  entry: inline syscall enter/exit functions
+- entry: Move syscall_enter_from_user_mode() to header file
+- entry: Move enter_from_user_mode() to header file
+- entry: Move exit to usermode functions to header file
+- !7130 v2  openeuler_defconfig: update oedefconfig for the minimum set
+- openeuler_defconfig: update oedefconfig for the minimum set
+- !7141 spi: hisi-kunpeng: Add validation for the minimum value of speed_hz
+- spi: hisi-kunpeng: Add validation for the minimum value of speed_hz
+- spi: Add verification for the max_frequency provided by the firmware
+- !7136 Fix failed in acpi_gpiochip_find() by adding parent node match
+- gpiolib: acpi: Fix failed in acpi_gpiochip_find() by adding parent node match
+- !6778 v2 Fix two soc bugs of hip09
+- irqchip: gicv3: Add workaround for hip09 erratum 162200806
+- irqchip: gicv3: Add workaround for hip09 erratum 162200803
+- !7165 v2  tick/broadcast-hrtimer: Prevent the timer device on broadcast duty CPU from being disabled
+- tick/broadcast-hrtimer: Prevent the timer device on broadcast duty CPU from being disabled
+- !7184 v3  md: do not delete safemode_timer in mddev_suspend
+- md: do not delete safemode_timer in mddev_suspend
+- !7131 net: hns3: Fix ROH mac address initialization.
+- net: hns3: Fix ROH mac address initialization.
+- !7126 net: hns3: some bugfixes for hns3 driver
+- net: hns3: fix kernel crash when devlink reload during initialization
+- net: hns3: direct return when receive a unknown mailbox message
+- net: hns3: release PTP resources if pf initialization failed
+- net: hns3: change type of numa_node_mask as nodemask_t
+- net: hns3: using cpumask_copy when set value to cpumask_t
+- net: hns3: set irq affinity directly
+- net: hns3: use appropriate barrier function after setting a bit value
+- net: hns3: don't need to check an unsigned number is less than 0
+- net: hns3: add 
+- net: hns3: using user configure after hardware reset
+- net: hns3: add cond_resched() to hns3 ring buffer init process
+- net: hns3: fix kernel crash problem in concurrent scenario
+- net: hns3: fix port vlan filter not disabled issue
+- net: hns3: revert "net: hns3: fix port vlan filter not disabled problem in dynamic vlan mode"
+- !7159 【OLK 6.6】 backport some mailist patches for perf
+- drivers/perf: hisi: hns3: Actually use devm_add_action_or_reset()
+- drivers/perf: hisi: hns3: Fix out-of-bound access when valid event group
+- drivers/perf: hisi_pcie: Fix out-of-bound access when valid event group
+- !7068  kernfs: RCU protect kernfs_nodes and avoid kernfs_idr_lock in kernfs_find_and_get_node_by_id()
+- kernfs: RCU protect kernfs_nodes and avoid kernfs_idr_lock in kernfs_find_and_get_node_by_id()
+- !7153  Backports for OLK-6.6
+- netfilter: br_netfilter: skip conntrack input hook for promisc packets
+- netfilter: bridge: confirm multicast packets before passing them up the stack
+- !7069  ext4: fix uninitialized ratelimit_state->lock access in __ext4_fill_super()
+- ext4: fix uninitialized ratelimit_state->lock access in __ext4_fill_super()
+- !7075 RDMA/hns: Some bugfixes and cleanups
+- RDMA/hns: Fix soft lockup under heavy CEQE load
+- RDMA/hns: Fix sleeping in spin_lock critical section
+- RDMA/hns: Fix Use-After-Free of rsv_qp
+- RDMA/hns: Fix a missing check of atomic wr length
+- !3184 [OLK-6.6] add support for Zhaoxin ZXPAUSE instruction
+- x86/delay: add support for Zhaoxin ZXPAUSE instruction
+- !7078 v2  Backport four conflict stable patch
+- mm: turn folio_test_hugetlb into a PageType
+- mm/hugetlb: fix missing hugetlb_lock for resv uncharge
+- fork: defer linking file vma until vma is fully initialized
+- mm, treewide: introduce NR_PAGE_ORDERS
+- !7067 crypto: hisilicon fix some issues
+- uacce: fix for cdev memory leak
+- crypto: hisilicon/qm - adjust the internal processing sequence of the vf enable and disable
+- crypto: hisilicon/zip - optimize the address offset of the reg query function
+- !4084 riscv64: initial LIVEPATCH_WO_FTRACE support
+- riscv64: add initial livepatch support
+- livepatch: add arch hook before doing klp_resolve_symbols
+- !6868  irqchip/loongson-pch-pic: Update interrupt registration policy
+- irqchip/loongson-pch-pic: Update interrupt registration policy
+- !6004 [OLK-6.6] fix bug：ethtool -S and ethtool -x/X for mucse rnpm drvier
+- mucse: ethtool -S and ethtool -x/X for mucse rnpm drvier
+
+ at the end when print msg
 * Sat May 11 2024 Mingzheng Xing <xingmingzheng@iscas.ac.cn> - 6.6.0-25.0.0.29
 - Add riscv-kernel patch, which adds support for sg2042 and th1520 RISC-V SoCs. 
 - This patch only applies to the RISC-V architecture, the related commit list:
