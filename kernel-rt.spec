@@ -42,7 +42,7 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %global upstream_sublevel   0
 %global devel_release       25
 %global maintenance_release .0.0
-%global pkg_release         .1
+%global pkg_release         .2
 %global rt_release          .rt20
 
 %define with_debuginfo 1
@@ -1057,6 +1057,9 @@ fi
 %endif
 
 %changelog
+* Mon May 13 2024 zhangxianting <zhangxianting@uniontech.cn> - 6.6.0-25.0.0.2
+- fix prep error of patch
+
 * Mon May  10 2024 zhangyu <zhangyu4@kylinos.cn> - 6.6.0-25.0.0.1
 - update kernel-rt version to 6.6.0-25.0.0.1
 
