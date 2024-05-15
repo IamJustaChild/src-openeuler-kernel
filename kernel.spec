@@ -42,7 +42,7 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %global upstream_sublevel   0
 %global devel_release       26
 %global maintenance_release .0.0
-%global pkg_release         .30
+%global pkg_release         .31
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -1059,6 +1059,9 @@ fi
 %endif
 
 %changelog
+* Mon May 13 2024 zhangxianting <zhangxianting@uniontech.cn> - 6.6.0-26.0.0.31
+- fix prep error of patch at kernel-rt
+
 * Sat May 11 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-26.0.0.30
 - !7198 v2  mm: prepare more high-order pages on pcplist
 - mm: prepare more high-order pages to be stored on the per-cpu lists
