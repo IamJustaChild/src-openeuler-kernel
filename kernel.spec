@@ -17,8 +17,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       60
-%global maintenance_release .136.0
-%global pkg_release         .163
+%global maintenance_release .137.0
+%global pkg_release         .164
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -932,6 +932,78 @@ fi
 %endif
 
 %changelog
+* Wed May 15 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-60.137.0.164
+- !6038 [sync] PR-6006:  fix CVE-2024-26669
+- !5881 [sync] PR-5751:  net: atlantic: Fix DMA mapping for PTP hwts ring
+- !7337  netfilter: nft_limit: reject configurations that cause integer overflow
+- !7254  netfilter: nf_tables: disallow timeout for anonymous sets
+- !6748  amdkfd: use calloc instead of kzalloc to avoid integer overflow
+- netfilter: nft_limit: reject configurations that cause integer overflow
+- netfilter: nf_tables: disallow timeout for anonymous sets
+- !7160 [sync] PR-6809:  memcg: fix possible use-after-free in memcg_write_event_control()
+- !7117 [sync] PR-7086:  media: ttpci: fix two memleaks in budget_av_attach
+- !7118 [sync] PR-7080:  drm: nv04: Fix out of bounds access
+- !7132 [sync] PR-7044: v2  nfs: fix UAF in direct writes
+- !7154 [sync] PR-7148:  scsi: sd: Fix sd_do_mode_sense() buffer length handling
+- !7176  ubifs: ubifs_symlink: Fix memleak of inode->i_link in error path
+- ubifs: ubifs_symlink: Fix memleak of inode->i_link in error path
+- !6980  ksmbd: validate payload size in ipc response
+- !7097 [sync] PR-6818:  mm: memcg: fix stale protection of reclaim target memcg
+- memcg: fix possible use-after-free in memcg_write_event_control()
+- scsi: sd: Fix sd_do_mode_sense() buffer length handling
+- nfs: fix UAF in direct writes
+- !6763 [sync] PR-6680:  cifs: fix underflow in parse_server_interfaces()
+- drm: nv04: Fix out of bounds access
+- media: ttpci: fix two memleaks in budget_av_attach
+- !7101 [sync] PR-7039:  USB: usb-storage: Prevent divide-by-0 error in isd200_ata_command
+- !7083 [sync] PR-7013:  media: edia: dvbdev: fix a use-after-free
+- !6909  i2c: mlxbf: prevent stack overflow in mlxbf_i2c_smbus_start_transaction()
+- !7023 [sync] PR-6988:  clk: qcom: mmcc-msm8974: fix terminating of frequency table arrays
+- USB: usb-storage: Prevent divide-by-0 error in isd200_ata_command
+- !7008 [sync] PR-6959:  mac802154: fix llsec key resources release in mac802154_llsec_key_del
+- !7063 [sync] PR-7056:  scsi: qla2xxx: Fix command flush on cable pull
+- mm: memcg: fix stale protection of reclaim target memcg
+- !6945 [sync] PR-6840:  CVE-2023-52650
+- media: edia: dvbdev: fix a use-after-free
+- scsi: qla2xxx: Fix command flush on cable pull
+- !6092 [sync] PR-5921:  ext4: fix double-free of blocks due to wrong extents moved_len
+- !6089 [sync] PR-5977:  btrfs: dev-replace: properly validate device names
+- !6095 [sync] PR-6029:  ceph: prevent use-after-free in encode_cap_msg()
+- !7028 [sync] PR-6977:  wireguard: netlink: access device through ctx instead of peer
+- wireguard: netlink: access device through ctx instead of peer
+- !6985 [sync] PR-6964: v2  CVE-2024-27000
+- clk: qcom: mmcc-msm8974: fix terminating of frequency table arrays
+- !6212 [sync] PR-6178:  CVE-2024-26812
+- mac802154: fix llsec key resources release in mac802154_llsec_key_del
+- !6693  quota: Fix potential NULL pointer dereference
+- serial: core: fix kernel-doc for uart_port_unlock_irqrestore()
+- serial: mxs-auart: add spinlock around changing cts state
+- serial: core: Provide port lock wrappers
+- !6884 [sync] PR-6740:  V2 cpuset: fix race between rebuild scheduler domains and hotplug work
+- !6960 [sync] PR-6861:  media: dvb-frontends: avoid stack overflow warnings with clang
+- ksmbd: validate payload size in ipc response
+- !6911  pstore: inode: Only d_invalidate() is needed
+- !6935 [sync] PR-6826:  fat: fix uninitialized field in nostale filehandles
+- !6933 [sync] PR-6838:  fs: sysfs: Fix reference leak in sysfs_break_active_protection()
+- media: dvb-frontends: avoid stack overflow warnings with clang
+- drm/tegra: dsi: Add missing check for of_find_device_by_node
+- fat: fix uninitialized field in nostale filehandles
+- fs: sysfs: Fix reference leak in sysfs_break_active_protection()
+- pstore: inode: Only d_invalidate() is needed
+- i2c: mlxbf: prevent stack overflow in mlxbf_i2c_smbus_start_transaction()
+- cpuset: fix race between rebuild scheduler domains and hotplug work
+- cifs: fix underflow in parse_server_interfaces()
+- amdkfd: use calloc instead of kzalloc to avoid integer overflow
+- quota: Fix potential NULL pointer dereference
+- vfio/pci: Create persistent INTx handler
+- vfio: Introduce interface to flush virqfd inject workqueue
+- ceph: prevent use-after-free in encode_cap_msg()
+- ext4: fix double-free of blocks due to wrong extents moved_len
+- btrfs: dev-replace: properly validate device names
+- net/sched: flower: Fix kabi change
+- net/sched: flower: Fix chain template offload
+- net: atlantic: Fix DMA mapping for PTP hwts ring
+
 * Wed May 08 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-60.136.0.163
 - !6425 [sync] PR-6291:  aoe: fix the potential use-after-free problem in aoecmd_cfg_pkts
 - !6901  bpf: Fix DEVMAP_HASH overflow check on 32-bit arches
