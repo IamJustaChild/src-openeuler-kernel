@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2405.1.0
+%global hulkrelease 2405.3.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0275
+Release: %{hulkrelease}.0276
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -850,6 +850,145 @@ fi
 
 %changelog
 
+* Wed May 15 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2405.3.0.0276
+- !7194  s390/dasd: fix double module refcount decrement
+- !7059  nilfs2: prevent kernel bug at submit_bh_wbc()
+- !7163 v2  usb: gadget: f_ncm: Fix UAF ncm object at re-bind after usb ep transport error
+- !7104  KVM: Always flush async #PF workqueue when vCPU is being destroyed
+- !7203  NTB: fix possible name leak in ntb_register_device()
+- NTB: fix possible name leak in ntb_register_device()
+- s390/dasd: fix double module refcount decrement
+- !7158 v2  Squashfs: check the inode number is not the invalid value of zero
+- !7181  nfs: fix UAF in direct writes
+- !7091  nouveau: lock the client object tree.
+- !7120 v2  clk: zynq: Prevent null pointer dereference caused by kmalloc failure
+- !7089  nilfs2: fix failure to detect DAT corruption in btree and direct mappings
+- !7151 v2  scsi: sd: Fix sd_do_mode_sense() buffer length handling
+- nfs: fix UAF in direct writes
+- !7033  Revert "tracing/trigger: Fix to return error if failed to alloc snapshot"
+- !7079  nvmet: fix a use-after-free
+- usb: gadget: f_ncm: Fix UAF ncm object at re-bind after usb ep transport error
+- !7140  media: usbtv: Remove useless locks in usbtv_video_free()
+- Squashfs: check the inode number is not the invalid value of zero
+- scsi: sd: Fix sd_do_mode_sense() buffer length handling
+- !7137 v2  SUNRPC: fix a memleak in gss_import_v2_context
+- !7138  SUNRPC: fix some memleaks in gssx_dec_option_array
+- !7100  netfilter: nf_tables: Fix potential data-race in __nft_obj_type_get()
+- !7095  CVE-2024-27020
+- media: usbtv: Remove useless locks in usbtv_video_free()
+- SUNRPC: fix some memleaks in gssx_dec_option_array
+- SUNRPC: fix a memleak in gss_import_v2_context
+- !7114 v2  backport patch for thp deferred list for 4.19
+- !7034  fix CVE-2024-27001 for 4.19
+- !7032  clk: qcom: mmcc-apq8084: fix terminating of frequency table arrays
+- !7115  drm/radeon: add a force flush to delay work when radeon
+- !7055  scsi: qla2xxx: Fix command flush on cable pull
+- !7109  fix CVE-2024-26960
+- clk: zynq: Prevent null pointer dereference caused by kmalloc failure
+- !6260  packet: move from strlcpy with unused retval to strscpy
+- drm/radeon: add a force flush to delay work when radeon
+- THP: avoid lock when check whether THP is in deferred list
+- mm/mmu_gather: limit free batch count and add schedule point in tlb_batch_pages_flush
+- mm, thp: do not queue fully unmapped pages for deferred split
+- !7046  USB: usb-storage: Prevent divide-by-0 error in isd200_ata_command
+- mm: swap: fix race between free_swap_and_cache() and swapoff()
+- mm/swapfile.c: use __try_to_reclaim_swap() in free_swap_and_cache()
+- !7053  CVE-2024-27024
+- KVM: Always flush async #PF workqueue when vCPU is being destroyed
+- netfilter: nf_tables: Fix potential data-race in __nft_obj_type_get()
+- !6970  ALSA: usb-audio: Fix an out-of-bounds bug in __snd_usb_parse_audio_interface()
+- !6995 v2  net/mlx5e: Prevent deadlock while disabling aRFS
+- !7038  i40e: Fix NULL ptr dereference on VSI filter sync
+- !7037  media: v4l2-tpg: fix some memleaks in tpg_alloc
+- netfilter: nf_tables: Fix potential data-race in __nft_expr_type_get()
+- netfilter: nf_tables: __nft_expr_type_get() selects specific family type
+- nouveau: lock the client object tree.
+- nilfs2: fix failure to detect DAT corruption in btree and direct mappings
+- !6992  media: edia: dvbdev: fix a use-after-free
+- nvmet: fix a use-after-free
+- !7045 v2  b43: fix CVE-2023-52644
+- !7017 v2  net: ath9k: fix CVE-2024-26897
+- nilfs2: prevent kernel bug at submit_bh_wbc()
+- !7016 v3  Fix CVE-2022-48693
+- !7012  clk: qcom: gcc-ipq8074: fix terminating of frequency table arrays
+- scsi: qla2xxx: Fix command flush on cable pull
+- net/rds: fix possible cp null dereference
+- net/rds: fix WARNING in rds_conn_connect_if_down
+- USB: usb-storage: Prevent divide-by-0 error in isd200_ata_command
+- !6991  mac802154: fix llsec key resources release in mac802154_llsec_key_del
+- wifi: b43: Stop/wake correct queue in DMA Tx path when QoS is disabled
+- b43: dma: Fix use true/false for bool type variable
+- !7005  media: ttpci: fix two memleaks in budget_av_attach
+- !7014  nilfs2: fix OOB in nilfs_set_de_type
+- !7001  fix CVE-2024-27010
+- i40e: Fix NULL ptr dereference on VSI filter sync
+- media: v4l2-tpg: fix some memleaks in tpg_alloc
+- !6880  media: go7007: fix a memleak in go7007_load_encoder
+- comedi: vmk80xx: fix incomplete endpoint checking
+- Revert "tracing/trigger: Fix to return error if failed to alloc snapshot"
+- clk: qcom: mmcc-apq8084: fix terminating of frequency table arrays
+- !6984  clk: qcom: mmcc-msm8974: fix terminating of frequency table arrays
+- !6893  cpufreq: brcmstb-avs-cpufreq: add check for cpufreq_cpu_get's return value
+- !6958  netfilter: nf_tables: fix memleak in map from abort path
+- !6820  s390/dasd: fix Oops in dasd_alias_get_start_dev due to missing pavgroup
+- !6940  drm: nv04: Fix out of bounds access
+- wifi: ath9k: delay all of ath9k_wmi_event_tasklet() until init is complete
+- ath9k_htc: fix NULL pointer dereference at ath9k_htc_tx_get_packet()
+- soc: brcmstb: pm-arm: Fix refcount leak and __iomem leak bugs
+- soc: bcm: brcmstb: pm: pm-arm: Fix refcount leak in brcmstb_pm_probe
+- nilfs2: fix OOB in nilfs_set_de_type
+- !6968  CVE-2024-26974
+- clk: qcom: gcc-ipq8074: fix terminating of frequency table arrays
+- !6976  nfp: flower: handle acti_netdevs allocation failure
+- media: ttpci: fix two memleaks in budget_av_attach
+- !6944  USB: core: Fix deadlock in usb_deauthorize_interface()
+- net/sched: fix kabi change in struct Qdisc
+- net/sched: Fix mirred deadlock on device recursion
+- !6870  scsi: mpt3sas: Fix use-after-free warning
+- net/mlx5e: Prevent deadlock while disabling aRFS
+- media: edia: dvbdev: fix a use-after-free
+- !6966  speakup: Avoid crash on very long word
+- !6963 v2  CVE-2024-27000
+- mac802154: fix llsec key resources release in mac802154_llsec_key_del
+- clk: qcom: mmcc-msm8974: fix terminating of frequency table arrays
+- !6942 v2  ima: fix deadlock when traversing "ima_default_rules".
+- !6951 v2  spi: spi-mt65xx: Fix NULL pointer access in interrupt handler
+- nfp: flower: handle acti_netdevs allocation failure
+- ALSA: usb-audio: Fix an out-of-bounds bug in __snd_usb_parse_audio_interface()
+- crypto: qat - resolve race condition during AER recovery
+- crypto: qat - fix double free during reset
+- !6881 v4  CVE-2024-26846
+- !6894  tun: limit printing rate when illegal packet received by tun dev
+- speakup: Avoid crash on very long word
+- serial: core: fix kernel-doc for uart_port_unlock_irqrestore()
+- serial: mxs-auart: add spinlock around changing cts state
+- serial: core: Provide port lock wrappers
+- !6883  Bluetooth: Fix TOCTOU in HCI debugfs implementation
+- !6856  media: dvb-frontends: avoid stack overflow warnings with clang
+- netfilter: nf_tables: fix memleak in map from abort path
+- spi: spi-mt65xx: Fix NULL pointer access in interrupt handler
+- !6839  CVE-2023-52650
+- !6869 v2  media: v4l2-mem2mem: fix a memleak in v4l2_m2m_register_entity
+- !6867 v2  nouveau: fix instmem race condition around ptr stores
+- USB: core: Fix deadlock in usb_deauthorize_interface()
+- !6852  serial/pmac_zilog: Remove flawed mitigation for rx irq flood
+- ima: fix deadlock when traversing "ima_default_rules".
+- drm: nv04: Fix out of bounds access
+- tun: limit printing rate when illegal packet received by tun dev
+- cpufreq: brcmstb-avs-cpufreq: add check for cpufreq_cpu_get's return value
+- Bluetooth: Fix TOCTOU in HCI debugfs implementation
+- nvme-fc: do not wait in vain when unloading module
+- nvme-fc: remove err_work work item
+- media: go7007: fix a memleak in go7007_load_encoder
+- scsi: mpt3sas: Fix use-after-free warning
+- media: v4l2-mem2mem: fix a memleak in v4l2_m2m_register_entity
+- nouveau: fix instmem race condition around ptr stores
+- media: dvb-frontends: avoid stack overflow warnings with clang
+- serial/pmac_zilog: Remove flawed mitigation for rx irq flood
+- drm/tegra: dsi: Add missing check for of_find_device_by_node
+- s390/dasd: fix Oops in dasd_alias_get_start_dev due to missing pavgroup
+- packet: move from strlcpy with unused retval to strscpy
+ 
 * Tue May 07 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2405.1.0.0275
 - !6858  CVE-2024-26883
 - !6836  fs: sysfs: Fix reference leak in sysfs_break_active_protection()
