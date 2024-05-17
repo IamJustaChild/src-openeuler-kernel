@@ -27,8 +27,8 @@
 %global maintenance_release .0.0
 %global pkg_release         .15
 
-%global openeuler_lts       0
-%global openeuler_major     0
+%global openeuler_lts       1
+%global openeuler_major     2403
 %global openeuler_minor     0
 
 #
