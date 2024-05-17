@@ -44,8 +44,8 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %global maintenance_release .0.0
 %global pkg_release         .30
 
-%global openeuler_lts       0
-%global openeuler_major     0
+%global openeuler_lts       1
+%global openeuler_major     2403
 %global openeuler_minor     0
 
 #
