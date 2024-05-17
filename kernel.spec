@@ -44,6 +44,22 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %global maintenance_release .0.0
 %global pkg_release         .30
 
+%global openeuler_lts       0
+%global openeuler_major     0
+%global openeuler_minor     0
+
+#
+# Support input parameter to overwrite the preceding version numbers.
+#
+
+%bcond_with openeuler_version
+
+%if %{with openeuler_version}
+%global openeuler_lts       %{?_openeuler_lts}   %{?!_openeuler_lts: 0}
+%global openeuler_major     %{?_openeuler_major} %{?!_openeuler_major: 0}
+%global openeuler_minor     %{?_openeuler_minor} %{?!_openeuler_minor: 0}
+%endif
+
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
 %global _missing_build_ids_terminate_build 1
@@ -369,6 +385,10 @@ cp -a tools/perf tools/python3-perf
 cd linux-%{KernelVer}
 
 perl -p -i -e "s/^EXTRAVERSION.*/EXTRAVERSION = -%{release}.%{_target_cpu}/" Makefile
+perl -p -i -e "s/^OPENEULER_LTS.*/OPENEULER_LTS = %{openeuler_lts}/" Makefile.oever
+perl -p -i -e "s/^OPENEULER_MAJOR.*/OPENEULER_MAJOR = %{openeuler_major}/" Makefile.oever
+perl -p -i -e "s/^OPENEULER_MINOR.*/OPENEULER_MINOR = %{openeuler_minor}/" Makefile.oever
+perl -p -i -e "s/^OPENEULER_RELEASE.*/OPENEULER_RELEASE = \"%{release}\"/" Makefile.oever
 
 ## make linux
 make mrproper %{_smp_mflags}
