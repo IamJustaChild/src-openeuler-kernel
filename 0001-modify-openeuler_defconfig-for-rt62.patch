@@ -1,7 +1,7 @@
-From 744a4eb5a8241919999033f304b48cf801918fd4 Mon Sep 17 00:00:00 2001
+From d59dd9d1db2cbc2171e5dd22b522d2c1e8f5e4ae Mon Sep 17 00:00:00 2001
 From: zhangyu <zhangyu4@kylinos.cn>
-Date: Thu, 14 Dec 2023 11:38:19 +0800
-Subject: [PATCH] modify-openeuler_defconfig-for-rt62.patch
+Date: Thu, 16 May 2024 16:33:51 +0800
+Subject: [PATCH 2/2] zzzy2
 
 ---
  arch/arm64/configs/openeuler_defconfig |  6 +++---
@@ -13,7 +13,7 @@ Subject: [PATCH] modify-openeuler_defconfig-for-rt62.patch
  6 files changed, 24 insertions(+), 14 deletions(-)
 
 diff --git a/arch/arm64/configs/openeuler_defconfig b/arch/arm64/configs/openeuler_defconfig
-index 12e4828c9..7edb9923f 100644
+index 34061d75a..58ece1076 100644
 --- a/arch/arm64/configs/openeuler_defconfig
 +++ b/arch/arm64/configs/openeuler_defconfig
 @@ -87,7 +87,7 @@ CONFIG_HIGH_RES_TIMERS=y
@@ -30,11 +30,11 @@ index 12e4828c9..7edb9923f 100644
  # CONFIG_PMIC_OPREGION is not set
  CONFIG_IRQ_BYPASS_MANAGER=y
 -CONFIG_VIRTUALIZATION=y
-+#CONFIG_VIRTUALIZATION=y
++#CONFIG_VIRTUALIZATION is not set
  CONFIG_KVM=y
- CONFIG_HAVE_KVM_IRQCHIP=y
- CONFIG_HAVE_KVM_IRQFD=y
-@@ -1156,7 +1156,7 @@ CONFIG_ARCH_USES_HIGH_VMA_FLAGS=y
+ CONFIG_CVM_HOST=y
+ CONFIG_CVM_GUEST=y
+@@ -1159,7 +1159,7 @@ CONFIG_ARCH_USES_HIGH_VMA_FLAGS=y
  # CONFIG_GUP_BENCHMARK is not set
  # CONFIG_READ_ONLY_THP_FOR_FS is not set
  CONFIG_ARCH_HAS_PTE_SPECIAL=y
@@ -66,7 +66,7 @@ index 131b2dda3..992c11f2c 100644
  
  static bool have_cpu_fpsimd_context(void)
 diff --git a/arch/x86/configs/openeuler_defconfig b/arch/x86/configs/openeuler_defconfig
-index 3db754e79..14cf52af1 100644
+index 91c85e1c2..ca197fcaf 100644
 --- a/arch/x86/configs/openeuler_defconfig
 +++ b/arch/x86/configs/openeuler_defconfig
 @@ -89,10 +89,10 @@ CONFIG_HIGH_RES_TIMERS=y
@@ -91,7 +91,7 @@ index 3db754e79..14cf52af1 100644
  CONFIG_UID16=y
  CONFIG_MULTIUSER=y
  CONFIG_SGETMASK_SYSCALL=y
-@@ -748,7 +748,7 @@ CONFIG_KVM_COMPAT=y
+@@ -749,7 +749,7 @@ CONFIG_KVM_COMPAT=y
  CONFIG_HAVE_KVM_IRQ_BYPASS=y
  CONFIG_HAVE_KVM_NO_POLL=y
  CONFIG_KVM_XFER_TO_GUEST_WORK=y
@@ -147,7 +147,7 @@ index 26c70fd11..c82c971e8 100644
  #else
  static inline void zap_locks(void) { }
 diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
-index 45239dcfb..0f9b88d38 100644
+index 80c97bc3e..86380c37f 100644
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
 @@ -1826,7 +1826,7 @@ static void print_sync_until(struct console *con, u64 seq)
@@ -160,5 +160,5 @@ index 45239dcfb..0f9b88d38 100644
  {
  //	if (raw_spin_is_locked(&logbuf_lock)) {
 -- 
-2.33.0
+2.41.0
 
