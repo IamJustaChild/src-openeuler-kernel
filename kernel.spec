@@ -40,9 +40,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       26
+%global devel_release       27
 %global maintenance_release .0.0
-%global pkg_release         .30
+%global pkg_release         .33
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1079,6 +1079,75 @@ fi
 %endif
 
 %changelog
+* Sat May 18 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-27.0.0.33
+
+* Sat May 18 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-27.0.0.32
+
+* Sat May 18 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-27.0.0.31
+- !7527  ext4 iomap performance optimize
+- ext4: fallback to generic_perform_write once iov_iter_count <= PAGE_SIZE
+- iomap: export __iomap_write_{begin|end}
+- !7530  mm: more thp control for large folio
+- mm: correct the docs for thp_fault_alloc and thp_fault_fallback
+- mm: add docs for per-order mTHP counters and transhuge_page ABI
+- mm: add per-order mTHP anon_swpout and anon_swpout_fallback counters
+- mm: add per-order mTHP anon_fault_alloc and anon_fault_fallback counters
+- mm: add control to allow specified high-order pages stored on PCP list
+- mm: huge_memory: add thp mapping align control
+- mm: huge_memory: add folio_get_unmapped_area()
+- mm: filemap: make mTHP configurable for exec mapping
+- mm/filemap: Allow arch to request folio size for exec memory
+- mm/memcontrol: remove __mod_lruvec_page_state()
+- mm/khugepaged: use a folio more in collapse_file()
+- mm: remove inc/dec lruvec page state functions
+- !7521 v2  Avoiding false sharing in field access of tk_core
+- openeuler_defconfig: Enable CONFIG_ARCH_LLC_128_LINE_SIZE for Hisilicon platforms
+- timekeeping: Avoiding false sharing in field access of tk_core
+- !7182 v3  mm: mglru: reuse some legacy trace
+- mm: multi-gen LRU: reuse some legacy trace events
+- mm, vmscan: remove ISOLATE_UNMAPPED
+- trace-vmscan-postprocess: sync with tracepoints updates
+- !7219 Hygon model 6h L3 PMU event duplicate creating issue fix
+- perf/x86/uncore: Create L3 event strictly to the CPU vendor
+- !7474  sched/fair: set burst to zero when cfs bandwidth is cancelled
+- sched/fair: set burst to zero when set max to cpu.max
+- sched/fair: limit burst to zero when cfs bandwidth is toggled off
+- !7475  Makefile.oever: add OPENEULER_RELEASE for version.h
+- Makefile.oever: add OPENEULER_RELEASE for version.h
+- !6241 add pmu support for loongarch kvm
+- LoongArch: KVM: Add PMU support
+- !5654 [OLK-6.6] USB: UAS: return ENODEV when submit urbs fail with device not attached
+- USB: UAS: return ENODEV when submit urbs fail with device not attached
+- !5218 [OLK-6.6] Add HGSC_CERT_IMPORT ioctl interface for Hygon CPUs.
+- crypto: ccp: Implement CSV_HGSC_CERT_IMPORT ioctl command
+- crypto: ccp: Move the fixup code for Hygon psp to Hygon specific files
+- crypto: ccp: Bind specific sp_dev_vdata for Hygon secure processor
+- crypto: ccp: Introduce hygon specific interface to support driver
+- !6311 v2  ima: Avoid blocking in RCU read-side critical section
+- ima: Avoid blocking in RCU read-side critical section
+- !6837  fs: sysfs: Fix reference leak in sysfs_break_active_protection()
+- fs: sysfs: Fix reference leak in sysfs_break_active_protection()
+- !5644 [OLK-6.6] x86/mce: Set bios_cmci_threshold for CMCI threshold
+- x86/mce: Set bios_cmci_threshold for CMCI threshold
+- !7454  add new kvm_type for Confidential VMs
+- kvm: add macro CONFIG_CVM_HOST to defconfig
+- kvm: add new kvm_type for cvm
+- !7405 v2  mm: prepare to support weighted interleaving mempolicy
+- mm: prepare to support weighted interleaving mempolicy
+- !7370 v2  sched: smart_grid: silence complier error
+- sched: smart_grid: silence complier error
+- !7227  arm64: arm_pmuv3: Correctly extract and check the PMUVer
+- arm64: arm_pmuv3: Correctly extract and check the PMUVer
+- !5291 [OLK-6.6] iommu/dma: Fix not fully traversing iova reservations issue
+- iommu/dma: Fix not fully traversing iova reservations issue
+- !6774 [OLK-6.6] merge upstream  4 wangxun related patches to fix i2c bug
+- Revert "net: txgbe: fix clk_name exceed MAX_DEV_ID limits"
+- Revert "net: txgbe: fix i2c dev name cannot match clkdev"
+- net: wangxun: add ethtool_ops for channel number
+- clkdev: Update clkdev id usage to allow for longer names
+- !7206 v2  sched: programmable: Allow set tag for pid 1.
+- sched: programmable: Allow set tag for pid 1.
+
 * Sat May 11 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-26.0.0.30
 - !7198 v2  mm: prepare more high-order pages on pcplist
 - mm: prepare more high-order pages to be stored on the per-cpu lists
