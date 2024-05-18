@@ -42,7 +42,7 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %global upstream_sublevel   0
 %global devel_release       27
 %global maintenance_release .0.0
-%global pkg_release         .31
+%global pkg_release         .32
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1079,6 +1079,8 @@ fi
 %endif
 
 %changelog
+* Sat May 18 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-27.0.0.32
+
 * Sat May 18 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-27.0.0.31
 - !7527  ext4 iomap performance optimize
 - ext4: fallback to generic_perform_write once iov_iter_count <= PAGE_SIZE
