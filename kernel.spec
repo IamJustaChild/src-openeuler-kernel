@@ -42,7 +42,7 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %global upstream_sublevel   0
 %global devel_release       27
 %global maintenance_release .0.0
-%global pkg_release         .31
+%global pkg_release         .32
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1079,6 +1079,139 @@ fi
 %endif
 
 %changelog
+* Fri May 24 2024 Mingzheng Xing <xingmingzheng@iscas.ac.cn> - 6.6.0-27.0.0.32
+- Update the riscv-kernel patch for sg2042, rebase 6.6.0-27.0.0 and add features:
+  - SPI Flash driver
+  - kexec file raw image
+  - HIGHMEM
+- This patch only applies to the RISC-V architecture, the related commit list:
+-
+- sg2042: Update sg2042 openeuler_defconfig
+- th1520: riscv: config: Enable th1520 support
+- riscv: thead: Use the wback_inv instead of wback_only
+- riscv: errata: thead: use pa based instructions for CMO
+- riscv: errata: thead: use riscv_nonstd_cache_ops for CMO
+- Revert "riscv: use VA+PA variant of CMO macros for DMA page preparation"
+- Revert "riscv: use VA+PA variant of CMO macros for DMA synchorization"
+- Revert "riscv: errata: cmo: add CMO macro variant with both VA and PA"
+- Revert "riscv: errata: Replace thead cache clean with flush"
+- Revert "riscv: errata: thead: use riscv_nonstd_cache_ops for CMO"
+- Revert "riscv: errata: thead: use pa based instructions for CMO"
+- riscv: mm: fix NOCACHE_THEAD does not set bit[61] correctly
+- riscv: mm: update T-Head memory type definitions
+- Revert "sg2042: riscv: changing T-Head PBMT attributes"
+- riscv: remove compression for riscv Image
+- th1520: cpufreq: correct typo in config name
+- th1520: riscv: dts: thead: Add Milk-V Meles board
+- th1520: cpufreq: light-mpw-cpufreq: fix -Wunused-variable in panic_cpufreq_notifier_call
+- th1520: cpufreq: light-mpw-cpufreq: fix cpu_pll1 already disabled warning
+- riscv: Add th1520-lichee-cluster-4a dts support (8G/16G)
+- riscv: dts: th1520-beaglev-ahead: add alias for emmc & sd
+- riscv: dts: th1520-lichee-pi-4a: add alias for emmc & sd
+- riscv: dts: lpi4a 16g support
+- th1520: perf vendor events riscv: add T-HEAD C9xx JSON file
+- th1520: riscv: dts: thead: Add PMU event node
+- riscv: pinctrl: th1520: fix build
+- riscv: dts: th1520: lpi4a: add rpmsg node
+- riscv: dts: th1520: add mbox client node
+- riscv: rpmsg: mailbox-client: sync thead sdk 1.4.2
+- riscv: panic: add thead sdk quirks
+- riscv: dts: add watchdog node
+- th1520: riscv: dts: Add th1520 reset device tree
+- th1520: reset: Add th1520 reset driver support
+- th1520: dt-bindings: reset: Document th1520 reset control
+- riscv: light_wdt: update sdk 1.4.2
+- th1520_light_event: update sdk 1.4.2
+- th1520_aon: update sdk 1.4.2
+- th1520: fix compile th1520-beaglev-ahead error
+- th1520: add TH1520 cpu frequency driver
+- th1520: riscv: errata: thead: use pa based instructions for CMO
+- th1520: riscv: errata: thead: use riscv_nonstd_cache_ops for CMO
+- riscv: dts: thead: Add TH1520 CPU reset node
+- th1520: riscv: dts: thead: Enable Lichee Pi 4A USB
+- th1520: riscv: dts: thead: Add Lichee Pi 4A IO expansions
+- th1520: riscv: dts: thead: Add TH1520 USB nodes
+- th1520: riscv: dts: thead: Add TH1520 I2C nodes
+- th1520: usb: dwc3: add T-HEAD TH1520 usb driver
+- th1520: dt-bindings: usb: Add T-HEAD TH1520 USB controller
+- th1520: riscv: dts: thead: Add BeagleV Ahead SDIO0 pins
+- th1520: riscv: dts: thead: Add Lichee Pi 4A SDIO0 pins
+- th1520: riscv: dts: thead: Add TH1520 ethernet nodes
+- th1520: net: stmmac: add glue layer for T-HEAD TH1520 SoC
+- th1520: dt-bindings: net: add T-HEAD dwmac support
+- th1520: dt-bindings: net: snps,dwmac: allow dwmac-3.70a to set pbl properties
+- th1520: riscv: dts: thead: Enable Lichee Pi 4A PWM fan
+- th1520: riscv: dts: thead: Add TH1520 PVT node
+- th1520: riscv: dts: thead: Add TH1520 PWM node
+- th1520: pwm: add T-HEAD PWM driver
+- th1520: dt-bindings: pwm: Add T-HEAD PWM controller
+- th1520: gpio: dwapb: Use generic request, free and set_config
+- riscv: dts: thead: Enable LicheePi 4A eMMC and microSD
+- riscv: dts: thead: Enable BeagleV Ahead eMMC and microSD
+- riscv: dts: thead: Add TH1520 mmc controllers and sdhci clock
+- riscv: defconfig: Enable mmc and dma drivers for T-Head TH1520
+- mmc: sdhci-of-dwcmshc: Add support for T-Head TH1520
+- mmc: sdhci: add __sdhci_execute_tuning() to header
+- dt-bindings: mmc: sdhci-of-dwcmhsc: Add T-Head TH1520 support
+- th1520: riscv: dtb: thead: Add BeagleV Ahead LEDs
+- th1520: riscv: dts: thead: Add TH1520 pinctrl settings for UART0
+- th1520: riscv: dts: thead: Adjust TH1520 GPIO labels
+- th1520: riscv: dts: thead: Add TH1520 GPIO ranges
+- th1520: riscv: dts: thead: Add TH1520 pin control nodes
+- th1520: pinctrl: Add driver for the T-Head TH1520 SoC
+- th1520: dt-bindings: pinctrl: Add thead,th1520-pinctrl bindings
+- th1520: dt-bindings: gpio: dwapb: allow gpio-ranges
+- sg2042: riscv: config: Enable sg2042 support
+- sg2042: drivers: rtc: disable BMC RTC device
+- sg2042: dts: add i2c-rtc ds1307 device node for single chip
+- sg2042: riscv:dts:modify dw gpio clock name
+- sg2042: drivers:pci:remove the err log of parsing pci
+- sg2042: driver: ipmi: support KVM and IPMI SI for BMC
+- sg2042: perf cpumap: Make counter as unsigned ints
+- sg2042: driver: radeon: deinit device during kexec
+- sg2042: kernel: schedule: Fix set_task_cpu() bug
+- sg2042: mm: Modify __find_max_addr for memory hole
+- sg2042: riscv: kernel: Optimize apply_relocate_add()
+- sg2042: riscv: mm: Clear compilation warning about last_cpupid
+- sg2042: kernel: tick: filter unnecessary printing
+- sg2042: kernel: Adjust the log level of the tick_switch_to_oneshot function
+- sg2042: driver: clk: Modify the timer clock is turned off defaultly
+- sg2042: drivers: clock: Add sophgo sg2042 multi-chip clock synchronous support
+- Revert "riscv: Fix set_memory_XX() and set_direct_map_XX() by splitting huge linear mappings"
+- Revert "riscv: Fix set_direct_map_default_noflush() to reset _PAGE_EXEC"
+- Revert "riscv: Fix wrong usage of lm_alias() when splitting a huge linear mapping"
+- sg2042: riscv: mm: Add high memory on riscv64 using sv39
+- sg2042: riscv/kexec: handle R_RISCV_ADD16 and R_RISCV_SUB16 relocation types
+- sg2042: riscv: kexec: Add image loader for kexec file
+- sg2042: drm/amd/display: Support DRM_AMD_DC_FP on RISC-V
+- sg2042: riscv: Factor out riscv-march-y to a separate Makefile
+- sg2042: riscv: Add support for kernel-mode FPU
+- sg2042: mango pci hack:broadcast when no MSI source known
+- sg2042: nvidia hda: force msi
+- sg2042: radeon hack: force 64-bit msi to fit top intc
+- sg2042: amdgpu: disable rebar
+- sg2042: ttm: disallow cached mapping
+- sg2042: driver: soc: Add sophgo sg2042 soc support
+- sg2042: drivers: pcie: Create msi-x whitelist,turn on msi-x for top intr
+- sg2042: driver: pcie: Add sophgo sg2042 soc support
+- sg2042: driver: net: Add sophgo sg2042 soc support
+- sg2042: driver: mtd: Add sophgo sg2042 soc support
+- sg2042: driver: mmc: Add sophgo sg2042 soc support
+- sg2042: driver: reset: Add sophgo sg2042 soc support
+- sg2042: driver: pinctrl: Add sophgo sg2042 soc support
+- sg2042: driver: clk: Add sophgo sg2042 soc support
+- sg2042: riscv: spinlock: Fix deadlock issue
+- sg2042: riscv: add smp_cond_load_acquire()
+- sg2042: riscv: add ioremap_wc for gpu
+- sg2042: riscv: changing T-Head PBMT attributes
+- sg2042: riscv: errata: thead: Make cache clean to flush
+- sg2042: riscv: use VA+PA variant of CMO macros for DMA page preparation
+- sg2042: riscv: use VA+PA variant of CMO macros for DMA synchorization
+- sg2042: riscv: errata: cmo: add CMO macro variant with both VA and PA
+- sg2042: riscv: errata: Replace thead cache clean with flush
+- sg2042: riscv: Kconfig: Set vector as default no
+- sg2042: riscv: Add sophgo sg2042 soc support
+
 * Sat May 18 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-27.0.0.31
 - !7527  ext4 iomap performance optimize
 - ext4: fallback to generic_perform_write once iov_iter_count <= PAGE_SIZE
