@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2405.3.0
+%global hulkrelease 2405.4.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0276
+Release: %{hulkrelease}.0277
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,39 @@ fi
 %endif
 
 %changelog
+* Wed May 22 2024 hongrongxuan <hongrongxuan@huawei.com> - 4.19.90-2405.4.0.0277
+- !7694  Bluetooth: af_bluetooth: Fix deadlock
+- !7701  ext4: fix corruption during on-line resize
+- !7676  sched/all: Change all BUG_ON() instances in the scheduler to WARN_ON_ONCE()
+- ext4: fix corruption during on-line resize
+- Bluetooth: af_bluetooth: Fix deadlock
+- !7573  pstore: ram_core: fix possible overflow in persistent_ram_init_ecc()
+- sched/all: Change all BUG_ON() instances in the scheduler to WARN_ON_ONCE()
+- !7547  btrfs: fix information leak in btrfs_ioctl_logical_to_ino()
+- !7586  powerpc/imc-pmu: Add a null pointer check in update_events_in_group()
+- powerpc/imc-pmu: Add a null pointer check in update_events_in_group()
+- pstore: ram_core: fix possible overflow in persistent_ram_init_ecc()
+- !7477  firewire: nosy: ensure user_length is taken into account when fetching packet contents
+- btrfs: fix information leak in btrfs_ioctl_logical_to_ino()
+- !7483  Bluetooth: Fix use-after-free bugs caused by sco_sock_timeout
+- Bluetooth: Fix use-after-free bugs caused by sco_sock_timeout
+- firewire: nosy: ensure user_length is taken into account when fetching packet contents
+- !7425  net: gtp: Fix Use-After-Free in gtp_dellink
+- !7434  net: openvswitch: Fix Use-After-Free in ovs_ct_exit
+- net: openvswitch: Fix Use-After-Free in ovs_ct_exit
+- net: gtp: Fix Use-After-Free in gtp_dellink
+- !7228  s390/zcrypt: fix reference counting on zcrypt card objects
+- !7193  CVE-2024-26921
+- !7096  fix CVE-2024-26865
+- s390/zcrypt: fix reference counting on zcrypt card objects
+- sk_buff: Fix KABI break for the modification of struct sk_buff
+- inet: inet_defrag: prevent sk release while still in use
+- inet: frags: re-introduce skb coalescing for local delivery
+- net: Fix KABI break for introducing is_skb_wmem()
+- skb_expand_head() adjust skb->truesize incorrectly
+- skbuff: introduce skb_expand_head()
+- tcp: Fix NEW_SYN_RECV handling in inet_twsk_purge()
+- tcp: Clean up kernel listener's reqsk in inet_twsk_purge()
 
 * Wed May 15 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2405.3.0.0276
 - !7194  s390/dasd: fix double module refcount decrement
