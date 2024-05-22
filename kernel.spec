@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       153
-%global maintenance_release .54.0
-%global pkg_release         .132
+%global maintenance_release .55.0
+%global pkg_release         .133
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -878,6 +878,201 @@ fi
 %endif
 
 %changelog
+* Wed May 22 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.55.0.133
+- !7635  spi: hisi-sfc-v3xx: Return IRQ_NONE if no interrupts were detected
+- !7643  hwrng: core - Fix page fault dead lock on mmap-ed hwrng
+- !7648 [sync] PR-7385:  CVE-2024-27002
+- !7619 [sync] PR-5930:  RDMA/srpt: Support specifying the srpt_service_guid parameter
+- !7631 [sync] PR-6082:  can: j1939: Fix UAF in j1939_sk_match_filter during setsockopt(SO_J1939_FILTER)
+- !6154 [sync] PR-6020:  net/sched: act_mirred: use the backlog for mirred ingress
+- !7622 [sync] PR-6259:  arp: Prevent overflow in arp_req_get().
+- !7617 [sync] PR-5993:  ipv6: sr: fix possible use-after-free and null-ptr-deref
+- !7614 [sync] PR-5996:  mptcp: fix double-free on socket dismantle
+- !6225 [sync] PR-6074:  Fix CVE-2024-26787
+- !7611 [sync] PR-6279:  Bluetooth: Avoid potential use-after-free in hci_error_reset
+- !7608 [sync] PR-6085:  netlink: Fix kernel-infoleak-after-free in __skb_datagram_iter
+- !7606 [sync] PR-6086:  netfilter: nft_chain_filter: handle NETDEV_UNREGISTER for inet/ingress basechain
+- !5985 [sync] PR-5852:  CVE-2024-26809
+- !7709  bpf: Guard stack limits against 32bit overflow
+- !7638  dm-crypt: don't modify the data when using authenticated encryption
+- !7624 [sync] PR-6033:  gtp: fix use-after-free and null-ptr-deref in gtp_genl_dump_pdp()
+- !7698  ext4: fix corruption during on-line resize
+- !7687 [sync] PR-7574:  pstore: ram_core: fix possible overflow in persistent_ram_init_ecc()
+- !7629 [sync] PR-5950:  RDMA/qedr: Fix qedr_create_user_qp error flow
+- !6533 [sync] PR-6486:  devlink: fix possible use-after-free and memory leaks in devlink_init()
+- !7555 [sync] PR-5530:  net: Fix CVE-2024-26641
+- !7552 [sync] PR-7006:  wifi: b43: Stop/wake correct queue in DMA Tx path when QoS is disabled
+- !7668 [sync] PR-7586:  powerpc/imc-pmu: Add a null pointer check in update_events_in_group()
+- bpf: Guard stack limits against 32bit overflow
+- !7663 [sync] PR-7590:  drm/bridge: tpd12s015: Drop buggy __exit annotation for remove function
+- ext4: fix corruption during on-line resize
+- pstore: ram_core: fix possible overflow in persistent_ram_init_ecc()
+- !7603  cpumap: Zero-initialise xdp_rxq_info struct before running XDP program
+- powerpc/imc-pmu: Add a null pointer check in update_events_in_group()
+- !7511 [sync] PR-7407:  nvme-fc: do not wait in vain when unloading module
+- !7525 [sync] PR-7402:  scsi: lpfc: Fix possible file string name overflow when updating firmware
+- !7509 [sync] PR-7404:  scsi: lpfc: Fix possible memory leak in lpfc_rcv_padisc()
+- !7504 [sync] PR-7403:  scsi: mpt3sas: Prevent sending diag_reset when the controller is ready
+- !7501 [sync] PR-7400:  net/tg3: fix race condition in tg3_reset_task()
+- !7524 [sync] PR-7401:  nvme-core: check for too small lba shift
+- !7500 [sync] PR-7396:  drm/amdgpu: Fix cat debugfs amdgpu_regs_didt causes kernel null pointer
+- !7497 [sync] PR-7397:  drm/amd/display: Fix potential NULL pointer dereferences in 'dcn10_set_output_transfer_func()'
+- !7494 [sync] PR-7398:  drm/amd/display: Fix memory leak in dm_sw_fini()
+- !7491 [sync] PR-7399:  drm/amd/pm: fix a double-free in si_dpm_init
+- !7514 [sync] PR-7406:  drm/amd/display: Fix a potential buffer overflow in 'dp_dsc_clock_en_read()'
+- drm/bridge: tpd12s015: Drop buggy __exit annotation for remove function
+- !7598 [sync] PR-7548:  btrfs: fix information leak in btrfs_ioctl_logical_to_ino()
+- !7565  net: hns3: fix kernel crash when 1588 is received on HIP08 devices
+- clk: mediatek: Do a runtime PM get on controllers during probe
+- hwrng: core - Fix page fault dead lock on mmap-ed hwrng
+- dm-crypt: don't modify the data when using authenticated encryption
+- spi: hisi-sfc-v3xx: Return IRQ_NONE if no interrupts were detected
+- can: j1939: Fix UAF in j1939_sk_match_filter during setsockopt(SO_J1939_FILTER)
+- RDMA/qedr: Fix qedr_create_user_qp error flow
+- gtp: fix use-after-free and null-ptr-deref in gtp_genl_dump_pdp()
+- arp: Prevent overflow in arp_req_get().
+- RDMA/srpt: Support specifying the srpt_service_guid parameter
+- ipv6: sr: fix possible use-after-free and null-ptr-deref
+- mptcp: fix double-free on socket dismantle
+- Bluetooth: Avoid potential use-after-free in hci_error_reset
+- netlink: Fix kernel-infoleak-after-free in __skb_datagram_iter
+- netfilter: nft_chain_filter: handle NETDEV_UNREGISTER for inet/ingress basechain
+- cpumap: Zero-initialise xdp_rxq_info struct before running XDP program
+- btrfs: fix information leak in btrfs_ioctl_logical_to_ino()
+- !7364 [sync] PR-5491:  CVE-2024-26640
+- !6527 [sync] PR-6314:  fixup CVE-2024-26908
+- !7388 [sync] PR-6546: v2  CVE-2024-26907
+- net: hns3: fix kernel crash when 1588 is received on HIP08 devices
+- ip6_tunnel: make sure to pull inner header in __ip6_tnl_rcv()
+- ip6_tunnel: use dev_sw_netstats_rx_add()
+- wifi: b43: Stop/wake correct queue in DMA Tx path when QoS is disabled
+- !7519 [sync] PR-7484:  fix CVE-2024-26661
+- !7358  blk-iocost: Fix an UBSAN shift-out-of-bounds warning
+- !7349  PM / devfreq: Synchronize devfreq_monitor_[start/stop
+- !7360  sh: push-switch: Reorder cleanup operations to avoid use-after-free bug
+- scsi: lpfc: Fix possible file string name overflow when updating firmware
+- !7444 [sync] PR-6037:  fix-CVE-2024-26706
+- nvme-core: check for too small lba shift
+- drm/amd/display: Fix && vs || typos
+- drm/amd/display: Add NULL test for 'timing generator' in 'dcn21_set_pipe()'
+- !7487 [sync] PR-7476:  firewire: nosy: ensure user_length is taken into account when fetching packet contents
+- drm/amd/display: Fix a potential buffer overflow in 'dp_dsc_clock_en_read()'
+- !7410  net: bnxt: fix a potential use-after-free in bnxt_init_tc
+- !7409  net/bnx2x: Prevent access to a freed page in page_pool
+- nvme-fc: do not wait in vain when unloading module
+- scsi: lpfc: Fix possible memory leak in lpfc_rcv_padisc()
+- scsi: mpt3sas: Prevent sending diag_reset when the controller is ready
+- net/tg3: fix race condition in tg3_reset_task()
+- drm/amdgpu: Fix cat debugfs amdgpu_regs_didt causes kernel null pointer
+- drm/amd/display: Fix potential NULL pointer dereferences in 'dcn10_set_output_transfer_func()'
+- drm/amd/display: Fix memory leak in dm_sw_fini()
+- drm/amd/pm: fix a double-free in si_dpm_init
+- !7294  KVM: s390: vsie: fix race during shadow creation
+- firewire: nosy: ensure user_length is taken into account when fetching packet contents
+- !7258  netfilter: nf_tables: disallow anonymous set with timeout flag
+- !7338  inet: read sk->sk_family once in inet_recv_error()
+- !7330  tunnels: fix out of bounds access when building IPv6 PMTU error
+- !7325  net: stmmac: xgmac: fix handling of DPP safety error for DMA channels
+- !7310  btrfs: don't drop extent_map for free space inode on write error
+- !7450 [sync] PR-5998:  net: hsr: remove WARN_ONCE() in send_hsr_supervision_frame()
+- !7447 [sync] PR-6031:  nilfs2: fix potential bug in end_buffer_async_write
+- !7279  llc: Drop support for ETH_P_TR_802_2.
+- !7278  llc: make llc_ui_sendmsg() more robust against bonding changes
+- !7455  netfilter: nf_conntrack_h323: Add protection for bmp length out of range
+- !7264  Bluetooth: Fix atomicity violation in {min,max}_key_size_set
+- !7480 [sync] PR-7424:  net: openvswitch: Fix Use-After-Free in ovs_ct_exit
+- net: openvswitch: Fix Use-After-Free in ovs_ct_exit
+- !7344  ppp_async: limit MRU to 64K
+- !5868 [sync] PR-5794:  um: time-travel: fix time corruption
+- !7391 [sync] PR-5469:  wifi: iwlwifi: fix a memory corruption
+- !7314  CVE-2024-26686
+- !7302  nilfs2: fix data corruption in dsync block recovery for small block sizes
+- !7299  powerpc/kasan: Fix addr error caused by page alignment
+- !7275  binder: fix race between mmput() and do_exit()
+- !7262  ip6_tunnel: fix NEXTHDR_FRAGMENT handling in ip6_tnl_parse_tlv_enc_lim()
+- !5624 [sync] PR-5566:  tracing: Ensure visibility when inserting an element into tracing_map
+- !7239  SUNRPC: Fix a suspicious RCU usage warning
+- !7232 [sync] PR-5460: v2  crypto: lib/mpi - Fix unexpected pointer access in mpi_ec_init
+- !7238  bpf: Check rcu_read_lock_trace_held() before calling bpf map helpers
+- !7322  mm/writeback: fix possible divide-by-zero in wb_dirty_limits(), again
+- !7468 [sync] PR-7394: v2  scsi: sr: Do not leak information in ioctl
+- scsi: sr: Do not leak information in ioctl
+- !7021 [sync] PR-6855:  KVM: Always flush async #PF workqueue when vCPU is being destroyed
+- !7305  iio: magnetometer: rm3100: add boundary check for the value read from RM3100_REG_TMRC
+- netfilter: nf_conntrack_h323: Add protection for bmp length out of range
+- !7428  net: gtp: Fix Use-After-Free in gtp_dellink
+- !7432 [sync] PR-3972:  arm64: make cma=0 as default for openeuler
+- net: hsr: remove WARN_ONCE() in send_hsr_supervision_frame()
+- nilfs2: fix potential bug in end_buffer_async_write
+- parisc/unaligned: Fix emulate_ldw() breakage
+- parisc/unaligned: Rewrite 64-bit inline assembly of emulate_ldd()
+- parisc: Fix random data corruption from exception handler
+- parisc/unaligned: Rewrite 32-bit inline assembly of emulate_sth()
+- parisc/unaligned: Rewrite 32-bit inline assembly of emulate_ldd()
+- parisc/unaligned: Rewrite inline assembly of emulate_ldw()
+- parisc: Mark ex_table entries 32-bit aligned in uaccess.h
+- parisc: Fix some apparent put_user() failures
+- parisc: Implement __get/put_kernel_nofault()
+- parisc: Drop strnlen_user() in favour of generic version
+- parisc: Switch user access functions to signal errors in r29 instead of r8
+- parisc/unaligned: Rewrite inline assembly of emulate_ldh()
+- parisc/unaligned: Use EFAULT fixup handler in unaligned handlers
+- !7438 [sync] PR-7414:  clk: qcom: gcc-ipq6018: fix terminating of frequency table arrays
+- clk: qcom: gcc-ipq6018: fix terminating of frequency table arrays
+- arm64: make cma=0 as default for openeuler
+- net: gtp: Fix Use-After-Free in gtp_dellink
+- !7384 [sync] PR-6428:  net/sched: flower: Fix unable to handle page fault bug in fl_init
+- net: bnxt: fix a potential use-after-free in bnxt_init_tc
+- net/bnx2x: Prevent access to a freed page in page_pool
+- !7269  block/rnbd-srv: Check for unlikely string overflow
+- wifi: iwlwifi: fix a memory corruption
+- RDMA/mlx5: Fix fortify source warning while accessing Eth segment
+- uapi: stddef.h: Fix __DECLARE_FLEX_ARRAY for C++
+- stddef: Introduce DECLARE_FLEX_ARRAY() helper
+- net/sched: flower: Fix unable to handle page fault bug in fl_init
+- tcp: add sanity checks to rx zerocopy
+- net-zerocopy: Refactor frag-is-remappable test.
+- sh: push-switch: Reorder cleanup operations to avoid use-after-free bug
+- blk-iocost: Fix an UBSAN shift-out-of-bounds warning
+- PM / devfreq: Synchronize devfreq_monitor_[start/stop]
+- ppp_async: limit MRU to 64K
+- inet: read sk->sk_family once in inet_recv_error()
+- tunnels: fix out of bounds access when building IPv6 PMTU error
+- net: stmmac: xgmac: fix handling of DPP safety error for DMA channels
+- mm/writeback: fix possible divide-by-zero in wb_dirty_limits(), again
+- fs/proc: do_task_stat: use sig->stats_lock to gather the threads/children stats
+- fs/proc: do_task_stat: use __for_each_thread()
+- fs/proc: do_task_stat: move thread_group_cputime_adjusted() outside of lock_task_sighand()
+- exit: Use the correct exit_code in /proc/<pid>/stat
+- btrfs: don't drop extent_map for free space inode on write error
+- iio: magnetometer: rm3100: add boundary check for the value read from RM3100_REG_TMRC
+- nilfs2: fix data corruption in dsync block recovery for small block sizes
+- powerpc/kasan: Fix addr error caused by page alignment
+- KVM: s390: vsie: fix race during shadow creation
+- llc: Drop support for ETH_P_TR_802_2.
+- llc: make llc_ui_sendmsg() more robust against bonding changes
+- binder: fix race between mmput() and do_exit()
+- block/rnbd-srv: Check for unlikely string overflow
+- Bluetooth: Fix atomicity violation in {min,max}_key_size_set
+- ip6_tunnel: fix NEXTHDR_FRAGMENT handling in ip6_tnl_parse_tlv_enc_lim()
+- netfilter: nf_tables: disallow anonymous set with timeout flag
+- SUNRPC: Fix a suspicious RCU usage warning
+- bpf: Check rcu_read_lock_trace_held() before calling bpf map helpers
+- crypto: lib/mpi - Fix unexpected pointer access in mpi_ec_init
+- KVM: Always flush async #PF workqueue when vCPU is being destroyed
+- usb: gadget: f_ncm: Fix UAF ncm object at re-bind after usb ep transport error
+- devlink: fix possible use-after-free and memory leaks in devlink_init()
+- x86/xen: Add some null pointer checking to smp.c
+- mmc: mmci: stm32: fix DMA API overlapping mappings warning
+- mmc: mmci: stm32: use a buffer for unaligned DMA requests
+- net/sched: act_mirred: use the backlog for mirred ingress
+- netfilter: nft_set_pipapo: release elements in clone only from destroy path
+- netfilter: nft_set_pipapo: remove scratch_aligned pointer
+- netfilter: nft_set_pipapo: add helper to release pcpu scratch area
+- netfilter: nft_set_pipapo: store index in scratch maps
+- um: time-travel: fix time corruption
+- tracing: Ensure visibility when inserting an element into tracing_map
+
 * Wed May 15 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.54.0.132
 - !6041 [sync] PR-6006:  fix CVE-2024-26669
 - !5883 [sync] PR-5751:  net: atlantic: Fix DMA mapping for PTP hwts ring
