@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       199
+%global devel_release       200
 %global maintenance_release .0.0
-%global pkg_release         .112
+%global pkg_release         .113
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -911,6 +911,165 @@ fi
 %endif
 
 %changelog
+* Wed May 22 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-200.0.0.113
+- !7644  hwrng: core - Fix page fault dead lock on mmap-ed hwrng
+- !7705  pmdomain: ti: Add a null pointer check to the omap_prm_domain_init
+- !7749 v2  wifi: iwlwifi: dbg-tlv: ensure NUL termination
+- !7651 fix the SPI driver failed to obtain the GPIO pin
+- !7655 v3  KVM: SVM: Flush pages under kvm->lock to fix UAF in svm_register_enc_region()
+- !7675  bpf: Guard stack limits against 32bit overflow
+- !7732 HNS3: Fixed a deadlock issue caused by concurrent VF deactivation and PF reset
+- !7722 urma: fix bugs of urma and udma
+- wifi: iwlwifi: dbg-tlv: ensure NUL termination
+- !7686  ext4: fix corruption during on-line resize
+- !7599  irqchip/gic-v3-its: Prevent double free on error
+- !7674  net/smc: reduce rtnl pressure in smc_pnet_create_pnetids_list()
+- HNS3: Fixed a deadlock issue caused by concurrent VF deactivation and PF reset
+- hns3 udma: support user-mode TP connection API
+- urma: upload kernel patch for 20240516_day
+- urma: upload kernel patch for 20240511_mig
+- urma: upload kernel patch for 20240318_happy_birthday
+- urma: upload kernel patch for 20240224_rain
+- urma: upload kernel patch for 20240219_Spring
+- !7579  powerpc/powernv: Add a null pointer check to scom_debug_init_one()
+- !7665 [sync] PR-7586:  powerpc/imc-pmu: Add a null pointer check in update_events_in_group()
+- !7661 [sync] PR-7590:  drm/bridge: tpd12s015: Drop buggy __exit annotation for remove function
+- pmdomain: ti: Add a null pointer check to the omap_prm_domain_init
+- ext4: fix corruption during on-line resize
+- !7574  pstore: ram_core: fix possible overflow in persistent_ram_init_ecc()
+- gpiolib: acpi: Fix failed in acpi_gpiochip_find() by adding parent node match
+- driver core: Provide device_match_acpi_handle() helper
+- bpf: Guard stack limits against 32bit overflow
+- net/smc: reduce rtnl pressure in smc_pnet_create_pnetids_list()
+- !7601  cpumap: Zero-initialise xdp_rxq_info struct before running XDP program
+- powerpc/imc-pmu: Add a null pointer check in update_events_in_group()
+- drm/bridge: tpd12s015: Drop buggy __exit annotation for remove function
+- !7588  mm/swapfile: fix infinite loop in get_swap_pages after set memory.swapfile
+- KVM: SVM: Flush pages under kvm->lock to fix UAF in svm_register_enc_region()
+- !7563 udma: fix a bug of segment
+- !7385  CVE-2024-27002
+- hwrng: core - Fix page fault dead lock on mmap-ed hwrng
+- !7577 spi: hisi-kunpeng：backport some bugfixes
+- cpumap: Zero-initialise xdp_rxq_info struct before running XDP program
+- irqchip/gic-v3-its: Prevent double free on error
+- !7548  btrfs: fix information leak in btrfs_ioctl_logical_to_ino()
+- mm/swapfile: fix infinite loop in get_swap_pages after set memory.swapfile
+- powerpc/powernv: Add a null pointer check to scom_debug_init_one()
+- pstore: ram_core: fix possible overflow in persistent_ram_init_ecc()
+- spi: hisi-kunpeng: Add validation for the minimum value of speed_hz
+- spi: Add verification for the max_frequency provided by the firmware
+- spi: hisi-kunpeng: switch to use modern name
+- spi: hisi-kunpeng: Fix error checking
+- !7520  drm/i915/gt: Reset queue_priority_hint on parking
+- hns3 udma: the SEG registration failure is rectified.
+- !7538 v2  rcu: shorten the critical section that rnp->lock protects in rcu_dump_cpu_stacks
+- btrfs: fix information leak in btrfs_ioctl_logical_to_ino()
+- !5557 [OLK-5.10]Add support for Mont-TSSE
+- !4642 Add support for Hygon family 18h model 5h HD-Audio
+- !4640 Add support for Hygon model 6h L3 PMU
+- !4639 Some fixes for Hygon model 4h~6h processors
+- !4641 Add support for Hygon model 4h QoS
+- !2583 [OLK-5.10] Driver for Zhaoxin AES and SHA algorithm
+- !6801  block: fix discard
+- rcu: shorten the critical section that rnp->lock protects in rcu_dump_cpu_stacks
+- !7515 [sync] PR-7483:  Bluetooth: Fix use-after-free bugs caused by sco_sock_timeout
+- !7356  blk-iocost: Fix an UBSAN shift-out-of-bounds warning
+- !7351  PM / devfreq: Synchronize devfreq_monitor_[start/stop
+- !7361  sh: push-switch: Reorder cleanup operations to avoid use-after-free bug
+- drm/i915/gt: Reset queue_priority_hint on parking
+- !7484  fix CVE-2024-26661
+- Bluetooth: Fix use-after-free bugs caused by sco_sock_timeout
+- !7402  scsi: lpfc: Fix possible file string name overflow when updating firmware
+- !7404  scsi: lpfc: Fix possible memory leak in lpfc_rcv_padisc()
+- !7403  scsi: mpt3sas: Prevent sending diag_reset when the controller is ready
+- !7400  net/tg3: fix race condition in tg3_reset_task()
+- !7401  nvme-core: check for too small lba shift
+- !7396  drm/amdgpu: Fix cat debugfs amdgpu_regs_didt causes kernel null pointer
+- !7397  drm/amd/display: Fix potential NULL pointer dereferences in 'dcn10_set_output_transfer_func()'
+- !7398  drm/amd/display: Fix memory leak in dm_sw_fini()
+- !7399  drm/amd/pm: fix a double-free in si_dpm_init
+- drm/amd/display: Fix && vs || typos
+- drm/amd/display: Add NULL test for 'timing generator' in 'dcn21_set_pipe()'
+- !7476  firewire: nosy: ensure user_length is taken into account when fetching packet contents
+- !7456  netfilter: nf_conntrack_h323: Add protection for bmp length out of range
+- !6524  Bluetooth: Fix atomicity violation in {min,max}_key_size_set
+- !7424  net: openvswitch: Fix Use-After-Free in ovs_ct_exit
+- !7346  ppp_async: limit MRU to 64K
+- !5793  um: time-travel: fix time corruption
+- !7315  CVE-2024-26686
+- firewire: nosy: ensure user_length is taken into account when fetching packet contents
+- !7297  powerpc/kasan: Fix addr error caused by page alignment
+- !7229  s390/zcrypt: fix reference counting on zcrypt card objects
+- !7234  SUNRPC: Fix a suspicious RCU usage warning
+- !7235  bpf: Check rcu_read_lock_trace_held() before calling bpf map helpers
+- !7394 v2  scsi: sr: Do not leak information in ioctl
+- !7308  iio: magnetometer: rm3100: add boundary check for the value read from RM3100_REG_TMRC
+- netfilter: nf_conntrack_h323: Add protection for bmp length out of range
+- !7420  x86/CPU/AMD: Update the Zenbleed microcode revisions
+- !7426  net: gtp: Fix Use-After-Free in gtp_dellink
+- !7437  x86/fpu: Keep xfd_state in sync with MSR_IA32_XFD
+- x86/fpu: Keep xfd_state in sync with MSR_IA32_XFD
+- !7368  bugfix from mainline
+- !7416  cpu/SMT: Make SMT control more robust against enumeration failures
+- net: gtp: Fix Use-After-Free in gtp_dellink
+- net: openvswitch: Fix Use-After-Free in ovs_ct_exit
+- x86/CPU/AMD: Update the Zenbleed microcode revisions
+- !7414  clk: qcom: gcc-ipq6018: fix terminating of frequency table arrays
+- !7218  CVE-2024-27017
+- cpu/SMT: Make SMT control more robust against enumeration failures
+- clk: qcom: gcc-ipq6018: fix terminating of frequency table arrays
+- !7223  major bugfix before 2023
+- scsi: lpfc: Fix possible memory leak in lpfc_rcv_padisc()
+- scsi: mpt3sas: Prevent sending diag_reset when the controller is ready
+- scsi: lpfc: Fix possible file string name overflow when updating firmware
+- nvme-core: check for too small lba shift
+- net/tg3: fix race condition in tg3_reset_task()
+- drm/amd/pm: fix a double-free in si_dpm_init
+- drm/amd/display: Fix memory leak in dm_sw_fini()
+- drm/amd/display: Fix potential NULL pointer dereferences in 'dcn10_set_output_transfer_func()'
+- drm/amdgpu: Fix cat debugfs amdgpu_regs_didt causes kernel null pointer
+- scsi: sr: Do not leak information in ioctl
+- !5469  wifi: iwlwifi: fix a memory corruption
+- clk: mediatek: Do a runtime PM get on controllers during probe
+- x86/srso: Fix vulnerability reporting for missing microcode
+- x86/srso: Don't probe microcode in a guest
+- x86/srso: Set CPUID feature bits independently of bug or mitigation status
+- sh: push-switch: Reorder cleanup operations to avoid use-after-free bug
+- blk-iocost: Fix an UBSAN shift-out-of-bounds warning
+- PM / devfreq: Synchronize devfreq_monitor_[start/stop]
+- ppp_async: limit MRU to 64K
+- fs/proc: do_task_stat: use sig->stats_lock to gather the threads/children stats
+- fs/proc: do_task_stat: use __for_each_thread()
+- fs/proc: do_task_stat: move thread_group_cputime_adjusted() outside of lock_task_sighand()
+- exit: Use the correct exit_code in /proc/<pid>/stat
+- iio: magnetometer: rm3100: add boundary check for the value read from RM3100_REG_TMRC
+- powerpc/kasan: Fix addr error caused by page alignment
+- bpf: Check rcu_read_lock_trace_held() before calling bpf map helpers
+- SUNRPC: Fix a suspicious RCU usage warning
+- s390/zcrypt: fix reference counting on zcrypt card objects
+- powerpc/kprobes: Fix null pointer reference in arch_prepare_kprobe()
+- irqchip/gic-v3: Ensure pseudo-NMIs have an ISB between ack and handling
+- genirq/ipi: Fix NULL pointer deref in irq_data_get_affinity_mask()
+- netfilter: nf_tables: missing iterator type in lookup walk
+- netfilter: nft_set_pipapo: walk over current view on netlink dump
+- block: check io size before submit discard
+- block: fix overflow in blk_ioctl_discard()
+- Bluetooth: Fix atomicity violation in {min,max}_key_size_set
+- um: time-travel: fix time corruption
+- add support for Mont-TSSE Driver
+- wifi: iwlwifi: fix a memory corruption
+- EDAC/amd64: Adjust UMC channel for Hygon family 18h model 6h
+- x86/amd_nb: Get DF ID from F5 device for Hygon family 18h model 6h
+- EDAC/amd64: Fix intlv_num_chan for Hygon family 18h model 4h
+- EDAC/amd64: Revert hi_addr_offset for Hygon family 18h model 4h
+- ALSA: hda: Fix single byte write failure issue for Hygon
+- ALSA: hda: Add Hygon HD-Audio support
+- x86/resctrl: Add Hygon QoS support
+- perf/x86/uncore: Add L3 PMU support for Hygon family 18h model 6h
+- configs: Add Zhaoxin aes/sha items in openeuler_config
+- Zhaoxin: Driver for Zhaoxin SHA algorithm
+- Zhaoxin: Driver for Zhaoxin AES algorithm
+
 * Wed May 15 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-199.0.0.112
 - !7018  fix CVE-2024-26865
 - !7226  x86/fpu: Invalidate FPU state correctly on exec()
