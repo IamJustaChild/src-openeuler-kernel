@@ -106,7 +106,6 @@ Date:   Wed Mar 6 12:31:11 2024 +0800
 
     migrate openeuler-commit code. (need some fix before compiling)
 ---
- .gitignore                              |    4 +
  Makefile                                |    3 +-
  arch/arm64/Kconfig                      |   18 +
  arch/arm64/include/asm/assembler.h      |   67 +
@@ -232,25 +231,6 @@ Date:   Wed Mar 6 12:31:11 2024 +0800
  create mode 100644 arch/arm64/kernel/koi/koi.c
  create mode 100644 include/linux/iee-func.h
 
-diff --git a/.gitignore b/.gitignore
-index 0bbae167bf93..77b3024b92d5 100644
---- a/.gitignore
-+++ b/.gitignore
-@@ -51,6 +51,7 @@
- *.tar
- *.xz
- *.zst
-+*.log
- Module.symvers
- modules.order
- 
-@@ -170,3 +171,6 @@ sphinx_*/
- 
- # Rust analyzer configuration
- /rust-project.json
-+
-+#command
-+command.txt
 diff --git a/Makefile b/Makefile
 index 8e6d9b894b1e..20c367b5957d 100644
 --- a/Makefile
