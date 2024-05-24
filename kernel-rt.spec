@@ -10,9 +10,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       195
+%global devel_release       199
 %global maintenance_release .0.0
-%global pkg_release         .62
+%global pkg_release         .63
 %global rt_release          .rt62
 
 %define with_debuginfo 1
@@ -891,6 +891,9 @@ fi
 %endif
 
 %changelog
+* Thu May 16 2024 zhangyu <zhangyu4@kylinos.cn> - 5.10.0-199.0.0.63
+- update kernel-rt version to 5.10.0-199.0.0
+
 * Wed May 17 2024 zhangyu <zhangyu4@kylinos.cn> - 5.10.0-195.0.0.62
 - update kernel-rt version to 5.10.0-195.0.0
 
