@@ -11,7 +11,7 @@
 %global upstream_sublevel   0
 %global devel_release       206
 %global maintenance_release .0.0
-%global pkg_release         .105
+%global pkg_release         .106
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -952,6 +952,9 @@ fi
 %endif
 
 %changelog
+* Tue Jun 11 2024 luhuaxin <luhuxin1@huawei.com> - 5.10.0-206.0.0.106
+- Add the pub key in openEuler RPM-PGP certificate
+
 * Fri Jun 07 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-206.0.0.105
 - !8770 IMA: Check cvm world before call smc function
 - !8797 kvm: arm64: Fix a compilation error
