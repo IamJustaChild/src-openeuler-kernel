@@ -1,6 +1,6 @@
-From 70706e9fba0cc87e88f6ec2b8db4f58c44e582f5 Mon Sep 17 00:00:00 2001
+From d3f6927f8d76cb4aec288772970b3380b852aa37 Mon Sep 17 00:00:00 2001
 From: Mingzheng Xing <xingmingzheng@iscas.ac.cn>
-Date: Fri, 24 May 2024 14:47:38 +0800
+Date: Sun, 26 May 2024 19:38:18 +0800
 Subject: [PATCH] riscv kernel
 
 Signed-off-by: Mingzheng Xing <xingmingzheng@iscas.ac.cn>
@@ -23857,7 +23857,7 @@ index 000000000000..ef46c46678ed
 +			size_t vendor_id_list_num);
 +#endif
 diff --git a/drivers/pci/msi/msi.c b/drivers/pci/msi/msi.c
-index cde8c4e264b7..e5db5b1b81ac 100644
+index 7078200be11f..d701b49055c4 100644
 --- a/drivers/pci/msi/msi.c
 +++ b/drivers/pci/msi/msi.c
 @@ -12,6 +12,7 @@
@@ -23868,8 +23868,8 @@ index cde8c4e264b7..e5db5b1b81ac 100644
  
  int pci_msi_enable = 1;
  int pci_msi_ignore_mask;
-@@ -814,66 +815,70 @@ int __pci_enable_msix_range(struct pci_dev *dev, struct msix_entry *entries, int
- 		nvec = pci_irq_numbers;
+@@ -818,66 +819,70 @@ int __pci_enable_msix_range(struct pci_dev *dev, struct msix_entry *entries, int
+ 	}
  #endif
  
 -	if (maxvec < minvec)
@@ -33382,10 +33382,10 @@ index ef9f9a4e928d..0506d3ceb06c 100644
  	if (panic_on_warn) {
  		/*
 diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 3dcbf50b677f..7eb1e8087469 100644
+index 84af50f4285f..e3bbd67beee6 100644
 --- a/kernel/sched/fair.c
 +++ b/kernel/sched/fair.c
-@@ -10497,6 +10497,9 @@ int can_migrate_task(struct task_struct *p, struct lb_env *env)
+@@ -10496,6 +10496,9 @@ int can_migrate_task(struct task_struct *p, struct lb_env *env)
  	if (kthread_is_per_cpu(p))
  		return 0;
  
