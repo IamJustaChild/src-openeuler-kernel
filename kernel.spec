@@ -40,9 +40,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       27
+%global devel_release       28
 %global maintenance_release .0.0
-%global pkg_release         .32
+%global pkg_release         .33
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1079,6 +1079,126 @@ fi
 %endif
 
 %changelog
+* Sun May 26 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-28.0.0.33
+- !8010  mm/mempolicy.c: fix the out-of-bounds access issue in mpol_parse_str
+- mm/mempolicy.c: fix the out-of-bounds access issue in mpol_parse_str
+- !7997  mm: some misc bugfix
+- mm: vmalloc: bail out early in find_vmap_area() if vmap is not init
+- Revert "mm: support multi-size THP numa balancing"
+- mm: simplify thp_vma_allowable_order
+- mm: huge_memory: add the missing folio_test_pmd_mappable() for THP split statistics
+- mm/huge_memory: skip invalid debugfs new_order input for folio split
+- mm: prohibit the last subpage from reusing the entire large folio
+- mm/memory.c: do_numa_page(): remove a redundant page table read
+- mm: memory: fix shift-out-of-bounds in fault_around_bytes_set
+- !7966 [OLK-6.6] openeuler_defconfig: Modify openeuler-defconfig
+- openeuler_defconfig: Modify openeuler-defconfig
+- !7909  Scheduler load balance fixes
+- config: Disable COBFIG_ARCH_CUSTOM_NUMA_DISTANCE for arm64
+- sched/numa: Fix numa imbalance in load_balance()
+- !7917  sched: QOS_SCHED_DYNAMIC_AFFINITY depend on FAIR_GROUP_SCHED
+- sched: QOS_SCHED_DYNAMIC_AFFINITY depend on FAIR_GROUP_SCHED
+- Revert "sched: QOS_SCHED_DYNAMIC_AFFINITY depend on FAIR_CGROUP_SCHED"
+- !7902 v3  Revert "ACPI: Rename ACPI_HOTPLUG_CPU to include 'present'"
+- Revert "ACPI: Rename ACPI_HOTPLUG_CPU to include 'present'"
+- !7888 v3  mm: add thp anon pmd size mapping align control
+- mm: add thp anon pmd size mapping align control
+- !7730 v2  sched: QOS_SCHED_DYNAMIC_AFFINITY depend on FAIR_CGROUP_SCHED
+- sched: QOS_SCHED_DYNAMIC_AFFINITY depend on FAIR_CGROUP_SCHED
+- !7808  Bluetooth: L2CAP: Fix not validating setsockopt user input
+- Bluetooth: L2CAP: Fix not validating setsockopt user input
+- !7822  LoongArch: limit min pci msi-x/msi vector number when request more than 32 vectors
+- LoongArch: limit min pci msi-x/msi vector number when request more than 32 vectors
+- !7823  LoongArch: fix kdump not work when legacy mode disabled
+- LoongArch: fix efi map page table error
+- Revert "LoongArch: kdump: Add memory reservation for old kernel"
+- Revert "LoongArch: Fix kdump failure on v40 interface specification"
+- Revert "LoongArch: kdump: Add high memory reservation"
+- !7764 v2  mm: Some bugfix and optimization
+- mm/dynamic_pool: clear PG_hugetlb when demote hugepages
+- mm: optimise vmf_anon_prepare() for VMAs without an anon_vma
+- mm: delay the check for a NULL anon_vma
+- mm: assert the mmap_lock is held in __anon_vma_prepare()
+- mm/memory: change vmf_anon_prepare() to be non-static
+- mm: always initialise folio->_deferred_list
+- mm: page_alloc: control latency caused by zone PCP draining
+- mm/hugetlb: fix DEBUG_LOCKS_WARN_ON(1) when dissolve_free_hugetlb_folio()
+- hugetlb: check for hugetlb folio before vmemmap_restore
+- hugetlb: set hugetlb page flag before optimizing vmemmap
+- mm: add alloc_contig_migrate_range allocation statistics
+- mm: convert free_zone_device_page to free_zone_device_folio
+- mm: combine __folio_put_small, __folio_put_large and __folio_put
+- mm: inline destroy_large_folio() into __folio_put_large()
+- mm: combine free_the_page() and free_unref_page()
+- mm: free non-hugetlb large folios in a batch
+- mm: increase folio batch size
+- mm: fix list corruption in put_pages_list
+- mm: remove folio from deferred split list before uncharging it
+- mm: convert free_swap_cache() to take a folio
+- mm: use a folio in __collapse_huge_page_copy_succeeded()
+- mm: convert free_pages_and_swap_cache() to use folios_put()
+- mm: remove lru_to_page()
+- mm: remove free_unref_page_list()
+- memcg: remove mem_cgroup_uncharge_list()
+- mm: free folios directly in move_folios_to_lru()
+- mm: free folios in a batch in shrink_folio_list()
+- mm: allow non-hugetlb large folios to be batch processed
+- mm: handle large folios in free_unref_folios()
+- mm: use __page_cache_release() in folios_put()
+- mm: use free_unref_folios() in put_pages_list()
+- mm: remove use of folio list from folios_put()
+- memcg: add mem_cgroup_uncharge_folios()
+- mm: use folios_put() in __folio_batch_release()
+- mm: add free_unref_folios()
+- mm: convert free_unref_page_list() to use folios
+- mm: make folios_put() the basis of release_pages()
+- !7812 [OLK-6.6] drm/phytium: Replace default efi fb0 with dc fb
+- drm/phytium: Replace default efi fb0 with dc fb
+- !7767  irqchip/loongson-eiointc: fix gsi register error
+- irqchip/loongson-eiointc: fix gsi register error
+- !7771  ext4: default enable iomap for buffered IO and large folio
+- ext4: default enable iomap for buffered IO and large folio
+- !7721 【OLK-6.6】bugfix from upstream v6.9 for AMD EPYC
+- x86/CPU/AMD: Add models 0x10-0x1f to the Zen5 range
+- x86/CPU/AMD: Do the common init on future Zens too
+- !7572 Fix pseudo nmi identifier undeclaration complilation error
+- arm64/cpufeature: Fix pseudo nmi identifier undeclaration complilation error
+- !7537 [OLK-6.6] irqchip/gic-v3: Fix one race condition due to NMI withdraw
+- irqchip/gic-v3: Fix one race condition due to NMI withdraw
+- !7164 [sync] PR-7143:  media: usbtv: Remove useless locks in usbtv_video_free()
+- media: usbtv: Remove useless locks in usbtv_video_free()
+- !6386 [OLK-6.6] Fix warnings for RNPVF driver with loongarch-allmodconfig
+- RNPVF: NET: Fix "'%d' directive output may be truncated" warnings
+- !5243 [OLK-6.6] Support PSP identification for Hygon 4th CPU and print secure features when running on Hygon CPUs
+- x86/config: Set CONFIG_HYGON_CSV by default
+- x86/cpu/hygon: Clear SME feature flag when not in use
+- x86/cpufeatures: Add CSV3 CPU feature
+- x86/cpufeatures: Add CPUID_8C86_0000_EDX CPUID leaf
+- x86/cpu: Detect memory encryption features on Hygon CPUs
+- KVM: SVM: Print Hygon CSV support info if support is detected
+- crypto: ccp: Print Hygon CSV API version when CSV support is detected
+- x86/mm: Print CSV info into the kernel log
+- x86/mm: Provide a Kconfig entry to build the HYGON memory encryption support into the kernel
+- Documentation/arch/x86: Add HYGON secure virtualization description
+- crypto: ccp: Add support to detect CCP devices on Hygon 4th CPUs
+- !7180 【3snic】 use same string “sssnic" for "Kernel driver in use" and "Kernel modules"
+- 3snic: use sssnic as kernel driver name
+- !7607  Fix allmodconfig build error
+- net/ethernet/huawei/hiroce3: Fix allmodconfig build error
+- !7583 [OLK-6.6] Fixed display error for ps23xx when using ast and pe2201 bmc card
+- drm/ast: Fixed display error for ps23xx when using ast bmc card
+- drm/phytium: Bugfix Xorg startup for ps23xx when using pe2201 bmc card
+- !7593  memcg_swap_qos: Backport two bugfix
+- mm/swapfile: fix infinite loop in get_swap_pages after set memory.swapfile
+- memcg: fix incorrect value of sysctl_memcg_swap_qos_stat
+- !7595  jbd2: speed up jbd2_transaction_committed()
+- jbd2: speed up jbd2_transaction_committed()
+- !5480 [OLK-6.6] Fix DMA RW sequence disorder issue
+- Add kh40000_iommu_dma_ops for KH-40000 platform
+- Add kh40000_direct_dma_ops for KH-40000 platform
+- !3133 [OLK-6.6] iommu/vt-d:Add support for detecting ACPI device in RMRR
+- iommu/vt-d: Add support for detecting ACPI namespace device in RMRR
+
 * Fri May 24 2024 Mingzheng Xing <xingmingzheng@iscas.ac.cn> - 6.6.0-27.0.0.32
 - Update the riscv-kernel patch for sg2042, rebase 6.6.0-27.0.0 and add features:
   - SPI Flash driver
