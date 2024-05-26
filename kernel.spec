@@ -42,7 +42,7 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %global upstream_sublevel   0
 %global devel_release       28
 %global maintenance_release .0.0
-%global pkg_release         .33
+%global pkg_release         .34
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1079,6 +1079,10 @@ fi
 %endif
 
 %changelog
+* Sun May 26 2024 Mingzheng Xing <xingmingzheng@iscas.ac.cn> - 6.6.0-28.0.0.34
+- riscv-kernel patch update to 6.6.0-28.0.0
+- fixed a merge conflict from the commit f1e873348141
+
 * Sun May 26 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-28.0.0.33
 - !8010  mm/mempolicy.c: fix the out-of-bounds access issue in mpol_parse_str
 - mm/mempolicy.c: fix the out-of-bounds access issue in mpol_parse_str
