@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       200
+%global devel_release       201
 %global maintenance_release .0.0
-%global pkg_release         .113
+%global pkg_release         .114
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -911,6 +911,271 @@ fi
 %endif
 
 %changelog
+* Wed May 29 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-201.0.0.114
+- !7870  CVE-2024-35995
+- !7810  net-memcg: Fix scope of sockmem pressure indicators
+- !8159 v3  iommu: Reserve kabi for iommu and memory related functions
+- !7207 cgroup1_writeback:bind blkcg and memcg
+- !8067 irqchip: gic: some bugfix of hip09
+- iommu: Reserve kabi for iommu and memory related functions
+- !8057 v8  arm64: Allow CPU0 to be nohz_full
+- !7744 v3  Port livepatch related patches
+- !8042  xsk: validate user input for XDP_{UMEM|COMPLETION}_FILL_RING
+- !8060  soc: fsl: qbman: Always disable interrupts when taking cgr_lock
+- !8023  fs/ntfs3: Fixed overflow check in mi_enum_attr()
+- !7947 【OLK-5.10】Fix BUILD REGRESSION warnings in bzwx N5/N6 series NIC drivers
+- !7413 Backport Intel VT-d critical fix to olk-5.10
+- !7985  cvm_tsi: add cvm tsi interface
+- !7395  smart_grid: introducing rebuild_affinity_domain
+- !7993  HID: i2c-hid: remove I2C_HID_READ_PENDING flag to prevent lock-up
+- !8008 【OLK-5.10】backport PCC patches to support shared interrupt for multiple subspaces and platform notification handling
+- !7886  drm/amdgpu: amdgpu_ttm_gart_bind set gtt bound flag
+- !5483 [OLK-5.10] Add support for Mucse Virtual Function Network Adapter(N10/N400)
+- !7980  Fix CVE-2021-47455
+- !8019  pstore/zone: Add a null pointer check to the psz_kmsg_read
+- !7912 RDMA/hns: Some bugfixes for openeuler 22.03 sp4
+- !7693  Bluetooth: af_bluetooth: Fix deadlock
+- !8029  mm: introduce vm_swap_extension sysctl
+- !8039 v2  dynamic_hugetlb: backport some bugfix
+- !7813  kobject: Fix global-out-of-bounds in kobject_action_type()
+- !7940  fix crypto_queue backlog handling
+- !3736 Add nokaslr memory region avoid support
+- !8030  netfilter: nf_tables: Fix potential data-race in __nft_flowtable_type_get()
+- irqchip/gic-v4.1:Check whether indirect table is supported in allocate_vpe_l1_table
+- irqchip: gicv3: Add workaround for hip09 erratum 162200806
+- irqchip: gicv3: Add workaround for hip09 erratum 162200803
+- soc: fsl: qbman: Always disable interrupts when taking cgr_lock
+- arm64: defconfig: Enable CONFIG_ARCH_SUSPEND_NONZERO_CPU and CONFIG_ARCH_SUSPEND_NONZERO_CPU
+- arm64: Kconfig: select ARCH_SUSPEND_NONZERO_CPU by default
+- isolation: Check whether there exists a housekeeping CPU online
+- isolation: Do not check whether housekeeping CPUs are present
+- xsk: validate user input for XDP_{UMEM|COMPLETION}_FILL_RING
+- mm/dynamic_hugetlb: refine error info in the destruction
+- mm/dynamic_hugetlb: make free_huge_page_to_dhugetlb_pool irq safe
+- mm/dynamic_hugetlb: check NULL pointer for early parameter
+- mm/dynamic_hugetlb: add lru_add_drain_all() before migration
+- mm/dynamic_hugetlb: add cond_resched() in hpool_merge_page()
+- mm/dynamic_hugetlb: reduce the number of migration attempts
+- mm/dpool: Use helper function to lock/unlock
+- netfilter: nf_tables: Fix potential data-race in __nft_flowtable_type_get()
+- openeuler_defconfig: enable swap_extension for x86 and arm64
+- mm/vmscan: introduce vm_swap_extension sysctl
+- fs/ntfs3: Fixed overflow check in mi_enum_attr()
+- pstore/zone: Add a null pointer check to the psz_kmsg_read
+- drivers: initial support for rnpvf drivers from Mucse Technology
+- !7961  net: atlantic: eliminate double free in error handling logic
+- !7970  fbmon: prevent division by zero in fb_videomode_from_videomode()
+- mailbox: pcc: Support shared interrupt for multiple subspaces
+- mailbox: pcc: Add support for platform notification handling
+- mailbox: pcc: Use mbox_bind_client
+- !7903  virtio_ring : keep used_wrap_counter in
+- HID: i2c-hid: remove I2C_HID_READ_PENDING flag to prevent lock-up
+- mailbox: omap: Use mbox_bind_client
+- mailbox: Allow direct registration to a channel
+- mailbox: pcc: Fix kernel doc warnings
+- !7983 v2  Enhance memcg KSM feature.
+- !7960  ipv6: Fix infinite recursion in fib6_dump_done().
+- !7934  fix CVE-2024-35839
+- cvm_tsi: add cvm tsi interface
+- !5118  [OLK-5.10] Add support for Mucse Network Adapter(N500/N210)
+- !7452 v2  ip: Treat IPv4 segment's lowest address as unicast
+- !7801  netfilter: nft_flow_offload: reset dst in route object after setting up flow
+- !7758  netfilter: nf_tables: discard table flag update with pending basechain deletion
+- !7959 v2  Add network relationship for NUMA isolation and consolidation
+- mm/memcontrol: enable KSM for tasks moving to new memcg
+- mm/memcontrol: add ksm state for memcg
+- mm/ksm: fix ksm exec support for prctl
+- mm/ksm: support fork/exec for prctl
+- !7224 [OLK-5.10] Fixed display error for ps23xx when using ast and pe2201 bmc card
+- ptp: fix code indentation issues
+- ptp: Fix possible memory leak in ptp_clock_register()
+- !7949  drm/amdgpu: handle the case of pci_channel_io_frozen only in amdgpu_pci_resume
+- fbmon: prevent division by zero in fb_videomode_from_videomode()
+- !7943 v2  netrom: Fix a data-race around sysctl_netrom_transport_maximum_tries
+- !7955 v3  sched: QOS_SCHED_DYNAMIC_AFFINITY depend on FAIR_GROUP_SCHED
+- net: atlantic: eliminate double free in error handling logic
+- ipv6: Fix infinite recursion in fib6_dump_done().
+- drivers: initial support for rnpgbe drivers from Mucse Technology
+- config: Add new config entry to default config file to fix CI warning
+- net: add some bpf hooks in tcp stack for network numa relationship
+- net: add one bpf prog type for network numa relationship
+- net: retrieve netns cookie via getsocketopt
+- net: fix kabi breakage in struct net
+- net: initialize net->net_cookie at netns setup
+- !5484 [OLK-5.10] Add support for Mucse Virtual Function Network Adapter(N500/N210)
+- sched: QOS_SCHED_DYNAMIC_AFFINITY depend on FAIR_GROUP_SCHED
+- Revert "sched: QOS_SCHED_DYNAMIC_AFFINITY depend on FAIR_CGROUP_SCHED"
+- drivers: Fix BUILD REGRESSION warning in bzwx N5/N6 series NIC drivers
+- !6106  SCSI: hisi_raid: add sg_raw command feature
+- drm/amdgpu: handle the case of pci_channel_io_frozen only in amdgpu_pci_resume
+- !7923  Fix allmodconfig build error
+- !7645  ALSA: scarlett2: Add clamp() in scarlett2_mixer_ctl_put()
+- netrom: Fix a data-race around sysctl_netrom_transport_maximum_tries
+- crypto: engine - fix crypto_queue backlog handling
+- !7916 v5  Introduce NUMA isolation and consolidation
+- netfilter: bridge: replace physindev with physinif in nf_bridge_info
+- netfilter: propagate net to nf_bridge_get_physindev
+- netfilter: nfnetlink_log: use proper helper for fetching physinif
+- !7911  ACPI: LPIT: Avoid u32 multiplication overflow
+- net/ethernet/huawei/hiroce3: Fix allmodconfig build error
+- !7865  netrom: Fix data-races around sysctl_netrom_network_ttl_initialiser
+- RDMA/hns: Fix allocating POE channels after IB device registeration
+- RDMA/hns : Fix scc delay_work to execute after sysfs shutdown
+- RDMA/hns: Fix missing resetting notify
+- RDMA/hns: Use mutex to protect uconctext
+- config: Enable NUMA isolation and consolidation by default
+- sched: Introduce CONFIG_QOS_SCHED_NUMA_ICON
+- bpf:programmable: Add helper to set preferred node
+- sched: Update numa group preferred node periodically
+- sched: Add ioctl to get relationship
+- bpf:programmable: Add helper to get memory and net relationship
+- sched: Introduce task relationship by net and memory
+- bpf:programmable: Add nodemask operation collection
+- sched: Some fixes for select_rq hook
+- sched: Add can_migrate_task hook
+- sched: Introduce CONFIG_TASK_PLACEMENT_BY_CPU_RANGE
+- ACPI: LPIT: Avoid u32 multiplication overflow
+- !7877 v4  eeprom: at24: fix memory corruption race condition
+- !7741  ipv4: check for NULL idev in ip_route_use_hint()
+- !7731  sched: QOS_SCHED_DYNAMIC_AFFINITY depend on FAIR_CGROUP_SCHED
+- !7689 [sync] PR-7370: v2  sched: smart_grid: silence complier error
+- virtio_ring : keep used_wrap_counter in vq->last_used_idx
+- drm/amdgpu: amdgpu_ttm_gart_bind set gtt bound flag
+- eeprom: at24: fix memory corruption race condition
+- !7733 backport some bugfix of HiSilicon PCIe PMU driver
+- !7691 net: hns3: backport some bugfixes
+- !7853  net/mlx5e: fix a double-free in arfs_create_groups
+- ACPI: CPPC: Fix access width used for PCC registers
+- ACPI: CPPC: Fix bit_offset shift in MASK_VAL() macro
+- ACPI: CPPC: Use access_width over bit_width for system memory accesses
+- ACPI: CPPC: Fix up I/O port access in cpc_read()
+- ACPI: CPPC: Implement support for SystemIO registers
+- !5545 backport dirty-ring feature
+- netrom: Fix data-races around sysctl_netrom_network_ttl_initialiser
+- !7846  netrom: Fix a data-race around sysctl_netrom_transport_timeout
+- !7773  Fix CVE-2023-52698
+- net/mlx5e: fix a double-free in arfs_create_groups
+- net: hns3: use appropriate barrier function after setting a bit value
+- net: hns3: release PTP resources if pf initialization failed
+- !7841  cifs: Fix pages leak when writedata alloc failed in cifs_write_from_iter()
+- !7062 [openEuler-22.03-SP4]drivers: support Yunsilicon's metaScale/metaVisor series NICs
+- !6300 【OLK-5.10】fix compiling problem in bzwx N5/N6 series NIC drivers
+- netrom: Fix a data-race around sysctl_netrom_transport_timeout
+- !7816  f2fs: fix to wait on block writeback for post_read case
+- !7576  f2fs: compress: fix reserve_cblocks counting error when out of space
+- !7757  Fix CVE-2023-52656
+- cifs: Fix pages leak when writedata alloc failed in cifs_write_from_iter()
+- !7681  xfs: three bug fix recently
+- !7779  LoongArch: Define the __io_aw() hook as mmiowb()
+- !7714  CVE-2024-35936
+- drivers: fix compiling problem in bzwx N5/N6 series NIC drivers
+- drivers/perf: hisi: hns3: Actually use devm_add_action_or_reset()
+- drivers/perf: hisi: hns3: Fix out-of-bound access when valid event group
+- drivers/perf: hisi_pcie: Merge find_related_event() and get_event_idx()
+- drivers/perf: hisi_pcie: Relax the check on related events
+- drivers/perf: hisi_pcie: Check the target filter properly
+- drivers/perf: hisi_pcie: Add more events for counting TLP bandwidth
+- drivers/perf: hisi_pcie: Fix incorrect counting under metric mode
+- drivers/perf: hisi_pcie: Introduce hisi_pcie_pmu_get_event_ctrl_val()
+- drivers/perf: hisi_pcie: Rename hisi_pcie_pmu_{config,clear}_filter()
+- !7684  dm snapshot: fix lockup in dm_exception_table_exit
+- iommu/vt-d: Don't issue ATS Invalidation request when device is disconnected
+- PCI: Make pci_dev_is_disconnected() helper public for other drivers
+- f2fs: fix to wait on block writeback for post_read case
+- kobject: Fix global-out-of-bounds in kobject_action_type()
+- net-memcg: Fix scope of sockmem pressure indicators
+- netfilter: nft_flow_offload: reset dst in route object after setting up flow
+- !7743  netrom: Fix data-races around sysctl_net_busy_read
+- !7734  mlxsw: spectrum_acl_tcam: Fix incorrect list API usage
+- LoongArch: Define the __io_aw() hook as mmiowb()
+- calipso: fix memory leak in netlbl_calipso_add_pass()
+- netlabel: remove unused parameter in netlbl_netlink_auditinfo()
+- net: netlabel: Fix kerneldoc warnings
+- !7753  wifi: ath11k: decrease MHI channel buffer length to 8KB
+- netfilter: nf_tables: discard table flag update with pending basechain deletion
+- io_uring: drop any code related to SCM_RIGHTS
+- io_uring/unix: drop usage of io_uring socket
+- wifi: ath11k: decrease MHI channel buffer length to 8KB
+- livepatch: Update related configs in openeuler_defconfig
+- arm64: Recover kretprobe modified return address in stacktrace
+- x86/unwind: Compile kretprobe fixup code only if CONFIG_KRETPROBES=y
+- x86/unwind: Recover kretprobe trampoline entry
+- kprobes: Add kretprobe_find_ret_addr() for searching return address
+- livepatch: Avoid patching conflicts with kprobes
+- kprobes: Fix possible use-after-free issue on kprobe registration
+- ftrace: Fix possible use-after-free issue in ftrace_location()
+- livepatch: Reduce duplicate definition of 'struct walk_stackframe_args'
+- livepatch: Fix warning C_RULE_ID_SINGLE_BRANCH_IF_AND_LOOP_BRACKET
+- livepatch/core: Make several functions to be static
+- livepatch: Use func->func_node directly
+- livepatch: Fix huge_depth in arch_klp_check_activeness_func()
+- livepatch: Organize active functions with struct 'list_head'
+- livepatch: Check calltrace of idle tasks
+- livepatch: Complete check calltrace for running tasks
+- livepatch/core: No stop machine in KLP_STACK_OPTIMIZE mode
+- livepatch/ppc64: Adjust instruction replace order for KLP_STACK_OPTIMIZE mode
+- livepatch/ppc32: Adjust instruction replace order for KLP_STACK_OPTIMIZE mode
+- livepatch/arm64: Adjust instruction replace order for KLP_STACK_OPTIMIZE mode
+- livepatch/arm: Adjust instruction replace order for KLP_STACK_OPTIMIZE mode
+- livepatch/x86: Ajust instruction replace order for KLP_STACK_OPTIMIZE mode
+- livepatch/ppc64: Implement arch_klp_check_task_calltrace()
+- livepatch/ppc32: Implement arch_klp_check_task_calltrace()
+- livepatch/arm64: Implement arch_klp_check_task_calltrace()
+- livepatch/arm: Implement arch_klp_check_task_calltrace()
+- livepatch/x86: Implement arch_klp_check_task_calltrace()
+- livepatch/ppc64: Remove duplicate 'struct klp_func_list' related codes
+- livepatch/ppc32: Remove duplicate 'struct klp_func_list' related codes
+- livepatch/arm64: Remove duplicate 'struct klp_func_list' related codes
+- livepatch/arm: Remove duplicate 'struct klp_func_list' related codes
+- livepatch/x86: Move 'struct klp_func_list' related codes out of arch
+- livepatch: Move 'struct klp_func_list' out of arch
+- netrom: Fix data-races around sysctl_net_busy_read
+- ipv4: check for NULL idev in ip_route_use_hint()
+- mlxsw: spectrum_acl_tcam: Fix incorrect list API usage
+- sched: QOS_SCHED_DYNAMIC_AFFINITY depend on FAIR_CGROUP_SCHED
+- net: hns3: change type of numa_node_mask as nodemask_t
+- btrfs: add missing mutex_unlock in btrfs_relocate_sys_chunks()
+- btrfs: handle chunk tree lookup error in btrfs_relocate_sys_chunks()
+- net: hns3: direct return when receive a unknown mailbox message
+- net: hns3: using user configure after hardware reset
+- net: hns3: fix kernel crash problem in concurrent scenario
+- Bluetooth: af_bluetooth: Fix deadlock
+- net: hns3: add cond_resched() to hns3 ring buffer init process
+- net: hns3: move constants from hclge_debugfs.h to hclge_debugfs.c
+- net: hns3: add 
+- net: hns3: don't need to check an unsigned number is less than 0
+- net: hns3: set irq affinity directly
+- net: hns3: using cpumask_copy when set value to cpumask_t
+- net: hns3: mark unexcuted loopback test result as UNEXECUTED
+- net: hns3: fix index limit to support all queue stats
+- sched: smart_grid: silence complier error
+- dm snapshot: fix lockup in dm_exception_table_exit
+- xfs: update dir3 leaf block metadata after swap
+- xfs: ensure logflagsp is initialized in xfs_bmap_del_extent_real
+- iomap: fix warning in xfs_iomap_write_delalloc_release()
+- KVM: selftests: Add dirty ring buffer test
+- KVM: selftests: Introduce after_vcpu_run hook for dirty log test
+- KVM: Don't allocate dirty bitmap if dirty ring is enabled
+- KVM: Make dirty ring exclusive to dirty bitmap log
+- KVM: X86: Implement ring-based dirty memory tracking
+- KVM: Pass in kvm pointer into mark_page_dirty_in_slot()
+- KVM: X86: Don't track dirty for KVM_SET_[TSS_ADDR|IDENTITY_MAP_ADDR]
+- ALSA: scarlett2: Add clamp() in scarlett2_mixer_ctl_put()
+- f2fs: compress: fix reserve_cblocks counting error when out of space
+- drm/ast: Fixed display error for ps23xx when using ast bmc card
+- drm/phytium: Bugfix Xorg startup for ps23xx when using pe2201 bmc card
+- ip: Treat IPv4 segment's lowest address as unicast
+- smart_grid: introducing rebuild_affinity_domain
+- cgroup_writeback: bind blkcg and memcg
+- drivers: support Yunsilicon's MS and MV series NICs
+- SCSI: hisi_raid: add sg_raw command feature
+- drivers: initial support for rnpgbevf drivers from Mucse Technology
+- kaslr: enable CONFIG_NOKASLR_MEM_RANGE in openeuler_defconfig
+- x86/boot: add x86 nokaslr memory regions
+- efi/libstub: add arm64 nokaslr memory regions
+- kaslr: add nokaslr memory region Kconfig support
+
+ at the end when print msg
 * Wed May 22 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-200.0.0.113
 - !7644  hwrng: core - Fix page fault dead lock on mmap-ed hwrng
 - !7705  pmdomain: ti: Add a null pointer check to the omap_prm_domain_init
