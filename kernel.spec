@@ -11,8 +11,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       153
-%global maintenance_release .55.0
-%global pkg_release         .133
+%global maintenance_release .56.0
+%global pkg_release         .134
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -878,6 +878,90 @@ fi
 %endif
 
 %changelog
+* Wed May 29 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.56.0.134
+- !8158 [sync] PR-8017:  perf/core: Bail out early if the request AUX area is out of bound
+- !8115 [sync] PR-8023:  fs/ntfs3: Fixed overflow check in mi_enum_attr()
+- !8094 [sync] PR-7980:  Fix CVE-2021-47455
+- !8118 [sync] PR-8060:  soc: fsl: qbman: Always disable interrupts when taking cgr_lock
+- !7800  net-memcg: Fix scope of sockmem pressure indicators
+- !8085 [sync] PR-8019:  pstore/zone: Add a null pointer check to the psz_kmsg_read
+- !7135 [sync] PR-7092:  Squashfs: check the inode number is not the invalid value of zero
+- perf/core: Bail out early if the request AUX area is out of bound
+- !8084 [sync] PR-6808:  CVE-2024-26923
+- !8004 [sync] PR-7970:  fbmon: prevent division by zero in fb_videomode_from_videomode()
+- !6876 [sync] PR-6756:  vfio/fsl-mc: Block calling interrupt handler without trigger
+- soc: fsl: qbman: Always disable interrupts when taking cgr_lock
+- fs/ntfs3: Fixed overflow check in mi_enum_attr()
+- !7880 [sync] PR-7684:  dm snapshot: fix lockup in dm_exception_table_exit
+- !8073 [sync] PR-8030:  netfilter: nf_tables: Fix potential data-race in __nft_flowtable_type_get()
+- !7996  HID: i2c-hid: remove I2C_HID_READ_PENDING flag to prevent lock-up
+- !8007 [sync] PR-7903:  virtio_ring : keep used_wrap_counter in
+- ptp: fix code indentation issues
+- ptp: Fix possible memory leak in ptp_clock_register()
+- !8022  media: bttv: fix use after free error due to btv->timeout timer
+- pstore/zone: Add a null pointer check to the psz_kmsg_read
+- af_unix: Suppress false-positive lockdep splat for spin_lock() in __unix_gc().
+- af_unix: Fix garbage collector racing against connect()
+- !8027 [sync] PR-7961:  net: atlantic: eliminate double free in error handling logic
+- !8048  drivers/perf: hisi: use cpuhp_state_remove_instance_nocalls() for hisi_hns3_pmu uninit process
+- netfilter: nf_tables: Fix potential data-race in __nft_flowtable_type_get()
+- drivers/perf: hisi: use cpuhp_state_remove_instance_nocalls() for hisi_hns3_pmu uninit process
+- net: atlantic: eliminate double free in error handling logic
+- media: bttv: fix use after free error due to btv->timeout timer
+- virtio_ring : keep used_wrap_counter in vq->last_used_idx
+- fbmon: prevent division by zero in fb_videomode_from_videomode()
+- HID: i2c-hid: remove I2C_HID_READ_PENDING flag to prevent lock-up
+- !7953  media: vidtv: psi: Add check for kstrdup
+- !7974 [sync] PR-7949:  drm/amdgpu: handle the case of pci_channel_io_frozen only in amdgpu_pci_resume
+- !7969 [sync] PR-7943: v2  netrom: Fix a data-race around sysctl_netrom_transport_maximum_tries
+- drm/amdgpu: handle the case of pci_channel_io_frozen only in amdgpu_pci_resume
+- netrom: Fix a data-race around sysctl_netrom_transport_maximum_tries
+- !7937 [sync] PR-7911:  ACPI: LPIT: Avoid u32 multiplication overflow
+- !7845 [sync] PR-7576:  f2fs: compress: fix reserve_cblocks counting error when out of space
+- !7863 [sync] PR-7757:  Fix CVE-2023-52656
+- media: vidtv: psi: Add check for kstrdup
+- !7915 [sync] PR-7853:  net/mlx5e: fix a double-free in arfs_create_groups
+- ACPI: LPIT: Avoid u32 multiplication overflow
+- !7759 [sync] PR-7655: v3  KVM: SVM: Flush pages under kvm->lock to fix UAF in svm_register_enc_region()
+- net/mlx5e: fix a double-free in arfs_create_groups
+- !7797 [sync] PR-7743:  netrom: Fix data-races around sysctl_net_busy_read
+- !7885 [sync] PR-7773:  Fix CVE-2023-52698
+- calipso: fix memory leak in netlbl_calipso_add_pass()
+- netlabel: remove unused parameter in netlbl_netlink_auditinfo()
+- net: netlabel: Fix kerneldoc warnings
+- dm snapshot: fix lockup in dm_exception_table_exit
+- !7860 [sync] PR-7846:  netrom: Fix a data-race around sysctl_netrom_transport_timeout
+- io_uring: drop any code related to SCM_RIGHTS
+- io_uring/unix: drop usage of io_uring socket
+- netrom: Fix a data-race around sysctl_netrom_transport_timeout
+- !7830 [sync] PR-7779:  LoongArch: Define the __io_aw() hook as mmiowb()
+- !7827 [sync] PR-7714:  CVE-2024-35936
+- f2fs: compress: fix reserve_cblocks counting error when out of space
+- !7838 [sync] PR-7681:  xfs: three bug fix recently
+- xfs: update dir3 leaf block metadata after swap
+- xfs: ensure logflagsp is initialized in xfs_bmap_del_extent_real
+- iomap: fix warning in xfs_iomap_write_delalloc_release()
+- !7820 [sync] PR-7734:  mlxsw: spectrum_acl_tcam: Fix incorrect list API usage
+- LoongArch: Define the __io_aw() hook as mmiowb()
+- btrfs: add missing mutex_unlock in btrfs_relocate_sys_chunks()
+- btrfs: handle chunk tree lookup error in btrfs_relocate_sys_chunks()
+- !7746  x86/fpu: Keep xfd_state in sync with MSR_IA32_XFD
+- mlxsw: spectrum_acl_tcam: Fix incorrect list API usage
+- net-memcg: Fix scope of sockmem pressure indicators
+- netrom: Fix data-races around sysctl_net_busy_read
+- !7737 [sync] PR-7674:  net/smc: reduce rtnl pressure in smc_pnet_create_pnetids_list()
+- !7762 [sync] PR-7749: v2  wifi: iwlwifi: dbg-tlv: ensure NUL termination
+- !7712 [sync] PR-7579:  powerpc/powernv: Add a null pointer check to scom_debug_init_one()
+- !7756  wifi: ath11k: decrease MHI channel buffer length to 8KB
+- wifi: iwlwifi: dbg-tlv: ensure NUL termination
+- KVM: SVM: Flush pages under kvm->lock to fix UAF in svm_register_enc_region()
+- wifi: ath11k: decrease MHI channel buffer length to 8KB
+- x86/fpu: Keep xfd_state in sync with MSR_IA32_XFD
+- net/smc: reduce rtnl pressure in smc_pnet_create_pnetids_list()
+- powerpc/powernv: Add a null pointer check to scom_debug_init_one()
+- Squashfs: check the inode number is not the invalid value of zero
+- vfio/fsl-mc: Block calling interrupt handler without trigger
+
 * Wed May 22 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.55.0.133
 - !7635  spi: hisi-sfc-v3xx: Return IRQ_NONE if no interrupts were detected
 - !7643  hwrng: core - Fix page fault dead lock on mmap-ed hwrng
