@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2405.4.0
+%global hulkrelease 2405.5.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0250
+Release: %{hulkrelease}.0251
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,98 @@ fi
 %endif
 
 %changelog
+
+* Wed May 29 2024 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2405.5.0.0251
+- !8066  drm/amd: Fix UBSAN array-index-out-of-bounds for SMU7
+- !8038  CVE-2023-52817
+- !8106  usb: dwc3: ep0: fix NULL pointer exception
+- !8059  soc: fsl: qbman: Always disable interrupts when taking cgr_lock
+- !8017  perf/core: Bail out early if the request AUX area is out of bound
+- !8064  isdn: mISDN: netjet: Fix crash in nj_probe:
+- !8049  xsk: validate user input for XDP_{UMEM|COMPLETION}_FILL_RING
+- usb: dwc3: ep0: fix NULL pointer exception
+- !8055  drm/client: Fully protect modes[
+- !8000 v2  net/tls: Fix flipped sign in tls_err_abort() calls
+- !8032  netfilter: nf_tables: Fix potential data-race in __nft_flowtable_type_get()
+- drm/amd: Fix UBSAN array-index-out-of-bounds for SMU7
+- isdn: mISDN: netjet: Fix crash in nj_probe:
+- !8056  scsi: qla2xxx: Fix a memory leak in an error path of qla2x00_process_els()
+- !7999  HID: i2c-hid: remove I2C_HID_READ_PENDING flag to prevent lock-up
+- soc: fsl: qbman: Always disable interrupts when taking cgr_lock
+- scsi: qla2xxx: Fix a memory leak in an error path of qla2x00_process_els()
+- drm/client: Fully protect modes[] with dev->mode_config.mutex
+- xsk: validate user input for XDP_{UMEM|COMPLETION}_FILL_RING
+- !7817  netfilter: nft_flow_offload: reset dst in route object after setting up flow
+- drm/amdgpu/debugfs: fix error code when smc register accessors are NULL
+- drm/amdgpu: Fix a null pointer access when the smc_rreg pointer is NULL
+- netfilter: nf_tables: Fix potential data-race in __nft_flowtable_type_get()
+- !7965  nvmem: Fix shift-out-of-bound (UBSAN) with byte size cells
+- !7951  sched/rt: Fix rt_runtime leaks with cpu hotplug and RT_RUNTIME_SHARE
+- perf/core: Bail out early if the request AUX area is out of bound
+- !7981  Fix CVE-2021-47455
+- !7901  f2fs: fix to avoid racing on fsync_entry_slab by multi filesystem instances
+- !7700  scsi: lpfc: Fix possible memory leak in lpfc_rcv_padisc()
+- !7682  dm snapshot: fix lockup in dm_exception_table_exit
+- !7867  media: bttv: fix use after free error due to btv->timeout timer
+- !7421  x86/CPU/AMD: Update the Zenbleed microcode revisions
+- !7415  cpu/SMT: Make SMT control more robust against enumeration failures
+- !7451 v2  ip: Treat IPv4 segment's lowest address as unicast
+- !7393 v2  scsi: sr: Do not leak information in ioctl
+- !7971  fbmon: prevent division by zero in fb_videomode_from_videomode()
+- net/tls: Fix flipped sign in tls_err_abort() calls
+- HID: i2c-hid: remove I2C_HID_READ_PENDING flag to prevent lock-up
+- !7963  ipv6: Fix infinite recursion in fib6_dump_done().
+- !7979  drm/radeon: fix a possible null pointer dereference
+- ptp: fix code indentation issues
+- ptp: Fix possible memory leak in ptp_clock_register()
+- drm/radeon: fix a possible null pointer dereference
+- fbmon: prevent division by zero in fb_videomode_from_videomode()
+- !7944 v2  netrom: Fix a data-race around sysctl_netrom_transport_maximum_tries
+- nvmem: Fix shift-out-of-bound (UBSAN) with byte size cells
+- ipv6: Fix infinite recursion in fib6_dump_done().
+- sched/rt: Fix rt_runtime leaks with cpu hotplug and RT_RUNTIME_SHARE
+- netrom: Fix a data-race around sysctl_netrom_transport_maximum_tries
+- !7811  Input: synaptics-rmi4 - fix use after free in rmi_unregister_function()
+- !7892  CVE-2023-52868
+- !7910  hwmon: (mlxreg-fan) Return non-zero value when fan current state is enforced from sysfs
+- hwmon: (mlxreg-fan) Return non-zero value when fan current state is enforced from sysfs
+- !7851  netrom: Fix data-races around sysctl_netrom_network_ttl_initialiser
+- f2fs: fix to avoid racing on fsync_entry_slab by multi filesystem instances
+- thermal: core: prevent potential string overflow
+- !7854  net/mlx5e: fix a double-free in arfs_create_groups
+- !7794 v2  Fix CVE-2023-52656
+- media: bttv: fix use after free error due to btv->timeout timer
+- !7840  netrom: Fix a data-race around sysctl_netrom_transport_timeout
+- net/mlx5e: fix a double-free in arfs_create_groups
+- netrom: Fix data-races around sysctl_netrom_network_ttl_initialiser
+- !7770  drm/amd/pm: fix a double-free in si_dpm_init
+- netrom: Fix a data-race around sysctl_netrom_transport_timeout
+- !7589  irqchip/gic-v3-its: Prevent double free on error
+- !7713  CVE-2024-35936
+- !7751  Fix CVE-2023-52698
+- netfilter: nft_flow_offload: reset dst in route object after setting up flow
+- Input: synaptics-rmi4 - fix use after free in rmi_unregister_function()
+- io_uring: drop any code related to SCM_RIGHTS
+- io_uring/unix: drop usage of io_uring socket
+- !7742  netrom: Fix data-races around sysctl_net_busy_read
+- !7748  drm/radeon: possible buffer overflow
+- drm/amd/pm: fix a double-free in si_dpm_init
+- calipso: fix memory leak in netlbl_calipso_add_pass()
+- netlabel: remove unused parameter in netlbl_netlink_auditinfo()
+- net: netlabel: Fix kerneldoc warnings
+- drm/radeon: possible buffer overflow
+- netrom: Fix data-races around sysctl_net_busy_read
+- !7669  btrfs: send: handle path ref underflow in header iterate_inode_ref()
+- btrfs: add missing mutex_unlock in btrfs_relocate_sys_chunks()
+- btrfs: handle chunk tree lookup error in btrfs_relocate_sys_chunks()
+- scsi: lpfc: Fix possible memory leak in lpfc_rcv_padisc()
+- dm snapshot: fix lockup in dm_exception_table_exit
+- btrfs: send: handle path ref underflow in header iterate_inode_ref()
+- irqchip/gic-v3-its: Prevent double free on error
+- ip: Treat IPv4 segment's lowest address as unicast
+- x86/CPU/AMD: Update the Zenbleed microcode revisions
+- cpu/SMT: Make SMT control more robust against enumeration failures
+- scsi: sr: Do not leak information in ioctl
 
 * Wed May 22 2024 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2405.4.0.0250
 - !7694  Bluetooth: af_bluetooth: Fix deadlock
