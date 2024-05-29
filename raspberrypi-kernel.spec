@@ -2,13 +2,13 @@
 
 %global KernelVer %{version}-%{release}.raspi.%{_target_cpu}
 
-%global hulkrelease 183.0.0
+%global hulkrelease 201.0.0
 
 %global debug_package %{nil}
 
 Name:	 raspberrypi-kernel
 Version: 5.10.0
-Release: %{hulkrelease}.19
+Release: %{hulkrelease}.20
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -262,6 +262,8 @@ fi
 /usr/src/kernels/%{KernelVer}
 
 %changelog
+* Thu May 30 2024 Yafen Fang <yafen@iscas.ac.cn> - 5.10.0-201.0.0.20
+- update kernel version to openEuler 5.10.0-201.0.0
 
 * Wed Jan 10 2024 heppen <hepeng68@huawei.com> - 5.10.0-183.0.0.19
 - add subpackage raspberrypi-kernel-devel
