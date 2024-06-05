@@ -1,0 +1,44 @@
+From c5f7cf045fa04bc678802f6eb48ea24c66d18dfb Mon Sep 17 00:00:00 2001
+From: Hongchen Zhang <zhanghongchen@loongson.cn>
+Date: Wed, 5 Jun 2024 09:15:05 +0800
+Subject: [PATCH] LoongArch: fix HT RX INT TRANS register not initialized
+
+LoongArch inclusion
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/I9V21T
+CVE: NA
+
+------------------------------------------------------------------
+
+When we boot Loongson-TC542F0 3C5000 4-Node dual bridge machine, boot
+failed with no root partition found. The reason is HT RX INT TRANS
+register not initialized, So we initialize it.
+
+Fixes: db5bb24abc8d ("LoongArch: Old BPI compatibility")
+Reported-by: Qianwen Li <liqianwen@loongson.cn>
+Signed-off-by: Hongchen Zhang <zhanghongchen@loongson.cn>
+---
+ arch/loongarch/kernel/irq.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/arch/loongarch/kernel/irq.c b/arch/loongarch/kernel/irq.c
+index 8b21449a7092..a2f6ce3061f3 100644
+--- a/arch/loongarch/kernel/irq.c
++++ b/arch/loongarch/kernel/irq.c
+@@ -127,6 +127,13 @@ void __init init_IRQ(void)
+ 	int i, ret;
+ 	unsigned int order = get_order(IRQ_STACK_SIZE);
+ 	struct page *page;
++	unsigned long node;
++
++	if (!acpi_gbl_reduced_hardware) {
++		for_each_node(node)
++			writel(0x40000000 | (node << 12),
++				(volatile void __iomem *)(0x80000efdfb000274UL + (node<<44)));
++	}
+ 
+ 	clear_csr_ecfg(ECFG0_IM);
+ 	clear_csr_estat(ESTATF_IP);
+-- 
+2.33.0
+
