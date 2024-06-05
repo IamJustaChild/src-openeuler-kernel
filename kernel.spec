@@ -125,6 +125,7 @@ Patch0001: 0001-riscv-kernel.patch
 Patch0002: 0002-cpupower-clang-compile-support.patch
 Patch0003: 0003-x86_energy_perf_policy-clang-compile-support.patch
 Patch0004: 0004-turbostat-clang-compile-support.patch
+Patch0005: 0005-LoongArch-fix-HT-RX-INT-TRANS-register-not-initializ.patch
 
 #BuildRequires:
 BuildRequires: module-init-tools, patch >= 2.5.4, bash >= 2.03, tar
@@ -364,6 +365,11 @@ Applypatches series.conf %{_builddir}/kernel-%{version}/linux-%{KernelVer}
 %patch0002 -p1
 %patch0003 -p1
 %patch0004 -p1
+%endif
+
+# riscv-kernel patch
+%ifarch loongarch64
+%patch0005 -p1
 %endif
 
 find . \( -name "*.orig" -o -name "*~" \) -exec rm -f {} \; >/dev/null
