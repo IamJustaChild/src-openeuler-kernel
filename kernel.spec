@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .77.0
-%global pkg_release         .157
+%global maintenance_release .78.0
+%global pkg_release         .158
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,131 @@ fi
 %endif
 
 %changelog
+* Wed Jun 05 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.78.0.158
+- !8594 [sync] PR-6990:  netfilter: nf_tables: Fix potential data-race in __nft_expr_type_get()
+- !8591 [sync] PR-7174:  CVE-2022-48689
+- !8595 [sync] PR-6939:  USB: core: Fix deadlock in usb_deauthorize_interface()
+- !8554 [sync] PR-8395:  5.10: fix CVE-2024-35978
+- !8364  perf: hisi: Fix use-after-free when register pmu fails
+- !8606  smb: client: fix use-after-free bug in cifs_debug_data_proc_show()
+- !7672  btrfs: send: handle path ref underflow in header iterate_inode_ref()
+- !8597 [sync] PR-6393:  crypto: xilinx - call finalize with bh disabled
+- !8514  net: ena: Fix incorrect descriptor free behavior
+- !8563 [sync] PR-8110:  drm/client: Fully protect modes[
+- smb: client: fix use-after-free bug in cifs_debug_data_proc_show()
+- crypto: xilinx - call finalize with bh disabled
+- USB: core: Fix deadlock in usb_deauthorize_interface()
+- netfilter: nf_tables: Fix potential data-race in __nft_expr_type_get()
+- tcp: TX zerocopy should not sense pfmemalloc status
+- net: skbuff: update comment about pfmemalloc propagating
+- net: introduce __skb_fill_page_desc_noacc
+- tcp: factor out tcp_build_frag()
+- !8505  CVE: CVE-2024-36015
+- drm/client: Fully protect modes[] with dev->mode_config.mutex
+- !8523  tty: vcc: Add check for kstrdup() in vcc_probe()
+- !8487 [sync] PR-8397:  mm/hugetlb: fix missing hugetlb_lock for resv uncharge
+- !8486 [sync] PR-8373:  dma-direct: Leak pages on dma_set_decrypted() failure
+- !8245 [sync] PR-7870:  CVE-2024-35995
+- Bluetooth: Fix memory leak in hci_req_sync_complete()
+- !8202  arm64: Restrict CPU_BIG_ENDIAN to GNU as or LLVM IAS 15.x or newer
+- !8408  pinctrl: core: delete incorrect free in pinctrl_enable()
+- tty: vcc: Add check for kstrdup() in vcc_probe()
+- net: ena: Fix incorrect descriptor free behavior
+- !8457 [sync] PR-8416:  iio: adc: stm32-adc: harden against NULL pointer deref in stm32_adc_probe()
+- !8501 [sync] PR-7889:  vt: fix unicode buffer corruption when deleting characters
+- ppdev: Add an error check in register_device
+- ppdev: Remove usage of the deprecated ida_simple_xx() API
+- vt: fix unicode buffer corruption when deleting characters
+- mm/hugetlb: fix missing hugetlb_lock for resv uncharge
+- dma-direct: Leak pages on dma_set_decrypted() failure
+- !8429  drm/amdgpu: Fix even more out of bound writes from debugfs
+- !8340  soc: qcom: llcc: Handle a second device without data corruption
+- !8369  efi/capsule-loader: fix incorrect allocation size
+- !8312 [sync] PR-8039: v2  dynamic_hugetlb: backport some bugfix
+- !8451 [sync] PR-8342:  net/mlx5: Properly link new fs rules into the tree
+- !8293  drm/panel/panel-tpo-tpg110: fix a possible null pointer dereference
+- iio: adc: stm32-adc: harden against NULL pointer deref in stm32_adc_probe()
+- net/mlx5: Properly link new fs rules into the tree
+- !8179  jfs: fix array-index-out-of-bounds in diAlloc
+- !8167 v2  mmc: sdio: fix possible resource leaks in some error paths
+- !8346 [sync] PR-8248:  gfs2: ignore negated quota changes
+- !8331 [sync] PR-8254:  sysv: don't call sb_bread() with pointers_lock held
+- !8375 [sync] PR-8306:  mptcp: ensure tx skbs always have the MPTCP ext
+- drm/amdgpu: Fix even more out of bound writes from debugfs
+- !8391 [sync] PR-8109:  vhost-vdpa: fix use after free in vhost_vdpa_probe()
+- pinctrl: core: delete incorrect free in pinctrl_enable()
+- !8370  locking/ww_mutex/test: Fix potential workqueue corruption
+- !8311  drm/amd: Fix UBSAN array-index-out-of-bounds for Polaris and Tonga
+- !8334  wifi: mac80211: don't return unset power in ieee80211_get_tx_power()
+- !8317  net/usb: kalmia: Don't pass act_len in usb_bulk_msg error path
+- !8235 [sync] PR-8054:  CVE-2023-52669
+- !8380 [sync] PR-8212:  fix CVE-2024-35877
+- vhost-vdpa: fix use after free in vhost_vdpa_probe()
+- !8294  CVE-2023-52735
+- x86/mm/pat: fix VM_PAT handling in COW mappings
+- !8196  clk: mediatek: clk-mt7629: Add check for mtk_alloc_clk_data
+- mptcp: ensure tx skbs always have the MPTCP ext
+- locking/ww_mutex/test: Fix potential workqueue corruption
+- efi/capsule-loader: fix incorrect allocation size
+- perf: hisi: Fix use-after-free when register pmu fails
+- !7776 [sync] PR-7717:  CVE-2023-52655
+- !8323 [sync] PR-8219:  tipc: Change nla_policy for bearer-related names to NLA_NUL_STRING
+- !8273  ALSA: hda: Do not unset preset when cleaning up codec
+- !8269  drm/amd: Fix UBSAN array-index-out-of-bounds for SMU7
+- !8251 v2  CVE-2024-35956
+- gfs2: ignore negated quota changes
+- soc: qcom: llcc: Handle a second device without data corruption
+- wifi: mac80211: don't return unset power in ieee80211_get_tx_power()
+- sysv: don't call sb_bread() with pointers_lock held
+- tipc: Change nla_policy for bearer-related names to NLA_NUL_STRING
+- !8277  usb: udc: remove warning when queue disabled ep
+- net/usb: kalmia: Don't pass act_len in usb_bulk_msg error path
+- !8289 [sync] PR-8150:  mptcp: use OPTION_MPTCP_MPJ_SYNACK in subflow_finish_connect()
+- !8265 [sync] PR-8228:  ubifs: ubifs_link: Fix wrong name len calculating when UBIFS is encrypted
+- mm/dynamic_hugetlb: refine error info in the destruction
+- mm/dynamic_hugetlb: make free_huge_page_to_dhugetlb_pool irq safe
+- mm/dynamic_hugetlb: check NULL pointer for early parameter
+- mm/dynamic_hugetlb: add lru_add_drain_all() before migration
+- mm/dynamic_hugetlb: add cond_resched() in hpool_merge_page()
+- mm/dynamic_hugetlb: reduce the number of migration attempts
+- mm/dpool: Use helper function to lock/unlock
+- drm/amd: Fix UBSAN array-index-out-of-bounds for Polaris and Tonga
+- !8231  CVE-2023-52804
+- bpf, sockmap: Check for any of tcp_bpf_prots when cloning a listener
+- bpf, sockmap: Don't let sock_map_{close,destroy,unhash} call itself
+- drm/panel/panel-tpo-tpg110: fix a possible null pointer dereference
+- mptcp: use OPTION_MPTCP_MPJ_SYNACK in subflow_finish_connect()
+- !7833 [sync] PR-7599:  irqchip/gic-v3-its: Prevent double free on error
+- !8259 v5  can: dev: can_put_echo_skb(): don't crash kernel if can_priv::echo_skb is accessed out of bounds
+- usb: udc: remove warning when queue disabled ep
+- ALSA: hda: Do not unset preset when cleaning up codec
+- drm/amd: Fix UBSAN array-index-out-of-bounds for SMU7
+- ubifs: ubifs_link: Fix wrong name len calculating when UBIFS is encrypted
+- can: dev: can_put_echo_skb(): don't crash kernel if can_priv::echo_skb is accessed out of bounds
+- !7855  clk: mediatek: clk-mt7629-eth: Add check for mtk_alloc_clk_data
+- btrfs: qgroup: fix qgroup prealloc rsv leak in subvolume operations
+- btrfs: fix anon_dev leak in create_subvol()
+- ACPI: CPPC: Fix access width used for PCC registers
+- ACPI: CPPC: Fix bit_offset shift in MASK_VAL() macro
+- ACPI: CPPC: Use access_width over bit_width for system memory accesses
+- ACPI: CPPC: Fix up I/O port access in cpc_read()
+- ACPI: CPPC: Implement support for SystemIO registers
+- crypto: s390/aes - Fix buffer overread in CTR mode
+- fs/jfs: Add validity check for db_maxag and db_agpref
+- fs: jfs: fix shift-out-of-bounds in dbAllocAG
+- !8224  ALSA: hda: Fix possible null-ptr-deref when assigning a stream
+- ALSA: hda: Fix possible null-ptr-deref when assigning a stream
+- !8125 [sync] PR-8042:  xsk: validate user input for XDP_{UMEM|COMPLETION}_FILL_RING
+- arm64: Restrict CPU_BIG_ENDIAN to GNU as or LLVM IAS 15.x or newer
+- clk: mediatek: clk-mt7629: Add check for mtk_alloc_clk_data
+- jfs: fix array-index-out-of-bounds in diAlloc
+- mmc: sdio: fix possible resource leaks in some error paths
+- xsk: validate user input for XDP_{UMEM|COMPLETION}_FILL_RING
+- clk: mediatek: clk-mt7629-eth: Add check for mtk_alloc_clk_data
+- irqchip/gic-v3-its: Prevent double free on error
+- usb: aqc111: check packet for fixup for true limit
+- btrfs: send: handle path ref underflow in header iterate_inode_ref()
+
 * Wed May 29 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.77.0.157
 - !8099  Fix CVE-2023-52854
 - !8045  drivers/perf: hisi: use cpuhp_state_remove_instance_nocalls() for hisi_hns3_pmu uninit process
