@@ -40,9 +40,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       29
+%global devel_release       30
 %global maintenance_release .0.0
-%global pkg_release         .35
+%global pkg_release         .36
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1079,6 +1079,9 @@ fi
 %endif
 
 %changelog
+* Wed Jun 5 2024 Hongchen Zhang <zhanghongchen@loongson.cn> - 6.6.0-30.0.0.36
+- LoongArch: fix some dual bridge machine boot failed
+
 * Mon Jun 3 2024 Hongchen Zhang <zhanghongchen@loongson.cn> - 6.6.0-29.0.0.35
 - add GMAC & GNET support
 
