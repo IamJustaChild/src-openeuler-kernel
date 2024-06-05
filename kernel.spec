@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2405.5.0
+%global hulkrelease 2406.1.0
 
 %define with_patch 0
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0251
+Release: %{hulkrelease}.0252
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -808,6 +808,193 @@ fi
 %endif
 
 %changelog
+
+* Wed Jun 05 2024 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2406.1.0.0252
+- !8437  comedi: dt9812: fix DMA buffers on stack
+- !8515 v2  *** CVE-2021-47356 ***
+- !8582 v2  bcache: avoid oversized read request in cache missing code path
+- !8522  smb: client: fix use-after-free bug in cifs_debug_data_proc_show()
+- !8499  udf: Fix NULL pointer dereference in udf_symlink function
+- !8498  Bluetooth: l2cap: fix null-ptr-deref in l2cap_chan_timeout
+- !8570  net: hamradio: fix memory leak in mkiss_close
+- !8506  CVE-2024-36015
+- !8508  memory: fsl_ifc: fix leak of private memory on probe failure
+- !8470 v2  CVE-2024-35808
+- !8050  block: prevent division by zero in blk_rq_stat_sum()
+- !8469  watchdog: sc520_wdt: Fix possible use-after-free in wdt_turnoff()
+- !8482 v2  Fix hugetlb deadlock
+- bcache: avoid oversized read request in cache missing code path
+- !8327  wifi: mac80211: don't return unset power in ieee80211_get_tx_power()
+- !8316  net/usb: kalmia: Don't pass act_len in usb_bulk_msg error path
+- net: hamradio: fix memory leak in mkiss_close
+- !8310  jfs: fix two
+- !8507  tty: vcc: Add check for kstrdup() in vcc_probe()
+- !8441  pinctrl: core: delete incorrect free in pinctrl_enable()
+- !8414  backport for CVE-2023-52750
+- !8449  drm/amd/pm: Update intermediate power state for SI
+- !8453  net: fix uninit-value in caif_seqpkt_sendmsg
+- !6800  block: fix overflow in blk_ioctl_discard()
+- !8068  CVE-2021-47427
+- !8102 v2  sata_fsl: fix UAF in sata_fsl_port_stop when rmmod sata_fsl
+- !8413  NFC: digital: fix possible memory leak in digital_tg_listen_mdaa()
+- !8417  NFC: digital: fix possible memory leak in digital_in_send_sdd_req()
+- !8403  can: j1939: j1939_netdev_start(): fix UAF for rx_kref of j1939_priv
+- !8393  4.19: fix CVE-2024-35978
+- !8349  perf hist: Fix memory leak of a perf_hpp_fmt
+- smb: client: fix use-after-free bug in cifs_debug_data_proc_show()
+- mISDN: hfcpci: Fix use-after-free bug in hfcpci_softirq
+- mISDN: fix possible use-after-free in HFC_cleanup()
+- memory: fsl_ifc: fix leak of private memory on probe failure
+- tty: vcc: Add check for kstrdup() in vcc_probe()
+- !8296  atm: iphase: fix possible use-after-free in ia_module_exit()
+- !8297 v2  powerpc/mm: Fix lockup on kernel exec fault
+- !8405  tty: serial: 8250: serial_cs: Fix a memory leak in error handling path
+- ppdev: Add an error check in register_device
+- ppdev: Remove usage of the deprecated ida_simple_xx() API
+- !8423  mac80211: limit injected vht mcs/nss in ieee80211_parse_tx_radiotap
+- udf: Fix NULL pointer dereference in udf_symlink function
+- Bluetooth: l2cap: fix null-ptr-deref in l2cap_chan_timeout
+- !8354  CVE-2021-47277
+- !8386  drm/nouveau/debugfs: fix file release memory leak
+- !8452  Fix CVE-2021-47438
+- !8308  mac80211: fix use-after-free in CCMP/GCMP RX
+- !8341  net/mlx5: Properly link new fs rules into the tree
+- hugetlb: pass head page to remove_hugetlb_page()
+- hugetlbfs: fix hugetlbfs_statfs() locking
+- hugetlb: make free_huge_page irq safe
+- hugetlb: change free_pool_huge_page to remove_pool_huge_page
+- hugetlb: call update_and_free_page without hugetlb_lock
+- hugetlb: create remove_hugetlb_page() to separate functionality
+- Revert "hugetlb: make free_huge_page irq safe"
+- Revert "hugetlbfs: fix hugetlbfs_statfs() locking"
+- !8075 v2  HID: betop: fix slab-out-of-bounds Write in betop_probe
+- md/dm-raid: don't clear MD_RECOVERY_FROZEN after setting frozen
+- md/dm-raid: don't call md_reap_sync_thread() directly
+- watchdog: sc520_wdt: Fix possible use-after-free in wdt_turnoff()
+- !8191  HID: usbhid: free raw_report buffers in usbhid_stop
+- !8314  mcb: fix error handling in mcb_alloc_bus()
+- !7852  CVE-2021-47407
+- net: fix uninit-value in caif_seqpkt_sendmsg
+- net/mlx5e: nullify cq->dbg pointer in mlx5_debug_cq_remove()
+- net/mlx5e: Fix memory leak in mlx5_core_destroy_cq() error path
+- !8276  usb: udc: remove warning when queue disabled ep
+- !8142  i40e: Do not use WQ_MEM_RECLAIM flag for workqueue
+- !8410  iio: adc: stm32-adc: harden against NULL pointer deref in stm32_adc_probe()
+- drm/amd/pm: Update intermediate power state for SI
+- !8175  jfs: fix array-index-out-of-bounds in diAlloc
+- pinctrl: core: delete incorrect free in pinctrl_enable()
+- comedi: dt9812: fix DMA buffers on stack
+- mac80211: limit injected vht mcs/nss in ieee80211_parse_tx_radiotap
+- !8292  netfilter: conntrack: serialize hash resizes and cleanups
+- NFC: digital: fix possible memory leak in digital_in_send_sdd_req()
+- arm64: Restrict CPU_BIG_ENDIAN to GNU as or LLVM IAS 15.x or newer
+- arm64: Make CPU_BIG_ENDIAN depend on ld.bfd or ld.lld 13.0.0+
+- NFC: digital: fix possible memory leak in digital_tg_listen_mdaa()
+- iio: adc: stm32-adc: harden against NULL pointer deref in stm32_adc_probe()
+- tty: serial: 8250: serial_cs: Fix a memory leak in error handling path
+- !8348  ethernet: hisilicon: hns: hns_dsaf_misc: fix a possible array overflow in hns_dsaf_ge_srst_by_port()
+- can: j1939: j1939_netdev_start(): fix UAF for rx_kref of j1939_priv
+- !8324  drm/amd: Fix UBSAN array-index-out-of-bounds for Polaris and Tonga
+- !8394  hugetlbfs: fix hugetlbfs_statfs() locking
+- !8188 v2  ACPI: video: check for error while searching for backlight device parent
+- hugetlbfs: fix hugetlbfs_statfs() locking
+- Bluetooth: Fix memory leak in hci_req_sync_complete()
+- !8303  ipvlan: add ipvlan_route_v6_outbound() helper
+- drm/nouveau/debugfs: fix file release memory leak
+- !8211  fix CVE-2024-35877
+- !7964 v2  vt: fix unicode buffer corruption when deleting characters
+- !8160 v2  ipack: ipoctal: fix stack information leak
+- !8100  arch related major bugfix before 2023
+- !8192  atm: nicstar: Fix possible use-after-free in nicstar_cleanup()
+- kvm: fix previous commit for 32-bit builds
+- kvm: avoid speculation-based attacks from out-of-range memslot accesses
+- !8181 v3  cpu/hotplug: Don't offline the last non-isolated CPU
+- perf hist: Fix memory leak of a perf_hpp_fmt
+- ethernet: hisilicon: hns: hns_dsaf_misc: fix a possible array overflow in hns_dsaf_ge_srst_by_port()
+- !8205  fix hugetlb deadlock
+- !8061  *** CVE-2021-47475 ***
+- !8252  sysv: don't call sb_bread() with pointers_lock held
+- !8248  gfs2: ignore negated quota changes
+- !8206  RDMA: Verify port when creating flow rule
+- net/mlx5: Properly link new fs rules into the tree
+- wifi: mac80211: don't return unset power in ieee80211_get_tx_power()
+- drm/amd: Fix UBSAN array-index-out-of-bounds for Polaris and Tonga
+- !8219  tipc: Change nla_policy for bearer-related names to NLA_NUL_STRING
+- !8223  CVE-2023-52804
+- net/usb: kalmia: Don't pass act_len in usb_bulk_msg error path
+- mcb: fix error handling in mcb_alloc_bus()
+- jfs: fix array-index-out-of-bounds in dbFindLeaf
+- fs: jfs: Fix UBSAN: array-index-out-of-bounds in dbAllocDmapLev
+- mac80211: fix use-after-free in CCMP/GCMP RX
+- !8209  net/smc: Fix NULL pointer dereferencing in smc_vlan_by_tcpsk()
+- !8257 v5  can: dev: can_put_echo_skb(): don't crash kernel if can_priv::echo_skb is accessed out of bounds
+- ipvlan: add ipvlan_route_v6_outbound() helper
+- powerpc/mm: Fix lockup on kernel exec fault
+- atm: iphase: fix possible use-after-free in ia_module_exit()
+- netfilter: conntrack: serialize hash resizes and cleanups
+- !8062  CVE-2024-35789
+- usb: udc: remove warning when queue disabled ep
+- can: dev: can_put_echo_skb(): don't crash kernel if can_priv::echo_skb is accessed out of bounds
+- !7804 v2  selinux: avoid dereference of garbage after mount failure
+- sysv: don't call sb_bread() with pointers_lock held
+- !8186  ALSA: hda: Fix possible null-ptr-deref when assigning a stream
+- !8208  ocfs2: mount fails with buffer overflow in strlen
+- !8207  drm/msm: Fix null pointer dereference on pointer edp
+- gfs2: ignore negated quota changes
+- !7470  x86/cpufeatures: Fix dependencies for GFNI, VAES, and VPCLMULQDQ
+- !7699  CVE-2023-52669
+- !7868  CVE-2024-35995
+- fs/jfs: Add validity check for db_maxag and db_agpref
+- fs: jfs: fix shift-out-of-bounds in dbAllocAG
+- jfs: fix divide error in dbNextAG
+- tipc: Change nla_policy for bearer-related names to NLA_NUL_STRING
+- x86/mm/pat: fix VM_PAT handling in COW mappings
+- net/smc: Fix NULL pointer dereferencing in smc_vlan_by_tcpsk()
+- ocfs2: mount fails with buffer overflow in strlen
+- drm/msm: Fix null pointer dereference on pointer edp
+- !8180  Fix CVE-2021-47495
+- RDMA: Verify port when creating flow rule
+- hugetlb: make free_huge_page irq safe
+- mm/hugetlb: defer freeing of huge pages if in non-task context
+- !8146  pinctrl: single: fix potential NULL dereference
+- !8164  sctp: break out if skb_header_pointer returns NULL in sctp_rcv_ootb
+- !8131  scsi: libfc: Fix potential NULL pointer dereference in fc_lport_ptp_setup()
+- atm: nicstar: Fix possible use-after-free in nicstar_cleanup()
+- HID: usbhid: free raw_report buffers in usbhid_stop
+- ACPI: video: check for error while searching for backlight device parent
+- ALSA: hda: Fix possible null-ptr-deref when assigning a stream
+- cpu/hotplug: Don't offline the last non-isolated CPU
+- usbnet: fix error return code in usbnet_probe()
+- usbnet: sanity check for maxpacket
+- jfs: fix array-index-out-of-bounds in diAlloc
+- sctp: break out if skb_header_pointer returns NULL in sctp_rcv_ootb
+- ipack: ipoctal: fix stack information leak
+- pinctrl: single: fix potential NULL dereference
+- i40e: Do not use WQ_MEM_RECLAIM flag for workqueue
+- scsi: libfc: Fix potential NULL pointer dereference in fc_lport_ptp_setup()
+- sata_fsl: fix UAF in sata_fsl_port_stop when rmmod sata_fsl
+- x86/ioapic: Unbreak check_timer()
+- irqchip/gic-v3: Ensure pseudo-NMIs have an ISB between ack and handling
+- genirq/ipi: Fix NULL pointer deref in irq_data_get_affinity_mask()
+- HID: betop: fix slab-out-of-bounds Write in betop_probe
+- scsi: iscsi: Fix iscsi_task use after free
+- scsi: iscsi: Have abort handler get ref to conn
+- wifi: mac80211: check/clear fast rx for non-4addr sta VLAN changes
+- mac80211: clear sta->fast_rx when STA removed from 4-addr VLAN
+- comedi: vmk80xx: fix expression for tx buffer size
+- comedi: vmk80xx: fix transfer-buffer overflows
+- block: prevent division by zero in blk_rq_stat_sum()
+- vt: fix unicode buffer corruption when deleting characters
+- ACPI: CPPC: Fix access width used for PCC registers
+- ACPI: CPPC: Fix bit_offset shift in MASK_VAL() macro
+- ACPI: CPPC: Use access_width over bit_width for system memory accesses
+- ACPI: CPPC: Fix up I/O port access in cpc_read()
+- ACPI: CPPC: Implement support for SystemIO registers
+- KVM: x86: Handle SRCU initialization failure during page track init
+- selinux: avoid dereference of garbage after mount failure
+- crypto: s390/aes - Fix buffer overread in CTR mode
+- x86/cpufeatures: Fix dependencies for GFNI, VAES, and VPCLMULQDQ
+- block: fix overflow in blk_ioctl_discard()
 
 * Wed May 29 2024 Zhang Changzhong <zhangchangzhong@huawei.com> - 4.19.90-2405.5.0.0251
 - !8066  drm/amd: Fix UBSAN array-index-out-of-bounds for SMU7
