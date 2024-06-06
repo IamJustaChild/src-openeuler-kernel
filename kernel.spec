@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       201
+%global devel_release       203
 %global maintenance_release .0.0
-%global pkg_release         .102
+%global pkg_release         .103
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -952,6 +952,913 @@ fi
 %endif
 
 %changelog
+* Wed Jun 05 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-203.0.0.103
+- !8646  Fix vf init and common user permissions issue
+- !8534  riscv: process: Fix kernel gp leakage
+- !8542  octeontx2-af: Fix possible null pointer dereference.
+- !8642 v9  Memory access profiler(SPE) driven NUMA balancing
+- !8483 KVM: arm64: Translate logic cluster id to physical cluster id when updating lsudvmbm
+- net/ethernet/huawei/hiroce3: Fix vf init and common user permissions issue
+- !8461  i2c: smbus: fix NULL function pointer dereference
+- config: Enable memory sampling based pmu for numa balance by default
+- samples/bpf: Add program for memory access by spe
+- tracing, mem-sampling-sample: Adding tracking events to hardware-sampled page access
+- driver/arm/spe: making mem_sampling and perf mutually exclusive with spe driver
+- tracing, numa balance: add trace events for numa data caused by mem_sampling
+- mm/mem_sampling.c: Add controlling interface for mem_sampling on numa balance
+- mm/mem_sampling.c: Drive NUMA balancing via mem_sampling access data
+- sched: Enable per-process mem_sampling from sched switch path
+- mm/mem_sampling.c: Add controlling interface for mem_sampling
+- mm: Add PMU based memory sampling abstract layer
+- drivers/arm/spe: In-kernel SPE driver for page access profiling
+- !8555  rtnetlink: fix error logic of IFLA_BRIDGE_FLAGS writing back
+- !8425  CVE-2023-52677
+- !8519  mISDN: hfcpci: Fix use-after-free bug in hfcpci_softirq
+- !8545 v2  arm64 mpam fix patch
+- !8468 v2  CVE-2024-35808
+- !8046  block: prevent division by zero in blk_rq_stat_sum()
+- !8605  smb: client: fix use-after-free bug in cifs_debug_data_proc_show()
+- !7670  btrfs: send: handle path ref underflow in header iterate_inode_ref()
+- !8513  net: ena: Fix incorrect descriptor free behavior
+- !8535 v4  Fix soft lockup in stress test
+- !8561  mlxsw: spectrum_acl_tcam: Fix possible use-after-free during activity update
+- !8497  Bluetooth: l2cap: fix null-ptr-deref in l2cap_chan_timeout
+- smb: client: fix use-after-free bug in cifs_debug_data_proc_show()
+- !7803 v2  selinux: avoid dereference of garbage after mount failure
+- !6393  crypto: xilinx - call finalize with bh disabled
+- !8539 v2  iommu/arm-smmu-v3: Reducing the CMD_SYNC times
+- !8504  CVE: CVE-2024-36015
+- !8261  tty: fix hang on tty device with no_room set
+- !8110  drm/client: Fully protect modes[
+- mlxsw: spectrum_acl_tcam: Fix possible use-after-free during activity update
+- rtnetlink: fix error logic of IFLA_BRIDGE_FLAGS writing back
+- !8472  fix CVE-2024-27415
+- !8527 v8  Add support for l0
+- !8395  5.10: fix CVE-2024-35978
+- !8541 v2  iommu/iova: move depot up to avoid cache conflict
+- !8407  pinctrl: core: delete incorrect free in pinctrl_enable()
+- !8240 v2  dmaengine: idxd: Fix oops during rmmod on single-CPU platforms
+- arm64/mpam: Fix softlockup when reading mondata
+- arm64/mpam: Fix wrong seconds to jiffies conversion
+- arm64/mpam: change allocation mode from GFP_KERNEL to GFP_NOWAIT
+- mpam/resctrl: Fix use-after-free due to inaccurate refcount of rdtgroup
+- mpam/resctrl: Clean up resctrl_group_rmdir_[ctrl/mon]()
+- mpam/resctrl: Clean up unused function parameter in mkdir path
+- mpam/resctrl: Fix a deadlock due to inaccurate reference
+- octeontx2-af: Fix possible null pointer dereference.
+- iommu/iova: move depot up to avoid cache conflict
+- iommu/arm-smmu-v3: Reducing the CMD_SYNC times
+- iommu/iova: Try to schedule out when free iova too long
+- iommu/iova: free iovas on each cpu in flush queue
+- riscv: process: Fix kernel gp leakage
+- arm64: config: Enable hisi l3t & l0 by default
+- hisi: l0: Add support for l0
+- hisi: l3t: Add L3 cache driver for hisi
+- mm/mempolicy: Add and export get_vma_policy_node
+- arm64: export cpu_logical_map
+- export symbol alloc_contig_pages
+- mISDN: hfcpci: Fix use-after-free bug in hfcpci_softirq
+- net: ena: Fix incorrect descriptor free behavior
+- ppdev: Add an error check in register_device
+- ppdev: Remove usage of the deprecated ida_simple_xx() API
+- Bluetooth: l2cap: fix null-ptr-deref in l2cap_chan_timeout
+- !8397  mm/hugetlb: fix missing hugetlb_lock for resv uncharge
+- !8373  dma-direct: Leak pages on dma_set_decrypted() failure
+- KVM: arm64: Translate logic cluster id to physical cluster id when updating lsudvmbm
+- !8428  drm/amdgpu: Fix even more out of bound writes from debugfs
+- !8339  soc: qcom: llcc: Handle a second device without data corruption
+- !8368  efi/capsule-loader: fix incorrect allocation size
+- netfilter: br_netfilter: skip conntrack input hook for promisc packets
+- netfilter: bridge: confirm multicast packets before passing them up the stack
+- md/dm-raid: don't clear MD_RECOVERY_FROZEN after setting frozen
+- md/dm-raid: don't call md_reap_sync_thread() directly
+- !8454 v3  net: Bacport hulk patches
+- i2c: smbus: fix NULL function pointer dereference
+- !8069  CVE-2021-47427
+- !8299  xfs: Fix file creation failure
+- !8426 Backport 5.10.209 LTS patches from upstream
+- !8416  iio: adc: stm32-adc: harden against NULL pointer deref in stm32_adc_probe()
+- net: xfrm: skip policies marked as dead while reinserting policies
+- tcp_comp: modify default value of TCP_COMP to n
+- bpf: socketmap: add Kconfig for customized socketmap
+- bpf: fix magic numbers in bpf_get_sockops_uid_gid()
+- netfilter: make return-type and function-name in the same line
+- bpf: fix type incompatible warning
+- bpf: fix format type mismatch warning
+- !8342  net/mlx5: Properly link new fs rules into the tree
+- drm/amdgpu: Fix even more out of bound writes from debugfs
+- arm64: dts: armada-3720-turris-mox: set irq type for RTC
+- i2c: s3c24xx: fix transferring more than one message in polling mode
+- i2c: s3c24xx: fix read transfers in polling mode
+- selftests: mlxsw: qos_pfc: Adjust the test to support 8 lanes
+- selftests: mlxsw: qos_pfc: Convert to iproute2 dcb
+- ethtool: netlink: Add missing ethnl_ops_begin/complete
+- kdb: Fix a potential buffer overflow in kdb_local()
+- ipvs: avoid stat macros calls from preemptible context
+- netfilter: nf_tables: reject NFT_SET_CONCAT with not field length description
+- netfilter: nf_tables: skip dead set elements in netlink dump
+- netfilter: nf_tables: do not allow mismatch field size and set key length
+- net: dsa: vsc73xx: Add null pointer check to vsc73xx_gpio_probe
+- net: ravb: Fix dma_addr_t truncation in error case
+- net: phy: micrel: populate .soft_reset for KSZ9131
+- net: ethernet: ti: am65-cpsw: Fix max mtu to fit ethernet frames
+- s390/pci: fix max size calculation in zpci_memcpy_toio()
+- PCI: keystone: Fix race condition when initializing PHYs
+- serial: imx: Correct clock error message in function probe()
+- perf env: Avoid recursively taking env->bpf_progs.lock
+- nvmet-tcp: fix a crash in nvmet_req_complete()
+- usb: cdc-acm: return correct error code on unsupported break
+- tty: use 'if' in send_break() instead of 'goto'
+- tty: don't check for signal_pending() in send_break()
+- tty: early return from send_break() on TTY_DRIVER_HARDWARE_BREAK
+- tty: change tty_write_lock()'s ndelay parameter to bool
+- perf genelf: Set ELF program header addresses properly
+- iio: adc: ad9467: fix scale setting
+- iio: adc: ad9467: don't ignore error codes
+- iio: adc: ad9467: fix reset gpio handling
+- iio: adc: ad9467: Benefit from devm_clk_get_enabled() to simplify
+- software node: Let args be NULL in software_node_get_reference_args
+- acpi: property: Let args be NULL in __acpi_node_get_property_reference
+- libapi: Add missing linux/types.h header to get the __u64 type on io.h
+- power: supply: cw2015: correct time_to_empty units in sysfs
+- MIPS: Alchemy: Fix an out-of-bound access in db1550_dev_setup()
+- MIPS: Alchemy: Fix an out-of-bound access in db1200_dev_setup()
+- mips: Fix incorrect max_low_pfn adjustment
+- mips: dmi: Fix early remap on MIPS32
+- leds: aw2013: Select missing dependency REGMAP_I2C
+- HID: wacom: Correct behavior when processing some confidence == false touches
+- iio: adc: ad7091r: Pass iio_dev to event handler
+- x86/kvm: Do not try to disable kvmclock if it was not enabled
+- wifi: mwifiex: configure BSSID consistently when starting AP
+- wifi: rtlwifi: Convert LNKCTL change to PCIe cap RMW accessors
+- wifi: rtlwifi: Remove bogus and dangerous ASPM disable/enable code
+- iommu/arm-smmu-qcom: Add missing GMU entry to match table
+- io_uring/rw: ensure io->bytes_done is always initialized
+- pwm: jz4740: Don't use dev_err_probe() in .request()
+- fbdev: flush deferred work in fb_deferred_io_fsync()
+- ALSA: hda/relatek: Enable Mute LED on HP Laptop 15s-fq2xxx
+- ALSA: oxygen: Fix right channel of capture volume mixer
+- serial: imx: Ensure that imx_uart_rs485_config() is called with enabled clock
+- usb: mon: Fix atomicity violation in mon_bin_vma_fault
+- usb: typec: class: fix typec_altmode_put_partner to put plugs
+- Revert "usb: typec: class: fix typec_altmode_put_partner to put plugs"
+- usb: chipidea: wait controller resume finished for wakeup irq
+- Revert "usb: dwc3: don't reset device side if dwc3 was configured as host-only"
+- Revert "usb: dwc3: Soft reset phy on probe for host"
+- usb: dwc: ep0: Update request status in dwc3_ep0_stall_restart
+- usb: phy: mxs: remove CONFIG_USB_OTG condition for mxs_phy_is_otg_host()
+- tick-sched: Fix idle and iowait sleeptime accounting vs CPU hotplug
+- net: ethernet: mtk_eth_soc: remove duplicate if statements
+- kprobes: Fix to handle forcibly unoptimized kprobes on freeing_list
+- Revert "ASoC: atmel: Remove system clock tree configuration for at91sam9g20ek"
+- virtio-crypto: fix memory leak in virtio_crypto_alg_skcipher_close_session()
+- virtio-crypto: fix memory-leak
+- dma-mapping: Fix build error unused-value
+- Input: atkbd - use ab83 as id when skipping the getid command
+- binder: fix unused alloc->free_async_space
+- binder: fix async space check for 0-sized buffers
+- keys, dns: Fix size check of V1 server-list header
+- of: unittest: Fix of_count_phandle_with_args() expected value message
+- of: Fix double free in of_parse_phandle_with_args_map
+- IB/iser: Prevent invalidating wrong MR
+- mmc: sdhci_omap: Fix TI SoC dependencies
+- mmc: sdhci_am654: Fix TI SoC dependencies
+- pwm: stm32: Fix enable count for clk in .probe()
+- pwm: stm32: Use hweight32 in stm32_pwm_detect_channels
+- pwm: stm32: Use regmap_clear_bits and regmap_set_bits where applicable
+- clk: fixed-rate: fix clk_hw_register_fixed_rate_with_accuracy_parent_hw
+- clk: fixed-rate: add devm_clk_hw_register_fixed_rate
+- clk: si5341: fix an error code problem in si5341_output_clk_set_rate
+- watchdog: rti_wdt: Drop runtime pm reference count when watchdog is unused
+- watchdog: bcm2835_wdt: Fix WDIOC_SETTIMEOUT handling
+- watchdog/hpwdt: Only claim UNKNOWN NMI if from iLO
+- watchdog: set cdev owner before adding
+- drivers: clk: zynqmp: update divider round rate logic
+- clk: zynqmp: Add a check for NULL pointer
+- clk: zynqmp: make bestdiv unsigned
+- drivers: clk: zynqmp: calculate closest mux rate
+- clk: qcom: videocc-sm8150: Add missing PLL config property
+- clk: qcom: videocc-sm8150: Update the videocc resets
+- dt-bindings: clock: Update the videocc resets for sm8150
+- gpu/drm/radeon: fix two memleaks in radeon_vm_init
+- drm/amdgpu/debugfs: fix error code when smc register accessors are NULL
+- media: dvb-frontends: m88ds3103: Fix a memory leak in an error handling path of m88ds3103_probe()
+- media: dvbdev: drop refcount on error path in dvb_device_open()
+- f2fs: fix to update iostat correctly in f2fs_filemap_fault()
+- f2fs: fix to check compress file in f2fs_move_file_range()
+- media: rkisp1: Disable runtime PM in probe error path
+- clk: qcom: gpucc-sm8150: Update the gpu_cc_pll1 config
+- media: cx231xx: fix a memleak in cx231xx_init_isoc
+- drm/bridge: tc358767: Fix return value on error case
+- drm/radeon/trinity_dpm: fix a memleak in trinity_parse_power_table
+- drm/radeon/dpm: fix a memleak in sumo_parse_power_table
+- drm/drv: propagate errors from drm_modeset_register_all()
+- drm/msm/dsi: Use pm_runtime_resume_and_get to prevent refcnt leaks
+- drm/msm/mdp4: flush vblank event on disable
+- ASoC: cs35l34: Fix GPIO name and drop legacy include
+- ASoC: cs35l33: Fix GPIO name and drop legacy include
+- drm/radeon: check return value of radeon_ring_lock()
+- drm/radeon/r100: Fix integer overflow issues in r100_cs_track_check()
+- drm/radeon/r600_cs: Fix possible int overflows in r600_cs_check_reg()
+- drm/bridge: Fix typo in post_disable() description
+- drm/nouveau/fence:: fix warning directly dereferencing a rcu pointer
+- rcu: Create an unrcu_pointer() to remove __rcu from a pointer
+- drm/panel-elida-kd35t133: hold panel in reset for unprepare
+- RDMA/usnic: Silence uninitialized symbol smatch warnings
+- ARM: davinci: always select CONFIG_CPU_ARM926T
+- Bluetooth: btmtkuart: fix recv_buf() return value
+- Bluetooth: Fix bogus check for re-auth no supported with non-ssp
+- netfilter: nf_tables: mark newset as dead on transaction abort
+- wifi: rtlwifi: rtl8192se: using calculate_bit_shift()
+- wifi: rtlwifi: rtl8192ee: using calculate_bit_shift()
+- wifi: rtlwifi: rtl8192de: using calculate_bit_shift()
+- rtlwifi: rtl8192de: make arrays static const, makes object smaller
+- wifi: rtlwifi: rtl8192ce: using calculate_bit_shift()
+- wifi: rtlwifi: rtl8192cu: using calculate_bit_shift()
+- wifi: rtlwifi: rtl8192c: using calculate_bit_shift()
+- wifi: rtlwifi: rtl8188ee: phy: using calculate_bit_shift()
+- wifi: rtlwifi: add calculate_bit_shift()
+- dma-mapping: clear dev->dma_mem to NULL after freeing it
+- dma-mapping: Add dma_release_coherent_memory to DMA API
+- virtio/vsock: fix logic which reduces credit update messages
+- selftests/net: fix grep checking for fib_nexthop_multiprefix
+- arm64: dts: qcom: sdm845-db845c: correct LED panic indicator
+- arm64: dts: qcom: qrb5165-rb5: correct LED panic indicator
+- scsi: fnic: Return error if vmalloc() failed
+- arm64: dts: ti: k3-am65-main: Fix DSS irq trigger type
+- wifi: rtlwifi: rtl8821ae: phy: fix an undefined bitwise shift behavior
+- firmware: meson_sm: populate platform devices from sm device tree data
+- firmware: ti_sci: Fix an off-by-one in ti_sci_debugfs_create()
+- net/ncsi: Fix netlink major/minor version numbers
+- ncsi: internal.h: Fix a spello
+- ARM: dts: qcom: apq8064: correct XOADC register address
+- wifi: libertas: stop selecting wext
+- wifi: ath11k: Defer on rproc_get failure
+- bpf: Add crosstask check to __bpf_get_stack
+- bpf, lpm: Fix check prefixlen before walking trie
+- wifi: rtw88: fix RX filter in FIF_ALLMULTI flag
+- NFSv4.1/pnfs: Ensure we handle the error NFS4ERR_RETURNCONFLICT
+- blocklayoutdriver: Fix reference leak of pnfs_device_node
+- crypto: scomp - fix req->dst buffer overflow
+- crypto: sahara - do not resize req->src when doing hash operations
+- crypto: sahara - fix processing hash requests with req->nbytes < sg->length
+- crypto: sahara - improve error handling in sahara_sha_process()
+- crypto: sahara - fix wait_for_completion_timeout() error handling
+- crypto: sahara - fix ahash reqsize
+- crypto: sahara - handle zero-length aes requests
+- crypto: sahara - avoid skcipher fallback code duplication
+- gfs2: Also reflect single-block allocations in rgd->rd_extfail_pt
+- Revert "gfs2: Don't reject a supposedly full bitmap if we have blocks reserved"
+- fs: indicate request originates from old mount API
+- crypto: sahara - fix error handling in sahara_hw_descriptor_create()
+- crypto: sahara - fix processing requests with cryptlen < sg->length
+- crypto: sahara - fix ahash selftest failure
+- crypto: sahara - fix cbc selftest failure
+- crypto: sahara - remove FLAGS_NEW_KEY logic
+- crypto: af_alg - Disallow multiple in-flight AIO requests
+- crypto: ccp - fix memleak in ccp_init_dm_workarea
+- crypto: sa2ul - Return crypto_aead_setkey to transfer the error
+- crypto: virtio - Handle dataq logic with tasklet
+- virtio-crypto: wait ctrl queue instead of busy polling
+- virtio-crypto: use private buffer for control request
+- virtio-crypto: change code style
+- virtio-crypto: implement RSA algorithm
+- virtio-crypto: introduce akcipher service
+- virtio_crypto: Introduce VIRTIO_CRYPTO_NOSPC
+- selinux: Fix error priority for bind with AF_UNSPEC on PF_INET6 socket
+- ACPI: extlog: Clear Extended Error Log status when RAS_CEC handled the error
+- spi: sh-msiof: Enforce fixed DTDL for R-Car H3
+- cpufreq: scmi: process the result of devm_of_clk_add_hw_provider()
+- cpufreq: Use of_property_present() for testing DT property presence
+- of: Add of_property_present() helper
+- of: property: define of_property_read_u{8,16,32,64}_array() unconditionally
+- ACPI: video: check for error while searching for backlight device parent
+- mtd: rawnand: Increment IFC_TIMEOUT_MSECS for nand controller response
+- spi: spi-zynqmp-gqspi: fix driver kconfig dependencies
+- powerpc/powernv: Add a null pointer check in opal_powercap_init()
+- powerpc/powernv: Add a null pointer check in opal_event_init()
+- selftests/powerpc: Fix error handling in FPU/VMX preemption tests
+- powerpc/44x: select I2C for CURRITUCK
+- powerpc: Remove in_kernel_text()
+- powerpc: add crtsavres.o to always-y instead of extra-y
+- x86/lib: Fix overflow when counting digits
+- coresight: etm4x: Fix width of CCITMIN field
+- PCI: Add ACS quirk for more Zhaoxin Root Ports
+- parport: parport_serial: Add Brainboxes device IDs and geometry
+- parport: parport_serial: Add Brainboxes BAR details
+- binder: fix comment on binder_alloc_new_buf() return value
+- binder: fix trivial typo of binder_free_buf_locked()
+- binder: use EPOLLERR from eventpoll.h
+- ACPI: resource: Add another DMI match for the TongFang GMxXGxx
+- drm/crtc: fix uninitialized variable use
+- ARM: sun9i: smp: fix return code check of of_property_match_string
+- net: qrtr: ns: Return 0 if server port is not present
+- i2c: rk3x: fix potential spinlock recursion on poll
+- Input: xpad - add Razer Wolverine V2 support
+- ARC: fix spare error
+- s390/scm: fix virtual vs physical address confusion
+- Input: i8042 - add nomux quirk for Acer P459-G2-M
+- Input: atkbd - skip ATKBD_CMD_GETID in translated mode
+- reset: hisilicon: hi6220: fix Wvoid-pointer-to-enum-cast warning
+- ring-buffer: Do not record in NMI if the arch does not support cmpxchg in NMI
+- tracing: Add size check when printing trace_marker output
+- tracing: Have large events show up as '[LINE TOO BIG]' instead of nothing
+- neighbour: Don't let neigh_forced_gc() disable preemption for long
+- drm/crtc: Fix uninit-value bug in drm_mode_setcrtc
+- jbd2: correct the printing of write_flags in jbd2_write_superblock()
+- clk: rockchip: rk3128: Fix HCLK_OTG gate register
+- drm/exynos: fix a wrong error checking
+- drm/exynos: fix a potential error pointer dereference
+- nvme: introduce helper function to get ctrl state
+- ASoC: da7219: Support low DC impedance headset
+- nouveau/tu102: flush all pdbs on vmm flush
+- ASoC: rt5650: add mutex to avoid the jack detection failure
+- ASoC: cs43130: Fix incorrect frame delay configuration
+- ASoC: cs43130: Fix the position of const qualifier
+- ASoC: Intel: Skylake: mem leak in skl register function
+- ASoC: nau8822: Fix incorrect type in assignment and cast to restricted __be16
+- ASoC: Intel: Skylake: Fix mem leak in few functions
+- ASoC: wm8974: Correct boost mixer inputs
+- debugfs: fix automount d_fsdata usage
+- mptcp: fix uninit-value in mptcp_incoming_options
+- ALSA: hda - Fix speaker and headset mic pin config for CHUWI CoreBook XPro
+- pinctrl: lochnagar: Don't build on MIPS
+- riscv: Check if the code to patch lies in the exit section
+- !8221 Backport 5.10.207- 5.10.208 LTS patches from upstream
+- !8140  i40e: Do not use WQ_MEM_RECLAIM flag for workqueue
+- iio: adc: stm32-adc: harden against NULL pointer deref in stm32_adc_probe()
+- pinctrl: core: delete incorrect free in pinctrl_enable()
+- !7471  x86/cpufeatures: Fix dependencies for GFNI, VAES, and VPCLMULQDQ
+- !8367  cvm: clean code for cvm init
+- mm/hugetlb: fix missing hugetlb_lock for resv uncharge
+- Bluetooth: Fix memory leak in hci_req_sync_complete()
+- !8300  ipvlan: add ipvlan_route_v6_outbound() helper
+- !8271  netfilter: nf_tables: reject new basechain after table flag update
+- !8212  fix CVE-2024-35877
+- dma-direct: Leak pages on dma_set_decrypted() failure
+- !8306  mptcp: ensure tx skbs always have the MPTCP ext
+- efi/capsule-loader: fix incorrect allocation size
+- cvm: clean code for cvm init
+- !8195  CVE-2024-35956
+- !8153  cpu/hotplug: Don't offline the last non-isolated CPU
+- net/mlx5: Properly link new fs rules into the tree
+- soc: qcom: llcc: Handle a second device without data corruption
+- !8254  sysv: don't call sb_bread() with pointers_lock held
+- !8275  usb: udc: remove warning when queue disabled ep
+- !8263 [sync] PR-8228:  ubifs: ubifs_link: Fix wrong name len calculating when UBIFS is encrypted
+- !8243 【OLK 5.10】RDMA/hns some bugfix
+- mptcp: ensure tx skbs always have the MPTCP ext
+- ipvlan: add ipvlan_route_v6_outbound() helper
+- xfs: Fix file creation failure
+- !7831 IMA: Support the measurement extending of TSI TMM
+- !8230  Remove redundants code for proc_cgroupstats_show
+- !8255  IMA: Introduce a config for fix on IMA with Overlayfs issue
+- !8250  Control KABI reservation codes with config
+- !7889  vt: fix unicode buffer corruption when deleting characters
+- !8220  improve security for cvm host feature
+- !8150  mptcp: use OPTION_MPTCP_MPJ_SYNACK in subflow_finish_connect()
+- !8127  mlxsw: spectrum_acl_tcam: Fix warning during rehash
+- !8063  wifi: mac80211: check/clear fast rx for non-4addr sta VLAN changes
+- !8258 v5  can: dev: can_put_echo_skb(): don't crash kernel if can_priv::echo_skb is accessed out of bounds
+- !8133  fix CVE-2021-47265
+- usb: udc: remove warning when queue disabled ep
+- netfilter: nf_tables: reject new basechain after table flag update
+- ubifs: ubifs_link: Fix wrong name len calculating when UBIFS is encrypted
+- tty: fix hang on tty device with no_room set
+- can: dev: can_put_echo_skb(): don't crash kernel if can_priv::echo_skb is accessed out of bounds
+- !8238  arm: unwinder: Fix pc off-by-one in arm unwinder
+- !8237  x86: profiling: Using generic unwinding in profile_pc
+- !8236  x86: profiling: Check prof_buffer in profile_tick()
+- !8229  LLVM fix compile warning options
+- RDMA/hns: Add max_ah and cq moderation capacities in query_device()
+- RDMA/hns: Fix return value in hns_roce_map_mr_sg
+- RDMA/hns: Fix deadlock on SRQ async events.
+- IMA: Introduce a config for fix on IMA with Overlayfs issue
+- RDMA/hns: Fix UAF for cq async event
+- RDMA/hns: Fix mismatch exception rollback
+- sysv: don't call sb_bread() with pointers_lock held
+- RDMA/hns: Fix GMV table pagesize
+- RDMA/hns: Add mutex_destroy()
+- Control KABI reservation codes with config
+- RDMA/hns: Modify the print level of CQE error
+- !8109  vhost-vdpa: fix use after free in vhost_vdpa_probe()
+- dmaengine: idxd: Fix oops during rmmod on single-CPU platforms
+- arm: unwinder: Fix pc off-by-one in arm unwinder
+- x86: profiling: Using generic unwinding in profile_pc
+- x86: profiling: Check prof_buffer in profile_tick()
+- Remove redundants code for proc_cgroupstats_show
+- kbuild: Fix grep -q waring
+- Makefile: Exclude false positive warning options for Clang
+- !8054  CVE-2023-52669
+- !8190  crypto: jitter - change module_init(jent_mod_init) to subsys_initcall(jent_mod_init)
+- !8203  efi/libstub: arm64: Add macro isolation memmap detection code
+- PCI: Disable ATS for specific Intel IPU E2000 devices
+- PCI: Extract ATS disabling to a helper function
+- net: tls, update curr on splice as well
+- powerpc: update ppc_save_regs to save current r1 in pt_regs
+- mmc: sdhci-sprd: Fix eMMC init failure after hw reset
+- mmc: core: Cancel delayed work before releasing host
+- mmc: rpmb: fixes pause retune on all RPMB partitions.
+- mmc: meson-mx-sdhc: Fix initialization frozen issue
+- mm: fix unmap_mapping_range high bits shift bug
+- i2c: core: Fix atomic xfer check for non-preempt config
+- firewire: ohci: suppress unexpected system reboot in AMD Ryzen machines and ASM108x/VT630x PCIe cards
+- mm/memory-failure: check the mapcount of the precise page
+- net: Implement missing SO_TIMESTAMPING_NEW cmsg support
+- bnxt_en: Remove mis-applied code from bnxt_cfg_ntp_filters()
+- asix: Add check for usbnet_get_endpoints
+- net/qla3xxx: fix potential memleak in ql_alloc_buffer_queues
+- net/qla3xxx: switch from 'pci_' to 'dma_' API
+- i40e: Restore VF MSI-X state during PCI reset
+- ASoC: meson: g12a-tohdmitx: Fix event generation for S/PDIF mux
+- ASoC: meson: g12a-toacodec: Fix event generation
+- ASoC: meson: g12a-tohdmitx: Validate written enum values
+- ASoC: meson: g12a-toacodec: Validate written enum values
+- i40e: fix use-after-free in i40e_aqc_add_filters()
+- net: Save and restore msg_namelen in sock_sendmsg
+- netfilter: nft_immediate: drop chain reference counter on error
+- netfilter: nftables: add loop check helper function
+- net: bcmgenet: Fix FCS generation for fragmented skbuffs
+- sfc: fix a double-free bug in efx_probe_filters
+- ARM: sun9i: smp: Fix array-index-out-of-bounds read in sunxi_mc_smp_init
+- net: sched: em_text: fix possible memory leak in em_text_destroy()
+- i40e: Fix filter input checks to prevent config with invalid values
+- drm/i915/dp: Fix passing the correct DPCD_REV for drm_dp_set_phy_test_pattern
+- octeontx2-af: Fix marking couple of structure as __packed
+- nfc: llcp_core: Hold a ref to llcp_local->dev when holding a ref to llcp_local
+- ALSA: hda/realtek: Fix mute and mic-mute LEDs for HP ProBook 440 G6
+- block: Don't invalidate pagecache for invalid falloc modes
+- keys, dns: Fix missing size check of V1 server-list header
+- cvm: improve security for cvm host feature
+- cvm: add secure memory query method
+- cvm: enable secure memory alloc on multiple numa nodes
+- x86/mm/pat: fix VM_PAT handling in COW mappings
+- !7110 [22.03-LTS-SP4] KVM TDP MMU new refactors
+- !8143  add kconfig for OLK-5.10
+- efi/libstub: arm64: Add macro isolation memmap detection code
+- btrfs: qgroup: fix qgroup prealloc rsv leak in subvolume operations
+- btrfs: fix anon_dev leak in create_subvol()
+- crypto: jitter - change module_init(jent_mod_init) to subsys_initcall(jent_mod_init)
+- cpu/hotplug: Don't offline the last non-isolated CPU
+- mptcp: use OPTION_MPTCP_MPJ_SYNACK in subflow_finish_connect()
+- memcg: Introduce CONFIG_MEMCG_V1_THRESHOLD_QOS
+- kabi: use CONFIG_KABI_RESERVE to isolate bpf cgroup reserve flags
+- cgroup: add config isolation for cgroup_kill in cgroupv1
+- i40e: Do not use WQ_MEM_RECLAIM flag for workqueue
+- RDMA: Verify port when creating flow rule
+- IB/mlx4: Use port iterator and validation APIs
+- mlxsw: spectrum_acl_tcam: Fix warning during rehash
+- drm/client: Fully protect modes[] with dev->mode_config.mutex
+- vhost-vdpa: fix use after free in vhost_vdpa_probe()
+- KVM: x86/mmu: Make KVM parameter tdp_mmu writeable
+- KVM: x86/mmu: Stop zapping invalidated TDP MMU roots asynchronously
+- kvm: x86: Do proper cleanup if kvm_x86_ops->vm_init() fails
+- KVM: x86/mmu: Do not filter address spaces in for_each_tdp_mmu_root_yield_safe()
+- KVM: x86/mmu: Open code leaf invalidation from mmu_notifier
+- KVM: x86/mmu: Include mmu.h in spte.h
+- KVM: x86/mmu: Harden TDP MMU iteration against root w/o shadow page
+- KVM: x86/mmu: Move the lockdep_assert of mmu_lock to inside clear_dirty_pt_masked()
+- KVM: x86/mmu: Add "never" option to allow sticky disabling of nx_huge_pages
+- KVM: x86/mmu: Use kstrtobool() instead of strtobool()
+- KVM: x86/mmu: Grab memslot for correct address space in NX recovery worker
+- KVM: x86/mmu: Add comment on try_cmpxchg64 usage in tdp_mmu_set_spte_atomic
+- KVM: x86: Preserve TDP MMU roots until they are explicitly invalidated
+- KVM: x86/mmu: Refresh CR0.WP prior to checking for emulated permission faults
+- KVM: x86/mmu: Merge all handle_changed_pte*() functions
+- KVM: x86/mmu: Remove handle_changed_spte_dirty_log()
+- KVM: x86/mmu: Remove "record_acc_track" in __tdp_mmu_set_spte()
+- KVM: x86/mmu: Bypass __handle_changed_spte() when aging TDP MMU SPTEs
+- KVM: x86/mmu: Drop unnecessary dirty log checks when aging TDP MMU SPTEs
+- KVM: x86/mmu: Clear only A-bit (if enabled) when aging TDP MMU SPTEs
+- KVM: x86/mmu: Remove "record_dirty_log" in __tdp_mmu_set_spte()
+- KVM: x86/mmu: Bypass __handle_changed_spte() when clearing TDP MMU dirty bits
+- KVM: x86/mmu: Drop access tracking checks when clearing TDP MMU dirty bits
+- KVM: x86/mmu: Atomically clear SPTE dirty state in the clear-dirty-log flow
+- KVM: x86/mmu: Consolidate Dirty vs. Writable clearing logic in TDP MMU
+- KVM: x86/mmu: Use kvm_ad_enabled() to determine if TDP MMU SPTEs need wrprot
+- KVM: x86/mmu: Add a helper function to check if an SPTE needs atomic write
+- KVM: VMX: Make CR0.WP a guest owned bit
+- KVM: x86: Make use of kvm_read_cr*_bits() when testing bits
+- KVM: x86: Ignore CR0.WP toggles in non-paging mode
+- KVM: x86: Do not unload MMU roots when only toggling CR0.WP with TDP enabled
+- KVM: x86/mmu: Fix comment typo
+- KVM: x86/mmu: Avoid indirect call for get_cr3
+- KVM: x86/mmu: Use gfn_t in kvm_flush_remote_tlbs_range()
+- KVM: x86/mmu: Rename kvm_flush_remote_tlbs_with_address()
+- KVM: x86/mmu: Collapse kvm_flush_remote_tlbs_with_{range,address}() together
+- KVM: x86/mmu: Make tdp_mmu_allowed static
+- KVM: x86/mmu: Cleanup range-based flushing for given page
+- KVM: x86/mmu: Fix wrong gfn range of tlb flushing in validate_direct_spte()
+- KVM: x86/mmu: Fix wrong start gfn of tlb flushing with range
+- KVM: x86/mmu: Reduce gfn range of tlb flushing in tdp_mmu_map_handle_target_level()
+- KVM: x86/mmu: Fix wrong gfn range of tlb flushing in kvm_set_pte_rmapp()
+- KVM: x86/mmu: Move round_gfn_for_level() helper into mmu_internal.h
+- KVM: x86/mmu: fix an incorrect comment in kvm_mmu_new_pgd()
+- kvm: x86/mmu: Rename SPTE_TDP_AD_ENABLED_MASK to SPTE_TDP_AD_ENABLED
+- KVM: x86/mmu: Pivot on "TDP MMU enabled" when handling direct page faults
+- KVM: x86/mmu: Pivot on "TDP MMU enabled" to check if active MMU is TDP MMU
+- KVM: x86/mmu: Replace open coded usage of tdp_mmu_page with is_tdp_mmu_page()
+- KVM: x86/mmu: Rename __direct_map() to direct_map()
+- KVM: x86/mmu: Stop needlessly making MMU pages available for TDP MMU faults
+- KVM: x86/mmu: Split out TDP MMU page fault handling
+- KVM: x86/mmu: Initialize fault.{gfn,slot} earlier for direct MMUs
+- KVM: x86/mmu: Handle no-slot faults in kvm_faultin_pfn()
+- KVM: x86/mmu: Avoid memslot lookup during KVM_PFN_ERR_HWPOISON handling
+- KVM: x86/mmu: Handle error PFNs in kvm_faultin_pfn()
+- KVM: x86/mmu: Grab mmu_invalidate_seq in kvm_faultin_pfn()
+- KVM: x86/mmu: Move TDP MMU VM init/uninit behind tdp_mmu_enabled
+- KVM: x86/mmu: Change tdp_mmu to a read-only parameter
+- KVM: x86/mmu: Don't install TDP MMU SPTE if SP has unexpected level
+- KVM: x86/mmu: Re-check under lock that TDP MMU SP hugepage is disallowed
+- KVM: x86/mmu: Map TDP MMU leaf SPTE iff target level is reached
+- KVM: x86/mmu: Don't attempt to map leaf if target TDP MMU SPTE is frozen
+- KVM: x86/mmu: Fix race condition in direct_page_fault
+- KVM: x86/mmu: Do not recover dirty-tracked NX Huge Pages
+- KVM: x86/mmu: simplify kvm_tdp_mmu_map flow when guest has to retry
+- KVM: x86/mmu: Split huge pages mapped by the TDP MMU on fault
+- KVM: x86/mmu: Block all page faults during kvm_zap_gfn_range()
+- KVM: x86/mmu: WARN if TDP MMU SP disallows hugepage after being zapped
+- KVM: x86/mmu: explicitly check nx_hugepage in disallowed_hugepage_adjust()
+- KVM: x86/mmu: Add helper to convert SPTE value to its shadow page
+- KVM: x86/mmu: Track the number of TDP MMU pages, but not the actual pages
+- KVM: x86/mmu: Set disallowed_nx_huge_page in TDP MMU before setting SPTE
+- KVM: x86/mmu: Properly account NX huge page workaround for nonpaging MMUs
+- KVM: x86/mmu: Rename NX huge pages fields/functions for consistency
+- KVM: x86/mmu: Tag disallowed NX huge pages even if they're not tracked
+- KVM: x86/mmu: add missing update to max_mmu_rmap_size
+- KVM: X86: avoid uninitialized 'fault.async_page_fault' from fixed-up #PF
+- KVM: x86/mmu: remove unused variable
+- KVM, x86/mmu: Fix the comment around kvm_tdp_mmu_zap_leafs()
+- KVM: x86/mmu: Don't bottom out on leafs when zapping collapsible SPTEs
+- KVM: x86/mmu: Document the "rules" for using host_pfn_mapping_level()
+- KVM: x86/mmu: Don't require refcounted "struct page" to create huge SPTEs
+- KVM: x86/mmu: Remove underscores from __pte_list_remove()
+- KVM: x86/mmu: Rename pte_list_{destroy,remove}() to show they zap SPTEs
+- KVM: x86/mmu: Rename rmap zap helpers to eliminate "unmap" wrapper
+- KVM: x86/mmu: Rename __kvm_zap_rmaps() to align with other nomenclature
+- KVM: x86/mmu: Drop the "p is for pointer" from rmap helpers
+- KVM: x86/mmu: Directly "destroy" PTE list when recycling rmaps
+- KVM: x86/mmu: Return a u64 (the old SPTE) from mmu_spte_clear_track_bits()
+- KVM: x86/mmu: Fix typo and tweak comment for split_desc_cache capacity
+- KVM: x86/mmu: Expand quadrant comment for PG_LEVEL_4K shadow pages
+- KVM: x86/mmu: Add optimized helper to retrieve an SPTE's index
+- KVM: x86/mmu: Replace UNMAPPED_GVA with INVALID_GPA for gva_to_gpa()
+- KVM: x86/mmu: Buffer nested MMU split_desc_cache only by default capacity
+- KVM: x86/mmu: Use "unsigned int", not "u32", for SPTEs' @access info
+- KVM: x86/mmu: Avoid unnecessary flush on eager page split
+- KVM: x86/mmu: Extend Eager Page Splitting to nested MMUs
+- KVM: Allow for different capacities in kvm_mmu_memory_cache structs
+- KVM: x86/mmu: pull call to drop_large_spte() into __link_shadow_page()
+- KVM: x86/mmu: Zap collapsible SPTEs in shadow MMU at all possible levels
+- KVM: x86/mmu: Extend make_huge_page_split_spte() for the shadow MMU
+- KVM: x86/mmu: Cache the access bits of shadowed translations
+- KVM: x86/mmu: Update page stats in __rmap_add()
+- KVM: x86/mmu: Decouple rmap_add() and link_shadow_page() from kvm_vcpu
+- KVM: x86/mmu: Allow NULL @vcpu in kvm_mmu_find_shadow_page()
+- KVM: x86/mmu: Pass kvm pointer separately from vcpu to kvm_mmu_find_shadow_page()
+- KVM: x86/mmu: Replace vcpu with kvm in kvm_mmu_alloc_shadow_page()
+- KVM: x86/mmu: Pass memory caches to allocate SPs separately
+- KVM: x86/mmu: Move guest PT write-protection to account_shadowed()
+- KVM: x86/mmu: Rename shadow MMU functions that deal with shadow pages
+- KVM: x86/mmu: Consolidate shadow page allocation and initialization
+- KVM: x86/mmu: Decompose kvm_mmu_get_page() into separate functions
+- KVM: x86/mmu: Always pass 0 for @quadrant when gptes are 8 bytes
+- KVM: x86/mmu: Derive shadow MMU page role from parent
+- KVM: x86/mmu: Stop passing "direct" to mmu_alloc_root()
+- KVM: x86/mmu: Use a bool for direct
+- KVM: x86/mmu: Optimize MMU page cache lookup for all direct SPs
+- KVM: X86/MMU: Fix shadowing 5-level NPT for 4-level NPT L1 guest
+- KVM: X86/MMU: Add sp_has_gptes()
+- KVM: Do not zero initialize 'pfn' in hva_to_pfn()
+- KVM: x86/mmu: Shove refcounted page dependency into host_pfn_mapping_level()
+- KVM: Rename/refactor kvm_is_reserved_pfn() to kvm_pfn_to_refcounted_page()
+- KVM: Take a 'struct page', not a pfn in kvm_is_zone_device_page()
+- KVM: Remove kvm_vcpu_gfn_to_page() and kvm_vcpu_gpa_to_page()
+- KVM: nVMX: Use kvm_vcpu_map() to get/pin vmcs12's APIC-access page
+- KVM: Don't WARN if kvm_pfn_to_page() encounters a "reserved" pfn
+- KVM: Avoid pfn_to_page() and vice versa when releasing pages
+- KVM: x86/mmu: Use common logic for computing the 32/64-bit base PA mask
+- KVM: x86/mmu: Truncate paging32's PT_BASE_ADDR_MASK to 32 bits
+- KVM: x86/mmu: Use common macros to compute 32/64-bit paging masks
+- KVM: x86/mmu: Use separate namespaces for guest PTEs and shadow PTEs
+- KVM: x86/mmu: Dedup macros for computing various page table masks
+- KVM: x86/mmu: Bury 32-bit PSE paging helpers in paging_tmpl.h
+- KVM: VMX: Refactor 32-bit PSE PT creation to avoid using MMU macro
+- KVM: X86/MMU: Remove unused PT32_DIR_BASE_ADDR_MASK from mmu.c
+- KVM: x86/MMU: Zap non-leaf SPTEs when disabling dirty logging
+- KVM: x86/mmu: Check every prev_roots in __kvm_mmu_free_obsolete_roots()
+- KVM: x86/mmu: Use IS_ENABLED() to avoid RETPOLINE for TDP page faults
+- KVM: x86/mmu: Make all page fault handlers internal to the MMU
+- KVM: x86/mmu: Add RET_PF_CONTINUE to eliminate bool+int* "returns"
+- KVM: x86/mmu: Drop exec/NX check from "page fault can be fast"
+- KVM: x86/mmu: Don't attempt fast page fault just because EPT is in use
+- KVM: x86/mmu: Use atomic XCHG to write TDP MMU SPTEs with volatile bits
+- KVM: x86/mmu: Move shadow-present check out of spte_has_volatile_bits()
+- KVM: x86/mmu: Don't treat fully writable SPTEs as volatile (modulo A/D)
+- KVM: x86/mmu: replace direct_map with root_role.direct
+- KVM: x86/mmu: replace root_level with cpu_role.base.level
+- KVM: x86/mmu: replace shadow_root_level with root_role.level
+- KVM: x86/mmu: pull CPU mode computation to kvm_init_mmu
+- KVM: x86/mmu: simplify and/or inline computation of shadow MMU roles
+- KVM: x86/mmu: remove redundant bits from extended role
+- KVM: x86/mmu: rename kvm_mmu_role union
+- KVM: x86/mmu: remove extended bits from mmu_role, rename field
+- KVM: x86/mmu: store shadow EFER.NX in the MMU role
+- KVM: x86/mmu: cleanup computation of MMU roles for shadow paging
+- KVM: x86/mmu: cleanup computation of MMU roles for two-dimensional paging
+- KVM: x86/mmu: remove kvm_calc_shadow_root_page_role_common
+- KVM: x86/mmu: remove ept_ad field
+- KVM: x86/mmu: do not recompute root level from kvm_mmu_role_regs
+- KVM: x86/mmu: split cpu_role from mmu_role
+- KVM: x86/mmu: remove "bool base_only" arguments
+- KVM: x86/mmu: rephrase unclear comment
+- KVM: x86/mmu: pull computation of kvm_mmu_role_regs to kvm_init_mmu
+- KVM: x86/mmu: constify uses of struct kvm_mmu_role_regs
+- KVM: x86/mmu: nested EPT cannot be used in SMM
+- KVM: x86/mmu: include EFER.LMA in extended mmu role
+- KVM: x86/mmu: fix potential races when walking host page table
+- KVM: x86/mmu: Do not create SPTEs for GFNs that exceed host.MAXPHYADDR
+- KVM: x86/mmu: Derive EPT violation RWX bits from EPTE RWX bits
+- KVM: VMX: replace 0x180 with EPT_VIOLATION_* definition
+- KVM: x86/mmu: remove unnecessary flush_workqueue()
+- KVM: x86/mmu: Don't rebuild page when the page is synced and no tlb flushing is required
+- KVM: x86: mmu: trace kvm_mmu_set_spte after the new SPTE was set
+- KVM: x86/mmu: Zap only TDP MMU leafs in zap range and mmu_notifier unmap
+- KVM: MMU: propagate alloc_workqueue failure
+- Revert "KVM: x86/mmu: Zap only TDP MMU leafs in kvm_zap_gfn_range()"
+- kvm: x86/mmu: Flush TLB before zap_gfn_range releases RCU
+- KVM: x86/mmu: WARN on any attempt to atomically update REMOVED SPTE
+- KVM: x86/mmu: Check for a REMOVED leaf SPTE before making the SPTE
+- KVM: x86/mmu: Zap defunct roots via asynchronous worker
+- KVM: x86/mmu: Zap roots in two passes to avoid inducing RCU stalls
+- KVM: x86/mmu: Allow yielding when zapping GFNs for defunct TDP MMU root
+- KVM: x86/mmu: Zap invalidated roots via asynchronous worker
+- KVM: x86/mmu: Defer TLB flush to caller when freeing TDP MMU shadow pages
+- KVM: x86/mmu: Do remote TLB flush before dropping RCU in TDP MMU resched
+- KVM: x86/mmu: Zap only TDP MMU leafs in kvm_zap_gfn_range()
+- KVM: x86/mmu: Require mmu_lock be held for write to zap TDP MMU range
+- KVM: x86/mmu: Add dedicated helper to zap TDP MMU root shadow page
+- KVM: x86/mmu: Skip remote TLB flush when zapping all of TDP MMU
+- KVM: x86/mmu: Zap only the target TDP MMU shadow page in NX recovery
+- KVM: x86/mmu: Refactor low-level TDP MMU set SPTE helper to take raw values
+- KVM: x86/mmu: Add helpers to read/write TDP MMU SPTEs and document RCU
+- KVM: x86/mmu: Drop RCU after processing each root in MMU notifier hooks
+- KVM: x86/mmu: Batch TLB flushes from TDP MMU for MMU notifier change_spte
+- KVM: x86/mmu: Check for !leaf=>leaf, not PFN change, in TDP MMU SP removal
+- KVM: x86/mmu: do not allow readers to acquire references to invalid roots
+- KVM: x86/mmu: only perform eager page splitting on valid roots
+- KVM: x86/mmu: Require mmu_lock be held for write in unyielding root iter
+- KVM: x86/mmu: Document that zapping invalidated roots doesn't need to flush
+- KVM: x86/mmu: Formalize TDP MMU's (unintended?) deferred TLB flush logic
+- KVM: WARN if is_unsync_root() is called on a root without a shadow page
+- KVM: s390: Replace KVM_REQ_MMU_RELOAD usage with arch specific request
+- KVM: x86/mmu: Zap only obsolete roots if a root shadow page is zapped
+- KVM: Drop kvm_reload_remote_mmus(), open code request in x86 users
+- KVM: x86: Invoke kvm_mmu_unload() directly on CR4.PCIDE change
+- KVM: x86: flush TLB separately from MMU reset
+- KVM: x86/mmu: clear MMIO cache when unloading the MMU
+- KVM: x86/mmu: load new PGD after the shadow MMU is initialized
+- KVM: x86/mmu: look for a cached PGD when going from 32-bit to 64-bit
+- KVM: x86/mmu: do not pass vcpu to root freeing functions
+- KVM: x86/mmu: do not consult levels when freeing roots
+- KVM: x86: use struct kvm_mmu_root_info for mmu->root
+- KVM: x86: do not deliver asynchronous page faults if CR0.PG=0
+- KVM: x86: Reinitialize context if host userspace toggles EFER.LME
+- KVM: x86: Retry page fault if MMU reload is pending and root has no sp
+- KVM: x86/mmu: Remove MMU auditing
+- KVM: x86/mmu: Add tracepoint for splitting huge pages
+- KVM: x86/mmu: Split huge pages mapped by the TDP MMU during KVM_CLEAR_DIRTY_LOG
+- KVM: x86/mmu: Split huge pages mapped by the TDP MMU when dirty logging is enabled
+- KVM: x86/mmu: Separate TDP MMU shadow page allocation and initialization
+- KVM: x86/mmu: Derive page role for TDP MMU shadow pages from parent
+- KVM: x86/mmu: Remove redundant role overrides for TDP MMU shadow pages
+- KVM: x86/mmu: Refactor TDP MMU iterators to take kvm_mmu_page root
+- KVM: x86/mmu: Move restore_acc_track_spte() to spte.h
+- KVM: x86/mmu: Drop new_spte local variable from restore_acc_track_spte()
+- KVM: x86/mmu: Remove unnecessary warnings from restore_acc_track_spte()
+- KVM: x86/mmu: Consolidate logic to atomically install a new TDP MMU page table
+- KVM: x86/mmu: Rename handle_removed_tdp_mmu_page() to handle_removed_pt()
+- KVM: x86/mmu: Rename TDP MMU functions that handle shadow pages
+- KVM: x86/mmu: Change tdp_mmu_{set,zap}_spte_atomic() to return 0/-EBUSY
+- KVM: x86/mmu: Automatically update iter->old_spte if cmpxchg fails
+- KVM: x86/mmu: Rename __rmap_write_protect() to rmap_write_protect()
+- KVM: x86/mmu: Rename rmap_write_protect() to kvm_vcpu_write_protect_gfn()
+- KVM: x86/mmu: Consolidate comments about {Host,MMU}-writable
+- KVM: x86/mmu: Rename DEFAULT_SPTE_MMU_WRITEABLE to DEFAULT_SPTE_MMU_WRITABLE
+- KVM: x86/mmu: Move is_writable_pte() to spte.h
+- KVM: x86/mmu: Check SPTE writable invariants when setting leaf SPTEs
+- KVM: x86/mmu: Move SPTE writable invariant checks to a helper function
+- KVM: x86/mmu_audit: Remove unused "level" of audit_spte_after_sync()
+- KVM: x86/tdp_mmu: Remove unused "kvm" of kvm_tdp_mmu_get_root()
+- KVM: x86/mmu: Remove unused "kvm" of __rmap_write_protect()
+- KVM: x86/mmu: Remove unused "kvm" of kvm_mmu_unlink_parents()
+- KVM: x86/mmu: Zap _all_ roots when unmapping gfn range in TDP MMU
+- KVM: x86/mmu: Move "invalid" check out of kvm_tdp_mmu_get_root()
+- KVM: x86/mmu: Use common TDP MMU zap helper for MMU notifier unmap hook
+- KVM: remove async parameter of hva_to_pfn_remapped()
+- KVM: x86/mmu: Improve TLB flush comment in kvm_mmu_slot_remove_write_access()
+- KVM: x86/mmu: Document and enforce MMU-writable and Host-writable invariants
+- KVM: x86/mmu: Clear MMU-writable during changed_pte notifier
+- KVM: x86/MMU: Simplify flow of vmx_get_mt_mask
+- KVM: x86/mmu: Remove need for a vcpu from mmu_try_to_unsync_pages
+- KVM: x86/mmu: Remove need for a vcpu from kvm_slot_page_track_is_active
+- KVM: x86/mmu: Use shadow page role to detect PML-unfriendly pages for L2
+- KVM: x86/mmu: Retry page fault if root is invalidated by memslot update
+- KVM: x86/mmu: Handle "default" period when selectively waking kthread
+- KVM: x86/mmu: Remove spurious TLB flushes in TDP MMU zap collapsible path
+- KVM: x86/mmu: Use yield-safe TDP MMU root iter in MMU notifier unmapping
+- KVM: X86: Rename gpte_is_8_bytes to has_4_byte_gpte and invert the direction
+- KVM: MMU: update comment on the number of page role combinations
+- KVM: X86: Add parameter huge_page_level to kvm_init_shadow_ept_mmu()
+- KVM: X86: Add huge_page_level to __reset_rsvds_bits_mask_ept()
+- KVM: X86: Remove mmu->translate_gpa
+- KVM: x86: Subsume nested GPA read helper into load_pdptrs()
+- KVM: X86: Add parameter struct kvm_mmu *mmu into mmu->gva_to_gpa()
+- KVM: X86: Calculate quadrant when !role.gpte_is_8_bytes
+- KVM: X86: Remove useless code to set role.gpte_is_8_bytes when role.direct
+- KVM: X86: Remove unused declaration of __kvm_mmu_free_some_pages()
+- KVM: X86: Fix comment in __kvm_mmu_create()
+- KVM: X86: Skip allocating pae_root for vcpu->arch.guest_mmu when !tdp_enabled
+- KVM: x86: Forbid KVM_SET_CPUID{,2} after KVM_RUN
+- KVM: x86/mmu: Pass parameter flush as false in kvm_tdp_mmu_zap_collapsible_sptes()
+- KVM: x86/mmu: Skip tlb flush if it has been done in zap_gfn_range()
+- kvm: mmu: Use fast PF path for access tracking of huge pages when possible
+- KVM: x86/mmu: Properly dereference rcu-protected TDP MMU sptep iterator
+- KVM: x86/mmu: Extract zapping of rmaps for gfn range to separate helper
+- KVM: x86/mmu: Drop a redundant remote TLB flush in kvm_zap_gfn_range()
+- KVM: x86/mmu: Drop a redundant, broken remote TLB flush
+- KVM: X86: Don't unload MMU in kvm_vcpu_flush_tlb_guest()
+- KVM: x86/mmu: Unexport MMU load/unload functions
+- KVM: X86: pair smp_wmb() of mmu_try_to_unsync_pages() with smp_rmb()
+- KVM: X86: Cache CR3 in prev_roots when PCID is disabled
+- KVM: X86: Fix tlb flush for tdp in kvm_invalidate_pcid()
+- KVM: X86: Don't reset mmu context when toggling X86_CR4_PGE
+- KVM: X86: Don't reset mmu context when X86_CR4_PCIDE 1->0
+- kvm: x86: mmu: Make NX huge page recovery period configurable
+- KVM: x86/mmu: Rename slot_handle_leaf to slot_handle_level_4k
+- KVM: x86/mmu: clean up prefetch/prefault/speculative naming
+- KVM: cleanup allocation of rmaps and page tracking data
+- KVM: X86: fix lazy allocation of rmaps
+- KVM: x86/mmu: kvm_faultin_pfn has to return false if pfh is returned
+- KVM: x86: only allocate gfn_track when necessary
+- KVM: x86: add config for non-kvm users of page tracking
+- KVM: x86/mmu: Avoid memslot lookup in make_spte and mmu_try_to_unsync_pages
+- KVM: x86/mmu: Avoid memslot lookup in rmap_add
+- KVM: MMU: pass struct kvm_page_fault to mmu_set_spte
+- KVM: MMU: pass kvm_mmu_page struct to make_spte
+- KVM: MMU: set ad_disabled in TDP MMU role
+- KVM: MMU: remove unnecessary argument to mmu_set_spte
+- KVM: MMU: clean up make_spte return value
+- KVM: MMU: inline set_spte in FNAME(sync_page)
+- KVM: MMU: inline set_spte in mmu_set_spte
+- KVM: x86/mmu: Avoid memslot lookup in page_fault_handle_page_track
+- KVM: x86/mmu: Pass the memslot around via struct kvm_page_fault
+- KVM: MMU: unify tdp_mmu_map_set_spte_atomic and tdp_mmu_set_spte_atomic_no_dirty_log
+- KVM: MMU: mark page dirty in make_spte
+- KVM: x86/mmu: Fold rmap_recycle into rmap_add
+- KVM: x86/mmu: Verify shadow walk doesn't terminate early in page faults
+- KVM: MMU: change tracepoints arguments to kvm_page_fault
+- KVM: MMU: change disallowed_hugepage_adjust() arguments to kvm_page_fault
+- KVM: MMU: change kvm_mmu_hugepage_adjust() arguments to kvm_page_fault
+- KVM: MMU: change fast_page_fault() arguments to kvm_page_fault
+- KVM: MMU: change tdp_mmu_map_handle_target_level() arguments to kvm_page_fault
+- KVM: MMU: change kvm_tdp_mmu_map() arguments to kvm_page_fault
+- KVM: MMU: change FNAME(fetch)() arguments to kvm_page_fault
+- KVM: MMU: change __direct_map() arguments to kvm_page_fault
+- KVM: MMU: change handle_abnormal_pfn() arguments to kvm_page_fault
+- KVM: MMU: change kvm_faultin_pfn() arguments to kvm_page_fault
+- KVM: MMU: change page_fault_handle_page_track() arguments to kvm_page_fault
+- KVM: MMU: change direct_page_fault() arguments to kvm_page_fault
+- KVM: MMU: change mmu->page_fault() arguments to kvm_page_fault
+- KVM: MMU: Introduce struct kvm_page_fault
+- KVM: MMU: pass unadulterated gpa to direct_page_fault
+- KVM: X86: Remove FNAME(update_pte)
+- KVM: X86: Zap the invalid list after remote tlb flushing
+- KVM: X86: Change kvm_sync_page() to return true when remote flush is needed
+- KVM: X86: Remove kvm_mmu_flush_or_zap()
+- KVM: X86: Don't flush current tlb on shadow page modification
+- KVM: X86: Don't unsync pagetables when speculative
+- KVM: x86/mmu: Complete prefetch for trailing SPTEs for direct, legacy MMU
+- KVM: Remove tlbs_dirty
+- KVM: X86: Synchronize the shadow pagetable before link it
+- KVM: X86: Fix missed remote tlb flush in rmap_write_protect()
+- KVM: x86/mmu: Move lpage_disallowed_link further "down" in kvm_mmu_page
+- KVM: x86/mmu: Relocate kvm_mmu_page.tdp_mmu_page for better cache locality
+- KVM: x86/mmu: Remove unused field mmio_cached in struct kvm_mmu_page
+- KVM: x86: clamp host mapping level to max_level in kvm_mmu_max_mapping_level
+- KVM: x86/mmu: Drop 'shared' param from tdp_mmu_link_page()
+- KVM: x86/mmu: Add detailed page size stats
+- KVM: x86/mmu: Avoid collision with !PRESENT SPTEs in TDP MMU lpage stats
+- KVM: x86/mmu: Remove redundant spte present check in mmu_set_spte
+- KVM: x86/mmu: allow kvm_faultin_pfn to return page fault handling code
+- KVM: x86/mmu: rename try_async_pf to kvm_faultin_pfn
+- KVM: x86/mmu: add comment explaining arguments to kvm_zap_gfn_range
+- KVM: x86/mmu: fix parameters to kvm_flush_remote_tlbs_with_address
+- Revert "KVM: x86/mmu: Allow zap gfn range to operate under the mmu read lock"
+- KVM: X86: Introduce kvm_mmu_slot_lpages() helpers
+- KVM: x86/mmu: Don't step down in the TDP iterator when zapping all SPTEs
+- KVM: x86/mmu: Don't leak non-leaf SPTEs when zapping all SPTEs
+- KVM: x86/mmu: Rename __gfn_to_rmap to gfn_to_rmap
+- KVM: x86/mmu: Leverage vcpu->last_used_slot for rmap_add and rmap_recycle
+- KVM: x86/mmu: Leverage vcpu->last_used_slot in tdp_mmu_map_handle_target_level
+- KVM: Cache the last used slot index per vCPU
+- KVM: Move last_used_slot logic out of search_memslots
+- KVM: Rename lru_slot to last_used_slot
+- KVM: X86: Optimize zapping rmap
+- KVM: X86: Optimize pte_list_desc with per-array counter
+- KVM: X86: MMU: Tune PTE_LIST_EXT to be bigger
+- KVM: Don't take mmu_lock for range invalidation unless necessary
+- KVM: Block memslot updates across range_start() and range_end()
+- KVM: Introduce kvm_get_kvm_safe()
+- KVM: X86: Add per-vm stat for max rmap list size
+- KVM: x86/mmu: Return old SPTE from mmu_spte_clear_track_bits()
+- KVM: x86/mmu: Refactor shadow walk in __direct_map() to reduce indentation
+- KVM: x86/mmu: Mark VM as bugged if page fault returns RET_PF_INVALID
+- KVM: x86: Use KVM_BUG/KVM_BUG_ON to handle bugs that are fatal to the VM
+- KVM: Export kvm_make_all_cpus_request() for use in marking VMs as bugged
+- KVM: x86: Do not write protect huge page in initially-all-set mode
+- KVM: x86: Support write protecting only large pages
+- KVM: x86/mmu: Remove a variety of unnecessary exports
+- KVM: x86: Fold "write-protect large" use case into generic write-protect
+- KVM: x86/mmu: Don't set dirty bits when disabling dirty logging w/ PML
+- KVM: VMX: Dynamically enable/disable PML based on memslot dirty logging
+- KVM: x86: Move MMU's PML logic to common code
+- KVM: x86/mmu: Make dirty log size hook (PML) a value, not a function
+- KVM: x86/mmu: Let guest use GBPAGES if supported in hardware and TDP is on
+- KVM: x86/mmu: Get CR4.SMEP from MMU, not vCPU, in shadow page fault
+- KVM: x86/mmu: Get CR0.WP from MMU, not vCPU, in shadow page fault
+- KVM: x86/mmu: Drop redundant rsvd bits reset for nested NPT
+- KVM: x86/mmu: Optimize and clean up so called "last nonleaf level" logic
+- KVM: x86: Enhance comments for MMU roles and nested transition trickiness
+- KVM: x86/mmu: WARN on any reserved SPTE value when making a valid SPTE
+- KVM: x86/mmu: Add helpers to do full reserved SPTE checks w/ generic MMU
+- KVM: x86/mmu: Use MMU's role to determine PTTYPE
+- KVM: x86/mmu: Collapse 32-bit PAE and 64-bit statements for helpers
+- KVM: x86/mmu: Add a helper to calculate root from role_regs
+- KVM: x86/mmu: Add helper to update paging metadata
+- KVM: x86/mmu: Don't update nested guest's paging bitmasks if CR0.PG=0
+- KVM: x86/mmu: Consolidate reset_rsvds_bits_mask() calls
+- KVM: x86/mmu: Use MMU role_regs to get LA57, and drop vCPU LA57 helper
+- KVM: x86/mmu: Get nested MMU's root level from the MMU's role
+- KVM: x86/mmu: Drop "nx" from MMU context now that there are no readers
+- KVM: x86/mmu: Use MMU's role to get EFER.NX during MMU configuration
+- KVM: x86/mmu: Use MMU's role/role_regs to compute context's metadata
+- KVM: x86/mmu: Use MMU's role to detect EFER.NX in guest page walk
+- KVM: x86/mmu: Use MMU's roles to compute last non-leaf level
+- KVM: x86/mmu: Use MMU's role to compute PKRU bitmask
+- KVM: x86/mmu: Use MMU's role to compute permission bitmask
+- KVM: x86/mmu: Drop vCPU param from reserved bits calculator
+- KVM: x86/mmu: Use MMU's role to get CR4.PSE for computing rsvd bits
+- KVM: x86/mmu: Don't grab CR4.PSE for calculating shadow reserved bits
+- KVM: x86/mmu: Always set new mmu_role immediately after checking old role
+- KVM: x86/mmu: Set CR4.PKE/LA57 in MMU role iff long mode is active
+- KVM: x86/mmu: Do not set paging-related bits in MMU role if CR0.PG=0
+- KVM: x86/mmu: Add accessors to query mmu_role bits
+- KVM: x86/mmu: Rename "nxe" role bit to "efer_nx" for macro shenanigans
+- KVM: x86/mmu: Use MMU's role_regs, not vCPU state, to compute mmu_role
+- KVM: x86/mmu: Ignore CR0 and CR4 bits in nested EPT MMU role
+- KVM: x86/mmu: Consolidate misc updates into shadow_mmu_init_context()
+- KVM: x86/mmu: Add struct and helpers to retrieve MMU role bits from regs
+- KVM: x86/mmu: Grab shadow root level from mmu_role for shadow MMUs
+- KVM: x86/mmu: Move nested NPT reserved bit calculation into MMU proper
+- KVM: x86: Read and pass all CR0/CR4 role bits to shadow MMU helper
+- KVM: x86: Introduce kvm_post_set_cr4 to post handle the CR4 emulation
+- KVM: x86: Introduce kvm_post_set_cr0 to post handle the CR0 emulation
+- KVM: x86: Add more protection against undefined behavior in rsvd_bits()
+- KVM: x86/mmu: Drop smep_andnot_wp check from "uses NX" for shadow MMUs
+- KVM: x86: Fix sizes used to pass around CR0, CR4, and EFER
+- KVM: x86/mmu: Rename unsync helper and update related comments
+- KVM: x86/mmu: Drop the intermediate "transient" __kvm_sync_page()
+- KVM: x86/mmu: comment on kvm_mmu_get_page's syncing of pages
+- KVM: x86/mmu: WARN and zap SP when sync'ing if MMU role mismatches
+- KVM: x86/mmu: Use MMU role to check for matching guest page sizes
+- KVM: x86/mmu: Unconditionally zap unsync SPs when creating >4k SP at GFN
+- Revert "KVM: MMU: record maximum physical address width in kvm_mmu_extended_role"
+- KVM: x86: Alert userspace that KVM_SET_CPUID{,2} after KVM_RUN is broken
+- KVM: x86: Force all MMUs to reinitialize if guest CPUID is modified
+- KVM: nVMX: WARN if subtly-impossible VMFUNC conditions occur
+- KVM: x86: Drop pointless @reset_roots from kvm_init_mmu()
+- KVM: x86: Defer MMU sync on PCID invalidation
+- KVM: nVMX: Use fast PGD switch when emulating VMFUNC[EPTP_SWITCH]
+- KVM: x86: Use KVM_REQ_TLB_FLUSH_GUEST to handle INVPCID(ALL) emulation
+- KVM: nVMX: Consolidate VM-Enter/VM-Exit TLB flush and MMU sync logic
+- KVM: x86: Drop skip MMU sync and TLB flush params from "new PGD" helpers
+- KVM: nSVM: Move TLB flushing logic (or lack thereof) to dedicated helper
+- KVM: x86: Uncondtionally skip MMU sync/TLB flush in MOV CR3's PGD switch
+- KVM: x86: Invalidate all PGDs for the current PCID on MOV CR3 w/ flush
+- KVM: nVMX: Free only guest_mode (L2) roots on INVVPID w/o EPT
+- scsi: iscsi: Fix iscsi_task use after free
+- scsi: iscsi: Have abort handler get ref to conn
+- wifi: mac80211: check/clear fast rx for non-4addr sta VLAN changes
+- crypto: s390/aes - Fix buffer overread in CTR mode
+- block: prevent division by zero in blk_rq_stat_sum()
+- IMA: Support the measurement extending of TSI TMM
+- vt: fix unicode buffer corruption when deleting characters
+- selinux: avoid dereference of garbage after mount failure
+- btrfs: send: handle path ref underflow in header iterate_inode_ref()
+- x86/cpufeatures: Fix dependencies for GFNI, VAES, and VPCLMULQDQ
+- crypto: xilinx - call finalize with bh disabled
+
 * Wed May 29 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-201.0.0.102
 - !7870  CVE-2024-35995
 - !7810  net-memcg: Fix scope of sockmem pressure indicators
