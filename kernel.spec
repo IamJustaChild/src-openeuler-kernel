@@ -42,7 +42,7 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %global upstream_sublevel   0
 %global devel_release       28
 %global maintenance_release .0.0
-%global pkg_release         .34
+%global pkg_release         .35
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1079,6 +1079,9 @@ fi
 %endif
 
 %changelog
+* Thu Jun 6 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-28.0.0.35
+- Add kabi_whitelist_aarch64/x86 and update Module.kabi_aarch64/x86
+
 * Sun May 26 2024 Mingzheng Xing <xingmingzheng@iscas.ac.cn> - 6.6.0-28.0.0.34
 - riscv-kernel patch update to 6.6.0-28.0.0
 - fixed a merge conflict from the commit f1e873348141
