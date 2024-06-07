@@ -42,7 +42,7 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %global upstream_sublevel   0
 %global devel_release       28
 %global maintenance_release .0.0
-%global pkg_release         .35
+%global pkg_release         .36
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -709,6 +709,12 @@ find $RPM_BUILD_ROOT/usr/include -name "\.*"  -exec rm -rf {} \;
     rm -f $(find arch/$Arch/boot -name "*.dtb")
 %endif
 
+# deal with riscv SoC dtb search path
+%ifarch riscv64
+    mkdir -p $RPM_BUILD_ROOT/boot/dtb-%{KernelVer}/thead
+    mv $(find $RPM_BUILD_ROOT/boot/dtb-%{KernelVer}/ -name "th1520*.dtb") $RPM_BUILD_ROOT/boot/dtb-%{KernelVer}/thead
+%endif
+
 # deal with vdso
 %ifnarch ppc64le
 %{make} -s ARCH=%{Arch} INSTALL_MOD_PATH=$RPM_BUILD_ROOT vdso_install KERNELRELEASE=%{KernelVer}
@@ -1079,6 +1085,11 @@ fi
 %endif
 
 %changelog
+* Thu Jun 6 2024 Mingzheng Xing <xingmingzheng@iscas.ac.cn> - 6.6.0-28.0.0.36
+- riscv-kernel patch update to 6.6.0-29.0.0
+- Fix QEMU UEFI boot panic
+- Deal with riscv SoC dtb search path
+
 * Thu Jun 6 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-28.0.0.35
 - Add kabi_whitelist_aarch64/x86 and update Module.kabi_aarch64/x86
 

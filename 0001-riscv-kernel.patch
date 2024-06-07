@@ -1,6 +1,6 @@
-From d3f6927f8d76cb4aec288772970b3380b852aa37 Mon Sep 17 00:00:00 2001
+From 9d1e1ac5c1d745bc8108246848152902fd539f26 Mon Sep 17 00:00:00 2001
 From: Mingzheng Xing <xingmingzheng@iscas.ac.cn>
-Date: Sun, 26 May 2024 19:38:18 +0800
+Date: Wed, 5 Jun 2024 22:39:47 +0800
 Subject: [PATCH] riscv kernel
 
 Signed-off-by: Mingzheng Xing <xingmingzheng@iscas.ac.cn>
@@ -73,7 +73,7 @@ Signed-off-by: Mingzheng Xing <xingmingzheng@iscas.ac.cn>
  arch/riscv/kernel/module.c                    |   83 +-
  arch/riscv/kernel/process.c                   |    3 +
  arch/riscv/kvm/vcpu_timer.c                   |    8 +
- arch/riscv/mm/init.c                          |  177 ++-
+ arch/riscv/mm/init.c                          |  175 ++-
  arch/riscv/mm/pageattr.c                      |  275 +---
  drivers/base/arch_numa.c                      |    4 +
  drivers/char/ipmi/ipmi_si_hardcode.c          |   26 +-
@@ -216,7 +216,7 @@ Signed-off-by: Mingzheng Xing <xingmingzheng@iscas.ac.cn>
  .../riscv/thead/c900-legacy/firmware.json     |   68 +
  .../riscv/thead/c900-legacy/instruction.json  |   72 ++
  .../riscv/thead/c900-legacy/microarch.json    |   80 ++
- 211 files changed, 29954 insertions(+), 501 deletions(-)
+ 211 files changed, 29953 insertions(+), 500 deletions(-)
  create mode 100644 Documentation/devicetree/bindings/net/thead,dwmac.yaml
  create mode 100644 Documentation/devicetree/bindings/pinctrl/thead,th1520-pinctrl.yaml
  create mode 100644 Documentation/devicetree/bindings/pwm/thead,th1520-pwm.yaml
@@ -11671,7 +11671,7 @@ index 75486b25ac45..ba803aa15b89 100644
  	gt->time_delta = -get_cycles64();
  }
 diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-index ec02ea86aa39..bab2654aae48 100644
+index ec02ea86aa39..0980d6c683ad 100644
 --- a/arch/riscv/mm/init.c
 +++ b/arch/riscv/mm/init.c
 @@ -36,6 +36,11 @@
@@ -11928,15 +11928,6 @@ index ec02ea86aa39..bab2654aae48 100644
  	/* Setup trampoline PGD and PMD */
  	create_pgd_mapping(trampoline_pg_dir, kernel_map.virt_addr,
  			   trampoline_pgd_next, PGDIR_SIZE, PAGE_TABLE);
-@@ -1268,7 +1429,7 @@ static void __init create_linear_mapping_page_table(void)
- 		if (end >= __pa(PAGE_OFFSET) + memory_limit)
- 			end = __pa(PAGE_OFFSET) + memory_limit;
- 
--		create_linear_mapping_range(start, end, 0);
-+		create_linear_mapping_range(start, end, PMD_SIZE);
- 	}
- 
- #ifdef CONFIG_STRICT_KERNEL_RWX
 @@ -1488,6 +1649,13 @@ static void __init reserve_crashkernel(void)
  	crashk_res.end = crash_base + crash_size - 1;
  }
