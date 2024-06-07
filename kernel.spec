@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       203
+%global devel_release       204
 %global maintenance_release .0.0
-%global pkg_release         .103
+%global pkg_release         .104
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -952,6 +952,80 @@ fi
 %endif
 
 %changelog
+* Fri Jun 07 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-204.0.0.104
+- !8673 IMA: Support uid and gid tamplate
+- !8679  rtnetlink: Correct nested IFLA_VF_VLAN_LIST attribute validation
+- !8558  xen-netfront: Add missing skb_mark_for_recycle
+- !8725 v6  Fix CVE-2023-52732
+- !8222  Fix CVE-2023-52672
+- !8590  geneve: fix header validation in geneve[6
+- !8355  powerpc: defconfig: Disable CONFIG_DW_EDMA and CONFIG_DW_EDMA_PCIE
+- !8749  ubifs: Check @c->dirty_[n|p
+- ubifs: Check @c->dirty_[n|p]n_cnt and @c->nroot state under @c->lp_mutex
+- !8723 crypto: hisilicon/qm - change function type to void
+- !8536  livepatch: Fix find wrong ftrace entry
+- !8682  ACPI: bus: Ensure that notify handlers are not running after removal
+- !8688  x86/signal: Fix the value returned by strict_sas_size()
+- !8618  CVE-2024-35896
+- !8607  CVE-2024-35895
+- !8586  fix CVE-2021-47558
+- !8548  fix CVE-2024-36906
+- ceph: blocklist the kclient when receiving corrupted snap trace
+- ceph: shut down access to inode when async create fails
+- ceph: refactor remove_session_caps_cb
+- ceph: fix auth cap handling logic in remove_session_caps_cb
+- ceph: drop private list from remove_session_caps_cb
+- crypto: hisilicon/qm - change function type to void
+- !7930  bpf: Protect against int overflow for stack access size
+- !8581 22.03-SP4-ACC patch
+- !8396 RDMA/hns: A set of bugfixes for openeuler 22.03 SP4
+- !8613  CVE-2024-35854
+- !8583  mmc: sdhci-msm: pervent access to suspended controller
+- !8693 【OLK-5.10】Fix some problems about patch "net: hns3: release PTP resources if pf initialization failed"
+- net: hns3: release PTP resources if pf initialization failed
+- Revert "net: hns3: release PTP resources if pf initialization failed"
+- x86/signal: Fix the value returned by strict_sas_size()
+- ACPI: bus: Ensure that notify handlers are not running after removal
+- crypto: hisilicon/qm - Add the default processing branch
+- crypto: hisilicon/debugfs - Resolve the problem of applying for redundant space in sq dump
+- crypto: hisilicon/sec - Fix memory leak for sec resource release
+- crypto: hisilicon - Adjust debugfs creation and release order
+- crypto: hisilicon/debugfs - Fix the processing logic issue in the debugfs creation
+- crypto: hisilicon/sgl - Delete redundant parameter verification
+- crypto: hisilicon/debugfs - Fix debugfs uninit process issue
+- crypto: hisilicon/sec - Add the condition for configuring the sriov function
+- rtnetlink: Correct nested IFLA_VF_VLAN_LIST attribute validation
+- crypto: hisilicon/zip - fix the missing CRYPTO_ALG_ASYNC in cra_flags
+- crypto: hisilicon - Fix smp_processor_id() warnings
+- netfilter: complete validation of user input
+- netfilter: validate user input for expected length
+- mlxsw: spectrum_acl_tcam: Fix memory leak when canceling rehash work
+- mlxsw: spectrum_acl_tcam: Fix possible use-after-free during rehash
+- Revert "bpf, sockmap: Prevent lock inversion deadlock in map delete elem"
+- bpf: Allow delete from sockmap/sockhash only if update is allowed
+- bpf, sockmap: Prevent lock inversion deadlock in map delete elem
+- geneve: fix header validation in geneve[6]_xmit_skb
+- net: stmmac: Disable Tx queues when reconfiguring the interface
+- mmc: sdhci-msm: pervent access to suspended controller
+- xen-netfront: Add missing skb_mark_for_recycle
+- ARM: 9381/1: kasan: clear stale stack poison
+- livepatch: Fix find wrong ftrace entry
+- RDMA/hns: Fix missing list_del in hns_roce_hem
+- RDMA/hns: Fix deadlock when using DCA debugfs.
+- RDMA/hns: Set NULL after mtr_node is freed
+- RDMA/hns: Fix missing validation check of DCA mem size
+- RDMA/hns: directly read the scc parameters in the driver instead of the firmware
+- RDMA/hns: Fix missing default values of scc parameters
+- RDMA/hns: Fix fmt output error
+- RDMA/hns: Fix cpu stuck by printings during reset
+- RDMA/hns: Fix CPU stuck due to read polling during reset
+- powerpc: defconfig: Disable CONFIG_DW_EDMA and CONFIG_DW_EDMA_PCIE
+- pipe: wakeup wr_wait after setting max_usage
+- fs/pipe: move check to pipe_has_watch_queue()
+- ima: Define new template fields iuid and igid
+- ima: Add ima_show_template_uint() template library function
+- bpf: Protect against int overflow for stack access size
+
 * Wed Jun 05 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-203.0.0.103
 - !8646  Fix vf init and common user permissions issue
 - !8534  riscv: process: Fix kernel gp leakage
