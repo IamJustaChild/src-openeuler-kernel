@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       204
+%global devel_release       206
 %global maintenance_release .0.0
-%global pkg_release         .104
+%global pkg_release         .105
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -952,6 +952,20 @@ fi
 %endif
 
 %changelog
+* Fri Jun 07 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-206.0.0.105
+- !8770 IMA: Check cvm world before call smc function
+- !8797 kvm: arm64: Fix a compilation error
+- !8782 drivers: net: ub: dev: network_mgmt: Modify the dguid of network control packets.
+- kvm: arm64: Fix a compilation error
+- network_mgmt: Modify the dguid of network control packets.
+- !8781 HNS3: Supports the configuration of default mc guid
+- !8789  Bluetooth: SCO: Fix not validating setsockopt user input
+- !8658  usb: typec: altmodes/displayport: create sysfs nodes as driver's default device attribute group
+- IMA: Check cvm world before call smc function
+- Bluetooth: SCO: Fix not validating setsockopt user input
+- HNS3: Supports the configuration of default mc guid
+- usb: typec: altmodes/displayport: create sysfs nodes as driver's default device attribute group
+
 * Fri Jun 07 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-204.0.0.104
 - !8673 IMA: Support uid and gid tamplate
 - !8679  rtnetlink: Correct nested IFLA_VF_VLAN_LIST attribute validation
