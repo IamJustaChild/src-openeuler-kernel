@@ -31,6 +31,6 @@ dd if=$CERT_2203_SPx.gpg of=$CERT_2203_SPx.subkey.gpg skip=903 bs=1c count=399 s
 # 22.03 use main key to sign, so we dont need to deal it.
 
 # merge all cert information
-cat $CERT_2203_SPx.subkey.gpg $CERT_2203_SPx.userid.gpg $CERT_2203.gpg > $CERT_OUT
+cat $CERT_2203_SPx.subkey.gpg $CERT_2203_SPx.userid.gpg $CERT_2203.gpg $CERT_2203_SPx.gpg > $CERT_OUT
 # cleanup
 rm -f RPM-GPG-KEY-openEuler-*
