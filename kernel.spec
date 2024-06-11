@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0279
+Release: %{hulkrelease}.0280
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,9 @@ fi
 %endif
 
 %changelog
+
+* Tue Jun 11 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2406.1.0.0280
+- scsi: hisi_sas: Allocate DFX memory during dump trigger
 
 * Wed Jun 05 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2406.1.0.0279
 - !8437  comedi: dt9812: fix DMA buffers on stack
