@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       202
+%global devel_release       207
 %global maintenance_release .0.0
-%global pkg_release         .115
+%global pkg_release         .116
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -911,6 +911,219 @@ fi
 %endif
 
 %changelog
+* Wed Jun 12 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-207.0.0.116
+- !8599  Bluetooth: hci_core: Fix possible buffer overflow
+- !8949  CVE-2022-48652
+- !8602  netfilter: nf_tables: set dormant flag on hook register failure
+- !8867  ipv6: prevent NULL dereference in ip6_output()
+- !8779  smb: client: fix UAF in smb2_reconnect_server()
+- !8893 [sync] PR-8531:  gpiolib: cdev: fix uninitialised kfifo
+- !8985  cvm_tsi: Fix security issue for Confidential cVM TSI
+- !8686  mlxsw: spectrum_acl_tcam: Fix memory leak during rehash
+- !8711  ubifs: Set page uptodate in the correct place
+- !8860  blk-iocost: do not WARN if iocg was already offlined
+- !8639  s390/qeth: Fix kernel panic after setting hsuid
+- !8946  usb: typec: ucsi: Limit read size on v1.2
+- !8969  Fix CVE-2024-36949
+- cvm_tsi: Fix security issue for Confidential cVM TSI
+- !8216  ACPI: video: check for error while searching for backlight device parent
+- !8903  ALSA: scarlett2: Add missing error checks to *_ctl_get()
+- !8584  virtio-blk: fix implicit overflow on virtio_max_dma_size
+- !8838  blk-iocost: avoid out of bounds shift
+- !8856  PCI/PM: Drain runtime-idle callbacks before driver removal
+- amd/amdkfd: sync all devices to wait all processes being evicted
+- drm/amdkfd: Rework kfd_locked handling
+- !8906  net/mlx5e: Fix use-after-free of encap entry in neigh update handler
+- !8910  gpiolib: cdev: Fix use after free in lineinfo_changed_notify
+- ice: Fix crash by keep old cfg when update TCs more than queues
+- ice: ethtool: Prohibit improper channel config for DCB
+- !8879  net: core: reject skb_copy(_expand) for fraglist GSO skbs
+- !6695  netfilter: nft_set_pipapo: do not free live element
+- usb: typec: ucsi: Limit read size on v1.2
+- !8891  net: fix out-of-bounds access in ops_init
+- !8871 add sdma-dae for openeuler 22.03 SP4
+- !8762  tipc: fix UAF in error path
+- !8742  octeontx2-af: avoid off-by-one read from userspace
+- !8734  mptcp: ensure snd_nxt is properly initialized on connect
+- !8634  batman-adv: Avoid infinite loop trying to resize local TT
+- !8736  net: hns3: fix kernel crash when devlink reload during initialization
+- !8745  afs: Fix corruption in reads at fpos 2G-4G from an OpenAFS server
+- !3547  fs: mitigatin cacheline false sharing in struct file
+- !8887  nsh: Restore skb->{protocol,data,mac_header} for outer header in nsh_gso_segment().
+- gpiolib: cdev: Fix use after free in lineinfo_changed_notify
+- net/mlx5e: Fix use-after-free of encap entry in neigh update handler
+- ALSA: scarlett2: Add missing error checks to *_ctl_get()
+- !8785  tty: n_gsm: require CAP_NET_ADMIN to attach N_GSM0710 ldisc
+- drivers: misc: sdma-dae: enable sdma_dae for arm64
+- drivers: misc: sdma-dae: support page fault preprocess
+- gpiolib: cdev: fix uninitialised kfifo
+- !8849  ipv6: fib6_rules: avoid possible NULL dereference in fib6_rule_action()
+- net: fix out-of-bounds access in ops_init
+- !8666  phonet/pep: fix racy skb_queue_empty() use
+- nsh: Restore skb->{protocol,data,mac_header} for outer header in nsh_gso_segment().
+- net: core: reject skb_copy(_expand) for fraglist GSO skbs
+- drivers: misc: sdma-dae: support interrupt init and handle
+- drivers: misc: sdma-dae: support sqe task send and execute
+- drivers: misc: sdma-dae: support channel management
+- drivers: misc: sdma-dae: support getting streamID
+- drivers: misc: sdma-dae: support initializ sdma driver
+- ipv6: prevent NULL dereference in ip6_output()
+- blk-iocost: do not WARN if iocg was already offlined
+- PCI/PM: Drain runtime-idle callbacks before driver removal
+- ipv6: fib6_rules: avoid possible NULL dereference in fib6_rule_action()
+- !8684  tcp: properly terminate timers for kernel sockets
+- !8629  erspan: make sure erspan_base_hdr is present in skb->head
+- blk-iocost: avoid out of bounds shift
+- !8635  ipv6: Fix potential uninit-value access in __ip6_make_skb()
+- !8550  tipc: fix a possible memleak in tipc_buf_append
+- !8726  tcp: Use refcount_inc_not_zero() in tcp_twsk_unique().
+- !8808 v2  Add support for PCC Operation Region
+- !8623  fs/9p: only translate RWX permissions for plain 9P2000
+- !8479  scsi: lpfc: Release hbalock before calling lpfc_worker_wake_up()
+- !8770 IMA: Check cvm world before call smc function
+- !8797 kvm: arm64: Fix a compilation error
+- !8782 drivers: net: ub: dev: network_mgmt: Modify the dguid of network control packets.
+- arm64: config: Enable ACPI_PCC
+- ACPI: PCC: Setup PCC Opregion handler only if platform interrupt is available
+- ACPI: PCC: Fix unintentional integer overflow
+- ACPI: PCC: Fix Tx acknowledge in the PCC address space handler
+- ACPI: PCC: replace wait_for_completion()
+- ACPI: PCC: Release resources on address space setup failure path
+- ACPI: PCC: pcc_ctx can be static
+- ACPI: PCC: Implement OperationRegion handler for the PCC Type 3 subtype
+- ACPICA: Add support for PCC Opregion special context data
+- kvm: arm64: Fix a compilation error
+- network_mgmt: Modify the dguid of network control packets.
+- !8781 HNS3: Supports the configuration of default mc guid
+- !8789  Bluetooth: SCO: Fix not validating setsockopt user input
+- !8658  usb: typec: altmodes/displayport: create sysfs nodes as driver's default device attribute group
+- !8673 IMA: Support uid and gid tamplate
+- IMA: Check cvm world before call smc function
+- Bluetooth: SCO: Fix not validating setsockopt user input
+- !8679  rtnetlink: Correct nested IFLA_VF_VLAN_LIST attribute validation
+- !8558  xen-netfront: Add missing skb_mark_for_recycle
+- !8725 v6  Fix CVE-2023-52732
+- !8222  Fix CVE-2023-52672
+- !8590  geneve: fix header validation in geneve[6
+- tty: n_gsm: require CAP_NET_ADMIN to attach N_GSM0710 ldisc
+- HNS3: Supports the configuration of default mc guid
+- smb: client: fix UAF in smb2_reconnect_server()
+- !8355  powerpc: defconfig: Disable CONFIG_DW_EDMA and CONFIG_DW_EDMA_PCIE
+- tipc: fix UAF in error path
+- !8749  ubifs: Check @c->dirty_[n|p
+- ubifs: Check @c->dirty_[n|p]n_cnt and @c->nroot state under @c->lp_mutex
+- afs: Fix corruption in reads at fpos 2G-4G from an OpenAFS server
+- octeontx2-af: avoid off-by-one read from userspace
+- !8723 crypto: hisilicon/qm - change function type to void
+- !8536  livepatch: Fix find wrong ftrace entry
+- !8682  ACPI: bus: Ensure that notify handlers are not running after removal
+- !8688  x86/signal: Fix the value returned by strict_sas_size()
+- !8618  CVE-2024-35896
+- net: hns3: fix kernel crash when devlink reload during initialization
+- !8607  CVE-2024-35895
+- mptcp: ensure snd_nxt is properly initialized on connect
+- !8586  fix CVE-2021-47558
+- !8548  fix CVE-2024-36906
+- tcp: Use refcount_inc_not_zero() in tcp_twsk_unique().
+- ceph: blocklist the kclient when receiving corrupted snap trace
+- ceph: shut down access to inode when async create fails
+- ceph: refactor remove_session_caps_cb
+- ceph: fix auth cap handling logic in remove_session_caps_cb
+- ceph: drop private list from remove_session_caps_cb
+- crypto: hisilicon/qm - change function type to void
+- !7930  bpf: Protect against int overflow for stack access size
+- !8581 22.03-SP4-ACC patch
+- !8396 RDMA/hns: A set of bugfixes for openeuler 22.03 SP4
+- !8613  CVE-2024-35854
+- !8583  mmc: sdhci-msm: pervent access to suspended controller
+- ubifs: Set page uptodate in the correct place
+- !8693 【OLK-5.10】Fix some problems about patch "net: hns3: release PTP resources if pf initialization failed"
+- net: hns3: release PTP resources if pf initialization failed
+- Revert "net: hns3: release PTP resources if pf initialization failed"
+- x86/signal: Fix the value returned by strict_sas_size()
+- mlxsw: spectrum_acl_tcam: Fix memory leak during rehash
+- tcp: properly terminate timers for kernel sockets
+- ACPI: bus: Ensure that notify handlers are not running after removal
+- crypto: hisilicon/qm - Add the default processing branch
+- crypto: hisilicon/debugfs - Resolve the problem of applying for redundant space in sq dump
+- crypto: hisilicon/sec - Fix memory leak for sec resource release
+- crypto: hisilicon - Adjust debugfs creation and release order
+- crypto: hisilicon/debugfs - Fix the processing logic issue in the debugfs creation
+- crypto: hisilicon/sgl - Delete redundant parameter verification
+- crypto: hisilicon/debugfs - Fix debugfs uninit process issue
+- crypto: hisilicon/sec - Add the condition for configuring the sriov function
+- rtnetlink: Correct nested IFLA_VF_VLAN_LIST attribute validation
+- crypto: hisilicon/zip - fix the missing CRYPTO_ALG_ASYNC in cra_flags
+- !8646  Fix vf init and common user permissions issue
+- crypto: hisilicon - Fix smp_processor_id() warnings
+- !8534  riscv: process: Fix kernel gp leakage
+- !8542  octeontx2-af: Fix possible null pointer dereference.
+- phonet/pep: fix racy skb_queue_empty() use
+- !8642 v9  Memory access profiler(SPE) driven NUMA balancing
+- usb: typec: altmodes/displayport: create sysfs nodes as driver's default device attribute group
+- !8483 KVM: arm64: Translate logic cluster id to physical cluster id when updating lsudvmbm
+- net/ethernet/huawei/hiroce3: Fix vf init and common user permissions issue
+- !8461  i2c: smbus: fix NULL function pointer dereference
+- config: Enable memory sampling based pmu for numa balance by default
+- samples/bpf: Add program for memory access by spe
+- tracing, mem-sampling-sample: Adding tracking events to hardware-sampled page access
+- driver/arm/spe: making mem_sampling and perf mutually exclusive with spe driver
+- tracing, numa balance: add trace events for numa data caused by mem_sampling
+- mm/mem_sampling.c: Add controlling interface for mem_sampling on numa balance
+- mm/mem_sampling.c: Drive NUMA balancing via mem_sampling access data
+- sched: Enable per-process mem_sampling from sched switch path
+- mm/mem_sampling.c: Add controlling interface for mem_sampling
+- mm: Add PMU based memory sampling abstract layer
+- drivers/arm/spe: In-kernel SPE driver for page access profiling
+- !8555  rtnetlink: fix error logic of IFLA_BRIDGE_FLAGS writing back
+- s390/qeth: Fix kernel panic after setting hsuid
+- ipv6: Fix potential uninit-value access in __ip6_make_skb()
+- batman-adv: Avoid infinite loop trying to resize local TT
+- erspan: make sure erspan_base_hdr is present in skb->head
+- fs/9p: only translate RWX permissions for plain 9P2000
+- netfilter: complete validation of user input
+- netfilter: validate user input for expected length
+- mlxsw: spectrum_acl_tcam: Fix memory leak when canceling rehash work
+- mlxsw: spectrum_acl_tcam: Fix possible use-after-free during rehash
+- Revert "bpf, sockmap: Prevent lock inversion deadlock in map delete elem"
+- bpf: Allow delete from sockmap/sockhash only if update is allowed
+- bpf, sockmap: Prevent lock inversion deadlock in map delete elem
+- netfilter: nf_tables: set dormant flag on hook register failure
+- Bluetooth: hci_core: Fix possible buffer overflow
+- geneve: fix header validation in geneve[6]_xmit_skb
+- net: stmmac: Disable Tx queues when reconfiguring the interface
+- virtio-blk: fix implicit overflow on virtio_max_dma_size
+- mmc: sdhci-msm: pervent access to suspended controller
+- xen-netfront: Add missing skb_mark_for_recycle
+- rtnetlink: fix error logic of IFLA_BRIDGE_FLAGS writing back
+- tipc: fix a possible memleak in tipc_buf_append
+- ARM: 9381/1: kasan: clear stale stack poison
+- octeontx2-af: Fix possible null pointer dereference.
+- livepatch: Fix find wrong ftrace entry
+- riscv: process: Fix kernel gp leakage
+- KVM: arm64: Translate logic cluster id to physical cluster id when updating lsudvmbm
+- scsi: lpfc: Release hbalock before calling lpfc_worker_wake_up()
+- i2c: smbus: fix NULL function pointer dereference
+- RDMA/hns: Fix missing list_del in hns_roce_hem
+- RDMA/hns: Fix deadlock when using DCA debugfs.
+- RDMA/hns: Set NULL after mtr_node is freed
+- RDMA/hns: Fix missing validation check of DCA mem size
+- RDMA/hns: directly read the scc parameters in the driver instead of the firmware
+- RDMA/hns: Fix missing default values of scc parameters
+- RDMA/hns: Fix fmt output error
+- RDMA/hns: Fix cpu stuck by printings during reset
+- RDMA/hns: Fix CPU stuck due to read polling during reset
+- powerpc: defconfig: Disable CONFIG_DW_EDMA and CONFIG_DW_EDMA_PCIE
+- pipe: wakeup wr_wait after setting max_usage
+- fs/pipe: move check to pipe_has_watch_queue()
+- ACPI: video: check for error while searching for backlight device parent
+- ima: Define new template fields iuid and igid
+- ima: Add ima_show_template_uint() template library function
+- bpf: Protect against int overflow for stack access size
+- netfilter: nft_set_pipapo: do not free live element
+- fs: enable CONFIG_FILE_MITIGATION_FALSE_SHARING by default on arm64
+- fs: mitigatin cacheline false sharing in struct file
+
 * Wed Jun 05 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-202.0.0.115
 - !8425  CVE-2023-52677
 - !8519  mISDN: hfcpci: Fix use-after-free bug in hfcpci_softirq
