@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       206
+%global devel_release       207
 %global maintenance_release .0.0
-%global pkg_release         .106
+%global pkg_release         .107
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -952,6 +952,111 @@ fi
 %endif
 
 %changelog
+* Wed Jun 12 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-207.0.0.107
+- !8599  Bluetooth: hci_core: Fix possible buffer overflow
+- !8949  CVE-2022-48652
+- !8602  netfilter: nf_tables: set dormant flag on hook register failure
+- !8867  ipv6: prevent NULL dereference in ip6_output()
+- !8779  smb: client: fix UAF in smb2_reconnect_server()
+- !8893 [sync] PR-8531:  gpiolib: cdev: fix uninitialised kfifo
+- !8985  cvm_tsi: Fix security issue for Confidential cVM TSI
+- !8686  mlxsw: spectrum_acl_tcam: Fix memory leak during rehash
+- !8711  ubifs: Set page uptodate in the correct place
+- !8860  blk-iocost: do not WARN if iocg was already offlined
+- !8639  s390/qeth: Fix kernel panic after setting hsuid
+- !8946  usb: typec: ucsi: Limit read size on v1.2
+- !8969  Fix CVE-2024-36949
+- cvm_tsi: Fix security issue for Confidential cVM TSI
+- !8216  ACPI: video: check for error while searching for backlight device parent
+- !8903  ALSA: scarlett2: Add missing error checks to *_ctl_get()
+- !8584  virtio-blk: fix implicit overflow on virtio_max_dma_size
+- !8838  blk-iocost: avoid out of bounds shift
+- !8856  PCI/PM: Drain runtime-idle callbacks before driver removal
+- amd/amdkfd: sync all devices to wait all processes being evicted
+- drm/amdkfd: Rework kfd_locked handling
+- !8906  net/mlx5e: Fix use-after-free of encap entry in neigh update handler
+- !8910  gpiolib: cdev: Fix use after free in lineinfo_changed_notify
+- ice: Fix crash by keep old cfg when update TCs more than queues
+- ice: ethtool: Prohibit improper channel config for DCB
+- !8879  net: core: reject skb_copy(_expand) for fraglist GSO skbs
+- !6695  netfilter: nft_set_pipapo: do not free live element
+- usb: typec: ucsi: Limit read size on v1.2
+- !8891  net: fix out-of-bounds access in ops_init
+- !8871 add sdma-dae for openeuler 22.03 SP4
+- !8762  tipc: fix UAF in error path
+- !8742  octeontx2-af: avoid off-by-one read from userspace
+- !8734  mptcp: ensure snd_nxt is properly initialized on connect
+- !8634  batman-adv: Avoid infinite loop trying to resize local TT
+- !8736  net: hns3: fix kernel crash when devlink reload during initialization
+- !8745  afs: Fix corruption in reads at fpos 2G-4G from an OpenAFS server
+- !3547  fs: mitigatin cacheline false sharing in struct file
+- !8887  nsh: Restore skb->{protocol,data,mac_header} for outer header in nsh_gso_segment().
+- gpiolib: cdev: Fix use after free in lineinfo_changed_notify
+- net/mlx5e: Fix use-after-free of encap entry in neigh update handler
+- ALSA: scarlett2: Add missing error checks to *_ctl_get()
+- !8785  tty: n_gsm: require CAP_NET_ADMIN to attach N_GSM0710 ldisc
+- drivers: misc: sdma-dae: enable sdma_dae for arm64
+- drivers: misc: sdma-dae: support page fault preprocess
+- gpiolib: cdev: fix uninitialised kfifo
+- !8849  ipv6: fib6_rules: avoid possible NULL dereference in fib6_rule_action()
+- net: fix out-of-bounds access in ops_init
+- !8666  phonet/pep: fix racy skb_queue_empty() use
+- nsh: Restore skb->{protocol,data,mac_header} for outer header in nsh_gso_segment().
+- net: core: reject skb_copy(_expand) for fraglist GSO skbs
+- drivers: misc: sdma-dae: support interrupt init and handle
+- drivers: misc: sdma-dae: support sqe task send and execute
+- drivers: misc: sdma-dae: support channel management
+- drivers: misc: sdma-dae: support getting streamID
+- drivers: misc: sdma-dae: support initializ sdma driver
+- ipv6: prevent NULL dereference in ip6_output()
+- blk-iocost: do not WARN if iocg was already offlined
+- PCI/PM: Drain runtime-idle callbacks before driver removal
+- ipv6: fib6_rules: avoid possible NULL dereference in fib6_rule_action()
+- !8684  tcp: properly terminate timers for kernel sockets
+- !8629  erspan: make sure erspan_base_hdr is present in skb->head
+- blk-iocost: avoid out of bounds shift
+- !8635  ipv6: Fix potential uninit-value access in __ip6_make_skb()
+- !8550  tipc: fix a possible memleak in tipc_buf_append
+- !8726  tcp: Use refcount_inc_not_zero() in tcp_twsk_unique().
+- !8808 v2  Add support for PCC Operation Region
+- !8623  fs/9p: only translate RWX permissions for plain 9P2000
+- !8479  scsi: lpfc: Release hbalock before calling lpfc_worker_wake_up()
+- arm64: config: Enable ACPI_PCC
+- ACPI: PCC: Setup PCC Opregion handler only if platform interrupt is available
+- ACPI: PCC: Fix unintentional integer overflow
+- ACPI: PCC: Fix Tx acknowledge in the PCC address space handler
+- ACPI: PCC: replace wait_for_completion()
+- ACPI: PCC: Release resources on address space setup failure path
+- ACPI: PCC: pcc_ctx can be static
+- ACPI: PCC: Implement OperationRegion handler for the PCC Type 3 subtype
+- ACPICA: Add support for PCC Opregion special context data
+- tty: n_gsm: require CAP_NET_ADMIN to attach N_GSM0710 ldisc
+- smb: client: fix UAF in smb2_reconnect_server()
+- tipc: fix UAF in error path
+- afs: Fix corruption in reads at fpos 2G-4G from an OpenAFS server
+- octeontx2-af: avoid off-by-one read from userspace
+- net: hns3: fix kernel crash when devlink reload during initialization
+- mptcp: ensure snd_nxt is properly initialized on connect
+- tcp: Use refcount_inc_not_zero() in tcp_twsk_unique().
+- ubifs: Set page uptodate in the correct place
+- mlxsw: spectrum_acl_tcam: Fix memory leak during rehash
+- tcp: properly terminate timers for kernel sockets
+- phonet/pep: fix racy skb_queue_empty() use
+- s390/qeth: Fix kernel panic after setting hsuid
+- ipv6: Fix potential uninit-value access in __ip6_make_skb()
+- batman-adv: Avoid infinite loop trying to resize local TT
+- erspan: make sure erspan_base_hdr is present in skb->head
+- fs/9p: only translate RWX permissions for plain 9P2000
+- netfilter: nf_tables: set dormant flag on hook register failure
+- Bluetooth: hci_core: Fix possible buffer overflow
+- virtio-blk: fix implicit overflow on virtio_max_dma_size
+- tipc: fix a possible memleak in tipc_buf_append
+- scsi: lpfc: Release hbalock before calling lpfc_worker_wake_up()
+- ACPI: video: check for error while searching for backlight device parent
+- netfilter: nft_set_pipapo: do not free live element
+- fs: enable CONFIG_FILE_MITIGATION_FALSE_SHARING by default on arm64
+- fs: mitigatin cacheline false sharing in struct file
+
 * Tue Jun 11 2024 luhuaxin <luhuxin1@huawei.com> - 5.10.0-206.0.0.106
 - Add the pub key in openEuler RPM-PGP certificate
 
