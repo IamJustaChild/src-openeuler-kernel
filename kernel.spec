@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2406.1.0
+%global hulkrelease 2406.2.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0280
+Release: %{hulkrelease}.0281
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,135 @@ fi
 %endif
 
 %changelog
+
+* Wed Jun 12 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2406.2.0.0281
+- !8895  net: fix out-of-bounds access in ops_init
+- !8694  clk: mediatek: clk-mt6797: Add check for mtk_alloc_clk_data
+- !8858  PCI/PM: Drain runtime-idle callbacks before driver removal
+- !8626  fs/9p: only translate RWX permissions for plain 9P2000
+- !8490  scsi: lpfc: Release hbalock before calling lpfc_worker_wake_up()
+- !8777  memory: fsl_ifc: fix leak of IO mapping on probe failure
+- !8806  media: zr364xx: fix memory leak in zr364xx_start_readpipe
+- !8664  mmc: mmc_spi: fix error handling in mmc_spi_probe()
+- !8865  staging: rtl8712: fix use-after-free in rtl8712_dl_fw
+- !8888  nsh: Restore skb->{protocol,data,mac_header} for outer header in nsh_gso_segment().
+- !8825  watchdog: Fix possible use-after-free in wdt_startup()
+- !8654  nfc: fix potential NULL pointer deref in nfc_genl_dump_ses_done
+- !8358  perf report: Fix memory leaks around perf_tip()
+- !8552  tipc: fix a possible memleak in tipc_buf_append
+- !8851  ipv6: fib6_rules: avoid possible NULL dereference in fib6_rule_action()
+- net: fix out-of-bounds access in ops_init
+- !8802  CVE-2021-47294
+- nsh: Restore skb->{protocol,data,mac_header} for outer header in nsh_gso_segment().
+- staging: rtl8712: fix use-after-free in rtl8712_dl_fw
+- PCI/PM: Drain runtime-idle callbacks before driver removal
+- ipv6: fib6_rules: avoid possible NULL dereference in fib6_rule_action()
+- !8628  erspan: make sure erspan_base_hdr is present in skb->head
+- !8716  CVE-2024-35910
+- !8325  ocfs2: fix data corruption after conversion from inline format
+- !8729  tcp: Use refcount_inc_not_zero() in tcp_twsk_unique().
+- !8636  ipv6: Fix potential uninit-value access in __ip6_make_skb()
+- watchdog: Fix possible use-after-free in wdt_startup()
+- !8773  sched: remove WARN_ON on checking rq->tmp_alone_branch
+- media: zr364xx: fix memory leak in zr364xx_start_readpipe
+- !8678  can: pch_can: pch_can_rx_normal: fix use after free
+- netrom: Fix use-after-free of a listening socket.
+- netrom: Decrease sock refcount when sock timers expire
+- !8676  net: tulip: de4x5: fix the problem that the array 'lp->phy[8
+- !8708  media: imon: fix access to invalid resource for the second interface
+- !8707  regmap: Fix possible double-free in regcache_rbtree_exit()
+- !8706  isdn: mISDN: Fix sleeping function called from invalid context
+- !8705  usb: dwc2: fix possible NULL pointer dereference caused by driver concurrency
+- !8357  nilfs2: fix underflow in second superblock position calculations
+- !8681  rtnetlink: Correct nested IFLA_VF_VLAN_LIST attribute validation
+- !8484  scsi: megaraid_sas: Fix resource leak in case of probe failure
+- memory: fsl_ifc: fix leak of IO mapping on probe failure
+- sched: remove WARN_ON on checking rq->tmp_alone_branch
+- !8620  CVE-2024-35896
+- !8526  SUNRPC: Fix RPC client cleaned up the freed pipefs dentries
+- !8336  tcp: fix page frag corruption on page fault
+- tcp: Use refcount_inc_not_zero() in tcp_twsk_unique().
+- !8521  isofs: Fix out of bound access for corrupted isofs image
+- !7786  powerpc/powernv: Add a null pointer check in opal_event_init()
+- !8568  gfs2: Fix use-after-free in gfs2_glock_shrink_scan
+- tcp: properly terminate timers for kernel sockets
+- mptcp: add sk_stop_timer_sync helper
+- !8478  arm64: asm-bug: Add .align 2 to the end of __BUG_ENTRY
+- !8366  net/mlx4_en: Fix an use-after-free bug in mlx4_en_try_alloc_resources()
+- !8544  CVE-2021-47358
+- !8577  mmc: sdhci-msm: pervent access to suspended controller
+- !8579  net: qlogic: qlcnic: Fix a NULL pointer dereference in qlcnic_83xx_add_rings()
+- !8603  rxrpc: Fix rxrpc_local leak in rxrpc_lookup_peer()
+- media: imon: fix access to invalid resource for the second interface
+- regmap: Fix possible double-free in regcache_rbtree_exit()
+- isdn: mISDN: Fix sleeping function called from invalid context
+- usb: dwc2: fix possible NULL pointer dereference caused by driver concurrency
+- !8516  CVE-2021-47409
+- !8465  drm/amd/display: Avoid NULL dereference of timing generator
+- !8500  pwm: Fix double shift bug
+- clk: mediatek: clk-mt6797: Add check for mtk_alloc_clk_data
+- rtnetlink: Correct nested IFLA_VF_VLAN_LIST attribute validation
+- can: pch_can: pch_can_rx_normal: fix use after free
+- net: tulip: de4x5: fix the problem that the array 'lp->phy[8]' may be out of bound
+- !8402  i40e: Fix freeing of uninitialized misc IRQ vector
+- !8398  comedi: ni_usb6501: fix NULL-deref in command paths
+- mmc: mmc_spi: fix error handling in mmc_spi_probe()
+- nfc: fix potential NULL pointer deref in nfc_genl_dump_ses_done
+- !8464  i2c: smbus: fix NULL function pointer dereference
+- !8434  iio: accel: kxcjk-1013: Fix possible memory leak in probe and remove
+- !8411  platform/x86: wmi: Fix opening of char device
+- ipv6: Fix potential uninit-value access in __ip6_make_skb()
+- !8307  s390/dasd: protect device queue against concurrent access
+- !8444  CVE-2021-47511
+- !8443 v2  ipack: ipoctal: fix module reference leak
+- !8611  smackfs: restrict bytes count in smk_set_cipso()
+- !8610  media: gspca: cpia1: shift-out-of-bounds in set_flicker
+- !8609  can: peak_pci: peak_pci_remove(): fix UAF
+- !8430  drm/sched: Avoid data corruptions
+- !8557  net: cdc_eem: fix tx fixup skb leak
+- !8365  efi/capsule-loader: fix incorrect allocation size
+- !8333  soc: qcom: llcc: Handle a second device without data corruption
+- erspan: make sure erspan_base_hdr is present in skb->head
+- fs/9p: only translate RWX permissions for plain 9P2000
+- netfilter: complete validation of user input
+- netfilter: validate user input for expected length
+- smackfs: restrict bytes count in smk_set_cipso()
+- media: gspca: cpia1: shift-out-of-bounds in set_flicker
+- can: peak_pci: peak_pci_remove(): fix UAF
+- rxrpc: Fix rxrpc_local leak in rxrpc_lookup_peer()
+- net: qlogic: qlcnic: Fix a NULL pointer dereference in qlcnic_83xx_add_rings()
+- mmc: sdhci-msm: pervent access to suspended controller
+- gfs2: Fix use-after-free in gfs2_glock_shrink_scan
+- net: cdc_eem: fix tx fixup skb leak
+- tipc: fix a possible memleak in tipc_buf_append
+- staging: greybus: uart: fix tty use after free
+- SUNRPC: Fix RPC client cleaned up the freed pipefs dentries
+- isofs: Fix out of bound access for corrupted isofs image
+- usb: dwc2: Fix memory leak in dwc2_hcd_init
+- usb: dwc2: check return value after calling platform_get_resource()
+- pwm: Fix double shift bug
+- scsi: lpfc: Release hbalock before calling lpfc_worker_wake_up()
+- scsi: megaraid_sas: Fix resource leak in case of probe failure
+- arm64: asm-bug: Add .align 2 to the end of __BUG_ENTRY
+- drm/amd/display: Avoid NULL dereference of timing generator
+- i2c: smbus: fix NULL function pointer dereference
+- ALSA: pcm: oss: Fix negative period/buffer sizes
+- ALSA: pcm: oss: Fix a few more UBSAN fixes
+- ipack: ipoctal: fix module reference leak
+- iio: accel: kxcjk-1013: Fix possible memory leak in probe and remove
+- drm/sched: Avoid data corruptions
+- platform/x86: wmi: Fix opening of char device
+- i40e: Fix freeing of uninitialized misc IRQ vector
+- comedi: ni_usb6501: fix NULL-deref in command paths
+- net/mlx4_en: Fix an use-after-free bug in mlx4_en_try_alloc_resources()
+- efi/capsule-loader: fix incorrect allocation size
+- perf report: Fix memory leaks around perf_tip()
+- nilfs2: fix underflow in second superblock position calculations
+- tcp: fix page frag corruption on page fault
+- soc: qcom: llcc: Handle a second device without data corruption
+- ocfs2: fix data corruption after conversion from inline format
+- s390/dasd: protect device queue against concurrent access
+- powerpc/powernv: Add a null pointer check in opal_event_init()
 
 * Tue Jun 11 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2406.1.0.0280
 - scsi: hisi_sas: Allocate DFX memory during dump trigger
