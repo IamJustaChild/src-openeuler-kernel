@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .78.0
-%global pkg_release         .158
+%global maintenance_release .79.0
+%global pkg_release         .159
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,168 @@ fi
 %endif
 
 %changelog
+* Wed Jun 12 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.79.0.159
+- !8950  aio: fix mremap after fork null-deref
+- !8948  CVE-2022-48652
+- !8866  ipv6: prevent NULL dereference in ip6_output()
+- !8780  smb: client: fix UAF in smb2_reconnect_server()
+- !8859  net/smc: avoid data corruption caused by decline
+- !8722 v2  SUNRPC: Fix RPC client cleaned up the freed pipefs dentries
+- !8964  Fix CVE-2024-35915
+- !8963  Fix CVE-2024-35915
+- !8735  mptcp: ensure snd_nxt is properly initialized on connect
+- !8761  tipc: fix UAF in error path
+- !8741  octeontx2-af: avoid off-by-one read from userspace
+- !8953  powerpc/powernv: Add a null pointer check in opal_event_init()
+- !8685  mlxsw: spectrum_acl_tcam: Fix memory leak during rehash
+- !8967  Fix CVE-2024-36949
+- !8861  blk-iocost: do not WARN if iocg was already offlined
+- !8841 v2  IB/IPoIB: Fix legacy IPoIB due to wrong number of queues
+- !8945  usb: typec: ucsi: Limit read size on v1.2
+- !8905  ALSA: scarlett2: Add missing error checks to *_ctl_get()
+- !8709 [sync] PR-8046:  block: prevent division by zero in blk_rq_stat_sum()
+- !8839  blk-iocost: avoid out of bounds shift
+- !8857  PCI/PM: Drain runtime-idle callbacks before driver removal
+- amd/amdkfd: sync all devices to wait all processes being evicted
+- drm/amdkfd: Rework kfd_locked handling
+- !8911  net/mlx5e: Fix use-after-free of encap entry in neigh update handler
+- !8915  gpiolib: cdev: Fix use after free in lineinfo_changed_notify
+- !8788 [sync] PR-8558:  xen-netfront: Add missing skb_mark_for_recycle
+- nfc: nci: Fix handling of zero-length payload packets in nci_rx_work()
+- nfc: nci: Fix uninit-value in nci_rx_work
+- nfc: nci: Fix kcov check in nci_rx_work()
+- nfc: nci: Fix uninit-value in nci_dev_up and nci_ntf_packet
+- nfc: nci: Fix handling of zero-length payload packets in nci_rx_work()
+- nfc: nci: Fix uninit-value in nci_rx_work
+- nfc: nci: Fix kcov check in nci_rx_work()
+- nfc: nci: Fix uninit-value in nci_dev_up and nci_ntf_packet
+- powerpc/powernv: Add a null pointer check in opal_event_init()
+- aio: fix mremap after fork null-deref
+- ice: Fix crash by keep old cfg when update TCs more than queues
+- ice: ethtool: Prohibit improper channel config for DCB
+- !8880  net: core: reject skb_copy(_expand) for fraglist GSO skbs
+- usb: typec: ucsi: Limit read size on v1.2
+- !8892  net: fix out-of-bounds access in ops_init
+- !8810  net: hns3: fix out-of-bounds access may occur when coalesce info is read via debugfs
+- !8672  fix CVE-2024-36021 and CVE-2024-36900
+- !8886  CVE-2024-36933
+- gpiolib: cdev: Fix use after free in lineinfo_changed_notify
+- net/mlx5e: Fix use-after-free of encap entry in neigh update handler
+- ALSA: scarlett2: Add missing error checks to *_ctl_get()
+- !8755  drm/amd/display: Avoid NULL dereference of timing generator
+- !8754  pwm: Fix double shift bug
+- !8850  ipv6: fib6_rules: avoid possible NULL dereference in fib6_rule_action()
+- net: fix out-of-bounds access in ops_init
+- !8665  phonet/pep: fix racy skb_queue_empty() use
+- nsh: Restore skb->{protocol,data,mac_header} for outer header in nsh_gso_segment().
+- net: nsh: Use correct mac_offset to unwind gso skb in nsh_gso_segment()
+- net: core: reject skb_copy(_expand) for fraglist GSO skbs
+- ipv6: prevent NULL dereference in ip6_output()
+- blk-iocost: do not WARN if iocg was already offlined
+- net/smc: avoid data corruption caused by decline
+- PCI/PM: Drain runtime-idle callbacks before driver removal
+- ipv6: fib6_rules: avoid possible NULL dereference in fib6_rule_action()
+- !8687  tcp: properly terminate timers for kernel sockets
+- !8630  erspan: make sure erspan_base_hdr is present in skb->head
+- IB/IPoIB: Fix legacy IPoIB due to wrong number of queues
+- blk-iocost: avoid out of bounds shift
+- !7988 [sync] PR-7960:  ipv6: Fix infinite recursion in fib6_dump_done().
+- !8388 [sync] PR-8300:  ipvlan: add ipvlan_route_v6_outbound() helper
+- !8282 [sync] PR-8133:  fix CVE-2021-47265
+- !7925 [sync] PR-7741:  ipv4: check for NULL idev in ip_route_use_hint()
+- !8724  tcp: Use refcount_inc_not_zero() in tcp_twsk_unique().
+- !8480  scsi: lpfc: Release hbalock before calling lpfc_worker_wake_up()
+- !8622  fs/9p: only translate RWX permissions for plain 9P2000
+- net: hns3: fix out-of-bounds access may occur when coalesce info is read via debugfs
+- !8728  net: openvswitch: fix possible memory leak in ovs_meter_cmd_set()
+- !8790  Bluetooth: SCO: Fix not validating setsockopt user input
+- !8680  rtnetlink: Correct nested IFLA_VF_VLAN_LIST attribute validation
+- !8713 [sync] PR-8583:  mmc: sdhci-msm: pervent access to suspended controller
+- !8670  CVE-2024-35854
+- Bluetooth: SCO: Fix not validating setsockopt user input
+- !8696  clk: mediatek: clk-mt6797: Add check for mtk_alloc_clk_data
+- !8653 v3  clk: mediatek: clk-mt2701: Add check for mtk_alloc_clk_data
+- xen-netfront: Add missing skb_mark_for_recycle
+- !8571  jfs: fix two array-index-out-of-bounds issuse
+- !8356  nilfs2: fix underflow in second superblock position calculations
+- !8592  geneve: fix header validation in geneve[6
+- !8531  gpiolib: cdev: fix uninitialised kfifo
+- smb: client: fix UAF in smb2_reconnect_server()
+- !8631 [sync] PR-8519:  mISDN: hfcpci: Fix use-after-free bug in hfcpci_softirq
+- tipc: fix UAF in error path
+- !8751  ubifs: Check @c->dirty_[n|p
+- drm/amd/display: Avoid NULL dereference of timing generator
+- pwm: Fix double shift bug
+- !8633 [sync] PR-8425:  CVE-2023-52677
+- ubifs: Check @c->dirty_[n|p]n_cnt and @c->nroot state under @c->lp_mutex
+- octeontx2-af: avoid off-by-one read from userspace
+- !8669  wifi: ath11k: fix dfs radar event locking
+- !8619  CVE-2024-35896
+- !8608  CVE-2024-35895
+- mptcp: ensure snd_nxt is properly initialized on connect
+- !8659  wifi: ath11k: fix htt pktlog locking
+- !8587  fix CVE-2021-47558
+- net: openvswitch: fix possible memory leak in ovs_meter_cmd_set()
+- !8569  fix CVE-2024-36906
+- tcp: Use refcount_inc_not_zero() in tcp_twsk_unique().
+- SUNRPC: Fix RPC client cleaned up the freed pipefs dentries
+- !7933  bpf: Protect against int overflow for stack access size
+- !8627 [sync] PR-8561:  mlxsw: spectrum_acl_tcam: Fix possible use-after-free during activity update
+- !8625 [sync] PR-8497:  Bluetooth: l2cap: fix null-ptr-deref in l2cap_chan_timeout
+- mmc: sdhci-msm: pervent access to suspended controller
+- !8572  xfrm/compat: prevent potential spectre v1 gadget in xfrm_xlate32_attr()
+- block: prevent division by zero in blk_rq_stat_sum()
+- clk: mediatek: clk-mt6797: Add check for mtk_alloc_clk_data
+- tcp: properly terminate timers for kernel sockets
+- mlxsw: spectrum_acl_tcam: Fix memory leak during rehash
+- rtnetlink: Correct nested IFLA_VF_VLAN_LIST attribute validation
+- net: hns3: fix kernel crash when devlink reload during initialization
+- net: hns3: release PTP resources if pf initialization failed
+- net: hns3: fix kernel crash when devlink reload during vf initialization
+- net: hns3: fix kernel crash when devlink reload during pf initialization
+- mlxsw: spectrum_acl_tcam: Fix memory leak when canceling rehash work
+- mlxsw: spectrum_acl_tcam: Fix possible use-after-free during rehash
+- wifi: ath11k: fix dfs radar event locking
+- phonet/pep: fix racy skb_queue_empty() use
+- wifi: ath11k: fix htt pktlog locking
+- clk: mediatek: clk-mt2701: Add check for mtk_alloc_clk_data
+- !8537  scsi: hisi_sas: Set debugfs_dir pointer to NULL after removing debugfs
+- !8538  drm/amdgpu: Fix potential null pointer derefernce
+- !8540  s390/dasd: protect device queue against concurrent access
+- !8462  i2c: smbus: fix NULL function pointer dereference
+- !8432  platform/x86: wmi: Fix opening of char device
+- riscv: Check if the code to patch lies in the exit section
+- mISDN: hfcpci: Fix use-after-free bug in hfcpci_softirq
+- erspan: make sure erspan_base_hdr is present in skb->head
+- mlxsw: spectrum_acl_tcam: Fix possible use-after-free during activity update
+- Bluetooth: l2cap: fix null-ptr-deref in l2cap_chan_timeout
+- fs/9p: only translate RWX permissions for plain 9P2000
+- netfilter: complete validation of user input
+- netfilter: validate user input for expected length
+- Revert "bpf, sockmap: Prevent lock inversion deadlock in map delete elem"
+- bpf: Allow delete from sockmap/sockhash only if update is allowed
+- bpf, sockmap: Prevent lock inversion deadlock in map delete elem
+- geneve: fix header validation in geneve[6]_xmit_skb
+- net: stmmac: Disable Tx queues when reconfiguring the interface
+- xfrm/compat: prevent potential spectre v1 gadget in xfrm_xlate32_attr()
+- jfs: fix array-index-out-of-bounds in dbFindLeaf
+- fs: jfs: Fix UBSAN: array-index-out-of-bounds in dbAllocDmapLev
+- ARM: 9381/1: kasan: clear stale stack poison
+- s390/dasd: protect device queue against concurrent access
+- drm/amdgpu: Fix potential null pointer derefernce
+- scsi: hisi_sas: Set debugfs_dir pointer to NULL after removing debugfs
+- gpiolib: cdev: fix uninitialised kfifo
+- scsi: lpfc: Release hbalock before calling lpfc_worker_wake_up()
+- i2c: smbus: fix NULL function pointer dereference
+- platform/x86: wmi: Fix opening of char device
+- ipvlan: add ipvlan_route_v6_outbound() helper
+- nilfs2: fix underflow in second superblock position calculations
+- RDMA: Verify port when creating flow rule
+- IB/mlx4: Use port iterator and validation APIs
+- ipv6: Fix infinite recursion in fib6_dump_done().
+- bpf: Protect against int overflow for stack access size
+- ipv4: check for NULL idev in ip_route_use_hint()
+
 * Wed Jun 05 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.78.0.158
 - !8594 [sync] PR-6990:  netfilter: nf_tables: Fix potential data-race in __nft_expr_type_get()
 - !8591 [sync] PR-7174:  CVE-2022-48689
