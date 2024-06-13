@@ -1,5 +1,5 @@
 %define with_signmodules  1
-%define with_kabichk 0
+%define with_kabichk 1
 
 # Default without toolchain_clang
 %bcond_with toolchain_clang
@@ -42,7 +42,7 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %global upstream_sublevel   0
 %global devel_release       28
 %global maintenance_release .0.0
-%global pkg_release         .36
+%global pkg_release         .37
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -609,7 +609,9 @@ popd
 install -m 644 .config $RPM_BUILD_ROOT/boot/config-%{KernelVer}
 install -m 644 System.map $RPM_BUILD_ROOT/boot/System.map-%{KernelVer}
 
+%if 0%{?with_kabichk}
 gzip -c9 < Module.symvers > $RPM_BUILD_ROOT/boot/symvers-%{KernelVer}.gz
+%endif
 
 mkdir -p $RPM_BUILD_ROOT%{_sbindir}
 install -m 755 %{SOURCE200} $RPM_BUILD_ROOT%{_sbindir}/mkgrub-menu-%{version}-%{devel_release}%{?maintenance_release}%{?pkg_release}.sh
@@ -975,7 +977,9 @@ fi
 %ifarch aarch64 riscv64
 /boot/dtb-*
 %endif
+%if 0%{?with_kabichk}
 /boot/symvers-*
+%endif
 /boot/System.map-*
 /boot/vmlinuz-*
 %ghost /boot/initramfs-%{KernelVer}.img
@@ -1085,6 +1089,9 @@ fi
 %endif
 
 %changelog
+* Thu Jun 13 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-28.0.0.37
+- Enable kabi check for src and change the check-kabi format to Python3
+
 * Thu Jun 6 2024 Mingzheng Xing <xingmingzheng@iscas.ac.cn> - 6.6.0-28.0.0.36
 - riscv-kernel patch update to 6.6.0-29.0.0
 - Fix QEMU UEFI boot panic
