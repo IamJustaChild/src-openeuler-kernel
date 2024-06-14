@@ -2,13 +2,13 @@
 
 %global KernelVer %{version}-%{release}.raspi.%{_target_cpu}
 
-%global hulkrelease 26.0.0
+%global hulkrelease 28.0.0
 
 %global debug_package %{nil}
 
 Name:	 raspberrypi-kernel
 Version: 6.6.0
-Release: %{hulkrelease}.4
+Release: %{hulkrelease}.5
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -260,14 +260,17 @@ fi
 /usr/src/kernels/%{KernelVer}
 
 %changelog
-* Wed May 15 2024 heppen <hepeng68@huawei.com> - 6.6.0-26.0.0.4
+* Wed May 29 2024 Yafen Fang <yafen@iscas.ac.cn> - 6.6.0-28.0.0.5
+- update kernel version to openEuler 6.6.0-28.0.0
+
+* Wed May 15 2024 Yafen Fang <yafen@iscas.ac.cn> - 6.6.0-26.0.0.4
 - update kernel version to openEuler 6.6.0-26.0.0
 - update Raspberry Pi patch, last commit (abc50146600eb2cb93aec321d003970296950343): staging: bcm2835-codec: 32bpp RGB formats need a 64byte alignment
 
-* Fri May 10 2024 heppen <hepeng68@huawei.com> - 6.6.0-25.0.0.3
+* Fri May 10 2024 Yafen Fang <yafen@iscas.ac.cn> - 6.6.0-25.0.0.3
 - update kernel version to openEuler 6.6.0-25.0.0
 
-* Thu Apr 25 2024 heppen <hepeng68@huawei.com> - 6.6.0-22.0.0.2
+* Thu Apr 25 2024 Yafen Fang <yafen@iscas.ac.cn> - 6.6.0-22.0.0.2
 - add subpackage raspberrypi-kernel-devel
 - update kernel version to openEuler 6.6.0-22.0.0
 
