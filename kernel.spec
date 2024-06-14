@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       207
+%global devel_release       208
 %global maintenance_release .0.0
-%global pkg_release         .107
+%global pkg_release         .108
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -952,6 +952,84 @@ fi
 %endif
 
 %changelog
+* Fri Jun 14 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-208.0.0.108
+- !9084 v5  xfs: atomic writes for xfs
+- block: fix kabi in struct queue_limits
+- xfs: make bunmapi observe forcealigin
+- xfs: Only free full extents for forcealign
+- xfs: Update xfs_is_falloc_aligned() mask for forcealign
+- xfs: fix set xflags fail when inode has extent hit
+- xfs: support atomic write ioctl
+- fs: xfs: Support setting FMODE_CAN_ATOMIC_WRITE
+- fs: xfs: Validate atomic writes
+- fs: xfs: Support FS_XFLAG_ATOMICWRITES for forcealign
+- fs: iomap: Atomic write support
+- fs: Add FS_XFLAG_ATOMICWRITES flag
+- fs: xfs: iomap: Sub-extent zeroing
+- fs: iomap: Sub-extent zeroing
+- fs: xfs: Do not free EOF blocks for forcealign
+- fs: xfs: Make file data allocations observe the 'forcealign' flag
+- fs: xfs: Enable file data forcealign feature
+- fs: xfs: Introduce FORCEALIGN inode flag
+- nvme: Atomic write support
+- block: Add core atomic write support
+- fs: Initial atomic write support
+- block: get atomic write max sectors
+- !9064 drivers/perf: hisi_pcie: Fix out-of-bound access when valid event group
+- !9067  config: enable CONFIG_BLK_CGROUP_IOCOST by default
+- !9063 v3  block: support to dispatch bio asynchronously
+- !9066 change sdma-dae default mode to n
+- !8827 v2  iomap: fix sub-page not set dirty state
+- drivers/perf: hisi_pcie: Fix out-of-bound access when valid event group
+- !9059 roh/hns3: Add ROH client case in hclgevf_init_client_instance.
+- !9055  CVE-2024-36020
+- !9015  CVE-2024-36953
+- !9014  drm/vc4: don't check if plane->state->fb == state->fb
+- config: enable CONFIG_BLK_CGROUP_IOCOST by default
+- drivers: misc: sdma-dae: not compile sdma-dae by default
+- block: fix kabi broken in struct request_queue about CONFIG_BLK_BIO_DISPATCH_ASYNC
+- block: support to dispatch bio asynchronously
+- !9050  CVE-2024-35796
+- roh/hns3: Add ROH client case in hclgevf_init_client_instance.
+- i40e: fix vf may be used uninitialized in this function warning
+- !9020  wifi: libertas: fix some memleaks in lbs_allocate_cmd_buffer()
+- net: ll_temac: platform_get_resource replaced by wrong function
+- !7205  mm: memcontrol: do not miss MEMCG_MAX events for enforced allocations
+- !8908  Refactor hbmdev a bit
+- !9001 roh/hns3: Fix IMP reset vlan unusable.
+- !8774  CVE-2024-36914
+- !9027  tty: n_gsm: fix possible out-of-bounds in gsm0_receive()
+- !8828  drm/panfrost: Fix the error path in panfrost_mmu_map_fault_addr()
+- !8719  CVE-2024-35887
+- !8872  drm/vmwgfx: Fix invalid reads in fence signaled events
+- !8882  scsi: lpfc: Move NPIV's transport unregistration to after resource clean up
+- !8921  hugetlbfs: fix hugetlbfs_statfs() locking
+- tty: n_gsm: fix possible out-of-bounds in gsm0_receive()
+- wifi: libertas: fix some memleaks in lbs_allocate_cmd_buffer()
+- KVM: arm64: vgic-v2: Check for non-NULL vCPU in vgic_v2_parse_attr()
+- KVM: arm64: vgic-v2: Use cpuid from userspace as vcpu_id
+- drm/vc4: don't check if plane->state->fb == state->fb
+- roh/hns3: Fix IMP reset vlan unusable.
+- !8965  cvm: enhance security for cvm host feature
+- !8982  fix CVE-2024-36905
+- !8996  pinctrl: devicetree: fix refcount leak in pinctrl_dt_to_map()
+- pinctrl: devicetree: fix refcount leak in pinctrl_dt_to_map()
+- net: relax socket state check at accept time.
+- tcp: defer shutdown(SEND_SHUTDOWN) for TCP_SYN_RECV sockets
+- cvm: enhance security for cvm host feature
+- hugetlbfs: fix hugetlbfs_statfs() locking
+- arm64: config: Open the hbmdev related config
+- soc: hisilicon: Don't poweroff if memblocks don't offlined
+- soc: hisilicon: hisi_hbmdev: Notify the device in the ACPI
+- scsi: lpfc: Move NPIV's transport unregistration to after resource clean up
+- drm/vmwgfx: Fix invalid reads in fence signaled events
+- drm/panfrost: Fix the error path in panfrost_mmu_map_fault_addr()
+- iomap: Ensure sub-page dirty state is set during mmap writes
+- Revert "iomap: Don't create iomap_page objects in iomap_page_mkwrite_actor"
+- drm/amd/display: Skip on writeback when it's not applicable
+- ax25: fix use-after-free bugs caused by ax25_ds_del_timer
+- mm: memcontrol: do not miss MEMCG_MAX events for enforced allocations
+
 * Wed Jun 12 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-207.0.0.107
 - !8599  Bluetooth: hci_core: Fix possible buffer overflow
 - !8949  CVE-2022-48652
