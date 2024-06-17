@@ -25,7 +25,7 @@
 %global upstream_sublevel   0
 %global devel_release       10
 %global maintenance_release .0.0
-%global pkg_release         .10
+%global pkg_release         .11
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -95,6 +95,7 @@ Source9998: patches.tar.bz2
 Patch0002: 0002-cpupower-clang-compile-support.patch
 Patch0003: 0003-x86_energy_perf_policy-clang-compile-support.patch
 Patch0004: 0004-turbostat-clang-compile-support.patch
+Patch0005: 0005-CVE-2024-36931.patch
 
 #BuildRequires:
 BuildRequires: module-init-tools, patch >= 2.5.4, bash >= 2.03, tar, llvm-devel
@@ -332,6 +333,7 @@ Applypatches series.conf %{_builddir}/kernel-%{version}/linux-%{KernelVer}
 %patch0002 -p1
 %patch0003 -p1
 %patch0004 -p1
+%patch0005 -p1
 %endif
 
 find . \( -name "*.orig" -o -name "*~" \) -exec rm -f {} \; >/dev/null
@@ -1008,6 +1010,9 @@ fi
 %endif
 
 %changelog
+* Fri Jun 14 2024 technology208 <technology@208suo.com> - 6.6.0-10.0.0.11
+- fix CVE-2024-36931
+
 * Wed Apr 1 2024 Hongchen Zhang <zhanghongchen@loongson.cn> - 6.6.0-10.0.0.10
 - add LoongArch support
 
