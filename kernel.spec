@@ -11,7 +11,7 @@
 %global upstream_sublevel   0
 %global devel_release       201
 %global maintenance_release .0.0
-%global pkg_release         .103
+%global pkg_release         .104
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -952,6 +952,9 @@ fi
 %endif
 
 %changelog
+* Wed Jun 19 2024 luhuaxin <luhuxin1@huawei.com> - 5.10.0-201.0.0.104
+- Add the pub key in openEuler RPM-PGP certificate
+
 * Wed May 29 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-201.0.0.103
 - !7870  CVE-2024-35995
 - !7810  net-memcg: Fix scope of sockmem pressure indicators
