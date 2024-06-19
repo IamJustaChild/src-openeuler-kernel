@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       207
+%global devel_release       209
 %global maintenance_release .0.0
-%global pkg_release         .116
+%global pkg_release         .117
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -911,6 +911,146 @@ fi
 %endif
 
 %changelog
+* Wed Jun 19 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-209.0.0.117
+- !9092 v2  ksmbd: validate request buffer size in smb2_allocate_rsp_buf()
+- !9030  bpf, skmsg: Fix NULL pointer dereference in sk_psock_skb_ingress_enqueue
+- !9112  Backport some optimizing patches for kunpeng920
+- !9099  Bluetooth: L2CAP: Fix div-by-zero in l2cap_le_flowctl_init()
+- !9166  A Solution to Re-enable hugetlb vmemmap optimize on ARM64
+- !9163  genirq: introduce handle_fasteoi_edge_irq flow handler
+- ARM: 9278/1: kfence: only handle translation faults
+- arm64: mm: HVO: support BBM of vmemmap pgtable safely
+- arm64: mm: kfence: only handle translation faults
+- mm: HVO: introduce helper function to update and flush pgtable
+- genirq: introduce handle_fasteoi_edge_irq for phytium
+- genirq: introduce handle_fasteoi_edge_irq flow handler
+- !8753  memcg: fix input of try_to_free_mem_cgroup_pages
+- !9149 [sync] PR-9054:  soc: fsl: qbman: Use raw spinlock for cgr_lock
+- !9125  arm64: armv8_deprecated: Fix warning in isndep cpuhp starting process
+- !9138 v2  CVE-2024-36971
+- !8494  rpmsg: virtio: Free driver_override when rpmsg_remove()
+- !9073 v2  Fix UAF problem of hpool
+- soc: fsl: qbman: Use raw spinlock for cgr_lock
+- !9131  mm: swap: fix race between free_swap_and_cache() and swapoff()
+- !9129  ARM: 9359/1: flush: check if the folio is reserved for no-mapping addresses
+- !9068  Bluetooth: RFCOMM: Fix not validating setsockopt user input
+- !8700  wifi: cfg80211: check A-MSDU format more carefully
+- net: fix kabi breakage in struct dst_ops
+- net: fix __dst_negative_advice() race
+- mm: swap: fix race between free_swap_and_cache() and swapoff()
+- ARM: 9359/1: flush: check if the folio is reserved for no-mapping addresses
+- arm64: armv8_deprecated: Fix warning in isndep cpuhp starting process
+- !8999  scsi: bnx2fc: Remove spin_lock_bh while releasing resources after upload
+- !8938  clk: sunxi-ng: h6: Reparent CPUX during PLL CPUX rate change
+- arm64: syscall: unmask DAIF for tracing status
+- arm64: Snapshot thread flags
+- sched: Snapshot thread flags
+- entry: Snapshot thread flags
+- x86: Snapshot thread flags
+- thread_info: Add helpers to snapshot thread flags
+- irqchip/gic-v3: Use dsb(ishst) to order writes with ICC_SGI1R_EL1 accesses
+- sched/fair: Optimize test_idle_cores() for !SMT
+- Bluetooth: L2CAP: Fix div-by-zero in l2cap_le_flowctl_init()
+- !8940  firewire: ohci: mask bus reset interrupts between ISR and bottom half
+- !8747  dmaengine: fsl-qdma: Fix a memory leak related to the queue command DMA
+- ksmbd: validate request buffer size in smb2_allocate_rsp_buf()
+- !9074 [sync] PR-8963:  Fix CVE-2024-35915
+- !9083  Bluetooth: L2CAP: Fix not validating setsockopt user input
+- !9081 v2  arm64: mm: Replace global variable in pbha with static key
+- !9084 v5  xfs: atomic writes for xfs
+- block: fix kabi in struct queue_limits
+- xfs: make bunmapi observe forcealigin
+- xfs: Only free full extents for forcealign
+- xfs: Update xfs_is_falloc_aligned() mask for forcealign
+- xfs: fix set xflags fail when inode has extent hit
+- xfs: support atomic write ioctl
+- fs: xfs: Support setting FMODE_CAN_ATOMIC_WRITE
+- fs: xfs: Validate atomic writes
+- fs: xfs: Support FS_XFLAG_ATOMICWRITES for forcealign
+- fs: iomap: Atomic write support
+- fs: Add FS_XFLAG_ATOMICWRITES flag
+- fs: xfs: iomap: Sub-extent zeroing
+- fs: iomap: Sub-extent zeroing
+- fs: xfs: Do not free EOF blocks for forcealign
+- fs: xfs: Make file data allocations observe the 'forcealign' flag
+- fs: xfs: Enable file data forcealign feature
+- fs: xfs: Introduce FORCEALIGN inode flag
+- nvme: Atomic write support
+- block: Add core atomic write support
+- fs: Initial atomic write support
+- block: get atomic write max sectors
+- Bluetooth: L2CAP: Fix not validating setsockopt user input
+- arm64: mm: Replace global variable in pbha with static key
+- !9064 drivers/perf: hisi_pcie: Fix out-of-bound access when valid event group
+- !9067  config: enable CONFIG_BLK_CGROUP_IOCOST by default
+- !9063 v3  block: support to dispatch bio asynchronously
+- !9066 change sdma-dae default mode to n
+- nfc: nci: Fix handling of zero-length payload packets in nci_rx_work()
+- nfc: nci: Fix uninit-value in nci_rx_work
+- nfc: nci: Fix kcov check in nci_rx_work()
+- nfc: nci: Fix uninit-value in nci_dev_up and nci_ntf_packet
+- !8827 v2  iomap: fix sub-page not set dirty state
+- mm/dynamic_hugetlb: use rcu lock to protect hpool
+- mm/dynamic_hugetlb: simplify the refcount code
+- drivers/perf: hisi_pcie: Fix out-of-bound access when valid event group
+- !9059 roh/hns3: Add ROH client case in hclgevf_init_client_instance.
+- !9055  CVE-2024-36020
+- !9015  CVE-2024-36953
+- !9014  drm/vc4: don't check if plane->state->fb == state->fb
+- Bluetooth: RFCOMM: Fix not validating setsockopt user input
+- config: enable CONFIG_BLK_CGROUP_IOCOST by default
+- drivers: misc: sdma-dae: not compile sdma-dae by default
+- block: fix kabi broken in struct request_queue about CONFIG_BLK_BIO_DISPATCH_ASYNC
+- block: support to dispatch bio asynchronously
+- !9050  CVE-2024-35796
+- roh/hns3: Add ROH client case in hclgevf_init_client_instance.
+- i40e: fix vf may be used uninitialized in this function warning
+- !9020  wifi: libertas: fix some memleaks in lbs_allocate_cmd_buffer()
+- net: ll_temac: platform_get_resource replaced by wrong function
+- !7205  mm: memcontrol: do not miss MEMCG_MAX events for enforced allocations
+- !8908  Refactor hbmdev a bit
+- !9001 roh/hns3: Fix IMP reset vlan unusable.
+- !8774  CVE-2024-36914
+- !9027  tty: n_gsm: fix possible out-of-bounds in gsm0_receive()
+- !8828  drm/panfrost: Fix the error path in panfrost_mmu_map_fault_addr()
+- !8719  CVE-2024-35887
+- !8872  drm/vmwgfx: Fix invalid reads in fence signaled events
+- !8882  scsi: lpfc: Move NPIV's transport unregistration to after resource clean up
+- !8921  hugetlbfs: fix hugetlbfs_statfs() locking
+- bpf, skmsg: Fix NULL pointer dereference in sk_psock_skb_ingress_enqueue
+- tty: n_gsm: fix possible out-of-bounds in gsm0_receive()
+- wifi: libertas: fix some memleaks in lbs_allocate_cmd_buffer()
+- KVM: arm64: vgic-v2: Check for non-NULL vCPU in vgic_v2_parse_attr()
+- KVM: arm64: vgic-v2: Use cpuid from userspace as vcpu_id
+- drm/vc4: don't check if plane->state->fb == state->fb
+- roh/hns3: Fix IMP reset vlan unusable.
+- !8965  cvm: enhance security for cvm host feature
+- !8982  fix CVE-2024-36905
+- !8996  pinctrl: devicetree: fix refcount leak in pinctrl_dt_to_map()
+- scsi: bnx2fc: Remove spin_lock_bh while releasing resources after upload
+- pinctrl: devicetree: fix refcount leak in pinctrl_dt_to_map()
+- net: relax socket state check at accept time.
+- tcp: defer shutdown(SEND_SHUTDOWN) for TCP_SYN_RECV sockets
+- cvm: enhance security for cvm host feature
+- firewire: ohci: mask bus reset interrupts between ISR and bottom half
+- clk: sunxi-ng: h6: Reparent CPUX during PLL CPUX rate change
+- hugetlbfs: fix hugetlbfs_statfs() locking
+- arm64: config: Open the hbmdev related config
+- soc: hisilicon: Don't poweroff if memblocks don't offlined
+- soc: hisilicon: hisi_hbmdev: Notify the device in the ACPI
+- scsi: lpfc: Move NPIV's transport unregistration to after resource clean up
+- drm/vmwgfx: Fix invalid reads in fence signaled events
+- drm/panfrost: Fix the error path in panfrost_mmu_map_fault_addr()
+- iomap: Ensure sub-page dirty state is set during mmap writes
+- Revert "iomap: Don't create iomap_page objects in iomap_page_mkwrite_actor"
+- drm/amd/display: Skip on writeback when it's not applicable
+- memcg: fix input of try_to_free_mem_cgroup_pages
+- dmaengine: fsl-qdma: Fix a memory leak related to the queue command DMA
+- ax25: fix use-after-free bugs caused by ax25_ds_del_timer
+- wifi: cfg80211: check A-MSDU format more carefully
+- rpmsg: virtio: Free driver_override when rpmsg_remove()
+- mm: memcontrol: do not miss MEMCG_MAX events for enforced allocations
+
 * Wed Jun 12 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-207.0.0.116
 - !8599  Bluetooth: hci_core: Fix possible buffer overflow
 - !8949  CVE-2022-48652
