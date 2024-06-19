@@ -12,7 +12,7 @@
 %global upstream_sublevel   0
 %global devel_release       153
 %global maintenance_release .56.0
-%global pkg_release         .134
+%global pkg_release         .135
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -878,6 +878,9 @@ fi
 %endif
 
 %changelog
+* Wed Jun 19 2024 luhuaxin <luhuxin1@huawei.com> - 5.10.0-153.56.0.135
+- Add the pub key in openEuler RPM-PGP certificate
+
 * Wed May 29 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-153.56.0.134
 - !8158 [sync] PR-8017:  perf/core: Bail out early if the request AUX area is out of bound
 - !8115 [sync] PR-8023:  fs/ntfs3: Fixed overflow check in mi_enum_attr()
