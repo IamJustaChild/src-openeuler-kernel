@@ -3,9 +3,8 @@
 
 %define modsign_cmd %{SOURCE10}
 
-%global Arch $(echo %{_host_cpu} | sed -e s/i.86/x86/ -e s/x86_64/x86/ -e s/aarch64.*/arm64/)
+%global Arch $(echo %{_host_cpu} | sed -e s/i.86/x86/ -e s/x86_64/x86/ -e s/aarch64.*/arm64/ -e s/powerpc64le/powerpc/)
 
-%global KernelVer %{version}-%{release}.%{_target_cpu}
 %global debuginfodir /usr/lib/debug
 
 %global upstream_version    5.10
@@ -34,10 +33,14 @@
 %define with_64kb  %{?_with_64kb: 1} %{?!_with_64kb: 0}
 %if %{with_64kb}
 %global package64kb -64kb
+%global kv_suffix +64kb
+%define with_kabichk 0
 %endif
 %else
 %define with_64kb  0
 %endif
+
+%global KernelVer %{version}-%{release}.%{_target_cpu}%{?kv_suffix}
 
 #default is enabled. You can disable it with --without option
 %define with_perf    %{?_without_perf: 0} %{?!_without_perf: 1}
@@ -62,6 +65,7 @@ Source15: process_pgp_certs.sh
 %if 0%{?with_kabichk}
 Source18: check-kabi
 Source20: Module.kabi_aarch64
+Source21: Module.kabi_x86_64
 %endif
 
 Source200: mkgrub-menu-aarch64.sh
@@ -102,7 +106,11 @@ BuildRequires: audit-libs-devel
 BuildRequires: pciutils-devel gettext
 BuildRequires: rpm-build, elfutils
 BuildRequires: numactl-devel python3-devel glibc-static python3-docutils
-BuildRequires: perl-generators perl(Carp) libunwind-devel gtk2-devel libbabeltrace-devel java-1.8.0-openjdk perl-devel
+BuildRequires: perl-generators perl(Carp) libunwind-devel gtk2-devel libbabeltrace-devel java-1.8.0-openjdk java-1.8.0-openjdk-devel perl-devel
+
+%if 0%{?openEuler_sign_rsa}
+BuildRequires: sign-openEuler
+%endif
 AutoReq: no
 AutoProv: yes
 
@@ -117,12 +125,15 @@ Provides: kernel-rt-uname-r = %{KernelVer} kernel-rt=%{KernelVer}
 
 Requires: dracut >= 001-7 grubby >= 8.28-2 initscripts >= 8.11.1-1 linux-firmware >= 20100806-2 module-init-tools >= 3.16-2
 
-ExclusiveArch: noarch aarch64 i686 x86_64
+ExclusiveArch: noarch aarch64 i686 x86_64 ppc64le
 ExclusiveOS: Linux
 
 %if %{with_perf}
 BuildRequires: flex xz-devel libzstd-devel
 BuildRequires: java-devel
+%ifarch aarch64
+BuildRequires: OpenCSD
+%endif
 %endif
 
 BuildRequires: dwarves
@@ -155,6 +166,7 @@ Requires: perl findutils
 This package provides kernel headers and makefiles sufficient to build modules
 against the %{KernelVer} kernel package.
 
+%if !%{with_64kb}
 %package tools
 Summary: Assortment of tools for the Linux kernel
 Provides: %{name}-tools-libs
@@ -214,6 +226,7 @@ manipulation of eBPF programs and maps.
 Summary: the kernel source
 %description source
 This package contains vaious source files from the kernel.
+%endif
 
 %if 0%{?with_debuginfo}
 %define _debuginfo_template %{nil}
@@ -231,6 +244,10 @@ Debug information is useful when developing applications that use this\
 package or when debugging this package.\
 %{nil}
 
+%if %{with_64kb}
+%debuginfo_template -n kernel-64kb
+%files -n kernel-64kb-debuginfo -f debugfiles.list
+%else
 %debuginfo_template -n kernel-rt
 %files -n kernel-rt-debuginfo -f debugfiles.list
 
@@ -258,7 +275,8 @@ package or when debugging this package.\
 %{expand:%%global _find_debuginfo_opts %{?_find_debuginfo_opts} -p '.*%{python3_sitearch}/perf.*(.debug)?|XXX' -o python3-perf-debugfiles.list}
 #with_perf
 %endif
-
+#with_64kb
+%endif
 %endif
 
 %prep
@@ -272,7 +290,12 @@ tar -xjf %{SOURCE9998}
 mv kernel linux-%{KernelVer}
 cd linux-%{KernelVer}
 
-cp %{SOURCE13} certs
+# process PGP certs
+cp %{SOURCE13} .
+cp %{SOURCE14} .
+cp %{SOURCE15} .
+sh %{SOURCE15}
+cp pubring.gpg certs
 
 %if 0%{?with_patch}
 cp %{SOURCE9000} .
@@ -327,7 +350,7 @@ cp -a tools/perf tools/python3-perf
 %build
 cd linux-%{KernelVer}
 
-perl -p -i -e "s/^EXTRAVERSION.*/EXTRAVERSION = -%{release}.%{_target_cpu}/" Makefile
+perl -p -i -e "s/^EXTRAVERSION.*/EXTRAVERSION = -%{release}.%{_target_cpu}%{?kv_suffix}/" Makefile
 
 ## make linux
 make mrproper %{_smp_mflags}
@@ -350,8 +373,7 @@ make ARCH=%{Arch} modules %{?_smp_mflags}
 %if 0%{?with_kabichk}
     chmod 0755 %{SOURCE18}
     if [ -e $RPM_SOURCE_DIR/Module.kabi_%{_target_cpu} ]; then
-        ##%{SOURCE18} -k $RPM_SOURCE_DIR/Module.kabi_%{_target_cpu} -s Module.symvers || exit 1
-	echo "**** NOTE: now don't check Kabi. ****"
+        %{SOURCE18} -k $RPM_SOURCE_DIR/Module.kabi_%{_target_cpu} -s Module.symvers || exit 1
     else
         echo "**** NOTE: Cannot find reference Module.kabi file. ****"
     fi
@@ -365,8 +387,14 @@ make ARCH=%{Arch} modules %{?_smp_mflags}
 ## make tools
 %if %{with_perf}
 # perf
+%ifarch aarch64
+# aarch64 make perf with CORESIGHT=1
+%global perf_make \
+    make EXTRA_CFLAGS="-Wl,-z,now -g -Wall -fstack-protector-strong -fPIC" EXTRA_PERFLIBS="-fpie -pie" %{?_smp_mflags} -s V=1 WERROR=0 NO_LIBUNWIND=1 HAVE_CPLUS_DEMANGLE=1 NO_GTK2=1 NO_LIBNUMA=1 NO_STRLCPY=1 CORESIGHT=1 prefix=%{_prefix}
+%else
 %global perf_make \
     make EXTRA_CFLAGS="-Wl,-z,now -g -Wall -fstack-protector-strong -fPIC" EXTRA_PERFLIBS="-fpie -pie" %{?_smp_mflags} -s V=1 WERROR=0 NO_LIBUNWIND=1 HAVE_CPLUS_DEMANGLE=1 NO_GTK2=1 NO_LIBNUMA=1 NO_STRLCPY=1 prefix=%{_prefix}
+%endif
 %if 0%{?with_python2}
 %global perf_python2 -C tools/perf PYTHON=%{__python2}
 %global perf_python3 -C tools/python3-perf PYTHON=%{__python3}
@@ -431,14 +459,19 @@ popd
 pushd tools/kvm/kvm_stat/
 make %{?_smp_mflags} man
 popd
+pushd tools/netacc
+make BPFTOOL=../../tools/bpf/bpftool/bpftool
+popd
 
 %install
+%if !%{with_64kb}
 %if 0%{?with_source}
     %define _python_bytecompile_errors_terminate_build 0
     mkdir -p $RPM_BUILD_ROOT/usr/src/
     mv linux-%{KernelVer}-source $RPM_BUILD_ROOT/usr/src/linux-%{KernelVer}
     cp linux-%{KernelVer}/.config $RPM_BUILD_ROOT/usr/src/linux-%{KernelVer}/
     cp linux-%{KernelVer}/.scmversion $RPM_BUILD_ROOT/usr/src/linux-%{KernelVer}/
+%endif
 %endif
 
 cd linux-%{KernelVer}
@@ -453,6 +486,23 @@ mkdir -p $RPM_BUILD_ROOT/boot
 dd if=/dev/zero of=$RPM_BUILD_ROOT/boot/initramfs-%{KernelVer}.img bs=1M count=20
 
 install -m 755 $(make -s image_name) $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}
+
+%if 0%{?openEuler_sign_rsa}
+    echo "start sign"
+    %ifarch %arm aarch64
+	gunzip -c $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}>$RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip.efi
+	/opt/sign-openEuler/client --config /opt/sign-openEuler/config.toml add --key-name default-x509ee --file-type efi-image --key-type x509ee --sign-type authenticode $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip.efi
+	mv $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip.efi $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip
+	gzip -c $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip>$RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}
+	rm -f $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.unzip
+    %endif
+    %ifarch x86_64
+	mv $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer} $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.efi
+	/opt/sign-openEuler/client --config /opt/sign-openEuler/config.toml add --key-name default-x509ee --file-type efi-image --key-type x509ee --sign-type authenticode $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.efi
+	mv $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}.efi $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}
+    %endif
+%endif
+
 pushd $RPM_BUILD_ROOT/boot
 sha512hmac ./vmlinuz-%{KernelVer} >./.vmlinuz-%{KernelVer}.hmac
 popd
@@ -460,7 +510,9 @@ popd
 install -m 644 .config $RPM_BUILD_ROOT/boot/config-%{KernelVer}
 install -m 644 System.map $RPM_BUILD_ROOT/boot/System.map-%{KernelVer}
 
-gzip -c9 < Module.symvers > $RPM_BUILD_ROOT/boot/symvers-%{KernelVer}.gz
+%if 0%{?with_kabichk}
+    gzip -c9 < Module.symvers > $RPM_BUILD_ROOT/boot/symvers-%{KernelVer}.gz
+%endif
 
 mkdir -p $RPM_BUILD_ROOT%{_sbindir}
 install -m 755 %{SOURCE200} $RPM_BUILD_ROOT%{_sbindir}/mkgrub-menu-%{devel_release}.sh
@@ -629,6 +681,7 @@ popd
 
 
 ## install tools
+%if !%{with_64kb}
 %if %{with_perf}
 # perf
 # perf tool binary and supporting scripts/binaries
@@ -707,6 +760,10 @@ popd
 pushd tools/kvm/kvm_stat
 make INSTALL_ROOT=%{buildroot} install-tools
 popd
+pushd tools/netacc
+make INSTALL_ROOT=%{buildroot} install
+popd
+%endif
 
 %define __spec_install_post\
 %{?__debug_package:%{__debug_install_post}}\
@@ -763,6 +820,7 @@ then
      done)
 fi
 
+%if !%{with_64kb}
 %post -n %{name}-tools
 /sbin/ldconfig
 %systemd_post cpupower.service
@@ -773,6 +831,7 @@ fi
 %postun -n %{name}-tools
 /sbin/ldconfig
 %systemd_postun cpupower.service
+%endif
 
 %files
 %defattr (-, root, root)
@@ -781,7 +840,9 @@ fi
 %ifarch aarch64
 /boot/dtb-*
 %endif
+%if 0%{?with_kabichk}
 /boot/symvers-*
+%endif
 /boot/System.map-*
 /boot/vmlinuz-*
 %ghost /boot/initramfs-%{KernelVer}.img
@@ -803,6 +864,7 @@ fi
 %defattr (-, root, root)
 /usr/include/*
 
+%if !%{with_64kb}
 %if %{with_perf}
 %files -n perf
 %{_bindir}/perf
@@ -855,6 +917,8 @@ fi
 %{_bindir}/gpio-watch
 %{_mandir}/man1/kvm_stat*
 %{_bindir}/kvm_stat
+%{_sbindir}/net-acc
+%{_sbindir}/tuned_acc/netacc
 %{_libdir}/libcpupower.so.0
 %{_libdir}/libcpupower.so.0.0.1
 %license linux-%{KernelVer}/COPYING
@@ -888,6 +952,9 @@ fi
 /usr/src/linux-%{KernelVer}/*
 /usr/src/linux-%{KernelVer}/.config
 /usr/src/linux-%{KernelVer}/.scmversion
+%endif
+
+#with_64kb
 %endif
 
 %changelog
