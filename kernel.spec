@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2406.2.0
+%global hulkrelease 2406.3.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0281
+Release: %{hulkrelease}.0282
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,116 @@ fi
 %endif
 
 %changelog
+
+* Tue Jun 18 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2406.3.0.0282
+- !9086 v2  dhugetlb: use rcu lock to protect hpool
+- !8796  CVE-2023-52810
+- !8699  wifi: cfg80211: check A-MSDU format more carefully
+- !9123  staging: rtl8192e: Fix use after free in _rtl92e_pci_disconnect()
+- staging: rtl8192e: Fix use after free in _rtl92e_pci_disconnect()
+- !9005  scsi: bnx2fc: Remove spin_lock_bh while releasing resources after upload
+- !9113  IB/qib: Protect from buffer
+- !9119  PCI: aardvark: Fix kernel panic during PIO transfer
+- !9058  watchdog: Fix possible use-after-free by calling del_timer_sync()
+- !9053  soc: fsl: qbman: Use raw spinlock for cgr_lock
+- PCI: aardvark: Fix kernel panic during PIO transfer
+- PCI: aardvark: Increase polling delay to 1.5s while waiting for PIO response
+- PCI: aardvark: Don't rely on jiffies while holding spinlock
+- !9091  RDMA/cma: Fix rdma_resolve_route() memory leak
+- IB/qib: Fix memory leak in qib_user_sdma_queue_pkts()
+- IB/qib: Protect from buffer overflow in struct qib_user_sdma_pkt fields
+- !9037  fix CVE-2021-47509
+- RDMA/cma: Fix rdma_resolve_route() memory leak
+- dhugetlb: use rcu lock to protect hpool
+- !8291 Fix CVE-2023-52836
+- !8574  net: ieee802154: fix null deref in parse dev addr
+- !9017  misc/libmasm/module: Fix two use after free in ibmasm_init_one
+- !9045  ALSA: seq: Fix race of snd_seq_timer_open()
+- !9046  net: rds: fix memory leak in rds_recvmsg
+- !8632  phy: phy-mtk-tphy: Fix some resource leaks in mtk_phy_init()
+- !8695  net: macb: fix use after free on rmmod
+- !4633 Add support for Hygon family 18h model 5h HD-Audio
+- !9057  CVE-2021-47261
+- !8637  dyndbg: fix old BUG_ON in >control parser
+- !8698  net: batman-adv: fix error handling
+- !8715  net/sched: act_skbmod: prevent kernel-infoleak
+- !8775  llc: verify mac len before reading mac header
+- watchdog: Fix possible use-after-free by calling del_timer_sync()
+- IB/mlx5: Fix initializing CQ fragments buffer
+- soc: fsl: qbman: Use raw spinlock for cgr_lock
+- !9022  wifi: libertas: fix some memleaks in lbs_allocate_cmd_buffer()
+- !8786  tty: n_gsm: require CAP_NET_ADMIN to attach N_GSM0710 ldisc
+- !8704  usb: fix various gadget panics on 10gbps cabling
+- !9013  net: encx24j600: check error in devm_regmap_init_encx24j600
+- net: rds: fix memory leak in rds_recvmsg
+- ALSA: seq: Fix race of snd_seq_timer_open()
+- !9036  IB/hfi1: Restore allocated resources on failed copyout
+- !4620 Some fixes for Hygon model 4h~6h processors
+- !4630 Add support for Hygon model 6h L3 PMU
+- ALSA: pcm: oss: Limit the period size to 16MB
+- ALSA: pcm: oss: Fix potential out-of-bounds shift
+- !8549  batman-adv: Avoid infinite loop trying to resize local TT
+- !8763  tipc: fix UAF in error path
+- IB/hfi1: Restore allocated resources on failed copyout
+- !8956  net: ti: fix UAF in tlan_remove_one
+- !8959  comedi: vmk80xx: fix bulk-buffer overflow
+- !8740  CVE-2024-36914
+- !8824  igb: Fix use-after-free error during reset
+- !8987  bna: ensure the copied buf is NUL terminated
+- !9026  tty: n_gsm: fix possible out-of-bounds in gsm0_receive()
+- !8923  i40e: Fix NULL pointer dereference in i40e_dbg_dump_desc
+- !8961  nfp: Fix memory leak in nfp_cpp_area_cache_add()
+- !8875  drm/vmwgfx: Fix invalid reads in fence signaled events
+- !8883  scsi: lpfc: Move NPIV's transport unregistration to after resource clean up
+- tty: n_gsm: fix possible out-of-bounds in gsm0_receive()
+- wifi: libertas: fix some memleaks in lbs_allocate_cmd_buffer()
+- misc/libmasm/module: Fix two use after free in ibmasm_init_one
+- net: encx24j600: check error in devm_regmap_init_encx24j600
+- !8998  i2c: acpi: fix resource leak in reconfiguration device addition
+- scsi: bnx2fc: Remove spin_lock_bh while releasing resources after upload
+- !8991  clk: mediatek: clk-mt2701: Add check for mtk_alloc_clk_data
+- !8992  fix CVE-2024-36905
+- i2c: acpi: fix resource leak in reconfiguration device addition
+- !8868  ipv6: prevent NULL dereference in ip6_output()
+- net: relax socket state check at accept time.
+- tcp: defer shutdown(SEND_SHUTDOWN) for TCP_SYN_RECV sockets
+- !8737  ubifs: Set page uptodate in the correct place
+- !8668  phonet/pep: fix racy skb_queue_empty() use
+- clk: mediatek: clk-mt2701: Add check for mtk_alloc_clk_data
+- bna: ensure the copied buf is NUL terminated
+- nfp: Fix memory leak in nfp_cpp_area_cache_add()
+- comedi: vmk80xx: fix bulk-buffer overflow
+- net: ti: fix UAF in tlan_remove_one
+- i40e: Fix NULL pointer dereference in i40e_dbg_dump_desc
+- scsi: lpfc: Move NPIV's transport unregistration to after resource clean up
+- drm/vmwgfx: Fix invalid reads in fence signaled events
+- ipv6: prevent NULL dereference in ip6_output()
+- igb: Fix use-after-free error during reset
+- fs/jfs: Add check for negative db_l2nbperpage
+- jfs: jfs_dmap: Validate db_l2nbperpage while mounting
+- tty: n_gsm: require CAP_NET_ADMIN to attach N_GSM0710 ldisc
+- llc: verify mac len before reading mac header
+- tipc: fix UAF in error path
+- drm/amd/display: Skip on writeback when it's not applicable
+- ubifs: Set page uptodate in the correct place
+- net/sched: act_skbmod: prevent kernel-infoleak
+- usb: fix various gadget panics on 10gbps cabling
+- wifi: cfg80211: check A-MSDU format more carefully
+- net: batman-adv: fix error handling
+- net: macb: fix use after free on rmmod
+- phonet/pep: fix racy skb_queue_empty() use
+- dyndbg: fix old BUG_ON in >control parser
+- phy: phy-mtk-tphy: Fix some resource leaks in mtk_phy_init()
+- net: ieee802154: fix null deref in parse dev addr
+- batman-adv: Avoid infinite loop trying to resize local TT
+- locking/ww_mutex/test: Fix potential workqueue corruption
+- EDAC/amd64: Adjust UMC channel for Hygon family 18h model 6h
+- x86/amd_nb: Get DF ID from F5 device for Hygon family 18h model 6h
+- EDAC/amd64: Fix intlv_num_chan for Hygon family 18h model 4h
+- EDAC/amd64: Revert hi_addr_offset for Hygon family 18h model 4h
+- ALSA: hda: Fix single byte write failure issue for Hygon
+- ALSA: hda: Add Hygon HD-Audio support
+- perf/x86/uncore: Add L3 PMU support for Hygon family 18h model 6h
 
 * Wed Jun 12 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2406.2.0.0281
 - !8895  net: fix out-of-bounds access in ops_init
