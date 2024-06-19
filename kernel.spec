@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .79.0
-%global pkg_release         .159
+%global maintenance_release .80.0
+%global pkg_release         .160
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,115 @@ fi
 %endif
 
 %changelog
+* Wed Jun 19 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.80.0.160
+- !9093 v2  ksmbd: validate request buffer size in smb2_allocate_rsp_buf()
+- !9031  bpf, skmsg: Fix NULL pointer dereference in sk_psock_skb_ingress_enqueue
+- !9065  afs: Fix corruption in reads at fpos 2G-4G from an OpenAFS server
+- !8933  Fix CVE-2023-52732
+- !8927 [sync] PR-8222:  Fix CVE-2023-52672
+- !9172 [sync] PR-7041:  netfilter: nf_tables: Fix potential data-race in __nft_obj_type_get()
+- !9171 [sync] PR-6994: v2  net/mlx5e: Prevent deadlock while disabling aRFS
+- !8733  batman-adv: Avoid infinite loop trying to resize local TT
+- !7374 [sync] PR-6879:  net/smc: Fix possible access to freed memory in link clear
+- !9098  Bluetooth: L2CAP: Fix div-by-zero in l2cap_le_flowctl_init()
+- netfilter: nf_tables: Fix potential data-race in __nft_obj_type_get()
+- net/mlx5e: Prevent deadlock while disabling aRFS
+- !9165  genirq: introduce handle_fasteoi_edge_irq flow handler
+- genirq: introduce handle_fasteoi_edge_irq for phytium
+- genirq: introduce handle_fasteoi_edge_irq flow handler
+- !9139 v2  CVE-2024-36971
+- !8495  rpmsg: virtio: Free driver_override when rpmsg_remove()
+- !9127  hsr: Prevent use after free in prp_create_tagged_frame()
+- !9075  Fix UAF problem of hpool
+- !9132  mm: swap: fix race between free_swap_and_cache() and swapoff()
+- !9130  ARM: 9359/1: flush: check if the folio is reserved for no-mapping addresses
+- !9069  Bluetooth: RFCOMM: Fix not validating setsockopt user input
+- !8970  mmc: mmc_spi: fix error handling in mmc_spi_probe()
+- !8977 [sync] PR-8584:  virtio-blk: fix implicit overflow on virtio_max_dma_size
+- !8701  wifi: cfg80211: check A-MSDU format more carefully
+- net: fix kabi breakage in struct dst_ops
+- net: fix __dst_negative_advice() race
+- net: annotate data-races around sk->sk_dst_pending_confirm
+- mm: swap: fix race between free_swap_and_cache() and swapoff()
+- ARM: 9359/1: flush: check if the folio is reserved for no-mapping addresses
+- hsr: Prevent use after free in prp_create_tagged_frame()
+- !9002  scsi: bnx2fc: Remove spin_lock_bh while releasing resources after upload
+- !9056  drm/panel: fix a possible null pointer dereference
+- !9054  soc: fsl: qbman: Use raw spinlock for cgr_lock
+- !8939  clk: sunxi-ng: h6: Reparent CPUX during PLL CPUX rate change
+- !8952  ACPI: video: check for error while searching for backlight device parent
+- !8986 [sync] PR-8639:  s390/qeth: Fix kernel panic after setting hsuid
+- Bluetooth: L2CAP: Fix div-by-zero in l2cap_le_flowctl_init()
+- !8714  Fix page corruption caused by racy check in __free_pages
+- ksmbd: validate request buffer size in smb2_allocate_rsp_buf()
+- !9080  Bluetooth: L2CAP: Fix not validating setsockopt user input
+- Bluetooth: L2CAP: Fix not validating setsockopt user input
+- mm/dynamic_hugetlb: use rcu lock to protect hpool
+- mm/dynamic_hugetlb: simplify the refcount code
+- !9072 [sync] PR-9015:  CVE-2024-36953
+- !9071 [sync] PR-9014:  drm/vc4: don't check if plane->state->fb == state->fb
+- KVM: arm64: vgic-v2: Check for non-NULL vCPU in vgic_v2_parse_attr()
+- KVM: arm64: vgic-v2: Use cpuid from userspace as vcpu_id
+- drm/vc4: don't check if plane->state->fb == state->fb
+- Bluetooth: RFCOMM: Fix not validating setsockopt user input
+- afs: Fix corruption in reads at fpos 2G-4G from an OpenAFS server
+- !8947 [sync] PR-6800:  block: fix overflow in blk_ioctl_discard()
+- !9052  CVE-2024-35796
+- drm/panel: fix a possible null pointer dereference
+- soc: fsl: qbman: Use raw spinlock for cgr_lock
+- !9021  wifi: libertas: fix some memleaks in lbs_allocate_cmd_buffer()
+- net: ll_temac: platform_get_resource replaced by wrong function
+- !9048  IB/hfi1: Restore allocated resources on failed copyout
+- IB/hfi1: Restore allocated resources on failed copyout
+- !9028  tty: n_gsm: fix possible out-of-bounds in gsm0_receive()
+- !8830  Fix CVE-2024-35951
+- !9009  fix CVE-2024-35839
+- !9008  tipc: fix a possible memleak in tipc_buf_append
+- !8721  CVE-2024-35887
+- !8876  drm/vmwgfx: Fix invalid reads in fence signaled events
+- !8884  scsi: lpfc: Move NPIV's transport unregistration to after resource clean up
+- !8922  hugetlbfs: fix hugetlbfs_statfs() locking
+- bpf, skmsg: Fix NULL pointer dereference in sk_psock_skb_ingress_enqueue
+- tty: n_gsm: fix possible out-of-bounds in gsm0_receive()
+- wifi: libertas: fix some memleaks in lbs_allocate_cmd_buffer()
+- netfilter: bridge: replace physindev with physinif in nf_bridge_info
+- netfilter: propagate net to nf_bridge_get_physindev
+- netfilter: nfnetlink_log: use proper helper for fetching physinif
+- !8662  usb: typec: altmodes/displayport: create sysfs nodes as driver's default device attribute group
+- tipc: fix a possible memleak in tipc_buf_append
+- !8617 [sync] PR-8472:  fix CVE-2024-27415
+- !8983  fix CVE-2024-36905
+- scsi: bnx2fc: Remove spin_lock_bh while releasing resources after upload
+- s390/qeth: Fix kernel panic after setting hsuid
+- net: relax socket state check at accept time.
+- tcp: defer shutdown(SEND_SHUTDOWN) for TCP_SYN_RECV sockets
+- virtio-blk: fix implicit overflow on virtio_max_dma_size
+- mmc: mmc_spi: fix error handling in mmc_spi_probe()
+- ACPI: video: check for error while searching for backlight device parent
+- block: fix overflow in blk_ioctl_discard()
+- clk: sunxi-ng: h6: Reparent CPUX during PLL CPUX rate change
+- ceph: blocklist the kclient when receiving corrupted snap trace
+- ceph: shut down access to inode when async create fails
+- ceph: refactor remove_session_caps_cb
+- ceph: fix auth cap handling logic in remove_session_caps_cb
+- ceph: drop private list from remove_session_caps_cb
+- pipe: wakeup wr_wait after setting max_usage
+- fs/pipe: move check to pipe_has_watch_queue()
+- hugetlbfs: fix hugetlbfs_statfs() locking
+- scsi: lpfc: Move NPIV's transport unregistration to after resource clean up
+- drm/vmwgfx: Fix invalid reads in fence signaled events
+- drm/panfrost: Fix the error path in panfrost_mmu_map_fault_addr()
+- drm/panfrost: Fix the panfrost_mmu_map_fault_addr() error path
+- batman-adv: Avoid infinite loop trying to resize local TT
+- ax25: fix use-after-free bugs caused by ax25_ds_del_timer
+- Fix page corruption caused by racy check in __free_pages
+- wifi: cfg80211: check A-MSDU format more carefully
+- usb: typec: altmodes/displayport: create sysfs nodes as driver's default device attribute group
+- netfilter: br_netfilter: skip conntrack input hook for promisc packets
+- netfilter: bridge: confirm multicast packets before passing them up the stack
+- rpmsg: virtio: Free driver_override when rpmsg_remove()
+- net/smc: Fix possible access to freed memory in link clear
+
 * Wed Jun 12 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.79.0.159
 - !8950  aio: fix mremap after fork null-deref
 - !8948  CVE-2022-48652
