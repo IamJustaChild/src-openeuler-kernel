@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       208
+%global devel_release       209
 %global maintenance_release .0.0
-%global pkg_release         .108
+%global pkg_release         .109
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -952,6 +952,70 @@ fi
 %endif
 
 %changelog
+* Wed Jun 19 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-209.0.0.109
+- !9092 v2  ksmbd: validate request buffer size in smb2_allocate_rsp_buf()
+- !9030  bpf, skmsg: Fix NULL pointer dereference in sk_psock_skb_ingress_enqueue
+- !9112  Backport some optimizing patches for kunpeng920
+- !9099  Bluetooth: L2CAP: Fix div-by-zero in l2cap_le_flowctl_init()
+- !9166  A Solution to Re-enable hugetlb vmemmap optimize on ARM64
+- !9163  genirq: introduce handle_fasteoi_edge_irq flow handler
+- ARM: 9278/1: kfence: only handle translation faults
+- arm64: mm: HVO: support BBM of vmemmap pgtable safely
+- arm64: mm: kfence: only handle translation faults
+- mm: HVO: introduce helper function to update and flush pgtable
+- genirq: introduce handle_fasteoi_edge_irq for phytium
+- genirq: introduce handle_fasteoi_edge_irq flow handler
+- !8753  memcg: fix input of try_to_free_mem_cgroup_pages
+- !9149 [sync] PR-9054:  soc: fsl: qbman: Use raw spinlock for cgr_lock
+- !9125  arm64: armv8_deprecated: Fix warning in isndep cpuhp starting process
+- !9138 v2  CVE-2024-36971
+- !8494  rpmsg: virtio: Free driver_override when rpmsg_remove()
+- !9073 v2  Fix UAF problem of hpool
+- soc: fsl: qbman: Use raw spinlock for cgr_lock
+- !9131  mm: swap: fix race between free_swap_and_cache() and swapoff()
+- !9129  ARM: 9359/1: flush: check if the folio is reserved for no-mapping addresses
+- !9068  Bluetooth: RFCOMM: Fix not validating setsockopt user input
+- !8700  wifi: cfg80211: check A-MSDU format more carefully
+- net: fix kabi breakage in struct dst_ops
+- net: fix __dst_negative_advice() race
+- mm: swap: fix race between free_swap_and_cache() and swapoff()
+- ARM: 9359/1: flush: check if the folio is reserved for no-mapping addresses
+- arm64: armv8_deprecated: Fix warning in isndep cpuhp starting process
+- !8999  scsi: bnx2fc: Remove spin_lock_bh while releasing resources after upload
+- !8938  clk: sunxi-ng: h6: Reparent CPUX during PLL CPUX rate change
+- arm64: syscall: unmask DAIF for tracing status
+- arm64: Snapshot thread flags
+- sched: Snapshot thread flags
+- entry: Snapshot thread flags
+- x86: Snapshot thread flags
+- thread_info: Add helpers to snapshot thread flags
+- irqchip/gic-v3: Use dsb(ishst) to order writes with ICC_SGI1R_EL1 accesses
+- sched/fair: Optimize test_idle_cores() for !SMT
+- Bluetooth: L2CAP: Fix div-by-zero in l2cap_le_flowctl_init()
+- !8940  firewire: ohci: mask bus reset interrupts between ISR and bottom half
+- !8747  dmaengine: fsl-qdma: Fix a memory leak related to the queue command DMA
+- ksmbd: validate request buffer size in smb2_allocate_rsp_buf()
+- !9074 [sync] PR-8963:  Fix CVE-2024-35915
+- !9083  Bluetooth: L2CAP: Fix not validating setsockopt user input
+- !9081 v2  arm64: mm: Replace global variable in pbha with static key
+- Bluetooth: L2CAP: Fix not validating setsockopt user input
+- arm64: mm: Replace global variable in pbha with static key
+- nfc: nci: Fix handling of zero-length payload packets in nci_rx_work()
+- nfc: nci: Fix uninit-value in nci_rx_work
+- nfc: nci: Fix kcov check in nci_rx_work()
+- nfc: nci: Fix uninit-value in nci_dev_up and nci_ntf_packet
+- mm/dynamic_hugetlb: use rcu lock to protect hpool
+- mm/dynamic_hugetlb: simplify the refcount code
+- Bluetooth: RFCOMM: Fix not validating setsockopt user input
+- bpf, skmsg: Fix NULL pointer dereference in sk_psock_skb_ingress_enqueue
+- scsi: bnx2fc: Remove spin_lock_bh while releasing resources after upload
+- firewire: ohci: mask bus reset interrupts between ISR and bottom half
+- clk: sunxi-ng: h6: Reparent CPUX during PLL CPUX rate change
+- memcg: fix input of try_to_free_mem_cgroup_pages
+- dmaengine: fsl-qdma: Fix a memory leak related to the queue command DMA
+- wifi: cfg80211: check A-MSDU format more carefully
+- rpmsg: virtio: Free driver_override when rpmsg_remove()
+
 * Fri Jun 14 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-208.0.0.108
 - !9084 v5  xfs: atomic writes for xfs
 - block: fix kabi in struct queue_limits
