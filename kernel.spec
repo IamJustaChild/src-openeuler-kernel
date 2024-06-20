@@ -11,7 +11,7 @@
 %global upstream_sublevel   0
 %global devel_release       209
 %global maintenance_release .0.0
-%global pkg_release         .117
+%global pkg_release         .118
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -911,6 +911,9 @@ fi
 %endif
 
 %changelog
+* Thu Jun 20 2024 luhuaxin <luhuxin1@huawei.com> - 5.10.0-209.0.0.118
+- Add the pub key in openEuler RPM-PGP certificate
+
 * Wed Jun 19 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-209.0.0.117
 - !9092 v2  ksmbd: validate request buffer size in smb2_allocate_rsp_buf()
 - !9030  bpf, skmsg: Fix NULL pointer dereference in sk_psock_skb_ingress_enqueue
