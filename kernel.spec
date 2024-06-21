@@ -11,7 +11,7 @@
 %global upstream_sublevel   0
 %global devel_release       210
 %global maintenance_release .0.0
-%global pkg_release         .110
+%global pkg_release         .111
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -71,6 +71,9 @@ Source200: mkgrub-menu-aarch64.sh
 
 Source2000: cpupower.service
 Source2001: cpupower.config
+
+Source2002: hns3_int_coal_params_setting.service
+Source2003: hns3_int_coal_params_setting.sh
 
 %if 0%{?with_patch}
 Source9000: apply-patches
@@ -738,6 +741,13 @@ install -m644 %{SOURCE2001} %{buildroot}%{_sysconfdir}/sysconfig/cpupower
     make DESTDIR=%{buildroot} install
     popd
 %endif
+
+# hns3 nic interrupt coalesce parameters setting
+%ifarch aarch64
+install -m644 %{SOURCE2002} %{buildroot}%{_unitdir}/hns3_int_coal_params_setting.service
+install -m755 %{SOURCE2003} %{buildroot}%{_bindir}/hns3_int_coal_params_setting.sh
+%endif
+
 # thermal
 pushd tools/thermal/tmon
 make INSTALL_ROOT=%{buildroot} install
@@ -827,6 +837,10 @@ fi
 %systemd_postun cpupower.service
 %endif
 
+%ifarch aarch64
+%systemd_post hns3_int_coal_params_setting.service
+%endif
+
 %files
 %defattr (-, root, root)
 %doc
@@ -901,6 +915,12 @@ fi
 %{_bindir}/turbostat
 %{_mandir}/man8/turbostat*
 %endif
+
+%ifarch aarch64
+%{_unitdir}/hns3_int_coal_params_setting.service
+%{_bindir}/hns3_int_coal_params_setting.sh
+%endif
+
 %{_bindir}/tmon
 %{_bindir}/iio_event_monitor
 %{_bindir}/iio_generic_buffer
@@ -952,6 +972,9 @@ fi
 %endif
 
 %changelog
+* Fri Jun 21 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-210.0.0.111
+- kernel.spec: Add startup setting for hns3 interrupt coalesce parameters
+
 * Fri Jun 21 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-210.0.0.110
 - !9268  net: sched: sch_multiq: fix possible OOB write in multiq_tune()
 - !9103  ksmbd: no response from compound read

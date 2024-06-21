@@ -1,0 +1,11 @@
+[Unit]
+Description=Interrupt coalesce parameters setting for hns3 nic
+After=network.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/hns3_int_coal_params_setting.sh
+
+[Install]
+WantedBy=multi-user.target
