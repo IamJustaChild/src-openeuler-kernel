@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       209
+%global devel_release       210
 %global maintenance_release .0.0
-%global pkg_release         .109
+%global pkg_release         .110
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -952,6 +952,55 @@ fi
 %endif
 
 %changelog
+* Fri Jun 21 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-210.0.0.110
+- !9268  net: sched: sch_multiq: fix possible OOB write in multiq_tune()
+- !9103  ksmbd: no response from compound read
+- !9186  spi: Fix deadlock when adding SPI controllers on SPI buses
+- !9283 hns3 udma: support non share jfr mode in UM
+- !9277 ima: Fix violation digests extending issue in cvm
+- hns3 udma: kernel support non share jfr mode in UM mode
+- net: sched: sch_multiq: fix possible OOB write in multiq_tune()
+- !9244 urma: cannot uninstall uburma driver
+- !9250  Fix token error issue when concurrent calls
+- !9241 v2  Bugfix backport for rcu
+- urma: cannot uninstall uburma driver
+- Fix token error issue when concurrent calls
+- !9180  wifi: wilc1000: fix RCU usage in connect path
+- !9212  drm/amd/display: Fix division by zero in setup_dsc_config
+- ima: Fix violation digests extending issue in cvm
+- !9239  Fix allmodconfig build frame size error
+- !9207 v2  sched: smart_grid: fix potential NULL pointer dereference
+- srcu: Fix callbacks acceleration mishandling
+- entry/rcu: Check TIF_RESCHED _after_ delayed RCU wake-up
+- rcu: Defer RCU kthreads wakeup when CPU is dying
+- RDMA/hiroce3: Fix allmodconfig build frame size error
+- !7729  loop: use lo->lo_disk for kobject_uevent
+- !9211  memcg: attach memcg async reclaim worker to curcpu
+- !9168  UBIFS: fixes a series of issues that caused by power cut
+- !9000  media: tc358743: register v4l2 async device only after successful setup
+- !9087  fs/9p: fix uninitialized values during inode evict
+- drm/amd/display: Fix division by zero in setup_dsc_config
+- memcg: attach memcg async reclaim worker to curcpu
+- sched: smart_grid: fix potential NULL pointer dereference
+- spi: fix kabi breakage in struct spi_controller
+- spi: fix use-after-free of the add_lock mutex
+- spi: Fix deadlock when adding SPI controllers on SPI buses
+- wifi: wilc1000: fix RCU usage in connect path
+- ubifs: dbg_orphan_check: Fix missed key type checking
+- ubifs: Fix unattached inode when powercut happens in creating
+- ubifs: Fix space leak when powercut happens in linking tmpfile
+- ubifs: Move ui->data initialization after initializing security
+- ubifs: Fix adding orphan entry twice for the same inode
+- ubifs: Remove insert_dead_orphan from replaying orphan process
+- ubifs: Don't add xattr inode into orphan area
+- ubifs: Fix unattached xattr inode if powercut happens after deleting
+- ubifs: Fix some kernel-doc comments
+- ubifs: Fix spelling mistakes
+- ksmbd: no response from compound read
+- fs/9p: fix uninitialized values during inode evict
+- media: tc358743: register v4l2 async device only after successful setup
+- loop: use lo->lo_disk for kobject_uevent
+
 * Wed Jun 19 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-209.0.0.109
 - !9092 v2  ksmbd: validate request buffer size in smb2_allocate_rsp_buf()
 - !9030  bpf, skmsg: Fix NULL pointer dereference in sk_psock_skb_ingress_enqueue
