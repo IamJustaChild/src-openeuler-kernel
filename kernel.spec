@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       210
+%global devel_release       211
 %global maintenance_release .0.0
-%global pkg_release         .110
+%global pkg_release         .111
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -952,6 +952,10 @@ fi
 %endif
 
 %changelog
+* Sat Jun 22 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-211.0.0.111
+- !9318  Revert "sched/fair:ARM64 enables SIS_UTIL and disables SIS_PROP"
+- Revert "sched/fair:ARM64 enables SIS_UTIL and disables SIS_PROP"
+
 * Fri Jun 21 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-210.0.0.110
 - !9268  net: sched: sch_multiq: fix possible OOB write in multiq_tune()
 - !9103  ksmbd: no response from compound read
