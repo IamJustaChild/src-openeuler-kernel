@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       211
+%global devel_release       212
 %global maintenance_release .0.0
-%global pkg_release         .111
+%global pkg_release         .112
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -952,6 +952,10 @@ fi
 %endif
 
 %changelog
+* Sun Jun 23 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-212.0.0.112
+- !9347  sched: ARM64 enables SIS_PROP and disables SIS_UTIL"
+- sched: ARM64 enables SIS_PROP and disables SIS_UTIL"
+
 * Sat Jun 22 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-211.0.0.111
 - !9318  Revert "sched/fair:ARM64 enables SIS_UTIL and disables SIS_PROP"
 - Revert "sched/fair:ARM64 enables SIS_UTIL and disables SIS_PROP"
