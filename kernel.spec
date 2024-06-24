@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       212
+%global devel_release       213
 %global maintenance_release .0.0
-%global pkg_release         .112
+%global pkg_release         .113
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -952,6 +952,20 @@ fi
 %endif
 
 %changelog
+* Mon Jun 24 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-213.0.0.113
+- !9327  af_unix: Fix data races in unix_release_sock/unix_stream_sendmsg
+- !9264  ring-buffer: Fix a race between readers and resize checks
+- !9305  CVE-2024-26661 following bugfix
+- !9246  ksmbd: no response from compound read
+- !9350  tracing: Fix permissions for the buffer_percent file
+- tracing: Fix permissions for the buffer_percent file
+- af_unix: Fix data races in unix_release_sock/unix_stream_sendmsg
+- drm/amd/display: Fix && vs || typos
+- drm/amd/display: Fix 'panel_cntl' could be null in 'dcn21_set_backlight_level()'
+- Revert "drm/amd/display: Fix && vs || typos"
+- ring-buffer: Fix a race between readers and resize checks
+- ksmbd: no response from compound read
+
 * Sun Jun 23 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-212.0.0.112
 - !9347  sched: ARM64 enables SIS_PROP and disables SIS_UTIL"
 - sched: ARM64 enables SIS_PROP and disables SIS_UTIL"
