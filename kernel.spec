@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       213
+%global devel_release       214
 %global maintenance_release .0.0
-%global pkg_release         .113
+%global pkg_release         .114
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -952,6 +952,10 @@ fi
 %endif
 
 %changelog
+* Tue Jun 25 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-214.0.0.114
+- !9391  fs: Use CHECK_DATA_CORRUPTION() when kernel bugs are detected
+- fs: Use CHECK_DATA_CORRUPTION() when kernel bugs are detected
+
 * Mon Jun 24 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-213.0.0.113
 - !9327  af_unix: Fix data races in unix_release_sock/unix_stream_sendmsg
 - !9264  ring-buffer: Fix a race between readers and resize checks
