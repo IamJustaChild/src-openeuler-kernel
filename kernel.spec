@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       209
+%global devel_release       215
 %global maintenance_release .0.0
-%global pkg_release         .118
+%global pkg_release         .119
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -911,6 +911,79 @@ fi
 %endif
 
 %changelog
+* Wed Jun 26 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-215.0.0.119
+- !8098  netfilter: nf_tables: release mutex after nft_gc_seq_end from abort path
+- !5860  ksmbd: fix UAF issue in ksmbd_tcp_new_connection()
+- !9421 v3  block: fix WARNING in init_blk_queue_async_dispatch
+- block: fix WARNING in init_blk_queue_async_dispatch
+- !9391  fs: Use CHECK_DATA_CORRUPTION() when kernel bugs are detected
+- fs: Use CHECK_DATA_CORRUPTION() when kernel bugs are detected
+- !9327  af_unix: Fix data races in unix_release_sock/unix_stream_sendmsg
+- !9264  ring-buffer: Fix a race between readers and resize checks
+- !9305  CVE-2024-26661 following bugfix
+- !9246  ksmbd: no response from compound read
+- !9350  tracing: Fix permissions for the buffer_percent file
+- tracing: Fix permissions for the buffer_percent file
+- !9347  sched: ARM64 enables SIS_PROP and disables SIS_UTIL"
+- sched: ARM64 enables SIS_PROP and disables SIS_UTIL"
+- af_unix: Fix data races in unix_release_sock/unix_stream_sendmsg
+- !9318  Revert "sched/fair:ARM64 enables SIS_UTIL and disables SIS_PROP"
+- Revert "sched/fair:ARM64 enables SIS_UTIL and disables SIS_PROP"
+- drm/amd/display: Fix && vs || typos
+- drm/amd/display: Fix 'panel_cntl' could be null in 'dcn21_set_backlight_level()'
+- Revert "drm/amd/display: Fix && vs || typos"
+- !9268  net: sched: sch_multiq: fix possible OOB write in multiq_tune()
+- !9103  ksmbd: no response from compound read
+- !9186  spi: Fix deadlock when adding SPI controllers on SPI buses
+- !9283 hns3 udma: support non share jfr mode in UM
+- !9277 ima: Fix violation digests extending issue in cvm
+- hns3 udma: kernel support non share jfr mode in UM mode
+- net: sched: sch_multiq: fix possible OOB write in multiq_tune()
+- ring-buffer: Fix a race between readers and resize checks
+- !9244 urma: cannot uninstall uburma driver
+- !9250  Fix token error issue when concurrent calls
+- !9241 v2  Bugfix backport for rcu
+- urma: cannot uninstall uburma driver
+- Fix token error issue when concurrent calls
+- !9180  wifi: wilc1000: fix RCU usage in connect path
+- !9212  drm/amd/display: Fix division by zero in setup_dsc_config
+- ksmbd: no response from compound read
+- ima: Fix violation digests extending issue in cvm
+- !9239  Fix allmodconfig build frame size error
+- !9207 v2  sched: smart_grid: fix potential NULL pointer dereference
+- srcu: Fix callbacks acceleration mishandling
+- entry/rcu: Check TIF_RESCHED _after_ delayed RCU wake-up
+- rcu: Defer RCU kthreads wakeup when CPU is dying
+- RDMA/hiroce3: Fix allmodconfig build frame size error
+- !7729  loop: use lo->lo_disk for kobject_uevent
+- !9211  memcg: attach memcg async reclaim worker to curcpu
+- !9168  UBIFS: fixes a series of issues that caused by power cut
+- !9000  media: tc358743: register v4l2 async device only after successful setup
+- !9087  fs/9p: fix uninitialized values during inode evict
+- drm/amd/display: Fix division by zero in setup_dsc_config
+- memcg: attach memcg async reclaim worker to curcpu
+- sched: smart_grid: fix potential NULL pointer dereference
+- spi: fix kabi breakage in struct spi_controller
+- spi: fix use-after-free of the add_lock mutex
+- spi: Fix deadlock when adding SPI controllers on SPI buses
+- wifi: wilc1000: fix RCU usage in connect path
+- ubifs: dbg_orphan_check: Fix missed key type checking
+- ubifs: Fix unattached inode when powercut happens in creating
+- ubifs: Fix space leak when powercut happens in linking tmpfile
+- ubifs: Move ui->data initialization after initializing security
+- ubifs: Fix adding orphan entry twice for the same inode
+- ubifs: Remove insert_dead_orphan from replaying orphan process
+- ubifs: Don't add xattr inode into orphan area
+- ubifs: Fix unattached xattr inode if powercut happens after deleting
+- ubifs: Fix some kernel-doc comments
+- ubifs: Fix spelling mistakes
+- ksmbd: no response from compound read
+- fs/9p: fix uninitialized values during inode evict
+- media: tc358743: register v4l2 async device only after successful setup
+- netfilter: nf_tables: release mutex after nft_gc_seq_end from abort path
+- loop: use lo->lo_disk for kobject_uevent
+- ksmbd: fix UAF issue in ksmbd_tcp_new_connection()
+
 * Thu Jun 20 2024 luhuaxin <luhuxin1@huawei.com> - 5.10.0-209.0.0.118
 - Add the pub key in openEuler RPM-PGP certificate
 
