@@ -40,9 +40,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       30
+%global devel_release       31
 %global maintenance_release .0.0
-%global pkg_release         .38
+%global pkg_release         .39
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1089,6 +1089,8 @@ fi
 %endif
 
 %changelog
+* Wed Jun 26 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-31.0.0.39
+
 * Wed Jun 19 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-30.0.0.38
 - !8809 MPTCP Upstream part 1
 - net: bpf: Use sockopt_lock_sock() in ip_sock_set_tos()
