@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .80.0
-%global pkg_release         .161
+%global maintenance_release .81.0
+%global pkg_release         .162
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,107 @@ fi
 %endif
 
 %changelog
+* Wed Jun 26 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.81.0.162
+- !8104 [sync] PR-7886:  drm/amdgpu: amdgpu_ttm_gart_bind set gtt bound flag
+- !9443  net/mlx5: Discard command completions in internal error
+- !9448  rcu-tasks: Fix show_rcu_tasks_trace_gp_kthread buffer overflow
+- !9432  hid: cp2112: Fix duplicate workqueue initialization
+- !9424  ASoC: SOF: Fix DSP oops stack dump output contents
+- !9418 [sync] PR-6683: v2  CVE-2024-26921
+- !9296  CVE-2021-47599
+- !9403  Fix CVE-2024-31076
+- rcu-tasks: Fix show_rcu_tasks_trace_gp_kthread buffer overflow
+- net/mlx5: Discard command completions in internal error
+- !9198  init/main.c: Fix potential static_command_line memory overflow
+- hid: cp2112: Fix duplicate workqueue initialization
+- ASoC: SOF: Fix DSP oops stack dump output contents
+- !6742 [sync] PR-6654:  net/ipv6: avoid possible UAF in ip6_route_mpath_notify()
+- sk_buff: Fix KABI break for the modification of struct sk_buff
+- inet: inet_defrag: prevent sk release while still in use
+- net: Fix KABI break for introducing is_skb_wmem()
+- skb_expand_head() adjust skb->truesize incorrectly
+- skbuff: introduce skb_expand_head()
+- !9349  powerpc/powernv: Add a null pointer check in opal_powercap_init()
+- !9396  RDMA/hns: Fix deadlock on SRQ async events.
+- !9353 [sync] PR-9305:  CVE-2024-26661 following bugfix
+- genirq/cpuhotplug, x86/vector: Prevent vector leak during CPU offline
+- !9359  serial: max3100: Lock port->lock when calling uart_handle_cts_change()
+- !9379  RDMA/hns: Fix UAF for cq async event
+- !9291  net: bridge: xmit: make sure we have at least eth header len bytes
+- RDMA/hns: Fix deadlock on SRQ async events.
+- !9049 [sync] PR-8774:  CVE-2024-36914
+- !9263  ring-buffer: Fix a race between readers and resize checks
+- RDMA/hns: Fix UAF for cq async event
+- serial: max3100: Lock port->lock when calling uart_handle_cts_change()
+- drm/amd/display: Fix && vs || typos
+- drm/amd/display: Fix 'panel_cntl' could be null in 'dcn21_set_backlight_level()'
+- Revert "drm/amd/display: Fix && vs || typos"
+- powerpc/powernv: Add a null pointer check in opal_powercap_init()
+- !9272  drm/mediatek: Add 0 size check to mtk_drm_gem_obj
+- !9274  wifi: brcmfmac: Fix use-after-free bug in brcmf_cfg80211_detach
+- !9281  drivers/perf: hisi_pcie: Fix out-of-bound access when valid event group
+- !9279  net: sched: sch_multiq: fix possible OOB write in multiq_tune()
+- btrfs: remove stale comment about the btrfs_show_devname
+- btrfs: update latest_dev when we create a sprout device
+- btrfs: use latest_dev in btrfs_show_devname
+- btrfs: convert latest_bdev type to btrfs_device and rename
+- !9213 [sync] PR-9112:  Backport some optimizing patches for kunpeng920
+- !9106  ksmbd: no response from compound read
+- !9185  spi: Fix deadlock when adding SPI controllers on SPI buses
+- net: bridge: xmit: make sure we have at least eth header len bytes
+- drivers/perf: hisi_pcie: Fix out-of-bound access when valid event group
+- net: sched: sch_multiq: fix possible OOB write in multiq_tune()
+- wifi: brcmfmac: Fix use-after-free bug in brcmf_cfg80211_detach
+- drm/mediatek: Add 0 size check to mtk_drm_gem_obj
+- ring-buffer: Fix a race between readers and resize checks
+- !9181  wifi: wilc1000: fix RCU usage in connect path
+- !9214  drm/amd/display: Fix division by zero in setup_dsc_config
+- !7541 [sync] PR-6801:  block: fix discard
+- !9142 v2  CVE-2023-52810
+- !8460 [sync] PR-8069:  CVE-2021-47427
+- !9155  fix CVE-2023-52791
+- !9169  UBIFS: fixes a series of issues that caused by power cut
+- !9003  media: tc358743: register v4l2 async device only after successful setup
+- !9088  fs/9p: fix uninitialized values during inode evict
+- drm/amd/display: Fix division by zero in setup_dsc_config
+- arm64: syscall: unmask DAIF for tracing status
+- arm64: Snapshot thread flags
+- sched: Snapshot thread flags
+- entry: Snapshot thread flags
+- x86: Snapshot thread flags
+- thread_info: Add helpers to snapshot thread flags
+- irqchip/gic-v3: Use dsb(ishst) to order writes with ICC_SGI1R_EL1 accesses
+- sched/fair: Optimize test_idle_cores() for !SMT
+- init/main.c: Fix potential static_command_line memory overflow
+- spi: fix kabi breakage in struct spi_controller
+- spi: fix use-after-free of the add_lock mutex
+- spi: Fix deadlock when adding SPI controllers on SPI buses
+- wifi: wilc1000: fix RCU usage in connect path
+- ubifs: dbg_orphan_check: Fix missed key type checking
+- ubifs: Fix unattached inode when powercut happens in creating
+- ubifs: Fix space leak when powercut happens in linking tmpfile
+- ubifs: Move ui->data initialization after initializing security
+- ubifs: Fix adding orphan entry twice for the same inode
+- ubifs: Remove insert_dead_orphan from replaying orphan process
+- ubifs: Don't add xattr inode into orphan area
+- ubifs: Fix unattached xattr inode if powercut happens after deleting
+- ubifs: Fix some kernel-doc comments
+- ubifs: Fix spelling mistakes
+- i2c: core: Fix atomic xfer check for non-preempt config
+- i2c: core: Run atomic i2c xfer when !preemptible
+- fs/jfs: Add check for negative db_l2nbperpage
+- jfs: jfs_dmap: Validate db_l2nbperpage while mounting
+- ksmbd: no response from compound read
+- fs/9p: fix uninitialized values during inode evict
+- drm/amd/display: Skip on writeback when it's not applicable
+- media: tc358743: register v4l2 async device only after successful setup
+- scsi: iscsi: Fix iscsi_task use after free
+- scsi: iscsi: Have abort handler get ref to conn
+- drm/amdgpu: amdgpu_ttm_gart_bind set gtt bound flag
+- block: check io size before submit discard
+- block: fix overflow in blk_ioctl_discard()
+- net/ipv6: avoid possible UAF in ip6_route_mpath_notify()
+
 * Thu Jun 20 2024 luhuaxin <luhuxin1@huawei.com> - 5.10.0-136.80.0.161
 - Add the pub key in openEuler RPM-PGP certificate
 
