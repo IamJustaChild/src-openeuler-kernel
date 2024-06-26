@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .81.0
-%global pkg_release         .162
+%global maintenance_release .82.0
+%global pkg_release         .163
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,25 @@ fi
 %endif
 
 %changelog
+* Wed Jun 26 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.82.0.163
+- !9461 [sync] PR-5860:  ksmbd: fix UAF issue in ksmbd_tcp_new_connection()
+- !9197  scsi: core: Fix unremoved procfs host directory regression
+- !9203  dyndbg: fix old BUG_ON in >control parser
+- !9195  wifi: rtl8xxxu: add cancel_work_sync() for c2hcmd_work
+- !9200  ipv6: fix potential "struct net" leak in inet6_rtm_getaddr()
+- !9189  clk: Fix clk_core_get NULL dereference
+- !9187  net: phy: fix phy_get_internal_delay accessing an empty array
+- !9460 v2  CVE-2024-27032
+- ksmbd: fix UAF issue in ksmbd_tcp_new_connection()
+- f2fs: fix to avoid potential panic during recovery
+- f2fs: fix to check return value of f2fs_reserve_new_block()
+- dyndbg: fix old BUG_ON in >control parser
+- ipv6: fix potential "struct net" leak in inet6_rtm_getaddr()
+- scsi: core: Fix unremoved procfs host directory regression
+- wifi: rtl8xxxu: add cancel_work_sync() for c2hcmd_work
+- clk: Fix clk_core_get NULL dereference
+- net: phy: fix phy_get_internal_delay accessing an empty array
+
 * Wed Jun 26 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.81.0.162
 - !8104 [sync] PR-7886:  drm/amdgpu: amdgpu_ttm_gart_bind set gtt bound flag
 - !9443  net/mlx5: Discard command completions in internal error
