@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2406.3.0
+%global hulkrelease 2406.4.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0282
+Release: %{hulkrelease}.0283
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,119 @@ fi
 %endif
 
 %changelog
+
+* Wed Jun 26 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2406.4.0.0283
+- !9471  CVE-2021-47434
+- xhci: Fix commad ring abort, write all 64 bits to CRCR register.
+- xhci: Fix command ring pointer corruption while aborting a command
+- !8935  wifi: nl80211: don't free NULL coalescing rule
+- !9444  CVE-2022-48737
+- !8493  rpmsg: virtio: Free driver_override when rpmsg_remove()
+- !8473  scsi: mpt3sas: Fix kernel panic during drive powercycle test
+- ASoC: ops: Fix bounds check for _sx controls
+- ASoC: ops: Reject out of bounds values in snd_soc_put_volsw_sx()
+- !9322  drm/amd/display: Fix potential index out of bounds in color transformation function
+- !9366  macintosh/via-macii: Fix "BUG: sleeping function called from invalid context"
+- !9392  drm/msm/dsi: invalid parameter check in msm_dsi_phy_enable
+- !9232  batman-adv: Avoid WARN_ON timing related checks
+- !9351  Revert "x86/mm/ident_map: Use gbpages only where full GB page should be mapped."
+- !9393  net: lts v4.311 backport
+- !9286  mm, vmscan: prevent infinite loop for costly GFP_NOIO | __GFP_RETRY_MAYFAIL allocations
+- !9206 v2  sched: smart_grid: fix potential NULL pointer dereference
+- !9314  spi: Fix deadlock when adding SPI controllers on SPI buses
+- net: sunrpc: Fix an off by one in rpc_sockaddr2uaddr()
+- ipv6: fib6_rules: flush route cache when rule is changed
+- drm/msm/dsi: invalid parameter check in msm_dsi_phy_enable
+- !8360 v2  loop: use lo->lo_disk for kobject_uevent
+- !9343  firmware: arm_scpi: Fix string overflow in SCPI genpd driver
+- !9326  af_unix: Fix data races in unix_release_sock/unix_stream_sendmsg
+- macintosh/via-macii: Fix "BUG: sleeping function called from invalid context"
+- !9285  of: module: add buffer overflow check in of_modalias()
+- !9316  CVE-2022-48755
+- Revert "x86/mm/ident_map: Use gbpages only where full GB page should be mapped."
+- !9344  round lts patches
+- !8769  atl1c: Work around the DMA RX overflow issue
+- !9292  net: bridge: xmit: make sure we have at least eth header len bytes
+- net: bridge: fix corrupted ethernet header on multicast-to-unicast
+- net: bridge: fix multicast-to-unicast with fraglist GSO
+- net: mark racy access on sk->sk_rcvbuf
+- net l2tp: drop flow hash on forward
+- firmware: arm_scpi: Fix string overflow in SCPI genpd driver
+- af_unix: Fix data races in unix_release_sock/unix_stream_sendmsg
+- !9324 v2  Linux 4.19.312-313 LTS patches
+- vxlan: Fix regression when dropping packets due to invalid src addresses
+- udp: preserve the connected status if only UDP cmsg
+- vxlan: drop packets from invalid src-address
+- ipv6: fix race condition between ipv6_get_ifaddr and ipv6_del_addr
+- SUNRPC: increase size of rpc_wait_queue.qlen from unsigned short to unsigned int
+- drm/amd/display: Fix potential index out of bounds in color transformation function
+- powerpc64/bpf: Limit 'ldbrx' to processors compliant with ISA v2.06
+- spi: fix kabi breakage in struct spi_controller
+- spi: Fix deadlock when adding SPI controllers on SPI buses
+- !9278  CVE-2021-47231
+- !8783 v2  arm64 mpam fix patch
+- !9270  inet_diag: fix kernel-infoleak for UDP sockets
+- !9140 v2  CVE-2024-36971
+- !8847  wl1251: Fix possible buffer overflow in wl1251_cmd_scan
+- !9260 v3  ftrace: Fix possible use-after-free issue in ftrace_location()
+- net: bridge: xmit: make sure we have at least eth header len bytes
+- mm, vmscan: prevent infinite loop for costly GFP_NOIO | __GFP_RETRY_MAYFAIL allocations
+- of: module: add buffer overflow check in of_modalias()
+- !9061  iio: mma8452: Fix trigger reference couting
+- can: mcba_usb_start(): add missing urb->transfer_dma initialization
+- can: mcba_usb: fix memory leak in mcba_usb
+- inet_diag: fix kernel-infoleak for UDP sockets
+- ftrace: Fix possible use-after-free issue in ftrace_location()
+- !9227  kprobes: Fix possible use-after-free issue on kprobe registration
+- !9228  coresight: tmc-etf: Fix global-out-of-bounds in tmc_update_etf_buffer()
+- !9225  can: sja1000: fix use after free in ems_pcmcia_add_card()
+- !8656  mm, slub: fix potential memoryleak in kmem_cache_open()
+- !8937  firewire: ohci: mask bus reset interrupts between ISR and bottom half
+- !8691  Fix page corruption caused by racy check in __free_pages
+- batman-adv: Avoid WARN_ON timing related checks
+- coresight: tmc-etf: Fix global-out-of-bounds in tmc_update_etf_buffer()
+- kprobes: Fix possible use-after-free issue on kprobe registration
+- can: sja1000: fix use after free in ems_pcmcia_add_card()
+- !9179  CVE-2021-47232
+- !9004  media: ngene: Fix out-of-bounds bug in ngene_command_config_free_buf()
+- !8130 v2  CVE-2021-47493
+- !9006  media: tc358743: register v4l2 async device only after successful setup
+- !9144  serial: 8250_exar: Don't remove GPIO device on suspend
+- sched: smart_grid: fix potential NULL pointer dereference
+- can: j1939: fix Use-after-Free, hold skb ref while in use
+- can: j1939: transport: j1939_session_tx_dat(): fix use-after-free read in j1939_tp_txtimer()
+- can: j1939: transport: add j1939_session_skb_find_by_offset() function
+- !8800  ALSA: usb-audio: Stop parsing channels bits when all channels are found.
+- !8798  hid: cp2112: Fix duplicate workqueue initialization
+- !8799  usb: gadget: f_fs: Fix race between aio_cancel() and AIO request complete
+- serial: 8250_exar: Don't remove GPIO device on suspend
+- net: fix kabi breakage in struct dst_ops
+- net: fix __dst_negative_advice() race
+- iio: mma8452: Fix trigger reference couting
+- media: tc358743: register v4l2 async device only after successful setup
+- media: ngene: Fix out-of-bounds bug in ngene_command_config_free_buf()
+- firewire: ohci: mask bus reset interrupts between ISR and bottom half
+- wifi: nl80211: don't free NULL coalescing rule
+- wl1251: Fix possible buffer overflow in wl1251_cmd_scan
+- ALSA: usb-audio: Stop parsing channels bits when all channels are found.
+- usb: gadget: f_fs: Fix race between aio_cancel() and AIO request complete
+- hid: cp2112: Fix duplicate workqueue initialization
+- arm64/mpam: Fix softlockup when reading mondata
+- arm64/mpam: Fix wrong seconds to jiffies conversion
+- arm64/mpam: change allocation mode from GFP_KERNEL to GFP_NOWAIT
+- mpam/resctrl: Fix use-after-free due to inaccurate refcount of rdtgroup
+- mpam/resctrl: Clean up resctrl_group_rmdir_[ctrl/mon]()
+- mpam/resctrl: Clean up unused function parameter in mkdir path
+- mpam/resctrl: Fix a deadlock due to inaccurate reference
+- atl1c: Work around the DMA RX overflow issue
+- Fix page corruption caused by racy check in __free_pages
+- mm, slub: fix potential memoryleak in kmem_cache_open()
+- rpmsg: virtio: Free driver_override when rpmsg_remove()
+- scsi: mpt3sas: Fix kernel panic during drive powercycle test
+- loop: use lo->lo_disk for kobject_uevent
+- jbd2: export jbd2_journal_[grab|put]_journal_head
+- ocfs2: fix a deadlock when commit trans
+- ocfs2: fix race between searching chunks and release journal_head from buffer_head
 
 * Tue Jun 18 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2406.3.0.0282
 - !9086 v2  dhugetlb: use rcu lock to protect hpool
