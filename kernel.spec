@@ -40,9 +40,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       30
+%global devel_release       31
 %global maintenance_release .0.0
-%global pkg_release         .38
+%global pkg_release         .39
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1089,6 +1089,171 @@ fi
 %endif
 
 %changelog
+* Wed Jun 26 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-31.0.0.39
+- !9438 【OLK-6.6】RDMA/hns: Fix some mutex UAF
+- RDMA/hns: Fix some mutex UAF
+- !9394  CVE-2024-38587
+- speakup: Fix sizeof() vs ARRAY_SIZE() bug
+- !9405  drm/mediatek: Add 0 size check to mtk_drm_gem_obj
+- drm/mediatek: Add 0 size check to mtk_drm_gem_obj
+- !9415  mm: drop the 'anon_' prefix for swap-out mTHP counters
+- mm: drop the 'anon_' prefix for swap-out mTHP counters
+- !9376  ALSA: core: Fix NULL module pointer assignment at card init
+- ALSA: core: Fix NULL module pointer assignment at card init
+- !9295  Port patches from OLK-5.10
+- livepatch: Enable CONFIG_LIVEPATCH_ISOLATE_KPROBE in openeuler_defconfig
+- livepatch: Avoid patching conflicts with kprobes
+- !9356  tpm_tis_spi: Account for SPI header when allocating TPM SPI xfer buffer
+- tpm_tis_spi: Account for SPI header when allocating TPM SPI xfer buffer
+- !9332  net/sched: taprio: always validate TCA_TAPRIO_ATTR_PRIOMAP
+- net/sched: taprio: always validate TCA_TAPRIO_ATTR_PRIOMAP
+- !9355  f2fs: multidev: fix to recognize valid zero block address
+- f2fs: multidev: fix to recognize valid zero block address
+- !9329  af_unix: Fix data races in unix_release_sock/unix_stream_sendmsg
+- af_unix: Fix data races in unix_release_sock/unix_stream_sendmsg
+- !9352 MPTCP Upstream part 10
+- MAINTAINERS: add Geliang as reviewer for MPTCP
+- mailmap: add entries for Geliang Tang
+- mptcp: fill in missing MODULE_DESCRIPTION()
+- netlink: fill in missing MODULE_DESCRIPTION()
+- netlink: specs: mptcp: rename the MPTCP path management spec
+- !9304 MPTCP Upstream part 9
+- selftests: mptcp: add mptcp_lib_wait_local_port_listen
+- selftests: mptcp: add mptcp_lib_check_transfer
+- selftests: mptcp: add mptcp_lib_make_file
+- selftests: mptcp: add missing oflag=append
+- !9307  of: module: add buffer overflow check in of_modalias()
+- of: module: add buffer overflow check in of_modalias()
+- !9331  Some folio bugfix
+- mm/memory: don't require head page for do_set_pmd()
+- mm/migrate: fix kernel BUG at mm/compaction.c:2761!
+- mm: huge_memory: fix misused mapping_large_folio_support() for anon folios
+- mm: shmem: fix getting incorrect lruvec when replacing a shmem folio
+- mm: fix possible OOB in numa_rebuild_large_mapping()
+- mm: support multi-size THP numa balancing
+- mm/rmap: do not add fully unmapped large folio to deferred split list
+- !9302  ring-buffer: Fix a race between readers and resize checks
+- ring-buffer: Fix a race between readers and resize checks
+- !9345  net: sched: sch_multiq: fix possible OOB write in multiq_tune()
+- net: sched: sch_multiq: fix possible OOB write in multiq_tune()
+- !9346  net: bridge: xmit: make sure we have at least eth header len bytes
+- net: bridge: xmit: make sure we have at least eth header len bytes
+- !9301 MPTCP Upstream part 8
+- selftests: mptcp: userspace pm send RM_ADDR for ID 0
+- selftests: mptcp: userspace pm remove initial subflow
+- mptcp: userspace pm rename remove_err to out
+- selftests: mptcp: userspace pm create id 0 subflow
+- mptcp: add mptcpi_subflows_total counter
+- !9266 MPTCP Upstream part 7
+- net: fill in MODULE_DESCRIPTION()s for SOCK_DIAG modules
+- selftests: mptcp: sockopt: drop mptcp_connect var
+- mptcp: define more local variables sk
+- mptcp: move sk assignment statement ahead
+- !9262 MPTCP Upstream part 6
+- mptcp: use mptcp_get_ext helper
+- mptcp: use mptcp_check_fallback helper
+- mptcp: drop useless ssk in pm_subflow_check_next
+- mptcp: ignore notsent_lowat setting at the subflow level
+- mptcp: consolidate sockopt synchronization
+- !5257 [OLK-6.6] Support DOWNLOAD_FIRMWARE feature for hygon CSV
+- crypto: ccp: Implement CSV_DOWNLOAD_FIRMWARE ioctl command
+- crypto: ccp: Implement CSV_PLATFORM_SHUTDOWN ioctl command
+- crypto: ccp: Implement CSV_PLATFORM_INIT ioctl command
+- crypto: ccp: Support DOWNLOAD_FIRMWARE when detect CSV
+- !8058 Intel: Backport QuickAssist Technology(QAT) live migration support for in-tree driver
+- Enable QAT_VFIO_PCI as kernel module to support Intel QAT live migration
+- crypto: qat - Fix ADF_DEV_RESET_SYNC memory leak
+- crypto: qat - specify firmware files for 402xx
+- crypto: qat - validate slices count returned by FW
+- crypto: qat - improve error logging to be consistent across features
+- crypto: qat - improve error message in adf_get_arbiter_mapping()
+- crypto: qat - implement dh fallback for primes > 4K
+- crypto: qat - Fix spelling mistake "Invalide" -> "Invalid"
+- crypto: qat - Avoid -Wflex-array-member-not-at-end warnings
+- vfio/qat: Add vfio_pci driver for Intel QAT SR-IOV VF devices
+- crypto: qat - implement interface for live migration
+- crypto: qat - add interface for live migration
+- crypto: qat - add bank save and restore flows
+- crypto: qat - expand CSR operations for QAT GEN4 devices
+- crypto: qat - rename get_sla_arr_of_type()
+- crypto: qat - relocate CSR access code
+- crypto: qat - move PFVF compat checker to a function
+- crypto: qat - relocate and rename 4xxx PF2VM definitions
+- crypto: qat - adf_get_etr_base() helper
+- !8304 [OLK-6.6] Backport TPMI based RAPL PMU support for next Intel Xeon Granite Rapids (GNR)
+- powercap: intel_rapl_tpmi: Enable PMU support
+- powercap: intel_rapl: Introduce APIs for PMU support
+- powercap: intel_rapl: Sort header files
+- !9245 MPTCP Upstream part 5
+- mptcp: prevent BPF accessing lowat from a subflow socket.
+- mptcp: use copy_from_iter helpers on transmit
+- mptcp: give rcvlowat some love
+- tcp: define initial scaling factor value as a macro
+- mptcp: use plain bool instead of custom binary enum
+- mptcp: add a new sysctl for make after break timeout
+- !8422 [OLK-6.6] Intel IAA Compression Accelerator Crypto Driver (iaa_crypto)
+- openeuler_defconfig: Add kernel config for Intel IAA crypto driver
+- dmaengine: idxd: Avoid unnecessary destruction of file_ida
+- dmaengine: idxd: Check for driver name match before sva user feature
+- crypto: iaa - Use cpumask_weight() when rebalancing
+- crypto: iaa - Fix some errors in IAA documentation
+- crypto: iaa - Change iaa statistics to atomic64_t
+- crypto: iaa - Add global_stats file and remove individual stat files
+- crypto: iaa - Remove comp/decomp delay statistics
+- crypto: iaa - fix decomp_bytes_in stats
+- crypto: iaa - Fix nr_cpus < nr_iaa case
+- crypto: iaa - fix the missing CRYPTO_ALG_ASYNC in cra_flags
+- crypto: iaa - Fix comp/decomp delay statistics
+- crypto: iaa - Fix async_disable descriptor leak
+- crypto: iaa - Remove unnecessary debugfs_create_dir() error check in iaa_crypto_debugfs_init()
+- crypto: iaa - Remove header table code
+- dmaengine: idxd: constify the struct device_type usage
+- dmaengine: idxd: make dsa_bus_type const
+- dmaengine: idxd: Remove usage of the deprecated ida_simple_xx() API
+- crypto: iaa - Account for cpu-less numa nodes
+- crypto: iaa - remove unneeded semicolon
+- crypto: iaa - Remove unneeded newline in update_max_adecomp_delay_ns()
+- crypto: iaa - Change desc->priv to 0
+- dmaengine: idxd: Add support for device/wq defaults
+- crypto: iaa - Add IAA Compression Accelerator stats
+- crypto: iaa - Add irq support for the crypto async interface
+- crypto: iaa - Add support for deflate-iaa compression algorithm
+- crypto: iaa - Add compression mode management along with fixed mode
+- crypto: iaa - Add per-cpu workqueue table with rebalancing
+- crypto: iaa - Add Intel IAA Compression Accelerator crypto driver core
+- crypto: iaa - Add IAA Compression Accelerator Documentation
+- dmaengine: idxd: add callback support for iaa crypto
+- dmaengine: idxd: Add wq private data accessors
+- dmaengine: idxd: Export wq resource management functions
+- dmaengine: idxd: Export descriptor management functions
+- dmaengine: idxd: Rename drv_enable/disable_wq to idxd_drv_enable/disable_wq, and export
+- dmaengine: idxd: add external module driver support for dsa_bus_type
+- dmaengine: idxd: Fix incorrect descriptions for GRPCFG register
+- dmaengine: idxd: add wq driver name support for accel-config user tool
+- dmaengine: idxd: rate limit printk in misc interrupt thread
+- !9230 MPTCP Upstream part 4
+- net: mptcp: use policy generated by YAML spec
+- net: mptcp: rename netlink handlers to mptcp_pm_nl_<blah>_{doit,dumpit}
+- uapi: mptcp: use header file generated from YAML spec
+- Documentation: netlink: add a YAML spec for mptcp
+- net: mptcp: convert netlink from small_ops to ops
+- !9229 v2  sched: smart_grid: fix potential NULL pointer dereference
+- sched: smart_grid: fix potential NULL pointer dereference
+- !9226 MPTCP Upstream part 3
+- tools: ynl-gen: add support for exact-len validation
+- tools: ynl: add uns-admin-perm to genetlink legacy
+- tools: ynl-gen: support limit names
+- tools: ynl-gen: support full range of min/max checks for integer values
+- tools: ynl-gen: track attribute use
+- !9217  memcg: attach memcg async reclaim worker to curcpu
+- memcg: attach memcg async reclaim worker to curcpu
+- !9173 MPTCP Upstream part 2
+- inet: implement lockless getsockopt(IP_MULTICAST_IF)
+- inet: lockless IP_PKTOPTIONS implementation
+- inet: implement lockless getsockopt(IP_UNICAST_IF)
+- inet: lockless getsockopt(IP_MTU)
+- inet: lockless getsockopt(IP_OPTIONS)
+
 * Wed Jun 19 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-30.0.0.38
 - !8809 MPTCP Upstream part 1
 - net: bpf: Use sockopt_lock_sock() in ip_sock_set_tos()
