@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       214
+%global devel_release       216
 %global maintenance_release .0.0
-%global pkg_release         .114
+%global pkg_release         .115
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -952,6 +952,23 @@ fi
 %endif
 
 %changelog
+* Thu Jun 27 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-216.0.0.115
+- !9507  Enable SIS_UTIL for arm64 and optimize load_balance
+- !9508  Revert "fs: Use CHECK_DATA_CORRUPTION() when
+- Revert "fs: Use CHECK_DATA_CORRUPTION() when kernel bugs are detected"
+- config: Disable COBFIG_ARCH_CUSTOM_NUMA_DISTANCE for arm64
+- sched/numa: Fix numa imbalance in load_balance()
+- Revert "Revert "sched/fair:ARM64 enables SIS_UTIL and disables SIS_PROP""
+- Revert "sched: ARM64 enables SIS_PROP and disables SIS_UTIL""
+- !9333  net/sched: taprio: always validate TCA_TAPRIO_ATTR_PRIOMAP
+- !8098  netfilter: nf_tables: release mutex after nft_gc_seq_end from abort path
+- !5860  ksmbd: fix UAF issue in ksmbd_tcp_new_connection()
+- !9421 v3  block: fix WARNING in init_blk_queue_async_dispatch
+- block: fix WARNING in init_blk_queue_async_dispatch
+- net/sched: taprio: always validate TCA_TAPRIO_ATTR_PRIOMAP
+- netfilter: nf_tables: release mutex after nft_gc_seq_end from abort path
+- ksmbd: fix UAF issue in ksmbd_tcp_new_connection()
+
 * Tue Jun 25 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-214.0.0.114
 - !9391  fs: Use CHECK_DATA_CORRUPTION() when kernel bugs are detected
 - fs: Use CHECK_DATA_CORRUPTION() when kernel bugs are detected
