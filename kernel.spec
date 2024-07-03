@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .82.0
-%global pkg_release         .163
+%global maintenance_release .83.0
+%global pkg_release         .164
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,98 @@ fi
 %endif
 
 %changelog
+* Wed Jul 03 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.83.0.164
+- !9159  xfs: don't use current->journal_info
+- !9659  fix uaf when proc_cpuset_show
+- !9574 [sync] PR-8683: v4  Fix CVE-2024-35879
+- !9531  CVE-2024-37356
+- !9650  RDMA/hns: Modify the print level of CQE error
+- !9495  netrom: fix possible dead-lock in nr_rt_ioctl()
+- cgroup: fix uaf when proc_cpuset_show
+- RDMA/hns: Modify the print level of CQE error
+- !9515  RDMA/rxe: Fix seg fault in rxe_comp_queue_pkt
+- !9604 [sync] PR-9595:  drm/arm/malidp: fix a possible null pointer dereference
+- !9603 [sync] PR-9593:  ARM: 9170/1: fix panic when kasan and kprobe are enabled
+- !9602 [sync] PR-9504:  um: Add winch to winch_handlers before registering winch IRQ
+- !9601  CVE-2024-38597
+- drm/arm/malidp: fix a possible null pointer dereference
+- ARM: 9170/1: fix panic when kasan and kprobe are enabled
+- um: Add winch to winch_handlers before registering winch IRQ
+- eth: sungem: remove .ndo_poll_controller to avoid deadlocks
+- net: fec: remove .ndo_poll_controller to avoid deadlocks
+- !9575 [sync] PR-9321:  drm/amd/display: Fix potential index out of bounds in color transformation function
+- !9586 [sync] PR-9284:  of: module: add buffer overflow check in of_modalias()
+- !9589  s390/ap: Fix crash in AP internal function modify_bitmap()
+- s390/ap: Fix crash in AP internal function modify_bitmap()
+- of: module: add buffer overflow check in of_modalias()
+- !9541  net/mlx5e: Avoid field-overflowing memcpy()
+- !9480  watchdog: cpu5wdt.c: Fix use-after-free bug caused by cpu5wdt_trigger
+- !9579 [sync] PR-9558:  CVE-2024-39362
+- !8565 [sync] PR-8240: v2  dmaengine: idxd: Fix oops during rmmod on single-CPU platforms
+- !9545  ext4: fix mb_cache_entry's e_refcnt leak in ext4_xattr_block_cache_find()
+- !9576 v2  btrfs: fix crash on racing fsync and size-extending write into prealloc
+- !9384  serial: max3100: Update uart_driver_registered on driver removal
+- !9564  fs/ntfs3: Check 'folio' pointer for NULL
+- i2c: acpi: Unbind mux adapters before delete
+- i2c: add fwnode APIs
+- btrfs: fix crash on racing fsync and size-extending write into prealloc
+- drm/amd/display: Fix potential index out of bounds in color transformation function
+- driver core: Fix kabi broken
+- of: dynamic: Synchronize of_changeset_destroy() with the devlink removals
+- driver core: Introduce device_link_wait_removal()
+- !9484  fs/ntfs3: Use 64 bit variable to avoid 32 bit overflow
+- !9529  media: lgdt3306a: Add a check against null-pointer-def
+- fs/ntfs3: Check 'folio' pointer for NULL
+- ext4: fix mb_cache_entry's e_refcnt leak in ext4_xattr_block_cache_find()
+- net/mlx5e: Avoid field-overflowing memcpy()
+- !9375  ALSA: core: Fix NULL module pointer assignment at card init
+- !9468  net/mlx5: Add a timeout to acquire the command queue semaphore
+- !9458  bpf: Add BPF_PROG_TYPE_CGROUP_SKB attach type enforcement in BPF_LINK_CREATE
+- tcp: Fix shift-out-of-bounds in dctcp_update_alpha().
+- params: lift param_set_uint_minmax to common code
+- !9431  CVE-2022-48703
+- !9364  fs/ntfs3: Use variable length array instead of fixed size
+- media: lgdt3306a: Add a check against null-pointer-def
+- !9411  kprobes: Fix possible use-after-free issue on kprobe registration
+- !8743  ext4 bugfix from mainline
+- !9498  ipv6: fix race condition between ipv6_get_ifaddr and ipv6_del_addr
+- RDMA/rxe: Fix seg fault in rxe_comp_queue_pkt
+- !9397 [sync] PR-9350:  tracing: Fix permissions for the buffer_percent file
+- !9334  net/sched: taprio: always validate TCA_TAPRIO_ATTR_PRIOMAP
+- !8712  ubifs: Set page uptodate in the correct place
+- !9259  Fix CVE-2024-38588
+- !9385  vfio/pci: fix potential memory leak in vfio_intx_enable()
+- !9454  jffs2: prevent xattr node from overflowing the eraseblock
+- !9328  CVE-2024-38596
+- ipv6: fix race condition between ipv6_get_ifaddr and ipv6_del_addr
+- netrom: fix possible dead-lock in nr_rt_ioctl()
+- fs/ntfs3: Use 64 bit variable to avoid 32 bit overflow
+- watchdog: cpu5wdt.c: Fix use-after-free bug caused by cpu5wdt_trigger
+- net/mlx5: Add a timeout to acquire the command queue semaphore
+- bpf: Add BPF_PROG_TYPE_CGROUP_SKB attach type enforcement in BPF_LINK_CREATE
+- jffs2: prevent xattr node from overflowing the eraseblock
+- thermal: int340x_thermal: Consolidate priv->data_vault checks
+- thermal/int340x_thermal: handle data_vault when the value is ZERO_SIZE_PTR
+- kprobes: Fix possible use-after-free issue on kprobe registration
+- tracing: Fix permissions for the buffer_percent file
+- vfio/pci: fix potential memory leak in vfio_intx_enable()
+- serial: max3100: Update uart_driver_registered on driver removal
+- ALSA: core: Fix NULL module pointer assignment at card init
+- fs/ntfs3: Use variable length array instead of fixed size
+- net/sched: taprio: always validate TCA_TAPRIO_ATTR_PRIOMAP
+- af_unix: Fix data races in unix_release_sock/unix_stream_sendmsg
+- af_unix: Fix data-races around sk->sk_shutdown.
+- af_unix: Fix data races around sk->sk_shutdown.
+- ftrace: Fix possible use-after-free issue in ftrace_location()
+- ftrace: Fix possible warning on checking all pages used in ftrace_process_locs()
+- ftrace: Store the order of pages allocated in ftrace_page
+- xfs: don't use current->journal_info
+- ext4: fix warning in ext4_dio_write_end_io()
+- ext4: properly sync file size update after O_SYNC direct IO
+- iomap: update ki_pos a little later in iomap_dio_complete
+- ubifs: Set page uptodate in the correct place
+- dmaengine: idxd: Fix oops during rmmod on single-CPU platforms
+
 * Wed Jun 26 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.82.0.163
 - !9461 [sync] PR-5860:  ksmbd: fix UAF issue in ksmbd_tcp_new_connection()
 - !9197  scsi: core: Fix unremoved procfs host directory regression
