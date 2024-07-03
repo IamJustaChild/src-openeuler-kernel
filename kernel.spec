@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       216
+%global devel_release       217
 %global maintenance_release .0.0
-%global pkg_release         .115
+%global pkg_release         .116
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -952,6 +952,121 @@ fi
 %endif
 
 %changelog
+* Wed Jul 03 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-217.0.0.116
+- !9160  xfs: don't use current->journal_info
+- !9429  usb: gadget: ncm: Avoid dropping datagrams of properly parsed NTBs
+- !9644  fix uaf when proc_cpuset_show
+- !9532  CVE-2024-37356
+- !9496  netrom: fix possible dead-lock in nr_rt_ioctl()
+- cgroup: fix uaf when proc_cpuset_show
+- !9514  RDMA/rxe: Fix seg fault in rxe_comp_queue_pkt
+- !9559  CVE-2024-38597
+- !9039 [OLK-5.10] drm/phytium: Replace default efi fb0 with dc fb
+- !9595  drm/arm/malidp: fix a possible null pointer dereference
+- !9593  ARM: 9170/1: fix panic when kasan and kprobe are enabled
+- !9504  um: Add winch to winch_handlers before registering winch IRQ
+- drm/arm/malidp: fix a possible null pointer dereference
+- ARM: 9170/1: fix panic when kasan and kprobe are enabled
+- !9587  s390/ap: Fix crash in AP internal function modify_bitmap()
+- s390/ap: Fix crash in AP internal function modify_bitmap()
+- !9569  net: fec: remove .ndo_poll_controller to avoid deadlocks
+- !9540  net/mlx5e: Avoid field-overflowing memcpy()
+- !9577 v2  btrfs: fix crash on racing fsync and size-extending write into prealloc
+- !9563  fs/ntfs3: Check 'folio' pointer for NULL
+- !9383  serial: max3100: Update uart_driver_registered on driver removal
+- btrfs: fix crash on racing fsync and size-extending write into prealloc
+- !8744  ext4 bugfix from mainline
+- !9499  ipv6: fix race condition between ipv6_get_ifaddr and ipv6_del_addr
+- !9500  netfilter: nf_tables: flush pending destroy work before exit_net release
+- !9453  jffs2: prevent xattr node from overflowing the eraseblock
+- !9202  dyndbg: fix old BUG_ON in >control parser
+- !9193  wifi: rtl8xxxu: add cancel_work_sync() for c2hcmd_work
+- !9201  ipv6: fix potential "struct net" leak in inet6_rtm_getaddr()
+- !9190  clk: Fix clk_core_get NULL dereference
+- !9188  net: phy: fix phy_get_internal_delay accessing an empty array
+- !9462 v2  CVE-2024-27032
+- !9408  drm/mediatek: Add 0 size check to mtk_drm_gem_obj
+- !9447  rcu-tasks: Fix show_rcu_tasks_trace_gp_kthread buffer overflow
+- !9425  ASoC: SOF: Fix DSP oops stack dump output contents
+- !9321  drm/amd/display: Fix potential index out of bounds in color transformation function
+- !9297  CVE-2021-47599
+- !9401  Fix CVE-2024-31076
+- !9434  cvm: delete dead code and resolve macro definition holes
+- !9395  CVE-2024-38587
+- !9386  vfio/pci: fix potential memory leak in vfio_intx_enable()
+- !9199  init/main.c: Fix potential static_command_line memory overflow
+- !8683 v4  Fix CVE-2024-35879
+- !9339  serial: max3100: Lock port->lock when calling uart_handle_cts_change()
+- !9470  net/mlx5: Add a timeout to acquire the command queue semaphore
+- !9442  net/mlx5: Discard command completions in internal error
+- !9290  net: bridge: xmit: make sure we have at least eth header len bytes
+- !9284  of: module: add buffer overflow check in of_modalias()
+- !9477  watchdog: cpu5wdt.c: Fix use-after-free bug caused by cpu5wdt_trigger
+- !9544  ext4: fix mb_cache_entry's e_refcnt leak in ext4_xattr_block_cache_find()
+- !9483  fs/ntfs3: Use 64 bit variable to avoid 32 bit overflow
+- !9558  CVE-2024-39362
+- !9456  bpf: Add BPF_PROG_TYPE_CGROUP_SKB attach type enforcement in BPF_LINK_CREATE
+- !9527  media: lgdt3306a: Add a check against null-pointer-def
+- net: fec: remove .ndo_poll_controller to avoid deadlocks
+- fs/ntfs3: Check 'folio' pointer for NULL
+- net: fec: remove .ndo_poll_controller to avoid deadlocks
+- eth: sungem: remove .ndo_poll_controller to avoid deadlocks
+- i2c: acpi: Unbind mux adapters before delete
+- i2c: add fwnode APIs
+- ext4: fix mb_cache_entry's e_refcnt leak in ext4_xattr_block_cache_find()
+- net/mlx5e: Avoid field-overflowing memcpy()
+- tcp: Fix shift-out-of-bounds in dctcp_update_alpha().
+- params: lift param_set_uint_minmax to common code
+- media: lgdt3306a: Add a check against null-pointer-def
+- !9511  blk-throttle: check for overflow in calculate_bytes_allowed
+- RDMA/rxe: Fix seg fault in rxe_comp_queue_pkt
+- blk-throttle: check for overflow in calculate_bytes_allowed
+- blk-throttle: use calculate_io/bytes_allowed() for throtl_trim_slice()
+- blk-throttle: factor out code to calculate ios/bytes_allowed
+- um: Add winch to winch_handlers before registering winch IRQ
+- netfilter: nf_tables: flush pending destroy work before exit_net release
+- ipv6: fix race condition between ipv6_get_ifaddr and ipv6_del_addr
+- netrom: fix possible dead-lock in nr_rt_ioctl()
+- fs/ntfs3: Use 64 bit variable to avoid 32 bit overflow
+- watchdog: cpu5wdt.c: Fix use-after-free bug caused by cpu5wdt_trigger
+- net/mlx5: Add a timeout to acquire the command queue semaphore
+- f2fs: fix to avoid potential panic during recovery
+- f2fs: fix to check return value of f2fs_reserve_new_block()
+- bpf: Add BPF_PROG_TYPE_CGROUP_SKB attach type enforcement in BPF_LINK_CREATE
+- jffs2: prevent xattr node from overflowing the eraseblock
+- rcu-tasks: Fix show_rcu_tasks_trace_gp_kthread buffer overflow
+- net/mlx5: Discard command completions in internal error
+- cvm: delete dead code and resolve macro definition holes
+- usb: gadget: ncm: Avoid dropping datagrams of properly parsed NTBs
+- ASoC: SOF: Fix DSP oops stack dump output contents
+- drm/mediatek: Add 0 size check to mtk_drm_gem_obj
+- genirq/cpuhotplug, x86/vector: Prevent vector leak during CPU offline
+- speakup: Fix sizeof() vs ARRAY_SIZE() bug
+- vfio/pci: fix potential memory leak in vfio_intx_enable()
+- serial: max3100: Update uart_driver_registered on driver removal
+- serial: max3100: Lock port->lock when calling uart_handle_cts_change()
+- drm/amd/display: Fix potential index out of bounds in color transformation function
+- btrfs: remove stale comment about the btrfs_show_devname
+- btrfs: update latest_dev when we create a sprout device
+- btrfs: use latest_dev in btrfs_show_devname
+- btrfs: convert latest_bdev type to btrfs_device and rename
+- net: bridge: xmit: make sure we have at least eth header len bytes
+- of: module: add buffer overflow check in of_modalias()
+- dyndbg: fix old BUG_ON in >control parser
+- ipv6: fix potential "struct net" leak in inet6_rtm_getaddr()
+- init/main.c: Fix potential static_command_line memory overflow
+- wifi: rtl8xxxu: add cancel_work_sync() for c2hcmd_work
+- clk: Fix clk_core_get NULL dereference
+- net: phy: fix phy_get_internal_delay accessing an empty array
+- xfs: don't use current->journal_info
+- drm/phytium: Replace default efi fb0 with dc fb
+- ext4: fix warning in ext4_dio_write_end_io()
+- ext4: properly sync file size update after O_SYNC direct IO
+- iomap: update ki_pos a little later in iomap_dio_complete
+- driver core: Fix kabi broken
+- of: dynamic: Synchronize of_changeset_destroy() with the devlink removals
+- driver core: Introduce device_link_wait_removal()
+
 * Thu Jun 27 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-216.0.0.115
 - !9507  Enable SIS_UTIL for arm64 and optimize load_balance
 - !9508  Revert "fs: Use CHECK_DATA_CORRUPTION() when
