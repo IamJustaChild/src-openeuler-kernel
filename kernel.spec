@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2406.4.0
+%global hulkrelease 2407.1.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0283
+Release: %{hulkrelease}.0284
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,96 @@ fi
 %endif
 
 %changelog
+
+* Tue Jul 02 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2407.1.0.0284
+- !9629  stm class: Fix a double free in stm_register_device()
+- !9646  phonet: fix rtm_phonet_notify() skb allocation
+- !9628  m68k: Fix spinlock race in kernel thread creation
+- !9623 v2  net/nfc/rawsock.c: fix a permission check bug
+- !9648 backport two patches from 5.10 to fix some bugs for GuestOS
+- !9617  mac80211: track only QoS data frames for admission control
+- !9637  ipv6: sr: fix invalid unregister error path
+- !9607  enic: Validate length of nl attributes in enic_set_vf_port
+- !9606  drm/nouveau: fix off by one in BIOS boundary checking
+- !9605  scsi: bfa: Ensure the copied buf is NUL terminated
+- irqchip: gic-v3: Collection table support muti pages
+- scsi: virtio_scsi: limit number of hw queues by nr_cpu_ids
+- phonet: fix rtm_phonet_notify() skb allocation
+- ipv6: sr: fix invalid unregister error path
+- stm class: Fix a double free in stm_register_device()
+- m68k: Fix spinlock race in kernel thread creation
+- !9076  RDMA/cma: Ensure rdma_addr_cancel() happens before issuing more requests
+- net/nfc/rawsock.c: fix a permission check bug
+- mac80211: track only QoS data frames for admission control
+- enic: Validate length of nl attributes in enic_set_vf_port
+- drm/nouveau: fix off by one in BIOS boundary checking
+- !9600  CVE-2024-38597
+- scsi: bfa: Ensure the copied buf is NUL terminated
+- !9409  drm/mediatek: Add 0 size check to mtk_drm_gem_obj
+- !9452  jffs2: prevent xattr node from overflowing the eraseblock
+- eth: sungem: remove .ndo_poll_controller to avoid deadlocks
+- net: fec: remove .ndo_poll_controller to avoid deadlocks
+- !8163 v2  mmc: sdio: fix possible resource leaks in some error paths
+- !9535  igbvf: fix double free in `igbvf_probe`
+- !9590  s390/ap: Fix crash in AP internal function modify_bitmap()
+- !9584  ipvlan: Dont Use skb->sk in ipvlan_process_v{4,6}_outbound
+- !9537  virtio: delete vq in vp_find_vqs_msix() when request_irq() fails
+- !9585  net/mlx5e: Avoid field-overflowing memcpy()
+- s390/ap: Fix crash in AP internal function modify_bitmap()
+- net/mlx5e: Avoid field-overflowing memcpy()
+- ipvlan: Dont Use skb->sk in ipvlan_process_v{4,6}_outbound
+- !9534  rpmsg: char: Fix race between the release of rpmsg_ctrldev and cdev
+- !9419  mm/migrate: set swap entry values of THP tail pages properly.
+- !9560  net: systemport: Add global locking for descriptor lifecycle
+- !9526  media: lgdt3306a: Add a check against null-pointer-def
+- !9539  ext4: fix mb_cache_entry's e_refcnt leak in ext4_xattr_block_cache_find()
+- net: systemport: Add global locking for descriptor lifecycle
+- !9340  serial: max3100: Lock port->lock when calling uart_handle_cts_change()
+- !9330  ASoC: ops: Reject out of bounds values in snd_soc_put_xr_sx()
+- !9382  serial: max3100: Update uart_driver_registered on driver removal
+- !9503 v2  watchdog: cpu5wdt.c: Fix use-after-free bug caused by cpu5wdt_trigger
+- !9464  quota: Fix rcu annotations of inode dquot pointers
+- !9530 v2  Backport LTS patches
+- ext4: fix mb_cache_entry's e_refcnt leak in ext4_xattr_block_cache_find()
+- virtio: delete vq in vp_find_vqs_msix() when request_irq() fails
+- !9435  fix CVE-2024-38621
+- igbvf: fix double free in `igbvf_probe`
+- rpmsg: char: Fix race between the release of rpmsg_ctrldev and cdev
+- !9381  vfio/pci: fix potential memory leak in vfio_intx_enable()
+- !9497  netrom: fix possible dead-lock in nr_rt_ioctl()
+- pinctrl: devicetree: fix refcount leak in pinctrl_dt_to_map()
+- pinctrl: devicetree: fix null pointer dereferencing in pinctrl_dt_to_map
+- media: lgdt3306a: Add a check against null-pointer-def
+- !9505  CVE-2024-38587
+- !9473  um: Add winch to winch_handlers before registering winch IRQ
+- !9407  drm/arm/malidp: fix a possible null pointer dereference
+- !9400  Fix CVE-2024-31076
+- speakup: Fix sizeof() vs ARRAY_SIZE() bug
+- !9439  CVE-2022-48715
+- !9133  net: ethernet: fix potential use-after-free in ec_bhf_remove
+- watchdog: cpu5wdt.c: Fix use-after-free bug caused by cpu5wdt_trigger
+- netrom: fix possible dead-lock in nr_rt_ioctl()
+- !9265  ring-buffer: Fix a race between readers and resize checks
+- !9390  NFS: Fix an off by one in root_nfs_cat()
+- um: Add winch to winch_handlers before registering winch IRQ
+- quota: Fix rcu annotations of inode dquot pointers
+- fs/quota: erase unused but set variable warning
+- jffs2: prevent xattr node from overflowing the eraseblock
+- scsi: bnx2fc: Make bnx2fc_recv_frame() mp safe
+- media: stk1160: fix bounds checking in stk1160_copy_video()
+- mm/migrate: set swap entry values of THP tail pages properly.
+- drm/mediatek: Add 0 size check to mtk_drm_gem_obj
+- drm/arm/malidp: fix a possible null pointer dereference
+- genirq/cpuhotplug, x86/vector: Prevent vector leak during CPU offline
+- NFS: Fix an off by one in root_nfs_cat()
+- serial: max3100: Update uart_driver_registered on driver removal
+- vfio/pci: fix potential memory leak in vfio_intx_enable()
+- serial: max3100: Lock port->lock when calling uart_handle_cts_change()
+- ASoC: ops: Reject out of bounds values in snd_soc_put_xr_sx()
+- ring-buffer: Fix a race between readers and resize checks
+- net: ethernet: fix potential use-after-free in ec_bhf_remove
+- RDMA/cma: Ensure rdma_addr_cancel() happens before issuing more requests
+- mmc: sdio: fix possible resource leaks in some error paths
 
 * Wed Jun 26 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2406.4.0.0283
 - !9471  CVE-2021-47434
