@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2407.1.0
+%global hulkrelease 2407.3.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0284
+Release: %{hulkrelease}.0285
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,102 @@ fi
 %endif
 
 %changelog
+
+* Tue Jul 09 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2407.3.0.0285
+- !9803 v2  x86/ftrace: Disable lockdep check when execute ftrace_int3_handler()
+- x86/ftrace: Disable lockdep check when execute ftrace_int3_handler()
+- !9797  sch_cake: do not call cake_destroy() from cake_init()
+- sch_cake: do not call cake_destroy() from cake_init()
+- !9786  drm/exynos: fix a possible null-pointer dereference due to data race in exynos_drm_crtc_atomic_disable()
+- drm/exynos: fix a possible null-pointer dereference due to data race in exynos_drm_crtc_atomic_disable()
+- !9777  CVE-2024-23848
+- media: cec: cec-api: add locking in cec_release()
+- media: cec: cec-adap: always cancel work in cec_transmit_msg_fh
+- !9765  i40e: Fix queues reservation for XDP
+- !9760  CVE-2024-26816
+- !9754  net: openvswitch: fix overwriting ct original tuple for ICMPv6
+- !9367 v2  net: qcom/emac: fix UAF in emac_remove
+- !9512  drm: vc4: Fix possible null pointer dereference
+- !9755  wifi: ar5523: enable proper endpoint verification
+- i40e: Fix queues reservation for XDP
+- !9744  Fix CVE-2024-36949
+- !9741  scsi: qedf: Ensure the copied buf is NUL terminated
+- !9727  net: amd-xgbe: Fix skb data length underflow
+- x86/boot: Ignore relocations in .notes sections in walk_relocs() too
+- x86, relocs: Ignore relocations in .notes section
+- !9743  USB: core: Fix hang in usb_kill_urb by adding memory barriers
+- wifi: ar5523: enable proper endpoint verification
+- net: openvswitch: fix overwriting ct original tuple for ICMPv6
+- !9674  ax25: Fix reference count leak issue of net_device
+- !9729  seg6: fix the iif in the IPv6 socket control block
+- !9725 v2  net: Fix CVE-2022-48757
+- !9737  net/9p: fix uninit-value in p9_client_rpc()
+- amd/amdkfd: sync all devices to wait all processes being evicted
+- drm/amdkfd: Rework kfd_locked handling
+- USB: core: Fix hang in usb_kill_urb by adding memory barriers
+- scsi: qedf: Ensure the copied buf is NUL terminated
+- net/9p: fix uninit-value in p9_client_rpc()
+- !9710  CVE-2022-48738
+- !9568  media: mxl111sf: change mutex_init() location
+- !9570  net: ieee802154: ca8210: Stop leaking skb's
+- seg6: fix the iif in the IPv6 socket control block
+- !9700 v2  crypto: bcm - Fix pointer arithmetic
+- !9684  greybus: lights: check return of get_channel_from_mode
+- net: amd-xgbe: Fix skb data length underflow
+- !9666  ftrace: Fix rcu warn in ftrace_location()
+- net: fix kabi breakage in struct packet_type
+- net: fix information leakage in /proc/net/ptype
+- !9724  Fix CVE-2024-35915
+- nfc: nci: Fix handling of zero-length payload packets in nci_rx_work()
+- nfc: nci: Fix uninit-value in nci_rx_work
+- nfc: nci: Fix kcov check in nci_rx_work()
+- nfc: nci: Fix uninit-value in nci_dev_up and nci_ntf_packet
+- !9658  KVM: PPC: Fix kvm_arch_vcpu_ioctl vcpu_load leak
+- !9698  Fix CVE-2021-47270
+- !9699  dma-buf/sw-sync: don't enable IRQ from sync_print_obj()
+- !9550  scsi: bnx2fc: Flush destroy_work queue before calling bnx2fc_interface_put()
+- !9707  nilfs2: fix use-after-free of timer for log writer thread
+- ASoC: ops: Shift tested values in snd_soc_put_volsw() by +min
+- ASoC: ops: Reject out of bounds values in snd_soc_put_volsw()
+- nilfs2: fix use-after-free of timer for log writer thread
+- !9655  nfc: fix segfault in nfc_genl_dump_devices_done
+- !9654  mac80211: validate extended element ID is present
+- !9653  ecryptfs: Fix buffer size for tag 66 packet
+- !9652  ALSA: timer: Set lower bound of start tick time
+- !9697 v3  Fix CVE-2024-38567
+- !9633  CVE-2024-38582
+- !9692  netfilter: nfnetlink_queue: acquire rcu_read_lock() in instance_destroy_rcu()
+- crypto: bcm - Fix pointer arithmetic
+- dma-buf/sw-sync: don't enable IRQ from sync_print_obj()
+- usb: gadget: f_sourcesink: Fix isoc transfer for USB_SPEED_SUPER_PLUS
+- usb: fix various gadgets null ptr deref on 10gbps cabling.
+- wifi: carl9170: add a proper sanity check for endpoints
+- USB: core: Add routines for endpoint checks in old drivers
+- !9597  ASoC: max9759: fix underflow in speaker_gain_control_put()
+- netfilter: nfnetlink_queue: acquire rcu_read_lock() in instance_destroy_rcu()
+- !9626  fix uaf when proc_cpuset_show
+- !9660  nilfs2: fix potential kernel bug due to lack of writeback flag waiting
+- greybus: lights: check return of get_channel_from_mode
+- ax25: Fix reference count leak issue of net_device
+- ftrace: Fix rcu warn in ftrace_location()
+- !9553  CVE-2024-37356
+- nilfs2: fix potential kernel bug due to lack of writeback flag waiting
+- KVM: PPC: Fix kvm_arch_vcpu_ioctl vcpu_load leak
+- nfc: fix segfault in nfc_genl_dump_devices_done
+- mac80211: validate extended element ID is present
+- ecryptfs: Fix buffer size for tag 66 packet
+- ALSA: timer: Set lower bound of start tick time
+- nilfs2: fix potential hang in nilfs_detach_log_writer()
+- nilfs2: fix unexpected freezing of nilfs_segctor_sync()
+- cgroup: fix uaf when proc_cpuset_show
+- ASoC: max9759: fix underflow in speaker_gain_control_put()
+- net: ieee802154: ca8210: Stop leaking skb's
+- media: mxl111sf: change mutex_init() location
+- tcp: Fix shift-out-of-bounds in dctcp_update_alpha().
+- params: lift param_set_uint_minmax to common code
+- scsi: bnx2fc: Flush destroy_work queue before calling bnx2fc_interface_put()
+- drm: vc4: Fix possible null pointer dereference
+- net: qcom/emac: fix UAF in emac_remove
 
 * Tue Jul 02 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2407.1.0.0284
 - !9629  stm class: Fix a double free in stm_register_device()
