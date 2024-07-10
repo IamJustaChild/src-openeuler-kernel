@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       217
+%global devel_release       218
 %global maintenance_release .0.0
-%global pkg_release         .120
+%global pkg_release         .121
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -911,6 +911,101 @@ fi
 %endif
 
 %changelog
+* Wed Jul 10 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-218.0.0.121
+- !9851  net/sched: act_skbmod: prevent kernel-infoleak
+- !9853  nilfs2: fix use-after-free of timer for log writer thread
+- !9831  mmc: davinci: Don't strip remove function when driver is builtin
+- !8096  Fix CVE-2024-35988
+- nilfs2: fix use-after-free of timer for log writer thread
+- net/sched: act_skbmod: prevent kernel-infoleak
+- mmc: davinci: Don't strip remove function when driver is builtin
+- !9643  f2fs: fix to do sanity check on i_xattr_nid in sanity_check_inode()
+- !9820  kdb: Fix buffer overflow during tab-complete
+- kdb: Fix buffer overflow during tab-complete
+- !9799  null_blk: fix null-ptr-dereference while configuring 'power' and 'submit_queues'
+- !9783  CVE-2024-38598
+- !9772  btrfs: fix use-after-free after failure to create a snapshot
+- null_blk: fix null-ptr-dereference while configuring 'power' and 'submit_queues'
+- !9792 v3  net: fix one NULL pointer dereference bug in net_rship module
+- !9795  drm: bridge: cdns-mhdp8546: Fix possible null pointer dereference
+- !9363  fs/ntfs3: Use variable length array instead of fixed size
+- !9712  fix CVE-2024-38540
+- drm: bridge: cdns-mhdp8546: Fix possible null pointer dereference
+- net: fix one NULL pointer dereference bug in net_rship module
+- md: fix resync softlockup when bitmap size is less than array size
+- md/raid10: check slab-out-of-bounds in md_bitmap_get_counter
+- Revert "md/raid10: fix slab-out-of-bounds in md_bitmap_get_counter"
+- !9373  ALSA: core: Fix NULL module pointer assignment at card init
+- !9616 v2  wifi: carl9170: add a proper sanity check for endpoints
+- !9538  virtio: delete vq in vp_find_vqs_msix() when request_irq() fails
+- !9766  f2fs: compress: fix to cover {reserve,release}_compress_blocks() w/ cp_rwsem lock
+- !9768  iomap: Don't finish dio under irq when there exists pages
+- !9753 v2  arm64: arm_pmuv3: Correctly extract and check the PMUVer
+- !9731 v2  Backport bpf bugfixes
+- btrfs: fix use-after-free after failure to create a snapshot
+- iomap: Don't finish dio under irq when there exists pages
+- !9719  KVM: LAPIC: Also cancel preemption timer during SET_LAPIC
+- !9764  wifi: ar5523: enable proper endpoint verification
+- !9711  fix CVE-2024-38615
+- !9761  CVE-2024-26816
+- !9756  net: openvswitch: fix overwriting ct original tuple for ICMPv6
+- f2fs: compress: fix to cover {reserve,release}_compress_blocks() w/ cp_rwsem lock
+- wifi: ar5523: enable proper endpoint verification
+- !9716  ax25: Fix reference count leak issues of ax25_dev
+- x86/boot: Ignore relocations in .notes sections in walk_relocs() too
+- x86, relocs: Ignore relocations in .notes section
+- net: openvswitch: fix overwriting ct original tuple for ICMPv6
+- arm64: arm_pmuv3: Correctly extract and check the PMUVer
+- !9672  ax25: Fix reference count leak issue of net_device
+- !9735  net/9p: fix uninit-value in p9_client_rpc()
+- !9572  dma-mapping: benchmark: handle NUMA_NO_NODE correctly
+- !9571  media: atomisp: ssh_css: Fix a null-pointer dereference in load_video_binaries
+- net/9p: fix uninit-value in p9_client_rpc()
+- bpf: ensure main program has an extable
+- bpf: Don't EFAULT for {g,s}setsockopt with wrong optlen
+- bpf: Fix __reg_bound_offset 64->32 var_off subreg propagation
+- bpf: Clobber stack slot when writing over spilled PTR_TO_BTF_ID
+- bpf: Fix memory leaks in __check_func_call
+- !9440  fix CVE-2024-38621
+- !9705  net/hinic3: Add pcie device ID adaption for DPU_NIC card
+- KVM: LAPIC: Also cancel preemption timer during SET_LAPIC
+- ax25: Fix reference count leak issues of ax25_dev
+- bnxt_re: avoid shift undefined behavior in bnxt_qplib_alloc_init_hwq
+- cpufreq: exit() callback is optional
+- cpufreq: Rearrange locking in cpufreq_remove_dev()
+- cpufreq: Split cpufreq_offline()
+- cpufreq: Reorganize checks in cpufreq_offline()
+- !9701  dma-buf/sw-sync: don't enable IRQ from sync_print_obj()
+- net/hinic3: Add pcie device ID adaption for DPU_NIC card
+- dma-buf/sw-sync: don't enable IRQ from sync_print_obj()
+- !9640  CVE-2024-38582
+- !9662  tls: fix missing memory barrier in tls_init
+- !9657 v2  CVE-2024-38586
+- !9686  greybus: lights: check return of get_channel_from_mode
+- !9675  crypto: bcm - Fix pointer arithmetic
+- greybus: lights: check return of get_channel_from_mode
+- crypto: bcm - Fix pointer arithmetic
+- ax25: Fix reference count leak issue of net_device
+- tls: fix missing memory barrier in tls_init
+- r8169: Fix possible ring buffer corruption on fragmented Tx packets.
+- r8169: remove nr_frags argument from rtl_tx_slots_avail
+- r8169: improve rtl8169_start_xmit
+- r8169: improve rtl_tx
+- r8169: use READ_ONCE in rtl_tx_slots_avail
+- r8169: remove unneeded memory barrier in rtl_tx
+- f2fs: fix to do sanity check on i_xattr_nid in sanity_check_inode()
+- nilfs2: fix potential hang in nilfs_detach_log_writer()
+- nilfs2: fix unexpected freezing of nilfs_segctor_sync()
+- wifi: carl9170: add a proper sanity check for endpoints
+- dma-mapping: benchmark: handle NUMA_NO_NODE correctly
+- media: atomisp: ssh_css: Fix a null-pointer dereference in load_video_binaries
+- virtio: delete vq in vp_find_vqs_msix() when request_irq() fails
+- media: stk1160: fix bounds checking in stk1160_copy_video()
+- ALSA: core: Fix NULL module pointer assignment at card init
+- fs/ntfs3: Use variable length array instead of fixed size
+- riscv: Fix TASK_SIZE on 64-bit NOMMU
+- riscv: fix VMALLOC_START definition
+
 * Wed Jul 03 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-217.0.0.120
 - !9160  xfs: don't use current->journal_info
 - !9429  usb: gadget: ncm: Avoid dropping datagrams of properly parsed NTBs
