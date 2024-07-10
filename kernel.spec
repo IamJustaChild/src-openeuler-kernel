@@ -40,9 +40,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       31
+%global devel_release       33
 %global maintenance_release .0.0
-%global pkg_release         .39
+%global pkg_release         .40
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1089,6 +1089,206 @@ fi
 %endif
 
 %changelog
+* Wed Jul 10 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-33.0.0.40
+- !9779  CVE-2024-39461
+- clk: bcm: rpi: Assign ->num before accessing ->hws
+- !9801 loongarch平台config配置对kdump的支持
+- loongarch: configs: Configure degbuginfo
+- Fix the kdump second kernel boot failure
+- loongarch: Cleanup loongson3_defconfig with make savedefconfig
+- !9811  fix CVE-2024-39481
+- media: mc: Fix graph walk in media_pipeline_start
+- !9810  KVM: SVM: WARN on vNMI + NMI window iff NMIs are outright masked
+- KVM: SVM: WARN on vNMI + NMI window iff NMIs are outright masked
+- !9821  kdb: Fix buffer overflow during tab-complete
+- kdb: Fix buffer overflow during tab-complete
+- !9788  net: fix wrong return value in bpf_sock_ops_get_uid_gid
+- net: fix wrong return value in bpf_sock_ops_get_uid_gid
+- !9816  mm: mem_reliable: Make counting reliable task usage compatible with folio
+- mm: mem_reliable: Make counting reliable task usage compatible with folio
+- !9807  drm: zynqmp_dpsub: Always register bridge
+- drm: zynqmp_dpsub: Always register bridge
+- !9804  CVE-2024-36478
+- null_blk: Fix return value of nullb_device_power_store()
+- null_blk: fix null-ptr-dereference while configuring 'power' and 'submit_queues'
+- !9805  md: fix resync softlockup when bitmap size is less than array size
+- md: fix resync softlockup when bitmap size is less than array size
+- !9802  ax25: Fix reference count leak issue of net_device
+- ax25: Fix reference count leak issue of net_device
+- !9770  Add a switch to enable hungtask check for io
+- block: disable BLK_IO_HUNG_TASK_CHECK by default
+- block: add a switch to enable hungtask check for io
+- !9793  drm: bridge: cdns-mhdp8546: Fix possible null pointer dereference
+- drm: bridge: cdns-mhdp8546: Fix possible null pointer dereference
+- !9649  f2fs: fix to do sanity check on i_xattr_nid in sanity_check_inode()
+- f2fs: fix to do sanity check on i_xattr_nid in sanity_check_inode()
+- !9732  CVE-2024-39469
+- nilfs2: fix nilfs_empty_dir() misjudgment and long loop on I/O errors
+- nilfs2: return the mapped address from nilfs_get_page()
+- !9775  mm/slub: Reduce memory consumption in extreme scenarios
+- mm/slub: Reduce memory consumption in extreme scenarios
+- !9614 v2  wifi: carl9170: add a proper sanity check for endpoints
+- wifi: carl9170: add a proper sanity check for endpoints
+- !9709  cgroup: fix uaf when proc_cpuset_show
+- cgroup: fix uaf when proc_cpuset_show
+- !9748  cxl/pci: Skip to handle RAS errors if CXL.mem device is detached
+- cxl/pci: Skip to handle RAS errors if CXL.mem device is detached
+- !8877  drm/vmwgfx: Fix invalid reads in fence signaled events
+- drm/vmwgfx: Fix invalid reads in fence signaled events
+- !9730  efi: libstub: only free priv.runtime_map when allocated
+- efi: libstub: only free priv.runtime_map when allocated
+- !9679  cgroup/cpuset: Make cpuset hotplug processing synchronous
+- cgroup/cpuset: Make cpuset hotplug processing synchronous
+- !9757  net: openvswitch: fix overwriting ct original tuple for ICMPv6
+- net: openvswitch: fix overwriting ct original tuple for ICMPv6
+- !9665  CVE-2024-38622
+- drm/msm/dpu: make error messages at dpu_core_irq_register_callback() more sensible
+- drm/msm/dpu: Add callback function pointer check before its call
+- drm/msm/dpu: stop using raw IRQ indices in the kernel output
+- drm/msm/dpu: make the irq table size static
+- drm/msm/dpu: add helper to get IRQ-related data
+- drm/msm/dpu: extract dpu_core_irq_is_valid() helper
+- drm/msm/dpu: remove irq_idx argument from IRQ callbacks
+- !9668  wifi: nl80211: Avoid address calculations via out of bounds array indexing
+- wifi: nl80211: Avoid address calculations via out of bounds array indexing
+- !9715  CVE-2024-38602
+- ax25: Fix reference count leak issues of ax25_dev
+- ax25: Use kernel universal linked list to implement ax25_dev_list
+- !9746 v2  Revert "ACPI: processor: Add support for processors described as container packages"
+- Revert "ACPI: processor: Add support for processors described as container packages"
+- !9736  net/9p: fix uninit-value in p9_client_rpc()
+- net/9p: fix uninit-value in p9_client_rpc()
+- !9596  iomap: fix warning in iomap_write_delalloc_release()
+- iomap: fix warning in iomap_write_delalloc_release()
+- !9703  dma-buf/sw-sync: don't enable IRQ from sync_print_obj()
+- dma-buf/sw-sync: don't enable IRQ from sync_print_obj()
+- !9642  CVE-2024-38582
+- nilfs2: fix potential hang in nilfs_detach_log_writer()
+- nilfs2: fix unexpected freezing of nilfs_segctor_sync()
+- !9687  greybus: lights: check return of get_channel_from_mode
+- greybus: lights: check return of get_channel_from_mode
+- !9678  crypto: bcm - Fix pointer arithmetic
+- crypto: bcm - Fix pointer arithmetic
+- !7918 [OLK-6.6]drivers: support Yunsilicon's metaScale/metaVisor series NICs
+- drivers: support Yunsilicon's MS and MV series NICs
+- !9619  r8169: Fix possible ring buffer corruption on fragmented Tx packets.
+- r8169: Fix possible ring buffer corruption on fragmented Tx packets.
+- !9664  tls: fix missing memory barrier in tls_init
+- tls: fix missing memory barrier in tls_init
+- !9161  xfs: don't use current->journal_info
+- xfs: don't use current->journal_info
+- !9624  CVE-2024-38597
+- net: fec: remove .ndo_poll_controller to avoid deadlocks
+- eth: sungem: remove .ndo_poll_controller to avoid deadlocks
+- !9631  ACPI: APEI: Skip initialization of GHES_ASSIST structures for Machine Check Architecture
+- ACPI: APEI: Skip initialization of GHES_ASSIST structures for Machine Check Architecture
+- !9632  drm/msm/a6xx: Avoid a nullptr dereference when speedbin setting fails
+- drm/msm/a6xx: Avoid a nullptr dereference when speedbin setting fails
+- !9399 fix CVE-2024-38544 and CVE-2024-37356
+- tcp: Fix shift-out-of-bounds in dctcp_update_alpha().
+- RDMA/rxe: Fix seg fault in rxe_comp_queue_pkt
+- !9341  serial: max3100: Lock port->lock when calling uart_handle_cts_change()
+- serial: max3100: Lock port->lock when calling uart_handle_cts_change()
+- !9562  CVE-2024-38385
+- genirq/irqdesc: Prevent use-after-free in irq_find_at_or_after()
+- !9582 v2  eventfs: Fix a possible null pointer dereference in eventfs_find_events()
+- eventfs: Fix a possible null pointer dereference in eventfs_find_events()
+- !9588  s390/ap: Fix crash in AP internal function modify_bitmap()
+- s390/ap: Fix crash in AP internal function modify_bitmap()
+- !9513  RDMA/rxe: Fix seg fault in rxe_comp_queue_pkt
+- RDMA/rxe: Fix seg fault in rxe_comp_queue_pkt
+- !9561 v2  virtio: delete vq in vp_find_vqs_msix() when request_irq() fails
+- virtio: delete vq in vp_find_vqs_msix() when request_irq() fails
+- !9578  net/mlx5: Discard command completions in internal error
+- net/mlx5: Discard command completions in internal error
+- !9549  btrfs: fix crash on racing fsync and size-extending write into prealloc
+- btrfs: fix crash on racing fsync and size-extending write into prealloc
+- !9479  xfs: fix unlink vs cluster buffer instantiation race
+- xfs: fix unlink vs cluster buffer instantiation race
+- !9519 MPTCP Upstream part 12
+- mptcp: annotate lockless accesses around read-mostly fields
+- mptcp: annotate lockless access for token
+- mptcp: annotate lockless access for RX path fields
+- mptcp: annotate lockless access for the tx path
+- mptcp: annotate access for msk keys
+- !9557  i2c: acpi: Unbind mux adapters before delete
+- i2c: acpi: Unbind mux adapters before delete
+- !9555  smb: client: fix deadlock in smb2_find_smb_tcon()
+- smb: client: fix deadlock in smb2_find_smb_tcon()
+- !9489  fs/ntfs3: Check 'folio' pointer for NULL
+- fs/ntfs3: Check 'folio' pointer for NULL
+- !9482  fs/ntfs3: Use 64 bit variable to avoid 32 bit overflow
+- fs/ntfs3: Use 64 bit variable to avoid 32 bit overflow
+- !9506  usb: gadget: u_audio: Fix race condition use of controls after free during gadget unbind.
+- usb: gadget: u_audio: Fix race condition use of controls after free during gadget unbind.
+- !9528  media: lgdt3306a: Add a check against null-pointer-def
+- media: lgdt3306a: Add a check against null-pointer-def
+- !9551  ext4: fix mb_cache_entry's e_refcnt leak in ext4_xattr_block_cache_find()
+- ext4: fix mb_cache_entry's e_refcnt leak in ext4_xattr_block_cache_find()
+- !9478  watchdog: cpu5wdt.c: Fix use-after-free bug caused by cpu5wdt_trigger
+- watchdog: cpu5wdt.c: Fix use-after-free bug caused by cpu5wdt_trigger
+- !9536  clk: bcm: dvp: Assign ->num before accessing ->hws
+- clk: bcm: dvp: Assign ->num before accessing ->hws
+- !9463  fix CVE-2024-38621
+- media: stk1160: fix bounds checking in stk1160_copy_video()
+- !9457  bpf: Add BPF_PROG_TYPE_CGROUP_SKB attach type enforcement in BPF_LINK_CREATE
+- bpf: Add BPF_PROG_TYPE_CGROUP_SKB attach type enforcement in BPF_LINK_CREATE
+- !9459  bpf: Fix verifier assumptions about socket->sk
+- bpf: Fix verifier assumptions about socket->sk
+- !9522  bonding: fix oops during rmmod
+- bonding: fix oops during rmmod
+- !9502  netrom: fix possible dead-lock in nr_rt_ioctl()
+- netrom: fix possible dead-lock in nr_rt_ioctl()
+- !9402  fs/ntfs3: Use variable length array instead of fixed size
+- fs/ntfs3: Use variable length array instead of fixed size
+- !9320  drm/amd/display: Fix potential index out of bounds in color transformation function
+- drm/amd/display: Fix potential index out of bounds in color transformation function
+- !9493  thermal/drivers/qcom/lmh: Check for SCM availability at probe
+- thermal/drivers/qcom/lmh: Check for SCM availability at probe
+- !9398  tracing/probes: fix error check in parse_btf_field()
+- tracing/probes: fix error check in parse_btf_field()
+- !9510  ftrace: Fix possible use-after-free issue in ftrace_location()
+- ftrace: Fix possible use-after-free issue in ftrace_location()
+- !9509  cifs: fix pagecache leak when do writepages
+- cifs: fix pagecache leak when do writepages
+- !9436 v2  ASoC: mediatek: Assign dummy when codec not specified for a DAI link
+- ASoC: mediatek: Assign dummy when codec not specified for a DAI link
+- !9486 [OLK-6.6] Fix os crash while enable sriov for rnp
+- RNPVF: NET: Fix os crash while enable sriov for rnp
+- !9371 MPTCP Upstream part 11
+- selftests: net: ip_local_port_range: define IPPROTO_MPTCP
+- selftests: mptcp: join: check CURRESTAB counters
+- selftests/net: add MPTCP coverage for IP_LOCAL_PORT_RANGE
+- mptcp: sockopt: support IP_LOCAL_PORT_RANGE and IP_BIND_ADDRESS_NO_PORT
+- mptcp: rename mptcp_setsockopt_sol_ip_set_transparent()
+- !5258 [OLK-6.6] Support request attestation report from CSV guest
+- driver/virt/coco: Add HYGON CSV Guest dirver.
+- KVM: x86: Support VM_ATTESTATION hypercall
+- !9485 v2  CVE-2024-38610
+- drivers/virt/acrn: fix PFNMAP PTE checks in acrn_vm_ram_map()
+- virt: acrn: stop using follow_pfn
+- !9380  psi: using cpuacct_cgrp_id under CONFIG_CGROUP_CPUACCT
+- psi: using cpuacct_cgrp_id under CONFIG_CGROUP_CPUACCT
+- !8899  block: fix module reference leakage from bdev_open_by_dev error path
+- block: fix module reference leakage from bdev_open_by_dev error path
+- !9445  blk-cgroup: fix list corruption from reorder of WRITE ->lqueued
+- blk-cgroup: fix list corruption from reorder of WRITE ->lqueued
+- !9466  io_uring: check for non-NULL file pointer in io_file_can_poll()
+- io_uring: check for non-NULL file pointer in io_file_can_poll()
+- !9389  block: refine the EOF check in blkdev_iomap_begin
+- block: refine the EOF check in blkdev_iomap_begin
+- !9414  vfio/pci: fix potential memory leak in vfio_intx_enable()
+- vfio/pci: fix potential memory leak in vfio_intx_enable()
+- !9455  jffs2: prevent xattr node from overflowing the eraseblock
+- jffs2: prevent xattr node from overflowing the eraseblock
+- !9465  CVE-2024-38662
+- Revert "bpf, sockmap: Prevent lock inversion deadlock in map delete elem"
+- bpf: Allow delete from sockmap/sockhash only if update is allowed
+- !9410  Fix CVE-2024-31076
+- genirq/cpuhotplug, x86/vector: Prevent vector leak during CPU offline
+- !9449  rcu-tasks: Fix show_rcu_tasks_trace_gp_kthread buffer overflow
+- rcu-tasks: Fix show_rcu_tasks_trace_gp_kthread buffer overflow
+
 * Wed Jun 26 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-31.0.0.39
 - !9438 【OLK-6.6】RDMA/hns: Fix some mutex UAF
 - RDMA/hns: Fix some mutex UAF
