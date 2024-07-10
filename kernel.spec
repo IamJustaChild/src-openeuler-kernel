@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .83.0
-%global pkg_release         .164
+%global maintenance_release .84.0
+%global pkg_release         .165
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,89 @@ fi
 %endif
 
 %changelog
+* Wed Jul 10 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.84.0.165
+- !9852  net/sched: act_skbmod: prevent kernel-infoleak
+- !9854  nilfs2: fix use-after-free of timer for log writer thread
+- !9855 [sync] PR-8096:  Fix CVE-2024-35988
+- !9469 [sync] PR-8098:  netfilter: nf_tables: release mutex after nft_gc_seq_end from abort path
+- !9833  mmc: davinci: Don't strip remove function when driver is builtin
+- !9847 [sync] PR-9500:  netfilter: nf_tables: flush pending destroy work before exit_net release
+- riscv: Fix TASK_SIZE on 64-bit NOMMU
+- riscv: fix VMALLOC_START definition
+- nilfs2: fix use-after-free of timer for log writer thread
+- net/sched: act_skbmod: prevent kernel-infoleak
+- netfilter: nf_tables: flush pending destroy work before exit_net release
+- mmc: davinci: Don't strip remove function when driver is builtin
+- !9651  f2fs: fix to do sanity check on i_xattr_nid in sanity_check_inode()
+- !9818  kdb: Fix buffer overflow during tab-complete
+- kdb: Fix buffer overflow during tab-complete
+- !9806  CVE-2024-36478
+- !9773  btrfs: fix use-after-free after failure to create a snapshot
+- null_blk: fix null-ptr-dereference while configuring 'power' and 'submit_queues'
+- null_blk: Move driver into its own directory
+- !9794  drm: bridge: cdns-mhdp8546: Fix possible null pointer dereference
+- !9790  clk: mediatek: clk-mt6779: Add check for mtk_alloc_clk_data
+- drm: bridge: cdns-mhdp8546: Fix possible null pointer dereference
+- clk: mediatek: clk-mt6779: Add check for mtk_alloc_clk_data
+- !9661 v3  Fix CVE-2024-38567
+- !9552  virtio: delete vq in vp_find_vqs_msix() when request_irq() fails
+- !9767  f2fs: compress: fix to cover {reserve,release}_compress_blocks() w/ cp_rwsem lock
+- !9769  iomap: Don't finish dio under irq when there exists pages
+- !9774  net: openvswitch: fix overwriting ct original tuple for ICMPv6
+- net: openvswitch: fix overwriting ct original tuple for ICMPv6
+- !9733  drivers/perf: hisi: hns3: Actually use devm_add_action_or_reset()
+- btrfs: fix use-after-free after failure to create a snapshot
+- iomap: Don't finish dio under irq when there exists pages
+- !9718  KVM: LAPIC: Also cancel preemption timer during SET_LAPIC
+- !9762  CVE-2024-26816
+- f2fs: compress: fix to cover {reserve,release}_compress_blocks() w/ cp_rwsem lock
+- !9717  ax25: Fix reference count leak issues of ax25_dev
+- x86/boot: Ignore relocations in .notes sections in walk_relocs() too
+- x86, relocs: Ignore relocations in .notes section
+- !9702  dma-buf/sw-sync: don't enable IRQ from sync_print_obj()
+- !9738  CVE-2024-38621
+- !9673  ax25: Fix reference count leak issue of net_device
+- !9734  net/9p: fix uninit-value in p9_client_rpc()
+- !9740  dma-mapping: benchmark: handle NUMA_NO_NODE correctly
+- !9739  media: atomisp: ssh_css: Fix a null-pointer dereference in load_video_binaries
+- dma-mapping: benchmark: handle NUMA_NO_NODE correctly
+- media: atomisp: ssh_css: Fix a null-pointer dereference in load_video_binaries
+- media: stk1160: fix bounds checking in stk1160_copy_video()
+- net/9p: fix uninit-value in p9_client_rpc()
+- drivers/perf: hisi: hns3: Actually use devm_add_action_or_reset()
+- !9722  ext4: delete redundant uptodate
+- ext4: delete redundant uptodate check for buffer
+- KVM: LAPIC: Also cancel preemption timer during SET_LAPIC
+- ax25: Fix reference count leak issues of ax25_dev
+- dma-buf/sw-sync: don't enable IRQ from sync_print_obj()
+- !9641  CVE-2024-38582
+- !9663  tls: fix missing memory barrier in tls_init
+- !9656 v2  CVE-2024-38586
+- !9685  greybus: lights: check return of get_channel_from_mode
+- !9671  crypto: bcm - Fix pointer arithmetic
+- !9635  fix CVE-2022-48721
+- greybus: lights: check return of get_channel_from_mode
+- ax25: Fix reference count leak issue of net_device
+- crypto: bcm - Fix pointer arithmetic
+- tls: fix missing memory barrier in tls_init
+- wifi: carl9170: add a proper sanity check for endpoints
+- USB: core: Add routines for endpoint checks in old drivers
+- r8169: Fix possible ring buffer corruption on fragmented Tx packets.
+- r8169: remove nr_frags argument from rtl_tx_slots_avail
+- r8169: improve rtl8169_start_xmit
+- r8169: improve rtl_tx
+- r8169: use READ_ONCE in rtl_tx_slots_avail
+- r8169: remove unneeded memory barrier in rtl_tx
+- f2fs: fix to do sanity check on i_xattr_nid in sanity_check_inode()
+- nilfs2: fix potential hang in nilfs_detach_log_writer()
+- nilfs2: fix unexpected freezing of nilfs_segctor_sync()
+- net/smc: Fix slab-out-of-bounds issue in fallback
+- net/smc: Only save the original clcsock callback functions
+- net/smc: Avoid overwriting the copies of clcsock callback functions
+- net/smc: Forward wakeup to smc socket waitqueue after fallback
+- virtio: delete vq in vp_find_vqs_msix() when request_irq() fails
+- netfilter: nf_tables: release mutex after nft_gc_seq_end from abort path
+
 * Wed Jul 03 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.83.0.164
 - !9159  xfs: don't use current->journal_info
 - !9659  fix uaf when proc_cpuset_show
