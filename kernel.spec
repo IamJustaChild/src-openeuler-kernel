@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       218
+%global devel_release       219
 %global maintenance_release .0.0
-%global pkg_release         .117
+%global pkg_release         .118
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -952,6 +952,32 @@ fi
 %endif
 
 %changelog
+* Mon Jul 15 2024 Li Nan <linan122@huawei.com> - 5.10.0-219.0.0.118
+- !9884 roh/core: Support macvlan in roh.
+- !9827  ksmbd: fix slab out of bounds write in smb_inherit_dacl()
+- !9825  smb: client: fix potential deadlock when releasing mids
+- !9839  cgroup: Fix AA deadlock caused by cgroup_bpf_release
+- !9889  ipv6: sr: fix memleak in seg6_hmac_init_algo
+- ipv6: sr: fix memleak in seg6_hmac_init_algo
+- !9368  CVE-2024-27416
+- !9879  fs: improve dump_mapping() robustness
+- !9872  CVE-2024-38570
+- !9881 v2  iommu/arm-smmu-v3: Change the style to identify the the hisi_platform
+- iommu/arm-smmu-v3: Change the style to identify the the hisi_platform
+- fs: improve dump_mapping() robustness
+- roh/core: Support macvlan in roh.
+- gfs2: Fix potential glock use-after-free on unmount
+- gfs2: Rename sd_{ glock => kill }_wait
+- !9745  CVE-2024-39469
+- !9843  xfs: fix log recovery buffer allocation for the legacy h_size fixup
+- xfs: fix log recovery buffer allocation for the legacy h_size fixup
+- cgroup: Fix AA deadlock caused by cgroup_bpf_release
+- ksmbd: fix slab out of bounds write in smb_inherit_dacl()
+- smb: client: fix potential deadlock when releasing mids
+- nilfs2: fix nilfs_empty_dir() misjudgment and long loop on I/O errors
+- nilfs2: return the mapped address from nilfs_get_page()
+- Bluetooth: hci_event: Fix handling of HCI_EV_IO_CAPA_REQUEST
+
 * Wed Jul 10 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-218.0.0.117
 - !9851  net/sched: act_skbmod: prevent kernel-infoleak
 - !9853  nilfs2: fix use-after-free of timer for log writer thread
