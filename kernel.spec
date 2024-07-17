@@ -40,9 +40,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       33
+%global devel_release       34
 %global maintenance_release .0.0
-%global pkg_release         .40
+%global pkg_release         .41
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1089,6 +1089,119 @@ fi
 %endif
 
 %changelog
+* Wed Jul 17 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-34.0.0.41
+- !10059  nilfs2: fix use-after-free of timer for log writer thread
+- nilfs2: fix use-after-free of timer for log writer thread
+- !10025  9p: add missing locking around taking dentry fid list
+- 9p: add missing locking around taking dentry fid list
+- !9835 fix CVE-2024-39479
+- drm/i915/hwmon: Get rid of devm
+- !9998  ALSA: hda/cs_dsp_ctl: Use private_free for control cleanup
+- ALSA: hda/cs_dsp_ctl: Use private_free for control cleanup
+- !9997  openrisc: traps: Don't send signals to kernel mode threads
+- openrisc: traps: Don't send signals to kernel mode threads
+- !9956  drm/komeda: check for error-valued pointer
+- drm/komeda: check for error-valued pointer
+- !9914  arm64: asm-bug: Add .align 2 to the end of __BUG_ENTRY
+- arm64: asm-bug: Add .align 2 to the end of __BUG_ENTRY
+- !9944  f2fs: remove clear SB_INLINECRYPT flag in default_options
+- f2fs: remove clear SB_INLINECRYPT flag in default_options
+- !9909  sock_map: avoid race between sock_map_close and sk_psock_put
+- sock_map: avoid race between sock_map_close and sk_psock_put
+- !10045  misc: microchip: pci1xxxx: fix double free in the error handling of gp_aux_bus_probe()
+- misc: microchip: pci1xxxx: fix double free in the error handling of gp_aux_bus_probe()
+- !10055  media: v4l: async: Fix notifier list entry init
+- media: v4l: async: Fix notifier list entry init
+- !9900  ipv6: fix possible race in __fib6_drop_pcpu_from()
+- ipv6: fix possible race in __fib6_drop_pcpu_from()
+- !9979  CVE-2024-40972
+- ext4: do not create EA inode under buffer lock
+- ext4: fold quota accounting into ext4_xattr_inode_lookup_create()
+- !9988  netpoll: Fix race condition in netpoll_owner_active
+- netpoll: Fix race condition in netpoll_owner_active
+- !9945  ACPICA: Revert "ACPICA: avoid Info: mapping multiple BARs. Your kernel is fine."
+- ACPICA: Revert "ACPICA: avoid Info: mapping multiple BARs. Your kernel is fine."
+- !9935  ALSA: hda: cs35l41: Possible null pointer dereference in cs35l41_hda_unbind()
+- ALSA: hda: cs35l41: Possible null pointer dereference in cs35l41_hda_unbind()
+- !9962  iommu/arm-smmu-v3: Change the style to identify the the hisi_platform
+- iommu/arm-smmu-v3: Change the style to identify the the hisi_platform
+- !9896  bonding: Fix out-of-bounds read in bond_option_arp_ip_targets_set()
+- bonding: Fix out-of-bounds read in bond_option_arp_ip_targets_set()
+- !9928  ocfs2: fix races between hole punching and AIO+DIO
+- ocfs2: fix races between hole punching and AIO+DIO
+- !9938  fix CVE-2024-40934
+- HID: logitech-dj: Fix memory leak in logi_dj_recv_switch_to_dj_mode()
+- !9899  ionic: fix use after netif_napi_del()
+- ionic: fix use after netif_napi_del()
+- !9898  cpufreq: amd-pstate: fix memory leak on CPU EPP exit
+- cpufreq: amd-pstate: fix memory leak on CPU EPP exit
+- !9903  mptcp: ensure snd_una is properly initialized on connect
+- mptcp: ensure snd_una is properly initialized on connect
+- !9878  CVE-2024-39478
+- crypto: starfive - Do not free stack buffer
+- !9888  ipv6: sr: fix memleak in seg6_hmac_init_algo
+- ipv6: sr: fix memleak in seg6_hmac_init_algo
+- !5261 [OLK-6.6]Hygon: Some enhancement and bugfixes for HYGON CSV/CSV2
+- KVM: SVM: Unmap ghcb pages if they're still mapped when destroy guest
+- KVM: x86: Fix KVM_GET_MSRS stack info leak
+- KVM: SEV: Do not intercept accesses to MSR_IA32_XSS for SEV-ES guests
+- x86/head/64: Flush caches for .bss..decrypted section after CR3 switches to early_top_pgt
+- KVM: x86: Calls is_64_bit_hypercall() instead of is_64_bit_mode() in complete_hypercall_exit()
+- x86/csv2: Keep in atomic context when holding ghcb page if the #VC comes from userspace
+- KVM: SVM: Fix the available ASID range for CSV2 guest
+- !9861 MPTCP Upstream part 13
+- selftests: mptcp: lib: catch duplicated subtest entries
+- selftests: mptcp: explicitly trigger the listener diag code-path
+- bpf, btf: Add check_btf_kconfigs helper
+- bpf, btf: Fix return value of register_btf_id_dtor_kfuncs
+- !9876 v3  Fix xfs file creation issue
+- xfs: Avoid races with cnt_btree lastrec updates
+- Revert "xfs: Fix file creation failure"
+- !9877  gfs2: Fix potential glock use-after-free on unmount
+- gfs2: Fix potential glock use-after-free on unmount
+- !9862  ipvlan: Modify the value of ipvlan modes
+- ipvlan: Modify the value of ipvlan modes
+- !5260 [OLK-6.6] Support live migration for CSV/CSV2 guest, and support rebooting CSV/CSV2 guest
+- KVM: SVM: Force flush caches before reboot CSV guest
+- KVM: SVM: Add support for rebooting CSV2 guest
+- KVM: x86: Introduce control_{pre,post}_system_reset ioctl interfaces
+- KVM: SVM: Export MSR_AMD64_SEV_ES_GHCB to userspace for CSV2 guest
+- KVM: x86: Restore control registers in __set_sregs() to support CSV2 guest live migration
+- KVM: SVM: Add KVM_SEV_RECEIVE_UPDATE_VMSA command
+- KVM: SVM: Add KVM_SEV_SEND_UPDATE_VMSA command
+- crypto: ccp: Fix definition of struct sev_data_send_update_vmsa
+- KVM: SVM: Add RECEIVE_UPDATE_DATA command helper to support KVM_CSV_COMMAND_BATCH
+- KVM: SVM: Add SEND_UPDATE_DATA command helper to support KVM_CSV_COMMAND_BATCH
+- KVM: SVM: Prepare memory pool to allocate buffers for KVM_CSV_COMMAND_BATCH
+- KVM: SVM: Add KVM_CSV_COMMAND_BATCH command for applying CSV RING_BUFFER mode
+- crypto: ccp: Add support for issue commands in CSV RING_BUFFER mode
+- crypto: ccp: Add support to switch to CSV RING_BUFFER mode
+- crypto: ccp: Add support for dequeue status in CSV RING_BUFFER mode
+- crypto: ccp: Add support for enqueue command pointers in CSV RING_BUFFER mode
+- crypto: ccp: Introduce init and free helpers to manage CSV RING_BUFFER queues
+- !9294 Compiler: Add clang's PGO support for kernel.
+- Compiler: Add clang's PGO support for kernel.
+- !9610  rcu: Fix buffer overflow in print_cpu_stall_info()
+- rcu: Fix buffer overflow in print_cpu_stall_info()
+- !9845  xfs: fix log recovery buffer allocation for the legacy h_size fixup
+- xfs: fix log recovery buffer allocation for the legacy h_size fixup
+- !9859  block: enable BLK_IO_HUNG_TASK_CHECK by default
+- block: enable BLK_IO_HUNG_TASK_CHECK by default
+- !9857  drm/amdgpu/mes: fix use-after-free issue
+- drm/amdgpu/mes: fix use-after-free issue
+- !9829  fix CVE-2024-38620
+- Bluetooth: fix connection setup in l2cap_connect
+- Bluetooth: HCI: Remove HCI_AMP support
+- Bluetooth: hci_event: Remove code to removed CONFIG_BT_HS
+- Bluetooth: Remove usage of the deprecated ida_simple_xx() API
+- Bluetooth: ISO: Fix BIS cleanup
+- !9838  cgroup: Fix AA deadlock caused by cgroup_bpf_release
+- cgroup: Fix AA deadlock caused by cgroup_bpf_release
+- !9841  ASoC: SOF: ipc4-topology: Fix input format query of process modules without base extension
+- ASoC: SOF: ipc4-topology: Fix input format query of process modules without base extension
+- !9834  mmc: davinci: Don't strip remove function when driver is builtin
+- mmc: davinci: Don't strip remove function when driver is builtin
+
 * Wed Jul 10 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-33.0.0.40
 - !9779  CVE-2024-39461
 - clk: bcm: rpi: Assign ->num before accessing ->hws
