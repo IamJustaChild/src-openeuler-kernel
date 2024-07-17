@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       218
+%global devel_release       219
 %global maintenance_release .0.0
-%global pkg_release         .121
+%global pkg_release         .122
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -911,6 +911,71 @@ fi
 %endif
 
 %changelog
+* Wed Jul 17 2024 Li Nan <linan122@huawei.com> - 5.10.0-219.0.0.122
+- !9850  power: supply: bq27xxx-i2c: Do not free non existing IRQ
+- !10031  ipv6: prevent possible NULL dereference in rt6_probe()
+- !10060  ipvlan: Dont Use skb->sk in ipvlan_process_v{4,6}_outbound
+- !9984  nilfs2: fix potential kernel bug due to lack of writeback flag waiting
+- !9990  netpoll: Fix race condition in netpoll_owner_active
+- !10040  lib/generic-radix-tree.c: Don't overflow in peek()
+- !9950  f2fs: remove clear SB_INLINECRYPT flag in default_options
+- !9968  CVE-2024-40972
+- ipvlan: Dont Use skb->sk in ipvlan_process_v{4,6}_outbound
+- !9926  ocfs2: fix races between hole punching and AIO+DIO
+- !9910  arm64: asm-bug: Add .align 2 to the end of __BUG_ENTRY
+- !9908  sock_map: avoid race between sock_map_close and sk_psock_put
+- !9946  ACPICA: Revert "ACPICA: avoid Info: mapping multiple BARs. Your kernel is fine."
+- !9936  fix CVE-2024-40934
+- !9953  drm/komeda: check for error-valued pointer
+- lib/generic-radix-tree.c: Don't overflow in peek()
+- ipv6: prevent possible NULL dereference in rt6_probe()
+- netpoll: Fix race condition in netpoll_owner_active
+- nilfs2: fix potential kernel bug due to lack of writeback flag waiting
+- ext4: do not create EA inode under buffer lock
+- ext4: fold quota accounting into ext4_xattr_inode_lookup_create()
+- !9871  cifs: Fix deadlock in cifs_writepages during reconnect
+- drm/komeda: check for error-valued pointer
+- !9897  ionic: fix use after netif_napi_del()
+- !9924  drm/prime: Fix use after free in mmap with drm_gem_ttm_mmap
+- !9905  mptcp: ensure snd_una is properly initialized on connect
+- f2fs: remove clear SB_INLINECRYPT flag in default_options
+- ACPICA: Revert "ACPICA: avoid Info: mapping multiple BARs. Your kernel is fine."
+- !9893  bonding: Fix out-of-bounds read in bond_option_arp_ip_targets_set()
+- HID: logitech-dj: Fix memory leak in logi_dj_recv_switch_to_dj_mode()
+- ocfs2: fix races between hole punching and AIO+DIO
+- drm/prime: Fix use after free in mmap with drm_gem_ttm_mmap
+- !9884 roh/core: Support macvlan in roh.
+- arm64: asm-bug: Add .align 2 to the end of __BUG_ENTRY
+- !9827  ksmbd: fix slab out of bounds write in smb_inherit_dacl()
+- !9825  smb: client: fix potential deadlock when releasing mids
+- !9839  cgroup: Fix AA deadlock caused by cgroup_bpf_release
+- !9889  ipv6: sr: fix memleak in seg6_hmac_init_algo
+- sock_map: avoid race between sock_map_close and sk_psock_put
+- mptcp: ensure snd_una is properly initialized on connect
+- ionic: fix use after netif_napi_del()
+- bonding: Fix out-of-bounds read in bond_option_arp_ip_targets_set()
+- ipv6: sr: fix memleak in seg6_hmac_init_algo
+- !9368  CVE-2024-27416
+- !9879  fs: improve dump_mapping() robustness
+- !9872  CVE-2024-38570
+- !9881 v2  iommu/arm-smmu-v3: Change the style to identify the the hisi_platform
+- iommu/arm-smmu-v3: Change the style to identify the the hisi_platform
+- fs: improve dump_mapping() robustness
+- roh/core: Support macvlan in roh.
+- gfs2: Fix potential glock use-after-free on unmount
+- gfs2: Rename sd_{ glock => kill }_wait
+- cifs: Fix deadlock in cifs_writepages during reconnect
+- !9745  CVE-2024-39469
+- !9843  xfs: fix log recovery buffer allocation for the legacy h_size fixup
+- power: supply: bq27xxx-i2c: Do not free non existing IRQ
+- xfs: fix log recovery buffer allocation for the legacy h_size fixup
+- cgroup: Fix AA deadlock caused by cgroup_bpf_release
+- ksmbd: fix slab out of bounds write in smb_inherit_dacl()
+- smb: client: fix potential deadlock when releasing mids
+- nilfs2: fix nilfs_empty_dir() misjudgment and long loop on I/O errors
+- nilfs2: return the mapped address from nilfs_get_page()
+- Bluetooth: hci_event: Fix handling of HCI_EV_IO_CAPA_REQUEST
+
 * Wed Jul 10 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-218.0.0.121
 - !9851  net/sched: act_skbmod: prevent kernel-infoleak
 - !9853  nilfs2: fix use-after-free of timer for log writer thread
