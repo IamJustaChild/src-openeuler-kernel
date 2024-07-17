@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .84.0
-%global pkg_release         .165
+%global maintenance_release .85.0
+%global pkg_release         .166
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,8 @@ fi
 %endif
 
 %changelog
+* Wed Jul 17 2024 Li Nan <linan122@huawei.com> - 5.10-136.85.0.166
+
 * Wed Jul 10 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.84.0.165
 - !9852  net/sched: act_skbmod: prevent kernel-infoleak
 - !9854  nilfs2: fix use-after-free of timer for log writer thread
