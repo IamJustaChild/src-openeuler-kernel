@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2407.3.0
+%global hulkrelease 2407.4.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0285
+Release: %{hulkrelease}.0286
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,32 @@ fi
 %endif
 
 %changelog
+
+* Tue Jul 16 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2407.4.0.0286
+- !9925  ocfs2: fix races between hole punching and AIO+DIO
+- !9874  crypto: qat - Fix ADF_DEV_RESET_SYNC memory leak
+- !9830  mmc: davinci: Don't strip remove function when driver is builtin
+- !9870  cifs: Fix deadlock in cifs_writepages during reconnect
+- !9895  bonding: Fix out-of-bounds read in bond_option_arp_ip_targets_set()
+- ocfs2: fix races between hole punching and AIO+DIO
+- !9891  ipv6: sr: fix memleak in seg6_hmac_init_algo
+- !9856  btrfs: fix memory ordering between normal and ordered work functions
+- bonding: Fix out-of-bounds read in bond_option_arp_ip_targets_set()
+- ipv6: sr: fix memleak in seg6_hmac_init_algo
+- !9492  netlabel: fix out-of-bounds memory accesses
+- !9868  usb: musb: tusb6010: check return value after calling platform_get_resource()
+- crypto: qat - Fix ADF_DEV_RESET_SYNC memory leak
+- cifs: Fix deadlock in cifs_writepages during reconnect
+- usb: musb: tusb6010: check return value after calling platform_get_resource()
+- !9858  khugepaged: fix null-pointer dereference due to race
+- !9819  kdb: Fix buffer overflow during tab-complete
+- khugepaged: fix null-pointer dereference due to race
+- btrfs: fix memory ordering between normal and ordered work functions
+- !9842  net: dpaa2-eth: fix use-after-free in dpaa2_eth_remove
+- net: dpaa2-eth: fix use-after-free in dpaa2_eth_remove
+- mmc: davinci: Don't strip remove function when driver is builtin
+- kdb: Fix buffer overflow during tab-complete
+- netlabel: fix out-of-bounds memory accesses
 
 * Tue Jul 09 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2407.3.0.0285
 - !9803 v2  x86/ftrace: Disable lockdep check when execute ftrace_int3_handler()
