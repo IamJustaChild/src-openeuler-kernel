@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .84.0
-%global pkg_release         .165
+%global maintenance_release .85.0
+%global pkg_release         .166
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,78 @@ fi
 %endif
 
 %changelog
+* Wed Jul 17 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.85.0.166
+- !10068 [sync] PR-9984:  nilfs2: fix potential kernel bug due to lack of writeback flag waiting
+- !10032  ipv6: prevent possible NULL dereference in rt6_probe()
+- !10063  ipvlan: Dont Use skb->sk in ipvlan_process_v{4,6}_outbound
+- nilfs2: fix potential kernel bug due to lack of writeback flag waiting
+- ipvlan: Dont Use skb->sk in ipvlan_process_v{4,6}_outbound
+- !9991  netpoll: Fix race condition in netpoll_owner_active
+- !10043  lib/generic-radix-tree.c: Don't overflow in peek()
+- !9951  f2fs: remove clear SB_INLINECRYPT flag in default_options
+- !9981  CVE-2024-40972
+- !9995  Bluetooth: btusb: Add date->evt_skb is NULL check
+- !9846 v2  CVE-2024-38598
+- !9907  sock_map: avoid race between sock_map_close and sk_psock_put
+- !9927  ocfs2: fix races between hole punching and AIO+DIO
+- !9912  arm64: asm-bug: Add .align 2 to the end of __BUG_ENTRY
+- !9947  ACPICA: Revert "ACPICA: avoid Info: mapping multiple BARs. Your kernel is fine."
+- !9969 v2  netfilter: nft_set_pipapo: do not free live element
+- !9980  Fix CVE-2023-52781
+- !9954  drm/komeda: check for error-valued pointer
+- !9923  drm/prime: Fix use after free in mmap with drm_gem_ttm_mmap
+- lib/generic-radix-tree.c: Don't overflow in peek()
+- ipv6: prevent possible NULL dereference in rt6_probe()
+- Bluetooth: btusb: Add date->evt_skb is NULL check
+- netpoll: Fix race condition in netpoll_owner_active
+- ext4: do not create EA inode under buffer lock
+- ext4: fold quota accounting into ext4_xattr_inode_lookup_create()
+- ext4: remove duplicate definition of ext4_xattr_ibody_inline_set()
+- usb: config: fix iteration issue in 'usb_get_bos_descriptor()'
+- USB: core: Change configuration warnings to notices
+- netfilter: nft_set_pipapo: do not free live element
+- !9869  cifs: Fix deadlock in cifs_writepages during reconnect
+- drm/komeda: check for error-valued pointer
+- !9906  mptcp: ensure snd_una is properly initialized on connect
+- f2fs: remove clear SB_INLINECRYPT flag in default_options
+- ACPICA: Revert "ACPICA: avoid Info: mapping multiple BARs. Your kernel is fine."
+- !9894  bonding: Fix out-of-bounds read in bond_option_arp_ip_targets_set()
+- ocfs2: fix races between hole punching and AIO+DIO
+- drm/prime: Fix use after free in mmap with drm_gem_ttm_mmap
+- arm64: asm-bug: Add .align 2 to the end of __BUG_ENTRY
+- !9828  ksmbd: fix slab out of bounds write in smb_inherit_dacl()
+- !9826  smb: client: fix potential deadlock when releasing mids
+- !9890  ipv6: sr: fix memleak in seg6_hmac_init_algo
+- !9822 [sync] PR-9712:  fix CVE-2024-38540
+- !9823 [sync] PR-9711:  fix CVE-2024-38615
+- sock_map: avoid race between sock_map_close and sk_psock_put
+- mptcp: ensure snd_una is properly initialized on connect
+- bonding: Fix out-of-bounds read in bond_option_arp_ip_targets_set()
+- ipv6: sr: fix memleak in seg6_hmac_init_algo
+- !9840  cgroup: Fix AA deadlock caused by cgroup_bpf_release
+- !9873  CVE-2024-38570
+- gfs2: Fix potential glock use-after-free on unmount
+- gfs2: Rename sd_{ glock => kill }_wait
+- cifs: Fix deadlock in cifs_writepages during reconnect
+- !9636  ice: Do not use WQ_MEM_RECLAIM flag for workqueue
+- !9747  CVE-2024-39469
+- !9844  xfs: fix log recovery buffer allocation for the legacy h_size fixup
+- md: fix resync softlockup when bitmap size is less than array size
+- md/raid10: check slab-out-of-bounds in md_bitmap_get_counter
+- Revert "md/raid10: fix slab-out-of-bounds in md_bitmap_get_counter"
+- xfs: fix log recovery buffer allocation for the legacy h_size fixup
+- cgroup: Fix AA deadlock caused by cgroup_bpf_release
+- ksmbd: fix slab out of bounds write in smb_inherit_dacl()
+- smb: client: fix potential deadlock when releasing mids
+- cpufreq: exit() callback is optional
+- cpufreq: Rearrange locking in cpufreq_remove_dev()
+- cpufreq: Split cpufreq_offline()
+- cpufreq: Reorganize checks in cpufreq_offline()
+- bnxt_re: avoid shift undefined behavior in bnxt_qplib_alloc_init_hwq
+- nilfs2: fix nilfs_empty_dir() misjudgment and long loop on I/O errors
+- nilfs2: return the mapped address from nilfs_get_page()
+- ice: Do not use WQ_MEM_RECLAIM flag for workqueue
+
 * Wed Jul 10 2024 Jialin Zhang <zhangjialin11@huawei.com> - 5.10.0-136.84.0.165
 - !9852  net/sched: act_skbmod: prevent kernel-infoleak
 - !9854  nilfs2: fix use-after-free of timer for log writer thread
