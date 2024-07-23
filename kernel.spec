@@ -42,7 +42,7 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %global upstream_sublevel   0
 %global devel_release       34
 %global maintenance_release .0.0
-%global pkg_release         .41
+%global pkg_release         .42
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1089,6 +1089,9 @@ fi
 %endif
 
 %changelog
+* Wed Jul 17 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-34.0.0.42
+- Remove mlx5 related API from kabi whitelist
+
 * Wed Jul 17 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-34.0.0.41
 - !10059  nilfs2: fix use-after-free of timer for log writer thread
 - nilfs2: fix use-after-free of timer for log writer thread
