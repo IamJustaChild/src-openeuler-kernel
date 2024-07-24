@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .85.0
-%global pkg_release         .166
+%global maintenance_release .86.0
+%global pkg_release         .167
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,107 @@ fi
 %endif
 
 %changelog
+* Wed Jul 24 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.86.0.167
+- !10283 v2  CVE-2022-48816
+- !9781  ksmbd: fix wrong DataOffset validation of create context
+- !10301 v2  usb-storage: alauda: Check whether the media is initialized
+- !10297  CVE-2023-52679
+- usb-storage: alauda: Check whether the media is initialized
+- !10263  media: dvb-usb: Fix unexpected infinite loop in dvb_usb_read_remote_control()
+- of: unittest: Fix compile in the non-dynamic case
+- of: unittest: Fix of_count_phandle_with_args() expected value message
+- of: Fix double free in of_parse_phandle_with_args_map
+- !10225  scsi: ufs: Fix a deadlock in the error handler
+- SUNRPC: Do not dereference non-socket transports in sysfs
+- SUNRPC: lock against ->sock changing during sysfs read
+- !10244  Bluetooth: hci_core: Fix leaking sent_cmd skb
+- !10230  ima: Fix use-after-free on a dentry's dname.name
+- !10235  ima: Avoid blocking in RCU read-side critical section
+- !10234  fix CVE-2024-41007
+- !10201  net: dsa: seville: register the mdiobus under devres
+- !10267  USB: class: cdc-wdm: Fix CPU lockup caused by excessive log messages
+- USB: class: cdc-wdm: Fix CPU lockup caused by excessive log messages
+- !10256  dmaengine: idxd: Fix possible Use-After-Free in irq_process_work_list
+- media: dvb-usb: Fix unexpected infinite loop in dvb_usb_read_remote_control()
+- dmaengine: idxd: Fix possible Use-After-Free in irq_process_work_list
+- Bluetooth: hci_core: Fix leaking sent_cmd skb
+- !9918  powerpc/pseries: Enforce hcall result buffer validity and size
+- !10223  CVE-2024-35931
+- !10085  nfs: Ensure that the NFS client returns a correct writeback error code
+- ima: Avoid blocking in RCU read-side critical section
+- tcp: avoid too many retransmit packets
+- tcp: use signed arithmetic in tcp_rtx_probe0_timed_out()
+- net: tcp: fix unexcepted socket die when snd_wnd is 0
+- !10181 [sync] PR-9836:  fpga: manager: add owner module and take its refcount
+- !10221  bpf: Fix overrunning reservations in ringbuf
+- ima: Fix use-after-free on a dentry's dname.name
+- !10200  dma-mapping: benchmark: fix node id validation
+- !10209  drivers/perf: hisi: hns3: Fix out-of-bound access when valid event group
+- !10020  drm/exynos/vidi: fix memory leak in .get_modes()
+- scsi: ufs: Fix a deadlock in the error handler
+- drm/amdgpu: Fix kabi breakage in struct amdgpu_hive_info
+- drm/amdgpu: Skip do PCI error slot reset during RAS recovery
+- drm/amdgpu : Add hive ras recovery check
+- bpf: Fix overrunning reservations in ringbuf
+- drivers/perf: hisi: hns3: Fix out-of-bound access when valid event group
+- !10136  ALSA: timer: Set lower bound of start tick time
+- !10105  ecryptfs: Fix buffer size for tag 66 packet
+- net: dsa: seville: register the mdiobus under devres
+- dma-mapping: benchmark: fix node id validation
+- !10140 [sync] PR-10095:  CVE-2024-40968
+- !10108  tracing: Build event generation tests only as modules
+- !10157 v2  wifi: mac80211: Fix deadlock in ieee80211_sta_ps_deliver_wakeup()
+- !10008  xfs: fix mount hung while sb recover fail
+- fpga: manager: add owner module and take its refcount
+- !10164  drop_monitor: replace spin_lock by raw_spin_lock
+- !10163  RDMA/mlx5: Add check for srq max_sge attribute
+- !10049  tipc: force a dst refcount before doing decryption
+- !10023  liquidio: Adjust a NULL pointer handling path in lio_vf_rep_copy_packet
+- drop_monitor: replace spin_lock by raw_spin_lock
+- RDMA/mlx5: Add check for srq max_sge attribute
+- wifi: mac80211: Fix deadlock in ieee80211_sta_ps_deliver_wakeup()
+- !10042  Fix CVE-2024-36939
+- MIPS: Octeon: Add PCIe link status check
+- !10129  wifi: iwlwifi: mvm: don't read past the mfuart notifcation
+- ALSA: timer: Set lower bound of start tick time
+- !10119  wifi: iwlwifi: mvm: check n_ssids before accessing the ssids
+- !10080  drm/amdgpu: fix UBSAN warning in kv_dpm.c
+- !10053  vmci: prevent speculation leaks by sanitizing event in event_deliver()
+- !10089  fix CVE-2024-40995
+- !9993  io_uring/io-wq: Use set_bit() and test_bit() at worker->flags
+- !9902  ipv6: fix possible race in __fib6_drop_pcpu_from()
+- !10098 [sync] PR-9741:  scsi: qedf: Ensure the copied buf is NUL terminated
+- !9932  nvdimm: Backport some bugfixs
+- wifi: iwlwifi: mvm: don't read past the mfuart notifcation
+- wifi: iwlwifi: mvm: check n_ssids before accessing the ssids
+- tracing: Build event generation tests only as modules
+- ecryptfs: Fix buffer size for tag 66 packet
+- scsi: qedf: Ensure the copied buf is NUL terminated
+- net/sched: act_api: fix possible infinite loop in tcf_idr_check_alloc()
+- net/sched: act_api: rely on rcu in tcf_idr_check_alloc
+- nfs: Ensure write and flush consume writeback errors
+- NFS: Don't report ENOSPC write errors twice
+- NFS: Use of mapping_set_error() results in spurious errors
+- nfs: ensure correct writeback errors are returned on close()
+- nfs: nfs_file_write() should check for writeback errors
+- drm/amdgpu: fix UBSAN warning in kv_dpm.c
+- vmci: prevent speculation leaks by sanitizing event in event_deliver()
+- tipc: force a dst refcount before doing decryption
+- sunrpc: fix KABI broken in struct rpc_create_args
+- nfs: Handle error of rpc_proc_register() in nfs_net_init().
+- nfs: make the rpc_stat per net namespace
+- nfs: expose /proc/net/sunrpc/nfs in net namespaces
+- sunrpc: add a struct rpc_stats arg to rpc_create_args
+- liquidio: Adjust a NULL pointer handling path in lio_vf_rep_copy_packet
+- drm/exynos/vidi: fix memory leak in .get_modes()
+- xfs: fix mount hung while sb recover fail
+- io_uring/io-wq: Use set_bit() and test_bit() at worker->flags
+- dax: alloc_dax() return ERR_PTR(-EOPNOTSUPP) for CONFIG_DAX=n
+- nvdimm/pmem: use add_disk() error handling
+- powerpc/pseries: Enforce hcall result buffer validity and size
+- ipv6: fix possible race in __fib6_drop_pcpu_from()
+- ksmbd: fix wrong DataOffset validation of create context
+
 * Wed Jul 17 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.85.0.166
 - !10068 [sync] PR-9984:  nilfs2: fix potential kernel bug due to lack of writeback flag waiting
 - !10032  ipv6: prevent possible NULL dereference in rt6_probe()
