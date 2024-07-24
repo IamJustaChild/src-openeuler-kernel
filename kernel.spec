@@ -40,9 +40,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       34
+%global devel_release       35
 %global maintenance_release .0.0
-%global pkg_release         .42
+%global pkg_release         .43
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1089,6 +1089,193 @@ fi
 %endif
 
 %changelog
+* Wed Jul 24 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-35.0.0.43
+- !9782  usb-storage: alauda: Check whether the media is initialized
+- usb-storage: alauda: Check whether the media is initialized
+- !10294 [OLK-6.6] drivers: Fix compile warning "argument used uninitialized"
+- drivers: Fix compile warning "argument used uninitialized"
+- !10257  media: dvb-usb: Fix unexpected infinite loop in dvb_usb_read_remote_control()
+- media: dvb-usb: Fix unexpected infinite loop in dvb_usb_read_remote_control()
+- !10287  CVE-2024-36979
+- net: bridge: mst: pass vlan group directly to br_mst_vlan_set_state
+- net: bridge: mst: fix suspicious rcu usage in br_mst_set_state
+- net: bridge: mst: fix vlan use-after-free
+- !10018  ocfs2: fix NULL pointer dereference in ocfs2_journal_dirty()
+- ocfs2: fix NULL pointer dereference in ocfs2_journal_dirty()
+- !9985  btrfs: zoned: allocate dummy checksums for zoned NODATASUM writes
+- btrfs: zoned: allocate dummy checksums for zoned NODATASUM writes
+- !10260 [RoCE]从社区回合patch到openEuler（OLK-6.6）
+- RDMA/hns: Fix mbx timing out before CMD execution is completed
+- RDMA/hns: Fix insufficient extend DB for VFs.
+- RDMA/hns: Fix undifined behavior caused by invalid max_sge
+- RDMA/hns: Fix shift-out-bounds when max_inline_data is 0
+- RDMA/hns: Fix missing pagesize and alignment check in FRMR
+- RDMA/hns: Fix unmatch exception handling when init eq table fails
+- RDMA/hns: Check atomic wr length
+- !10248  ssb: Fix potential NULL pointer dereference in ssb_device_uevent()
+- ssb: Fix potential NULL pointer dereference in ssb_device_uevent()
+- !9243  Bluetooth: RFCOMM: Fix not validating setsockopt user input
+- Bluetooth: RFCOMM: Fix not validating setsockopt user input
+- !10160  fix CVE-2024-40915
+- riscv: rewrite __kernel_map_pages() to fix sleeping in invalid context
+- !10264  mm: filemap: optimize semantic when thp_exec_enabled is set to 3
+- mm: filemap: optimize semantic when thp_exec_enabled is set to 3
+- !5264 [OLK-6.6]HYGON: Support CSV Reuse ASID feature on Hygon CPUs
+- KVM: SVM: Add support for different CSV guests to reuse the same ASID
+- !10231  fix CVE-2024-41007
+- tcp: avoid too many retransmit packets
+- tcp: use signed arithmetic in tcp_rtx_probe0_timed_out()
+- !10233  fpga: bridge: add owner module and take its refcount
+- fpga: bridge: add owner module and take its refcount
+- !10237  ocfs2: fix NULL pointer dereference in ocfs2_abort_trigger()
+- ocfs2: fix NULL pointer dereference in ocfs2_abort_trigger()
+- !9915  powerpc/pseries: Enforce hcall result buffer validity and size
+- powerpc/pseries: Enforce hcall result buffer validity and size
+- !10148  fs/9p: fix uninitialized values during inode evict
+- fs/9p: fix uninitialized values during inode evict
+- !10056  io_uring/rsrc: don't lock while !TASK_RUNNING
+- io_uring/rsrc: don't lock while !TASK_RUNNING
+- !10226  cxl/region: Fix memregion leaks in devm_cxl_add_region()
+- cxl/region: Fix memregion leaks in devm_cxl_add_region()
+- !10177  ima: Fix use-after-free on a dentry's dname.name
+- ima: Fix use-after-free on a dentry's dname.name
+- !5262 [OLK-6.6]HYGON: Support Hygon DCU passthrough to VMs
+- x86/config: Set CONFIG_HYDCU_FIXUP_HEADER=y by default
+- drm/hygon: Add support to passthrough Hygon DCU to virtual machine
+- !10220  bpf: Fix overrunning reservations in ringbuf
+- bpf: Fix overrunning reservations in ringbuf
+- !10219  CVE-2024-35931
+- drm/amdgpu: Skip do PCI error slot reset during RAS recovery
+- drm/amdgpu : Add hive ras recovery check
+- !10167  CVE-2024-36022
+- drm/amdgpu: Init zone device and drm client after mode-1 reset on reload
+- drm/amdgpu: move the drm client creation behind drm device registration
+- drm/amdkfd: init drm_client with funcs hook
+- drm/amdkfd: Export DMABufs from KFD using GEM handles
+- !9598  fpga: manager: add owner module and take its refcount
+- fpga: manager: add owner module and take its refcount
+- !10139 [sync] PR-10095:  CVE-2024-40968
+- MIPS: Octeon: Add PCIe link status check
+- !10044  btrfs: fix CVE-2024-39496
+- btrfs: zoned: fix use-after-free due to race with dev replace
+- btrfs: zoned: factor out DUP bg handling from btrfs_load_block_group_zone_info
+- btrfs: zoned: factor out single bg handling from btrfs_load_block_group_zone_info
+- btrfs: zoned: factor out per-zone logic from btrfs_load_block_group_zone_info
+- btrfs: zoned: introduce a zone_info struct in btrfs_load_block_group_zone_info
+- !10114 v2  ecryptfs: Fix buffer size for tag 66 packet
+- ecryptfs: Fix buffer size for tag 66 packet
+- !10133  ALSA: timer: Set lower bound of start tick time
+- ALSA: timer: Set lower bound of start tick time
+- !10115  efi/unaccepted: touch soft lockup during memory accept
+- efi/unaccepted: touch soft lockup during memory accept
+- !10131  kunit/fortify: Fix mismatched kvalloc()/vfree() usage
+- kunit/fortify: Fix mismatched kvalloc()/vfree() usage
+- !10132  wifi: ath12k: fix out-of-bound access of qmi_invoke_handler()
+- wifi: ath12k: fix out-of-bound access of qmi_invoke_handler()
+- !10188  Part of "mm: mapcount for large folios + page_mapcount() cleanups"
+- mm/rmap: add fast-path for small folios when adding/removing/duplicating
+- mm/rmap: always inline anon/file rmap duplication of a single PTE
+- mm: allow for detecting underflows with page_mapcount() again
+- !10001  tty: n_gsm: fix possible out-of-bounds in gsm0_receive()
+- tty: n_gsm: fix possible out-of-bounds in gsm0_receive()
+- !10176  f2fs: compress: don't allow unaligned truncation on released compress inode
+- f2fs: compress: don't allow unaligned truncation on released compress inode
+- !10106  platform/x86: x86-android-tablets: Unregister devices in reverse order
+- platform/x86: x86-android-tablets: Unregister devices in reverse order
+- !10109  tracing: Build event generation tests only as modules
+- tracing: Build event generation tests only as modules
+- !10166  drop_monitor: replace spin_lock by raw_spin_lock
+- drop_monitor: replace spin_lock by raw_spin_lock
+- !10161  RDMA/mlx5: Add check for srq max_sge attribute
+- RDMA/mlx5: Add check for srq max_sge attribute
+- !10111  drm/exynos: hdmi: report safe 640x480 mode as a fallback when no EDID found
+- drm/exynos: hdmi: report safe 640x480 mode as a fallback when no EDID found
+- !10155  wifi: mac80211: Fix deadlock in ieee80211_sta_ps_deliver_wakeup()
+- wifi: mac80211: Fix deadlock in ieee80211_sta_ps_deliver_wakeup()
+- !10149  mips: bmips: BCM6358: make sure CBR is correctly set
+- mips: bmips: BCM6358: make sure CBR is correctly set
+- !10103 v2  fpga: region: add owner module and take its refcount
+- fpga: region: add owner module and take its refcount
+- !10097 [sync] PR-9741:  scsi: qedf: Ensure the copied buf is NUL terminated
+- scsi: qedf: Ensure the copied buf is NUL terminated
+- !10021  drm/exynos/vidi: fix memory leak in .get_modes()
+- drm/exynos/vidi: fix memory leak in .get_modes()
+- !10127  wifi: iwlwifi: mvm: don't read past the mfuart notifcation
+- wifi: iwlwifi: mvm: don't read past the mfuart notifcation
+- !10117  wifi: iwlwifi: mvm: check n_ssids before accessing the ssids
+- wifi: iwlwifi: mvm: check n_ssids before accessing the ssids
+- !10116  wifi: mt76: mt7921s: fix potential hung tasks during chip recovery
+- wifi: mt76: mt7921s: fix potential hung tasks during chip recovery
+- !10017  liquidio: Adjust a NULL pointer handling path in lio_vf_rep_copy_packet
+- liquidio: Adjust a NULL pointer handling path in lio_vf_rep_copy_packet
+- !10051  tipc: force a dst refcount before doing decryption
+- tipc: force a dst refcount before doing decryption
+- !10102  vmxnet3: disable rx data ring on dma allocation failure
+- vmxnet3: disable rx data ring on dma allocation failure
+- !10093  drm/arm/malidp: fix a possible null pointer dereference
+- drm/arm/malidp: fix a possible null pointer dereference
+- !9989  io_uring/io-wq: Use set_bit() and test_bit() at worker->flags
+- io_uring/io-wq: Use set_bit() and test_bit() at worker->flags
+- !10083  CVE-2024-40955
+- ext4: clean up s_mb_rb_lock to fix build warnings with C=1
+- ext4: set the type of max_zeroout to unsigned int to avoid overflow
+- ext4: set type of ac_groups_linear_remaining to __u32 to avoid overflow
+- ext4: add positive int attr pointer to avoid sysfs variables overflow
+- ext4: add new attr pointer attr_mb_order
+- ext4: fix slab-out-of-bounds in ext4_mb_find_good_group_avg_frag_lists()
+- ext4: refactor out ext4_generic_attr_show()
+- ext4: refactor out ext4_generic_attr_store()
+- ext4: avoid overflow when setting values via sysfs
+- !10069  ALSA: Fix deadlocks with kctl removals at disconnection
+- ALSA: Fix deadlocks with kctl removals at disconnection
+- !10074  PCI: of_property: Return error for int_map allocation failure
+- PCI: of_property: Return error for int_map allocation failure
+- !10087  fix CVE-2024-40995
+- net/sched: act_api: fix possible infinite loop in tcf_idr_check_alloc()
+- net/sched: act_api: rely on rcu in tcf_idr_check_alloc
+- !10064  net/mlx5: Always stop health timer during driver removal
+- net/mlx5: Always stop health timer during driver removal
+- !9240 v2  cachefiles: introduce failover mechanism
+- cachefiles: make on-demand read killable
+- cachefiles: flush all requests after setting CACHEFILES_DEAD
+- cachefiles: Set object to close if ondemand_id < 0 in copen
+- cachefiles: defer exposing anon_fd until after copy_to_user() succeeds
+- cachefiles: never get a new anonymous fd if ondemand_id is valid
+- cachefiles: add spin_lock for cachefiles_ondemand_info
+- cachefiles: add consistency check for copen/cread
+- cachefiles: remove err_put_fd label in cachefiles_ondemand_daemon_read()
+- cachefiles: fix slab-use-after-free in cachefiles_ondemand_daemon_read()
+- cachefiles: fix slab-use-after-free in cachefiles_ondemand_get_fd()
+- cachefiles: remove requests from xarray during flushing requests
+- cachefiles: add output string to cachefiles_obj_[get|put]_ondemand_fd
+- cachefiles, erofs: Fix NULL deref in when cachefiles is not doing ondemand-mode
+- cachefiles: add restore command to recover inflight ondemand read requests
+- cachefiles: narrow the scope of triggering EPOLLIN events in ondemand mode
+- cachefiles: resend an open request if the read request's object is closed
+- cachefiles: extract ondemand info field from cachefiles_object
+- cachefiles: introduce object ondemand state
+- !9933  nvdimm: Backport some bugfixs
+- dax: alloc_dax() return ERR_PTR(-EOPNOTSUPP) for CONFIG_DAX=n
+- nvdimm/pmem: fix leak on dax_add_host() failure
+- !10038  media: v4l: async: Properly re-initialise notifier entry in unregister
+- media: v4l: async: Properly re-initialise notifier entry in unregister
+- !9970  CVE-2024-39503
+- netfilter: ipset: Fix suspicious rcu_dereference_protected()
+- netfilter: ipset: Fix race between namespace cleanup and gc in the list:set type
+- netfilter: ipset: Add list flush to cancel_gc
+- !10011  xfs: fix mount hung while sb recover fail
+- xfs: fix mount hung while sb recover fail
+- !10050  vmci: prevent speculation leaks by sanitizing event in event_deliver()
+- vmci: prevent speculation leaks by sanitizing event in event_deliver()
+- !10006  drm/amdgpu: fix UBSAN warning in kv_dpm.c
+- drm/amdgpu: fix UBSAN warning in kv_dpm.c
+- !9959  parisc: Try to fix random segmentation faults in package builds
+- parisc: Try to fix random segmentation faults in package builds
+- !10028  ipv6: prevent possible NULL dereference in rt6_probe()
+- ipv6: prevent possible NULL dereference in rt6_probe()
+- !10005  seg6: fix parameter passing when calling NF_HOOK() in End.DX4 and End.DX6 behaviors
+- seg6: fix parameter passing when calling NF_HOOK() in End.DX4 and End.DX6 behaviors
+
 * Wed Jul 17 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-34.0.0.42
 - Remove mlx5 related API from kabi whitelist
 
