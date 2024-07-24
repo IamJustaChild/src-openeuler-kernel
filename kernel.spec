@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2407.4.0
+%global hulkrelease 2407.5.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0286
+Release: %{hulkrelease}.0287
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,76 @@ fi
 %endif
 
 %changelog
+
+* Tue Jul 23 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2407.5.0.0287
+- !10125  nvme-rdma: fix possible use-after-free in transport error_recovery work
+- !10112  ftrace: Fix use-after-free for dynamic ftrace_ops
+- !10276  net: ieee802154: at86rf230: Stop leaking skb's
+- net: ieee802154: at86rf230: Stop leaking skb's
+- !9917  powerpc/pseries: Enforce hcall result buffer validity and size
+- !10240  CVE-2024-41007
+- !10251  sctp: fix kernel-infoleak for SCTP sockets
+- !10241  USB: class: cdc-wdm: Fix CPU lockup caused by excessive log messages
+- sctp: fix kernel-infoleak for SCTP sockets
+- !10229  staging: gdm724x: fix use after free in gdm_lte_rx()
+- USB: class: cdc-wdm: Fix CPU lockup caused by excessive log messages
+- tcp: avoid too many retransmit packets
+- tcp: use signed arithmetic in tcp_rtx_probe0_timed_out()
+- net: tcp: fix unexcepted socket die when snd_wnd is 0
+- tcp: refactor tcp_retransmit_timer()
+- tcp: fix incorrect undo caused by DSACK of TLP retransmit
+- staging: gdm724x: fix use after free in gdm_lte_rx()
+- !10137  NFSD: Fix ia_size underflow
+- !10183 v3  ima: Fix use-after-free on a dentry's dname.name
+- !10121  usb: f_fs: Fix use-after-free for epfile
+- !10016  drm/exynos/vidi: fix memory leak in .get_modes()
+- !10211  fix CVE-2022-48865
+- !10206  gianfar: ethtool: Fix refcount leak in gfar_get_ts_info
+- tipc: fix kernel panic when enabling bearer
+- tipc: fix NULL pointer dereference in tipc_disc_rcv()
+- gianfar: ethtool: Fix refcount leak in gfar_get_ts_info
+- !10186  vsock: remove vsock from connected table when connect is interrupted by a signal
+- !10190  Drivers: hv: vmbus: Fix memory leak in vmbus_add_channel_kobj
+- Drivers: hv: vmbus: Fix memory leak in vmbus_add_channel_kobj
+- vsock: remove vsock from connected table when connect is interrupted by a signal
+- !10141  vt_ioctl: fix array_index_nospec in vt_setactivate
+- ima: Fix use-after-free on a dentry's dname.name
+- !10152  wifi: mac80211: Fix deadlock in ieee80211_sta_ps_deliver_wakeup()
+- !10026  liquidio: Adjust a NULL pointer handling path in lio_vf_rep_copy_packet
+- !10147  CVE-2022-48836
+- wifi: mac80211: Fix deadlock in ieee80211_sta_ps_deliver_wakeup()
+- Input: aiptek - properly check endpoint type
+- Input: aiptek - fix endpoint sanity check
+- vt_ioctl: fix array_index_nospec in vt_setactivate
+- !10095  CVE-2024-40968
+- !10130  wifi: iwlwifi: mvm: don't read past the mfuart notifcation
+- NFSD: Fix ia_size underflow
+- !10123  CVE-2022-48838
+- !10122  wifi: iwlwifi: mvm: check n_ssids before accessing the ssids
+- !10081  drm/amdgpu: fix UBSAN warning in kv_dpm.c
+- wifi: iwlwifi: mvm: don't read past the mfuart notifcation
+- !10092  usb: host: ohci-tmio: check return value after calling platform_get_resource()
+- nvme-rdma: fix possible use-after-free in transport error_recovery work
+- usb: gadget: Fix use-after-free bug by not setting udc->dev.driver
+- wifi: iwlwifi: mvm: check n_ssids before accessing the ssids
+- usb: f_fs: Fix use-after-free for epfile
+- !10094  net/sched: act_api: fix possible infinite loop in tcf_idr_check_alloc()
+- ftrace: Fix use-after-free for dynamic ftrace_ops
+- !10054  vmci: prevent speculation leaks by sanitizing event in event_deliver()
+- MIPS: Octeon: Add PCIe link status check
+- net/sched: act_api: fix possible infinite loop in tcf_idr_check_alloc()
+- usb: host: ohci-tmio: check return value after calling platform_get_resource()
+- !10033  ipv6: prevent possible NULL dereference in rt6_probe()
+- drm/amdgpu: fix UBSAN warning in kv_dpm.c
+- !9996  netpoll: Fix race condition in netpoll_owner_active
+- !9948  ACPICA: Revert "ACPICA: avoid Info: mapping multiple BARs. Your kernel is fine."
+- vmci: prevent speculation leaks by sanitizing event in event_deliver()
+- ipv6: prevent possible NULL dereference in rt6_probe()
+- liquidio: Adjust a NULL pointer handling path in lio_vf_rep_copy_packet
+- drm/exynos/vidi: fix memory leak in .get_modes()
+- netpoll: Fix race condition in netpoll_owner_active
+- ACPICA: Revert "ACPICA: avoid Info: mapping multiple BARs. Your kernel is fine."
+- powerpc/pseries: Enforce hcall result buffer validity and size
 
 * Tue Jul 16 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2407.4.0.0286
 - !9925  ocfs2: fix races between hole punching and AIO+DIO
