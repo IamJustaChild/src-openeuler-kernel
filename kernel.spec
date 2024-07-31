@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2407.5.0
+%global hulkrelease 2408.1.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0287
+Release: %{hulkrelease}.0288
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,41 @@ fi
 %endif
 
 %changelog
+
+* Tue Jul 30 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2408.1.0.0288
+- !10327  NFC: port100: fix use-after-free in port100_send_complete
+- !10325  kobject: Fix global-out-of-bounds in kobject_action_type()
+- !10337  drm/radeon: fix UBSAN warning in kv_dpm.c
+- !10368 v2  jbd2: stop waiting for space when jbd2_cleanup_journal_tail() returns error
+- jbd2: stop waiting for space when jbd2_cleanup_journal_tail() returns error
+- !10227  MIPS: smp: fill in sibling and core maps earlier
+- drm/radeon: fix UBSAN warning in kv_dpm.c
+- !10324  BMA: Fix iBMA bug and change
+- NFC: port100: fix use-after-free in port100_send_complete
+- kobject: Fix global-out-of-bounds in kobject_action_type()
+- !10315  jfs: xattr: fix buffer overflow for invalid xattr
+- BMA/cdev_veth_drv: Fix softlockup problem
+- BMA/kbox_drv: Change the version number.
+- BMA/veth_drv: Fix soft interrupt loops and change the version number
+- BMA/cdev_drv: Change the version number.
+- BMA/edma_drv: Fix DMA reset problem and change the version number.
+- !10173  netrom: Fix a memory leak in nr_heartbeat_expiry()
+- !10249  fbdev: savage: Handle err return when savagefb_check_var failed
+- !10306  mISDN: Fix memory leak in dsp_pipeline_build()
+- jfs: xattr: fix buffer overflow for invalid xattr
+- !10198  scsi: qedi: Fix crash while reading debugfs attribute
+- !10310  batman-adv: bypass empty buckets in batadv_purge_orig_ref()
+- !10307  wifi: mac80211: mesh: Fix leak of mesh_preq_queue objects
+- !10296  Backport dvb-usb bugfix
+- batman-adv: bypass empty buckets in batadv_purge_orig_ref()
+- wifi: mac80211: mesh: Fix leak of mesh_preq_queue objects
+- mISDN: Fix memory leak in dsp_pipeline_build()
+- media: dvb-usb: Fix unexpected infinite loop in dvb_usb_read_remote_control()
+- USB: move snd_usb_pipe_sanity_check into the USB core
+- fbdev: savage: Handle err return when savagefb_check_var failed
+- MIPS: smp: fill in sibling and core maps earlier
+- scsi: qedi: Fix crash while reading debugfs attribute
+- netrom: Fix a memory leak in nr_heartbeat_expiry()
 
 * Tue Jul 23 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2407.5.0.0287
 - !10125  nvme-rdma: fix possible use-after-free in transport error_recovery work
