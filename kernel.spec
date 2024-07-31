@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .86.0
-%global pkg_release         .167
+%global maintenance_release .87.0
+%global pkg_release         .168
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,56 @@ fi
 %endif
 
 %changelog
+* Wed Jul 31 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.87.0.168
+- !10435  md/raid5: fix deadlock that raid5d() wait for itself to clear MD_SB_CHANGE_PENDING
+- !8942 [sync] PR-8468: v2  CVE-2024-35808
+- md/raid5: fix deadlock that raid5d() wait for itself to clear MD_SB_CHANGE_PENDING
+- !10067  iommu: Return right value in iommu_sva_bind_device()
+- !10335  fix CVE-2024-36479 for sp1
+- !10365  drm/amdkfd: don't allow mapping the MMIO HDP page with large pages
+- !10213  net: mvpp2: clear BM pool before initialization
+- !10212  udp: do not accept non-tunnel GSO skbs landing in a tunnel
+- !10396  BMA: Fix DMA reset problem and change the version number
+- !10343  fix CVE-2024-27010
+- BMA/kbox_drv: Change the version number.
+- BMA/veth_drv: Change the version number.
+- BMA/cdev_drv: Change the version number.
+- BMA/edma_drv: Fix DMA reset problem and change the version number.
+- !10367 v2  jbd2: stop waiting for space when jbd2_cleanup_journal_tail() returns error
+- !10322  media: i2c: et8ek8: Don't strip remove function when driver is builtin
+- jbd2: stop waiting for space when jbd2_cleanup_journal_tail() returns error
+- drm/amdkfd: don't allow mapping the MMIO HDP page with large pages
+- net/sched: initialize noop_qdisc owner
+- net/sched: fix kabi change in struct Qdisc
+- net/sched: Fix mirred deadlock on device recursion
+- fpga: bridge: add owner module and take its refcount
+- fpga: remove redundant checks for bridge ops
+- fpga: bridge: properly initialize bridge device before populating children
+- fpga: bridge: Use standard dev_release for class driver
+- fpga: bridge: Rename dev to parent for parent device
+- !9369  macintosh/via-macii: Fix "BUG: sleeping function called from invalid context"
+- media: i2c: et8ek8: Don't strip remove function when driver is builtin
+- !10072  serial: imx: Introduce timeout when waiting on transmitter empty
+- !9975  KVM: Fix a data race on last_boosted_vcpu in kvm_vcpu_on_spin()
+- !10314 [sync] PR-10187:  fix CVE-2021-47205
+- !10313 [sync] PR-10189:  fix CVE-2024-40915
+- !10252  fbdev: savage: Handle err return when savagefb_check_var failed
+- !10308  net: marvell: prestera: Add missing of_node_put() in prestera_switch_set_base_mac_addr
+- !10259  batman-adv: bypass empty buckets in batadv_purge_orig_ref()
+- clk: sunxi-ng: Unregister clocks/resets when unbinding
+- riscv: rewrite __kernel_map_pages() to fix sleeping in invalid context
+- net: marvell: prestera: Add missing of_node_put() in prestera_switch_set_base_mac_addr
+- batman-adv: bypass empty buckets in batadv_purge_orig_ref()
+- fbdev: savage: Handle err return when savagefb_check_var failed
+- net: mvpp2: clear BM pool before initialization
+- udp: do not accept non-tunnel GSO skbs landing in a tunnel
+- serial: imx: Introduce timeout when waiting on transmitter empty
+- iommu: Return right value in iommu_sva_bind_device()
+- KVM: Fix a data race on last_boosted_vcpu in kvm_vcpu_on_spin()
+- macintosh/via-macii: Fix "BUG: sleeping function called from invalid context"
+- md/dm-raid: don't clear MD_RECOVERY_FROZEN after setting frozen
+- md/dm-raid: don't call md_reap_sync_thread() directly
+
 * Wed Jul 24 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.86.0.167
 - !10283 v2  CVE-2022-48816
 - !9781  ksmbd: fix wrong DataOffset validation of create context
