@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       220
+%global devel_release       221
 %global maintenance_release .0.0
-%global pkg_release         .119
+%global pkg_release         .120
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -952,6 +952,163 @@ fi
 %endif
 
 %changelog
+* Wed Jul 31 2024 Li Nan <linan122@huawei.com> - 5.10.0-221.0.0.120
+- !10436  CVE-2024-39476
+- !10418  net: move to_gnet_bpf_attach_type() to filter.c
+- md/raid5: fix deadlock that raid5d() wait for itself to clear MD_SB_CHANGE_PENDING
+- Revert "Revert "md/raid5: Wait for MD_SB_CHANGE_PENDING in raid5d""
+- !10065  iommu: Return right value in iommu_sva_bind_device()
+- net: move to_gnet_bpf_attach_type() to filter.c
+- !10334  fix CVE-2024-36479 for olk-5.10
+- !10408  iommu/arm-smmu-v3: Fix the compile warning
+- !10363  drm/amdkfd: don't allow mapping the MMIO HDP page with large pages
+- !10058  net: mvpp2: clear BM pool before initialization
+- !10057  udp: do not accept non-tunnel GSO skbs landing in a tunnel
+- iommu/arm-smmu-v3: Fix the compile warning
+- !10339  net/sched: initialize noop_qdisc owner
+- !10366 v2  jbd2: stop waiting for space when jbd2_cleanup_journal_tail() returns error
+- !10336 v2  mm: numa-affinity: support THP migration
+- !10321  media: i2c: et8ek8: Don't strip remove function when driver is builtin
+- !10318 【OLK 5.10】net: hns3: add set_loopback interface to realtek phy driver
+- !10342  CVE-2024-39471
+- jbd2: stop waiting for space when jbd2_cleanup_journal_tail() returns error
+- drm/amdkfd: don't allow mapping the MMIO HDP page with large pages
+- drm/amdgpu: Fix signedness bug in sdma_v4_0_process_trap_irq()
+- drm/amdgpu: add error handle to avoid out-of-bounds
+- net/sched: initialize noop_qdisc owner
+- mm,do_huge_pmd_numa_page: remove unnecessary TLB flushing code
+- mm: numa-affinity: delete the duplicate numa_migrate_prep
+- mm: numa-affinity: backport some migrate policy from AutoNuma
+- mm: numa-affinity: support THP migration
+- mm: thp: skip make PMD PROT_NONE if THP migration is not supported
+- mm: migrate: check mapcount for THP instead of refcount
+- mm: migrate: don't split THP for misplaced NUMA page
+- mm/migrate: fix NR_ISOLATED corruption on 64-bit
+- mm: migrate: account THP NUMA migration counters correctly
+- mm: thp: refactor NUMA fault handling
+- mm: memory: make numa_migrate_prep() non-static
+- mm: fix KABI broken in struct vm_fault
+- mm: memory: add orig_pmd to struct vm_fault
+- !10333  BMA: Fix DMA reset problem and change the version
+- fpga: bridge: add owner module and take its refcount
+- fpga: remove redundant checks for bridge ops
+- fpga: bridge: properly initialize bridge device before populating children
+- fpga: bridge: Use standard dev_release for class driver
+- fpga: bridge: Rename dev to parent for parent device
+- BMA/kbox_drv: Change the version number.
+- BMA/veth_drv: Change the version number.
+- BMA/cdev_drv: Change the version number.
+- BMA/edma_drv: Fix DMA reset problem and change the version number.
+- !9362  macintosh/via-macii: Fix "BUG: sleeping function called from invalid context"
+- media: i2c: et8ek8: Don't strip remove function when driver is builtin
+- net: phy: add set_loopback interface to realtek phy driver
+- !10316  sched: Add cfs_preferred_nid_init hook
+- !9976  KVM: Fix a data race on last_boosted_vcpu in kvm_vcpu_on_spin()
+- !10073  serial: imx: Introduce timeout when waiting on transmitter empty
+- !10172  netrom: Fix a memory leak in nr_heartbeat_expiry()
+- sched: Add cfs_preferred_nid_init hook
+- !10295 sdma-dae: fix interrupt handle logic
+- !10253  fbdev: savage: Handle err return when savagefb_check_var failed
+- !10309  net: marvell: prestera: Add missing of_node_put() in prestera_switch_set_base_mac_addr
+- !10304 Backport 5.10.211 LTS patches from upstream
+- net: marvell: prestera: Add missing of_node_put() in prestera_switch_set_base_mac_addr
+- block: ataflop: more blk-mq refactoring fixes
+- drm/syncobj: call drm_syncobj_fence_add_wait when WAIT_AVAILABLE flag is set
+- drm/syncobj: make lockdep complain on WAIT_FOR_SUBMIT v3
+- tls: rx: drop pointless else after goto
+- s390: use the correct count for __iowrite64_copy()
+- ipv6: properly combine dev_base_seq and ipv6.dev_addr_genid
+- ipv4: properly combine dev_base_seq and ipv4.dev_addr_genid
+- nouveau: fix function cast warnings
+- scsi: jazz_esp: Only build if SCSI core is builtin
+- bpf, scripts: Correct GPL license name
+- RDMA/srpt: fix function pointer cast warnings
+- arm64: dts: rockchip: set num-cs property for spi on px30
+- RDMA/bnxt_re: Return error for SRQ resize
+- mptcp: fix lockless access in subflow ULP diag
+- usb: roles: don't get/set_role() when usb_role_switch is unregistered
+- usb: roles: fix NULL pointer issue when put module's reference
+- usb: cdns3: fix memory double free when handle zero packet
+- usb: cdns3: fixed memory use after free at cdns3_gadget_ep_disable()
+- x86/alternative: Make custom return thunk unconditional
+- Revert "x86/alternative: Make custom return thunk unconditional"
+- x86/returnthunk: Allow different return thunks
+- x86/ftrace: Use alternative RET encoding
+- x86/ibt,paravirt: Use text_gen_insn() for paravirt_patch()
+- x86/text-patching: Make text_gen_insn() play nice with ANNOTATE_NOENDBR
+- Revert "x86/ftrace: Use alternative RET encoding"
+- PCI/MSI: Prevent MSI hardware interrupt number truncation
+- KVM: arm64: vgic-its: Test for valid IRQ in its_sync_lpi_pending_table()
+- KVM: arm64: vgic-its: Test for valid IRQ in MOVALL handler
+- s390/cio: fix invalid -EBUSY on ccw_device_start
+- erofs: fix lz4 inplace decompression
+- x86: drop bogus "cc" clobber from __try_cmpxchg_user_asm()
+- iwlwifi: mvm: write queue_sync_state only for sync
+- iwlwifi: mvm: do more useful queue sync accounting
+- platform/x86: intel-vbtn: Support for tablet mode on HP Pavilion 13 x360 PC
+- lan743x: fix for potential NULL pointer dereference with bare card
+- btrfs: do not pin logs too early during renames
+- btrfs: unify lookup return value when dir entry is missing
+- btrfs: introduce btrfs_lookup_match_dir
+- btrfs: tree-checker: check for overlapping extent items
+- task_stack, x86/cea: Force-inline stack helpers
+- ASoC: Intel: bytcr_rt5651: Drop reference count of ACPI device after use
+- ASoC: Intel: boards: get codec device with ACPI instead of bus search
+- ASoC: Intel: boards: harden codec property handling
+- mtd: spinand: macronix: Add support for MX35LFxGE4AD
+- cifs: add a warning when the in-flight count goes negative
+- powerpc/watchpoints: Annotate atomic context in more places
+- powerpc/watchpoint: Workaround P10 DD1 issue with VSX-32 byte instructions
+- block: ataflop: fix breakage introduced at blk-mq refactoring
+- seccomp: Invalidate seccomp mode to catch death failures
+- x86/uaccess: Implement macros for CMPXCHG on user addresses
+- hsr: Avoid double remove of a node.
+- hvc/xen: prevent concurrent accesses to the shared ring
+- media: av7110: prevent underflow in write_ts_to_decoder()
+- ASoC: fsl_micfil: register platform component before registering cpu dai
+- ARM: dts: imx: Set default tuning step for imx6sx usdhc
+- irqchip/mips-gic: Don't touch vl_map if a local interrupt is not routable
+- ARM: dts: BCM53573: Drop nonexistent "default-off" LED trigger
+- pmdomain: renesas: r8a77980-sysc: CR7 must be always on
+- virtio-blk: Ensure no requests in virtqueues before deleting vqs.
+- firewire: core: send bus reset promptly on gap count error
+- scsi: lpfc: Use unsigned type for num_sge
+- hwmon: (coretemp) Enlarge per package core count limit
+- efi: Don't add memblocks for soft-reserved memory
+- Input: i8042 - add Fujitsu Lifebook U728 to i8042 quirk table
+- ext4: correct the hole length returned by ext4_map_blocks()
+- nvmet-fc: abort command when there is no binding
+- nvmet-fc: release reference on target port
+- nvmet-fcloop: swap the list_add_tail arguments
+- netfilter: conntrack: check SCTP_CID_SHUTDOWN_ACK for vtag setting in sctp_new
+- spi: sh-msiof: avoid integer overflow in constants
+- ASoC: sunxi: sun4i-spdif: Add support for Allwinner H616
+- nvmet-tcp: fix nvme tcp ida memory leak
+- regulator: pwm-regulator: Add validity checks in continuous .get_voltage
+- ahci: add 43-bit DMA address quirk for ASMedia ASM1061 controllers
+- ahci: asm1166: correct count of reported ports
+- wifi: cfg80211: fix missing interfaces when dumping
+- dmaengine: fsl-qdma: increase size of 'irq_name'
+- dmaengine: shdma: increase size of 'dev_id'
+- sched/rt: Fix sysctl_sched_rr_timeslice intial value
+- zonefs: Improve error handling
+- userfaultfd: fix mmap_changing checking in mfill_atomic_hugetlb
+- sched/rt: sysctl_sched_rr_timeslice show default timeslice after reset
+- smb: client: fix parsing of SMB3.1.1 POSIX create context
+- smb: client: fix potential OOBs in smb2_parse_contexts()
+- net/sched: Retire dsmark qdisc
+- net/sched: Retire ATM qdisc
+- net/sched: Retire CBQ qdisc
+- drivers: misc: sdma-dae: fix interrupt handle logic
+- fbdev: savage: Handle err return when savagefb_check_var failed
+- netrom: Fix a memory leak in nr_heartbeat_expiry()
+- serial: imx: Introduce timeout when waiting on transmitter empty
+- iommu: Return right value in iommu_sva_bind_device()
+- net: mvpp2: clear BM pool before initialization
+- udp: do not accept non-tunnel GSO skbs landing in a tunnel
+- KVM: Fix a data race on last_boosted_vcpu in kvm_vcpu_on_spin()
+- macintosh/via-macii: Fix "BUG: sleeping function called from invalid context"
+
 * Wed Jul 24 2024 Li Nan <linan122@huawei.com> - 5.10.0-220.0.0.119
 - !9035  keys: Fix overwrite of key expiration on instantiation
 - !9182  netfilter: nf_tables: restore set elements when delete set fails
