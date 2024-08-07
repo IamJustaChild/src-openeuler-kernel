@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2408.1.0
+%global hulkrelease 2408.2.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0288
+Release: %{hulkrelease}.0289
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,73 @@ fi
 %endif
 
 %changelog
+
+* Tue Aug 06 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2408.2.0.0289
+- !10629 v2  hfsplus: fix uninit-value in copy_name
+- !10723  net/iucv: Avoid explicit cpumask var allocation on stack
+- !10646  net: dsa: mv88e6xxx: Correct check for empty list
+- !10609  wifi: cfg80211: wext: add extra SIOCSIWSCAN data check
+- !10608  CVE-2024-41044
+- net/iucv: Avoid explicit cpumask var allocation on stack
+- !10693  drm/nouveau/dispnv04: fix null pointer dereference in nv17_tv_get_ld_modes
+- !10571  ila: block BH in ila_output()
+- !10593  fix CVE-2024-41046
+- !10521  xfs: add bounds checking to xlog_recover_process_data
+- !10597  drm/nouveau/dispnv04: fix null pointer dereference in nv17_tv_get_hd_modes
+- !10562  nilfs2: add missing check for inode numbers on directory entries
+- !10706  jfs: don't walk off the end of ealist
+- !10699  drm/amd/display: Skip finding free audio for unknown engine_id
+- !10672  inet_diag: Initialize pad field in struct inet_diag_req_v2
+- !10684  ocfs2: fix DIO failure due to insufficient transaction credits
+- !10565  gpio: davinci: Validate the obtained number of IRQs
+- !10389  pinctrl: fix deadlock in create_pinctrl() when handling -EPROBE_DEFER
+- jfs: don't walk off the end of ealist
+- drm/amd/display: Skip finding free audio for unknown engine_id
+- drm/nouveau/dispnv04: fix null pointer dereference in nv17_tv_get_ld_modes
+- ocfs2: fix DIO failure due to insufficient transaction credits
+- inet_diag: Initialize pad field in struct inet_diag_req_v2
+- !10641  usb: atm: cxacru: fix endpoint checking in cxacru_bind()
+- !10601  IB/core: Implement a limit on UMAD receive List
+- net: dsa: mv88e6xxx: Correct check for empty list
+- usb: atm: cxacru: fix endpoint checking in cxacru_bind()
+- hfsplus: fix uninit-value in copy_name
+- wifi: cfg80211: wext: add extra SIOCSIWSCAN data check
+- ppp: reject claimed-as-LCP but actually malformed packets
+- ppp: ensure minimum packet size in ppp_write()
+- IB/core: Implement a limit on UMAD receive List
+- drm/nouveau/dispnv04: fix null pointer dereference in nv17_tv_get_hd_modes
+- net: ethernet: lantiq_etop: fix double free in detach
+- net: lantiq_etop: add blank line after declaration
+- !10320  thermal: Fix NULL pointer dereferences in of_thermal_ functions
+- !10529  Bluetooth: hci_core: cancel all works upon hci_unregister_dev()
+- ila: block BH in ila_output()
+- gpio: davinci: Validate the obtained number of IRQs
+- nilfs2: add missing check for inode numbers on directory entries
+- !10471  ALSA: emux: improve patch ioctl data validation
+- !10479  jffs2: Fix potential illegal address access in jffs2_free_inode
+- Bluetooth: hci_core: cancel all works upon hci_unregister_dev()
+- xfs: add bounds checking to xlog_recover_process_data
+- !10386  filelock: Fix fcntl/close race recovery compat path
+- !10485  fix CVE-2024-42086
+- !10492  drm/amdgpu: Using uninitialized value *size when calling amdgpu_vce_cs_reloc
+- !10400  Fix CVE-2024-41069
+- !10270  HID: core: remove unnecessary WARN_ON() in implement()
+- !10472 v2  xfrm6: check ip6_dst_idev() return value in xfrm6_get_saddr()
+- !10359 v2  PCI/ROM: Fix PCI ROM header check bug
+- drm/amdgpu: Using uninitialized value *size when calling amdgpu_vce_cs_reloc
+- iio: chemical: bme680: Fix overflows in compensate() functions
+- jffs2: Fix potential illegal address access in jffs2_free_inode
+- xfrm6: check ip6_dst_idev() return value in xfrm6_get_saddr()
+- ALSA: emux: improve patch ioctl data validation
+- !10341  net/sched: initialize noop_qdisc owner
+- ASoC: topology: Fix route memory corruption
+- ASoC: topology: Fix references to freed memory
+- pinctrl: fix deadlock in create_pinctrl() when handling -EPROBE_DEFER
+- filelock: Fix fcntl/close race recovery compat path
+- PCI/ROM: Fix PCI ROM header check bug
+- net/sched: initialize noop_qdisc owner
+- thermal: Fix NULL pointer dereferences in of_thermal_ functions
+- HID: core: remove unnecessary WARN_ON() in implement()
 
 * Tue Jul 30 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2408.1.0.0288
 - !10327  NFC: port100: fix use-after-free in port100_send_complete
