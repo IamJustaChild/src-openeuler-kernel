@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .87.0
-%global pkg_release         .168
+%global maintenance_release .88.0
+%global pkg_release         .169
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,169 @@ fi
 %endif
 
 %changelog
+* Wed Aug 07 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.88.0.169
+- !10769  CVE-2024-41027
+- !10667 v2  ASoC: fsl-asoc-card: set priv->pdev before using it
+- !10724  scsi: qedf: Make qedf_execute_tmf() non-preemptible
+- Fix userfaultfd_api to return EINVAL as expected
+- mm/userfaultfd: fail uffd-wp registration if not supported
+- !10738  net/dpaa2: Avoid explicit cpumask var allocation on stack
+- !10744  media: mediatek: vcodec: Only free buffer VA that is not NULL
+- !10758  Fix CVE-2024-42160
+- !10531  ftruncate: pass a signed offset
+- f2fs: Add inline to f2fs_build_fault_attr() stub
+- f2fs: check validation of fault attrs in f2fs_build_fault_attr()
+- !10581 v2  bpf: Avoid uninitialized value in BPF_CORE_READ_BITFIELD
+- !10718  CVE-2024-42101
+- !10712  CVE-2024-41079
+- media: mediatek: vcodec: Only free buffer VA that is not NULL
+- !10728  net/iucv: Avoid explicit cpumask var allocation on stack
+- !10696 v2  drm/shmem-helper: Fix BUG_ON() on mmap(PROT_WRITE, MAP_PRIVATE)
+- !10719  gve: Account for stopped queues when reading NIC stats
+- net/dpaa2: Avoid explicit cpumask var allocation on stack
+- !10620  fix CVE-2024-42129
+- !9680  drm: vc4: Fix possible null pointer dereference
+- !10671 [sync] PR-10598:  drm/nouveau/dispnv04: fix null pointer dereference in nv17_tv_get_hd_modes
+- net/iucv: Avoid explicit cpumask var allocation on stack
+- scsi: qedf: Make qedf_execute_tmf() non-preemptible
+- gve: Account for stopped queues when reading NIC stats
+- !10588 v2  ax25: Fix refcount imbalance on inbound connections
+- drm/nouveau: fix null pointer dereference in nouveau_connector_get_modes
+- nvmet: always initialize cqe.result
+- !10682  ocfs2: fix DIO failure due to insufficient transaction credits
+- !10567  gpio: davinci: Validate the obtained number of IRQs
+- !10669  fix CVE-2024-42076
+- !10662  fix CVE-2024-41062
+- !10651  xfs: don't walk off the end of a directory data block
+- drm/shmem-helper: Fix BUG_ON() on mmap(PROT_WRITE, MAP_PRIVATE)
+- !10655  KVM: PPC: Book3S HV: Prevent UAF in kvm_spapr_tce_attach_iommu_group()
+- !10632  sched/deadline: Fix task_struct reference leak
+- !10520  xfs: add bounds checking to xlog_recover_process_data
+- ocfs2: fix DIO failure due to insufficient transaction credits
+- !10390  pinctrl: fix deadlock in create_pinctrl() when handling -EPROBE_DEFER
+- drm/nouveau/dispnv04: fix null pointer dereference in nv17_tv_get_hd_modes
+- net: can: j1939: Initialize unused data in j1939_send_one()
+- can: j1939: j1939_send_one(): fix missing CAN header initialization
+- ASoC: fsl-asoc-card: set priv->pdev before using it
+- !10638  usb: atm: cxacru: fix endpoint checking in cxacru_bind()
+- !10645  inet_diag: Initialize pad field in struct inet_diag_req_v2
+- !10637  RDMA/restrack: Fix potential invalid address access
+- !10647  net: dsa: mv88e6xxx: Correct check for empty list
+- Bluetooth: L2CAP: Fix deadlock
+- bluetooth/l2cap: sync sock recv cb and release
+- !10619  fix CVE-2024-42155
+- KVM: PPC: Book3S HV: Prevent UAF in kvm_spapr_tce_attach_iommu_group()
+- xfs: don't walk off the end of a directory data block
+- net: dsa: mv88e6xxx: Correct check for empty list
+- inet_diag: Initialize pad field in struct inet_diag_req_v2
+- !10558  CVE-2024-42105
+- usb: atm: cxacru: fix endpoint checking in cxacru_bind()
+- RDMA/restrack: Fix potential invalid address access
+- sched/deadline: Fix task_struct reference leak
+- !10602  ppp: reject claimed-as-LCP but actually malformed packets
+- !10611  wifi: cfg80211: wext: add extra SIOCSIWSCAN data check
+- !10604  IB/core: Implement a limit on UMAD receive List
+- leds: mlxreg: Use devm_mutex_init() for mutex initialization
+- locking/mutex: Introduce devm_mutex_init()
+- s390/pkey: Wipe copies of protected- and secure-keys
+- !10553  skmsg: Skip zero length skb in sk_msg_recvmsg
+- !10537  CVE-2024-42082
+- !10595  fix CVE-2024-41046
+- wifi: cfg80211: wext: add extra SIOCSIWSCAN data check
+- !10570  ila: block BH in ila_output()
+- !10563  net: can: j1939: enhanced error handling for tightly received RTS messages in xtp_rx_rts_session_new
+- IB/core: Implement a limit on UMAD receive List
+- ppp: reject claimed-as-LCP but actually malformed packets
+- !10587  filelock: Fix fcntl/close race recovery compat path
+- net: ethernet: lantiq_etop: fix double free in detach
+- net: lantiq_etop: add blank line after declaration
+- !10542  tap: add missing verification for short frame
+- !10535  ipv6: prevent possible NULL deref in fib6_nh_init()
+- !10550  backport serveral bugfixes from upstream
+- ax25: Fix refcount imbalance on inbound connections
+- filelock: Fix fcntl/close race recovery compat path
+- !10549  powerpc/eeh: avoid possible crash when edev->pdev changes
+- !10528  Bluetooth: hci_core: cancel all works upon hci_unregister_dev()
+- !10421  stm class: Fix a double free in stm_register_device()
+- !10478  ALSA: emux: improve patch ioctl data validation
+- !10247  ssb: Fix potential NULL pointer dereference in ssb_device_uevent()
+- bpf: Avoid uninitialized value in BPF_CORE_READ_BITFIELD
+- !10543  tun: add missing verification for short frame
+- !10469 [sync] PR-10342:  CVE-2024-39471
+- ila: block BH in ila_output()
+- gpio: davinci: Validate the obtained number of IRQs
+- net: can: j1939: enhanced error handling for tightly received RTS messages in xtp_rx_rts_session_new
+- nilfs2: fix inode number range checks
+- skmsg: Skip zero length skb in sk_msg_recvmsg
+- !10464  null_blk: fix validation of block size
+- bpf, events: Use prog to emit ksymbol event for main program
+- bpf, perf: Use subprog name when reporting subprog ksymbol
+- bpf: Take return from set_memory_ro() into account with bpf_prog_lock_ro()
+- bpf: ensure main program has an extable
+- powerpc/eeh: avoid possible crash when edev->pdev changes
+- tun: add missing verification for short frame
+- tap: add missing verification for short frame
+- xdp: xdp_mem_allocator can be NULL in trace_mem_connect().
+- xdp: Remove WARN() from __xdp_reg_mem_model()
+- xdp: Allow registering memory model without rxq reference
+- xdp: Move the rxq_info.mem clearing to unreg_mem_model()
+- !10477  jffs2: Fix potential illegal address access in jffs2_free_inode
+- !10468  io_uring: fix possible deadlock in io_register_iowq_max_workers()
+- !10455  fs/ntfs3: Validate ff offset
+- ipv6: prevent possible NULL deref in fib6_nh_init()
+- ftruncate: pass a signed offset
+- Bluetooth: hci_core: cancel all works upon hci_unregister_dev()
+- xfs: add bounds checking to xlog_recover_process_data
+- !10461  udp: Set SOCK_RCU_FREE earlier in udp_lib_get_port().
+- !10494  drm/amdgpu: Using uninitialized value *size when calling amdgpu_vce_cs_reloc
+- !10488  fix CVE-2024-42086
+- !9937  media: gspca: cpia1: shift-out-of-bounds in set_flicker
+- !9930  ALSA: scarlett2: Add clamp() in scarlett2_mixer_ctl_put()
+- !9934  selinux: avoid dereference of garbage after mount failure
+- !10379  drm/radeon: fix UBSAN warning in kv_dpm.c
+- !10423  kunit: Fix kthread reference
+- !10422  kunit: Fix kthread reference
+- drm/amdgpu: Using uninitialized value *size when calling amdgpu_vce_cs_reloc
+- iio: chemical: bme680: Fix overflows in compensate() functions
+- !10362  PCI/ROM: Fix PCI ROM header check bug
+- !10459  xfrm6: check ip6_dst_idev() return value in xfrm6_get_saddr()
+- !10405  Fix CVE-2024-41069
+- ALSA: emux: improve patch ioctl data validation
+- jffs2: Fix potential illegal address access in jffs2_free_inode
+- !10353  fix CVE-2024-40976
+- !10272  HID: core: remove unnecessary WARN_ON() in implement()
+- drm/amdgpu: Fix signedness bug in sdma_v4_0_process_trap_irq()
+- drm/amdgpu: add error handle to avoid out-of-bounds
+- !10430  s390/qeth: fix deadlock during failing recovery
+- !10441  net/sched: Fix UAF when resolving a clash
+- !10447  net: ena: Add validation for completion descriptors consistency
+- !10426  net: stmmac: move the EST lock to struct stmmac_priv
+- io_uring: fix possible deadlock in io_register_iowq_max_workers()
+- null_blk: fix validation of block size
+- udp: Set SOCK_RCU_FREE earlier in udp_lib_get_port().
+- xfrm6: check ip6_dst_idev() return value in xfrm6_get_saddr()
+- fs/ntfs3: Validate ff offset
+- net: ena: Add validation for completion descriptors consistency
+- net/sched: Fix UAF when resolving a clash
+- s390/qeth: fix deadlock during failing recovery
+- net: stmmac: move the EST lock to struct stmmac_priv
+- kunit: Fix kthread reference
+- kunit: Fix kthread reference
+- stm class: Fix a double free in stm_register_device()
+- ASoC: topology: Fix route memory corruption
+- ASoC: topology: Fix references to freed memory
+- pinctrl: fix deadlock in create_pinctrl() when handling -EPROBE_DEFER
+- drm/radeon: fix UBSAN warning in kv_dpm.c
+- PCI/ROM: Fix PCI ROM header check bug
+- drm/lima: mask irqs in timeout path before hard reset
+- drm/lima: add mask irq callback to gp and pp
+- HID: core: remove unnecessary WARN_ON() in implement()
+- ssb: Fix potential NULL pointer dereference in ssb_device_uevent()
+- media: gspca: cpia1: shift-out-of-bounds in set_flicker
+- selinux: avoid dereference of garbage after mount failure
+- ALSA: scarlett2: Add clamp() in scarlett2_mixer_ctl_put()
+- drm: vc4: Fix possible null pointer dereference
+
 * Wed Jul 31 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.87.0.168
 - !10435  md/raid5: fix deadlock that raid5d() wait for itself to clear MD_SB_CHANGE_PENDING
 - !8942 [sync] PR-8468: v2  CVE-2024-35808
