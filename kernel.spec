@@ -40,9 +40,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       37
+%global devel_release       38
 %global maintenance_release .0.0
-%global pkg_release         .44
+%global pkg_release         .45
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1089,6 +1089,169 @@ fi
 %endif
 
 %changelog
+* Tue Aug 13 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-38.0.0.45
+- !10843  netfilter: nf_tables: prefer nft_chain_validate
+- netfilter: nf_tables: prefer nft_chain_validate
+- !10893 [openEuler-24.03-LTS][linux-6.6.y sync] Backport 6.6.45 LTS Patches
+- selftests: mptcp: join: check backup support in signal endp
+- selftests: mptcp: join: validate backup in MPJ
+- selftests: mptcp: always close input's FD if opened
+- mptcp: fix duplicate data handling
+- mptcp: pm: only set request_bkup flag when sending MP_PRIO
+- mptcp: fix bad RCVPRUNED mib accounting
+- mptcp: mib: count MPJ with backup flag
+- mptcp: fix NL PM announced address accounting
+- mptcp: distinguish rcv vs sent backup flag in requests
+- mptcp: fix user-space PM announced address accounting
+- r8169: don't increment tx_dropped in case of NETDEV_TX_BUSY
+- net: usb: sr9700: fix uninitialized variable use in sr_mdio_read
+- drm/i915: Fix possible int overflow in skl_ddi_calculate_wrpll()
+- drm/virtio: Fix type of dma-fence context variable
+- drm/vmwgfx: Fix a deadlock in dma buf fence polling
+- Revert "ALSA: firewire-lib: operate for period elapse event in process context"
+- Revert "ALSA: firewire-lib: obsolete workqueue for period update"
+- ALSA: seq: ump: Optimize conversions from SysEx to UMP
+- ALSA: hda/realtek: Add quirk for Acer Aspire E5-574G
+- ALSA: usb-audio: Correct surround channels in UAC1 channel map
+- mptcp: sched: check both directions for backup
+- protect the fetch of ->fd[fd] in do_dup2() from mispredictions
+- btrfs: do not subtract delalloc from avail bytes
+- btrfs: zoned: fix zone_unusable accounting on making block group read-write again
+- HID: wacom: Modify pen IDs
+- platform/chrome: cros_ec_proto: Lock device when updating MKBP version
+- arm64: jump_label: Ensure patched jump_labels are visible to all CPUs
+- riscv: Fix linear mapping checks for non-contiguous memory regions
+- riscv/mm: Add handling for VM_FAULT_SIGSEGV in mm_fault_error()
+- perf: riscv: Fix selecting counters in legacy mode
+- riscv: remove unused functions in traps_misaligned.c
+- ipv6: fix ndisc_is_useropt() handling for PIO
+- igc: Fix double reset adapter triggered from a single taprio cmd
+- net/mlx5e: Add a check for the return value from mlx5_port_set_eth_ptys
+- net/mlx5e: Fix CT entry update leaks of modify header context
+- net/mlx5e: Require mlx5 tc classifier action support for IPsec prio capability
+- net/mlx5: Fix missing lock on sync reset reload
+- net/mlx5: Lag, don't use the hardcoded value of the first port
+- net/mlx5: Fix error handling in irq_pool_request_irq
+- net/mlx5: Always drain health in shutdown callback
+- netfilter: iptables: Fix potential null-ptr-deref in ip6table_nat_table_init().
+- netfilter: iptables: Fix null-ptr-deref in iptable_nat_table_init().
+- ALSA: hda: Conditionally use snooping for AMD HDMI
+- net: phy: micrel: Fix the KSZ9131 MDI-X status issue
+- net: mvpp2: Don't re-use loop iterator
+- drm/i915/hdcp: Fix HDCP2_STREAM_STATUS macro
+- net/iucv: fix use after free in iucv_sock_close()
+- ice: add missing WRITE_ONCE when clearing ice_rx_ring::xdp_prog
+- ice: replace synchronize_rcu with synchronize_net
+- ice: don't busy wait for Rx queue disable in ice_qp_dis()
+- ice: respect netif readiness in AF_XDP ZC related ndo's
+- i915/perf: Remove code to update PWR_CLK_STATE for gen12
+- rtnetlink: Don't ignore IFLA_TARGET_NETNSID when ifname is specified in rtnl_dellink().
+- net: axienet: start napi before enabling Rx/Tx
+- tcp: Adjust clamping window for applications specifying SO_RCVBUF
+- tcp: annotate data-races around tp->window_clamp
+- Bluetooth: hci_sync: Fix suspending with wrong filter policy
+- Bluetooth: btintel: Fail setup on error
+- ALSA: hda: conexant: Fix headset auto detect fail in the polling mode
+- net: phy: realtek: add support for RTL8366S Gigabit PHY
+- wifi: cfg80211: fix reporting failed MLO links status with cfg80211_connect_done
+- sched: act_ct: take care of padding in struct zones_ht_key
+- drm/vmwgfx: Trigger a modeset when the screen moves
+- drm/vmwgfx: Fix overlay when using Screen Targets
+- drm/nouveau: prime: fix refcount underflow
+- perf tool: fix dereferencing NULL al->maps
+- HID: amd_sfh: Move sensor discovery before HID device initialization
+- ARM: 9406/1: Fix callchain_trace() return value
+- MIPS: dts: loongson: Fix ls2k1000-rtc interrupt
+- MIPS: dts: loongson: Fix liointc IRQ polarity
+- MIPS: Loongson64: DTS: Fix PCIe port nodes for ls7a
+- perf: imx_perf: fix counter start and config sequence
+- dmaengine: fsl-edma: change the memory access from local into remote mode in i.MX 8QM
+- dmaengine: fsl-edma: clean up unused "fsl,imx8qm-adma" compatible string
+- dmaengine: fsl-edma: add i.MX8ULP edma support
+- dmaengine: fsl-edma: add address for channel mux register in fsl_edma_chan
+- f2fs: assign CURSEG_ALL_DATA_ATGC if blkaddr is valid
+- f2fs: fix to avoid use SSR allocate when do defragment
+- mm/page_alloc: fix pcp->count race between drain_pages_zone() vs __rmqueue_pcplist()
+- fbdev: vesafb: Detect VGA compatibility from screen info's VESA attributes
+- firmware/sysfb: Update screen_info for relocated EFI framebuffers
+- video: Provide screen_info_get_pci_dev() to find screen_info's PCI device
+- video: Add helpers for decoding screen_info
+- fbdev/vesafb: Replace references to global screen_info by local pointer
+- PCI: Add pci_get_base_class() helper
+- KVM: nVMX: Check for pending posted interrupts when looking for nested events
+- KVM: nVMX: Add a helper to get highest pending from Posted Interrupt vector
+- KVM: VMX: Move posted interrupt descriptor out of VMX code
+- KVM: VMX: Split off vmx_onhyperv.{ch} from hyperv.{ch}
+- leds: triggers: Flush pending brightness before activating trigger
+- leds: trigger: Call synchronize_rcu() before calling trig->activate()
+- leds: trigger: Store brightness set by led_trigger_event()
+- leds: trigger: Remove unused function led_trigger_rename_static()
+- cpufreq: qcom-nvmem: fix memory leaks in probe error paths
+- cpufreq: qcom-nvmem: Simplify driver data allocation
+- sysctl: allow to change limits for posix messages queues
+- sysctl: allow change system v ipc sysctls inside ipc namespace
+- thermal/drivers/broadcom: Fix race between removal and clock disable
+- thermal: bcm2835: Convert to platform remove callback returning void
+- arm64: dts: qcom: sdm845: Disable SS instance in Parkmode for USB
+- arm64: dts: qcom: sdm845: switch USB QMP PHY to new style of bindings
+- arm64: dts: qcom: sdm845: switch USB+DP QMP PHY to new style of bindings
+- arm64: dts: qcom: ipq8074: Disable SS instance in Parkmode for USB
+- arm64: dts: qcom: msm8998: Disable SS instance in Parkmode for USB
+- arm64: dts: qcom: msm8998: switch USB QMP PHY to new style of bindings
+- arm64: dts: qcom: sc7280: Disable SuperSpeed instances in park mode
+- arm64: dts: qcom: sc7280: switch USB+DP QMP PHY to new style of bindings
+- arm64: dts: qcom: sc7180: Disable SuperSpeed instances in park mode
+- arm64: dts: qcom: sc7180: switch USB+DP QMP PHY to new style of bindings
+- !10823  mm/userfaultfd: reset ptes when close() for wr-protected ones
+- mm/userfaultfd: reset ptes when close() for wr-protected ones
+- !10824  dmaengine: idxd: Fix possible Use-After-Free in irq_process_work_list
+- dmaengine: idxd: Fix possible Use-After-Free in irq_process_work_list
+- !10855  CVE-2024-36971
+- net: fix kabi breakage in struct dst_ops
+- net: fix __dst_negative_advice() race
+- !10863 v2  ext4: flexibly control whether to enable dioread_nolock by default
+- ext4: flexibly control whether to enable dioread_nolock by default
+- !10796  Revert "ARM: spectre-v2: turn off the mitigation via boot cmdline param"
+- Revert "ARM: spectre-v2: turn off the mitigation via boot cmdline param"
+- !10795  Revert "security: restrict init parameters by configuration"
+- Revert "security: restrict init parameters by configuration"
+- !10794  revert kaslr arm32 support
+- Revert "asm-generic: add .data.rel.ro sections to __ro_after_init"
+- Revert "arm-soc: exynos: replace open coded VA->PA conversions"
+- Revert "arm-soc: mvebu: replace open coded VA->PA conversion"
+- Revert "arm-soc: various: replace open coded VA->PA calculation of pen_release"
+- Revert "ARM: kernel: switch to relative exception tables"
+- Revert "ARM: kernel: make vmlinux buildable as a PIE executable"
+- Revert "ARM: kernel: use PC-relative symbol references in MMU switch code"
+- Revert "ARM: kernel: use PC relative symbol references in suspend/resume code"
+- Revert "ARM: mm: export default vmalloc base address"
+- Revert "ARM: kernel: refer to swapper_pg_dir via its symbol"
+- Revert "arm: vectors: use local symbol names for vector entry points"
+- Revert "ARM: kernel: implement randomization of the kernel load address"
+- Revert "ARM: decompressor: explicitly map decompressor binary cacheable"
+- Revert "ARM: decompressor: add KASLR support"
+- Revert "No idea why this broke ..."
+- Revert "arm32: kaslr: When boot with vxboot, we must adjust dtb address before kaslr_early_init, and store dtb address after init."
+- Revert "arm32: kaslr: pop visibility when compile decompress boot code as we need relocate BSS by GOT."
+- Revert "arm32: kaslr: print kaslr offset when kernel panic"
+- Revert "arm32: kaslr: Fix the bug of symbols relocation"
+- Revert "arm32: kaslr: Fix clock_gettime and gettimeofday performance degradation when configure CONFIG_RANDOMIZE_BASE"
+- !10615  USB: core: Fix duplicate endpoint bug by clearing reserved bits in the descriptor
+- USB: core: Fix duplicate endpoint bug by clearing reserved bits in the descriptor
+- !10834 v2  wifi: cfg80211: restrict NL80211_ATTR_TXQ_QUANTUM values
+- wifi: cfg80211: restrict NL80211_ATTR_TXQ_QUANTUM values
+- !10816  sched/cputime: Fix mul_u64_u64_div_u64() precision for cputime
+- sched/cputime: Fix mul_u64_u64_div_u64() precision for cputime
+- !10805  dummy_struct_ops selftest failed
+- Revert "[Backport] selftests/bpf: adjust dummy_st_ops_success to detect additional error"
+- Revert "[Backport] selftests/bpf: dummy_st_ops should reject 0 for non-nullable params"
+- !10345  blk-wbt: don't throttle swap writes in direct reclaim
+- blk-wbt: don't throttle swap writes in direct reclaim
+- !10772  s390/pkey: Use kfree_sensitive() to fix Coccinelle warnings
+- s390/pkey: Use kfree_sensitive() to fix Coccinelle warnings
+- !10722  btrfs: zoned: fix use-after-free in do_zone_finish()
+- btrfs: zoned: fix use-after-free in do_zone_finish()
+
 * Wed Aug 07 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-37.0.0.44
 - !10793  perf util: Add a function for replacing characters in a string
 - perf util: Add a function for replacing characters in a string
