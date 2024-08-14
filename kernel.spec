@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2408.2.0
+%global hulkrelease 2408.3.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0289
+Release: %{hulkrelease}.0290
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,51 @@ fi
 %endif
 
 %changelog
+
+* Tue Aug 13 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2408.3.0.0290
+- !10895  drm/panel: ilitek-ili9881c: Fix warning with GPIO controllers that sleep
+- !10897 v2  orangefs: fix out-of-bounds fsid access
+- !10858 v4  powerpc/pseries: Whitelist dtl slub object for copying to userspace
+- orangefs: fix out-of-bounds fsid access
+- drm/panel: ilitek-ili9881c: Fix warning with GPIO controllers that sleep
+- !10891  CVE-2024-42105
+- nilfs2: fix inode number range checks
+- !10871  USB: serial: mos7840: fix crash on resume
+- !10643  USB: core: Fix duplicate endpoint bug by clearing reserved bits in the descriptor
+- USB: serial: mos7840: fix crash on resume
+- !10865  Revert "NFS: Don't interrupt file writeout due to fatal errors"
+- !10825  Revert "mm/writeback: fix possible divide-by-zero in wb_dirty_limits(), again"
+- Revert "NFS: Don't interrupt file writeout due to fatal errors"
+- !10730  filelock: Remove locks reliably when fcntl/close race is detected
+- powerpc/pseries: Whitelist dtl slub object for copying to userspace
+- !10802  media: dvb-frontends: tda10048: Fix integer overflow
+- !10703  x86: stop playing stack games in profile_pc()
+- !10838  bnx2x: Fix multiple UBSAN array-index-out-of-bounds
+- bnx2x: Fix multiple UBSAN array-index-out-of-bounds
+- Revert "mm/writeback: fix possible divide-by-zero in wb_dirty_limits(), again"
+- !10806  tcp_metrics: validate source addr length
+- !10803  s390/pkey: Wipe sensitive data on failure
+- !10786  CVE-2024-41034
+- tcp_metrics: validate source addr length
+- s390/pkey: Wipe sensitive data on failure
+- !10700  ethernet: Fix error handling in xemaclite_of_probe
+- !10777  Fix CVE-2024-42160
+- media: dvb-frontends: tda10048: Fix integer overflow
+- !10532  ftruncate: pass a signed offset
+- !10623  ata: libata-core: Fix double free on error
+- !10664 v2  ASoC: fsl-asoc-card: set priv->pdev before using it
+- nilfs2: fix kernel bug on rename operation of broken directory
+- nilfs2: return the mapped address from nilfs_get_page()
+- nilfs2: Remove check for PageError
+- f2fs: Add inline to f2fs_build_fault_attr() stub
+- f2fs: check validation of fault attrs in f2fs_build_fault_attr()
+- filelock: Remove locks reliably when fcntl/close race is detected
+- x86: stop playing stack games in profile_pc()
+- ethernet: Fix error handling in xemaclite_of_probe
+- ASoC: fsl-asoc-card: set priv->pdev before using it
+- USB: core: Fix duplicate endpoint bug by clearing reserved bits in the descriptor
+- ata: libata-core: Fix double free on error
+- ftruncate: pass a signed offset
 
 * Tue Aug 06 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2408.2.0.0289
 - !10629 v2  hfsplus: fix uninit-value in copy_name
