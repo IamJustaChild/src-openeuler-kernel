@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       222
+%global devel_release       223
 %global maintenance_release .0.0
-%global pkg_release         .121
+%global pkg_release         .122
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -952,6 +952,135 @@ fi
 %endif
 
 %changelog
+* Wed Aug 14 2024 Li Nan <linan122@huawei.com> - 5.10.0-223.0.0.122
+- !10877  drm/panel: ilitek-ili9881c: Fix warning with GPIO controllers that sleep
+- !10878  orangefs: fix out-of-bounds fsid access
+- !10876  drm/i915/gt: Fix potential UAF by revoke of fence registers
+- !10788 [OLK-5.10]sync some patch from upstream for Mini-OS
+- !10523 [OLK-5.10] drivers: add GDR support
+- !10885  crypto: aead,cipher - zeroize key buffer after use
+- !10888  s390/pkey: Wipe copies of clear-key structures on failure
+- !10820  powerpc/pseries: Whitelist dtl slub object for copying to userspace
+- drivers: Fix kabi check failure
+- drivers: Add GDR(GPU Direct RDMA) support
+- !10842  netfilter: nf_tables: prefer nft_chain_validate
+- !10869 v2  net, sunrpc: Remap EPERM in case of connection failure in xs_tcp_setup_socket
+- !10873  USB: serial: mos7840: fix crash on resume
+- !10887 v3  sched/fair: Prefer physical cores when migrating tasks
+- s390/pkey: Wipe copies of clear-key structures on failure
+- sched/fair: Prefer physical cores when migrating tasks
+- crypto: aead,cipher - zeroize key buffer after use
+- orangefs: fix out-of-bounds fsid access
+- drm/panel: ilitek-ili9881c: Fix warning with GPIO controllers that sleep
+- drm/i915/gt: Fix potential UAF by revoke of fence registers
+- USB: serial: mos7840: fix crash on resume
+- !10831  wifi: cfg80211: restrict NL80211_ATTR_TXQ_QUANTUM values
+- net, sunrpc: Remap EPERM in case of connection failure in xs_tcp_setup_socket
+- !10862 v2  ext4: flexibly control whether to enable dioread_nolock by default
+- !10849  wireguard: allowedips: avoid unaligned 64-bit memory accesses
+- !10817  media: dvb-frontends: tda10048: Fix integer overflow
+- !10616  USB: core: Fix duplicate endpoint bug by clearing reserved bits in the descriptor
+- !10801  fix CVE-2024-42095
+- !10514  powerpc: Avoid nmi_enter/nmi_exit in real mode interrupt.
+- !10704  x86: stop playing stack games in profile_pc()
+- ext4: flexibly control whether to enable dioread_nolock by default
+- wireguard: allowedips: avoid unaligned 64-bit memory accesses
+- !10836  wifi: mt76: replace skb_put with skb_put_zero
+- !10839  bnx2x: Fix multiple UBSAN array-index-out-of-bounds
+- netfilter: nf_tables: prefer nft_chain_validate
+- bnx2x: Fix multiple UBSAN array-index-out-of-bounds
+- wifi: mt76: replace skb_put with skb_put_zero
+- wifi: cfg80211: restrict NL80211_ATTR_TXQ_QUANTUM values
+- !10814  sched/cputime: Fix mul_u64_u64_div_u64() precision for cputime
+- !10807  wifi: mac80211: mesh: Fix leak of mesh_preq_queue objects
+- !10810  tcp_metrics: validate source addr length
+- !10766 Backport 5.10.213 LTS patches from upstream
+- powerpc/pseries: Whitelist dtl slub object for copying to userspace
+- !10752  btrfs: qgroup: fix quota root leak after quota disable failure
+- media: dvb-frontends: tda10048: Fix integer overflow
+- sched/cputime: Fix mul_u64_u64_div_u64() precision for cputime
+- !10781  nilfs2: fix kernel bug on rename operation of broken directory
+- tcp_metrics: validate source addr length
+- wifi: mac80211: mesh: Fix leak of mesh_preq_queue objects
+- !10733  filelock: Remove locks reliably when fcntl/close race is detected
+- !10765 mbigen: add kvm dependency
+- !10761  leds: an30259a: Use devm_mutex_init() for mutex initialization
+- !10681  crypto: ecdh - explicitly zeroize private_key
+- !10798  s390/pkey: Use kfree_sensitive() to fix Coccinelle warnings
+- serial: 8250_omap: Fix Errata i2310 with RX FIFO level check
+- serial: 8250_omap: Implementation of Errata i2310
+- s390/pkey: Use kfree_sensitive() to fix Coccinelle warnings
+- mbigen: add kvm dependency
+- !10778  Fix CVE-2021-47582
+- !10784  s390/pkey: Wipe sensitive data on failure
+- serial: max310x: implement I2C support
+- serial: max310x: make accessing revision id interface-agnostic
+- Drivers: hv: vmbus: Drop error message when 'No request id available'
+- serial: max310x: Unprepare and disable clock in error path
+- getrusage: use sig->stats_lock rather than lock_task_sighand()
+- getrusage: use __for_each_thread()
+- getrusage: move thread_group_cputime_adjusted() outside of lock_task_sighand()
+- getrusage: add the "signal_struct *sig" local variable
+- hv_netvsc: Register VF in netvsc_probe if NET_DEVICE_REGISTER missed
+- hv_netvsc: use netif_is_bond_master() instead of open code
+- hv_netvsc: Make netvsc/VF binding check both MAC and serial number
+- hv_netvsc: Process NETDEV_GOING_DOWN on VF hot remove
+- hv_netvsc: Wait for completion on request SWITCH_DATA_PATH
+- hv_netvsc: Use vmbus_requestor to generate transaction IDs for VMBus hardening
+- Drivers: hv: vmbus: Add vmbus_requestor data structure for VMBus hardening
+- ext4: convert to exclusive lock while inserting delalloc extents
+- ext4: refactor ext4_da_map_blocks()
+- ext4: make ext4_es_insert_extent() return void
+- lsm: fix default return value of the socket_getpeersec_*() hooks
+- lsm: make security_socket_getpeersec_stream() sockptr_t safe
+- bpf: net: Change sk_getsockopt() to take the sockptr_t argument
+- net: Change sock_getsockopt() to take the sk ptr instead of the sock ptr
+- serial: max310x: prevent infinite while() loop in port startup
+- serial: max310x: use a separate regmap for each port
+- serial: max310x: use regmap methods for SPI batch operations
+- serial: max310x: Make use of device properties
+- serial: max310x: fail probe if clock crystal is unstable
+- serial: max310x: Try to get crystal clock rate from property
+- serial: max310x: Use devm_clk_get_optional() to get the input clock
+- xhci: handle isoc Babble and Buffer Overrun events properly
+- xhci: process isoc TD properly when there was a transaction error mid TD.
+- xhci: prevent double-fetch of transfer and transfer event TRBs
+- xhci: remove extra loop in interrupt context
+- um: allow not setting extra rpaths in the linux binary
+- selftests: mm: fix map_hugetlb failure on 64K page size systems
+- selftests/mm: switch to bash from sh
+- netrom: Fix a data-race around sysctl_netrom_link_fails_count
+- netrom: Fix a data-race around sysctl_netrom_routing_control
+- netrom: Fix a data-race around sysctl_netrom_transport_no_activity_timeout
+- netrom: Fix a data-race around sysctl_netrom_transport_requested_window_size
+- netrom: Fix a data-race around sysctl_netrom_transport_busy_delay
+- netrom: Fix a data-race around sysctl_netrom_transport_acknowledge_delay
+- netrom: Fix a data-race around sysctl_netrom_obsolescence_count_initialiser
+- netrom: Fix a data-race around sysctl_netrom_default_path_quality
+- netfilter: nft_ct: fix l3num expectations with inet pseudo family
+- geneve: make sure to pull inner header in geneve_rx()
+- tracing/net_sched: Fix tracepoints that save qdisc_dev() as a string
+- i40e: disable NAPI right after disabling irqs when handling xsk_pool
+- ixgbe: {dis, en}able irqs in ixgbe_txrx_ring_{dis, en}able
+- net: lan78xx: fix runtime PM count underflow on link stop
+- lan78xx: Fix race conditions in suspend/resume handling
+- lan78xx: Fix partial packet errors on suspend/resume
+- lan78xx: Add missing return code checks
+- lan78xx: Fix white space and style issues
+- vhost: Add smp_rmb() in vhost_enable_notify()
+- vhost: Add smp_rmb() in vhost_vq_avail_empty()
+- s390/pkey: Wipe sensitive data on failure
+- nilfs2: fix kernel bug on rename operation of broken directory
+- usb: core: Don't hold the device lock while sleeping in do_proc_control()
+- USB: core: Make do_proc_control() and do_proc_bulk() killable
+- leds: an30259a: Use devm_mutex_init() for mutex initialization
+- btrfs: qgroup: fix quota root leak after quota disable failure
+- filelock: Remove locks reliably when fcntl/close race is detected
+- x86: stop playing stack games in profile_pc()
+- crypto: ecdh - explicitly zeroize private_key
+- USB: core: Fix duplicate endpoint bug by clearing reserved bits in the descriptor
+- powerpc: Avoid nmi_enter/nmi_exit in real mode interrupt.
+
 * Wed Aug 07 2024 Li Nan <linan122@huawei.com> - 5.10.0-222.0.0.121
 - !10787  NFSD: Fix the behavior of READ near OFFSET_MAX
 - !10764  CVE-2024-41027
