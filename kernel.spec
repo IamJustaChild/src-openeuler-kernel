@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .88.0
-%global pkg_release         .169
+%global maintenance_release .89.0
+%global pkg_release         .170
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,72 @@ fi
 %endif
 
 %changelog
+* Wed Aug 14 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.89.0.170
+- !10881  orangefs: fix out-of-bounds fsid access
+- !10880  drm/panel: ilitek-ili9881c: Fix warning with GPIO controllers that sleep
+- !10879  drm/i915/gt: Fix potential UAF by revoke of fence registers
+- !10884  crypto: aead,cipher - zeroize key buffer after use
+- !10889  s390/pkey: Wipe copies of clear-key structures on failure
+- !10822  powerpc/pseries: Whitelist dtl slub object for copying to userspace
+- !10844  netfilter: nf_tables: prefer nft_chain_validate
+- !10868 v2  net, sunrpc: Remap EPERM in case of connection failure in xs_tcp_setup_socket
+- !10874  USB: serial: mos7840: fix crash on resume
+- s390/pkey: Wipe copies of clear-key structures on failure
+- crypto: aead,cipher - zeroize key buffer after use
+- orangefs: fix out-of-bounds fsid access
+- drm/panel: ilitek-ili9881c: Fix warning with GPIO controllers that sleep
+- drm/i915/gt: Fix potential UAF by revoke of fence registers
+- USB: serial: mos7840: fix crash on resume
+- !10829  wifi: cfg80211: restrict NL80211_ATTR_TXQ_QUANTUM values
+- !10867 [sync] PR-10817:  media: dvb-frontends: tda10048: Fix integer overflow
+- net, sunrpc: Remap EPERM in case of connection failure in xs_tcp_setup_socket
+- media: dvb-frontends: tda10048: Fix integer overflow
+- !10864 v3  ext4: flexibly control whether to enable dioread_nolock by default
+- !10850  wireguard: allowedips: avoid unaligned 64-bit memory accesses
+- !10617  USB: core: Fix duplicate endpoint bug by clearing reserved bits in the descriptor
+- !10830  Revert "mm/writeback: fix possible divide-by-zero in wb_dirty_limits(), again"
+- !10828  fix CVE-2024-42095
+- !10705  x86: stop playing stack games in profile_pc()
+- ext4: flexibly control whether to enable dioread_nolock by default
+- wireguard: allowedips: avoid unaligned 64-bit memory accesses
+- !10837  wifi: mt76: replace skb_put with skb_put_zero
+- !10840  bnx2x: Fix multiple UBSAN array-index-out-of-bounds
+- netfilter: nf_tables: prefer nft_chain_validate
+- bnx2x: Fix multiple UBSAN array-index-out-of-bounds
+- wifi: mt76: replace skb_put with skb_put_zero
+- Revert "mm/writeback: fix possible divide-by-zero in wb_dirty_limits(), again"
+- wifi: cfg80211: restrict NL80211_ATTR_TXQ_QUANTUM values
+- serial: 8250_omap: Fix Errata i2310 with RX FIFO level check
+- serial: 8250_omap: Implementation of Errata i2310
+- !10815  sched/cputime: Fix mul_u64_u64_div_u64() precision for cputime
+- !10811  tcp_metrics: validate source addr length
+- !10809  wifi: mac80211: mesh: Fix leak of mesh_preq_queue objects
+- powerpc/pseries: Whitelist dtl slub object for copying to userspace
+- !10751  btrfs: qgroup: fix quota root leak after quota disable failure
+- sched/cputime: Fix mul_u64_u64_div_u64() precision for cputime
+- !10782  nilfs2: fix kernel bug on rename operation of broken directory
+- tcp_metrics: validate source addr length
+- wifi: mac80211: mesh: Fix leak of mesh_preq_queue objects
+- !10734  filelock: Remove locks reliably when fcntl/close race is detected
+- !10804 [sync] PR-10761:  leds: an30259a: Use devm_mutex_init() for mutex initialization
+- leds: an30259a: Use devm_mutex_init() for mutex initialization
+- !10680  crypto: ecdh - explicitly zeroize private_key
+- !10791 [sync] PR-10787:  NFSD: Fix the behavior of READ near OFFSET_MAX
+- !10779  Fix CVE-2021-47582
+- !10780  crypto: hisilicon/sec - Fix memory leak for sec resource release
+- !10783  s390/pkey: Wipe sensitive data on failure
+- NFSD: Fix the behavior of READ near OFFSET_MAX
+- s390/pkey: Wipe sensitive data on failure
+- nilfs2: fix kernel bug on rename operation of broken directory
+- crypto: hisilicon/sec - Fix memory leak for sec resource release
+- usb: core: Don't hold the device lock while sleeping in do_proc_control()
+- USB: core: Make do_proc_control() and do_proc_bulk() killable
+- btrfs: qgroup: fix quota root leak after quota disable failure
+- filelock: Remove locks reliably when fcntl/close race is detected
+- x86: stop playing stack games in profile_pc()
+- crypto: ecdh - explicitly zeroize private_key
+- USB: core: Fix duplicate endpoint bug by clearing reserved bits in the descriptor
+
 * Wed Aug 07 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.88.0.169
 - !10769  CVE-2024-41027
 - !10667 v2  ASoC: fsl-asoc-card: set priv->pdev before using it
