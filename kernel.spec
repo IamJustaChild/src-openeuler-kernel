@@ -42,7 +42,7 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %global upstream_sublevel   0
 %global devel_release       38
 %global maintenance_release .0.0
-%global pkg_release         .45
+%global pkg_release         .46
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1089,6 +1089,210 @@ fi
 %endif
 
 %changelog
+* Wed Aug 14 2024 Mingzheng Xing <xingmingzheng@iscas.ac.cn> - 6.6.0-38.0.0.46
+- riscv kernel upgrade to 6.6.0-38.0.0
+- bugfix for sg2042 accessing kernel page tables
+- revert sg2042 high memory
+- revert sg2042 kexec image
+- add support th1520 modules:
+  pinctrl, eMMC, gpio, usb, pwm, ethernet, th1520 perf, ADC, clock,
+  mailbox, reset, qspi, pvt, gpio, dma, mmc, cpufreq, rtc, dwmac,
+  light-event, rpmsg, i2c, i2s, light-aon, light-aon-pd, codec, gpu.
+
+- th1520: riscv: dtb: Add gpu node
+- riscv: config: Disable RISCV_ISA_V in openEuler
+- th1520: riscv: config: disable RISCV_ISA_V in th1520_defconfig
+- riscv: config: Set NVMe driver builtin
+- th1520: riscv: config: Enable PowerVR GPU
+- th1520: riscv: Add GPU to th1520_defconfig
+- th1520: riscv: config: Enable th1520 support
+- sg2042: riscv: config: Enable sg2042 support
+- sg2042: riscv: config: Add sg2042_defconfig
+- riscv: Use accessors to page table entries instead of direct dereference
+- riscv: mm: Only compile pgtable.c if MMU
+- mm: Introduce pudp/p4dp/pgdp_get() functions
+- riscv: Use WRITE_ONCE() when setting page table entries
+- Merge patch series "membarrier: riscv: Core serializing command"
+- membarrier: riscv: Add full memory barrier in switch_mm()
+- stmmac: bitmain: use DWMAC_SOPHGO module config
+- pcie: whitelist and support mellanox connectx-2
+- riscv: input: Fixup input_event
+- drm: Fix HDMI hot-plug problem
+- gpu/drm: hdmi: Add hdmi debounce to enhance hdmi plugin/out stable
+- audio: th1520: fixup compile warning of i2s driver
+- DPU: fix bugs of DPU and resolve compilation warnings
+- riscv: binrpm: Add dtbs install
+- th1520: gpu: Add driver for PowerVR Rogue GPU
+- dmaengine: dw-axi-dmac: Add support for Xuantie TH1520 DMA
+- arch:rsicv:select ARCH_HAS_DMA_WRITE_COMBINE
+- configs: enable rtw88 for 8723ds
+- drivers: pinctrl: correct th1520 audio i2c1 bit mapping table
+- driver:padctrl:correct th1520 gpio_1 24/25 cfg
+- dts: th1520: add adc vref-supply regulator
+- dts: th1520: add cpu thermal node and device thermal node
+- drivers: event: add macro definition to control SW_PANIC event
+- chore: use thead instead of xuantie
+- chore: use xuantie instead of thead
+- riscv: ptrace: Fix ptrace using uninitialized riscv_v_vsize
+- audio: th1520: enable soundcard feature
+- audio: th1520: support audiosys pinctrl feature
+- dts: th1520: fix interrupt number config error in dts
+- th1520: defconfig: add configs to align the functionality and performance of previous related versions
+- DPU: add DPU driver for Lichee-Pi-4A board
+- dts: th1520: add npu device node
+- codec: audio: add codec driver for Lichee-Pi-4A board
+- drivers: cpufreq: add cpufreq driver.
+- riscv: dts: Introduce lichee-pi-4a fixed regulator support.
+- th1520: defconfig: to remove unnecessary configs for th1520
+- i2s: remove debug message
+- riscv:dts: fix the aon gpio range configuration error
+- riscv:dts: fix spi/qspi1 cs pin duplicate configuration error
+- riscv:dts: fix the gpio range configuration error
+- drivers: regulator: add th1520 AON virtual regulator control support.
+- dt-bindings: add AON resource id headfile
+- drivers: pmdomain: support th1520 Power domain control.
+- i2s: add i2s driver for XuanTie TH1520 SoC
+- configs: xuantie: correct definition of SoC Architecture
+- configs: enable th1520 xgene rtc and rtc prescale in th1520_defconfig
+- riscv: mm: update T-Head memory type definitions
+- i2c: designware: add support for hcnt/lcnt got from dt
+- add 902 share mem log
+- th1520_defconfig: add usb config
+- refine thead,th1520-usb.yaml
+- drivers: usb: dwc3: add usb_mode usb_speed param for mode speed change when insmod ko
+- drivers: usb: add dwc3-thead.c
+- th1520.dtsi: refine usb dts
+- configs: enable th1520 event and watchdog
+- riscv:dts:thead: Add TH1520 event and watchdog device node
+- dt-bindings:wdt: Add Documentation for THEAD TH1520 pmic watchdog
+- drivers/watchdog: Add THEAD TH1520 pmic watchdog driver
+- dt-bindings:event: Add Documentation for THEAD TH1520 event driver
+- drivers/soc/event: Add THEAD TH1520 event driver
+- Open I2C config
+- fix rpmsg addr cast warning
+- fix lp32 compile warnoing for rpmsg
+- fix proc log warning
+- fix rpmsg warning
+- add c906 audio support
+- Kconfig: Enable APM X-Gene RTC for XuanTie TH1520
+- drivers/rtc/rtc-xgene: Add "snps,dw-apb-rtc" into the "compatible"
+- riscv: dts: thead: Add XuanTie TH1520 RTC device node
+- dt-bindings: rtc: Add optional property "prescaler" in APM X-Gene RTC Document
+- drivers/rtc/rtc-xgene: Add prescaler support in APM X-Gene RTC driver
+- th1520: defconfig: to add th1520_defconfig
+- net:stmmac: increase timeout for dma reset
+- stmmac:dwmac-thead: add support for suspend/resume feature
+- net:dwmac-thead: dd ptp clk set and enable
+- configs: Enable th1520 mailbox.
+- drivers:ipc: update th1520 rpc msg version 2
+- firmware: thead: c910_aon: add th1520 Aon protocol driver
+- mmc:sdhci-of-dwcmshc: th1520 add delay line in different mode and sdio rxclk delay
+- mmc:sdhci-of-dwcmshc: th1520 larger tuning max loop count to 128
+- dts: th1520: enable sdio1 for wifi card in lichee-pi-4a
+- mmc:sdhci-of-dwcmshc: th1520 sdhci add fix io voltage 1v8
+- mmc:sdhci-of-dwcmshc: th1520 resolve accss rpmb error in hs400
+- drivers/dmac: add pm suspend/resume for dma driver
+- audio: th1520: add dma chan str for dmaengine
+- riscv: dts: thead: Add THEAD TH1520 dmac1 and dmac2 device node
+- STR: fix pca953x resume bug
+- drivers/iio/adc: add sysfs_remove_file when adc driver removed
+- drivers/pvt: add mr75203 driver pm feature and correct temperature coefficient
+- riscv: dts: thead: Add THEAD TH1520 SPI/QSPI device node
+- dt-bindings: spi/qspi: Add Documentation for THEAD TH1520 SPI/QSPI
+- drivers/spi: Add THEAD TH1520 QSPI driver
+- reset: th1520: to support npu/fce reset feature
+- riscv: dts: Add th1520 reset device tree
+- dt-bindings: reset: Document th1520 reset control
+- reset: Add th1520 reset driver support
+- riscv: dts: thead: Add XuanTie TH1520 Mailbox device node
+- mailbox: add XuanTie TH1520 Mailbox IPC driver
+- dt-bindings: mailbox: Add a binding file for XuanTie TH1520 Mailbox
+- riscv: dts: thead: to add th1520 clk nodes
+- drivers: clk: to add thead th1520 clk driver
+- configs: enable th1520 clk
+- dt-bindings: adc: Add Documentation for THEAD TH1520 ADC
+- riscv: dts: thead: Add THEAD TH1520 ADC device node
+- drivers/iio/adc: Add THEAD TH1520 ADC driver
+- riscv: dts: thead: Enable Lichee Pi 4A USB
+- riscv: dts: thead: Add Lichee Pi 4A IO expansions
+- riscv: dts: thead: Add TH1520 USB nodes
+- riscv: dts: thead: Add TH1520 I2C nodes
+- usb: dwc3: add T-HEAD TH1520 usb driver
+- dt-bindings: usb: Add T-HEAD TH1520 USB controller
+- riscv: dts: thead: Add BeagleV Ahead SDIO0 pins
+- riscv: dts: thead: Add Lichee Pi 4A SDIO0 pins
+- riscv: dts: thead: Add TH1520 ethernet nodes
+- net: stmmac: add glue layer for T-HEAD TH1520 SoC
+- dt-bindings: net: add T-HEAD dwmac support
+- dt-bindings: net: snps,dwmac: allow dwmac-3.70a to set pbl properties
+- gpio: dwapb: Use generic request, free and set_config
+- riscv: dts: thead: Enable Lichee Pi 4A PWM fan
+- riscv: dts: thead: Add TH1520 PVT node
+- riscv: dts: thead: Add TH1520 PWM node
+- pwm: add T-HEAD PWM driver
+- dt-bindings: pwm: Add T-HEAD PWM controller
+- perf vendor events riscv: add T-HEAD C9xx JSON file
+- riscv: dts: thead: th1520: Add PMU event node
+- chore: dtb_install in /boot
+- remove compression for riscv Image
+- riscv: dts: thead: Enable LicheePi 4A eMMC and microSD
+- riscv: dts: thead: Enable BeagleV Ahead eMMC and microSD
+- riscv: dts: thead: Add TH1520 mmc controllers and sdhci clock
+- riscv: defconfig: Enable mmc and dma drivers for T-Head TH1520
+- mmc: sdhci-of-dwcmshc: Add support for T-Head TH1520
+- mmc: sdhci: add __sdhci_execute_tuning() to header
+- dt-bindings: mmc: sdhci-of-dwcmhsc: Add T-Head TH1520 support
+- fix: remove linux/array_size.h for pinctrl-th1520
+- riscv: dtb: thead: Add BeagleV Ahead LEDs
+- riscv: dts: thead: Add TH1520 pinctrl settings for UART0
+- riscv: dts: thead: Add Lichee Pi 4M GPIO line names
+- riscv: dts: thead: Adjust TH1520 GPIO labels
+- riscv: dts: thead: Add TH1520 GPIO ranges
+- riscv: dts: thead: Add TH1520 pin control nodes
+- pinctrl: Add driver for the T-Head TH1520 SoC
+- dt-bindings: pinctrl: Add thead,th1520-pinctrl bindings
+- riscv: Enable TEE driver
+- sg2042: drivers: rtc: disable BMC RTC device
+- sg2042: dts: add i2c-rtc ds1307 device node for single chip
+- sg2042: riscv:dts:modify dw gpio clock name
+- sg2042: drivers:pci:remove the err log of parsing pci
+- sg2042: driver: ipmi: support KVM and IPMI SI for BMC
+- sg2042: perf cpumap: Make counter as unsigned ints
+- sg2042: kernel: schedule: Fix set_task_cpu() bug
+- sg2042: mm: Modify __find_max_addr for memory hole
+- sg2042: riscv: kernel: Optimize apply_relocate_add()
+- sg2042: riscv: mm: Clear compilation warning about last_cpupid
+- sg2042: kernel: tick: filter unnecessary printing
+- sg2042: kernel: Adjust the log level of the tick_switch_to_oneshot function
+- sg2042: drm/amd/display: Support DRM_AMD_DC_FP on RISC-V
+- sg2042: riscv: Factor out riscv-march-y to a separate Makefile
+- sg2042: riscv: Add support for kernel-mode FPU
+- sg2042: mango pci hack:broadcast when no MSI source known
+- sg2042: nvidia hda: force msi
+- sg2042: radeon hack: force 64-bit msi to fit top intc
+- sg2042: amdgpu: disable rebar
+- sg2042: ttm: disallow cached mapping
+- sg2042: driver: soc: Add sophgo sg2042 soc support
+- sg2042: drivers: pcie: Create msi-x whitelist,turn on msi-x for top intr
+- sg2042: driver: pcie: Add sophgo sg2042 soc support
+- sg2042: driver: net: Add sophgo sg2042 soc support
+- sg2042: driver: mtd: Add sophgo sg2042 soc support
+- sg2042: driver: mmc: Add sophgo sg2042 soc support
+- sg2042: driver: reset: Add sophgo sg2042 soc support
+- sg2042: driver: pinctrl: Add sophgo sg2042 soc support
+- sg2042: driver: clk: Add sophgo sg2042 soc support
+- sg2042: riscv: spinlock: Fix deadlock issue
+- sg2042: riscv: add smp_cond_load_acquire()
+- sg2042: riscv: add ioremap_wc for gpu
+- sg2042: riscv: changing T-Head PBMT attributes
+- sg2042: riscv: errata: thead: Make cache clean to flush
+- sg2042: riscv: use VA+PA variant of CMO macros for DMA page preparation
+- sg2042: riscv: use VA+PA variant of CMO macros for DMA synchorization
+- sg2042: riscv: errata: cmo: add CMO macro variant with both VA and PA
+- sg2042: riscv: errata: Replace thead cache clean with flush
+- sg2042: riscv: Kconfig: Set vector as default no
+- sg2042: riscv: Add sophgo sg2042 soc support
+
 * Tue Aug 13 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-38.0.0.45
 - !10843  netfilter: nf_tables: prefer nft_chain_validate
 - netfilter: nf_tables: prefer nft_chain_validate
