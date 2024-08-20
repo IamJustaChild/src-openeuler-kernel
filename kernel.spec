@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       223
+%global devel_release       224
 %global maintenance_release .0.0
-%global pkg_release         .126
+%global pkg_release         .127
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -911,6 +911,74 @@ fi
 %endif
 
 %changelog
+* Tue Aug 20 2024 Li Nan <linan122@huawei.com> - 5.10.0-224.0.0.127
+- !9573 [OLK-5.10] Intel: backport RAPL bugfixes up to v6.9
+- !11007  mm: avoid overflows in dirty throttling logic
+- !10979  CVE-2024-42304
+- !10968  bpf, arm64: Fix trampoline for BPF_TRAMP_F_CALL_ORIG
+- mm: avoid overflows in dirty throttling logic
+- !10982  drm/gma500: fix null pointer dereference in cdv_intel_lvds_get_modes
+- !10797 Intel: Backport SPR/EMR CXL and HBM support to kernel 5.10
+- !10799 Intel: Backport 3 core PMU bugfixes to kernel 5.10
+- !10958  bna: adjust 'name' buf size of bna_tcb and bna_ccb structures
+- !10963  sched: fix numa_group uninitialized in show_numa_stats()
+- !10614  can: mcp251xfd: fix infinite loop when xmit fails
+- !10951  Fix CVE-2024-36880
+- drm/gma500: fix null pointer dereference in cdv_intel_lvds_get_modes
+- ext4: make sure the first directory block is not a hole
+- ext4: check dot and dotdot of dx_root before making dir indexed
+- !10956  leds: trigger: Unregister sysfs attributes before calling deactivate()
+- bpf, arm64: Fix trampoline for BPF_TRAMP_F_CALL_ORIG
+- sched: fix numa_group uninitialized in show_numa_stats()
+- !10931  drm/lima: fix shared irq handling on driver remove
+- !10947  net: nexthop: Initialize all fields in dumped nexthops
+- !10945 v4  Some clean up and bugfix for hisi_hbmdev
+- bna: adjust 'name' buf size of bna_tcb and bna_ccb structures
+- leds: trigger: Unregister sysfs attributes before calling deactivate()
+- Bluetooth: qca: fix firmware check error path
+- Bluetooth: qca: add missing firmware sanity checks
+- net: nexthop: Initialize all fields in dumped nexthops
+- soc/hisilicon: Remove the memdev kobj
+- soc/hisilicon: Clean the hbmcache state show sysfs
+- soc: hisilicon: Setting the demand_offline in sysfs interface
+- Revert "soc: hisilicon: hisi_hbmdev: Provide extra memory topology information"
+- Revert "soc: hisilicon: hisi_hbmdev: Add hbm acls repair and query methods"
+- !10928  libceph: fix race between delayed_work() and ceph_monc_stop()
+- drm/lima: fix shared irq handling on driver remove
+- !10745  jfs: xattr: fix buffer overflow for invalid xattr
+- libceph: fix race between delayed_work() and ceph_monc_stop()
+- !10912  Fix CVE-2024-40966
+- !10689 sdma: fix input validate problems
+- !10914  usb: gadget: configfs: Prevent OOB read/write in usb_string_copy()
+- usb: gadget: configfs: Prevent OOB read/write in usb_string_copy()
+- tty: vt device use only n_tty ldisc
+- tty: add the option to have a tty reject a new ldisc
+- !10846  netfilter: nf_tables: fully validate NFT_DATA_VALUE on store to data registers
+- !10813 ima: dont disable digest_list if the file is not processed
+- !10901 scsi: hisi_sas: Modify the deadline for ata_wait_after_reset()
+- scsi: hisi_sas: Modify the deadline for ata_wait_after_reset()
+- netfilter: nf_tables: fully validate NFT_DATA_VALUE on store to data registers
+- perf/x86/intel: Add a distinct name for Granite Rapids
+- perf/x86/intel/ds: Fix non 0 retire latency on Raptorlake
+- perf/x86/intel: Hide Topdown metrics events if the feature is not enumerated
+- perf/x86/intel/uncore: Support HBM and CXL PMON counters
+- perf/x86/uncore: Cleanup unused unit structure
+- perf/x86/uncore: Apply the unit control RB tree to PCI uncore units
+- perf/x86/uncore: Apply the unit control RB tree to MSR uncore units
+- perf/x86/uncore: Apply the unit control RB tree to MMIO uncore units
+- perf/x86/uncore: Retrieve the unit ID from the unit control RB tree
+- perf/x86/uncore: Support per PMU cpumask
+- perf/x86/uncore: Save the unit control address of all units
+- ima: dont disable digest_list if the file is not processed
+- drivers: misc: sdma-dae: fix input validate problems
+- jfs: xattr: fix buffer overflow for invalid xattr
+- can: mcp251xfd: fix infinite loop when xmit fails
+- powercap: intel_rapl_tpmi: Fix System Domain probing
+- powercap: intel_rapl_tpmi: Fix a register bug
+- powercap: intel_rapl: Fix locking in TPMI RAPL
+- powercap: intel_rapl: Fix a NULL pointer dereference
+- powercap: intel_rapl: Fix a sparse warning in TPMI interface
+
 * Wed Aug 14 2024 Li Nan <linan122@huawei.com> - 5.10.0-223.0.0.126
 - !10877  drm/panel: ilitek-ili9881c: Fix warning with GPIO controllers that sleep
 - !10878  orangefs: fix out-of-bounds fsid access
