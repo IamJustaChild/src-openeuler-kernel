@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .89.0
-%global pkg_release         .170
+%global maintenance_release .90.0
+%global pkg_release         .171
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,54 @@ fi
 %endif
 
 %changelog
+* Tue Aug 20 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.90.0.171
+- !10981 [sync] PR-10679:  ibmvnic: Add tx check to prevent skb leak
+- !11009  mm: avoid overflows in dirty throttling logic
+- !10980  CVE-2024-42304
+- mm: avoid overflows in dirty throttling logic
+- !10983  drm/gma500: fix null pointer dereference in cdv_intel_lvds_get_modes
+- !10938  CVE-2023-52868
+- !10959  bna: adjust 'name' buf size of bna_tcb and bna_ccb structures
+- !10613  can: mcp251xfd: fix infinite loop when xmit fails
+- !10952  Fix CVE-2024-36880
+- !10790 [sync] PR-10652:  nvme: avoid double free special payload
+- !10789 [sync] PR-10624:  ata: libata-core: Fix double free on error
+- drm/gma500: fix null pointer dereference in cdv_intel_lvds_get_modes
+- ibmvnic: Add tx check to prevent skb leak
+- ext4: make sure the first directory block is not a hole
+- ext4: check dot and dotdot of dx_root before making dir indexed
+- !10955  leds: trigger: Unregister sysfs attributes before calling deactivate()
+- !10866 [sync] PR-10514:  powerpc: Avoid nmi_enter/nmi_exit in real mode interrupt.
+- !10932  drm/lima: fix shared irq handling on driver remove
+- !10948  net: nexthop: Initialize all fields in dumped nexthops
+- bna: adjust 'name' buf size of bna_tcb and bna_ccb structures
+- leds: trigger: Unregister sysfs attributes before calling deactivate()
+- Bluetooth: qca: fix firmware check error path
+- Bluetooth: qca: add missing firmware sanity checks
+- net: nexthop: Initialize all fields in dumped nexthops
+- !10929  libceph: fix race between delayed_work() and ceph_monc_stop()
+- thermal: core: prevent potential string overflow
+- drm/lima: fix shared irq handling on driver remove
+- !10747  jfs: xattr: fix buffer overflow for invalid xattr
+- libceph: fix race between delayed_work() and ceph_monc_stop()
+- !10917  Fix CVE-2024-36031
+- !10910  Fix CVE-2024-40966
+- keys: Fix overwrite of key expiration on instantiation
+- keys, dns: Fix size check of V1 server-list header
+- keys, dns: Fix missing size check of V1 server-list header
+- keys, dns: Allow key types (eg. DNS) to be reclaimed immediately on expiry
+- !10916  usb: gadget: configfs: Prevent OOB read/write in usb_string_copy()
+- usb: gadget: configfs: Prevent OOB read/write in usb_string_copy()
+- tty: vt device use only n_tty ldisc
+- tty: add the option to have a tty reject a new ldisc
+- !10848  netfilter: nf_tables: fully validate NFT_DATA_VALUE on store to data registers
+- powerpc: Avoid nmi_enter/nmi_exit in real mode interrupt.
+- netfilter: nf_tables: fully validate NFT_DATA_VALUE on store to data registers
+- nvme: avoid double free special payload
+- ata: libata-core: Fix double free on error
+- jfs: xattr: fix buffer overflow for invalid xattr
+- can: mcp251xfd: fix infinite loop when xmit fails
+
 * Wed Aug 14 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.89.0.170
 - !10881  orangefs: fix out-of-bounds fsid access
 - !10880  drm/panel: ilitek-ili9881c: Fix warning with GPIO controllers that sleep
