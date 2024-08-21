@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2408.3.0
+%global hulkrelease 2408.4.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0290
+Release: %{hulkrelease}.0291
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,29 @@ fi
 %endif
 
 %changelog
+
+* Tue Aug 20 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2408.4.0.0291
+- !10978  CVE-2024-42304
+- !10946  drm/gma500: fix null pointer dereference in cdv_intel_lvds_get_modes
+- !10957  bna: adjust 'name' buf size of bna_tcb and bna_ccb structures
+- ext4: make sure the first directory block is not a hole
+- ext4: check dot and dotdot of dx_root before making dir indexed
+- !10954  leds: trigger: Unregister sysfs attributes before calling deactivate()
+- bna: adjust 'name' buf size of bna_tcb and bna_ccb structures
+- !10930  libceph: fix race between delayed_work() and ceph_monc_stop()
+- leds: trigger: Unregister sysfs attributes before calling deactivate()
+- drm/gma500: fix null pointer dereference in cdv_intel_lvds_get_modes
+- libceph: fix race between delayed_work() and ceph_monc_stop()
+- !10841  ALSA: gus: fix null pointer dereference on pointer block
+- !10913  sched/cputime: Fix mul_u64_u64_div_u64() precision for cputime
+- !10915  usb: gadget: configfs: Prevent OOB read/write in usb_string_copy()
+- usb: gadget: configfs: Prevent OOB read/write in usb_string_copy()
+- sched/cputime: Fix mul_u64_u64_div_u64() precision for cputime
+- !10894 v2  netfilter: nf_tables: fully validate NFT_DATA_VALUE on store to data registers
+- !10892  crypto: aead,cipher - zeroize key buffer after use
+- netfilter: nf_tables: fully validate NFT_DATA_VALUE on store to data registers
+- crypto: aead,cipher - zeroize key buffer after use
+- ALSA: gus: fix null pointer dereference on pointer block
 
 * Tue Aug 13 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2408.3.0.0290
 - !10895  drm/panel: ilitek-ili9881c: Fix warning with GPIO controllers that sleep
