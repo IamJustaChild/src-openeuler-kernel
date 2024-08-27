@@ -40,10 +40,10 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       27
+%global devel_release       38
 %global maintenance_release .0.0
-%global pkg_release         .4
-%global rt_release          .rt30
+%global pkg_release         .5
+%global rt_release          .rt35
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -1057,6 +1057,9 @@ fi
 %endif
 
 %changelog
+* Thu Aug  22 2024 zhangyu <zhangyu4@kylinos.cn> - 6.6.0-38.0.0.5
+- update kernel-rt version to 6.6.0-38.0.0.5
+
 * Tue May  21 2024 zhangyu <zhangyu4@kylinos.cn> - 6.6.0-27.0.0.4
 - update kernel-rt version to 6.6.0-27.0.0.3
 
