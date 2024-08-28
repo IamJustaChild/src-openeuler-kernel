@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .90.0
-%global pkg_release         .171
+%global maintenance_release .91.0
+%global pkg_release         .172
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,91 @@ fi
 %endif
 
 %changelog
+* Tue Aug 27 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.91.0.172
+- !11162  btrfs: get rid of warning on transaction commit when using flushoncommit
+- !11152  protect the fetch of ->fd[fd
+- !11096  usb: xhci: Check endpoint is valid before dereferencing it
+- !11093  mISDN: Fix a use after free in hfcmulti_tx()
+- !11146  drm/msm/dp: do not complete dp_aux_cmd_fifo_tx() if irq is not for aux transfer
+- btrfs: get rid of warning on transaction commit when using flushoncommit
+- !11082  f2fs: fix to don't dirty inode for readonly filesystem
+- !11097  io_uring: lock overflowing for IOPOLL
+- !11124  Fix CVE-2023-52893
+- !11139 v2  drm/amd/display: Check for NULL pointer
+- protect the fetch of ->fd[fd] in do_dup2() from mispredictions
+- !11098  exec: Fix ToCToU between perm check and set-uid/gid usage
+- !11029  remoteproc: imx_rproc: Skip over memory region when node value is NULL
+- drm/msm/dp: do not complete dp_aux_cmd_fifo_tx() if irq is not for aux transfer
+- !11076  wifi: cfg80211: handle 2x996 RU allocation in cfg80211_calculate_bitrate_he()
+- !11080  ixgbe: fix pci device refcount leak
+- !11002  tipc: Return non-zero value from tipc_udp_addr2str() on error
+- !10986  RDMA/iwcm: Fix a use-after-free related to destroying CM IDs
+- !11137  netfilter: nf_tables: unregister flowtable hooks on netns exit
+- !11116  net/iucv: fix use after free in iucv_sock_close()
+- drm/amd/display: Check for NULL pointer
+- !11053  m68k: Fix spinlock race in kernel thread creation
+- !11052  phonet: fix rtm_phonet_notify() skb allocation
+- !11127  drm/amd/display: Check pipe offset before setting vblank
+- !11120  misc: fastrpc: Don't remove map on creater_process and device_release
+- netfilter: nf_tables: unregister flowtable hooks on netns exit
+- drm/amd/display: Check pipe offset before setting vblank
+- gsmi: fix null-deref in gsmi_get_variable
+- !11090  net/mlx5: Always drain health in shutdown callback
+- misc: fastrpc: Don't remove map on creater_process and device_release
+- net/iucv: fix use after free in iucv_sock_close()
+- exec: Fix ToCToU between perm check and set-uid/gid usage
+- io_uring: lock overflowing for IOPOLL
+- usb: xhci: Check endpoint is valid before dereferencing it
+- mISDN: Fix a use after free in hfcmulti_tx()
+- !11066  xhci: Fix null pointer dereference when host dies
+- net/mlx5: Always drain health in shutdown callback
+- f2fs: fix to don't dirty inode for readonly filesystem
+- ixgbe: fix pci device refcount leak
+- wifi: cfg80211: handle 2x996 RU allocation in cfg80211_calculate_bitrate_he()
+- !11073  drm/virtio: Fix GEM handle creation UAF
+- drm/virtio: Fix GEM handle creation UAF
+- !11046  bpf: Fix a segment issue when downgrading gso_size
+- !11039  PCI: keystone: Fix NULL pointer dereference in case of DT error in ks_pcie_setup_rc_app_regs()
+- xhci: Fix null pointer dereference when host dies
+- !11016 [sync] PR-10965:  perf: Optimize perf_pmu_migrate_context()
+- m68k: Fix spinlock race in kernel thread creation
+- phonet: fix rtm_phonet_notify() skb allocation
+- !11000  media: venus: fix use after free in vdec_close
+- !11024  drm/exynos: fix a possible null-pointer dereference due to data race in exynos_drm_crtc_atomic_disable()
+- !11014  media: mediatek: vcodec: Handle invalid decoder vsi
+- !10972  ext4: fix infinite loop when replaying fast_commit
+- bpf: Fix a segment issue when downgrading gso_size
+- !11031 [sync] PR-11006:  kvm: s390: Reject memory region operations for ucontrol VMs
+- !10994  ipvs: properly dereference pe in ip_vs_add_service
+- PCI: keystone: Fix NULL pointer dereference in case of DT error in ks_pcie_setup_rc_app_regs()
+- !11032 [sync] PR-10976:  CVE-2024-42126
+- !10967  Revert "kbuild: fix false positive warning/error about missing libelf"
+- powerpc: Avoid nmi_enter/nmi_exit in real mode interrupt.
+- Revert "powerpc: Avoid nmi_enter/nmi_exit in real mode interrupt."
+- !10989  drm/amd/display: Add NULL pointer check for kzalloc
+- !11020  net: usb: qmi_wwan: fix memory leak for not ip packets
+- kvm: s390: Reject memory region operations for ucontrol VMs
+- !10988  s390/sclp: Fix sclp_init() cleanup on failure
+- remoteproc: imx_rproc: Skip over memory region when node value is NULL
+- !10961  drm/gma500: fix null pointer dereference in psb_intel_lvds_get_modes
+- !10452 v2  ipv6: sr: fix missing sk_buff release in seg6_input_core
+- drm/exynos: fix a possible null-pointer dereference due to data race in exynos_drm_crtc_atomic_disable()
+- net: usb: qmi_wwan: fix memory leak for not ip packets
+- !10996  CVE-2024-42290
+- perf: Optimize perf_pmu_migrate_context()
+- media: mediatek: vcodec: Handle invalid decoder vsi
+- tipc: Return non-zero value from tipc_udp_addr2str() on error
+- media: venus: fix use after free in vdec_close
+- irqchip/imx-irqsteer: Handle runtime power management correctly
+- ipvs: properly dereference pe in ip_vs_add_service
+- drm/amd/display: Add NULL pointer check for kzalloc
+- s390/sclp: Fix sclp_init() cleanup on failure
+- RDMA/iwcm: Fix a use-after-free related to destroying CM IDs
+- ext4: fix infinite loop when replaying fast_commit
+- Revert "kbuild: fix false positive warning/error about missing libelf"
+- drm/gma500: fix null pointer dereference in psb_intel_lvds_get_modes
+- ipv6: sr: fix missing sk_buff release in seg6_input_core
+
 * Tue Aug 20 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.90.0.171
 - !10981 [sync] PR-10679:  ibmvnic: Add tx check to prevent skb leak
 - !11009  mm: avoid overflows in dirty throttling logic
