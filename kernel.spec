@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2408.4.0
+%global hulkrelease 2408.5.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0291
+Release: %{hulkrelease}.0292
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,63 @@ fi
 %endif
 
 %changelog
+
+* Tue Aug 27 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2408.5.0.0292
+- !11130  iio: adc: men_z188_adc: Fix a resource leak in an error handling path
+- !11132  KVM: x86/mmu: make apf token non-zero to fix bug
+- !11192  af_packet: do not call packet_read_pending() from tpacket_destruct_skb()
+- af_packet: do not call packet_read_pending() from tpacket_destruct_skb()
+- !11150  protect the fetch of ->fd[fd
+- !11117  net/iucv: fix use after free in iucv_sock_close()
+- !11122  fix CVE-2023-52893
+- !11089  f2fs: fix to don't dirty inode for readonly filesystem
+- !11078  nilfs2: fix general protection fault in nilfs_btree_insert()
+- !11047  filelock: Correct the filelock owner in fcntl_setlk/fcntl_setlk64
+- protect the fetch of ->fd[fd] in do_dup2() from mispredictions
+- !11095  exec: Fix ToCToU between perm check and set-uid/gid usage
+- KVM: x86/mmu: make apf token non-zero to fix bug
+- iio: adc: men_z188_adc: Fix a resource leak in an error handling path
+- !11121  scsi: qla2xxx: During vport delete send async logout explicitly
+- !11113  mISDN: Fix a use after free in hfcmulti_tx()
+- gsmi: fix null-deref in gsmi_get_variable
+- scsi: qla2xxx: During vport delete send async logout explicitly
+- net/iucv: fix use after free in iucv_sock_close()
+- !11074  wifi: cfg80211: handle 2x996 RU allocation in cfg80211_calculate_bitrate_he()
+- mISDN: Fix a use after free in hfcmulti_tx()
+- !11072  drm/virtio: Fix GEM handle creation UAF
+- exec: Fix ToCToU between perm check and set-uid/gid usage
+- !11086  thermal: int340x: fix memory leak in int3400_notify()
+- f2fs: fix to don't dirty inode for readonly filesystem
+- thermal: int340x: fix memory leak in int3400_notify()
+- !11061  Fix CVE-2023-52898
+- nilfs2: fix general protection fault in nilfs_btree_insert()
+- !11068  Fix CVE-2024-39501
+- wifi: cfg80211: handle 2x996 RU allocation in cfg80211_calculate_bitrate_he()
+- drm/virtio: Fix GEM handle creation UAF
+- !11060  parisc: Fix data TLB miss in sba_unmap_sg
+- !11065  i2c: pnx: Fix potential deadlock warning from del_timer_sync() call in isr
+- !11062  ocfs2: add bounds checking to ocfs2_check_dir_entry()
+- driver core: Fix uevent_show() vs driver detach race
+- selftests: forwarding: devlink_lib: Wait for udev events after reloading
+- drivers: core: synchronize really_probe() and dev_uevent()
+- !10992  media: venus: fix use after free in vdec_close
+- i2c: pnx: Fix potential deadlock warning from del_timer_sync() call in isr
+- ocfs2: add bounds checking to ocfs2_check_dir_entry()
+- !11001  tipc: Return non-zero value from tipc_udp_addr2str() on error
+- !10987  RDMA/iwcm: Fix a use-after-free related to destroying CM IDs
+- xhci: Fix null pointer dereference when host dies
+- xhci: avoid race between disable slot command and host runtime suspend
+- parisc: Fix data TLB miss in sba_unmap_sg
+- filelock: Correct the filelock owner in fcntl_setlk/fcntl_setlk64
+- !11037  s390/sclp: Fix sclp_init() cleanup on failure
+- !11021  net: usb: qmi_wwan: fix memory leak for not ip packets
+- s390/sclp: Fix sclp_init() cleanup on failure
+- net: usb: qmi_wwan: fix memory leak for not ip packets
+- !10966  perf: Optimize perf_pmu_migrate_context()
+- tipc: Return non-zero value from tipc_udp_addr2str() on error
+- media: venus: fix use after free in vdec_close
+- RDMA/iwcm: Fix a use-after-free related to destroying CM IDs
+- perf: Optimize perf_pmu_migrate_context()
 
 * Tue Aug 20 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2408.4.0.0291
 - !10978  CVE-2024-42304
