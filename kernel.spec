@@ -6,6 +6,7 @@
 
 %if %{with toolchain_clang}
 %global toolchain clang
+%define with_kabichk 0
 %endif
 
 %bcond_with clang_lto
@@ -42,7 +43,7 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %global upstream_sublevel   0
 %global devel_release       39
 %global maintenance_release .0.0
-%global pkg_release         .47
+%global pkg_release         .48
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1089,6 +1090,9 @@ fi
 %endif
 
 %changelog
+* Wed Aug 28 2024 Luo Feng <luofeng13@huawei.com> - 6.6.0-39.0.0.48
+- When compiling with clang, skip the kabi check.
+
 * Tue Aug 27 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-39.0.0.47
 - !11156 v3  Fix CVE-2024-43869
 - perf: Fix kabi broken of struct perf_event
