@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .91.0
-%global pkg_release         .172
+%global maintenance_release .92.0
+%global pkg_release         .173
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,92 @@ fi
 %endif
 
 %changelog
+* Wed Sep 04 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.92.0.173
+- !11373  xdp: fix invalid wait context of page_pool_destroy()
+- !11369  nilfs2: handle inconsistent state in nilfs_btnode_create_block()
+- !11362  kcm: Serialise kcm_sendmsg() for the same socket.
+- !11353  regulator: da9211: Use irq handler when ready
+- !11348 v2  ext4: sanity check for NULL pointer after ext4_force_shutdown
+- !11318  efi: fix NULL-deref in init error path
+- !10997  PCI: endpoint: pci-epf-test: Make use of cached 'epc_features' in pci_epf_test_core_init()
+- !11285  fix CVE-2024-43905
+- !11344  netfilter: ctnetlink: use helper function to calculate expect ID
+- !11332  jbd2: avoid mount failed when commit block is partial submitted
+- !11191  fs/ntfs3: Update log->page_{mask,bits} if log->page_size changed
+- !11200  ibmvnic: don't release napi in __ibmvnic_open()
+- !10750 v2  CVE-2024-41016
+- !11195  tty: n_gsm: require CAP_NET_ADMIN to attach N_GSM0710 ldisc
+- !11296  padata: Fix possible divide-by-0 panic in padata_mt_helper()
+- !11289  Add exception protection processing for vd in axi_chan_handle_err function
+- !11312  nvme-fabrics: use reserved tag for reg read/write command
+- !11311  drm/radeon: check bo_va->bo is non-NULL before using it
+- xdp: fix invalid wait context of page_pool_destroy()
+- nilfs2: handle inconsistent state in nilfs_btnode_create_block()
+- kcm: Serialise kcm_sendmsg() for the same socket.
+- regulator: da9211: Use irq handler when ready
+- ext4: sanity check for NULL pointer after ext4_force_shutdown
+- netfilter: ctnetlink: use helper function to calculate expect ID
+- jbd2: avoid mount failed when commit block is partial submitted
+- efi: fix NULL-deref in init error path
+- nvme-fabrics: use reserved tag for reg read/write command
+- drm/radeon: check bo_va->bo is non-NULL before using it
+- !11059  drm/amdgpu: change vm->task_info handling
+- !11056  scsi: mpt3sas: Avoid test/set_bit() operating in non-allocated memory
+- !11281  misc: fastrpc: Fix use-after-free race condition for maps
+- padata: Fix possible divide-by-0 panic in padata_mt_helper()
+- Add exception protection processing for vd in axi_chan_handle_err function
+- !11278  net/sched: act_mpls: Fix warning during failed attribute validation
+- drm/amd/pm: Fix the null pointer dereference for vega10_hwmgr
+- !11225  apparmor: Fix null pointer deref when receiving skb during sock creation
+- misc: fastrpc: Fix use-after-free race condition for maps
+- !11274  serial: core: check uartclk for zero to avoid divide by zero
+- !11101  wifi: mac80211: sdata can be NULL during AMPDU start
+- net/sched: act_mpls: Fix warning during failed attribute validation
+- !11213  drm/amdgpu: Fix the null pointer dereference to ras_manager
+- !11268  net: bridge: mcast: wait for previous gc cycles when removing port
+- serial: core: check uartclk for zero to avoid divide by zero
+- net: bridge: mcast: wait for previous gc cycles when removing port
+- !11244 [sync] PR-11210:  jfs: Fix shift-out-of-bounds in dbDiscardAG
+- !11253  CVE-2024-43892
+- !11218  scsi: qla2xxx: validate nvme_local_port correctly
+- !11180  block: initialize integrity buffer to zero before writing it to media
+- !11112  sysctl: always initialize i_uid/i_gid
+- !11166  f2fs: let's avoid panic if extent_tree is not created
+- !11153  fix cve-2023-52896
+- !11165  tty: serial: qcom-geni-serial: fix slab-out-of-bounds on RX FIFO buffer
+- memcg: protect concurrent access to mem_cgroup_idr
+- !11232  Bluetooth: MGMT: Add error handling to pair_device()
+- jfs: Fix shift-out-of-bounds in dbDiscardAG
+- !11172  tracing: Fix overflow in get_free_elt()
+- !11212 [sync] PR-11123:  fix CVE-2024-42288
+- Bluetooth: MGMT: Add error handling to pair_device()
+- apparmor: Fix null pointer deref when receiving skb during sock creation
+- scsi: qla2xxx: validate nvme_local_port correctly
+- !11161  usb: vhci-hcd: Do not drop references before new references are gained
+- drm/amdgpu: Fix the null pointer dereference to ras_manager
+- scsi: qla2xxx: Fix for possible memory corruption
+- !11148  powerpc/pseries: Fix scv instruction crash with kexec
+- !11141  i2c: pnx: Fix potential deadlock warning from del_timer_sync() call in isr
+- ibmvnic: don't release napi in __ibmvnic_open()
+- tty: n_gsm: require CAP_NET_ADMIN to attach N_GSM0710 ldisc
+- fs/ntfs3: Update log->page_{mask,bits} if log->page_size changed
+- block: initialize integrity buffer to zero before writing it to media
+- tracing: Fix overflow in get_free_elt()
+- f2fs: let's avoid panic if extent_tree is not created
+- tty: serial: qcom-geni-serial: fix slab-out-of-bounds on RX FIFO buffer
+- usb: vhci-hcd: Do not drop references before new references are gained
+- btrfs: fix race between quota rescan and disable leading to NULL pointer deref
+- btrfs: move QUOTA_ENABLED check to rescan_should_stop from btrfs_qgroup_rescan_worker
+- powerpc/pseries: Fix scv instruction crash with kexec
+- i2c: pnx: Fix potential deadlock warning from del_timer_sync() call in isr
+- sysctl: always initialize i_uid/i_gid
+- wifi: mac80211: sdata can be NULL during AMPDU start
+- drm/amdgpu: change vm->task_info handling
+- scsi: mpt3sas: Avoid test/set_bit() operating in non-allocated memory
+- PCI: endpoint: pci-epf-test: Make use of cached 'epc_features' in pci_epf_test_core_init()
+- ocfs2: strict bound check before memcmp in ocfs2_xattr_find_entry()
+- ocfs2: add bounds checking to ocfs2_xattr_find_entry()
+
 * Tue Aug 27 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.91.0.172
 - !11162  btrfs: get rid of warning on transaction commit when using flushoncommit
 - !11152  protect the fetch of ->fd[fd
