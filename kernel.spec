@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       225
+%global devel_release       226
 %global maintenance_release .0.0
-%global pkg_release         .124
+%global pkg_release         .125
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -952,6 +952,132 @@ fi
 %endif
 
 %changelog
+* Wed Sep 04 2024 Li Nan <linan122@huawei.com> - 5.10.0-226.0.0.125
+- !11372  xdp: fix invalid wait context of page_pool_destroy()
+- !11376  drm/i915/gem: Fix Virtual Memory mapping boundaries calculation
+- !11356  f2fs: fix to do sanity check on F2FS_INLINE_DATA flag in inode during GC
+- !11347 v2  ext4: sanity check for NULL pointer after ext4_force_shutdown
+- !11368  nilfs2: handle inconsistent state in nilfs_btnode_create_block()
+- !11358  kcm: Serialise kcm_sendmsg() for the same socket.
+- !11327  CPU inspect bugfix
+- !11340  soc: hisilicon: Support memory repair driver
+- !10970  PCI: endpoint: pci-epf-test: Make use of cached 'epc_features' in pci_epf_test_core_init()
+- !11324  drm/amd/display: Add null checker before passing variables
+- !11320 [olk 5.10] hns3驱动支持rx/tx配置 tc buffer
+- !11284  fix CVE-2024-43905
+- !11343  netfilter: ctnetlink: use helper function to calculate expect ID
+- !11330  jbd2: avoid mount failed when commit block is partial submitted
+- !11190  fs/ntfs3: Update log->page_{mask,bits} if log->page_size changed
+- !11201  ibmvnic: don't release napi in __ibmvnic_open()
+- !11306 hns3 udma: fix bugs of invalid input check and remove dependency of ubl
+- !10748 v2  CVE-2024-41016
+- !11295  padata: Fix possible divide-by-0 panic in padata_mt_helper()
+- !11313  nvme-fabrics: use reserved tag for reg read/write command
+- !11310  drm/radeon: check bo_va->bo is non-NULL before using it
+- drm/i915/gem: Fix Virtual Memory mapping boundaries calculation
+- xdp: fix invalid wait context of page_pool_destroy()
+- nilfs2: handle inconsistent state in nilfs_btnode_create_block()
+- kcm: Serialise kcm_sendmsg() for the same socket.
+- f2fs: fix to do sanity check on F2FS_INLINE_DATA flag in inode during GC
+- ext4: sanity check for NULL pointer after ext4_force_shutdown
+- netfilter: ctnetlink: use helper function to calculate expect ID
+- config: enable CONFIG_HISI_MEM_RAS by default
+- docs: ABI: add ABI document for driver hisi_mem_ras
+- soc: hisilicon: Support memory repair driver on Kunpeng SoC
+- !11337 v3  Some features and fixs for hbmdev and hbm cache
+- ACPI/HMAT: Add missing locality information for hot-added device
+- hisilicon/hisi_hbmdev: Add lock to protect pcc operation region
+- hisilicon/hisi_hbmcache: Add a lock to protect pcc operation region
+- soc:hisilicon: Use _ON and _OFF in hbmcache
+- jbd2: avoid mount failed when commit block is partial submitted
+- cpuinspect: fix [stop/start]_inspect_threads return type
+- cpuinspect: make inspector unregister reliable
+- drm/amd/display: Add null checker before passing variables
+- nvme-fabrics: use reserved tag for reg read/write command
+- hns3 udma: remove UBL dependency.
+- hns3 udma: add verify udata and in/out addr.
+- hns3 udma: fix bugs of code review.
+- hns3 udma: fixed some bugs.
+- drm/radeon: check bo_va->bo is non-NULL before using it
+- net: hns3: add dcbnl_setbuffer and dcbnl_getbuffer support for pf
+- !11058  drm/amdgpu: change vm->task_info handling
+- !11057  scsi: mpt3sas: Avoid test/set_bit() operating in non-allocated memory
+- padata: Fix possible divide-by-0 panic in padata_mt_helper()
+- !11221  apparmor: Fix null pointer deref when receiving skb during sock creation
+- drm/amd/pm: Fix the null pointer dereference for vega10_hwmgr
+- !11246 [olk 5.10] hns3驱动一些bugfix patch
+- !11247 [openEuler-22.03-LTS-SP4]UNIC: Using UBL-related macros to isolate UB header files
+- !11273  serial: core: check uartclk for zero to avoid divide by zero
+- net: hns3: Resolved the issue that the debugfs query result is inconsistent.
+- net: hns3: fixed reset failure issues caused by the incorrect reset type
+- net: hns3: fix missing features due to dev->features configuration too early
+- net: hns3: fix a deadlock problem when config TC during resetting
+- net: hns3: add sync command to sync io-pgtable
+- net: hns3: default enable tx bounce buffer when smmu enabled
+- net: hns3: don't add the len of vlan head if skb_vlan_pop failed
+- net: hns3: void array out of bound when loop tnl_num
+- !11211  drm/amdgpu: Fix the null pointer dereference to ras_manager
+- !11275  wifi: cfg80211: Avoid Wdiscarded-qualifiers warning
+- !11271 roh/core: Avoid null pointer access and optimize code.
+- UNIC: Use the macro CONFIG_HNS3_UBL to isolate debugfs dentry
+- UNIC: Using UBL-related macros to isolate UB header files
+- roh/core: Avoid null pointer access and optimize code.
+- wifi: cfg80211: Avoid Wdiscarded-qualifiers warning
+- !11267  net: bridge: mcast: wait for previous gc cycles when removing port
+- serial: core: check uartclk for zero to avoid divide by zero
+- net: hns3: use correct release function during uninitialization
+- net: hns3: delete redundant enabling actions for Layer 2 fowarding
+- net: hns3: use the user's cfg after reset
+- net: hns3: fix delete tc fail issue
+- net: bridge: mcast: wait for previous gc cycles when removing port
+- !11241  CVE-2024-43892
+- !11217  scsi: qla2xxx: validate nvme_local_port correctly
+- !11181  block: initialize integrity buffer to zero before writing it to media
+- !11111  sysctl: always initialize i_uid/i_gid
+- !11194  Fix mainline patchs
+- !11230  Bluetooth: MGMT: Add error handling to pair_device()
+- !11210  jfs: Fix shift-out-of-bounds in dbDiscardAG
+- !11171  tracing: Fix overflow in get_free_elt()
+- !11169  CVE-2024-42267
+- memcg: protect concurrent access to mem_cgroup_idr
+- !11174  md: restore 'noio_flag' for the last mddev_resume()
+- Bluetooth: MGMT: Add error handling to pair_device()
+- apparmor: Fix null pointer deref when receiving skb during sock creation
+- !11182  CVE-2024-42287
+- scsi: qla2xxx: validate nvme_local_port correctly
+- !11159  usb: vhci-hcd: Do not drop references before new references are gained
+- !11184 【OLK 5.10】spi: spidev some bugfix
+- drm/amdgpu: Fix the null pointer dereference to ras_manager
+- !11140  i2c: pnx: Fix potential deadlock warning from del_timer_sync() call in isr
+- !11147  powerpc/pseries: Fix scv instruction crash with kexec
+- jfs: Fix shift-out-of-bounds in dbDiscardAG
+- !11187  Bugfix patches for hns RoCE
+- ibmvnic: don't release napi in __ibmvnic_open()
+- perf/x86/amd/core: Fix overflow reset on hotplug
+- perf/x86/amd/core: Always clear status for idx
+- spi: spidev: fix a recursive locking error
+- fs/ntfs3: Update log->page_{mask,bits} if log->page_size changed
+- spi: spidev: fix a race condition when accessing spidev->spi
+- RDMA/hns: Fix list_*_careful() not being used in pairs
+- RDMA/hns: Fix a meaningless loop in active_dca_pages_proc()
+- RDMA/hns: Fix possible RAS when DCA is not attached
+- RDMA/hns: Fix 1bit-ECC recovery address in non-4K OS
+- RDMA/hns: Fix VF triggering PF reset in abnormal interrupt handler
+- scsi: qla2xxx: Complete command early within lock
+- block: initialize integrity buffer to zero before writing it to media
+- md: restore 'noio_flag' for the last mddev_resume()
+- tracing: Fix overflow in get_free_elt()
+- riscv/mm: Add handling for VM_FAULT_SIGSEGV in mm_fault_error()
+- usb: vhci-hcd: Do not drop references before new references are gained
+- powerpc/pseries: Fix scv instruction crash with kexec
+- i2c: pnx: Fix potential deadlock warning from del_timer_sync() call in isr
+- sysctl: always initialize i_uid/i_gid
+- drm/amdgpu: change vm->task_info handling
+- scsi: mpt3sas: Avoid test/set_bit() operating in non-allocated memory
+- PCI: endpoint: pci-epf-test: Make use of cached 'epc_features' in pci_epf_test_core_init()
+- ocfs2: strict bound check before memcmp in ocfs2_xattr_find_entry()
+- ocfs2: add bounds checking to ocfs2_xattr_find_entry()
+
 * Tue Aug 27 2024 Li Nan <linan122@huawei.com> - 5.10.0-225.0.0.124
 - !11079 Backport 5.10.214 - 5.10.215 LTS patches from upstream
 - !11123  fix CVE-2024-42288
