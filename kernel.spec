@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2408.5.0
+%global hulkrelease 2409.1.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0292
+Release: %{hulkrelease}.0293
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,79 @@ fi
 %endif
 
 %changelog
+
+* Tue Sep 03 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2409.1.0.0293
+- !11383  perf/core: Fix missing wakeup when waiting for context reference
+- !11384  fs/proc: fix softlockup in __read_vmcore
+- !11351  regulator: da9211: Use irq handler when ready
+- !11364  hfs: fix to initialize fields of hfs_inode_info after hfs_alloc_inode()
+- fs/proc: fix softlockup in __read_vmcore
+- perf/core: Fix missing wakeup when waiting for context reference
+- !11242  CVE-2024-43892
+- !11301  ext4: remove the redundant folio_wait_stable()
+- hfs: fix to initialize fields of hfs_inode_info after hfs_alloc_inode()
+- !11333  jbd2: avoid mount failed when commit block is partial submitted
+- !11345  netfilter: ctnetlink: use helper function to calculate expect ID
+- regulator: da9211: Use irq handler when ready
+- !11220  io_uring: add a schedule point in io_add_buffers()
+- netfilter: ctnetlink: use helper function to calculate expect ID
+- jbd2: avoid mount failed when commit block is partial submitted
+- !11290  Add exception protection processing for vd in axi_chan_handle_err function
+- !11258  net: arcnet: com20020: Fix null-ptr-deref in com20020pci_probe()
+- !11215  Fix CVE-2024-40901
+- !11186  Backport bugfix for AMD SMN
+- !11265  mtd: rawnand: hynix: fixed typo
+- !11264  media: xc2028: avoid use-after-free in load_firmware_cb()
+- !11234  efi: fix NULL-deref in init error path
+- ext4: remove the redundant folio_wait_stable()
+- !11266  serial: core: check uartclk for zero to avoid divide by zero
+- Add exception protection processing for vd in axi_chan_handle_err function
+- !11216  scsi: qla2xxx: validate nvme_local_port correctly
+- !11254  mm: avoid overflows in dirty throttling logic
+- serial: core: check uartclk for zero to avoid divide by zero
+- !11189  tcp: fix race in tcp_v6_syn_recv_sock()
+- mtd: rawnand: hynix: fixed typo
+- media: xc2028: avoid use-after-free in load_firmware_cb()
+- !11154  xen/netfront: destroy queues before real_num_tx_queues is zeroed
+- !11259  ACPI: processor_idle: Fix invalid comparison with insertion sort for latency
+- !11260  ACPI: EC: Abort address space access upon error
+- !11261  ACPI: EC: Avoid returning AE_OK on errors in address space handler
+- !11114  sysctl: always initialize i_uid/i_gid
+- !11167  f2fs: let's avoid panic if extent_tree is not created
+- ACPI: EC: Avoid returning AE_OK on errors in address space handler
+- ACPI: EC: Abort address space access upon error
+- ACPI: processor_idle: Fix invalid comparison with insertion sort for latency
+- net: arcnet: com20020: Fix null-ptr-deref in com20020pci_probe()
+- mm: avoid overflows in dirty throttling logic
+- !11164  usb: vhci-hcd: Do not drop references before new references are gained
+- !11173  tracing: Fix overflow in get_free_elt()
+- memcg: protect concurrent access to mem_cgroup_idr
+- efi: fix NULL-deref in init error path
+- !11185  kobject_uevent: Fix OOB access within zap_modalias_env()
+- !11178  irqchip/alpine-msi: Fix off-by-one in allocation error path
+- io_uring: add a schedule point in io_add_buffers()
+- scsi: qla2xxx: validate nvme_local_port correctly
+- scsi: mpt3sas: Avoid test/set_bit() operating in non-allocated memory
+- scsi: mpt3sas: Gracefully handle online firmware update
+- scsi: mpt3sas: Add ioc_<level> logging macros
+- scsi: mpt3sas: Fix error return code of mpt3sas_base_attach()
+- !11193  net/ipv6: Fix the RT cache flush via sysctl using a previous delay
+- !11209  LTS patches round
+- UPSTREAM: tcp: fix DSACK undo in fast recovery to call tcp_try_to_open()
+- net: tcp better handling of reordering then loss cases
+- tcp: tcp_mark_head_lost is only valid for sack-tcp
+- tcp: add ece_ack flag to reno sack functions
+- net/ipv6: Fix the RT cache flush via sysctl using a previous delay
+- tcp: fix race in tcp_v6_syn_recv_sock()
+- x86/amd_nb: Check for invalid SMN reads
+- PCI: Add PCI_ERROR_RESPONSE and related definitions
+- kobject_uevent: Fix OOB access within zap_modalias_env()
+- irqchip/alpine-msi: Fix off-by-one in allocation error path
+- tracing: Fix overflow in get_free_elt()
+- f2fs: let's avoid panic if extent_tree is not created
+- usb: vhci-hcd: Do not drop references before new references are gained
+- xen/netfront: destroy queues before real_num_tx_queues is zeroed
+- sysctl: always initialize i_uid/i_gid
 
 * Tue Aug 27 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2408.5.0.0292
 - !11130  iio: adc: men_z188_adc: Fix a resource leak in an error handling path
