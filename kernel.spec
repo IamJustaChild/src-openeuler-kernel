@@ -11,7 +11,7 @@
 %global upstream_sublevel   0
 %global devel_release       226
 %global maintenance_release .0.0
-%global pkg_release         .125
+%global pkg_release         .126
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -31,8 +31,6 @@
 %ifarch aarch64
 %define with_64kb  %{?_with_64kb: 1} %{?!_with_64kb: 0}
 %if %{with_64kb}
-%global package64kb -64kb
-%global kv_suffix +64kb
 %define with_kabichk 0
 %endif
 %else
@@ -242,8 +240,8 @@ package or when debugging this package.\
 %{nil}
 
 %if %{with_64kb}
-%debuginfo_template -n kernel-64kb
-%files -n kernel-64kb-debuginfo -f debugfiles.list
+%debuginfo_template -n kernel
+%files -n kernel-debuginfo -f debugfiles.list
 %else
 %debuginfo_template -n kernel
 %files -n kernel-debuginfo -f debugfiles.list
@@ -952,6 +950,9 @@ fi
 %endif
 
 %changelog
+* Fri Sep 06 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-226.0.0.126
+- kernel.spec: avoid kernel package name dependency by other software packages
+
 * Wed Sep 04 2024 Li Nan <linan122@huawei.com> - 5.10.0-226.0.0.125
 - !11372  xdp: fix invalid wait context of page_pool_destroy()
 - !11376  drm/i915/gem: Fix Virtual Memory mapping boundaries calculation
