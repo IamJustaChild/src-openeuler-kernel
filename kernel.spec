@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       226
+%global devel_release       227
 %global maintenance_release .0.0
-%global pkg_release         .125
+%global pkg_release         .126
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -952,6 +952,81 @@ fi
 %endif
 
 %changelog
+* Mon Sep 09 2024 Li Nan <linan122@huawei.com> - 5.10.0-227.0.0.126
+- !11282  CVE-2024-44935
+- !11450  ACPI/HMAT: Fix compile error when CONFIG_ACPI_HMAT is not enabled
+- !11435  cifs: Fix pages leak when cifs_writedata allocate fails in cifs_writedata_direct_alloc()
+- !11437 sdma-dae:fix code review problems
+- ACPI/HMAT: Fix compile error when CONFIG_ACPI_HMAT is not enabled
+- !11041 coresight: etm4x: Fix unbalanced pm_runtime_enable()
+- !11439 v2  drm/amd/display: Fix null pointer deref in dcn20_resource.c
+- !11015  nvme-pci: add missing condition check for existence of mapped data
+- !11432 v2  mm/block: add bdi sysfs knobs
+- !11316  block: fix pin count management when merging same-page segments
+- drm/amd/display: Fix null pointer deref in dcn20_resource.c
+- drivers:misc:sdma-dae: fix icsl code check problems
+- coresight: etm4x: Fix unbalanced pm_runtime_enable()
+- cifs: Fix pages leak when cifs_writedata allocate fails in cifs_writedata_direct_alloc()
+- mm: fix arithmetic for bdi min_ratio
+- mm: fix arithmetic for max_prop_frac when setting max_ratio
+- mm: document /sys/class/bdi/<bdi>/min_ratio_fine knob
+- mm: add /sys/class/bdi/<bdi>/min_ratio_fine knob
+- mm: add bdi_set_min_ratio_no_scale() function
+- mm: document /sys/class/bdi/<bdi>/max_ratio_fine knob
+- mm: add /sys/class/bdi/<bdi>/max_ratio_fine knob
+- mm: add bdi_set_max_ratio_no_scale() function
+- mm: document /sys/class/bdi/<bdi>/min_bytes knob
+- mm: add /sys/class/bdi/<bdi>/min_bytes knob
+- mm: add bdi_set_min_bytes() function
+- mm: split off __bdi_set_min_ratio() function
+- mm: add bdi_get_min_bytes() function
+- mm: document /sys/class/bdi/<bdi>/max_bytes knob
+- mm: add knob /sys/class/bdi/<bdi>/max_bytes
+- mm: add bdi_set_max_bytes() function
+- mm: split off __bdi_set_max_ratio() function
+- mm: add bdi_get_max_bytes() function
+- mm: use part per 1000000 for bdi ratios
+- mm: rework calculation of bdi_min_ratio in bdi_set_min_ratio
+- mm: document /sys/class/bdi/<bdi>/strict_limit knob
+- mm: add knob /sys/class/bdi/<bdi>/strict_limit
+- mm: add bdi_set_strict_limit() function
+- !11417  md/raid5: avoid BUG_ON() while continue reshape after reassembling
+- !11207  kprobe support %pd/%pD type
+- !11430  Revert "mm/writeback: fix possible divide-by-zero in wb_dirty_limits(), again"
+- !11391  fix CVE-2023-45896
+- !11405  dma: fix call order in dmam_free_coherent
+- !11237  CVE-2024-43907
+- !11409  btrfs: do not start relocation until in progress drops are done
+- Revert "mm/writeback: fix possible divide-by-zero in wb_dirty_limits(), again"
+- !10904 Incorporate some bonding patches as follows(OLK_5.10):
+- !11341  nfsd: map the EBADMSG to nfserr_io to avoid warning
+- !11390  hfs: fix to initialize fields of hfs_inode_info after hfs_alloc_inode()
+- md/raid5: avoid BUG_ON() while continue reshape after reassembling
+- btrfs: do not start relocation until in progress drops are done
+- !11398  fuse: Initialize beyond-EOF page contents before setting uptodate
+- !11403  btrfs: do not WARN_ON() if we have PageError set
+- dma: fix call order in dmam_free_coherent
+- !11394  dmaengine: idxd: Prevent use after free on completion memory
+- btrfs: do not WARN_ON() if we have PageError set
+- fuse: Initialize beyond-EOF page contents before setting uptodate
+- dmaengine: idxd: Prevent use after free on completion memory
+- fs/ntfs3: Add more attributes checks in mi_enum_attr()
+- hfs: fix to initialize fields of hfs_inode_info after hfs_alloc_inode()
+- nfsd: map the EBADMSG to nfserr_io to avoid warning
+- block: fix pin count management when merging same-page segments
+- sctp: Fix null-ptr-deref in reuseport_add_sock().
+- sctp: move hlist_node and hashent out of sctp_ep_common
+- drm/amdgpu/pm: Fix the null pointer dereference in apply_state_adjust_rules
+- RDMA/hns: Fix concurrency issue between bond work and bond event
+- RDMA/hns: Fix UAF in clear bond printing
+- RDMA/hns: Encapsulate upper event and lowerstate event handlers
+- RDMA/hns: Register notifier block of bonding events in bond_grp
+- selftests/ftrace: add kprobe test cases for VFS type "%pd" and "%pD"
+- Documentation: tracing: add new type '%pd' and '%pD' for kprobe
+- tracing/probes: support '%pD' type for print struct file's name
+- tracing/probes: support '%pd' type for print struct dentry's name
+- nvme-pci: add missing condition check for existence of mapped data
+
 * Wed Sep 04 2024 Li Nan <linan122@huawei.com> - 5.10.0-226.0.0.125
 - !11372  xdp: fix invalid wait context of page_pool_destroy()
 - !11376  drm/i915/gem: Fix Virtual Memory mapping boundaries calculation
