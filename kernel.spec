@@ -41,9 +41,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       39
+%global devel_release       41
 %global maintenance_release .0.0
-%global pkg_release         .48
+%global pkg_release         .49
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1090,6 +1090,144 @@ fi
 %endif
 
 %changelog
+* Fri Sep 06 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-41.0.0.49
+- !11443 v2  drm/amd/display: Fix null pointer deref in dcn20_resource.c
+- drm/amd/display: Fix null pointer deref in dcn20_resource.c
+- !11433  ext4: Track data blocks freeing operation in journal
+- ext4: Track data blocks freeing operation in journal
+- !11063 virtcca feature: secure smmu init
+- virtcca feature: secure smmu doc
+- virtcca feature: secure smmu init
+- !11206  kprobe support %pd/%pD type
+- selftests/ftrace: Fix required features for VFS type test case
+- selftests/ftrace: add fprobe test cases for VFS type "%pd" and "%pD"
+- selftests/ftrace: add kprobe test cases for VFS type "%pd" and "%pD"
+- Documentation: tracing: add new type '%pd' and '%pD' for kprobe
+- tracing/probes: support '%pD' type for print struct file's name
+- tracing/probes: support '%pd' type for print struct dentry's name
+- !10875 Incorporate some bonding patches as follows(OLK-6.6)
+- RDMA/hns: Fix concurrency issue between bond work and bond event
+- RDMA/hns: Fix UAF in clear bond printing
+- RDMA/hns: Encapsulate upper event and lowerstate event handlers
+- RDMA/hns: Register notifier block of bonding events in bond_grp
+- !11304  iomap: fault in smaller chunks for non-large folio mappings
+- iomap: fault in smaller chunks for non-large folio mappings
+- !11397  fuse: Initialize beyond-EOF page contents before setting uptodate
+- fuse: Initialize beyond-EOF page contents before setting uptodate
+- !11303 【OLK-6.6】ROH sync patch from OLK-5.10
+- roh/core: Avoid null pointer access and optimize code.
+- Revert "RDMA/hns: Support RDMA_CM in ROH mode"
+- RDMA/hns: Support getting GRH for UD in RoH mode when NLP = 0
+- roh/core: Support macvlan in roh.
+- roh/hns3: Add ROH client case in hclgevf_init_client_instance.
+- roh/hns3: Fix IMP reset vlan unusable.
+- !11363  kcm: Serialise kcm_sendmsg() for the same socket.
+- kcm: Serialise kcm_sendmsg() for the same socket.
+- !11381  mm/dynamic_pool: use batch to add free pages to dpool
+- mm/dynamic_pool: use batch to add free pages to dpool
+- !11355  ext4: Fix wrong da count caused by concurrent racing on extent tree
+- ext4: Fix wrong da count caused by concurrent racing on extent tree
+- !11335 Revert SPI bugfixs
+- spi: hisi-kunpeng: Add validation for the minimum value of speed_hz
+- spi: hisi-kunpeng: Add verification for the max_frequency provided by the firmware
+- Revert "spi: hisi-kunpeng: Add validation for the minimum value of speed_hz"
+- Revert "spi: Add verification for the max_frequency provided by the firmware"
+- !11336  nfsd: map the EBADMSG to nfserr_io to avoid warning
+- nfsd: map the EBADMSG to nfserr_io to avoid warning
+- !11342  large folios swap-in: handle refault cases first
+- mm: remove folio_test_anon(folio)==false path in __folio_add_anon_rmap()
+- mm: use folio_add_new_anon_rmap() if folio_test_anon(folio)==false
+- mm: extend rmap flags arguments for folio_add_new_anon_rmap
+- mm: rmap: abstract updating per-node and per-memcg stats
+- mm: swap: reuse exclusive folio directly instead of wp page faults
+- mm: swap: entirely map large folios found in swapcache
+- mm: swap: make should_try_to_free_swap() support large-folio
+- mm: introduce arch_do_swap_page_nr() which allows restore metadata for nr pages
+- mm: introduce pte_move_swp_offset() helper which can move offset bidirectionally
+- mm: remove the implementation of swap_free() and always use swap_free_nr()
+- mm: swap: introduce swap_free_nr() for batched swap_free()
+- mm: remove page_add_new_anon_rmap and lru_cache_add_inactive_or_unevictable
+- mm: userswap: page_add_new_anon_rmap() -> folio_add_new_anon_rmap()
+- mm: convert collapse_huge_page() to use a folio
+- mm: convert migrate_vma_insert_page() to use a folio
+- mm: remove references to page_add_new_anon_rmap in comments
+- mm: remove stale example from comment
+- mm: remove some calls to page_add_new_anon_rmap()
+- mm: convert unuse_pte() to use a folio throughout
+- mm: convert ksm_might_need_to_copy() to work on folios
+- mm: memory: use a folio in validate_page_before_insert()
+- mm: ksm: use more folio api in ksm_might_need_to_copy()
+- !11328  jbd2: avoid mount failed when commit block is partial submitted
+- jbd2: avoid mount failed when commit block is partial submitted
+- !11222  nfs: pass explicit offset/count to trace events
+- nfs: pass explicit offset/count to trace events
+- !11321  NFSD: simplify error paths in nfsd_svc()
+- NFSD: simplify error paths in nfsd_svc()
+- !11314  nvme-fabrics: use reserved tag for reg read/write command
+- nvme-fabrics: use reserved tag for reg read/write command
+- !11119 virtcca compile warning clean
+- virtcca bugfix: compile warning clean
+- !10762  CVE-2024-41016
+- ocfs2: strict bound check before memcmp in ocfs2_xattr_find_entry()
+- ocfs2: add bounds checking to ocfs2_xattr_find_entry()
+- !11300 v3  mm/shmem: mTHP support for anon shmem
+- mm: shmem: rename mTHP shmem counters
+- mm: add docs for per-order mTHP split counters
+- mm: add per-order mTHP split counters
+- mm: shmem: fix incorrect aligned index when checking conflicts
+- mm: shmem: avoid allocating huge pages larger than MAX_PAGECACHE_ORDER for shmem
+- mm: thp: support "THPeligible" semantics for mTHP with anonymous shmem
+- mm/shmem: fix input and output inconsistencies
+- mm: shmem: add mTHP counters for anonymous shmem
+- mm: shmem: add mTHP size alignment in shmem_get_unmapped_area
+- mm: shmem: add mTHP support for anonymous shmem
+- mm: shmem: add multi-size THP sysfs interface for anonymous shmem
+- mm: shmem: add THP validation for PMD-mapped THP related statistics
+- mm: memory: extend finish_fault() to support large folio
+- mm: shmem: Merge shmem_alloc_hugefolio() with shmem_alloc_folio()
+- mm: use update_mmu_tlb_range() to simplify code
+- mm: implement update_mmu_tlb() using update_mmu_tlb_range()
+- mm: add update_mmu_tlb_range()
+- shmem: move the shmem_mapping assert into shmem_get_folio_gfp
+- shmem: set a_ops earlier in shmem_symlink
+- shmem,percpu_counter: add _limited_add(fbc, limit, amount)
+- shmem: _add_to_page_cache() before shmem_inode_acct_blocks()
+- shmem: move memcg charge out of shmem_add_to_page_cache()
+- shmem: shmem_acct_blocks() and shmem_inode_acct_blocks()
+- shmem: trivial tidyups, removing extra blank lines, etc
+- shmem: factor shmem_falloc_wait() out of shmem_fault()
+- shmem: remove vma arg from shmem_get_folio_gfp()
+- shmem: shrink shmem_inode_info: dir_offsets in a union
+- !11270  nvme: apple: fix device reference counting
+- nvme: apple: fix device reference counting
+- !11279  ice: Don't process extts if PTP is disabled
+- ice: Don't process extts if PTP is disabled
+- !11280  ice: Fix improper extts handling
+- ice: Fix improper extts handling
+- !11233  CVE-2024-43892
+- memcg: protect concurrent access to mem_cgroup_idr
+- !11229  tracing: Have format file honor EVENT_FILE_FL_FREED
+- tracing: Have format file honor EVENT_FILE_FL_FREED
+- !11228  Bluetooth: MGMT: Add error handling to pair_device()
+- Bluetooth: MGMT: Add error handling to pair_device()
+- !10698  wifi: mac80211: Avoid address calculations via out of bounds array indexing
+- wifi: mac80211: Avoid address calculations via out of bounds array indexing
+- !11158  usb: vhci-hcd: Do not drop references before new references are gained
+- usb: vhci-hcd: Do not drop references before new references are gained
+- !11040  mm: lazyfree THP support
+- mm/huge_memory.c: fix used-uninitialized
+- mm/vmscan: avoid split lazyfree THP during shrink_folio_list()
+- mm/rmap: integrate PMD-mapped folio splitting into pagewalk loop
+- mm/rmap: remove duplicated exit code in pagewalk loop
+- mm: arm64: fix the out-of-bounds issue in contpte_clear_young_dirty_ptes
+- mm/madvise: optimize lazyfreeing with mTHP in madvise_free
+- mm/memory: add any_dirty optional pointer to folio_pte_batch()
+- mm/arm64: override clear_young_dirty_ptes() batch helper
+- mm/madvise: introduce clear_young_dirty_ptes() batch helper
+- mm: add pmd_folio()
+- mm: make HPAGE_PXD_* macros even if !THP
+- mm/Kconfig: CONFIG_PGTABLE_HAS_HUGE_LEAVES
+
 * Wed Aug 28 2024 Luo Feng <luofeng13@huawei.com> - 6.6.0-39.0.0.48
 - When compiling with clang, skip the kabi check.
 
