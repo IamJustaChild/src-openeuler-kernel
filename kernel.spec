@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2409.1.0
+%global hulkrelease 2409.3.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0293
+Release: %{hulkrelease}.0294
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,70 @@ fi
 %endif
 
 %changelog
+
+* Tue Sep 10 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2409.3.0.0294
+- !11434 v3  cifs: Fix pages leak when cifs_writedata allocate fails in cifs_writedata_direct_alloc()
+- cifs: Fix pages leak when cifs_writedata allocate fails in cifs_writedata_direct_alloc()
+- !11418  md/raid5: avoid BUG_ON() while continue reshape after reassembling
+- !11426  nfc: pn533: Wait for out_urb's completion in pn533_usb_send_frame()
+- nfc: pn533: initialize struct pn533_out_arg properly
+- nfc: pn533: Wait for out_urb's completion in pn533_usb_send_frame()
+- !11404  usb: gadget: f_ncm: fix potential NULL ptr deref in ncm_bitrate()
+- !11406  net: hns3: do not allow call hns3_nic_net_open repeatedly
+- md/raid5: avoid BUG_ON() while continue reshape after reassembling
+- !11177  dma: fix call order in dmam_free_coherent
+- !11387  usb: gadget: rndis: add spinlock for rndis response list
+- !8301  tty: fix hang on tty device with no_room set
+- !7809  net-memcg: Fix scope of sockmem pressure indicators
+- net: hns3: do not allow call hns3_nic_net_open repeatedly
+- !11386 v5  support block hierarchy stats
+- usb: gadget: f_ncm: fix potential NULL ptr deref in ncm_bitrate()
+- !11349  jfs: Fix array-index-out-of-bounds in diFree
+- !11350  devres: Fix memory leakage caused by driver API devm_free_percpu()
+- !11378  drm/i915/gem: Fix Virtual Memory mapping boundaries calculation
+- !11370  nilfs2: handle inconsistent state in nilfs_btnode_create_block()
+- !11367  ibmvnic: free reset-work-item when flushing
+- !11388  dev/parport: fix the array out-of-bounds risk
+- dev/parport: fix the array out-of-bounds risk
+- usb: gadget: rndis: add spinlock for rndis response list
+- blk-io-hierarchy: support new stage for bio lifetime
+- blk-io-hierarchy: support new rq based stage rq_driver
+- blk-io-hierarchy: support new rq based stage requeue
+- blk-io-hierarchy: support new rq based stage hctx
+- blk-io-hierarchy: support new rq based stage kyber
+- blk-io-hierarchy: support new rq based stage bfq
+- blk-io-hierarchy: support new rq based stage mq-deadline
+- blk-io-hierarchy: support new rq based stage plug
+- blk-io-hierarchy: support new bio based stage gettag
+- blk-mq: remove blk_mq_put_ctx()
+- blk-io-hierarchy: support new bio based stage blk-wbt
+- blk-io-hierarchy: support new bio based stage blk-throtl
+- blk-io-hierarchy: support to recored the number of slow IO
+- block-io-hierarchy: core hierarchy iodump implementation
+- block-io-hierarchy: core hierarchy stats implementation
+- block: support to record when request is completed
+- blk-mq-debugfs: factor out a new helper to show allocated request
+- block: block: fix kabi broken for struct blk_mq_alloc_data
+- block: support to recored bio allocation task in request
+- block: fix kabi broken for struct request
+- block: support to recored bio allocation time in request
+- block: support to recored bio allocation task
+- block: support to recored bio allocation time
+- block: fix kabi broken in struct blk_plug
+- block: fix that blk_time_get_ns() doesn't update time after schedule
+- block: limit block time caching to in_task() context
+- block: update cached timestamp post schedule/preemption
+- block: cache current nsec time in struct blk_plug
+- block: add blk_time_get_ns() and blk_time_get() helpers
+- blk-mq: export blk-mq-debugfs apis
+- drm/i915/gem: Fix Virtual Memory mapping boundaries calculation
+- nilfs2: handle inconsistent state in nilfs_btnode_create_block()
+- ibmvnic: free reset-work-item when flushing
+- devres: Fix memory leakage caused by driver API devm_free_percpu()
+- jfs: Fix array-index-out-of-bounds in diFree
+- dma: fix call order in dmam_free_coherent
+- tty: fix hang on tty device with no_room set
+- net-memcg: Fix scope of sockmem pressure indicators
 
 * Tue Sep 03 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2409.1.0.0293
 - !11383  perf/core: Fix missing wakeup when waiting for context reference
