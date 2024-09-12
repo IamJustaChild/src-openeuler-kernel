@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       226
+%global devel_release       228
 %global maintenance_release .0.0
-%global pkg_release         .129
+%global pkg_release         .130
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -117,7 +117,7 @@ Conflicts: mdadm < 3.2.1-5 nfs-utils < 1.0.7-12 oprofile < 0.9.1-2 ppp < 2.4.3-3
 Conflicts: reiserfs-utils < 3.6.19-2 selinux-policy-targeted < 1.25.3-14 squashfs-tools < 4.0
 Conflicts: udev < 063-6 util-linux < 2.12 wireless-tools < 29-3 xfsprogs < 2.6.13-4
 
-Provides: kernel-aarch64 = %{version}-%{release} kernel-drm = 4.3.0 kernel-drm-nouveau = 16 kernel-modeset = 1
+Provides: kernel-%{_target_cpu}= %{version}-%{release} kernel-drm = 4.3.0 kernel-drm-nouveau = 16 kernel-modeset = 1
 Provides: kernel-uname-r = %{KernelVer} kernel=%{KernelVer}
 
 Requires: dracut >= 001-7 grubby >= 8.28-2 initscripts >= 8.11.1-1 linux-firmware >= 20100806-2 module-init-tools >= 3.16-2
@@ -911,6 +911,143 @@ fi
 %endif
 
 %changelog
+* Thu Sep 12 2024 Li Nan <linan122@huawei.com> - 5.10.0-228.0.0.130
+- !11504 sdma-dae support debugfs and fast mode
+- !10195  xfs: Fix agf_longest update error
+- !11505  Misc minor bugfix for HNS RoCE
+- RDMA/hns: Fix endian issues
+- RDMA/hns: Fix ah error counter in sw stat not increasing when sl is invalid
+- RDMA/hns: Fix "Should it be static?" warnings
+- RDMA/hns: Fix dereference of noderef expression
+- RDMA/hns: Fix an AEQE overflow error caused by untimely update of eq_db_ci
+- drivers:misc:sdma-dae: add fast mode
+- !11479 【OLK 5.10】some bugfixes for hns3 driver
+- driver:misc:sdma-dae: not expose sq_tail write and add validation of cq_head
+- driver:misc:sdma-dae: add debugfs of sdma-dae
+- !11490 RDMA/hns: Fix missing unlock of scc_mutex in error path
+- !11478  coresight: etm4x: Fix CPU idle PM support for ETE
+- net: hns3: fix concurrent setting vlan filter issue
+- net: hns3: fix snprintf() is printing too much problem
+- net: hns3: make sure ptp clock is unregister and freed if hclge_ptp_get_cycle returns an error
+- net: hns3: fix spelling mistake "reg_um" -> "reg_num"
+- net: hns3: fixed hclge_fetch_pf_reg accesses bar space out of bounds issue
+- net: hns3:support enable or disable pfc strom prevent
+- !11491  Fix CVE-2022-48887
+- net: hns3: fix wrong use of semaphore up
+- !11463  net: dsa: bcm_sf2: Fix a possible memory leak in bcm_sf2_mdio_register()
+- !11462  mptcp: pm: avoid possible UaF when selecting endp
+- !11470 OLK-5.10 Rever gpiolib bugfix
+- drm/vmwgfx: Remove rcu locks from user resources
+- drm/vmwgfx: Remove vmw_user_bo_noref_release
+- drm/vmwgfx: Introduce ttm reference object find function
+- RDMA/hns: Fix missing unlock of scc_mutex in error path
+- !11487  bna: ensure the copied buf is NUL terminated
+- bna: ensure the copied buf is NUL terminated
+- coresight: etm4x: Fix access to resource selector registers
+- coresight: etm4x: Safe access for TRCQCLTR
+- coresight: etm4x: Do not save/restore Data trace control registers
+- coresight: etm4x: Do not hardcode IOMEM access for register restore
+- coresight: etm4x: add CPU hotplug support for probing
+- !11276 [OLK-5.10]perf: Support event alias in form foo-bar-baz
+- gpiolib: acpi: Fix failed in acpi_gpiochip_find() by adding parent node match
+- Revert "gpiolib: acpi: Fix failed in acpi_gpiochip_find() by adding parent node match"
+- !11467 [sync] PR-11465: 【olk 6.6】net: hns3: some bugfixes for netdev
+- !11466 OLK-5.10 Rever spi bugfix
+- net: hns3: fix kernel crash when 1588 is sent on HIP08 devices
+- net: hns3: initialize reset_timer before hclgevf_misc_irq_init()
+- net: hns3: don't auto enable misc vector
+- spi: hisi-kunpeng: Add validation for the minimum value of speed_hz
+- spi: hisi-kunpeng: Add verification for the max_frequency provided by the firmware
+- Revert "spi: hisi-kunpeng: Add validation for the minimum value of speed_hz"
+- Revert "spi: Add verification for the max_frequency provided by the firmware"
+- !11104  soc: qcom: pdr: protect locator_addr with the main mutex
+- !11453  nfs: fix memory leak in error path of nfs4_do_reclaim
+- !11447  zap_pid_ns_processes: clear TIF_NOTIFY_SIGNAL along with TIF_SIGPENDING
+- net: dsa: bcm_sf2: Fix a possible memory leak in bcm_sf2_mdio_register()
+- mptcp: pm: avoid possible UaF when selecting endp
+- !11282  CVE-2024-44935
+- !11450  ACPI/HMAT: Fix compile error when CONFIG_ACPI_HMAT is not enabled
+- !11435  cifs: Fix pages leak when cifs_writedata allocate fails in cifs_writedata_direct_alloc()
+- !11437 sdma-dae:fix code review problems
+- nfs: fix memory leak in error path of nfs4_do_reclaim
+- ACPI/HMAT: Fix compile error when CONFIG_ACPI_HMAT is not enabled
+- !11041 coresight: etm4x: Fix unbalanced pm_runtime_enable()
+- zap_pid_ns_processes: clear TIF_NOTIFY_SIGNAL along with TIF_SIGPENDING
+- !11439 v2  drm/amd/display: Fix null pointer deref in dcn20_resource.c
+- !11015  nvme-pci: add missing condition check for existence of mapped data
+- !11432 v2  mm/block: add bdi sysfs knobs
+- !11316  block: fix pin count management when merging same-page segments
+- drm/amd/display: Fix null pointer deref in dcn20_resource.c
+- drivers:misc:sdma-dae: fix icsl code check problems
+- coresight: etm4x: Fix unbalanced pm_runtime_enable()
+- cifs: Fix pages leak when cifs_writedata allocate fails in cifs_writedata_direct_alloc()
+- mm: fix arithmetic for bdi min_ratio
+- mm: fix arithmetic for max_prop_frac when setting max_ratio
+- mm: document /sys/class/bdi/<bdi>/min_ratio_fine knob
+- mm: add /sys/class/bdi/<bdi>/min_ratio_fine knob
+- mm: add bdi_set_min_ratio_no_scale() function
+- mm: document /sys/class/bdi/<bdi>/max_ratio_fine knob
+- mm: add /sys/class/bdi/<bdi>/max_ratio_fine knob
+- mm: add bdi_set_max_ratio_no_scale() function
+- mm: document /sys/class/bdi/<bdi>/min_bytes knob
+- mm: add /sys/class/bdi/<bdi>/min_bytes knob
+- mm: add bdi_set_min_bytes() function
+- mm: split off __bdi_set_min_ratio() function
+- mm: add bdi_get_min_bytes() function
+- mm: document /sys/class/bdi/<bdi>/max_bytes knob
+- mm: add knob /sys/class/bdi/<bdi>/max_bytes
+- mm: add bdi_set_max_bytes() function
+- mm: split off __bdi_set_max_ratio() function
+- mm: add bdi_get_max_bytes() function
+- mm: use part per 1000000 for bdi ratios
+- mm: rework calculation of bdi_min_ratio in bdi_set_min_ratio
+- mm: document /sys/class/bdi/<bdi>/strict_limit knob
+- mm: add knob /sys/class/bdi/<bdi>/strict_limit
+- mm: add bdi_set_strict_limit() function
+- !11417  md/raid5: avoid BUG_ON() while continue reshape after reassembling
+- !11207  kprobe support %pd/%pD type
+- !11430  Revert "mm/writeback: fix possible divide-by-zero in wb_dirty_limits(), again"
+- !11391  fix CVE-2023-45896
+- !11405  dma: fix call order in dmam_free_coherent
+- !11237  CVE-2024-43907
+- !11409  btrfs: do not start relocation until in progress drops are done
+- Revert "mm/writeback: fix possible divide-by-zero in wb_dirty_limits(), again"
+- !10904 Incorporate some bonding patches as follows(OLK_5.10):
+- !11341  nfsd: map the EBADMSG to nfserr_io to avoid warning
+- !11390  hfs: fix to initialize fields of hfs_inode_info after hfs_alloc_inode()
+- md/raid5: avoid BUG_ON() while continue reshape after reassembling
+- btrfs: do not start relocation until in progress drops are done
+- !11398  fuse: Initialize beyond-EOF page contents before setting uptodate
+- !11403  btrfs: do not WARN_ON() if we have PageError set
+- dma: fix call order in dmam_free_coherent
+- !11394  dmaengine: idxd: Prevent use after free on completion memory
+- btrfs: do not WARN_ON() if we have PageError set
+- fuse: Initialize beyond-EOF page contents before setting uptodate
+- dmaengine: idxd: Prevent use after free on completion memory
+- fs/ntfs3: Add more attributes checks in mi_enum_attr()
+- hfs: fix to initialize fields of hfs_inode_info after hfs_alloc_inode()
+- nfsd: map the EBADMSG to nfserr_io to avoid warning
+- block: fix pin count management when merging same-page segments
+- sctp: Fix null-ptr-deref in reuseport_add_sock().
+- sctp: move hlist_node and hashent out of sctp_ep_common
+- perf parse-event bugfix merge
+- perf test: Add parse-events test for aliases with hyphens
+- perf test: Add pmu-events test for aliases with hyphens
+- perf parse-events: Support event alias in form foo-bar-baz
+- drm/amdgpu/pm: Fix the null pointer dereference in apply_state_adjust_rules
+- RDMA/hns: Fix concurrency issue between bond work and bond event
+- RDMA/hns: Fix UAF in clear bond printing
+- RDMA/hns: Encapsulate upper event and lowerstate event handlers
+- RDMA/hns: Register notifier block of bonding events in bond_grp
+- selftests/ftrace: add kprobe test cases for VFS type "%pd" and "%pD"
+- Documentation: tracing: add new type '%pd' and '%pD' for kprobe
+- tracing/probes: support '%pD' type for print struct file's name
+- tracing/probes: support '%pd' type for print struct dentry's name
+- soc: qcom: pdr: protect locator_addr with the main mutex
+- nvme-pci: add missing condition check for existence of mapped data
+- xfs: Fix agf_longest update error
+- Fix x86 provides error symbol
+
 * Wed Sep 04 2024 Li Nan <linan122@huawei.com> - 5.10.0-226.0.0.129
 - !11372  xdp: fix invalid wait context of page_pool_destroy()
 - !11376  drm/i915/gem: Fix Virtual Memory mapping boundaries calculation
