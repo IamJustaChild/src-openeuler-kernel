@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       227
+%global devel_release       228
 %global maintenance_release .0.0
-%global pkg_release         .126
+%global pkg_release         .127
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -117,7 +117,7 @@ Conflicts: mdadm < 3.2.1-5 nfs-utils < 1.0.7-12 oprofile < 0.9.1-2 ppp < 2.4.3-3
 Conflicts: reiserfs-utils < 3.6.19-2 selinux-policy-targeted < 1.25.3-14 squashfs-tools < 4.0
 Conflicts: udev < 063-6 util-linux < 2.12 wireless-tools < 29-3 xfsprogs < 2.6.13-4
 
-Provides: kernel-aarch64 = %{version}-%{release} kernel-drm = 4.3.0 kernel-drm-nouveau = 16 kernel-modeset = 1
+Provides: kernel-%{_target_cpu}= %{version}-%{release} kernel-drm = 4.3.0 kernel-drm-nouveau = 16 kernel-modeset = 1
 Provides: kernel-uname-r = %{KernelVer} kernel=%{KernelVer}
 
 Requires: dracut >= 001-7 grubby >= 8.28-2 initscripts >= 8.11.1-1 linux-firmware >= 20100806-2 module-init-tools >= 3.16-2
@@ -952,6 +952,70 @@ fi
 %endif
 
 %changelog
+* Thu Sep 12 2024 Li Nan <linan122@huawei.com> - 5.10.0-228.0.0.127
+- !11504 sdma-dae support debugfs and fast mode
+- !10195  xfs: Fix agf_longest update error
+- !11505  Misc minor bugfix for HNS RoCE
+- RDMA/hns: Fix endian issues
+- RDMA/hns: Fix ah error counter in sw stat not increasing when sl is invalid
+- RDMA/hns: Fix "Should it be static?" warnings
+- RDMA/hns: Fix dereference of noderef expression
+- RDMA/hns: Fix an AEQE overflow error caused by untimely update of eq_db_ci
+- drivers:misc:sdma-dae: add fast mode
+- !11479 【OLK 5.10】some bugfixes for hns3 driver
+- driver:misc:sdma-dae: not expose sq_tail write and add validation of cq_head
+- driver:misc:sdma-dae: add debugfs of sdma-dae
+- !11490 RDMA/hns: Fix missing unlock of scc_mutex in error path
+- !11478  coresight: etm4x: Fix CPU idle PM support for ETE
+- net: hns3: fix concurrent setting vlan filter issue
+- net: hns3: fix snprintf() is printing too much problem
+- net: hns3: make sure ptp clock is unregister and freed if hclge_ptp_get_cycle returns an error
+- net: hns3: fix spelling mistake "reg_um" -> "reg_num"
+- net: hns3: fixed hclge_fetch_pf_reg accesses bar space out of bounds issue
+- net: hns3:support enable or disable pfc strom prevent
+- !11491  Fix CVE-2022-48887
+- net: hns3: fix wrong use of semaphore up
+- !11463  net: dsa: bcm_sf2: Fix a possible memory leak in bcm_sf2_mdio_register()
+- !11462  mptcp: pm: avoid possible UaF when selecting endp
+- !11470 OLK-5.10 Rever gpiolib bugfix
+- drm/vmwgfx: Remove rcu locks from user resources
+- drm/vmwgfx: Remove vmw_user_bo_noref_release
+- drm/vmwgfx: Introduce ttm reference object find function
+- RDMA/hns: Fix missing unlock of scc_mutex in error path
+- !11487  bna: ensure the copied buf is NUL terminated
+- bna: ensure the copied buf is NUL terminated
+- coresight: etm4x: Fix access to resource selector registers
+- coresight: etm4x: Safe access for TRCQCLTR
+- coresight: etm4x: Do not save/restore Data trace control registers
+- coresight: etm4x: Do not hardcode IOMEM access for register restore
+- coresight: etm4x: add CPU hotplug support for probing
+- !11276 [OLK-5.10]perf: Support event alias in form foo-bar-baz
+- gpiolib: acpi: Fix failed in acpi_gpiochip_find() by adding parent node match
+- Revert "gpiolib: acpi: Fix failed in acpi_gpiochip_find() by adding parent node match"
+- !11467 [sync] PR-11465: 【olk 6.6】net: hns3: some bugfixes for netdev
+- !11466 OLK-5.10 Rever spi bugfix
+- net: hns3: fix kernel crash when 1588 is sent on HIP08 devices
+- net: hns3: initialize reset_timer before hclgevf_misc_irq_init()
+- net: hns3: don't auto enable misc vector
+- spi: hisi-kunpeng: Add validation for the minimum value of speed_hz
+- spi: hisi-kunpeng: Add verification for the max_frequency provided by the firmware
+- Revert "spi: hisi-kunpeng: Add validation for the minimum value of speed_hz"
+- Revert "spi: Add verification for the max_frequency provided by the firmware"
+- !11104  soc: qcom: pdr: protect locator_addr with the main mutex
+- !11453  nfs: fix memory leak in error path of nfs4_do_reclaim
+- !11447  zap_pid_ns_processes: clear TIF_NOTIFY_SIGNAL along with TIF_SIGPENDING
+- net: dsa: bcm_sf2: Fix a possible memory leak in bcm_sf2_mdio_register()
+- mptcp: pm: avoid possible UaF when selecting endp
+- nfs: fix memory leak in error path of nfs4_do_reclaim
+- zap_pid_ns_processes: clear TIF_NOTIFY_SIGNAL along with TIF_SIGPENDING
+- perf parse-event bugfix merge
+- perf test: Add parse-events test for aliases with hyphens
+- perf test: Add pmu-events test for aliases with hyphens
+- perf parse-events: Support event alias in form foo-bar-baz
+- soc: qcom: pdr: protect locator_addr with the main mutex
+- xfs: Fix agf_longest update error
+- Fix x86 provides error symbol
+
 * Mon Sep 09 2024 Li Nan <linan122@huawei.com> - 5.10.0-227.0.0.126
 - !11282  CVE-2024-44935
 - !11450  ACPI/HMAT: Fix compile error when CONFIG_ACPI_HMAT is not enabled
