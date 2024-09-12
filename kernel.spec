@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .92.0
-%global pkg_release         .173
+%global maintenance_release .93.0
+%global pkg_release         .174
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,59 @@ fi
 %endif
 
 %changelog
+* Thu Sep 12 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.93.0.174
+- !10941 v2  xfs: fix file creation
+- !11492  Fix CVE-2022-48887
+- !11471  net: dsa: bcm_sf2: Fix a possible memory leak in bcm_sf2_mdio_register()
+- drm/vmwgfx: Remove rcu locks from user resources
+- drm/vmwgfx: Remove vmw_user_bo_noref_release
+- drm/vmwgfx: Introduce ttm reference object find function
+- net: dsa: bcm_sf2: Fix a possible memory leak in bcm_sf2_mdio_register()
+- !11103  soc: qcom: pdr: protect locator_addr with the main mutex
+- !11446  zap_pid_ns_processes: clear TIF_NOTIFY_SIGNAL along with TIF_SIGPENDING
+- !11392  fix CVE-2023-45896
+- !11445 [sync] PR-11015:  nvme-pci: add missing condition check for existence of mapped data
+- !11283  CVE-2024-44935
+- !11451 [sync] PR-11390:  hfs: fix to initialize fields of hfs_inode_info after hfs_alloc_inode()
+- hfs: fix to initialize fields of hfs_inode_info after hfs_alloc_inode()
+- zap_pid_ns_processes: clear TIF_NOTIFY_SIGNAL along with TIF_SIGPENDING
+- !11442 v2  drm/amd/display: Fix null pointer deref in dcn20_resource.c
+- nvme-pci: add missing condition check for existence of mapped data
+- drm/amd/display: Fix null pointer deref in dcn20_resource.c
+- !11396 [sync] PR-11324:  drm/amd/display: Add null checker before passing variables
+- !11416  md/raid5: avoid BUG_ON() while continue reshape after reassembling
+- !11429  nfc: pn533: Wait for out_urb's completion in pn533_usb_send_frame()
+- !11331  dma: fix call order in dmam_free_coherent
+- !11170  CVE-2024-42267
+- !11236  CVE-2024-43907
+- !11410  btrfs: do not start relocation until in progress drops are done
+- nfc: pn533: initialize struct pn533_out_arg properly
+- nfc: pn533: Wait for out_urb's completion in pn533_usb_send_frame()
+- !11412  wifi: cfg80211: Avoid Wdiscarded-qualifiers warning
+- md/raid5: avoid BUG_ON() while continue reshape after reassembling
+- !11407 [sync] PR-11403:  btrfs: do not WARN_ON() if we have PageError set
+- wifi: cfg80211: Avoid Wdiscarded-qualifiers warning
+- btrfs: do not start relocation until in progress drops are done
+- !11399  fuse: Initialize beyond-EOF page contents before setting uptodate
+- btrfs: do not WARN_ON() if we have PageError set
+- !11365  f2fs: fix to do sanity check on F2FS_INLINE_DATA flag in inode during GC
+- !11377  drm/i915/gem: Fix Virtual Memory mapping boundaries calculation
+- !11240 [sync] PR-11174:  md: restore 'noio_flag' for the last mddev_resume()
+- fuse: Initialize beyond-EOF page contents before setting uptodate
+- drm/amd/display: Add null checker before passing variables
+- fs/ntfs3: Add more attributes checks in mi_enum_attr()
+- drm/i915/gem: Fix Virtual Memory mapping boundaries calculation
+- f2fs: fix to do sanity check on F2FS_INLINE_DATA flag in inode during GC
+- dma: fix call order in dmam_free_coherent
+- sctp: Fix null-ptr-deref in reuseport_add_sock().
+- sctp: move hlist_node and hashent out of sctp_ep_common
+- md: restore 'noio_flag' for the last mddev_resume()
+- drm/amdgpu/pm: Fix the null pointer dereference in apply_state_adjust_rules
+- riscv/mm: Add handling for VM_FAULT_SIGSEGV in mm_fault_error()
+- soc: qcom: pdr: protect locator_addr with the main mutex
+- xfs: Fix agf_longest update error
+- xfs: Fix file creation failure
+
 * Wed Sep 04 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.92.0.173
 - !11373  xdp: fix invalid wait context of page_pool_destroy()
 - !11369  nilfs2: handle inconsistent state in nilfs_btnode_create_block()
