@@ -43,7 +43,7 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %global upstream_sublevel   0
 %global devel_release       41
 %global maintenance_release .0.0
-%global pkg_release         .49
+%global pkg_release         .50
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1090,6 +1090,9 @@ fi
 %endif
 
 %changelog
+* Fri Sep 13 2024 Taoxy2004 <221870066@smail.nju.edu.cn> - 6.6.0-41.0.0.50
+- tools: Add dynamic process-level cgroup memory monitoring tool
+
 * Fri Sep 06 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-41.0.0.49
 - !11443 v2  drm/amd/display: Fix null pointer deref in dcn20_resource.c
 - drm/amd/display: Fix null pointer deref in dcn20_resource.c
