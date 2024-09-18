@@ -40,9 +40,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       41
+%global devel_release       42
 %global maintenance_release .0.0
-%global pkg_release         .48
+%global pkg_release         .49
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1089,6 +1089,78 @@ fi
 %endif
 
 %changelog
+* Wed Sep 18 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-42.0.0.49
+- !11556  bpf: Fix a kernel verifier crash in stacksafe()
+- bpf: Fix a kernel verifier crash in stacksafe()
+- !11496 virtcca feature：Fix warnings
+- virtcca feature: fix warnings
+- !11531 [OLK-6.6]Some updates for HiSilicon PCIe PMU
+- drivers/perf: hisi_pcie: Export supported Root Ports [bdf_min, bdf_max]
+- drivers/perf: hisi_pcie: Fix TLP headers bandwidth counting
+- drivers/perf: hisi_pcie: Record hardware counts correctly
+- !11546  ata: libata: Fix memory leak for error path in ata_host_alloc()
+- ata: libata: Fix memory leak for error path in ata_host_alloc()
+- !11551  mm/memory_hotplug: prevent accessing by index=-1
+- mm/memory_hotplug: prevent accessing by index=-1
+- !11522  ipv6: prevent UAF in ip6_send_skb()
+- ipv6: prevent UAF in ip6_send_skb()
+- !11518  ipv6: fix possible UAF in ip6_finish_output2()
+- ipv6: fix possible UAF in ip6_finish_output2()
+- !11515  net: dsa: mv88e6xxx: Fix out-of-bound access
+- net: dsa: mv88e6xxx: Fix out-of-bound access
+- !11513  ipv6: prevent possible UAF in ip6_xmit()
+- ipv6: prevent possible UAF in ip6_xmit()
+- !11503  mm: mTHP user controls to pagecache large folio
+- mm/huge_memory: allow to enable 64K anouymous mapping align alone
+- mm/huge_memory: mTHP user controls to pagecache large folio
+- !5453 Add GM Driver Support for Hygon platform（Cryptographic Coprocessor，OLK-6.6)
+- hct: fix fork issue when use hct in virtual machine
+- hct: support 1024 processes simutaneously in the hct-mdev mode.
+- hct: change the maximum number of supported ccps from 16 to 48.
+- hct: fix build issue when the module mdev is disabled.
+- hct: supporting memory encryption in host and wb set in vm
+- hct: add mediated ccp driver support for hygon crypto technology.
+- crypto: ccp: support sm2 on Hygon generation 4th CPU
+- crypto: ccp: remove repeated sm4-hs mode
+- crypto: ccp: Process multiple VQ commands once for SM4/SM4-CTR ccp.
+- crypto: ccp: Process multiple VQ commands once for SM3 ccp.
+- crypto: ccp: Modify value of COMMANDS_PER_QUEUE from 16 to 8192.
+- crypto: ccp: fix bug that SM2 encryption of long data causes kernel crash
+- crypto: ccp: fix sm2 test failed in testmgr because of missing DER coding
+- crypto: ccp: Fix a problem that vq thread may stuck when do multi process test.
+- crypto: ccp: Only handle interrupts by completion.
+- crypto: ccp: It prompt ILLEGAL_MEM_ADDR when using PSPCCP.
+- crypto: ccp: fix sm2 not return due to wrong complete callback parameter
+- crypto: ccp: Support SM4 algorithm for hygon ccp.
+- crypto: ccp: Support SM3 algorithm for hygon ccp.
+- crypto: ccp: Support SM2 algorithm for hygon ccp.
+- !11485  Bugfix introduced when support folio
+- mm/shmem: replace HPAGE_PMD_ORDER with PMD_ORDER in shmem_alloc_folio()
+- mm: huge_memory: add memory reliable count in __discard_anon_folio_pmd_locked()
+- mm: limit order to 0 when allocated from dynamic pool
+- !11469 OLK-6.6 Revert gpiolib bugfix
+- gpiolib: acpi: Fix failed in acpi_gpiochip_find() by adding parent node match
+- Revert "gpiolib: acpi: Fix failed in acpi_gpiochip_find() by adding parent node match"
+- !11464  mm/ksm: fix ksm_zero_pages accounting
+- mm_types: Fix kabi breakage in struct mm_struct
+- mm/ksm: fix ksm_zero_pages accounting
+- !11411  f2fs: fix null reference error when checking end of zone
+- f2fs: fix null reference error when checking end of zone
+- !11465 【olk 6.6】net: hns3: some bugfixes for netdev
+- net: hns3: fix kernel crash when 1588 is sent on HIP08 devices
+- net: hns3: initialize reset_timer before hclgevf_misc_irq_init()
+- net: hns3: don't auto enable misc vector
+- !11454  nfs: fix memory leak in error path of nfs4_do_reclaim
+- nfs: fix memory leak in error path of nfs4_do_reclaim
+- !11421  Some fixes About cpuset partition
+- cgroup/cpuset: Clear effective_xcpus on cpus_allowed clearing only if cpus.exclusive not set
+- cgroup/cpuset: fix panic caused by partcmd_update
+- cgroup/cpuset: Fix remote root partition creation problem
+- cgroup/cpuset: Optimize isolated partition only generate_sched_domains() calls
+- !11455 v2  CVE-2024-44972
+- btrfs: fix invalid mapping of extent xarray state
+- btrfs: do not clear page dirty inside extent_write_locked_range()
+
 * Fri Sep 06 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-41.0.0.48
 - !11443 v2  drm/amd/display: Fix null pointer deref in dcn20_resource.c
 - drm/amd/display: Fix null pointer deref in dcn20_resource.c
