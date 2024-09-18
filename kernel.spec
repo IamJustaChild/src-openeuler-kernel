@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       228
+%global devel_release       229
 %global maintenance_release .0.0
-%global pkg_release         .130
+%global pkg_release         .131
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -911,6 +911,123 @@ fi
 %endif
 
 %changelog
+* Wed Sep 18 2024 Li Nan <linan122@huawei.com> - 5.10.0-229.0.0.131
+- !11565 ip_notify:Clean up redundant import files
+- network_mgmt: Clean up redundant import files for ip_notify.c.
+- !11521  ipv6: prevent UAF in ip6_send_skb()
+- !11517  ipv6: fix possible UAF in ip6_finish_output2()
+- !11514  fix CVE-2024-44988
+- !11526 IP notify code optimization
+- !11552  mm/hugetlb: fix pgtable lock on pmd sharing
+- network_mgmt: Add ip_notify timer print.
+- !11548  ata: libata: Fix memory leak for error path in ata_host_alloc()
+- !11553  mm: fix failure to unmap pte on highmem systems
+- !11488  wifi: nl80211: don't free NULL coalescing rule
+- mm: fix failure to unmap pte on highmem systems
+- mm/hugetlb: fix pgtable lock on pmd sharing
+- ata: libata: Fix memory leak for error path in ata_host_alloc()
+- !11456 Backport 5.10.216 LTS patches from upstream
+- !11484  drm/qxl: Add check for drm_cvt_mode
+- !11457  usb: gadget: core: Check for unset descriptor
+- !11475  Fix CVE-2023-52916
+- !11510  x86/mtrr: Check if fixed MTRRs exist before saving them
+- ipv6: prevent UAF in ip6_send_skb()
+- ipv6: fix possible UAF in ip6_finish_output2()
+- net: dsa: mv88e6xxx: Fix out-of-bound access
+- net: dsa: mv88e6xxx: replace ATU violation prints with trace points
+- net: dsa: mv88e6xxx: read FID when handling ATU violations
+- x86/mtrr: Check if fixed MTRRs exist before saving them
+- !11507  mm: backing-dev: set variables dev_attr_min,max_bytes storage-class-specifier to static
+- mm: backing-dev: set variables dev_attr_min,max_bytes storage-class-specifier to static
+- wifi: nl80211: don't free NULL coalescing rule
+- drm/qxl: Add check for drm_cvt_mode
+- media: aspeed: Fix memory overwrite if timing is 1600x900
+- media: aspeed: Fix no complete irq for non-64-aligned width
+- usb: gadget: core: Check for unset descriptor
+- udp: preserve the connected status if only UDP cmsg
+- dma: xilinx_dpdma: Fix locking
+- idma64: Don't try to serve interrupts when device is powered off
+- dmaengine: owl: fix register access functions
+- mtd: diskonchip: work around ubsan link failure
+- stackdepot: respect __GFP_NOLOCKDEP allocation flag
+- net: b44: set pause params only when interface is up
+- ethernet: Add helper for assigning packet type when dest address does not match device address
+- drm/amdgpu: Fix leak when GPU memory allocation fails
+- drm/amdgpu/sdma5.2: use legacy HDP flush for SDMA2/3
+- arm64: dts: rockchip: enable internal pull-up for Q7_THRM# on RK3399 Puma
+- Bluetooth: btusb: Add Realtek RTL8852BE support ID 0x0bda:0x4853
+- Bluetooth: Fix type of len in {l2cap,sco}_sock_getsockopt_old()
+- PM / devfreq: Fix buffer overflow in trans_stat_show
+- tracing: Increase PERF_MAX_TRACE_SIZE to handle Sentinel1 and docker together
+- tracing: Show size of requested perf buffer
+- Revert "crypto: api - Disallow identical driver names"
+- net: ethernet: ti: am65-cpts: Fix PTPv1 message type on TX packets
+- iavf: Fix TC config comparison with existing adapter TC config
+- i40e: Report MFS in decimal base instead of hex
+- netfilter: nf_tables: honor table dormant flag from netdev release event path
+- mlxsw: spectrum_acl_tcam: Rate limit error message
+- mlxsw: spectrum_acl_tcam: Fix race during rehash delayed work
+- ipvs: Fix checksumming on GSO of SCTP packets
+- net: usb: ax88179_178a: stop lying about skb->truesize
+- NFC: trf7970a: disable all regulators on removal
+- mlxsw: core: Unregister EMAD trap using FORWARD action
+- vxlan: drop packets from invalid src-address
+- wifi: iwlwifi: mvm: remove old PASN station when adding a new one
+- ARC: [plat-hsdk]: Remove misplaced interrupt-cells property
+- arm64: dts: mediatek: mt2712: fix validation errors
+- arm64: dts: mediatek: mt7622: drop "reset-names" from thermal block
+- arm64: dts: mediatek: mt7622: fix ethernet controller "compatible"
+- arm64: dts: mediatek: mt7622: fix IR nodename
+- arm64: dts: mediatek: mt7622: fix clock controllers
+- arm64: dts: mediatek: mt7622: introduce nodes for Wireless Ethernet Dispatch
+- arm64: dts: mediatek: mt7622: add support for coherent DMA
+- arm64: dts: rockchip: Remove unsupported node from the Pinebook Pro dts
+- arm64: dts: rockchip: enable internal pull-up on PCIE_WAKE# for RK3399 Puma
+- arm64: dts: rockchip: fix alphabetical ordering RK3399 puma
+- nilfs2: fix OOB in nilfs_set_de_type
+- nouveau: fix instmem race condition around ptr stores
+- mei: me: disable RPL-S on SPS and IGN firmwares
+- usb: Disable USB3 LPM at shutdown
+- usb: dwc2: host: Fix dereference issue in DDMA completion flow.
+- Revert "usb: cdc-wdm: close race between read and workqueue"
+- USB: serial: option: add Telit FN920C04 rmnet compositions
+- USB: serial: option: add Rolling RW101-GL and RW135-GL support
+- USB: serial: option: support Quectel EM060K sub-models
+- USB: serial: option: add Lonsung U8300/U9300 product
+- USB: serial: option: add support for Fibocom FM650/FG650
+- USB: serial: option: add Fibocom FM135-GL variants
+- comedi: vmk80xx: fix incomplete endpoint checking
+- thunderbolt: Fix wake configurations after device unplug
+- thunderbolt: Avoid notify PM core about runtime PM resume
+- clk: Get runtime PM before walking tree during disable_unused
+- clk: Initialize struct clk_core kref earlier
+- clk: Print an info line before disabling unused clocks
+- clk: remove extra empty line
+- clk: Mark 'all_lists' as const
+- clk: Remove prepare_lock hold assertion in __clk_release()
+- drm/panel: visionox-rm69299: don't unregister DSI device
+- RDMA/mlx5: Fix port number for counter query in multi-port configuration
+- RDMA/cm: Print the old state when cm_destroy_id gets timeout
+- RDMA/rxe: Fix the problem "mutex_destroy missing"
+- selftests/ftrace: Limit length in subsystem-enable tests
+- btrfs: record delayed inode root in transaction
+- irqflags: Explicitly ignore lockdep_hrtimer_exit() argument
+- x86/apic: Force native_apic_mem_read() to use the MOV instruction
+- selftests: timers: Fix abs() warning in posix_timers test
+- x86/cpu: Actually turn off mitigations by default for SPECULATION_MITIGATIONS=n
+- btrfs: qgroup: correctly model root qgroup rsv in convert
+- mailbox: imx: fix suspend failue
+- iommu/vt-d: Allocate local memory for page request queue
+- net: ena: Wrong missing IO completions check order
+- net: ena: Fix potential sign extension issue
+- ipv4/route: avoid unused-but-set-variable warning
+- ipv6: fib: hide unused 'pn' variable
+- octeontx2-af: Fix NIX SQ mode and BP config
+- u64_stats: fix u64_stats_init() for lockdep when used repeatedly in one file
+- net: openvswitch: fix unwanted error log on timeout policy probing
+- nouveau: fix function cast warning
+- media: cec: core: remove length check of Timer Status
+
 * Thu Sep 12 2024 Li Nan <linan122@huawei.com> - 5.10.0-228.0.0.130
 - !11504 sdma-dae support debugfs and fast mode
 - !10195  xfs: Fix agf_longest update error
