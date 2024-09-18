@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2409.3.0
+%global hulkrelease 2409.4.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0294
+Release: %{hulkrelease}.0295
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,19 @@ fi
 %endif
 
 %changelog
+
+* Tue Sep 17 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2409.4.0.0295
+- !11557  xhci: Fix Panther point NULL pointer deref at full-speed re-enumeration
+- xhci: Fix Panther point NULL pointer deref at full-speed re-enumeration
+- !11520  ipv6: prevent UAF in ip6_send_skb()
+- !11532 v2  Fix CVE-2023-52915
+- media: dvb-usb-v2: af9035: fix missing unlock
+- media: dvb-usb-v2: af9035: Fix null-ptr-deref in af9035_i2c_master_xfer
+- !11525 v2  usb: gadget: core: Check for unset descriptor
+- usb: gadget: core: Check for unset descriptor
+- !11512  x86/mtrr: Check if fixed MTRRs exist before saving them
+- ipv6: prevent UAF in ip6_send_skb()
+- x86/mtrr: Check if fixed MTRRs exist before saving them
 
 * Tue Sep 10 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2409.3.0.0294
 - !11434 v3  cifs: Fix pages leak when cifs_writedata allocate fails in cifs_writedata_direct_alloc()
