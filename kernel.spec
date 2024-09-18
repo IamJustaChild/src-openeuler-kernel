@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .93.0
-%global pkg_release         .174
+%global maintenance_release .94.0
+%global pkg_release         .175
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,32 @@ fi
 %endif
 
 %changelog
+* Wed Sep 18 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.94.0.175
+- !11516  fix CVE-2024-44988
+- !11523  ipv6: prevent UAF in ip6_send_skb()
+- !11519  ipv6: fix possible UAF in ip6_finish_output2()
+- !11489 [sync] PR-11487:  bna: ensure the copied buf is NUL terminated
+- !8756  net: USB: Fix wrong-direction WARNING in plusb.c
+- !11533  Fix CVE-2023-52915
+- media: dvb-usb-v2: af9035: fix missing unlock
+- media: dvb-usb-v2: af9035: Fix null-ptr-deref in af9035_i2c_master_xfer
+- !11483  drm/qxl: Add check for drm_cvt_mode
+- !11477  Fix CVE-2023-52916
+- !11458  usb: gadget: core: Check for unset descriptor
+- !11511  x86/mtrr: Check if fixed MTRRs exist before saving them
+- ipv6: prevent UAF in ip6_send_skb()
+- ipv6: fix possible UAF in ip6_finish_output2()
+- net: dsa: mv88e6xxx: Fix out-of-bound access
+- net: dsa: mv88e6xxx: replace ATU violation prints with trace points
+- net: dsa: mv88e6xxx: read FID when handling ATU violations
+- x86/mtrr: Check if fixed MTRRs exist before saving them
+- bna: ensure the copied buf is NUL terminated
+- drm/qxl: Add check for drm_cvt_mode
+- media: aspeed: Fix memory overwrite if timing is 1600x900
+- media: aspeed: Fix no complete irq for non-64-aligned width
+- usb: gadget: core: Check for unset descriptor
+- net: USB: Fix wrong-direction WARNING in plusb.c
+
 * Thu Sep 12 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.93.0.174
 - !10941 v2  xfs: fix file creation
 - !11492  Fix CVE-2022-48887
