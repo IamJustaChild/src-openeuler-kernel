@@ -24,6 +24,8 @@ Subject: [PATCH] rt-patrch
  drivers/acpi/processor_idle.c                 |    2 +-
  drivers/block/zram/zram_drv.c                 |   37 +
  drivers/block/zram/zram_drv.h                 |    3 +
+ drivers/crypto/ccp/hygon/psp-dev.c            |    2 +-
+ drivers/crypto/ccp/hygon/tdm-dev.c            |    2 +-
  .../gpu/drm/amd/display/amdgpu_dm/dc_fpu.c    |   53 +-
  .../drm/amd/display/dc/dcn20/dcn20_resource.c |   10 +-
  .../drm/amd/display/dc/dcn21/dcn21_resource.c |   10 +-
@@ -970,6 +972,32 @@ index d090753f9..833abc17d 100644
  #ifdef CONFIG_ZRAM_MEMORY_TRACKING
  	ktime_t ac_time;
  #endif
+diff --git a/drivers/crypto/ccp/hygon/psp-dev.c b/drivers/crypto/ccp/hygon/psp-dev.c
+index 98cc4b2e6..4ffd5d01b 100644
+--- a/drivers/crypto/ccp/hygon/psp-dev.c
++++ b/drivers/crypto/ccp/hygon/psp-dev.c
+@@ -17,7 +17,7 @@
+ #include <linux/delay.h>
+ #include <linux/sort.h>
+ #include <linux/bsearch.h>
+-#include <linux/rwlock.h>
++//#include <linux/rwlock.h>
+ 
+ #include "psp-dev.h"
+ 
+diff --git a/drivers/crypto/ccp/hygon/tdm-dev.c b/drivers/crypto/ccp/hygon/tdm-dev.c
+index 42322c6bd..46aa8b02d 100644
+--- a/drivers/crypto/ccp/hygon/tdm-dev.c
++++ b/drivers/crypto/ccp/hygon/tdm-dev.c
+@@ -12,7 +12,7 @@
+ #include <linux/miscdevice.h>
+ #include <linux/psp-hygon.h>
+ #include <linux/spinlock.h>
+-#include <linux/rwlock.h>
++//#include <linux/rwlock.h>
+ #include <linux/err.h>
+ #include <asm/current.h>
+ #include <linux/kthread.h>
 diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/dc_fpu.c b/drivers/gpu/drm/amd/display/amdgpu_dm/dc_fpu.c
 index 172aa10a8..4ae472053 100644
 --- a/drivers/gpu/drm/amd/display/amdgpu_dm/dc_fpu.c
