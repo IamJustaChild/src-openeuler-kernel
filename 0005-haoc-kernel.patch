@@ -1,110 +1,8 @@
-From 099672494b5fbd626031f313bbdbc42d1eb3f02d Mon Sep 17 00:00:00 2001
+From 55fa5af33f9d8c4b7306f0a3ecff8c7480931b68 Mon Sep 17 00:00:00 2001
 From: liuzh <liuzhh@zgclab.edu.cn>
-Date: Wed, 22 May 2024 16:36:55 +0800
-Subject: [PATCH] Squashed commit of the following:
+Date: Wed, 11 Sep 2024 09:49:40 +0800
+Subject: [PATCH] HAOC: upgrade to 6.6.0-41.0.0
 
-commit 909ad06b3bf629d9af4e143347c1d1ef8a3a5808
-Author: liuzh <liuzhh@zgclab.edu.cn>
-Date:   Wed May 22 16:23:13 2024 +0800
-
-    fix mte_sync_tags() parameters after rebase to 6.6.0-27.0.0.
-
-commit 1cbf51371b0539a45f816419b2da82cf36162b4a
-Author: ljl <ljl2013@163.com>
-Date:   Mon Mar 25 08:01:32 2024 +0000
-
-    IEE SI: Removed redundant codes.
-
-commit 0178bfc79ad1769a36f4165348a671d2182cff55
-Author: zhangsy <zhangshiyang17@mails.ucas.ac.cn>
-Date:   Mon Mar 25 11:01:11 2024 +0800
-
-    Fix bugs on qemu when opening CONFIG_CREDP.
-
-commit 8e714f6e8f2ace5a6fc900b4bce6b03c83c41870
-Author: ljl <ljl2013@163.com>
-Date:   Thu Mar 21 04:44:26 2024 +0000
-
-    IEE SI: Remove PAN operations as BTLB BUG is already fixed.
-
-commit 7b5fc74cb99e377d3bc59da81612cd6f3dd8a4d8
-Author: ljl <lvjinglin2013@163.com>
-Date:   Wed Mar 20 18:31:47 2024 +0800
-
-    IEE SI: Migration of iee rwx gate.
-
-commit aad2c7e89c9c4ad8ff0fb3ee53cd1b974144a283
-Author: liuzh <liuzhh@zgclab.edu.cn>
-Date:   Mon Mar 18 15:32:43 2024 +0800
-
-    modify slub.c set_track_prepare()
-
-commit 7452bac06ec09bf8321dfdbfb8b6a429d2cd8637
-Author: zhangsy <zhangshiyang17@mails.ucas.ac.cn>
-Date:   Thu Mar 21 11:26:19 2024 +0800
-
-    Set pgd of lm Privileged.
-
-commit 33934cfc3eed798a3a687bf86c6bd92697e68ba9
-Author: zhangsy <zhangshiyang17@mails.ucas.ac.cn>
-Date:   Tue Mar 19 17:14:32 2024 +0800
-
-    Delete some redundant code and put trans_pgd into IEE.
-
-commit 2bfe9008a72f8b8ac237bc7a5f99f9d40e84c247
-Author: zhangshiyang17@mails.ucas.ac.cn <zhangshiyang17@mails.ucas.ac.cn>
-Date:   Mon Mar 18 11:47:50 2024 +0000
-
-    Fix bugs on physical when opening CONFIG_IEE and CONFIG_PTP.
-
-commit dafa2df600757511ce3e8f178e05e28adabdf39b
-Author: zhangsy <zhangshiyang17@mails.ucas.ac.cn>
-Date:   Mon Mar 18 10:40:42 2024 +0800
-
-    Fix bugs on qemu when opening CONFIG_IEE and CONFIG_PTP.
-
-commit 9231a9f6b34c62090b5f202c9c64a52bfdac7a73
-Author: zhangsy <zhangshiyang17@mails.ucas.ac.cn>
-Date:   Thu Mar 14 16:34:53 2024 +0800
-
-    Fix compiling bugs of CONFIG_PTP.
-
-commit 6469df3bcce32896c2cb297d3cd7ead82c33f35d
-Author: zhangsy <zhangshiyang17@mails.ucas.ac.cn>
-Date:   Thu Mar 14 11:10:00 2024 +0800
-
-    Fix bugs on qemu when opening CONFIG_IEE and CONFIG_INTERRUPTABLE.
-
-commit 5f1773dada622a3514c9ed6aa72dd50e918f2664
-Author: zhangsy <zhangshiyang17@mails.ucas.ac.cn>
-Date:   Wed Mar 13 17:31:39 2024 +0800
-
-    Fix bugs on qemu when opening CONFIG_IEE.
-
-commit 73f433a093fa84cffa5e11e86bed6f17c9b30a39
-Author: liuzh <liuzhh@zgclab.edu.cn>
-Date:   Tue Mar 12 15:32:29 2024 +0800
-
-    fix the map of IEE_SI_TEXT.
-
-commit 9b92deb4b2338093d9b04f4b81f162855b31c983
-Author: liuzh <liuzhh@zgclab.edu.cn>
-Date:   Sun Mar 10 16:11:13 2024 +0800
-
-    modified to be able to compile.
-    can start the kernel with qemu and successfully reach `start_kernel()`.
-
-commit e892ec4790d72e9433b48b0221e7e6dc4c361dd9
-Author: liuzh <liuzhh@zgclab.edu.cn>
-Date:   Thu Mar 7 14:27:45 2024 +0800
-
-    fix some conflicts
-
-commit fdec7e39345e81e867e01258487f88801b790b02
-Author: liuzh <liuzhh@zgclab.edu.cn>
-Date:   Wed Mar 6 12:31:11 2024 +0800
-
-    migrate openeuler-commit code. (need some fix before compiling)
 ---
  Makefile                                |    3 +-
  arch/arm64/Kconfig                      |   18 +
@@ -201,7 +99,7 @@ Date:   Wed Mar 6 12:31:11 2024 +0800
  kernel/user_namespace.c                 |   18 +
  mm/Kconfig                              |   12 +
  mm/damon/ops-common.c                   |    1 +
- mm/debug_vm_pgtable.c                   |   24 +
+ mm/debug_vm_pgtable.c                   |    8 +
  mm/early_ioremap.c                      |   57 +
  mm/huge_memory.c                        |   30 +-
  mm/init-mm.c                            |   17 +
@@ -214,7 +112,7 @@ Date:   Wed Mar 6 12:31:11 2024 +0800
  security/keys/keyctl.c                  |   23 +
  security/keys/process_keys.c            |   53 +
  security/security.c                     |   15 +
- 109 files changed, 8945 insertions(+), 397 deletions(-)
+ 108 files changed, 8925 insertions(+), 397 deletions(-)
  create mode 100644 arch/arm64/include/asm/iee-access.h
  create mode 100644 arch/arm64/include/asm/iee-cred.h
  create mode 100644 arch/arm64/include/asm/iee-def.h
@@ -232,7 +130,7 @@ Date:   Wed Mar 6 12:31:11 2024 +0800
  create mode 100644 include/linux/iee-func.h
 
 diff --git a/Makefile b/Makefile
-index 8e6d9b894b1e..20c367b5957d 100644
+index ee377cec01f3..e6bb9dfb29a6 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -554,7 +554,7 @@ LINUXINCLUDE    := \
@@ -253,10 +151,10 @@ index 8e6d9b894b1e..20c367b5957d 100644
  KBUILD_CPPFLAGS := -D__KERNEL__
  KBUILD_RUSTFLAGS := $(rust_common_flags) \
 diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index 2a875546bdc7..7448afc90c0a 100644
+index 501ec560a939..c111b324040d 100644
 --- a/arch/arm64/Kconfig
 +++ b/arch/arm64/Kconfig
-@@ -1730,6 +1730,24 @@ config UNMAP_KERNEL_AT_EL0
+@@ -1731,6 +1731,24 @@ config UNMAP_KERNEL_AT_EL0
  
  	  If unsure, say Y.
  
@@ -1463,7 +1361,7 @@ index e4944d517c99..7f60e568c964 100644
   * TTBR.
   */
 diff --git a/arch/arm64/include/asm/pgtable.h b/arch/arm64/include/asm/pgtable.h
-index 8d68d00de0a4..6f8d5b85bfd7 100644
+index e4d6593dfa66..13e734016e97 100644
 --- a/arch/arm64/include/asm/pgtable.h
 +++ b/arch/arm64/include/asm/pgtable.h
 @@ -34,6 +34,9 @@
@@ -1927,7 +1825,7 @@ index 8d68d00de0a4..6f8d5b85bfd7 100644
  	} while (pte_val(pte) != pte_val(old_pte));
  }
  
-@@ -1049,7 +1335,11 @@ static inline pmd_t pmdp_establish(struct vm_area_struct *vma,
+@@ -1089,7 +1375,11 @@ static inline pmd_t pmdp_establish(struct vm_area_struct *vma,
  		unsigned long address, pmd_t *pmdp, pmd_t pmd)
  {
  	page_table_check_pmd_set(vma->vm_mm, pmdp, pmd);
@@ -2160,7 +2058,7 @@ index 831c314d75ff..7775628528c6 100644
  	dsb(ish);
  	isb();
 diff --git a/arch/arm64/kernel/Makefile b/arch/arm64/kernel/Makefile
-index 21ef9c21a400..44eb76cc54d7 100644
+index 4ce58887302a..81dd446dc8a3 100644
 --- a/arch/arm64/kernel/Makefile
 +++ b/arch/arm64/kernel/Makefile
 @@ -36,6 +36,8 @@ obj-y			:= debug-monitors.o entry.o irq.o fpsimd.o		\
@@ -2173,7 +2071,7 @@ index 21ef9c21a400..44eb76cc54d7 100644
  					   sys_compat.o
  obj-$(CONFIG_AARCH32_EL0)		+= sigreturn32.o
 diff --git a/arch/arm64/kernel/armv8_deprecated.c b/arch/arm64/kernel/armv8_deprecated.c
-index fd0f291e215e..c008e46b5fc0 100644
+index 87ac0b9c0b4f..f135db1d9965 100644
 --- a/arch/arm64/kernel/armv8_deprecated.c
 +++ b/arch/arm64/kernel/armv8_deprecated.c
 @@ -306,11 +306,19 @@ static int cp15barrier_handler(struct pt_regs *regs, u32 instr)
@@ -2279,7 +2177,7 @@ index 46813132a09f..412006aa323c 100644
  
  #ifdef CONFIG_HISILICON_ERRATUM_HIP08_RU_PREFETCH
 diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-index 74e445251b51..ebc1e776b175 100644
+index f94bc6eb83e0..f0e2f8f8ed2d 100644
 --- a/arch/arm64/kernel/cpufeature.c
 +++ b/arch/arm64/kernel/cpufeature.c
 @@ -94,6 +94,10 @@
@@ -2293,7 +2191,7 @@ index 74e445251b51..ebc1e776b175 100644
  /* Kernel representation of AT_HWCAP and AT_HWCAP2 */
  static DECLARE_BITMAP(elf_hwcap, MAX_CPU_FEATURES) __read_mostly;
  
-@@ -1612,7 +1616,11 @@ static void cpu_emulate_effective_ctr(const struct arm64_cpu_capabilities *__unu
+@@ -1614,7 +1618,11 @@ static void cpu_emulate_effective_ctr(const struct arm64_cpu_capabilities *__unu
  	 * value.
  	 */
  	if (!(read_cpuid_cachetype() & BIT(CTR_EL0_IDC_SHIFT)))
@@ -2305,7 +2203,7 @@ index 74e445251b51..ebc1e776b175 100644
  }
  
  static bool has_cache_dic(const struct arm64_cpu_capabilities *entry,
-@@ -1873,7 +1881,11 @@ static inline void __cpu_enable_hw_dbm(void)
+@@ -1875,7 +1883,11 @@ static inline void __cpu_enable_hw_dbm(void)
  {
  	u64 tcr = read_sysreg(tcr_el1) | TCR_HD;
  
@@ -2317,7 +2215,7 @@ index 74e445251b51..ebc1e776b175 100644
  	isb();
  	local_flush_tlb_all();
  }
-@@ -2056,7 +2068,9 @@ static void cpu_enable_pan(const struct arm64_cpu_capabilities *__unused)
+@@ -2058,7 +2070,9 @@ static void cpu_enable_pan(const struct arm64_cpu_capabilities *__unused)
  	 */
  	WARN_ON_ONCE(in_interrupt());
  
@@ -2327,7 +2225,7 @@ index 74e445251b51..ebc1e776b175 100644
  	set_pstate_pan(1);
  }
  #endif /* CONFIG_ARM64_PAN */
-@@ -2121,7 +2135,11 @@ static bool has_generic_auth(const struct arm64_cpu_capabilities *entry,
+@@ -2123,7 +2137,11 @@ static bool has_generic_auth(const struct arm64_cpu_capabilities *entry,
  static void cpu_enable_e0pd(struct arm64_cpu_capabilities const *cap)
  {
  	if (this_cpu_has_cap(ARM64_HAS_E0PD))
@@ -2339,7 +2237,7 @@ index 74e445251b51..ebc1e776b175 100644
  }
  #endif /* CONFIG_ARM64_E0PD */
  
-@@ -2214,7 +2232,11 @@ static void nmi_enable(const struct arm64_cpu_capabilities *__unused)
+@@ -2218,7 +2236,11 @@ static void nmi_enable(const struct arm64_cpu_capabilities *__unused)
  	 * avoid leaving things masked.
  	 */
  	_allint_clear();
@@ -2351,7 +2249,7 @@ index 74e445251b51..ebc1e776b175 100644
  	isb();
  }
  #endif
-@@ -2229,7 +2251,11 @@ static void bti_enable(const struct arm64_cpu_capabilities *__unused)
+@@ -2233,7 +2255,11 @@ static void bti_enable(const struct arm64_cpu_capabilities *__unused)
  	 * So, be strict and forbid other BRs using other registers to
  	 * jump onto a PACIxSP instruction:
  	 */
@@ -2363,7 +2261,7 @@ index 74e445251b51..ebc1e776b175 100644
  	isb();
  }
  #endif /* CONFIG_ARM64_BTI */
-@@ -2237,7 +2263,11 @@ static void bti_enable(const struct arm64_cpu_capabilities *__unused)
+@@ -2241,7 +2267,11 @@ static void bti_enable(const struct arm64_cpu_capabilities *__unused)
  #ifdef CONFIG_ARM64_MTE
  static void cpu_enable_mte(struct arm64_cpu_capabilities const *cap)
  {
@@ -2375,7 +2273,7 @@ index 74e445251b51..ebc1e776b175 100644
  
  	mte_cpu_setup();
  
-@@ -2271,7 +2301,11 @@ static bool is_kvm_protected_mode(const struct arm64_cpu_capabilities *entry, in
+@@ -2275,7 +2305,11 @@ static bool is_kvm_protected_mode(const struct arm64_cpu_capabilities *entry, in
  
  static void cpu_trap_el0_impdef(const struct arm64_cpu_capabilities *__unused)
  {
@@ -2387,7 +2285,7 @@ index 74e445251b51..ebc1e776b175 100644
  }
  
  static void cpu_enable_dit(const struct arm64_cpu_capabilities *__unused)
-@@ -2281,7 +2315,11 @@ static void cpu_enable_dit(const struct arm64_cpu_capabilities *__unused)
+@@ -2285,7 +2319,11 @@ static void cpu_enable_dit(const struct arm64_cpu_capabilities *__unused)
  
  static void cpu_enable_mops(const struct arm64_cpu_capabilities *__unused)
  {
@@ -2399,7 +2297,7 @@ index 74e445251b51..ebc1e776b175 100644
  }
  
  /* Internal helper functions to match cpu capability type */
-@@ -3475,6 +3513,43 @@ static void __init setup_system_capabilities(void)
+@@ -3482,6 +3520,43 @@ static void __init setup_system_capabilities(void)
  	enable_cpu_capabilities(SCOPE_ALL & ~SCOPE_BOOT_CPU);
  }
  
@@ -2443,7 +2341,7 @@ index 74e445251b51..ebc1e776b175 100644
  void __init setup_cpu_features(void)
  {
  	u32 cwg;
-@@ -3502,6 +3577,10 @@ void __init setup_cpu_features(void)
+@@ -3509,6 +3584,10 @@ void __init setup_cpu_features(void)
  	if (!cwg)
  		pr_warn("No Cache Writeback Granule information, assuming %d\n",
  			ARCH_DMA_MINALIGN);
@@ -6656,7 +6554,7 @@ index 58a97861bfc5..c7839247327d 100644
  }
  
 diff --git a/arch/arm64/kernel/setup.c b/arch/arm64/kernel/setup.c
-index 95cb22c083c8..df73a583a733 100644
+index 3f00cf64059e..df194c366065 100644
 --- a/arch/arm64/kernel/setup.c
 +++ b/arch/arm64/kernel/setup.c
 @@ -33,6 +33,11 @@
@@ -6671,7 +6569,7 @@ index 95cb22c083c8..df73a583a733 100644
  #include <asm/acpi.h>
  #include <asm/fixmap.h>
  #include <asm/cpu.h>
-@@ -335,10 +340,30 @@ u64 cpu_logical_map(unsigned int cpu)
+@@ -336,10 +341,30 @@ u64 cpu_logical_map(unsigned int cpu)
  	return __cpu_logical_map[cpu];
  }
  
@@ -6702,7 +6600,7 @@ index 95cb22c083c8..df73a583a733 100644
  	*cmdline_p = boot_command_line;
  
  	kaslr_init();
-@@ -371,6 +396,14 @@ void __init __no_sanitize_address setup_arch(char **cmdline_p)
+@@ -375,6 +400,14 @@ void __init __no_sanitize_address setup_arch(char **cmdline_p)
  	 */
  	local_daif_restore(DAIF_PROCCTX_NOIRQ);
  
@@ -7186,10 +7084,10 @@ index bfc02568805a..580ecb596d2d 100644
  		BUG();
  	}
 diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
-index 8c8d7653ba84..4190f5c10d68 100644
+index 66a7fff9f373..4f7cc9ae6ce2 100644
 --- a/arch/arm64/mm/init.c
 +++ b/arch/arm64/mm/init.c
-@@ -55,8 +55,19 @@
+@@ -56,8 +56,19 @@
   * that cannot be mistaken for a real physical address.
   */
  s64 memstart_addr __ro_after_init = -1;
@@ -7209,7 +7107,7 @@ index 8c8d7653ba84..4190f5c10d68 100644
  /*
   * If the corresponding config options are enabled, we create both ZONE_DMA
   * and ZONE_DMA32. By default ZONE_DMA covers the 32-bit addressable memory
-@@ -421,7 +432,11 @@ early_param("memmap", parse_memmap_opt);
+@@ -422,7 +433,11 @@ early_param("memmap", parse_memmap_opt);
  
  void __init arm64_memblock_init(void)
  {
@@ -7221,7 +7119,7 @@ index 8c8d7653ba84..4190f5c10d68 100644
  
  	/*
  	 * Corner case: 52-bit VA capable systems running KVM in nVHE mode may
-@@ -438,13 +453,24 @@ void __init arm64_memblock_init(void)
+@@ -439,13 +454,24 @@ void __init arm64_memblock_init(void)
  	}
  
  	/* Remove memory above our supported physical address size */
@@ -7246,7 +7144,7 @@ index 8c8d7653ba84..4190f5c10d68 100644
  
  	if ((memblock_end_of_DRAM() - memstart_addr) > linear_region_size)
  		pr_warn("Memory doesn't fit in the linear mapping, VA_BITS too small\n");
-@@ -531,6 +557,14 @@ void __init arm64_memblock_init(void)
+@@ -532,6 +558,14 @@ void __init arm64_memblock_init(void)
  					 ((range * memstart_offset_seed) >> 16);
  		}
  	}
@@ -7262,7 +7160,7 @@ index 8c8d7653ba84..4190f5c10d68 100644
  	/*
  	 * Register the kernel text, kernel data, initrd, and initial
 diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
-index 4142a75a414e..094f3798441d 100644
+index 31f04f19b635..8aa1bdaf86ac 100644
 --- a/arch/arm64/mm/mmu.c
 +++ b/arch/arm64/mm/mmu.c
 @@ -6,6 +6,7 @@
@@ -7273,10 +7171,10 @@ index 4142a75a414e..094f3798441d 100644
  #include <linux/cache.h>
  #include <linux/export.h>
  #include <linux/kernel.h>
-@@ -40,6 +41,11 @@
- #include <asm/tlbflush.h>
+@@ -41,6 +42,11 @@
  #include <asm/pgalloc.h>
  #include <asm/kfence.h>
+ #include <asm/set_memory.h>
 +#ifdef CONFIG_IEE
 +#include <linux/iee-func.h>
 +#include <asm/iee.h>
@@ -7285,7 +7183,7 @@ index 4142a75a414e..094f3798441d 100644
  
  #define NO_BLOCK_MAPPINGS	BIT(0)
  #define NO_CONT_MAPPINGS	BIT(1)
-@@ -76,8 +82,282 @@ EXPORT_SYMBOL(empty_zero_page);
+@@ -77,8 +83,282 @@ EXPORT_SYMBOL(empty_zero_page);
  static DEFINE_SPINLOCK(swapper_pgdir_lock);
  static DEFINE_MUTEX(fixmap_lock);
  
@@ -7568,7 +7466,7 @@ index 4142a75a414e..094f3798441d 100644
  	pgd_t *fixmap_pgdp;
  
  	spin_lock(&swapper_pgdir_lock);
-@@ -90,6 +370,7 @@ void set_swapper_pgd(pgd_t *pgdp, pgd_t pgd)
+@@ -91,6 +371,7 @@ void set_swapper_pgd(pgd_t *pgdp, pgd_t pgd)
  	 */
  	pgd_clear_fixmap();
  	spin_unlock(&swapper_pgdir_lock);
@@ -7576,7 +7474,7 @@ index 4142a75a414e..094f3798441d 100644
  }
  
  pgprot_t phys_mem_access_prot(struct file *file, unsigned long pfn,
-@@ -118,7 +399,11 @@ static phys_addr_t __init early_pgtable_alloc(int shift)
+@@ -119,7 +400,11 @@ static phys_addr_t __init early_pgtable_alloc(int shift)
  	 * slot will be free, so we can (ab)use the FIX_PTE slot to initialise
  	 * any level of table.
  	 */
@@ -7588,7 +7486,7 @@ index 4142a75a414e..094f3798441d 100644
  
  	memset(ptr, 0, PAGE_SIZE);
  
-@@ -126,11 +411,16 @@ static phys_addr_t __init early_pgtable_alloc(int shift)
+@@ -127,11 +412,16 @@ static phys_addr_t __init early_pgtable_alloc(int shift)
  	 * Implicit barriers also ensure the zeroed page is visible to the page
  	 * table walker
  	 */
@@ -7605,7 +7503,7 @@ index 4142a75a414e..094f3798441d 100644
  bool pgattr_change_is_safe(u64 old, u64 new)
  {
  	/*
-@@ -178,7 +468,11 @@ static void init_pte(pmd_t *pmdp, unsigned long addr, unsigned long end,
+@@ -179,7 +469,11 @@ static void init_pte(pmd_t *pmdp, unsigned long addr, unsigned long end,
  	do {
  		pte_t old_pte = __ptep_get(ptep);
  
@@ -7617,7 +7515,7 @@ index 4142a75a414e..094f3798441d 100644
  
  		/*
  		 * After the PTE entry has been populated once, we
-@@ -211,7 +505,11 @@ static void alloc_init_cont_pte(pmd_t *pmdp, unsigned long addr,
+@@ -212,7 +506,11 @@ static void alloc_init_cont_pte(pmd_t *pmdp, unsigned long addr,
  			pmdval |= PMD_TABLE_PXN;
  		BUG_ON(!pgtable_alloc);
  		pte_phys = pgtable_alloc(PAGE_SHIFT);
@@ -7629,7 +7527,7 @@ index 4142a75a414e..094f3798441d 100644
  		pmd = READ_ONCE(*pmdp);
  	}
  	BUG_ON(pmd_bad(pmd));
-@@ -248,7 +546,11 @@ static void init_pmd(pud_t *pudp, unsigned long addr, unsigned long end,
+@@ -249,7 +547,11 @@ static void init_pmd(pud_t *pudp, unsigned long addr, unsigned long end,
  		/* try section mapping first */
  		if (((addr | next | phys) & ~PMD_MASK) == 0 &&
  		    (flags & NO_BLOCK_MAPPINGS) == 0) {
@@ -7641,7 +7539,7 @@ index 4142a75a414e..094f3798441d 100644
  
  			/*
  			 * After the PMD entry has been populated once, we
-@@ -289,7 +591,11 @@ static void alloc_init_cont_pmd(pud_t *pudp, unsigned long addr,
+@@ -290,7 +592,11 @@ static void alloc_init_cont_pmd(pud_t *pudp, unsigned long addr,
  			pudval |= PUD_TABLE_PXN;
  		BUG_ON(!pgtable_alloc);
  		pmd_phys = pgtable_alloc(PMD_SHIFT);
@@ -7654,7 +7552,7 @@ index 4142a75a414e..094f3798441d 100644
  		pud = READ_ONCE(*pudp);
  	}
  	BUG_ON(pud_bad(pud));
-@@ -345,7 +651,11 @@ static void alloc_init_pud(pgd_t *pgdp, unsigned long addr, unsigned long end,
+@@ -346,7 +652,11 @@ static void alloc_init_pud(pgd_t *pgdp, unsigned long addr, unsigned long end,
  		if (pud_sect_supported() &&
  		   ((addr | next | phys) & ~PUD_MASK) == 0 &&
  		    (flags & NO_BLOCK_MAPPINGS) == 0) {
@@ -7666,7 +7564,7 @@ index 4142a75a414e..094f3798441d 100644
  
  			/*
  			 * After the PUD entry has been populated once, we
-@@ -374,6 +684,10 @@ static void __create_pgd_mapping_locked(pgd_t *pgdir, phys_addr_t phys,
+@@ -375,6 +685,10 @@ static void __create_pgd_mapping_locked(pgd_t *pgdir, phys_addr_t phys,
  {
  	unsigned long addr, end, next;
  	pgd_t *pgdp = pgd_offset_pgd(pgdir, virt);
@@ -7677,7 +7575,7 @@ index 4142a75a414e..094f3798441d 100644
  
  	/*
  	 * If the virtual and physical address don't have the same offset
-@@ -390,10 +704,14 @@ static void __create_pgd_mapping_locked(pgd_t *pgdir, phys_addr_t phys,
+@@ -391,10 +705,14 @@ static void __create_pgd_mapping_locked(pgd_t *pgdir, phys_addr_t phys,
  		next = pgd_addr_end(addr, end);
  		alloc_init_pud(pgdp, addr, next, phys, prot, pgtable_alloc,
  			       flags);
@@ -7693,7 +7591,7 @@ index 4142a75a414e..094f3798441d 100644
  static void __create_pgd_mapping(pgd_t *pgdir, phys_addr_t phys,
  				 unsigned long virt, phys_addr_t size,
  				 pgprot_t prot,
-@@ -413,162 +731,844 @@ void create_kpti_ng_temp_pgd(pgd_t *pgdir, phys_addr_t phys, unsigned long virt,
+@@ -414,162 +732,844 @@ void create_kpti_ng_temp_pgd(pgd_t *pgdir, phys_addr_t phys, unsigned long virt,
  			     phys_addr_t (*pgtable_alloc)(int), int flags);
  #endif
  
@@ -8266,7 +8164,7 @@ index 4142a75a414e..094f3798441d 100644
 +
 +	early_kfence_pool = arm64_kfence_alloc_pool();
 +
-+	if (can_set_direct_map())
++	if (can_set_direct_map() || is_virtcca_cvm_world())
 +		flags |= NO_BLOCK_MAPPINGS | NO_CONT_MAPPINGS;
 +
 +	#ifdef CONFIG_IEE
@@ -8657,7 +8555,7 @@ index 4142a75a414e..094f3798441d 100644
  {
  	static const u64 direct_map_end = _PAGE_END(VA_BITS_MIN);
  	phys_addr_t kernel_start = __pa_symbol(_stext);
-@@ -578,6 +1578,8 @@ static void __init map_mem(pgd_t *pgdp)
+@@ -579,6 +1579,8 @@ static void __init map_mem(pgd_t *pgdp)
  	int flags = NO_EXEC_MAPPINGS;
  	u64 i;
  
@@ -8666,17 +8564,17 @@ index 4142a75a414e..094f3798441d 100644
  	/*
  	 * Setting hierarchical PXNTable attributes on table entries covering
  	 * the linear region is only possible if it is guaranteed that no table
-@@ -589,9 +1591,6 @@ static void __init map_mem(pgd_t *pgdp)
+@@ -590,9 +1592,6 @@ static void __init map_mem(pgd_t *pgdp)
  
  	early_kfence_pool = arm64_kfence_alloc_pool();
  
--	if (can_set_direct_map())
+-	if (can_set_direct_map() || is_virtcca_cvm_world())
 -		flags |= NO_BLOCK_MAPPINGS | NO_CONT_MAPPINGS;
 -
  	/*
  	 * Take care not to create a writable alias for the
  	 * read-only text and rodata sections of the kernel image.
-@@ -609,12 +1608,11 @@ static void __init map_mem(pgd_t *pgdp)
+@@ -610,12 +1609,11 @@ static void __init map_mem(pgd_t *pgdp)
  		 * if MTE is present. Otherwise, it has the same attributes as
  		 * PAGE_KERNEL.
  		 */
@@ -8691,7 +8589,7 @@ index 4142a75a414e..094f3798441d 100644
  	 * as non-executable now, and remove the write permission in
  	 * mark_linear_text_alias_ro() below (which will be called after
  	 * alternative patching has completed). This makes the contents
-@@ -623,178 +1621,384 @@ static void __init map_mem(pgd_t *pgdp)
+@@ -624,178 +1622,384 @@ static void __init map_mem(pgd_t *pgdp)
  	 * Note that contiguous mappings cannot be remapped in this way,
  	 * so we should avoid them here.
  	 */
@@ -9195,7 +9093,7 @@ index 4142a75a414e..094f3798441d 100644
  	extern pgd_t init_idmap_pg_dir[];
  
  	idmap_t0sz = 63UL - __fls(__pa_symbol(_end) | GENMASK(VA_BITS_MIN - 1, 0));
-@@ -802,7 +2006,17 @@ void __init paging_init(void)
+@@ -803,7 +2007,17 @@ void __init paging_init(void)
  	map_kernel(pgdp);
  	map_mem(pgdp);
  
@@ -9213,7 +9111,7 @@ index 4142a75a414e..094f3798441d 100644
  
  	cpu_replace_ttbr1(lm_alias(swapper_pg_dir), init_idmap_pg_dir);
  	init_mm.pgd = swapper_pg_dir;
-@@ -813,6 +2027,80 @@ void __init paging_init(void)
+@@ -814,6 +2028,80 @@ void __init paging_init(void)
  	memblock_allow_resize();
  
  	create_idmap();
@@ -9563,10 +9461,10 @@ index 83092d93f36a..fb12e7d0660a 100644
  	mapsize = efi.memmap.desc_size * efi.memmap.nr_map;
  
 diff --git a/drivers/firmware/efi/memmap.c b/drivers/firmware/efi/memmap.c
-index a1180461a445..4c64b6f15717 100644
+index 77dd20f9df31..ea8ebecaa153 100644
 --- a/drivers/firmware/efi/memmap.c
 +++ b/drivers/firmware/efi/memmap.c
-@@ -105,6 +105,26 @@ void __init efi_memmap_unmap(void)
+@@ -96,6 +96,26 @@ void __init efi_memmap_unmap(void)
  	clear_bit(EFI_MEMMAP, &efi.flags);
  }
  
@@ -9653,7 +9551,7 @@ index 9d235fa14ab9..72be355903ca 100644
  	}
  
 diff --git a/fs/exec.c b/fs/exec.c
-index 04fb89656cc3..3689c5f008ba 100644
+index a4725461a443..a509b1c63c9e 100644
 --- a/fs/exec.c
 +++ b/fs/exec.c
 @@ -76,6 +76,14 @@
@@ -9682,7 +9580,7 @@ index 04fb89656cc3..3689c5f008ba 100644
  	if (IS_ENABLED(CONFIG_ARCH_WANT_IRQS_OFF_ACTIVATE_MM))
  		local_irq_enable();
  	lru_gen_add_mm(mm);
-@@ -1618,12 +1630,20 @@ static void bprm_fill_uid(struct linux_binprm *bprm, struct file *file)
+@@ -1624,12 +1636,20 @@ static void bprm_fill_uid(struct linux_binprm *bprm, struct file *file)
  
  	if (mode & S_ISUID) {
  		bprm->per_clear |= PER_CLEAR_ON_SETID;
@@ -9912,7 +9810,7 @@ index 3509e73abe1f..798fe0352841 100644
  	put_cred(new);
  	return 0;
 diff --git a/fs/nfsd/nfsfh.c b/fs/nfsd/nfsfh.c
-index 355bf0db3235..6cb276dde4e9 100644
+index c2495d98c189..779471a0aa66 100644
 --- a/fs/nfsd/nfsfh.c
 +++ b/fs/nfsd/nfsfh.c
 @@ -16,6 +16,10 @@
@@ -9942,7 +9840,7 @@ index 355bf0db3235..6cb276dde4e9 100644
  		put_cred(new);
  	} else {
 diff --git a/fs/open.c b/fs/open.c
-index 54723fceb776..d83901dc50ff 100644
+index 59db720693f9..dbbca8701fd1 100644
 --- a/fs/open.c
 +++ b/fs/open.c
 @@ -35,6 +35,11 @@
@@ -10005,7 +9903,7 @@ index 54723fceb776..d83901dc50ff 100644
  	old_cred = override_creds(override_cred);
  
 diff --git a/fs/overlayfs/dir.c b/fs/overlayfs/dir.c
-index 033fc0458a3d..2afa31ead2b5 100644
+index 54602f0bed8b..58534612dc64 100644
 --- a/fs/overlayfs/dir.c
 +++ b/fs/overlayfs/dir.c
 @@ -16,6 +16,10 @@
@@ -10019,7 +9917,7 @@ index 033fc0458a3d..2afa31ead2b5 100644
  static unsigned short ovl_redirect_max = 256;
  module_param_named(redirect_max, ovl_redirect_max, ushort, 0644);
  MODULE_PARM_DESC(redirect_max,
-@@ -593,8 +597,13 @@ static int ovl_create_or_link(struct dentry *dentry, struct inode *inode,
+@@ -590,8 +594,13 @@ static int ovl_create_or_link(struct dentry *dentry, struct inode *inode,
  		 * create a new inode, so just use the ovl mounter's
  		 * fs{u,g}id.
  		 */
@@ -10281,10 +10179,10 @@ index c75d4a753849..506ff9662e02 100644
  }
  
 diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
-index 200853042fc7..9d733afced53 100644
+index 174d865ce46e..7a2ef936b9af 100644
 --- a/include/asm-generic/vmlinux.lds.h
 +++ b/include/asm-generic/vmlinux.lds.h
-@@ -346,6 +346,17 @@
+@@ -379,6 +379,17 @@
  	KEEP(*(.dtb.init.rodata))					\
  	__dtb_end = .;
  
@@ -10302,7 +10200,7 @@ index 200853042fc7..9d733afced53 100644
  /*
   * .data section
   */
-@@ -370,8 +381,8 @@
+@@ -403,8 +414,8 @@
  	BRANCH_PROFILE()						\
  	TRACE_PRINTKS()							\
  	BPF_RAW_TP()							\
@@ -10313,7 +10211,7 @@ index 200853042fc7..9d733afced53 100644
  /*
   * Data section helpers
   */
-@@ -1093,6 +1104,14 @@
+@@ -1126,6 +1137,14 @@
   * They will fit only a subset of the architectures
   */
  
@@ -10328,7 +10226,7 @@ index 200853042fc7..9d733afced53 100644
  
  /*
   * Writeable data.
-@@ -1110,6 +1129,7 @@
+@@ -1143,6 +1162,7 @@
  	. = ALIGN(PAGE_SIZE);						\
  	.data : AT(ADDR(.data) - LOAD_OFFSET) {				\
  		INIT_TASK_DATA(inittask)				\
@@ -10545,7 +10443,7 @@ index f40411aa7b70..297becfbc8e3 100644
  	/* Per task flags (PF_*), defined further below: */
  	unsigned int			flags;
 diff --git a/init/main.c b/init/main.c
-index 803332dd3d90..0f8d6e2744c2 100644
+index 8fdfa69dba0f..8f138bf7149a 100644
 --- a/init/main.c
 +++ b/init/main.c
 @@ -102,6 +102,12 @@
@@ -10572,7 +10470,7 @@ index 803332dd3d90..0f8d6e2744c2 100644
  static int kernel_init(void *);
  
  /*
-@@ -880,6 +890,9 @@ void start_kernel(void)
+@@ -878,6 +888,9 @@ void start_kernel(void)
  {
  	char *command_line;
  	char *after_dashes;
@@ -10582,7 +10480,7 @@ index 803332dd3d90..0f8d6e2744c2 100644
  
  	set_task_stack_end_magic(&init_task);
  	smp_setup_processor_id();
-@@ -904,6 +917,16 @@ void start_kernel(void)
+@@ -902,6 +915,16 @@ void start_kernel(void)
  	setup_command_line(command_line);
  	setup_nr_cpu_ids();
  	setup_per_cpu_areas();
@@ -10599,7 +10497,7 @@ index 803332dd3d90..0f8d6e2744c2 100644
  	smp_prepare_boot_cpu();	/* arch-specific boot-cpu hooks */
  	boot_cpu_hotplug_init();
  
-@@ -1446,6 +1469,9 @@ static int __ref kernel_init(void *unused)
+@@ -1444,6 +1467,9 @@ static int __ref kernel_init(void *unused)
  	wait_for_completion(&kthreadd_done);
  
  	kernel_init_freeable();
@@ -10609,7 +10507,7 @@ index 803332dd3d90..0f8d6e2744c2 100644
  	/* need to finish all async __init code before freeing the memory */
  	async_synchronize_full();
  
-@@ -1462,7 +1488,7 @@ static int __ref kernel_init(void *unused)
+@@ -1460,7 +1486,7 @@ static int __ref kernel_init(void *unused)
  	 * to finalize PTI.
  	 */
  	pti_finalize();
@@ -10979,7 +10877,7 @@ index c033a201c808..2e44530976d5 100644
  }
  EXPORT_SYMBOL(set_create_files_as);
 diff --git a/kernel/exit.c b/kernel/exit.c
-index 21a59a6e1f2e..d21a109f0497 100644
+index 3540b2c9b1b6..94c944e9fece 100644
 --- a/kernel/exit.c
 +++ b/kernel/exit.c
 @@ -74,6 +74,10 @@
@@ -10993,7 +10891,7 @@ index 21a59a6e1f2e..d21a109f0497 100644
  /*
   * The default value should be high enough to not crash a system that randomly
   * crashes its kernel from time to time, but low enough to at least not permit
-@@ -558,6 +562,10 @@ static void exit_mm(void)
+@@ -560,6 +564,10 @@ static void exit_mm(void)
  	smp_mb__after_spinlock();
  	local_irq_disable();
  	current->mm = NULL;
@@ -11751,7 +11649,7 @@ index 9b43da22647d..8045812e8a3c 100644
  
  EXPORT_SYMBOL(set_groups);
 diff --git a/kernel/kthread.c b/kernel/kthread.c
-index 1eea53050bab..317eac6eb2f2 100644
+index 290cbc845225..b58f60daed5b 100644
 --- a/kernel/kthread.c
 +++ b/kernel/kthread.c
 @@ -30,6 +30,10 @@
@@ -11765,7 +11663,7 @@ index 1eea53050bab..317eac6eb2f2 100644
  
  static DEFINE_SPINLOCK(kthread_create_lock);
  static LIST_HEAD(kthread_create_list);
-@@ -1429,6 +1433,10 @@ void kthread_use_mm(struct mm_struct *mm)
+@@ -1447,6 +1451,10 @@ void kthread_use_mm(struct mm_struct *mm)
  	tsk->active_mm = mm;
  	tsk->mm = mm;
  	membarrier_update_current_mm(mm);
@@ -11776,7 +11674,7 @@ index 1eea53050bab..317eac6eb2f2 100644
  	switch_mm_irqs_off(active_mm, mm, tsk);
  	local_irq_enable();
  	task_unlock(tsk);
-@@ -1473,7 +1481,12 @@ void kthread_unuse_mm(struct mm_struct *mm)
+@@ -1491,7 +1499,12 @@ void kthread_unuse_mm(struct mm_struct *mm)
  	local_irq_disable();
  	tsk->mm = NULL;
  	membarrier_update_current_mm(NULL);
@@ -11790,7 +11688,7 @@ index 1eea53050bab..317eac6eb2f2 100644
  	enter_lazy_tlb(mm, tsk);
  	local_irq_enable();
 diff --git a/kernel/smpboot.c b/kernel/smpboot.c
-index f47d8f375946..60c7d365c0e1 100644
+index 1992b62e980b..33684e4528b6 100644
 --- a/kernel/smpboot.c
 +++ b/kernel/smpboot.c
 @@ -16,6 +16,10 @@
@@ -12140,7 +12038,7 @@ index 1d8e47bed3f1..9f1921025539 100644
  
  static unsigned long enforced_nproc_rlimit(void)
 diff --git a/mm/Kconfig b/mm/Kconfig
-index 45d4139c959c..eb9d41768c15 100644
+index 782c43f08e8f..6f994b324d0f 100644
 --- a/mm/Kconfig
 +++ b/mm/Kconfig
 @@ -530,6 +530,18 @@ config NUMA_KEEP_MEMINFO
@@ -12175,10 +12073,10 @@ index d25d99cb5f2b..2ea51f559d4e 100644
  		folio_set_young(folio);
  
 diff --git a/mm/debug_vm_pgtable.c b/mm/debug_vm_pgtable.c
-index 13f0d1192707..60dc95c5b286 100644
+index 68af76ca8bc9..36766e6f2099 100644
 --- a/mm/debug_vm_pgtable.c
 +++ b/mm/debug_vm_pgtable.c
-@@ -452,7 +452,11 @@ static void __init pmd_huge_tests(struct pgtable_debug_args *args)
+@@ -437,7 +437,11 @@ static void __init pmd_huge_tests(struct pgtable_debug_args *args)
  	 * X86 defined pmd_set_huge() verifies that the given
  	 * PMD is not a populated non-leaf entry.
  	 */
@@ -12190,7 +12088,7 @@ index 13f0d1192707..60dc95c5b286 100644
  	WARN_ON(!pmd_set_huge(args->pmdp, __pfn_to_phys(args->fixed_pmd_pfn), args->page_prot));
  	WARN_ON(!pmd_clear_huge(args->pmdp));
  	pmd = READ_ONCE(*args->pmdp);
-@@ -472,7 +476,11 @@ static void __init pud_huge_tests(struct pgtable_debug_args *args)
+@@ -457,7 +461,11 @@ static void __init pud_huge_tests(struct pgtable_debug_args *args)
  	 * X86 defined pud_set_huge() verifies that the given
  	 * PUD is not a populated non-leaf entry.
  	 */
@@ -12202,54 +12100,6 @@ index 13f0d1192707..60dc95c5b286 100644
  	WARN_ON(!pud_set_huge(args->pudp, __pfn_to_phys(args->fixed_pud_pfn), args->page_prot));
  	WARN_ON(!pud_clear_huge(args->pudp));
  	pud = READ_ONCE(*args->pudp);
-@@ -511,7 +519,11 @@ static void __init pud_clear_tests(struct pgtable_debug_args *args)
- 
- 	pr_debug("Validating PUD clear\n");
- 	pud = __pud(pud_val(pud) | RANDOM_ORVALUE);
-+	#ifdef CONFIG_PTP
-+	set_pud(args->pudp, pud);
-+	#else
- 	WRITE_ONCE(*args->pudp, pud);
-+	#endif
- 	pud_clear(args->pudp);
- 	pud = READ_ONCE(*args->pudp);
- 	WARN_ON(!pud_none(pud));
-@@ -548,7 +560,11 @@ static void __init p4d_clear_tests(struct pgtable_debug_args *args)
- 
- 	pr_debug("Validating P4D clear\n");
- 	p4d = __p4d(p4d_val(p4d) | RANDOM_ORVALUE);
-+	#ifdef CONFIG_PTP
-+	set_p4d(args->p4dp, p4d);
-+	#else
- 	WRITE_ONCE(*args->p4dp, p4d);
-+	#endif
- 	p4d_clear(args->p4dp);
- 	p4d = READ_ONCE(*args->p4dp);
- 	WARN_ON(!p4d_none(p4d));
-@@ -582,7 +598,11 @@ static void __init pgd_clear_tests(struct pgtable_debug_args *args)
- 
- 	pr_debug("Validating PGD clear\n");
- 	pgd = __pgd(pgd_val(pgd) | RANDOM_ORVALUE);
-+	#ifdef CONFIG_PTP
-+	set_pgd(args->pgdp, pgd);
-+	#else
- 	WRITE_ONCE(*args->pgdp, pgd);
-+	#endif
- 	pgd_clear(args->pgdp);
- 	pgd = READ_ONCE(*args->pgdp);
- 	WARN_ON(!pgd_none(pgd));
-@@ -650,7 +670,11 @@ static void __init pmd_clear_tests(struct pgtable_debug_args *args)
- 
- 	pr_debug("Validating PMD clear\n");
- 	pmd = __pmd(pmd_val(pmd) | RANDOM_ORVALUE);
-+	#ifdef CONFIG_PTP
-+	set_pmd(args->pmdp, pmd);
-+	#else
- 	WRITE_ONCE(*args->pmdp, pmd);
-+	#endif
- 	pmd_clear(args->pmdp);
- 	pmd = READ_ONCE(*args->pmdp);
- 	WARN_ON(!pmd_none(pmd));
 diff --git a/mm/early_ioremap.c b/mm/early_ioremap.c
 index ce06b2884789..a039c7a50ec5 100644
 --- a/mm/early_ioremap.c
@@ -12334,10 +12184,10 @@ index ce06b2884789..a039c7a50ec5 100644
  void __init __iomem *
  early_ioremap(resource_size_t phys_addr, unsigned long size)
 diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-index 763bb25e4f99..80bb2c0abeda 100644
+index af6a5c840e27..74854b382714 100644
 --- a/mm/huge_memory.c
 +++ b/mm/huge_memory.c
-@@ -39,6 +39,10 @@
+@@ -40,6 +40,10 @@
  #include <linux/memory-tiers.h>
  #include <linux/compat.h>
  
@@ -12348,7 +12198,7 @@ index 763bb25e4f99..80bb2c0abeda 100644
  #include <asm/tlb.h>
  #include <asm/pgalloc.h>
  #include "internal.h"
-@@ -2489,6 +2493,10 @@ static void __split_huge_zero_page_pmd(struct vm_area_struct *vma,
+@@ -2532,6 +2536,10 @@ static void __split_huge_zero_page_pmd(struct vm_area_struct *vma,
  	unsigned long addr;
  	pte_t *pte;
  	int i;
@@ -12359,7 +12209,7 @@ index 763bb25e4f99..80bb2c0abeda 100644
  
  	/*
  	 * Leave pmd empty until pte is filled note that it is fine to delay
-@@ -2501,7 +2509,14 @@ static void __split_huge_zero_page_pmd(struct vm_area_struct *vma,
+@@ -2544,7 +2552,14 @@ static void __split_huge_zero_page_pmd(struct vm_area_struct *vma,
  	old_pmd = pmdp_huge_clear_flush(vma, haddr, pmd);
  
  	pgtable = pgtable_trans_huge_withdraw(mm, pmd);
@@ -12375,7 +12225,7 @@ index 763bb25e4f99..80bb2c0abeda 100644
  
  	pte = pte_offset_map(&_pmd, haddr);
  	VM_BUG_ON(!pte);
-@@ -2534,6 +2549,10 @@ static void __split_huge_pmd_locked(struct vm_area_struct *vma, pmd_t *pmd,
+@@ -2577,6 +2592,10 @@ static void __split_huge_pmd_locked(struct vm_area_struct *vma, pmd_t *pmd,
  	unsigned long addr;
  	pte_t *pte;
  	int i;
@@ -12386,7 +12236,7 @@ index 763bb25e4f99..80bb2c0abeda 100644
  
  	VM_BUG_ON(haddr & ~HPAGE_PMD_MASK);
  	VM_BUG_ON_VMA(vma->vm_start > haddr, vma);
-@@ -2671,7 +2690,14 @@ static void __split_huge_pmd_locked(struct vm_area_struct *vma, pmd_t *pmd,
+@@ -2714,7 +2733,14 @@ static void __split_huge_pmd_locked(struct vm_area_struct *vma, pmd_t *pmd,
  	 * This's critical for some architectures (Power).
  	 */
  	pgtable = pgtable_trans_huge_withdraw(mm, pmd);
@@ -12428,7 +12278,7 @@ index 24c809379274..07d060fca6f0 100644
 +}
 +#endif
 diff --git a/mm/memory.c b/mm/memory.c
-index 4ef917a182f9..28da89a19e30 100644
+index 2771c10454e1..70a6b9b1088b 100644
 --- a/mm/memory.c
 +++ b/mm/memory.c
 @@ -80,6 +80,10 @@
@@ -12442,7 +12292,7 @@ index 4ef917a182f9..28da89a19e30 100644
  #include <trace/events/kmem.h>
  
  #include <asm/io.h>
-@@ -5872,6 +5876,11 @@ int __pud_alloc(struct mm_struct *mm, p4d_t *p4d, unsigned long address)
+@@ -6001,6 +6005,11 @@ int __pud_alloc(struct mm_struct *mm, p4d_t *p4d, unsigned long address)
  
  	spin_lock(&mm->page_table_lock);
  	if (!p4d_present(*p4d)) {
@@ -12454,7 +12304,7 @@ index 4ef917a182f9..28da89a19e30 100644
  		mm_inc_nr_puds(mm);
  		smp_wmb(); /* See comment in pmd_install() */
  		p4d_populate(mm, p4d, new);
-@@ -5896,6 +5905,11 @@ int __pmd_alloc(struct mm_struct *mm, pud_t *pud, unsigned long address)
+@@ -6025,6 +6034,11 @@ int __pmd_alloc(struct mm_struct *mm, pud_t *pud, unsigned long address)
  
  	ptl = pud_lock(mm, pud);
  	if (!pud_present(*pud)) {
@@ -12467,7 +12317,7 @@ index 4ef917a182f9..28da89a19e30 100644
  		smp_wmb(); /* See comment in pmd_install() */
  		pud_populate(mm, pud, new);
 diff --git a/mm/slub.c b/mm/slub.c
-index ee3e32cdb7fd..20a45a7feed5 100644
+index bcbfd720b574..ee808737929d 100644
 --- a/mm/slub.c
 +++ b/mm/slub.c
 @@ -42,6 +42,11 @@
@@ -12850,10 +12700,10 @@ index a2cbe44c48e1..7cf05d293312 100644
  }
  
 diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index e6058942a084..27a006728009 100644
+index d7ffe8ef8d87..89afb2a39d13 100644
 --- a/mm/vmalloc.c
 +++ b/mm/vmalloc.c
-@@ -3431,7 +3431,7 @@ static int vmap_pfn_apply(pte_t *pte, unsigned long addr, void *private)
+@@ -3458,7 +3458,7 @@ static int vmap_pfn_apply(pte_t *pte, unsigned long addr, void *private)
  
  	if (WARN_ON_ONCE(pfn_valid(pfn)))
  		return -EINVAL;
@@ -13244,7 +13094,7 @@ index bc0521104197..d7d3b7cc13e8 100644
  		}
  
 diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
-index 19be69fa4d05..6cb164dfc19b 100644
+index aa1dc43b16dd..7c94e75f337f 100644
 --- a/security/keys/keyctl.c
 +++ b/security/keys/keyctl.c
 @@ -23,6 +23,9 @@
@@ -13468,5 +13318,5 @@ index 407b51719f79..74ffd7ea3f37 100644
  
  /**
 -- 
-2.34.1
+2.33.0
 
