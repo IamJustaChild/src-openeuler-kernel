@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0295
+Release: %{hulkrelease}.0296
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,9 @@ fi
 %endif
 
 %changelog
+
+* Tue Sep 23 2024 yushi <yushi2@huawei.com> - 4.19.90-2409.4.0.0296
+- net/core: Replace driver version to be kernel version
 
 * Tue Sep 17 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2409.4.0.0295
 - !11557  xhci: Fix Panther point NULL pointer deref at full-speed re-enumeration
