@@ -2,13 +2,13 @@
 
 %global KernelVer %{version}-%{release}.raspi.%{_target_cpu}
 
-%global hulkrelease 38.0.0
+%global hulkrelease 41.0.0
 
 %global debug_package %{nil}
 
 Name:	 raspberrypi-kernel-rt
 Version: 6.6.0
-Release: %{hulkrelease}.rt.3
+Release: %{hulkrelease}.rt.4
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -265,6 +265,10 @@ fi
 
 
 %changelog
+* Fri Sep  20 2024 zhangyu <zhangyu4@kylinos.cn> - 6.6.0.41.0.4
+- - update Rpi:preempt-RT to openEuler 6.6.0.41.0.0
+
+
 * Thu Aug  22 2024 zhangyu <zhangyu4@kylinos.cn> - 6.6.0.38.0.3
 - - update Rpi:preempt-RT to openEuler 6.6.0.38.0.0
 
