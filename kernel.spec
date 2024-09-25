@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .94.0
-%global pkg_release         .175
+%global maintenance_release .95.0
+%global pkg_release         .176
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,78 @@ fi
 %endif
 
 %changelog
+* Wed Sep 25 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.95.0.176
+- !11712  btrfs: fix qgroup reserve leaks in cow_file_range
+- !11724  Squashfs: sanity check symbolic link size
+- !11710  btrfs: replace BUG_ON() with error handling at update_ref_for_cow()
+- !11709  CVE-2024-46751
+- !11702  userfaultfd: fix checks for huge PMDs
+- !11699  x86/mm: Fix pti_clone_pgtable() alignment assumption
+- Squashfs: sanity check symbolic link size
+- btrfs: fix qgroup reserve leaks in cow_file_range
+- btrfs: replace BUG_ON() with error handling at update_ref_for_cow()
+- btrfs: don't BUG_ON() when 0 reference count at btrfs_lookup_extent_info()
+- btrfs: reduce nesting for extent processing at btrfs_lookup_extent_info()
+- btrfs: remove superfluous metadata check at btrfs_lookup_extent_info()
+- userfaultfd: fix checks for huge PMDs
+- x86/mm: Fix pti_clone_pgtable() alignment assumption
+- !9776  wifi: ar5523: enable proper endpoint verification
+- !11664  drm/amd/pm: fix the Out-of-bounds read warning
+- !11643  HID: cougar: fix slab-out-of-bounds Read in cougar_report_fixup
+- !11650  fix CVE-2024-46714
+- drm/amd/pm: fix the Out-of-bounds read warning
+- !11634  fix CVE-2024-46723
+- !11647  net: hns3: fix a deadlock problem when config TC during resetting
+- !11536  usb: gadget: f_ncm: fix potential NULL ptr deref in ncm_bitrate()
+- !11627 [sync] PR-11615:  mmc: mmc_test: Fix NULL dereference on allocation failure
+- !11576 [sync] PR-11012:  hfsplus: fix uninit-value in copy_name
+- !11589  drm/amd/display: Skip finding free audio for unknown engine_id
+- !11587  jfs: don't walk off the end of ealist
+- !11580  kobject_uevent: Fix OOB access within zap_modalias_env()
+- !11636  netfilter: tproxy: bail out if IP has been disabled on the device
+- drm/amd/display: Skip wbscl_set_scaler_filter if filter is null
+- net: hns3: fix a deadlock problem when config TC during resetting
+- HID: cougar: fix slab-out-of-bounds Read in cougar_report_fixup
+- netfilter: tproxy: bail out if IP has been disabled on the device
+- !11611  Input: uinput - reject requests with unreasonable number of slots
+- !10937  f2fs: avoid format-overflow warning
+- drm/amdgpu: fix ucode
+- !11591 [sync] PR-8827: v2  iomap: fix sub-page not set dirty state
+- mmc: mmc_test: Fix NULL dereference on allocation failure
+- !11597 v2  mptcp: pm: avoid possible UaF when selecting endp
+- !11605  Fix iBMA bug and change version
+- !11601 [sync] PR-11583:  nfs: always check dreq->error after a commit
+- Input: uinput - reject requests with unreasonable number of slots
+- !11590  CVE-2024-36915
+- !10934  drm/amd/display: Check index msg_id before read or write
+- !10935  ata: libata-core: Fix null pointer dereference on error
+- !11599 [sync] PR-11584:  vfs: Don't evict inode under the inode lru traversing context
+- BMA: Fix edma driver initialization problem and change the version number.
+- !11595  gtp: pull network headers in gtp_dev_xmit()
+- nfs: always check dreq->error after a commit
+- vfs: Don't evict inode under the inode lru traversing context
+- mptcp: pm: avoid possible UaF when selecting endp
+- gtp: pull network headers in gtp_dev_xmit()
+- iomap: Ensure sub-page dirty state is set during mmap writes
+- Revert "iomap: Don't create iomap_page objects in iomap_page_mkwrite_actor"
+- nfc: llcp: fix nfc_llcp_setsockopt() unsafe copies
+- net: add copy_safe_from_sockptr() helper
+- drm/amd/display: Skip finding free audio for unknown engine_id
+- !11575  nilfs2: add missing check for inode numbers on directory entries
+- jfs: don't walk off the end of ealist
+- !11572  nilfs2: fix general protection fault in nilfs_btree_insert()
+- kobject_uevent: Fix OOB access within zap_modalias_env()
+- hfsplus: fix uninit-value in copy_name
+- nilfs2: add missing check for inode numbers on directory entries
+- !11571  NFSD: Fix ia_size underflow
+- nilfs2: fix general protection fault in nilfs_btree_insert()
+- NFSD: Fix ia_size underflow
+- usb: gadget: f_ncm: fix potential NULL ptr deref in ncm_bitrate()
+- f2fs: avoid format-overflow warning
+- ata: libata-core: Fix null pointer dereference on error
+- drm/amd/display: Check index msg_id before read or write
+- wifi: ar5523: enable proper endpoint verification
+
 * Wed Sep 18 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.94.0.175
 - !11516  fix CVE-2024-44988
 - !11523  ipv6: prevent UAF in ip6_send_skb()
