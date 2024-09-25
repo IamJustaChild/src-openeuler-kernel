@@ -1,0 +1,64 @@
+From 587aa96d691eee7dd2eab8b5f8e926074759aa7c Mon Sep 17 00:00:00 2001
+From: Long Li <leo.lilong@huawei.com>
+Date: Wed, 25 Sep 2024 19:14:05 +0800
+Subject: [PATCH] tools: fix implicit declaration of function __ALIGN_KERNEL
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+hulk inclusion
+category: bugfix
+bugzilla: https://gitee.com/src-openeuler/kernel/issues/IAQOJ9
+CVE: NA
+
+----------------------------------------
+
+After mergerd commit "bitmap: introduce generic optimizedbitmap_size()",
+When compiling tools/perf, I encountered the following error. I reverted
+the changes that added bitmap_size() in tools/include/linux/bitmap.h.
+There are no functional changes.
+
+ error: implicit declaration of function \
+	 ‘__ALIGN_KERNEL’ [-Werror=implicit-function-declaration]
+ #define ALIGN(x, a)  __ALIGN_KERNEL((x), (a))
+
+Fixes: 9e8111c56a25 ("bitmap: introduce generic optimized bitmap_size()")
+Signed-off-by: Long Li <leo.lilong@huawei.com>
+---
+ tools/include/linux/bitmap.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/tools/include/linux/bitmap.h b/tools/include/linux/bitmap.h
+index 3aeeb60f19882..3517972c259ed 100644
+--- a/tools/include/linux/bitmap.h
++++ b/tools/include/linux/bitmap.h
+@@ -27,14 +27,14 @@ int __bitmap_and(unsigned long *dst, const unsigned long *bitmap1,
+ #define small_const_nbits(nbits) \
+ 	(__builtin_constant_p(nbits) && (nbits) <= BITS_PER_LONG)
+ 
+-#define bitmap_size(nbits)	(ALIGN(nbits, BITS_PER_LONG) / BITS_PER_BYTE)
+-
+ static inline void bitmap_zero(unsigned long *dst, int nbits)
+ {
+ 	if (small_const_nbits(nbits))
+ 		*dst = 0UL;
+ 	else {
+-		memset(dst, 0, bitmap_size(nbits));
++		int len = BITS_TO_LONGS(nbits) * sizeof(unsigned long);
++
++		memset(dst, 0, len);
+ 	}
+ }
+ 
+@@ -120,7 +120,7 @@ static inline int test_and_clear_bit(int nr, unsigned long *addr)
+  */
+ static inline unsigned long *bitmap_alloc(int nbits)
+ {
+-	return calloc(1, bitmap_size(nbits));
++	return calloc(1, BITS_TO_LONGS(nbits) * sizeof(unsigned long));
+ }
+ 
+ /*
+-- 
+Gitee
+
