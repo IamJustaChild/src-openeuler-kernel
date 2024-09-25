@@ -1015,6 +1015,7 @@ fi
 - perf/x86/uncore: Add L3 PMU support for Hygon family 18h model 7h
 - EDAC/amd64: Add support for Hygon family 18h model 7h
 - x86/amd_nb: Add support for Hygon family 18h model 7h
+- Fix error kernel provides
 
 * Wed Sep 18 2024 Li Nan <linan122@huawei.com> - 5.10.0-229.0.0.131
 - !11565 ip_notify:Clean up redundant import files
