@@ -40,9 +40,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       42
+%global devel_release       44
 %global maintenance_release .0.0
-%global pkg_release         .49
+%global pkg_release         .50
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1089,6 +1089,172 @@ fi
 %endif
 
 %changelog
+* Wed Sep 25 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-44.0.0.50
+- !11769  tools: move alignment-related macros to new <linux/align.h>
+- tools: move alignment-related macros to new <linux/align.h>
+- !11753  driver: iio: add missing checks on iio_info's callback access
+- driver: iio: add missing checks on iio_info's callback access
+- !11740  hwmon: (adc128d818) Fix underflows seen when writing limit attributes
+- hwmon: (adc128d818) Fix underflows seen when writing limit attributes
+- !11733  Input: MT - limit max slots
+- Input: MT - limit max slots
+- !11757  arm64/mpam: Check mpam_detect_is_enabled() before accessing MPAM registers
+- arm64/mpam: Check mpam_detect_is_enabled() before accessing MPAM registers
+- Revert "arm64: head.S: Initialise MPAM EL2 registers and disable traps"
+- !11543  Fix CVE-2024-45025
+- fix bitmap corruption on close_range() with CLOSE_RANGE_UNSHARE
+- bitmap: introduce generic optimized bitmap_size()
+- fs/ntfs3: add prefix to bitmap_size() and use BITS_TO_U64()
+- s390/cio: rename bitmap_size() -> idset_bitmap_size()
+- !11713  btrfs: fix qgroup reserve leaks in cow_file_range
+- btrfs: fix qgroup reserve leaks in cow_file_range
+- !11725  Squashfs: sanity check symbolic link size
+- Squashfs: sanity check symbolic link size
+- !11715  btrfs: replace BUG_ON() with error handling at update_ref_for_cow()
+- btrfs: replace BUG_ON() with error handling at update_ref_for_cow()
+- !11714  CVE-2024-46751
+- btrfs: don't BUG_ON() when 0 reference count at btrfs_lookup_extent_info()
+- btrfs: reduce nesting for extent processing at btrfs_lookup_extent_info()
+- btrfs: remove superfluous metadata check at btrfs_lookup_extent_info()
+- !11717  CVE-2024-43904
+- drm/amd/display: Add null checks for 'stream' and 'plane' before dereferencing
+- !11718  CVE-2024-41008
+- drm/amdgpu: change vm->task_info handling
+- !11691  sch/netem: fix use after free in netem_dequeue
+- sch/netem: fix use after free in netem_dequeue
+- !11719  rtla/osnoise: Prevent NULL dereference in error handling
+- rtla/osnoise: Prevent NULL dereference in error handling
+- !11626  smb/server: fix potential null-ptr-deref of lease_ctx_info in smb2_open()
+- smb/server: fix potential null-ptr-deref of lease_ctx_info in smb2_open()
+- !11651  large folio: Performance and bugfix
+- mm: remove invalidate_inode_page()
+- mm: convert isolate_page() to mf_isolate_folio()
+- mm: convert soft_offline_in_use_page() to use a folio
+- mm: use mapping_evict_folio() in truncate_error_page()
+- mm: convert __do_fault() to use a folio
+- mm: make mapping_evict_folio() the preferred way to evict clean folios
+- tmpfs: fault in smaller chunks if large folio allocation not allowed
+- mm,tmpfs: consider end of file write in shmem_is_huge
+- mm: shmem: move shmem_huge_global_enabled() into shmem_allowable_huge_orders()
+- mm: shmem: rename shmem_is_huge() to shmem_huge_global_enabled()
+- mm: shmem: simplify the suitable huge orders validation for tmpfs
+- !11644  drm/amdgpu: fix dereference after null check
+- drm/amdgpu: fix dereference after null check
+- !11675 【OLK 6.6】net: hns3: some bugfixes for hns3 driver
+- net: hns3: Resolved the issue that the debugfs query result is inconsistent.
+- net: hns3: fixed reset failure issues caused by the incorrect reset type
+- net: hns3: fix missing features due to dev->features configuration too early
+- net: hns3: fix a deadlock problem when config TC during resetting
+- net: hns3: add sync command to sync io-pgtable
+- net: hns3: default enable tx bounce buffer when smmu enabled
+- net: hns3: don't add the len of vlan head if skb_vlan_pop failed
+- net: hns3: void array out of bound when loop tnl_num
+- net: hns3: use correct release function during uninitialization
+- net: hns3: delete redundant enabling actions for Layer 2 fowarding
+- !11721 v3  mm/migration: do not folio copy in MIGRATE_SYNC_NO_COPY mode
+- mm/migration: do not folio copy in MIGRATE_SYNC_NO_COPY mode
+- !8819 Add support for Hygon model 7h processors
+- perf/x86/uncore: Add L3 PMU support for Hygon family 18h model 7h
+- EDAC/amd64: Add support for Hygon family 18h model 7h
+- x86/amd_nb: Add support for Hygon family 18h model 7h
+- !11157 [OLK-6.6] Support Hygon Trusted Key Management run on CSV Guest
+- drivers/crypto/ccp: add ioctl API to pin TKM hugepage
+- driver/crypto/ccp: fix vtkm without C-bit when host SME deactivate
+- drivers/crypto/ccp: support TKM run on CSV
+- drivers/crypto/ccp: remove multi-level pointers processing for vpsp
+- !11669  cgroup-psi-add-PSI_STATE_LAST-for-kabi-reserve
+- cgroup/psi: add PSI_STATE_LAST for kabi reserve
+- !11666  drm/amd/pm: fix the Out-of-bounds read warning
+- drm/amd/pm: fix the Out-of-bounds read warning
+- !11607  tty: serial: fsl_lpuart: mark last busy before uart_add_one_port
+- tty: serial: fsl_lpuart: mark last busy before uart_add_one_port
+- !11646  net: hns3: fix a deadlock problem when config TC during resetting
+- net: hns3: fix a deadlock problem when config TC during resetting
+- !11648  vsock: fix recursive ->recvmsg calls
+- vsock: fix recursive ->recvmsg calls
+- !11656  fix CVE-2024-46714
+- drm/amd/display: Skip wbscl_set_scaler_filter if filter is null
+- !11631  fix CVE-2024-46723
+- drm/amdgpu: fix ucode out-of-bounds read warning
+- !11642  HID: cougar: fix slab-out-of-bounds Read in cougar_report_fixup
+- HID: cougar: fix slab-out-of-bounds Read in cougar_report_fixup
+- !11638  Fix CVE-2024-44991
+- tcp: do not export tcp_twsk_purge()
+- tcp: prevent concurrent execution of tcp_sk_exit_batch
+- tcp/dccp: do not care about families in inet_twsk_purge()
+- tcp/dccp: bypass empty buckets in inet_twsk_purge()
+- !11608 v3  arm64: perf: Add support for event counting threshold
+- perf: arm_pmuv3: Avoid assigning fixed cycle counter with threshold
+- arm: perf: Fix ARCH=arm build with GCC
+- Revert "perf/arm_dmc620: Remove duplicate format attribute #defines"
+- Documentation: arm64: Document the PMU event counting threshold feature
+- arm64: perf: Add support for event counting threshold
+- arm: pmu: Move error message and -EOPNOTSUPP to individual PMUs
+- perf/arm_dmc620: Remove duplicate format attribute #defines
+- arm: pmu: Share user ABI format mechanism with SPE
+- arm64: perf: Include threshold control fields in PMEVTYPER mask
+- arm: perf: Convert remaining fields to use GENMASK
+- arm: perf: Use GENMASK for PMMIR fields
+- arm: perf/kvm: Use GENMASK for ARMV8_PMU_PMCR_N
+- arm: perf: Remove inlines from arm_pmuv3.c
+- drivers: perf: arm_pmuv3: Add new macro PMUV3_INIT_MAP_EVENT()
+- KVM: arm64: PMU: Add a helper to read a vCPU's PMCR_EL0
+- KVM: arm64: Add PMU event filter bits required if EL3 is implemented
+- KVM: arm64: Make PMEVTYPER<n>_EL0.NSH RES0 if EL2 isn't advertised
+- drivers: perf: arm_pmuv3: Drop some unused arguments from armv8_pmu_init()
+- drivers: perf: arm_pmuv3: Read PMMIR_EL1 unconditionally
+- !11629  CVE-2024-46785
+- eventfs: Use list_del_rcu() for SRCU protected list variable
+- !11641  mm: set hugepage to false when anon mthp allocation
+- mm: set hugepage to false when anon mthp allocation
+- !11559  mm/ksm: fix possible UAF of stable_node
+- mm/ksm: fix possible UAF of stable_node
+- !11613  Input: uinput - reject requests with unreasonable number of slots
+- Input: uinput - reject requests with unreasonable number of slots
+- !11460  mptcp: pm: avoid possible UaF when selecting endp
+- mptcp: pm: avoid possible UaF when selecting endp
+- !11598  net/mlx5e: Take state lock during tx timeout reporter
+- net/mlx5e: Take state lock during tx timeout reporter
+- !11618  RDMA/hns: Fix ah error counter in sw stat not increasing
+- RDMA/hns: Fix ah error counter in sw stat not increasing
+- !11554 Some patches of RDMA from Linux to openEuler-6.6
+- RDMA/hns: Fix restricted __le16 degrades to integer issue
+- RDMA/hns: Optimize hem allocation performance
+- RDMA/hns: Fix 1bit-ECC recovery address in non-4K OS
+- RDMA/hns: Fix VF triggering PF reset in abnormal interrupt handler
+- RDMA/hns: Fix spin_unlock_irqrestore() called with IRQs enabled
+- !11566 v2  tracefs: Use generic inode RCU for synchronizing freeing
+- tracefs: Use generic inode RCU for synchronizing freeing
+- !11609  fscache: delete fscache_cookie_lru_timer when fscache exits to avoid UAF
+- fscache: delete fscache_cookie_lru_timer when fscache exits to avoid UAF
+- !11474  fs/netfs/fscache_cookie: add missing "n_accesses" check
+- fs/netfs/fscache_cookie: add missing "n_accesses" check
+- !11563  iommu: Restore lost return in iommu_report_device_fault()
+- iommu: Restore lost return in iommu_report_device_fault()
+- !11569  support poison recover from migrate folio
+- fs: hugetlbfs: support poisoned recover from hugetlbfs_migrate_folio()
+- mm: migrate: support poisoned recover from migrate folio
+- mm: migrate: split folio_migrate_mapping()
+- mm: add folio_mc_copy()
+- mm: move memory_failure_queue() into copy_mc_[user]_highpage()
+- mm: migrate: remove migrate_folio_extra()
+- mm: migrate_device: unify migrate folio for MIGRATE_SYNC_NO_COPY
+- mm: migrate: simplify __buffer_migrate_folio()
+- !8822 Add support for Hygon model 10h processors
+- ALSA: hda: Add support for Hygon family 18h model 10h HD-Audio
+- hwmon/k10temp: Add support for Hygon family 18h model 10h
+- EDAC/amd64: Add support for Hygon family 18h model 10h
+- x86/amd_nb: Add support for Hygon family 18h model 10h
+- x86/cpu: Get LLC ID for Hygon family 18h model 10h
+- !11594  gtp: pull network headers in gtp_dev_xmit()
+- gtp: pull network headers in gtp_dev_xmit()
+- !11573  btrfs: fix a use-after-free when hitting errors inside btrfs_submit_chunk()
+- btrfs: fix a use-after-free when hitting errors inside btrfs_submit_chunk()
+- !11585  vfs: Don't evict inode under the inode lru traversing context
+- vfs: Don't evict inode under the inode lru traversing context
+- !11461  bnxt_en: Fix double DMA unmapping for XDP_REDIRECT
+- bnxt_en: Fix double DMA unmapping for XDP_REDIRECT
+
 * Wed Sep 18 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-42.0.0.49
 - !11556  bpf: Fix a kernel verifier crash in stacksafe()
 - bpf: Fix a kernel verifier crash in stacksafe()
