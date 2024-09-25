@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       229
+%global devel_release       230
 %global maintenance_release .0.0
-%global pkg_release         .128
+%global pkg_release         .129
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -117,7 +117,7 @@ Conflicts: mdadm < 3.2.1-5 nfs-utils < 1.0.7-12 oprofile < 0.9.1-2 ppp < 2.4.3-3
 Conflicts: reiserfs-utils < 3.6.19-2 selinux-policy-targeted < 1.25.3-14 squashfs-tools < 4.0
 Conflicts: udev < 063-6 util-linux < 2.12 wireless-tools < 29-3 xfsprogs < 2.6.13-4
 
-Provides: kernel-%{_target_cpu}= %{version}-%{release} kernel-drm = 4.3.0 kernel-drm-nouveau = 16 kernel-modeset = 1
+Provides: kernel-%{_target_cpu} = %{version}-%{release} kernel-drm = 4.3.0 kernel-drm-nouveau = 16 kernel-modeset = 1
 Provides: kernel-uname-r = %{KernelVer} kernel=%{KernelVer}
 
 Requires: dracut >= 001-7 grubby >= 8.28-2 initscripts >= 8.11.1-1 linux-firmware >= 20100806-2 module-init-tools >= 3.16-2
@@ -952,6 +952,116 @@ fi
 %endif
 
 %changelog
+* Wed Sep 25 2024 Li Nan <linan122@huawei.com> - 5.10.0-230.0.0.129
+- !11771  tools: move alignment-related macros to new <linux/align.h>
+- !11729  scsi: qedi: Fix crash while reading debugfs attribute
+- tools: move alignment-related macros to new <linux/align.h>
+- !11706  btrfs: replace BUG_ON() with error handling at update_ref_for_cow()
+- !11707  btrfs: fix qgroup reserve leaks in cow_file_range
+- !11723 v2  Squashfs: sanity check symbolic link size
+- !11708  CVE-2024-46751
+- !11728  lib: objagg: Fix general protection fault
+- !11727  jfs: fix null ptr deref in dtInsertEntry
+- !11726  drm/vmwgfx: Fix a deadlock in dma buf fence polling
+- !11690  sch/netem: fix use after free in netem_dequeue
+- !11693  Fix CVE-2024-39501
+- !11625  smb/server: fix potential null-ptr-deref of lease_ctx_info in smb2_open()
+- !11701  userfaultfd: fix checks for huge PMDs
+- !11698  x86/mm: Fix pti_clone_pgtable() alignment assumption
+- scsi: qedi: Fix crash while reading debugfs attribute
+- lib: objagg: Fix general protection fault
+- jfs: fix null ptr deref in dtInsertEntry
+- drm/vmwgfx: Fix a deadlock in dma buf fence polling
+- Squashfs: sanity check symbolic link size
+- btrfs: don't BUG_ON() when 0 reference count at btrfs_lookup_extent_info()
+- btrfs: reduce nesting for extent processing at btrfs_lookup_extent_info()
+- btrfs: remove superfluous metadata check at btrfs_lookup_extent_info()
+- btrfs: fix qgroup reserve leaks in cow_file_range
+- btrfs: replace BUG_ON() with error handling at update_ref_for_cow()
+- userfaultfd: fix checks for huge PMDs
+- x86/mm: Fix pti_clone_pgtable() alignment assumption
+- driver core: Fix uevent_show() vs driver detach race
+- selftests: forwarding: devlink_lib: Wait for udev events after reloading
+- drivers: core: synchronize really_probe() and dev_uevent()
+- !9476 [22.03-LTS-SP3]enable CONFIG_BPF_LSM option by default to use safegurad
+- !8831 Add support for Hygon model 7h processors
+- !11665  drm/amd/pm: fix the Out-of-bounds read warning
+- sch/netem: fix use after free in netem_dequeue
+- !11640  HID: cougar: fix slab-out-of-bounds Read in cougar_report_fixup
+- !11649  fix CVE-2024-46714
+- drm/amd/pm: fix the Out-of-bounds read warning
+- !11632  fix CVE-2024-46723
+- !11555 v2  Fix CVE-2024-45025
+- !11588  drm/amd/display: Skip finding free audio for unknown engine_id
+- !11586  jfs: don't walk off the end of ealist
+- !11579  kobject_uevent: Fix OOB access within zap_modalias_env()
+- !11637  netfilter: tproxy: bail out if IP has been disabled on the device
+- !11562  Backport bugfix from mainline
+- drm/amd/display: Skip wbscl_set_scaler_filter if filter is null
+- HID: cougar: fix slab-out-of-bounds Read in cougar_report_fixup
+- netfilter: tproxy: bail out if IP has been disabled on the device
+- !11628 [OLK-5.10]Add description for HiSilicon PCIe PMU driver,Some updates for HiSilicon PCIe PMU
+- !11612  Input: uinput - reject requests with unreasonable number of slots
+- drm/amdgpu: fix ucode out-of-bounds read
+- !11615  mmc: mmc_test: Fix NULL dereference on allocation failure
+- drivers/perf: hisi_pcie: Export supported Root Ports [bdf_min, bdf_max]
+- drivers/perf: hisi_pcie: Fix TLP headers bandwidth counting
+- drivers/perf: hisi_pcie: Record hardware counts correctly
+- docs: fix 'make htmldocs' warning in perf
+- docs: perf: Fix build warning of hisi-pcie-pmu.rst
+- docs: perf: Update usage for target filter of hisi-pcie-pmu
+- drivers/perf: hisi: Add TLP filter support
+- Documentation: perf: Indent filter options list of hisi-pcie-pmu
+- docs: perf: Fix PMU instance name of hisi-pcie-pmu
+- docs: perf: Add description for HiSilicon PCIe PMU driver
+- smb/server: fix potential null-ptr-deref of lease_ctx_info in smb2_open()
+- !11606  Fix iBMA bug and change version
+- mmc: mmc_test: Fix NULL dereference on allocation failure
+- Input: uinput - reject requests with unreasonable number of slots
+- !11592  CVE-2024-36915
+- !10933  drm/amd/display: Check index msg_id before read or write
+- !10936  ata: libata-core: Fix null pointer dereference on error
+- !11604 hns3 udma: add resource allocation and change name of struct
+- BMA: Fix edma driver initialization problem and change the version number.
+- !11593  gtp: pull network headers in gtp_dev_xmit()
+- hns3 udma: add prefix hns3 for udma.
+- !11583  nfs: always check dreq->error after a commit
+- !11584  vfs: Don't evict inode under the inode lru traversing context
+- !11577  tcp: fix one compile error in __inet_hash_connect()
+- !11578  net: fix one compile error in net_rship_refresh_timeout()
+- gtp: pull network headers in gtp_dev_xmit()
+- nfc: llcp: fix nfc_llcp_setsockopt() unsafe copies
+- net: add copy_safe_from_sockptr() helper
+- drm/amd/display: Skip finding free audio for unknown engine_id
+- !11574  nilfs2: add missing check for inode numbers on directory entries
+- jfs: don't walk off the end of ealist
+- vfs: Don't evict inode under the inode lru traversing context
+- nfs: always check dreq->error after a commit
+- kobject_uevent: Fix OOB access within zap_modalias_env()
+- net: fix one compile error in net_rship_refresh_timeout()
+- tcp: fix one compile error in __inet_hash_connect()
+- nilfs2: add missing check for inode numbers on directory entries
+- !11570  NFSD: Fix ia_size underflow
+- NFSD: Fix ia_size underflow
+- mm/compaction: correctly return failure with bogus compound_order in strict mode
+- mm/hugetlb: fix nodes huge page allocation when there are surplus pages
+- mm: hugetlb_vmemmap: fix hugetlb page number decrease failed on movable nodes
+- bootmem: use kmemleak_free_part_phys in free_bootmem_page
+- bootmem: remove the vmemmap pages from kmemleak in free_bootmem_page
+- mm: migrate: fix THP's mapcount on isolation
+- mm/huge_memory: use pfn_to_online_page() in split_huge_pages_all()
+- fix bitmap corruption on close_range() with CLOSE_RANGE_UNSHARE
+- s390/cio: rename bitmap_size() -> idset_bitmap_size()
+- bitmap: introduce generic optimized bitmap_size()
+- fs/ntfs3: add prefix to bitmap_size() and use BITS_TO_U64()
+- enable CONFIG_BPF_LSM option by default to use safegurad
+- ata: libata-core: Fix null pointer dereference on error
+- drm/amd/display: Check index msg_id before read or write
+- perf/x86/uncore: Add L3 PMU support for Hygon family 18h model 7h
+- EDAC/amd64: Add support for Hygon family 18h model 7h
+- x86/amd_nb: Add support for Hygon family 18h model 7h
+- Fix error kernel provides
+
 * Wed Sep 18 2024 Li Nan <linan122@huawei.com> - 5.10.0-229.0.0.128
 - !11565 ip_notify:Clean up redundant import files
 - network_mgmt: Clean up redundant import files for ip_notify.c.
