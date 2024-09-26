@@ -41,9 +41,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       44
+%global devel_release       45
 %global maintenance_release .0.0
-%global pkg_release         .53
+%global pkg_release         .54
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1090,6 +1090,10 @@ fi
 %endif
 
 %changelog
+* Wed Sep 26 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-45.0.0.54
+- !11857  arm64/mpam: Fix redefined reference of 'mpam_detect_is_enabled'
+- arm64/mpam: Fix redefined reference of 'mpam_detect_is_enabled'
+
 * Wed Sep 25 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-44.0.0.53
 - !11769  tools: move alignment-related macros to new <linux/align.h>
 - tools: move alignment-related macros to new <linux/align.h>
