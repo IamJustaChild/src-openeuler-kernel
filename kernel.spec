@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2409.4.0
+%global hulkrelease 2409.6.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0296
+Release: %{hulkrelease}.0297
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,62 @@ fi
 %endif
 
 %changelog
+
+* Wed Sep 25 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2409.6.0.0297
+- !11816 v3  tools: fix implicit declaration of function __ALIGN_KERNEL
+- tools: fix implicit declaration of function __ALIGN_KERNEL
+- !11786  LTS patch backport
+- !11759  sch/netem: fix use after free in netem_dequeue
+- arm64: cpufeature: Fix the visibility of compat hwcaps
+- arm64: cpufeature: Force HWCAP to be based on the sysreg visible to user-space
+- irqchip/armada-370-xp: Do not allow mapping IRQ 0 and 1
+- irqchip/gic-v3-its: Remove BUG_ON in its_vpe_irq_domain_alloc
+- irqchip/mbigen: Fix mbigen node address layout
+- !11737  hwmon: (adc128d818) Fix underflows seen when writing limit attributes
+- !11692  fix CVE-2024-46723
+- !11695  wifi: mwifiex: Do not return unused priv in mwifiex_get_priv_by_id()
+- !11734  Input: MT - limit max slots
+- sch/netem: fix use after free in netem_dequeue
+- !11722  Squashfs: sanity check symbolic link size
+- !11697  Fix iBMA bug and change version
+- !11700  x86/mm: Fix pti_clone_pgtable() alignment assumption
+- hwmon: (adc128d818) Fix underflows seen when writing limit attributes
+- Input: MT - limit max slots
+- Squashfs: sanity check symbolic link size
+- x86/mm: Fix pti_clone_pgtable() alignment assumption
+- BMA: Fix edma driver initialization problem and change the version number.
+- wifi: mwifiex: Do not return unused priv in mwifiex_get_priv_by_id()
+- !11671 v4  HID: cougar: fix slab-out-of-bounds Read in cougar_report_fixup
+- drm/amdgpu: fix ucode out-of-bounds read warning
+- HID: cougar: fix slab-out-of-bounds Read in cougar_report_fixup
+- !11645  block: backport debugfs patches
+- !11544  Fix CVE-2024-45025
+- !11560  mm/ksm: fix possible UAF of stable_node
+- !11652  media: Revert "media: dvb-usb: Fix unexpected infinite loop in dvb_usb_read_remote_control()"
+- media: Revert "media: dvb-usb: Fix unexpected infinite loop in dvb_usb_read_remote_control()"
+- block: fix kabi broken in struct request_queue
+- block: protect blk_mq_debugfs_register/unregister_hctx() with 'debugfs_mutex'
+- block: shutdown blktrace in blk_release_queue()
+- block: remove per-disk debugfs files in blk_unregister_queue
+- block: serialize all debugfs operations using q->debugfs_mutex
+- blk-mq: Fix spurious debugfs directory creation during initialization
+- block: create the request_queue debugfs_dir on registration
+- blk-mq: don't create hctx debugfs dir until q->debugfs_dir is created
+- blk-mq: fix up placement of debugfs directory of queue files
+- blk-mq: no need to check return value of debugfs_create functions
+- blktrace: annotate required lock on do_blk_trace_setup()
+- blktrace: Avoid sparse warnings when assigning q->blk_trace
+- blktrace: break out of blktrace setup on concurrent calls
+- !11616  mmc: mmc_test: Fix NULL dereference on allocation failure
+- !11610  Input: uinput - reject requests with unreasonable number of slots
+- mmc: mmc_test: Fix NULL dereference on allocation failure
+- Input: uinput - reject requests with unreasonable number of slots
+- !11596  gtp: pull network headers in gtp_dev_xmit()
+- gtp: pull network headers in gtp_dev_xmit()
+- mm/ksm: fix possible UAF of stable_node
+- fix bitmap corruption on close_range() with CLOSE_RANGE_UNSHARE
+- s390/cio: rename bitmap_size() -> idset_bitmap_size()
+- bitmap: introduce generic optimized bitmap_size()
 
 * Tue Sep 23 2024 yushi <yushi2@huawei.com> - 4.19.90-2409.4.0.0296
 - net/core: Replace driver version to be kernel version
