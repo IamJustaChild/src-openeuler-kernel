@@ -42,7 +42,7 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %global upstream_sublevel   0
 %global devel_release       44
 %global maintenance_release .0.0
-%global pkg_release         .50
+%global pkg_release         .51
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1089,6 +1089,9 @@ fi
 %endif
 
 %changelog
+* Fri Sep 27 2024 laokz <zhangkai@iscas.ac.cn> - 6.6.0-44.0.0.51
+- haoc-kernel.spec: remove arches from ExclusiveArchs which having no HAOC patches
+
 * Wed Sep 25 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-44.0.0.50
 - !11769  tools: move alignment-related macros to new <linux/align.h>
 - tools: move alignment-related macros to new <linux/align.h>
