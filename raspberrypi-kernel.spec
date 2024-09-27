@@ -2,13 +2,13 @@
 
 %global KernelVer %{version}-%{release}.raspi.%{_target_cpu}
 
-%global hulkrelease 41.0.0
+%global hulkrelease 45.0.0
 
 %global debug_package %{nil}
 
 Name:	 raspberrypi-kernel
 Version: 6.6.0
-Release: %{hulkrelease}.8
+Release: %{hulkrelease}.9
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -260,6 +260,9 @@ fi
 /usr/src/kernels/%{KernelVer}
 
 %changelog
+* Thu Sep 26 2024 Yafen Fang <yafen@iscas.ac.cn> - 6.6.0-45.0.0.9
+- update kernel version to openEuler 6.6.0-45.0.0
+
 * Sat Sep 14 2024 Yafen Fang <yafen@iscas.ac.cn> - 6.6.0-41.0.0.8
 - update kernel version to openEuler 6.6.0-41.0.0
 
