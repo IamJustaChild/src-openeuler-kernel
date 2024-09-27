@@ -42,7 +42,7 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %global upstream_sublevel   0
 %global devel_release       27
 %global maintenance_release .0.0
-%global pkg_release         .32
+%global pkg_release         .33
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -166,7 +166,7 @@ Provides: kernel-uname-r = %{KernelVer} kernel=%{KernelVer}
 
 Requires: dracut >= 001-7 grubby >= 8.28-2 initscripts >= 8.11.1-1 linux-firmware >= 20100806-2 module-init-tools >= 3.16-2
 
-ExclusiveArch: noarch aarch64 i686 x86_64 riscv64 ppc64le loongarch64
+ExclusiveArch: noarch aarch64
 ExclusiveOS: Linux
 
 %if %{with_perf}
@@ -1083,6 +1083,9 @@ fi
 %endif
 
 %changelog
+* Fri Sep 27 2024 laokz <zhangkai@iscas.ac.cn> - 6.6.0-27.0.0.33
+- SPEC: remove arches from ExclusiveArchs which having no HAOC patches
+
 * Thu May 23 2024 Liu Zhehui <liuzhh@zgclab.edu.cn> - 6.6.0-27.0.0.32
 - update HAOC patch and spec for 6.6.0-27.0.0
 * Sat May 18 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-27.0.0.31
