@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2409.6.0
+%global hulkrelease 2410.1.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0297
+Release: %{hulkrelease}.0298
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,57 @@ fi
 %endif
 
 %changelog
+
+* Tue Oct 08 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2410.1.0.0298
+- !12007  Fix CVE-2024-44958 for 4.19
+- !11785  perf/x86: Serialize set_attr_rdpmc()
+- sched/smt: Fix unbalance sched_smt_present dec/inc
+- sched/smt: Introduce sched_smt_present_inc/dec() helper
+- sched: Revert fix unbalance sched_smt_present dec/inc
+- !11918  dhugetlb: make spin_lock irq save
+- !11968  drm/amdgpu: fix mc_data out-of-bounds read warning
+- drm/amdgpu: fix mc_data out-of-bounds read warning
+- !11863  memcg_write_event_control(): fix a user-triggerable oops
+- !11921  hwmon: (lm95234) Fix underflows seen when writing limit attributes
+- !11924  nilfs2: protect references to superblock parameters exposed in sysfs
+- !11842  CVE-2024-46771
+- nilfs2: protect references to superblock parameters exposed in sysfs
+- hwmon: (lm95234) Fix underflows seen when writing limit attributes
+- dhugetlb: make free_huge_page_to_dhugetlb_pool irq safe
+- dhugetlb: avoid lockdep warning with spin_lock_nested
+- dhugetlb: Use helper function to lock/unlock
+- !11789  ALSA: line6: Fix racy access to midibuf
+- !11905  scsi: aacraid: Fix double-free on probe failure
+- !11888  pci/hotplug/pnv_php: Fix hotplug driver crash on Powernv
+- !11855  VMCI: Fix use-after-free when removing resource in vmci_resource_remove()
+- scsi: aacraid: Fix double-free on probe failure
+- !11877  usb: dwc3: st: fix probed platform device ref count on probe error path
+- !11878  PCI: Add missing bridge lock to pci_bus_lock()
+- !11861  hwmon: (w83627ehf) Fix underflows seen when writing limit attributes
+- !11803  CVE-2024-46781
+- pci/hotplug/pnv_php: Fix hotplug driver crash on Powernv
+- PCI: Add missing bridge lock to pci_bus_lock()
+- usb: dwc3: st: fix probed platform device ref count on probe error path
+- !11818  uio_hv_generic: Fix kernel NULL pointer dereference in hv_uio_rescind
+- memcg_write_event_control(): fix a user-triggerable oops
+- hwmon: (w83627ehf) Fix underflows seen when writing limit attributes
+- !11703  binder: fix UAF caused by offsets overwrite
+- !11854  fix CVE-2024-46777 for 4.19
+- VMCI: Fix use-after-free when removing resource in vmci_resource_remove()
+- udf: Avoid excessive partition lengths
+- udf: Define EFSCORRUPTED error code
+- !11809  apparmor: fix possible NULL pointer dereference
+- !11777  blktrace: fix blktrace is disabled when CONFIG_BLK_DEBUG_FS is disabled
+- can: bcm: Clear bo->bcm_proc_read after remove_proc_entry().
+- can: bcm: Remove proc entry when dev is unregistered.
+- uio_hv_generic: Fix kernel NULL pointer dereference in hv_uio_rescind
+- apparmor: fix possible NULL pointer dereference
+- nilfs2: fix missing cleanup on rollforward recovery error
+- nilfs2: fix use-after-free of nilfs_root in dirtying inodes via iput
+- ALSA: line6: Fix racy access to midibuf
+- perf/x86: Serialize set_attr_rdpmc()
+- blktrace: fix blktrace is disabled when CONFIG_BLK_DEBUG_FS is disabled
+- binder: fix UAF caused by offsets overwrite
 
 * Wed Sep 25 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2409.6.0.0297
 - !11816 v3  tools: fix implicit declaration of function __ALIGN_KERNEL
