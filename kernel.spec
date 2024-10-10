@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       230
+%global devel_release       231
 %global maintenance_release .0.0
-%global pkg_release         .132
+%global pkg_release         .133
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -911,6 +911,177 @@ fi
 %endif
 
 %changelog
+* Thu Oct 10 2024 Li Nan <linan122@huawei.com> - 5.10.0-231.0.0.133
+- !11964  drm/amd/pm: Fix negative array index read
+- !12073  kprobes: Fix deadlock issue with kmemleak
+- !12062  CVE-2024-46857
+- kprobes: Fix deadlock issue with kmemleak
+- !12050  um: line: always fill *error_out in setup_one_line()
+- !11958 [OLK-5.10] Intel: Enable CONFIG_PCIE_EDR in openeuler_defconfig for x86 to enable PCIe eDPC
+- !12020  drm/amd/display: Check gpio_id before used as array index
+- !12024  ASoC: meson: axg-card: fix 'use-after-free'
+- !12034  ksmbd: discard write access to the directory open
+- !12038  drm/amd/display: Stop amdgpu_dm initialize when link nums greater than max_links
+- !11942  sbitmap: backport bugfix patches
+- net/mlx5: Fix bridge mode operations when there are no VFs
+- net/mlx5: E-switch, Introduce flag to indicate if fdb table is created
+- !11998  drm/amd/display: Add array index check for hdcp ddc access
+- !12011  rtmutex: Drop rt_mutex::wait_lock before scheduling
+- um: line: always fill *error_out in setup_one_line()
+- !11940 【OLK 5.10】RDMA/hns backport some bugfix from mainline linux
+- !12015  perf/x86/intel: Limit the period on Haswell
+- drm/amd/display: Stop amdgpu_dm initialize when link nums greater than max_links
+- !12028  Fix CVE-2024-44958 for olk-5.10
+- !12032  serial: sc16is7xx: fix invalid FIFO access with special register set
+- !12002  drm/amd/display: Assign linear_pitch_alignment even for VM
+- ksmbd: discard write access to the directory open
+- serial: sc16is7xx: fix invalid FIFO access with special register set
+- sched/smt: Fix unbalance sched_smt_present dec/inc
+- sched/smt: Introduce sched_smt_present_inc/dec() helper
+- sched: Revert fix unbalance sched_smt_present dec/inc
+- ASoC: meson: axg-card: fix 'use-after-free'
+- drm/amd/display: Check gpio_id before used as array index
+- !11999  nvmet-tcp: fix kernel crash if commands allocation fails
+- perf/x86/intel: Limit the period on Haswell
+- !12006 v3  add steal_task for cgroup
+- rtmutex: Drop rt_mutex::wait_lock before scheduling
+- sched/core: Add mutex lock to protect steal_task
+- sched/debug: Add h_nr_running/steal_h_nr_running in sched_debug
+- sched/fair: Set the maximum number of steal attempts
+- sched/fair: Count the number of tasks marked as steal_task on cfs_rq
+- sched/topology: Remove SCHED_STEAL_NODE_LIMIT_DEFAULT
+- sched/core: Add cpu.steal_task in cgroup v1 cpu subsystem
+- sched/fair: Add group_steal in cmdline to enable STEAL for cgroup
+- Revert "sched: add mutex lock to protect qos_level"
+- !11907  ksmbd: unset the binding mark of a reused connection
+- drm/amd/display: Assign linear_pitch_alignment even for VM
+- nvmet-tcp: fix kernel crash if commands allocation fails
+- drm/amd/display: Add array index check for hdcp ddc access
+- !11976  CVE-2024-46814
+- !11941  usb: typec: ucsi: Fix null pointer dereference in trace
+- !11939  of/irq: Prevent device address out-of-bounds read in interrupt map walk
+- !11938  KVM: arm64: Make ICC_*SGI*_EL1 undef in the absence of a vGICv3
+- drm/amd/display: Check msg_id before processing transcation
+- drm/amd/pm: Fix negative array index read
+- Enable CONFIG_PCIE_EDR in openeuler_defconfig for x86
+- !11946  btrfs: don't BUG_ON on ENOMEM from btrfs_lookup_extent_info() in walk_down_proc()
+- !11916  ethtool: check device is present when getting link settings
+- !11935  btrfs: remove NULL transaction support for btrfs_lookup_extent_info()
+- !11922  hwmon: (lm95234) Fix underflows seen when writing limit attributes
+- !11928  Some bug fix patches for OLK-5.10 hns RoCE
+- btrfs: don't BUG_ON on ENOMEM from btrfs_lookup_extent_info() in walk_down_proc()
+- blk-mq: Fix potential io hung for shared sbitmap per tagset
+- blk-mq: wait on correct sbitmap_queue in blk_mq_mark_tag_wait
+- sbitmap: fix lockup while swapping
+- sbitmap: Avoid leaving waitqueue in invalid state in __sbq_wake_up()
+- sbitmap: fix possible io hung due to lost wakeup
+- block: Fix lockdep warning in blk_mq_mark_tag_wait
+- blk-mq: fix potential io hang by wrong 'wake_batch'
+- sbitmap: correct wake_batch recalculation to avoid potential IO hung
+- blk-mq: Fix wrong wakeup batch configuration which will cause hang
+- blk-mq: fix tag_get wait task can't be awakened
+- usb: typec: ucsi: Fix null pointer dereference in trace
+- of/irq: Prevent device address out-of-bounds read in interrupt map walk
+- KVM: arm64: Make ICC_*SGI*_EL1 undef in the absence of a vGICv3
+- RDMA/hns: Fix restricted __le16 degrades to integer issue
+- RDMA/hns: Optimize hem allocation performance
+- btrfs: remove NULL transaction support for btrfs_lookup_extent_info()
+- !11925  nilfs2: protect references to superblock parameters exposed in sysfs
+- !11914  sched: fix a deadlock in task_net_group()
+- !11843  CVE-2024-46771
+- RDMA/hns: Fix ah error counter in sw stat not increasing
+- Revert "RDMA/hns: Fix ah error counter in sw stat not increasing when sl is invalid"
+- RDMA/hns: Fix RoCEE hang when multiple QP banks use EXT_SGE
+- RDMA/hns: Use one CQ bank per context for HIP09
+- RDMA/hns: Fix the inconsistency between input max_send_sge and output max_send_sge
+- nilfs2: protect references to superblock parameters exposed in sysfs
+- !11896 [sync] PR-11831:  drm/nouveau/dispnv04: fix null pointer dereference in nv17_tv_get_ld_modes
+- hwmon: (lm95234) Fix underflows seen when writing limit attributes
+- ethtool: check device is present when getting link settings
+- !11900 [sync] PR-11851:  usb: gadget: f_fs: Fix race between aio_cancel() and AIO request complete
+- !11899 [sync] PR-11849:  bcache: fix variable length array abuse in btree_iter
+- !11898 [sync] PR-11833:  scsi: bfa: Ensure the copied buf is NUL terminated
+- !11897 [sync] PR-11832:  enic: Validate length of nl attributes in enic_set_vf_port
+- !11895 [sync] PR-11830:  ALSA: usb-audio: Stop parsing channels bits when all channels are found.
+- sched: fix a deadlock in task_net_group()
+- !11867  pktgen: use cpus_read_lock() in pg_net_init()
+- !11890  hwmon: (w83627ehf) Fix underflows seen when writing limit attributes
+- ksmbd: unset the binding mark of a reused connection
+- !11864  VMCI: Fix use-after-free when removing resource in vmci_resource_remove()
+- !11903  scsi: aacraid: Fix double-free on probe failure
+- !11875  btrfs: handle errors from btrfs_dec_ref() properly
+- scsi: aacraid: Fix double-free on probe failure
+- !11887  pci/hotplug/pnv_php: Fix hotplug driver crash on Powernv
+- usb: gadget: f_fs: Fix race between aio_cancel() and AIO request complete
+- bcache: fix variable length array abuse in btree_iter
+- scsi: bfa: Ensure the copied buf is NUL terminated
+- enic: Validate length of nl attributes in enic_set_vf_port
+- drm/nouveau/dispnv04: fix null pointer dereference in nv17_tv_get_ld_modes
+- ALSA: usb-audio: Stop parsing channels bits when all channels are found.
+- !11881  PCI: Add missing bridge lock to pci_bus_lock()
+- !11882  usb: dwc3: st: fix probed platform device ref count on probe error path
+- !11871  NFSD: Reset cb_seq_status after NFS4ERR_DELAY
+- !11866 v2  drm/amd/display: Ensure index calculation will not overflow
+- !11791  nilfs2: fix missing cleanup on rollforward recovery error
+- hwmon: (w83627ehf) Fix underflows seen when writing limit attributes
+- pci/hotplug/pnv_php: Fix hotplug driver crash on Powernv
+- !11828 v2  drm/msm/dpu: cleanup FB if dpu_format_populate_layout fails
+- usb: dwc3: st: fix probed platform device ref count on probe error path
+- PCI: Add missing bridge lock to pci_bus_lock()
+- btrfs: handle errors from btrfs_dec_ref() properly
+- !11767 [sync] PR-11733:  Input: MT - limit max slots
+- !11847  bpf: verifier: prevent userspace memory access
+- !11749  ASoC: dapm: Fix UAF for snd_soc_pcm_runtime object
+- !11817  uio_hv_generic: Fix kernel NULL pointer dereference in hv_uio_rescind
+- NFSD: Reset cb_seq_status after NFS4ERR_DELAY
+- pktgen: use cpus_read_lock() in pg_net_init()
+- drm/amd/display: Ensure index calculation will not overflow
+- VMCI: Fix use-after-free when removing resource in vmci_resource_remove()
+- !11494  ext4: Fix race in buffer_head read fault injection
+- !11677  wifi: mwifiex: Do not return unused priv in mwifiex_get_priv_by_id()
+- !11673  netem: fix return value if duplicate enqueue fails
+- !11810  apparmor: fix possible NULL pointer dereference
+- !11805  drm/amdgpu: Fix out-of-bounds write warning
+- !11678  udf: Avoid excessive partition lengths
+- !11680  binder: fix UAF caused by offsets overwrite
+- !11784  perf/x86: Serialize set_attr_rdpmc()
+- !11815  selinux,smack: don't bypass permissions check in inode_setsecctx hook
+- bpf: verifier: prevent userspace memory access
+- can: bcm: Clear bo->bcm_proc_read after remove_proc_entry().
+- can: bcm: Remove proc entry when dev is unregistered.
+- drm/msm/dpu: cleanup FB if dpu_format_populate_layout fails
+- !11741  powerpc/rtas: Prevent Spectre v1 gadget construction in sys_rtas()
+- !11788 The ip_notify_sysfs_create function logs are recorded using the netdev_err interface.
+- !11801  can: mcp251x: fix deadlock if an interrupt occurs during mcp251x_open
+- uio_hv_generic: Fix kernel NULL pointer dereference in hv_uio_rescind
+- selinux,smack: don't bypass permissions check in inode_setsecctx hook
+- apparmor: fix possible NULL pointer dereference
+- drm/amdgpu: Fix out-of-bounds write warning
+- modify for ICSL.
+- can: mcp251x: fix deadlock if an interrupt occurs during mcp251x_open
+- nilfs2: fix missing cleanup on rollforward recovery error
+- perf/x86: Serialize set_attr_rdpmc()
+- !11730  media: xc2028: avoid use-after-free in load_firmware_cb()
+- !11738  hwmon: (adc128d818) Fix underflows seen when writing limit attributes
+- !11752  driver: iio: add missing checks on iio_info's callback access
+- !11773  A group of optimization and bug fix for numa-affinity
+- mm: numa-affinity: fix build error when !CONFIG_PROC_SYSCTL
+- mm: numa-affinity: adapt for task_numa_placement
+- mm: numa-affinity: adapt for should_numa_migrate_memory
+- mm: numa-affinity: add helper numa_affinity_sampling_enabled()
+- mm: thp: support to control numa migration
+- Input: MT - limit max slots
+- driver: iio: add missing checks on iio_info's callback access
+- ASoC: dapm: Fix UAF for snd_soc_pcm_runtime object
+- powerpc/rtas: Prevent Spectre v1 gadget construction in sys_rtas()
+- hwmon: (adc128d818) Fix underflows seen when writing limit attributes
+- media: xc2028: avoid use-after-free in load_firmware_cb()
+- binder: fix UAF caused by offsets overwrite
+- udf: Avoid excessive partition lengths
+- wifi: mwifiex: Do not return unused priv in mwifiex_get_priv_by_id()
+- netem: fix return value if duplicate enqueue fails
+- ext4: Fix race in buffer_head read fault injection
+
 * Wed Sep 25 2024 Li Nan <linan122@huawei.com> - 5.10.0-230.0.0.132
 - !11771  tools: move alignment-related macros to new <linux/align.h>
 - !11729  scsi: qedi: Fix crash while reading debugfs attribute
