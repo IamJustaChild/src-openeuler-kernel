@@ -40,9 +40,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       44
+%global devel_release       46
 %global maintenance_release .0.0
-%global pkg_release         .50
+%global pkg_release         .51
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1089,6 +1089,222 @@ fi
 %endif
 
 %changelog
+* Thu Oct 10 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-46.0.0.51
+- !12061  net/mlx5: Fix bridge mode operations when there are no VFs
+- net/mlx5: Fix bridge mode operations when there are no VFs
+- !12074  drm/amd/display: Check index for aux_rd_interval before using
+- drm/amd/display: Check index for aux_rd_interval before using
+- !12063  cpufreq: intel_pstate: Revise global turbo disable check
+- cpufreq: intel_pstate: Revise global turbo disable check
+- !12051  um: line: always fill *error_out in setup_one_line()
+- um: line: always fill *error_out in setup_one_line()
+- !12023  ASoC: meson: axg-card: fix 'use-after-free'
+- ASoC: meson: axg-card: fix 'use-after-free'
+- !12022  drm/amd/display: Check gpio_id before used as array index
+- drm/amd/display: Check gpio_id before used as array index
+- !12049  drm/amd/display: Skip inactive planes within ModeSupportAndSystemConfiguration
+- drm/amd/display: Skip inactive planes within ModeSupportAndSystemConfiguration
+- !11949  mptcp: pm: only decrement add_addr_accepted for MPJ req
+- mptcp: pm: only decrement add_addr_accepted for MPJ req
+- !11763 [OLK-6.6] Intel: Backport to support Intel IFS(In Field Scan) SBAF on GNR
+- platform/x86/intel/ifs: Fix SBAF title underline length
+- trace: platform/x86/intel/ifs: Add SBAF trace support
+- platform/x86/intel/ifs: Add SBAF test support
+- platform/x86/intel/ifs: Add SBAF test image loading support
+- platform/x86/intel/ifs: Refactor MSR usage in IFS test code
+- selftests: ifs: verify IFS ARRAY BIST functionality
+- selftests: ifs: verify IFS scan test functionality
+- selftests: ifs: verify test image loading functionality
+- selftests: ifs: verify test interfaces are created by the driver
+- platform/x86/intel/ifs: Disable irq during one load stage
+- platform/x86/intel/ifs: trace: display batch num in hex
+- platform/x86/intel/ifs: Classify error scenarios correctly
+- platform/x86/intel/ifs: Remove unnecessary initialization of 'ret'
+- platform/x86/intel/ifs: Add an entry rendezvous for SAF
+- platform/x86/intel/ifs: Replace the exit rendezvous with an entry rendezvous for ARRAY_BIST
+- platform/x86/intel/ifs: Add current batch number to trace output
+- platform/x86/intel/ifs: Trace on all HT threads when executing a test
+- !12039  drm/amd/display: Stop amdgpu_dm initialize when link nums greater than max_links
+- drm/amd/display: Stop amdgpu_dm initialize when link nums greater than max_links
+- !12033  sysctl: always initialize i_uid/i_gid
+- sysctl: always initialize i_uid/i_gid
+- !12014  dma-buf: heaps: Fix off-by-one in CMA heap fault handler
+- dma-buf: heaps: Fix off-by-one in CMA heap fault handler
+- !12009  rtmutex: Drop rt_mutex::wait_lock before scheduling
+- rtmutex: Drop rt_mutex::wait_lock before scheduling
+- !11617 v2  Fix VSYNC referencing an unmapped VPE on GIC v4.0/v4.1
+- irqchip/gic-v3-its: Fix VSYNC referencing an unmapped VPE on GIC v4.0
+- irqchip/gic-v3-its: Fix VSYNC referencing an unmapped VPE on GIC v4.1
+- !12016  perf/x86/intel: Limit the period on Haswell
+- perf/x86/intel: Limit the period on Haswell
+- !12017  cppc_cpufreq: Fix possible null pointer dereference
+- cppc_cpufreq: Fix possible null pointer dereference
+- !11995  drm/amd/display: Assign linear_pitch_alignment even for VM
+- drm/amd/display: Assign linear_pitch_alignment even for VM
+- !11796  bpf: Take return from set_memory_rox() into account with bpf_jit_binary_lock_ro()
+- bpf: Take return from set_memory_rox() into account with bpf_jit_binary_lock_ro()
+- !12004  spi: rockchip: Resolve unbalanced runtime PM / system PM handling
+- spi: rockchip: Resolve unbalanced runtime PM / system PM handling
+- !12000  nvmet-tcp: fix kernel crash if commands allocation fails
+- nvmet-tcp: fix kernel crash if commands allocation fails
+- !11969  drm/amd/display: Run DC_LOG_DC after checking link->link_enc
+- drm/amd/display: Run DC_LOG_DC after checking link->link_enc
+- !11963  serial: sc16is7xx: fix invalid FIFO access with special register set
+- serial: sc16is7xx: fix invalid FIFO access with special register set
+- !11985  Fix CVE-2024-46845
+- tracing/osnoise: Fix build when timerlat is not enabled
+- tracing/timerlat: Only clear timer if a kthread exists
+- !11909  ksmbd: unset the binding mark of a reused connection
+- ksmbd: unset the binding mark of a reused connection
+- !11983  wifi: ath12k: fix firmware crash due to invalid peer nss
+- wifi: ath12k: fix firmware crash due to invalid peer nss
+- !11984  drm/amd/display: Add array index check for hdcp ddc access
+- drm/amd/display: Add array index check for hdcp ddc access
+- !11989  drm/amd/display: Fix index may exceed array range within fpu_update_bw_bounding_box
+- drm/amd/display: Fix index may exceed array range within fpu_update_bw_bounding_box
+- !11992  scsi: lpfc: Handle mailbox timeouts in lpfc_get_sfp_info
+- scsi: lpfc: Handle mailbox timeouts in lpfc_get_sfp_info
+- !11979  CVE-2024-46814
+- drm/amd/display: Check msg_id before processing transcation
+- !11960  scsi: ufs: core: Remove SCSI host only if added
+- scsi: ufs: core: Remove SCSI host only if added
+- !11944  drm/amdgpu: Fix the warning division or modulo by zero
+- drm/amdgpu: Fix the warning division or modulo by zero
+- !11971  sched: Support to enable/disable dynamic_affinity
+- sched: Support to enable/disable dynamic_affinity
+- !11951  net: phy: Fix missing of_node_put() for leds
+- net: phy: Fix missing of_node_put() for leds
+- !11956  Fix CVE-2024-44958 6.6
+- sched/smt: Fix unbalance sched_smt_present dec/inc
+- sched/smt: Introduce sched_smt_present_inc/dec() helper
+- !11945  btrfs: don't BUG_ON on ENOMEM from btrfs_lookup_extent_info() in walk_down_proc()
+- btrfs: don't BUG_ON on ENOMEM from btrfs_lookup_extent_info() in walk_down_proc()
+- !11919  btrfs: fix race between direct IO write and fsync when using same fd
+- btrfs: fix race between direct IO write and fsync when using same fd
+- !11920  hwmon: (lm95234) Fix underflows seen when writing limit attributes
+- hwmon: (lm95234) Fix underflows seen when writing limit attributes
+- !11820  powerpc/qspinlock: Fix deadlock in MCS queue
+- powerpc/qspinlock: Fix deadlock in MCS queue
+- !11915  ethtool: check device is present when getting link settings
+- ethtool: check device is present when getting link settings
+- !11936  btrfs: remove NULL transaction support for btrfs_lookup_extent_info()
+- btrfs: remove NULL transaction support for btrfs_lookup_extent_info()
+- !11929  Merge some hns RoCE patches from the mainline to OLK-6.6
+- RDMA/hns: Fix the overflow risk of hem_list_calc_ba_range()
+- RDMA/hns: Fix Use-After-Free of rsv_qp on HIP08
+- Revert "RDMA/hns: Fix Use-After-Free of rsv_qp"
+- Revert "RDMA/hns: Fix the overflow risk of hem_list_calc_ba_range()"
+- !11912  smb: client: fix double put of @cfile in smb2_set_path_size()
+- smb: client: fix double put of @cfile in smb2_set_path_size()
+- !11908  HID: amd_sfh: free driver_data after destroying hid device
+- HID: amd_sfh: free driver_data after destroying hid device
+- !11926  nilfs2: protect references to superblock parameters exposed in sysfs
+- nilfs2: protect references to superblock parameters exposed in sysfs
+- !11927  hwmon: (hp-wmi-sensors) Check if WMI event data exists
+- hwmon: (hp-wmi-sensors) Check if WMI event data exists
+- !11844  fix CVE-2024-46771
+- can: bcm: Clear bo->bcm_proc_read after remove_proc_entry().
+- can: bcm: Remove proc entry when dev is unregistered.
+- !11885  pci/hotplug/pnv_php: Fix hotplug driver crash on Powernv
+- pci/hotplug/pnv_php: Fix hotplug driver crash on Powernv
+- !11795  i2c: tegra: Do not mark ACPI devices as irq safe
+- i2c: tegra: Do not mark ACPI devices as irq safe
+- !11804  drm/amdgpu: Fix out-of-bounds write warning
+- drm/amdgpu: Fix out-of-bounds write warning
+- !11901  scsi: aacraid: Fix double-free on probe failure
+- scsi: aacraid: Fix double-free on probe failure
+- !11859  char: xillybus: Check USB endpoints when probing device
+- char: xillybus: Check USB endpoints when probing device
+- !11865  pktgen: use cpus_read_lock() in pg_net_init()
+- pktgen: use cpus_read_lock() in pg_net_init()
+- !11876  btrfs: handle errors from btrfs_dec_ref() properly
+- btrfs: handle errors from btrfs_dec_ref() properly
+- !11893  tracing/osnoise: Use a cpumask to know what threads are kthreads
+- tracing/osnoise: Use a cpumask to know what threads are kthreads
+- !11840  userfaultfd: fix checks for huge PMDs
+- userfaultfd: fix checks for huge PMDs
+- !11891  wifi: rtw88: usb: schedule rx work after everything is set up
+- wifi: rtw88: usb: schedule rx work after everything is set up
+- !11860  VMCI: Fix use-after-free when removing resource in vmci_resource_remove()
+- VMCI: Fix use-after-free when removing resource in vmci_resource_remove()
+- !11870  NFSD: Reset cb_seq_status after NFS4ERR_DELAY
+- NFSD: Reset cb_seq_status after NFS4ERR_DELAY
+- !11874  fix CVE-2024-46701
+- libfs: fix infinite directory reads for offset dir
+- fs: fix kabi kroken in struct offset_ctx
+- libfs: Convert simple directory offsets to use a Maple Tree
+- test_maple_tree: testing the cyclic allocation
+- maple_tree: Add mtree_alloc_cyclic()
+- libfs: Add simple_offset_empty()
+- libfs: Define a minimum directory offset
+- libfs: Re-arrange locking in offset_iterate_dir()
+- !11689  smb: client: fix double put of @cfile in smb2_rename_path()
+- smb: client: fix double put of @cfile in smb2_rename_path()
+- !11883  usb: dwc3: st: fix probed platform device ref count on probe error path
+- usb: dwc3: st: fix probed platform device ref count on probe error path
+- !11884  PCI: Add missing bridge lock to pci_bus_lock()
+- PCI: Add missing bridge lock to pci_bus_lock()
+- !11862  hwmon: (w83627ehf) Fix underflows seen when writing limit attributes
+- hwmon: (w83627ehf) Fix underflows seen when writing limit attributes
+- !11758  smb/client: avoid dereferencing rdata=NULL in smb2_new_read_req()
+- smb/client: avoid dereferencing rdata=NULL in smb2_new_read_req()
+- !11857  arm64/mpam: Fix redefined reference of 'mpam_detect_is_enabled'
+- arm64/mpam: Fix redefined reference of 'mpam_detect_is_enabled'
+- !11823  mmc: mmc_test: Fix NULL dereference on allocation failure
+- mmc: mmc_test: Fix NULL dereference on allocation failure
+- !11819  uio_hv_generic: Fix kernel NULL pointer dereference in hv_uio_rescind
+- uio_hv_generic: Fix kernel NULL pointer dereference in hv_uio_rescind
+- !11495  ext4: Fix race in buffer_head read fault injection
+- ext4: Fix race in buffer_head read fault injection
+- !11845  bpf: verifier: prevent userspace memory access
+- bpf: verifier: prevent userspace memory access
+- !11748  ASoC: dapm: Fix UAF for snd_soc_pcm_runtime object
+- ASoC: dapm: Fix UAF for snd_soc_pcm_runtime object
+- !11624  Fix iBMA bug and change version
+- BMA: Fix edma driver initialization problem and change the version number.
+- !11850  misc: fastrpc: Fix double free of 'buf' in error path
+- misc: fastrpc: Fix double free of 'buf' in error path
+- !11655  drm/amd/display: Check denominator pbn_div before used
+- drm/amd/display: Check denominator pbn_div before used
+- !11686  udf: Avoid excessive partition lengths
+- udf: Avoid excessive partition lengths
+- !11685  binder: fix UAF caused by offsets overwrite
+- binder: fix UAF caused by offsets overwrite
+- !11798  CVE-2024-46784
+- net: mana: Fix error handling in mana_create_txq/rxq's NAPI cleanup
+- net: mana: Fix doorbell out of order violation and avoid unnecessary doorbell rings
+- !11814  selinux,smack: don't bypass permissions check in inode_setsecctx hook
+- selinux,smack: don't bypass permissions check in inode_setsecctx hook
+- !11811  apparmor: fix possible NULL pointer dereference
+- apparmor: fix possible NULL pointer dereference
+- !11681  net/mlx5e: SHAMPO, Fix incorrect page release
+- net/mlx5e: SHAMPO, Fix incorrect page release
+- !11679  wifi: mwifiex: Do not return unused priv in mwifiex_get_priv_by_id()
+- wifi: mwifiex: Do not return unused priv in mwifiex_get_priv_by_id()
+- !11672  netem: fix return value if duplicate enqueue fails
+- netem: fix return value if duplicate enqueue fails
+- !11783  mm: hwpoison: two more poison recovery
+- mm: support poison recovery from copy_present_page()
+- mm: support poison recovery from do_cow_fault()
+- !11787  nilfs2: fix missing cleanup on rollforward recovery error
+- nilfs2: fix missing cleanup on rollforward recovery error
+- !11744  powerpc/rtas: Prevent Spectre v1 gadget construction in sys_rtas()
+- powerpc/rtas: Prevent Spectre v1 gadget construction in sys_rtas()
+- !11766  drm/amd/display: Check denominator crb_pipes before used
+- drm/amd/display: Check denominator crb_pipes before used
+- !11790  efi/libstub: add checking validity of memory regions
+- efi/libstub: add checking validity of memory regions
+- !11802  can: mcp251x: fix deadlock if an interrupt occurs during mcp251x_open
+- can: mcp251x: fix deadlock if an interrupt occurs during mcp251x_open
+- !11747 [OLK 6.6] some bugfixes for hns3
+- net: hns3: fix concurrent setting vlan filter issue
+- net: hns3: fix snprintf() is printing too much problem
+- net: hns3: make sure ptp clock is unregister and freed if hclge_ptp_get_cycle returns an error
+- net: hns3: fix spelling mistake "reg_um" -> "reg_num"
+- net: hns3: fixed hclge_fetch_pf_reg accesses bar space out of bounds issue
+- net: hns3:support enable or disable pfc strom prevent
+- net: hns3: fix wrong use of semaphore up
+
 * Wed Sep 25 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-44.0.0.50
 - !11769  tools: move alignment-related macros to new <linux/align.h>
 - tools: move alignment-related macros to new <linux/align.h>
