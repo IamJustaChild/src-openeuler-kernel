@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .96.0
-%global pkg_release         .177
+%global maintenance_release .97.0
+%global pkg_release         .178
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,56 @@ fi
 %endif
 
 %changelog
+* Tue Oct 15 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.97.0.178
+- !12117  CVE-2024-43855
+- !12167  crypto: stm32/cryp - call finalize with bh disabled
+- !12203  spi: hisi-kunpeng: Add verification for the max_frequency provided by the firmware
+- !12206 v2  atm: idt77252: prevent use after free in dequeue_rx()
+- !12143  nfc: pn533: Add poll mod list filling check
+- !12150  wifi: iwlwifi: mvm: don't wait for tx queues if firmware is dead
+- atm: idt77252: prevent use after free in dequeue_rx()
+- !12173  fou: remove warn in gue_gro_receive on unsupported protocol
+- !12169  xhci: Fix Panther point NULL pointer deref at full-speed re-enumeration
+- spi: hisi-kunpeng: Add verification for the max_frequency provided by the firmware
+- !12165  bpf: Take return from set_memory_rox() into account with bpf_jit_binary_lock_ro()
+- fou: remove warn in gue_gro_receive on unsupported protocol
+- xhci: Fix Panther point NULL pointer deref at full-speed re-enumeration
+- crypto: stm32/cryp - call finalize with bh disabled
+- bpf: Take return from set_memory_rox() into account with bpf_jit_binary_lock_ro()
+- !12120  sched: sch_cake: fix bulk flow accounting logic for host fairness
+- !12119  ice: Add netif_device_attach/detach into PF reset flow
+- !12118  bpf: Remove tst_run from lwt_seg6local_prog_ops.
+- wifi: iwlwifi: mvm: don't wait for tx queues if firmware is dead
+- nfc: pn533: Add poll mod list filling check
+- !12085 [sync] PR-11856:  acpi/arm64: Do not add CPU to node_to_cpumask_map in acpi_map_cpu()
+- !12046  s390/dasd: fix error recovery leading to data corruption on ESE devices
+- !12044  s390/sclp: Prevent release of buffer in I/O
+- sched: sch_cake: fix bulk flow accounting logic for host fairness
+- ice: Add netif_device_attach/detach into PF reset flow
+- bpf: Remove tst_run from lwt_seg6local_prog_ops.
+- md: ensure child flush IO does not affect origin bio->bi_status
+- md: Remove flush handling
+- md: fix a crash in mempool_free
+- !12097  netfilter: nft_socket: fix sk refcount leaks
+- !12099  CVE-2024-46858
+- !12098  net: dpaa: Pad packets to ETH_ZLEN
+- !12091  USB: usbtmc: prevent kernel-usb-infoleak
+- mptcp: pm: Fix uaf in __timer_delete_sync
+- mptcp: validate 'id' when stopping the ADD_ADDR retransmit timer
+- mptcp: export lookup_anno_list_by_saddr
+- net: dpaa: Pad packets to ETH_ZLEN
+- netfilter: nft_socket: fix sk refcount leaks
+- USB: usbtmc: prevent kernel-usb-infoleak
+- acpi/arm64: Do not add CPU to node_to_cpumask_map in acpi_map_cpu()
+- !12083  drm/i915/gt: Cleanup partial engine discovery failures
+- !12079  btrfs: clean up our handling of refs == 0 in snapshot delete
+- !12054  drm/amdgpu: the warning dereferencing obj for nbio_v7_4
+- drm/i915/gt: Cleanup partial engine discovery failures
+- btrfs: clean up our handling of refs == 0 in snapshot delete
+- drm/amdgpu: the warning dereferencing obj for nbio_v7_4
+- s390/dasd: fix error recovery leading to data corruption on ESE devices
+- s390/sclp: Prevent release of buffer in I/O
+
 * Thu Oct 10 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.96.0.177
 - !12070 [sync] PR-12050:  um: line: always fill *error_out in setup_one_line()
 - !11965  drm/amd/pm: Fix negative array index read
