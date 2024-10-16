@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       231
+%global devel_release       232
 %global maintenance_release .0.0
-%global pkg_release         .133
+%global pkg_release         .134
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -911,6 +911,170 @@ fi
 %endif
 
 %changelog
+* Tue Oct 15 2024 Li Nan <linan122@huawei.com> - 5.10.0-232.0.0.134
+- !12102  Fix CVE-2024-46826
+- !12219 v7  xfs: some fix for forcealign
+- !12121  CVE-2024-43855
+- !12204  Backport "ima: Avoid blocking in RCU read-side critical section"
+- xfs: correct the truncate blocksize of forcealign
+- xfs: refactor the truncating order
+- iomap: pass blocksize to iomap_truncate_page()
+- math64: add rem_u64() to just return the remainder
+- xfs: only bunmap align in datafork for forcealign
+- xfs: forcealign not compatible with reflink and realtime device
+- xfs: simplify extent allocation alignment
+- xfs: don't attempting non-aligned fallbacks alloc for forcealign
+- xfs: Don't revert allocated offset for forcealign
+- xfs: align args->minlen for forced allocation alignment
+- xfs: always tail align maxlen allocations
+- xfs: only allow minlen allocations when near ENOSPC
+- !12136 Backport some SAS patches to OLK-5.10
+- !12215  net/hinic3: fix version showed in ethtool
+- !12166  crypto: stm32/cryp - call finalize with bh disabled
+- !12207 v2  atm: idt77252: prevent use after free in dequeue_rx()
+- net/hinic3: fix version showed in ethtool
+- !12142  nfc: pn533: Add poll mod list filling check
+- !12149  wifi: iwlwifi: mvm: don't wait for tx queues if firmware is dead
+- !12139  arm64/mpam: Be compatible with MPAM architecture v1.x
+- atm: idt77252: prevent use after free in dequeue_rx()
+- !12172  fou: remove warn in gue_gro_receive on unsupported protocol
+- !12170  xhci: Fix Panther point NULL pointer deref at full-speed re-enumeration
+- ima: Avoid blocking in RCU read-side critical section
+- Revert "ima: Avoid blocking in RCU read-side critical section"
+- !12163  bpf: Take return from set_memory_rox() into account with bpf_jit_binary_lock_ro()
+- !12133  ALSA: line6: Fix racy access to midibuf
+- fou: remove warn in gue_gro_receive on unsupported protocol
+- xhci: Fix Panther point NULL pointer deref at full-speed re-enumeration
+- crypto: stm32/cryp - call finalize with bh disabled
+- bpf: Take return from set_memory_rox() into account with bpf_jit_binary_lock_ro()
+- !12127  sched: sch_cake: fix bulk flow accounting logic for host fairness
+- !12126  ice: Add netif_device_attach/detach into PF reset flow
+- !12125  bpf: Remove tst_run from lwt_seg6local_prog_ops.
+- !12135 Backport 5.10.217 LTS patches from upstream
+- regulator: core: fix debugfs creation regression
+- hwmon: (pmbus/ucd9000) Increase delay from 250 to 500us
+- mei: me: add lunar lake point M DID
+- ASoC: tegra: Fix DSPK 16-bit playback
+- net: bcmgenet: synchronize use of bcmgenet_set_rx_mode()
+- iio: accel: mxc4005: Interrupt handling fixes
+- iio:imu: adis16475: Fix sync mode setting
+- ALSA: hda/realtek: Fix mute led of HP Laptop 15-da3001TU
+- usb: dwc3: core: Prevent phy suspend during init
+- usb: xhci-plat: Don't include xhci.h
+- usb: gadget: f_fs: Fix a race condition when processing setup packets.
+- usb: gadget: composite: fix OS descriptors w_value logic
+- usb: ohci: Prevent missed ohci interrupts
+- usb: Fix regression caused by invalid ep0 maxpacket in virtual SuperSpeed device
+- usb: typec: ucsi: Fix connector check on init
+- usb: typec: ucsi: Check for notifications after init
+- arm64: dts: qcom: Fix 'interrupt-map' parent address cells
+- btrfs: fix kvcalloc() arguments order in btrfs_ioctl_send()
+- net: bridge: fix corrupted ethernet header on multicast-to-unicast
+- kcov: Remove kcov include from sched.h and move it to its users.
+- hwmon: (corsair-cpro) Protect ccp->wait_input_report with a spinlock
+- hwmon: (corsair-cpro) Use complete_all() instead of complete() in ccp_raw_event()
+- hwmon: (corsair-cpro) Use a separate buffer for sending commands
+- net:usb:qmi_wwan: support Rolling modules
+- drm/nouveau/dp: Don't probe eDP ports twice harder
+- fs/9p: drop inodes immediately on non-.L too
+- clk: Don't hold prepare_lock when calling kref_put()
+- gpio: crystalcove: Use -ENOTSUPP consistently
+- gpio: wcove: Use -ENOTSUPP consistently
+- 9p: explicitly deny setlease attempts
+- fs/9p: translate O_TRUNC into OTRUNC
+- selftests: timers: Fix valid-adjtimex signed left-shift undefined behavior
+- MIPS: scall: Save thread_info.syscall unconditionally on entry
+- gpu: host1x: Do not setup DMA for virtual devices
+- scsi: target: Fix SELinux error when systemd-modules loads the target module
+- btrfs: always clear PERTRANS metadata during commit
+- btrfs: make btrfs_clear_delalloc_extent() free delalloc reserve
+- tools/power turbostat: Fix Bzy_MHz documentation typo
+- tools/power turbostat: Fix added raw MSR output
+- ata: sata_gemini: Check clk_enable() result
+- net: bcmgenet: Reset RBUF on first open
+- ALSA: line6: Zero-initialize message buffers
+- btrfs: return accurate error code on open failure in open_fs_devices()
+- net: mark racy access on sk->sk_rcvbuf
+- wifi: cfg80211: fix rdev_dump_mpp() arguments order
+- wifi: mac80211: fix ieee80211_bss_*_flags kernel-doc
+- gfs2: Fix invalid metadata access in punch_hole
+- scsi: lpfc: Update lpfc_ramp_down_queue_handler() logic
+- net: gro: add flush check in udp_gro_receive_segment
+- net: bridge: fix multicast-to-unicast with fraglist GSO
+- net: dsa: mv88e6xxx: Fix number of databases for 88E6141 / 88E6341
+- cxgb4: Properly lock TX queue for the selftest.
+- ASoC: meson: cards: select SND_DYNAMIC_MINORS
+- ASoC: Fix 7/8 spaces indentation in Kconfig
+- net: qede: use return from qede_parse_actions()
+- net: qede: use return from qede_parse_flow_attr() for flow_spec
+- net: qede: use return from qede_parse_flow_attr() for flower
+- net: qede: sanitize 'rc' in qede_add_tc_flower_fltr()
+- s390/vdso: Add CFI for RA register to asm macro vdso_func
+- net l2tp: drop flow hash on forward
+- s390/mm: Fix clearing storage keys for huge pages
+- s390/mm: Fix storage key clearing for guest huge pages
+- wifi: iwlwifi: mvm: don't wait for tx queues if firmware is dead
+- nfc: pn533: Add poll mod list filling check
+- arm64/mpam: Be compatible with MPAM architecture v1.x
+- scsi: libsas: Fix exp-attached device scan after probe failure scanned in again after probe failed
+- scsi: libsas: Fix the failure of adding phy with zero-address to port
+- scsi: libsas: Set port when ex_phy is added or deleted
+- scsi: libsas: Move sas_add_parent_port() to sas_expander.c
+- scsi: libsas: Add helper for port add ex_phy
+- ALSA: line6: Fix racy access to midibuf
+- sched: sch_cake: fix bulk flow accounting logic for host fairness
+- ice: Add netif_device_attach/detach into PF reset flow
+- bpf: Remove tst_run from lwt_seg6local_prog_ops.
+- !12045  s390/dasd: fix error recovery leading to data corruption on ESE devices
+- !12043  s390/sclp: Prevent release of buffer in I/O
+- md: ensure child flush IO does not affect origin bio->bi_status
+- md: Remove flush handling
+- !8834 Add support for Hygon model 10h processors
+- !12105  sched/fair: Fix the condition in overload_clear
+- !12103  sched/debug: Fix h_nr_running/steal_h_nr_running in sched_debug
+- !12003  perf cpumap: Wrapper for CPU map indices
+- !12096  CVE-2024-46858
+- !12095  net: dpaa: Pad packets to ETH_ZLEN
+- !12094  netfilter: nft_socket: fix sk refcount leaks
+- !12089  USB: usbtmc: prevent kernel-usb-infoleak
+- sched/fair: Fix the condition in overload_clear
+- sched/debug: Fix h_nr_running/steal_h_nr_running in sched_debug
+- ELF: Fix mixed declarations and code of "snapshot_randomize_va_space"
+- ELF: fix kernel.randomize_va_space double read
+- mptcp: pm: Fix uaf in __timer_delete_sync
+- mptcp: validate 'id' when stopping the ADD_ADDR retransmit timer
+- mptcp: export lookup_anno_list_by_saddr
+- net: dpaa: Pad packets to ETH_ZLEN
+- netfilter: nft_socket: fix sk refcount leaks
+- !12088  tracing: Have tracing_max_latency inc the trace array ref count
+- USB: usbtmc: prevent kernel-usb-infoleak
+- tracing: Have tracing_max_latency inc the trace array ref count
+- !11856  acpi/arm64: Do not add CPU to node_to_cpumask_map in acpi_map_cpu()
+- !12084  drm/i915/gt: Cleanup partial engine discovery failures
+- !12048  Add generic xdp xsk multi-buffer recv for ipvlan
+- !12078  btrfs: clean up our handling of refs == 0 in snapshot delete
+- !12053  drm/amdgpu: the warning dereferencing obj for nbio_v7_4
+- drm/i915/gt: Cleanup partial engine discovery failures
+- !11558  mm/ksm: fix possible UAF of stable_node
+- !11889 UNIC: Invoke the hns3_unic_set_default_cc in advance and modify ublhdr struct
+- btrfs: clean up our handling of refs == 0 in snapshot delete
+- drm/amdgpu: the warning dereferencing obj for nbio_v7_4
+- xsk: Add generic xdp multi-buffer recv support
+- ipvlan: support use xdp native mode
+- s390/dasd: fix error recovery leading to data corruption on ESE devices
+- s390/sclp: Prevent release of buffer in I/O
+- perf cpumap: Wrapper for CPU map indices
+- UNIC: The ublhdr structure and UBL_HLEN macro are modified
+- UNIC: Invoke the hns3_unic_set_default_cc in advance
+- acpi/arm64: Do not add CPU to node_to_cpumask_map in acpi_map_cpu()
+- ALSA: hda: Add support for Hygon family 18h model 10h HD-Audio
+- hwmon/k10temp: Add support for Hygon family 18h model 10h
+- x86/amd_nb: Add support for Hygon family 18h model 10h
+- x86/amd_nb: Add support for Hygon family 18h model 10h
+- x86/cpu: Get LLC ID for Hygon family 18h model 10h
+- x86/amd_nb: Get DF ID for Hygon family 18h model 7h
+- mm/ksm: fix possible UAF of stable_node
+
 * Thu Oct 10 2024 Li Nan <linan122@huawei.com> - 5.10.0-231.0.0.133
 - !11964  drm/amd/pm: Fix negative array index read
 - !12073  kprobes: Fix deadlock issue with kmemleak
