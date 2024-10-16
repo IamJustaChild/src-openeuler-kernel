@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2410.1.0
+%global hulkrelease 2410.2.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0298
+Release: %{hulkrelease}.0299
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,22 @@ fi
 %endif
 
 %changelog
+
+* Tue Oct 15 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2410.2.0.0299
+- !8720  net: USB: Fix wrong-direction WARNING in plusb.c
+- !12116 [sync] PR-11856:  acpi/arm64: Do not add CPU to node_to_cpumask_map in acpi_map_cpu()
+- acpi/arm64: Do not add CPU to node_to_cpumask_map in acpi_map_cpu()
+- !12071  btrfs: clean up our handling of refs == 0 in snapshot delete
+- !12069  platform/x86: panasonic-laptop: Fix SINF array out of bounds accesses
+- btrfs: clean up our handling of refs == 0 in snapshot delete
+- platform/x86: panasonic-laptop: Fix SINF array out of bounds accesses
+- !12026  ASoC: meson: axg-card: fix 'use-after-free'
+- !12040  drm/amd/display: Stop amdgpu_dm initialize when link nums greater than max_links
+- !12012  rtmutex: Drop rt_mutex::wait_lock before scheduling
+- drm/amd/display: Stop amdgpu_dm initialize when link nums greater than max_links
+- ASoC: meson: axg-card: fix 'use-after-free'
+- rtmutex: Drop rt_mutex::wait_lock before scheduling
+- net: USB: Fix wrong-direction WARNING in plusb.c
 
 * Tue Oct 08 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2410.1.0.0298
 - !12007  Fix CVE-2024-44958 for 4.19
