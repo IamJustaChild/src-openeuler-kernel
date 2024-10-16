@@ -584,7 +584,7 @@ install -m 755 %{SOURCE200} $RPM_BUILD_ROOT%{_sbindir}/mkgrub-menu-%{version}-%{
 %endif
 
 # deal with module, if not kdump
-%{make} ARCH=%{Arch} INSTALL_MOD_PATH=$RPM_BUILD_ROOT modules_install KERNELRELEASE=%{KernelVer} mod-fw=
+%{make} ARCH=%{Arch} INSTALL_MOD_PATH=$RPM_BUILD_ROOT modules_install KERNELRELEASE=%{KernelVer} mod-fw= %{_smp_mflags}
 ######## to collect ko to module.filelist about netwoking. block. drm. modesetting ###############
 pushd $RPM_BUILD_ROOT/lib/modules/%{KernelVer}
 find -type f -name "*.ko" >modnames
@@ -640,7 +640,7 @@ popd
         cp certs/signing_key.pem . \
         cp certs/signing_key.x509 . \
         chmod 0755 %{modsign_cmd} \
-        %{modsign_cmd} $RPM_BUILD_ROOT/lib/modules/%{KernelVer} || exit 1 \
+        %{modsign_cmd} %{_smp_mflags} $RPM_BUILD_ROOT/lib/modules/%{KernelVer} || exit 1 \
     fi \
     find $RPM_BUILD_ROOT/lib/modules/ -type f -name '*.ko' | xargs -n1 -P`nproc --all` xz; \
 %{nil}
@@ -655,7 +655,7 @@ sh %{SOURCE16} $RPM_BUILD_ROOT/lib/modules/%{KernelVer} || exit 1 \
 %endif
 
 # deal with header
-%{make} ARCH=%{Arch} INSTALL_HDR_PATH=$RPM_BUILD_ROOT/usr KBUILD_SRC= headers_install
+%{make} ARCH=%{Arch} INSTALL_HDR_PATH=$RPM_BUILD_ROOT/usr KBUILD_SRC= headers_install %{_smp_mflags}
 find $RPM_BUILD_ROOT/usr/include -name "\.*"  -exec rm -rf {} \;
 
 # dtbs install
