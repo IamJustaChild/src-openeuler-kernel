@@ -1,5 +1,12 @@
 #! /bin/bash
 
+jobs=1
+while getopts "j:" opt; do
+	case $opt in
+		j) jobs=${OPTARG}; shift $((OPTIND-1))
+	esac
+done
+
 moddir=$1
 
 modules=`find $moddir -name *.ko`
@@ -7,13 +14,22 @@ modules=`find $moddir -name *.ko`
 MODSECKEY="./signing_key.pem"
 MODPUBKEY="./signing_key.x509"
 
+n=0
 for mod in $modules
 do
+{
     dir=`dirname $mod`
     file=`basename $mod`
 
     ./scripts/sign-file sha256 ${MODSECKEY} ${MODPUBKEY} ${dir}/${file}
     rm -f ${dir}/${file}.{sig,dig}
+} &
+
+    n=`expr 1 + $n`
+    if [ "$n" -ge $jobs ];then
+        wait
+        n=0
+    fi
 done
 
 RANDOMMOD=$(find $moddir -type f -name '*.ko' | sort -R | tail -n 1)
