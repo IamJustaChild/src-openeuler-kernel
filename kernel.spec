@@ -42,7 +42,7 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %global upstream_sublevel   0
 %global devel_release       47
 %global maintenance_release .0.0
-%global pkg_release         .52
+%global pkg_release         .53
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -623,7 +623,7 @@ install -m 755 %{SOURCE200} $RPM_BUILD_ROOT%{_sbindir}/mkgrub-menu-%{version}-%{
 %endif
 
 # deal with module, if not kdump
-%{make} ARCH=%{Arch} INSTALL_MOD_PATH=$RPM_BUILD_ROOT modules_install KERNELRELEASE=%{KernelVer} mod-fw=
+%{make} ARCH=%{Arch} INSTALL_MOD_PATH=$RPM_BUILD_ROOT modules_install KERNELRELEASE=%{KernelVer} mod-fw= %{_smp_mflags}
 ######## to collect ko to module.filelist about netwoking. block. drm. modesetting ###############
 pushd $RPM_BUILD_ROOT/lib/modules/%{KernelVer}
 find -type f -name "*.ko" >modnames
@@ -679,7 +679,7 @@ popd
         cp certs/signing_key.pem . \
         cp certs/signing_key.x509 . \
         chmod 0755 %{modsign_cmd} \
-        %{modsign_cmd} $RPM_BUILD_ROOT/lib/modules/%{KernelVer} || exit 1 \
+        %{modsign_cmd} %{_smp_mflags} $RPM_BUILD_ROOT/lib/modules/%{KernelVer} || exit 1 \
     fi \
     find $RPM_BUILD_ROOT/lib/modules/ -type f -name '*.ko' | xargs -n1 -P`nproc --all` xz; \
 %{nil}
@@ -693,7 +693,7 @@ popd
             cp certs/signing_key.pem . \
             cp certs/signing_key.x509 . \
             chmod 0755 %{modsign_cmd} \
-            %{modsign_cmd} $RPM_BUILD_ROOT/lib/modules/%{KernelVer} || exit 1 \
+            %{modsign_cmd} %{_smp_mflags} $RPM_BUILD_ROOT/lib/modules/%{KernelVer} || exit 1 \
         fi \
     fi \
     find $RPM_BUILD_ROOT/lib/modules/ -type f -name '*.ko' | xargs -n1 -P`nproc --all` xz; \
@@ -701,7 +701,7 @@ popd
 %endif
 
 # deal with header
-%{make} ARCH=%{Arch} INSTALL_HDR_PATH=$RPM_BUILD_ROOT/usr KBUILD_SRC= headers_install
+%{make} ARCH=%{Arch} INSTALL_HDR_PATH=$RPM_BUILD_ROOT/usr KBUILD_SRC= headers_install %{_smp_mflags}
 find $RPM_BUILD_ROOT/usr/include -name "\.*"  -exec rm -rf {} \;
 
 # dtbs install
@@ -1089,6 +1089,9 @@ fi
 %endif
 
 %changelog
+* Tue Oct 29 2024 YunQiang Su <yunqiang@isrc.iscas.ac.cn> - 6.6.0-47.0.0.53
+- Optimize build parallel support.
+
 * Wed Oct 23 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-47.0.0.52
 - !12168  crypto: stm32/cryp - call finalize with bh disabled
 - crypto: stm32/cryp - call finalize with bh disabled
