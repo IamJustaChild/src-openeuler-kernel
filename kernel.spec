@@ -40,9 +40,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       46
+%global devel_release       47
 %global maintenance_release .0.0
-%global pkg_release         .51
+%global pkg_release         .52
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1089,6 +1089,8 @@ fi
 %endif
 
 %changelog
+* Wed Oct 23 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-47.0.0.52
+
 * Thu Oct 10 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-46.0.0.51
 - !12061  net/mlx5: Fix bridge mode operations when there are no VFs
 - net/mlx5: Fix bridge mode operations when there are no VFs
