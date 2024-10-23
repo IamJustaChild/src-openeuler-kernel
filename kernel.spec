@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2410.2.0
+%global hulkrelease 2410.3.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0299
+Release: %{hulkrelease}.0300
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,28 @@ fi
 %endif
 
 %changelog
+
+* Tue Oct 22 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2410.3.0.0300
+- !12299 v2  ACPI&PCI LTS patches 2024.10
+- !12278  hwmon: (nct6775-core) Fix underflows seen when writing limit attributes
+- ACPI: processor: Fix memory leaks in error paths of processor_add()
+- ntp: Safeguard against time_constant overflow
+- ntp: Clamp maxerror and esterror to operating range
+- Revert "ntp: Avoid undefined behaviour in second_overflow()"
+- arm64: ACPI: NUMA: initialize all values of acpi_early_node_map to NUMA_NO_NODE
+- hrtimer: Prevent queuing of hrtimer without a function callback
+- smp: Add missing destroy_work_on_stack() call in smp_call_on_cpu()
+- ACPI: processor: Return an error if acpi_processor_get_info() fails in processor_add()
+- !12270  pinctrl: core: fix possible memory leak when pinctrl_enable() fails
+- hwmon: (nct6775-core) Fix underflows seen when writing limit attributes
+- pinctrl: core: fix possible memory leak when pinctrl_enable() fails
+- !12220  Fix CVE-2024-46826
+- !12268  selinux: fix potential counting error in avc_add_xperms_decision()
+- selinux: fix potential counting error in avc_add_xperms_decision()
+- !12138  md/raid1: don't free conf on raid0_run failure
+- ELF: Fix mixed declarations and code of "snapshot_randomize_va_space"
+- ELF: fix kernel.randomize_va_space double read
+- md/raid1: don't free conf on raid0_run failure
 
 * Tue Oct 15 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2410.2.0.0299
 - !8720  net: USB: Fix wrong-direction WARNING in plusb.c
