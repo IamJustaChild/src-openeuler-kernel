@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       232
+%global devel_release       233
 %global maintenance_release .0.0
-%global pkg_release         .131
+%global pkg_release         .132
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -952,6 +952,97 @@ fi
 %endif
 
 %changelog
+* Wed Oct 23 2024 Li Nan <linan122@huawei.com> - 5.10.0-233.0.0.132
+- !12315 perf pmu: resolve CPU map for "cpu" PMUs
+- perf arm: Workaround ARM PMUs cpu maps having offline cpus
+- perf pmu: Add CPU map for "cpu" PMUs
+- !12072 sdma-dae: fix possible mremap error
+- perf cpumap: Add intersect function
+- perf cpumap: Add is_subset function
+- Revert "perf cpumap: Add is_subset function"
+- Revert "perf cpumap: Add intersect function"
+- Revert "perf pmu: Add CPU map for "cpu" PMUs"
+- Revert "perf arm: Workaround ARM PMUs cpu maps having offline cpus"
+- !12298  CVE-2024-46822
+- drivers:misc:sdma-dae: add vma_ops to avoid mremap error
+- arm64: acpi: Harden get_cpu_for_acpi_id() against missing CPU entry
+- arm64: acpi: Move get_cpu_for_acpi_id() to a header
+- !12261  drm/lima: fix a memleak in lima_heap_alloc
+- !12262  media: go7007: fix a memleak in go7007_load_encoder
+- !12257  octeontx2-af: Use separate handlers for interrupts
+- !12264  drm/amd/display: Avoid overflow from uint32_t to uint8_t
+- drm/amd/display: Avoid overflow from uint32_t to uint8_t
+- !12244 v2  net/mlx5e: Fix netif state handling
+- !12245 v2  netfilter: nf_tables: use timestamp to check for set element timeout
+- media: go7007: fix a memleak in go7007_load_encoder
+- drm/lima: fix a memleak in lima_heap_alloc
+- octeontx2-af: Use separate handlers for interrupts
+- !12254  greybus: Fix use-after-free bug in gb_interface_release due to race condition.
+- !12164 Backport 5.10.218 LTS patches from upstream
+- greybus: Fix use-after-free bug in gb_interface_release due to race condition.
+- !12155  bonding: Fix CVE-2024-44990
+- !12153  bonding: fix xfrm real_dev null pointer dereference
+- !12250  xfs: atomic write file dio convert to mark IOCB_ATOMIC
+- !11299  gpio: prevent potential speculation leaks in gpio_device_get_desc()
+- xfs: atomic write file dio convert to mark IOCB_ATOMIC
+- !12115  md/raid1: don't free conf on raid0_run failure
+- !12234  drm/amd/display: Stop amdgpu_dm initialize when stream nums greater than 6
+- !12236  dmaengine: altera-msgdma: properly free descriptor in msgdma_free_descriptor
+- netfilter: nf_tables: use timestamp to check for set element timeout
+- net/mlx5e: Fix netif state handling
+- !12185  mlxsw: spectrum_acl_erp: Fix object nesting warning
+- !12182  netns: Make get_net_ns() handle zero refcount net
+- !12179  net/sched: Fix CVE-2024-36244
+- !12176  ipv6: sr: fix invalid unregister error path
+- !12186 v2  ipv4: Fix uninit-value access in __ip_make_skb()
+- !12197  net: flow_dissector: use DEBUG_NET_WARN_ON_ONCE
+- !12213  scsi: qla2xxx: During vport delete send async logout explicitly
+- !12212  platform/x86: panasonic-laptop: Fix SINF array out of bounds accesses
+- !12227  nbd: Fix signal handling
+- ACPI/IORT: Add PMCG platform information for HiSilicon HIP10/11
+- dmaengine: altera-msgdma: properly free descriptor in msgdma_free_descriptor
+- drm/amd/display: Stop amdgpu_dm initialize when stream nums greater than 6
+- !12208  Some bugfixs for ubi/fs
+- nbd: Fix signal handling
+- nbd: Improve the documentation of the locking assumptions
+- !11910  ext4: dax: Fix inconsistent isize during writing
+- !12075  blk-mq: fix lockdep hardirq warning in __blk_mq_tag_idle()
+- !12162 【OLK-5.10】Workaround ARM PMUs cpu maps having offline cpus
+- scsi: qla2xxx: During vport delete send async logout explicitly
+- platform/x86: panasonic-laptop: Fix SINF array out of bounds accesses
+- locks: fix TOCTOU race when granting write lease
+- ubi: block: fix null-pointer-dereference in ubiblock_create()
+- ubi: block: Remove in vain semicolon
+- net: flow_dissector: use DEBUG_NET_WARN_ON_ONCE
+- ipv4: Fix uninit-value access in __ip_make_skb()
+- mlxsw: spectrum_acl_erp: Fix object nesting warning
+- netns: Make get_net_ns() handle zero refcount net
+- net/sched: taprio: extend minimum interval restriction to entire cycle too
+- net/sched: taprio: Limit TCA_TAPRIO_ATTR_SCHED_CYCLE_TIME to INT_MAX.
+- ipv6: sr: fix invalid unregister error path
+- docs: kernel_include.py: Cope with docutils 0.21
+- serial: kgdboc: Fix NMI-safety problems from keyboard reset code
+- usb: typec: ucsi: displayport: Fix potential deadlock
+- drm/amdgpu: Fix possible NULL dereference in amdgpu_ras_query_error_status_helper()
+- KVM: x86: Clear "has_error_code", not "error_code", for RM exception injection
+- netlink: annotate lockless accesses to nlk->max_recvmsg_len
+- net: bcmgenet: synchronize UMAC_CMD access
+- net: bcmgenet: synchronize EXT_RGMII_OOB_CTRL access
+- Revert "selftests: mm: fix map_hugetlb failure on 64K page size systems"
+- pinctrl: core: handle radix_tree_insert() errors in pinctrl_register_one_pin()
+- perf arm: Workaround ARM PMUs cpu maps having offline cpus
+- perf pmu: Add CPU map for "cpu" PMUs
+- bonding: fix null pointer deref in bond_ipsec_offload_ok
+- bonding: fix bond_ipsec_offload_ok return type
+- bonding: fix xfrm real_dev null pointer dereference
+- perf cpumap: Add intersect function
+- perf cpumap: Add is_subset function
+- md/raid1: don't free conf on raid0_run failure
+- blk-mq: fix lockdep hardirq warning in __blk_mq_tag_idle()
+- ext4: dax: keep orphan list before truncate overflow allocated blocks
+- ext4: dax: fix overflowing extents beyond inode size when partially writing
+- gpio: prevent potential speculation leaks in gpio_device_get_desc()
+
 * Tue Oct 15 2024 Li Nan <linan122@huawei.com> - 5.10.0-232.0.0.131
 - !12102  Fix CVE-2024-46826
 - !12219 v7  xfs: some fix for forcealign
