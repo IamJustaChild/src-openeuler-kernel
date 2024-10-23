@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .97.0
-%global pkg_release         .178
+%global maintenance_release .98.0
+%global pkg_release         .179
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,91 @@ fi
 %endif
 
 %changelog
+* Wed Oct 23 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.98.0.179
+- !12297  CVE-2024-46822
+- !12242 [sync] PR-12227:  nbd: Fix signal handling
+- arm64: acpi: Harden get_cpu_for_acpi_id() against missing CPU entry
+- arm64: acpi: Move get_cpu_for_acpi_id() to a header
+- !12260  drm/lima: fix a memleak in lima_heap_alloc
+- !12258  media: go7007: fix a memleak in go7007_load_encoder
+- !12259  octeontx2-af: Use separate handlers for interrupts
+- !12256 [sync] PR-12254:  greybus: Fix use-after-free bug in gb_interface_release due to race condition.
+- !12265  drm/amd/display: Avoid overflow from uint32_t to uint8_t
+- drm/amd/display: Avoid overflow from uint32_t to uint8_t
+- !12243 v2  net/mlx5e: Fix netif state handling
+- drm/lima: fix a memleak in lima_heap_alloc
+- octeontx2-af: Use separate handlers for interrupts
+- media: go7007: fix a memleak in go7007_load_encoder
+- greybus: Fix use-after-free bug in gb_interface_release due to race condition.
+- !12221 [sync] PR-12102:  Fix CVE-2024-46826
+- !12156  bonding: Fix CVE-2024-44990
+- !12158  bonding: fix xfrm real_dev null pointer dereference
+- !12157  netfilter: flowtable: initialise extack before use
+- !11298  gpio: prevent potential speculation leaks in gpio_device_get_desc()
+- !8675 [sync] PR-8534:  riscv: process: Fix kernel gp leakage
+- !8674 [sync] PR-8542:  octeontx2-af: Fix possible null pointer dereference.
+- !12161  md/raid1: don't free conf on raid0_run failure
+- !12237  dmaengine: altera-msgdma: properly free descriptor in msgdma_free_descriptor
+- !12235  drm/amd/display: Stop amdgpu_dm initialize when stream nums greater than 6
+- net/mlx5e: Fix netif state handling
+- !12184  mlxsw: spectrum_acl_erp: Fix object nesting warning
+- !12183  netns: Make get_net_ns() handle zero refcount net
+- !12180  net/sched: Fix CVE-2024-36244
+- !12177  ipv6: sr: fix invalid unregister error path
+- !12191  wifi: mac80211: check/clear fast rx for non-4addr sta VLAN changes
+- !12192  netfilter: nft_flow_offload: reset dst in route object after setting up flow
+- !12193  tcp: do not accept ACK of bytes we never sent
+- !12194  mlxsw: spectrum_acl_tcam: Fix warning during rehash
+- !12195  i40e: Do not use WQ_MEM_RECLAIM flag for workqueue
+- !12196  net: flow_dissector: use DEBUG_NET_WARN_ON_ONCE
+- !12211  scsi: qla2xxx: During vport delete send async logout explicitly
+- !12210  platform/x86: panasonic-laptop: Fix SINF array out of bounds accesses
+- nbd: Fix signal handling
+- nbd: Improve the documentation of the locking assumptions
+- !12231 [sync] PR-12208:  Some bugfixs for ubi/fs
+- dmaengine: altera-msgdma: properly free descriptor in msgdma_free_descriptor
+- drm/amd/display: Stop amdgpu_dm initialize when stream nums greater than 6
+- locks: fix TOCTOU race when granting write lease
+- ubi: block: fix null-pointer-dereference in ubiblock_create()
+- ubi: block: Remove in vain semicolon
+- !12224 [sync] PR-11910:  ext4: dax: Fix inconsistent isize during writing
+- ext4: dax: keep orphan list before truncate overflow allocated blocks
+- ext4: dax: fix overflowing extents beyond inode size when partially writing
+- !12064 [sync] PR-11942:  sbitmap: backport bugfix patches
+- ELF: Fix mixed declarations and code of "snapshot_randomize_va_space"
+- ELF: fix kernel.randomize_va_space double read
+- scsi: qla2xxx: During vport delete send async logout explicitly
+- platform/x86: panasonic-laptop: Fix SINF array out of bounds accesses
+- net: flow_dissector: use DEBUG_NET_WARN_ON_ONCE
+- i40e: Do not use WQ_MEM_RECLAIM flag for workqueue
+- mlxsw: spectrum_acl_tcam: Fix warning during rehash
+- tcp: do not accept ACK of bytes we never sent
+- netfilter: nft_flow_offload: reset dst in route object after setting up flow
+- wifi: mac80211: check/clear fast rx for non-4addr sta VLAN changes
+- mlxsw: spectrum_acl_erp: Fix object nesting warning
+- netns: Make get_net_ns() handle zero refcount net
+- net/sched: taprio: extend minimum interval restriction to entire cycle too
+- net/sched: taprio: Limit TCA_TAPRIO_ATTR_SCHED_CYCLE_TIME to INT_MAX.
+- ipv6: sr: fix invalid unregister error path
+- md/raid1: don't free conf on raid0_run failure
+- bonding: fix xfrm real_dev null pointer dereference
+- netfilter: flowtable: initialise extack before use
+- bonding: fix null pointer deref in bond_ipsec_offload_ok
+- bonding: fix bond_ipsec_offload_ok return type
+- blk-mq: Fix potential io hung for shared sbitmap per tagset
+- blk-mq: wait on correct sbitmap_queue in blk_mq_mark_tag_wait
+- sbitmap: fix lockup while swapping
+- sbitmap: Avoid leaving waitqueue in invalid state in __sbq_wake_up()
+- sbitmap: fix possible io hung due to lost wakeup
+- block: Fix lockdep warning in blk_mq_mark_tag_wait
+- blk-mq: fix potential io hang by wrong 'wake_batch'
+- sbitmap: correct wake_batch recalculation to avoid potential IO hung
+- blk-mq: Fix wrong wakeup batch configuration which will cause hang
+- blk-mq: fix tag_get wait task can't be awakened
+- gpio: prevent potential speculation leaks in gpio_device_get_desc()
+- riscv: process: Fix kernel gp leakage
+- octeontx2-af: Fix possible null pointer dereference.
+
 * Tue Oct 15 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.97.0.178
 - !12117  CVE-2024-43855
 - !12167  crypto: stm32/cryp - call finalize with bh disabled
