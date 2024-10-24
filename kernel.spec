@@ -1,8 +1,12 @@
+%global build_cflags %{nil}
+
+%global build_ldflags %{nil}
+
 %define with_signmodules  1
 %define with_kabichk 1
 
 # Default without toolchain_clang
-%bcond_with toolchain_clang
+%bcond_without toolchain_clang
 
 %if %{with toolchain_clang}
 %global toolchain clang
@@ -434,6 +438,8 @@ make ARCH=%{Arch} loongson3_defconfig
 %else
 %{make} ARCH=%{Arch} openeuler_defconfig
 %endif
+
+scripts/config -e KASAN
 
 %if %{with clang_lto}
 scripts/config -e LTO_CLANG_FULL
