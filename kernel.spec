@@ -435,6 +435,8 @@ make ARCH=%{Arch} loongson3_defconfig
 %{make} ARCH=%{Arch} openeuler_defconfig
 %endif
 
+scripts/config -e KASAN
+
 %if %{with clang_lto}
 scripts/config -e LTO_CLANG_FULL
 sed -i 's/# CONFIG_LTO_CLANG_FULL is not set/CONFIG_LTO_CLANG_FULL=y/' .config
