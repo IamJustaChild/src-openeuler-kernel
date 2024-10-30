@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .98.0
-%global pkg_release         .179
+%global maintenance_release .99.0
+%global pkg_release         .180
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,165 @@ fi
 %endif
 
 %changelog
+* Wed Oct 30 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.99.0.180
+- !12652  mm/gup: fix gup_pud_range() for dax
+- !12671  drm/amd/display: Fix index out of bounds in degamma hardware format translation
+- !12247  nilfs2: fix state management in error path of log writing function
+- !12647  sock_map: Add a cond_resched() in sock_hash_free()
+- !12646  tcp: check skb is non-NULL in tcp_rto_delta_us()
+- !12645  RDMA/rtrs-clt: Reset cid to con_num - 1 to stay in bounds
+- !12644  net: do not delay dst_entries_add() in dst_release()
+- !12630 [sync] PR-12605:  fix CVE-2024-46802
+- !12657  NFSD: Limit the number of concurrent async COPY operations
+- !12636  ALSA: asihpi: Fix potential OOB array access
+- drm/amd/display: Fix index out of bounds in degamma hardware format translation
+- !12274  blk-mq: fix blk_mq_hw_ctx active request accounting
+- !12613  drm/amd/display: Check null pointer before dereferencing se
+- !12622  NFC: nci: Bounds check struct nfc_target arrays
+- !12619  PCI: mt7621: Add sentinel to quirks table
+- !12504  ocfs2: cancel dqi_sync_work before freeing oinfo
+- NFSD: Limit the number of concurrent async COPY operations
+- mm/gup: fix gup_pud_range() for dax
+- !12625  net: ethernet: nixge: fix NULL dereference
+- !12626  libbpf: Handle size overflow for ringbuf mmap
+- sock_map: Add a cond_resched() in sock_hash_free()
+- tcp: check skb is non-NULL in tcp_rto_delta_us()
+- RDMA/rtrs-clt: Reset cid to con_num - 1 to stay in bounds
+- net: do not delay dst_entries_add() in dst_release()
+- !12624  hwmon: (ibmpex) Fix possible UAF when ibmpex_register_bmc() fails
+- ALSA: asihpi: Fix potential OOB array access
+- drm/amd/display: fix mixed declarations warning
+- drm/amd/display: added NULL check at start of dc_validate_stream
+- libbpf: Handle size overflow for ringbuf mmap
+- net: ethernet: nixge: fix NULL dereference
+- hwmon: (ibmpex) Fix possible UAF when ibmpex_register_bmc() fails
+- NFC: nci: Bounds check struct nfc_target arrays
+- PCI: mt7621: Add sentinel to quirks table
+- !12602 [sync] PR-12459:  drm/amd/display: Fix index out of bounds in DCN30 degamma hardware format translation
+- !12601 [sync] PR-12453:  drm/amd/display: Add NULL check for function pointer in dcn20_set_output_transfer_func
+- !12600 [sync] PR-12442:  drm/amd/display: Fix index out of bounds in DCN30 color transformation
+- !12446  nilfs2: fix potential oob read in nilfs_btree_check_delete()
+- !8926  ext4: avoid deadlock in fs reclaim with page writeback
+- drm/amd/display: Check null pointer before dereferencing se
+- !12582  drm/amd/display: Add null check for set_output_gamma in dcn30_set_output_transfer_func
+- !12578  gpio: amd8111: Fix PCI device reference count leak
+- !12456  nfsd: map the EBADMSG to nfserr_io to avoid warning
+- !12564  ALSA: seq: Fix function prototype mismatch in snd_seq_expand_var_event
+- !12561  fix CVE-2024-49900
+- !12562  fix CVE-2024-47667
+- drm/amd/display: Fix index out of bounds in DCN30 degamma hardware format translation
+- drm/amd/display: Add NULL check for function pointer in dcn20_set_output_transfer_func
+- drm/amd/display: Fix index out of bounds in DCN30 color transformation
+- !12450  Fix CVE-2024-26917 and CVE-2024-50025
+- !12544 [sync] PR-12369:  x86/ioapic: Handle allocation failures gracefully
+- drm/amd/display: Add null check for set_output_gamma in dcn30_set_output_transfer_func
+- !12401  drivers: media: dvb-frontends/rtl2832: fix an out-of-bounds write error
+- gpio: amd8111: Fix PCI device reference count leak
+- !12416  btrfs: qgroup: fix sleep from invalid context bug in btrfs_qgroup_inherit()
+- !12420  nilfs2: fix NULL pointer dereference in nilfs_palloc_commit_free_entry()
+- !12421  udf: Fix preallocation discarding at indirect extent boundary
+- !12419  jfs: Fix uaf in dbFreeBits
+- !12418  jfs: check if leafidx greater than num leaves per dmap tree
+- !12415  btrfs: fix a NULL pointer dereference when failed to start a new trasacntion
+- !12417  btrfs: wait for fixup workers before stopping cleaner kthread during umount
+- !12522  netfilter: nf_reject_ipv6: fix nf_reject_ip6_tcphdr_put()
+- !12543  media: pci: cx23885: check cx23885_vdev_init() return
+- ALSA: seq: Fix function prototype mismatch in snd_seq_expand_var_event
+- PCI: keystone: Fix if-statement expression in ks_pcie_quirk()
+- PCI: keystone: Add workaround for Errata #i2037 (AM65x SR 1.0)
+- jfs: Fix uninit-value access of new_ea in ea_buffer
+- x86/ioapic: Handle allocation failures gracefully
+- media: pci: cx23885: check cx23885_vdev_init() return
+- netfilter: nf_reject_ipv6: fix nf_reject_ip6_tcphdr_put()
+- !12251  KVM: x86: Acquire kvm->srcu when handling KVM_SET_VCPU_EVENTS
+- !12514  devres: Fix memory leakage caused by driver API devm_free_percpu()
+- !12513  jfs: Fix array-index-out-of-bounds in diFree
+- !12468  mm/khugepaged: invoke MMU notifiers in shmem/file collapse paths
+- !12388  spi: nxp-fspi: fix the KASAN report out-of-bounds bug
+- !12386  drm/amdgpu: Fix out-of-bounds read of df_v1_7_channel_number
+- !12381  fix CVE-2024-46675
+- !12364  hwmon: (nct6775-core) Fix underflows seen when writing limit attributes
+- !12447  iommu/vt-d: Fix double list_add when enabling VMD in scalable mode
+- !12463  fix CVE-2024-42301
+- !12489  CVE-2024-40965_openEuler-22.03-LTS-SP1
+- !12481  CVE-2024-41015
+- !12485  CVE-2024-38667
+- !12483  CVE-2024-36286
+- devres: Fix memory leakage caused by driver API devm_free_percpu()
+- !12457  soundwire: cadence: fix invalid PDI offset
+- jfs: Fix array-index-out-of-bounds in diFree
+- ocfs2: cancel dqi_sync_work before freeing oinfo
+- !12430  CVE-2024-43894
+- i2c: lpi2c: Avoid calling clk_get_rate during transfer
+- i2c: imx-lpi2c: return -EINVAL when i2c peripheral clk doesn't work
+- i2c: imx-lpi2c: use bulk clk API
+- clk: Provide !COMMON_CLK dummy for devm_clk_rate_exclusive_get()
+- clk: Add a devm variant of clk_rate_exclusive_get()
+- riscv: prevent pt_regs corruption for secondary idle threads
+- netfilter: nfnetlink_queue: acquire rcu_read_lock() in instance_destroy_rcu()
+- ocfs2: add bounds checking to ocfs2_check_dir_entry()
+- !12392  mm/swapfile: skip HugeTLB pages for unuse_vma
+- !12433 v2  Fix CVE-2022-49006
+- !12356 [sync] PR-12334:  drm/nouveau: prime: fix refcount underflow
+- !12359 [sync] PR-12342:  nvmet: fix a possible leak when destroy a ctrl during qp establishment
+- !12371 [sync] PR-12344:  of: module: prevent NULL pointer dereference in vsnprintf()
+- !12352  i2c: stm32f7: Do not prepare/unprepare clock during runtime suspend/resume
+- !12222 [sync] PR-12075:  blk-mq: fix lockdep hardirq warning in __blk_mq_tag_idle()
+- mm/khugepaged: invoke MMU notifiers in shmem/file collapse paths
+- parport: Proper fix for array out-of-bounds access
+- dev/parport: fix the array out-of-bounds risk
+- !12357 [sync] PR-12318:  nfsd: call cache_put if xdr_reserve_space returns NULL
+- soundwire: cadence: fix invalid PDI offset
+- nfsd: map the EBADMSG to nfserr_io to avoid warning
+- scsi: fnic: Move flush_work initialization out of if block
+- scsi: fnic: Move fnic_fnic_flush_tx() to a work queue
+- iommu/vt-d: Fix double list_add when enabling VMD in scalable mode
+- nilfs2: fix potential oob read in nilfs_btree_check_delete()
+- !12271  drm/amdgpu: fix mc_data out-of-bounds read warning
+- tracing: Free buffers when a used dynamic event is removed
+- tracing: Add tracing_reset_all_online_cpus_unlocked() function
+- !12396  tracing/timerlat: Fix a race during cpuhp processing
+- !12405  CVE-2024-43841
+- drm/client: fix null pointer dereference in drm_client_modeset_probe
+- udf: Fix preallocation discarding at indirect extent boundary
+- nilfs2: fix NULL pointer dereference in nilfs_palloc_commit_free_entry()
+- jfs: Fix uaf in dbFreeBits
+- jfs: check if leafidx greater than num leaves per dmap tree
+- btrfs: wait for fixup workers before stopping cleaner kthread during umount
+- btrfs: qgroup: fix sleep from invalid context bug in btrfs_qgroup_inherit()
+- btrfs: fix a NULL pointer dereference when failed to start a new trasacntion
+- wifi: virt_wifi: don't use strlen() in const context
+- wifi: virt_wifi: avoid reporting connection success with wrong SSID
+- drivers: media: dvb-frontends/rtl2832: fix an out-of-bounds write error
+- tracing/timerlat: Fix a race during cpuhp processing
+- mm/swapfile: skip HugeTLB pages for unuse_vma
+- spi: nxp-fspi: fix the KASAN report out-of-bounds bug
+- drm/amdgpu: Fix out-of-bounds read of df_v1_7_channel_number
+- usb: dwc3: core: Prevent USB core invalid event buffer address access
+- usb: dwc3: core: Skip setting event buffers for host only controllers
+- of: module: prevent NULL pointer dereference in vsnprintf()
+- hwmon: (nct6775-core) Fix underflows seen when writing limit attributes
+- nvmet: fix a possible leak when destroy a ctrl during qp establishment
+- nfsd: call cache_put if xdr_reserve_space returns NULL
+- !12339  CVE-2023-52855
+- drm/nouveau: prime: fix refcount underflow
+- !12346  CVE-2024-35990
+- i2c: stm32f7: Do not prepare/unprepare clock during runtime suspend/resume
+- !12337  ntb: intel: Fix the NULL vs IS_ERR() bug for debugfs_create_dir()
+- !12303  soc: qcom: cmd-db: Map shared memory as WC, not WB
+- !12302  media: imon: fix access to invalid resource for the second interface
+- dma: xilinx_dpdma: Fix locking
+- usb: dwc2: fix possible NULL pointer dereference caused by driver concurrency
+- ntb: intel: Fix the NULL vs IS_ERR() bug for debugfs_create_dir()
+- soc: qcom: cmd-db: Map shared memory as WC, not WB
+- media: imon: fix access to invalid resource for the second interface
+- blk-mq: fix blk_mq_hw_ctx active request accounting
+- drm/amdgpu: fix mc_data out-of-bounds read warning
+- KVM: x86: Acquire kvm->srcu when handling KVM_SET_VCPU_EVENTS
+- nilfs2: fix state management in error path of log writing function
+- blk-mq: fix lockdep hardirq warning in __blk_mq_tag_idle()
+- ext4: avoid deadlock in fs reclaim with page writeback
+
 * Wed Oct 23 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.98.0.179
 - !12297  CVE-2024-46822
 - !12242 [sync] PR-12227:  nbd: Fix signal handling
