@@ -1,0 +1,132 @@
+From f9c5275b8b46fe013e869516b73f71693cc6b8ab Mon Sep 17 00:00:00 2001
+From: Bao Chenglong <994270571@qq.com>
+Date: Mon, 30 Sep 2024 16:38:54 +0800
+Subject: [PATCH] riscv, bpf: Optimize BPF_CMPXCHG operation with Zacas
+ extension
+
+OSPP inclusion
+category: feature
+bugzilla: https://gitee.com/openeuler/open-source-summer/issues/I9JPN2
+
+---------------------------------
+
+This patch optimizes the BPF_CMPXCHG operation by leveraging the Zacas
+extension [0], which provides support for atomic Compare-and-Swap (CAS)
+operations through the introduction of amocas.w and amocas.d
+instructions. The original BPF_CMPXCHG implementation relied on the LR
+(Load-Reserve) and SC (Store-Conditional) instructions for achieving
+this functionality. With this patch, amocas.w and amocas.d instructions
+are introduced to improve performance of BPF_CMPXCHG operation.
+
+Link: https://github.com/riscvarchive/riscv-zacas/releases/download/v1.0/riscv-zacas.pdf [0]
+Signed-off-by: Bao Chenglong <994270571@qq.com>
+---
+ arch/riscv/Kconfig              | 16 ++++++++++++++++
+ arch/riscv/net/bpf_jit.h        | 16 ++++++++++++++++
+ arch/riscv/net/bpf_jit_comp64.c | 29 ++++++++++++++++++-----------
+ 3 files changed, 50 insertions(+), 11 deletions(-)
+
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 5966ad97c30c..7a60d36d24c1 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -485,6 +485,22 @@ config RISCV_ISA_ZBB
+ 
+ 	   If you don't know what to do here, say Y.
+ 
++config RISCV_ISA_ZACAS
++	bool "Zacas extension support for atomic Compare-and-Swap instructions"
++	default y
++	help
++	  Compare-and-Swap (CAS) provides an easy and typically faster way to
++	  perform thread synchronization operations when supported as a hardware
++	  instruction.
++
++	  The Zacas extension provides CAS instructions
++	  to operate on 32-bit, 64-bit, and 128-bit (RV64 only) data values.
++
++	  Enable the use of these instructions in the kernel when the Zacas
++	  extension is detected in at boot.
++
++	  If you don't know what to do here, say Y.
++
+ config RISCV_ISA_ZICBOM
+ 	bool "Zicbom extension support for non-coherent DMA operation"
+ 	depends on MMU
+diff --git a/arch/riscv/net/bpf_jit.h b/arch/riscv/net/bpf_jit.h
+index bf9802a63061..9c749f7b8a65 100644
+--- a/arch/riscv/net/bpf_jit.h
++++ b/arch/riscv/net/bpf_jit.h
+@@ -18,6 +18,11 @@ static inline bool rvc_enabled(void)
+ 	return IS_ENABLED(CONFIG_RISCV_ISA_C);
+ }
+ 
++static inline bool rvzacas_enabled(void)
++{
++	return IS_ENABLED(CONFIG_RISCV_ISA_ZACAS) && riscv_has_extension_likely(RISCV_ISA_EXT_ZACAS);
++}
++
+ enum {
+ 	RV_REG_ZERO =	0,	/* The constant value 0 */
+ 	RV_REG_RA =	1,	/* Return address */
+@@ -872,6 +877,17 @@ static inline u16 rvc_sdsp(u32 imm9, u8 rs2)
+ 	return rv_css_insn(0x7, imm, rs2, 0x2);
+ }
+ 
++/* RVZACAS instructions. */
++static inline u32 rvzacas_amocas_w(u8 rd, u8 rs2, u8 rs1, u8 aq, u8 rl)
++{
++	return rv_amo_insn(0x5, aq, rl, rs2, rs1, 2, rd, 0x2f);
++}
++
++static inline u32 rvzacas_amocas_d(u8 rd, u8 rs2, u8 rs1, u8 aq, u8 rl)
++{
++	return rv_amo_insn(0x5, aq, rl, rs2, rs1, 3, rd, 0x2f);
++}
++
+ #endif /* __riscv_xlen == 64 */
+ 
+ /* Helper functions that emit RVC instructions when possible. */
+diff --git a/arch/riscv/net/bpf_jit_comp64.c b/arch/riscv/net/bpf_jit_comp64.c
+index 8fcb286b2170..d0a9548c1dbc 100644
+--- a/arch/riscv/net/bpf_jit_comp64.c
++++ b/arch/riscv/net/bpf_jit_comp64.c
+@@ -539,17 +539,24 @@ static void emit_atomic(u8 rd, u8 rs, s16 off, s32 imm, bool is64,
+ 	/* r0 = atomic_cmpxchg(dst_reg + off16, r0, src_reg); */
+ 	case BPF_CMPXCHG:
+ 		r0 = bpf_to_rv_reg(BPF_REG_0, ctx);
+-		emit(is64 ? rv_addi(RV_REG_T2, r0, 0) :
+-		     rv_addiw(RV_REG_T2, r0, 0), ctx);
+-		emit(is64 ? rv_lr_d(r0, 0, rd, 0, 0) :
+-		     rv_lr_w(r0, 0, rd, 0, 0), ctx);
+-		jmp_offset = ninsns_rvoff(8);
+-		emit(rv_bne(RV_REG_T2, r0, jmp_offset >> 1), ctx);
+-		emit(is64 ? rv_sc_d(RV_REG_T3, rs, rd, 0, 1) :
+-		     rv_sc_w(RV_REG_T3, rs, rd, 0, 1), ctx);
+-		jmp_offset = ninsns_rvoff(-6);
+-		emit(rv_bne(RV_REG_T3, 0, jmp_offset >> 1), ctx);
+-		emit(rv_fence(0x3, 0x3), ctx);
++		if (rvzacas_enabled()) {
++			emit(is64 ? rvzacas_amocas_d(r0, rs, rd, 1, 1) :
++			     rvzacas_amocas_w(r0, rs, rd, 1, 1), ctx);
++			if (!is64)
++				emit_zext_32(r0, ctx);
++		} else {
++			emit(is64 ? rv_addi(RV_REG_T2, r0, 0) :
++			     rv_addiw(RV_REG_T2, r0, 0), ctx);
++			emit(is64 ? rv_lr_d(r0, 0, rd, 0, 0) :
++			     rv_lr_w(r0, 0, rd, 0, 0), ctx);
++			jmp_offset = ninsns_rvoff(8);
++			emit(rv_bne(RV_REG_T2, r0, jmp_offset >> 1), ctx);
++			emit(is64 ? rv_sc_d(RV_REG_T3, rs, rd, 0, 1) :
++			     rv_sc_w(RV_REG_T3, rs, rd, 0, 1), ctx);
++			jmp_offset = ninsns_rvoff(-6);
++			emit(rv_bne(RV_REG_T3, 0, jmp_offset >> 1), ctx);
++			emit(rv_fence(0x3, 0x3), ctx);
++		}
+ 		break;
+ 	}
+ }
+-- 
+2.34.1
+
