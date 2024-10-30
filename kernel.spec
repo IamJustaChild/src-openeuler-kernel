@@ -43,7 +43,7 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %global upstream_sublevel   0
 %global devel_release       45
 %global maintenance_release .0.0
-%global pkg_release         .54
+%global pkg_release         .55
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1090,6 +1090,9 @@ fi
 %endif
 
 %changelog
+* Wed Oct 30 2024 Bao Chenglong <994270571@qq.com> - 6.6.0-45.0.0.55
+- riscv, bpf: Optimize BPF_CMPXCHG operation with Zacas extension
+
 * Wed Sep 26 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-45.0.0.54
 - !11857  arm64/mpam: Fix redefined reference of 'mpam_detect_is_enabled'
 - arm64/mpam: Fix redefined reference of 'mpam_detect_is_enabled'
