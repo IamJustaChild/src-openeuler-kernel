@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2410.3.0
+%global hulkrelease 2411.1.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0300
+Release: %{hulkrelease}.0301
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,66 @@ fi
 %endif
 
 %changelog
+
+* Tue Oct 29 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2411.1.0.0301
+- !12501  nbd: fix race between timeout and normal completion
+- !12659  netfilter: nf_reject_ipv6: fix nf_reject_ip6_tcphdr_put()
+- !12638  net: do not delay dst_entries_add() in dst_release()
+- !12669  drm/amd/display: Fix index out of bounds in degamma hardware format translation
+- drm/amd/display: Fix index out of bounds in degamma hardware format translation
+- !12627  NFC: nci: Bounds check struct nfc_target arrays
+- netfilter: nf_reject_ipv6: fix nf_reject_ip6_tcphdr_put()
+- net: do not delay dst_entries_add() in dst_release()
+- !12623  hwmon: (ibmpex) Fix possible UAF when ibmpex_register_bmc() fails
+- NFC: nci: Bounds check struct nfc_target arrays
+- hwmon: (ibmpex) Fix possible UAF when ibmpex_register_bmc() fails
+- !12592  of/irq: Prevent device address out-of-bounds read in interrupt map walk
+- !12593  pinctrl: single: fix potential NULL dereference in pcs_get_function()
+- !12606  swap: stop add to avail list if swap is full
+- !8931 v2  ext4: avoid deadlock in fs reclaim with page writeback
+- !12566  ALSA: seq: Fix function prototype mismatch in snd_seq_expand_var_event
+- !12558  Fix CVE-2024-49900
+- !12577  gpio: amd8111: Fix PCI device reference count leak
+- swap: stop add to avail list if swap is full
+- !12441  hwmon: (coretemp) Check for null before removing sysfs attrs
+- !12572  media: pci: cx23885: check cx23885_vdev_init() return
+- !12403  drivers: media: dvb-frontends/rtl2832: fix an out-of-bounds write error
+- !12414  nilfs2: fix NULL pointer dereference in nilfs_palloc_commit_free_entry()
+- pinctrl: single: fix potential NULL dereference in pcs_get_function()
+- of/irq: Prevent device address out-of-bounds read in interrupt map walk
+- !12412  btrfs: qgroup: fix sleep from invalid context bug in btrfs_qgroup_inherit()
+- !12413  udf: Fix preallocation discarding at indirect extent boundary
+- gpio: amd8111: Fix PCI device reference count leak
+- media: pci: cx23885: check cx23885_vdev_init() return
+- ALSA: seq: Fix function prototype mismatch in snd_seq_expand_var_event
+- jfs: Fix uninit-value access of new_ea in ea_buffer
+- !12486  gtp: Fix CVE-2024-46677
+- !12475 v2  mm/swapfile: skip HugeTLB pages for unuse_vma
+- !12502  svm: fix UAF/Double Free in svm
+- !12384  drm/amdgpu: Fix out-of-bounds read of df_v1_7_channel_number
+- !12380  fix CVE-2024-46675
+- svm: fix UAF/Double Free in svm
+- nbd: fix race between timeout and normal completion
+- gtp: fix a potential NULL pointer dereference
+- gtp: make sure only SOCK_DGRAM UDP sockets are accepted
+- mm/swapfile: skip HugeTLB pages for unuse_vma
+- !12378  cgroup: Protect css->cgroup write under css_set_lock
+- hwmon: (coretemp) Check for null before removing sysfs attrs
+- nilfs2: fix NULL pointer dereference in nilfs_palloc_commit_free_entry()
+- udf: Fix preallocation discarding at indirect extent boundary
+- btrfs: qgroup: fix sleep from invalid context bug in btrfs_qgroup_inherit()
+- drivers: media: dvb-frontends/rtl2832: fix an out-of-bounds write error
+- drm/amdgpu: Fix out-of-bounds read of df_v1_7_channel_number
+- usb: dwc3: core: Prevent USB core invalid event buffer address access
+- usb: dwc3: core: Skip setting event buffers for host only controllers
+- cgroup: Protect css->cgroup write under css_set_lock
+- !12353  ida: Fix crash in ida_free when the bitmap is empty
+- ida: Fix crash in ida_free when the bitmap is empty
+- !12316  backport some LTS patches
+- net: busy-poll: use ktime_get_ns() instead of local_clock()
+- SUNRPC: Fix a race to wake a sync task
+- net: linkwatch: use system_unbound_wq
+- ext4: avoid deadlock in fs reclaim with page writeback
 
 * Tue Oct 22 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2410.3.0.0300
 - !12299 v2  ACPI&PCI LTS patches 2024.10
