@@ -42,7 +42,7 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %global upstream_sublevel   0
 %global devel_release       48
 %global maintenance_release .0.0
-%global pkg_release         .54
+%global pkg_release         .55
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -609,9 +609,7 @@ popd
 install -m 644 .config $RPM_BUILD_ROOT/boot/config-%{KernelVer}
 install -m 644 System.map $RPM_BUILD_ROOT/boot/System.map-%{KernelVer}
 
-%if 0%{?with_kabichk}
 gzip -c9 < Module.symvers > $RPM_BUILD_ROOT/boot/symvers-%{KernelVer}.gz
-%endif
 
 mkdir -p $RPM_BUILD_ROOT%{_sbindir}
 install -m 755 %{SOURCE200} $RPM_BUILD_ROOT%{_sbindir}/mkgrub-menu-%{version}-%{devel_release}%{?maintenance_release}%{?pkg_release}.sh
@@ -977,9 +975,7 @@ fi
 %ifarch aarch64 riscv64
 /boot/dtb-*
 %endif
-%if 0%{?with_kabichk}
 /boot/symvers-*
-%endif
 /boot/System.map-*
 /boot/vmlinuz-*
 %ghost /boot/initramfs-%{KernelVer}.img
@@ -1089,6 +1085,10 @@ fi
 %endif
 
 %changelog
+* Wed Oct 30 2024 jchzhou <zhoujiacheng@iscas.ac.cn> - 6.6.0-48.0.0.55
+- create & package symvers-kernelver.gz unconditionally to fix ISO installation
+faliures like in issue #I7MARC
+
 * Wed Jun 19 2024 Ren Zhijie <zhijie.ren@shingroup.cn> - 6.6.0-48.0.0.54
 - add support for arch ppc64le
 
