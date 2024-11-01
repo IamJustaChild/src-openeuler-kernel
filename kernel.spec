@@ -35,14 +35,13 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global Arch $(echo %{_host_cpu} | sed -e s/i.86/x86/ -e s/x86_64/x86/ -e s/aarch64.*/arm64/ -e s/riscv.*/riscv/ -e s/powerpc64le/powerpc/ -e s/loongarch64/loongarch/)
 
-%global KernelVer %{version}-%{release}.%{_target_cpu}
 %global debuginfodir /usr/lib/debug
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
 %global devel_release       48
 %global maintenance_release .0.0
-%global pkg_release         .54
+%global pkg_release         .55
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -79,11 +78,14 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %define with_64kb  %{?_with_64kb: 1} %{?!_with_64kb: 0}
 %if %{with_64kb}
 %global package64kb -64kb
+%global kv_suffix +64kb
+%define with_kabichk 0
 %endif
 %else
 %define with_64kb  0
 %endif
 
+%global KernelVer %{version}-%{release}.%{_target_cpu}%{?kv_suffix}
 #default is enabled. You can disable it with --without option
 %define with_perf    %{?_without_perf: 0} %{?!_without_perf: 1}
 
@@ -210,6 +212,7 @@ Requires: perl findutils
 This package provides kernel headers and makefiles sufficient to build modules
 against the %{KernelVer} kernel package.
 
+%if !%{with_64kb}
 %package tools
 Summary: Assortment of tools for the Linux kernel
 Provides: %{name}-tools-libs
@@ -269,6 +272,8 @@ manipulation of eBPF programs and maps.
 Summary: the kernel source
 %description source
 This package contains vaious source files from the kernel.
+# with_64kb
+%endif
 
 %if 0%{?with_debuginfo}
 %define _debuginfo_template %{nil}
@@ -286,6 +291,11 @@ Debug information is useful when developing applications that use this\
 package or when debugging this package.\
 %{nil}
 
+%if %{with_64kb}
+%debuginfo_template -n kernel-64kb
+%files -n kernel-64kb-debuginfo -f kernel-debugfiles.list -f debugfiles.list
+%{expand:%%global _find_debuginfo_opts %{?_find_debuginfo_opts} --keep-section '.BTF' -p '.*/%{KernelVer}/.*|.*/vmlinux|XXX' -o kernel-debugfiles.list}
+%else
 %debuginfo_template -n kernel
 %files -n kernel-debuginfo -f kernel-debugfiles.list -f debugfiles.list
 %{expand:%%global _find_debuginfo_opts %{?_find_debuginfo_opts} --keep-section '.BTF' -p '.*/%{KernelVer}/.*|.*/vmlinux|XXX' -o kernel-debugfiles.list}
@@ -314,7 +324,8 @@ package or when debugging this package.\
 %{expand:%%global _find_debuginfo_opts %{?_find_debuginfo_opts} -p '.*%{python3_sitearch}/perf.*(.debug)?|XXX' -o python3-perf-debugfiles.list}
 #with_perf
 %endif
-
+#with_64kb
+%endif
 %endif
 
 %prep
@@ -384,7 +395,7 @@ cp -a tools/perf tools/python3-perf
 %build
 cd linux-%{KernelVer}
 
-perl -p -i -e "s/^EXTRAVERSION.*/EXTRAVERSION = -%{release}.%{_target_cpu}/" Makefile
+perl -p -i -e "s/^EXTRAVERSION.*/EXTRAVERSION = -%{release}.%{_target_cpu}%{?kv_suffix}/" Makefile
 perl -p -i -e "s/^OPENEULER_LTS.*/OPENEULER_LTS = %{openeuler_lts}/" Makefile.oever
 perl -p -i -e "s/^OPENEULER_MAJOR.*/OPENEULER_MAJOR = %{openeuler_major}/" Makefile.oever
 perl -p -i -e "s/^OPENEULER_MINOR.*/OPENEULER_MINOR = %{openeuler_minor}/" Makefile.oever
@@ -556,11 +567,14 @@ pushd tools/netacc
 popd
 
 %install
+%if !%{with_64kb}
 %if 0%{?with_source}
     %define _python_bytecompile_errors_terminate_build 0
     mkdir -p $RPM_BUILD_ROOT/usr/src/
     mv linux-%{KernelVer}-source $RPM_BUILD_ROOT/usr/src/linux-%{KernelVer}
     cp linux-%{KernelVer}/.config $RPM_BUILD_ROOT/usr/src/linux-%{KernelVer}/
+%endif
+#!with_64kb
 %endif
 
 cd linux-%{KernelVer}
@@ -801,6 +815,7 @@ popd
 
 
 ## install tools
+%if !%{with_64kb}
 %if %{with_perf}
 # perf
 # perf tool binary and supporting scripts/binaries
@@ -827,6 +842,7 @@ rm -rf %{buildroot}/usr/lib/perf/include/bpf/
 install -d %{buildroot}/%{_mandir}/man1
 install -pm0644 tools/kvm/kvm_stat/kvm_stat.1 %{buildroot}/%{_mandir}/man1/
 install -pm0644 tools/perf/Documentation/*.1 %{buildroot}/%{_mandir}/man1/
+#with_perf
 %endif
 
 # bpftool
@@ -888,6 +904,8 @@ popd
 pushd tools/netacc
 %{make} INSTALL_ROOT=%{buildroot} install
 popd
+#!with_64kb
+%endif
 
 %define __spec_install_post\
 %{?__debug_package:%{__debug_install_post}}\
@@ -957,6 +975,7 @@ then
      done)
 fi
 
+if !%{with_64kb}
 %post -n %{name}-tools
 /sbin/ldconfig
 %systemd_post cpupower.service
@@ -967,6 +986,8 @@ fi
 %postun -n %{name}-tools
 /sbin/ldconfig
 %systemd_postun cpupower.service
+#!with_64kb
+%endif
 
 %files
 %defattr (-, root, root)
@@ -999,6 +1020,7 @@ fi
 %exclude %{_includedir}/cpufreq.h
 %exclude %{_includedir}/cpuidle.h
 
+%if !%{with_64kb}
 %if %{with_perf}
 %files -n perf
 %{_bindir}/perf
@@ -1084,7 +1106,13 @@ fi
 /usr/src/linux-%{KernelVer}/.config
 %endif
 
+#!with_64kb
+%endif
+
 %changelog
+* Fri Nov 01 2024 zhangpeng <zhangpeng362@huawei.com> - 6.6.0-48.0.0.55
+- Add support for 64kb kernel
+
 * Wed Oct 30 2024 jchzhou <zhoujiacheng@iscas.ac.cn> - 6.6.0-48.0.0.54
 - create & package symvers-kernelver.gz unconditionally to fix ISO installation
 faliures like in issue #I7MARC
