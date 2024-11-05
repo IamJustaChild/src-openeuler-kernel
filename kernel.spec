@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       234
+%global devel_release       235
 %global maintenance_release .0.0
-%global pkg_release         .133
+%global pkg_release         .134
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -952,6 +952,197 @@ fi
 %endif
 
 %changelog
+* Tue Nov 05 2024 Li Nan <linan122@huawei.com> - 5.10.0-235.0.0.134
+- !13009  CVE-2024-49950
+- !12984 [OLK-5.10] Backport scsi bugfix and cleancode from upstream
+- !13003  CVE-2024-50064
+- !13051  ext4: fix CVE-2024-47701
+- !12680  smb: client: fix UAF in async decryption
+- !13039  static_call: Handle module init failure correctly in static_call_del_module()
+- !13017  f2fs: fix to wait dio completion
+- !13016  f2fs: fix to check atomic_file in f2fs ioctl interfaces
+- !13015  drm/amd/display: Check stream before comparing them
+- !13019  l2tp: prevent possible tunnel refcount underflow
+- !13022  wifi: mwifiex: Fix memcpy() field-spanning write warning in mwifiex_cmd_802_11_scan_ext()
+- ext4: avoid OOB when system.data xattr changes underneath the filesystem
+- ext4: explicitly exit when ext4_find_inline_entry returns an error
+- ext4: return error on ext4_find_inline_entry
+- ext4: ext4_search_dir should return a proper error
+- !13034  efistub/tpm: Use ACPI reclaim memory for event log to avoid corruption
+- !12992  igb: Do not bring the device up after non-fatal error
+- !12994  drm/amd/display: Check BIOS images before it is used
+- !12878 UNIC: Eliminate compile warnings when the option CONFIG_HNS3_UBL is not set
+- !12901  ext4: fix double brelse() the buffer of the extents path
+- !12897  ext4: aovid use-after-free in ext4_ext_insert_extent()
+- !12958  ext4: update orig_path in ext4_find_extent()
+- static_call: Handle module init failure correctly in static_call_del_module()
+- !12449  scsi: core: Avoid leaving shost->last_reset with stale value if EH does not run
+- efistub/tpm: Use ACPI reclaim memory for event log to avoid corruption
+- wifi: mwifiex: Fix memcpy() field-spanning write warning in mwifiex_cmd_802_11_scan_ext()
+- l2tp: prevent possible tunnel refcount underflow
+- f2fs: fix to wait dio completion
+- !12884  CVE-2024-50016
+- !12844  ACPI: sysfs: validate return type of _STR method
+- f2fs: fix to check atomic_file in f2fs ioctl interfaces
+- drm/amd/display: Check stream before comparing them
+- !12998  f2fs: get rid of online repaire on corrupted directory
+- !12911  fsnotify: fix CVE-2024-47660
+- !12908  io_uring: fix CVE-2024-50060
+- !12879  drm/stm: Avoid use-after-free issues with crtc and plane
+- !12915  CVE-2022-48961
+- Bluetooth: L2CAP: Fix uaf in l2cap_connect
+- Bluetooth: Return whether a connection is outbound
+- !12944  fix CVE-2024-47723
+- !12950  drm/amd/display: Add null check for top_pipe_to_program in commit_planes_for_stream
+- !12954  memcg_write_event_control(): fix a user-triggerable oops
+- !12824  f2fs: fix to avoid use-after-free in f2fs_stop_gc_thread()
+- !12548  fs/inode: Prevent dump_mapping() accessing invalid dentry.d_name.name
+- !12870  Fix CVE-2024-47703
+- !12893  ext4: avoid use-after-free in ext4_ext_show_leaf()
+- zram: don't free statically defined names
+- zram: free secondary algorithms names
+- [Backport]scsi: libsas: Fix disk not being scanned in after being removed
+- [Backport]scsi: libsas: Add a helper sas_get_sas_addr_and_dev_type()
+- f2fs: get rid of online repaire on corrupted directory
+- [Backport]scsi: libsas: Introduce struct smp_disc_resp
+- !12934  gpiolib: fix memory leak in gpiochip_setup_dev()
+- !12686  security/keys: fix slab-out-of-bounds in key_task_permission
+- drm/amd/display: Check BIOS images before it is used
+- igb: Do not bring the device up after non-fatal error
+- !12831  lib/generic-radix-tree.c: Fix rare race in __genradix_ptr_alloc()
+- !12689  ocfs2: reserve space for inline xattr before attaching reflink tree
+- !12920  ocfs2: fix possible null-ptr-deref in ocfs2_set_buffer_uptodate
+- !12890  drm/amd/display: Add NULL check for clk_mgr and clk_mgr->funcs in dcn30_init_hw
+- !12875  tipc: guard against string buffer overrun
+- ext4: update orig_path in ext4_find_extent()
+- memcg_write_event_control(): fix a user-triggerable oops
+- !12781  uprobes: fix kernel info leak via "[uprobes
+- drm/amd/display: Add null check for top_pipe_to_program in commit_planes_for_stream
+- !12928  tcp: fix mptcp DSS corruption due to large pmtu xmit
+- jfs: Fix sanity check in dbMount
+- jfs: fix out-of-bounds in dbNextAG() and diAlloc()
+- !12926  gso: fix udp gso fraglist segmentation after pull from frag_list
+- !12927  RDMA/iwcm: Fix WARNING:at_kernel/workqueue.c:#check_flush_dependency
+- gpiolib: fix memory leak in gpiochip_setup_dev()
+- tcp: fix mptcp DSS corruption due to large pmtu xmit
+- RDMA/iwcm: Fix WARNING:at_kernel/workqueue.c:#check_flush_dependency
+- gso: fix udp gso fraglist segmentation after pull from frag_list
+- !12812  serial: protect uart_port_dtr_rts() in uart_shutdown() too
+- !12790  slip: make slhc_remember() more robust against malicious packets
+- !12801  ext4: fix slab-use-after-free in ext4_split_extent_at()
+- !12737  r8169: add tally counter fields added with RTL8125
+- !12741  net/xen-netback: prevent UAF in xenvif_flush_hash()
+- !12407  padata: use integer wrap around to prevent deadlock on seq_nr overflow
+- !12778  riscv: Sync efi page table's kernel mappings before switching
+- !12867  hisilicon/hisi_hbmdev: prevent NULL pointer dereference when corrently
+- ocfs2: fix possible null-ptr-deref in ocfs2_set_buffer_uptodate
+- net: mdio: fix unbalanced fwnode reference count in mdio_device_release()
+- net: mdio: use device_set_node() to setup both fwnode and of
+- fsnotify: clear PARENT_WATCHED flags lazily
+- fsnotify: remove unused declaration
+- fsnotify: Fix comment typo
+- io_uring: check if we need to reschedule during overflow flush
+- io_uring: always lock __io_cqring_overflow_flush
+- ext4: fix double brelse() the buffer of the extents path
+- ext4: aovid use-after-free in ext4_ext_insert_extent()
+- ext4: avoid use-after-free in ext4_ext_show_leaf()
+- drm/amd/display: Add NULL check for clk_mgr and clk_mgr->funcs in dcn30_init_hw
+- drm/amd/display: Avoid overflow assignment in link_dp_cts
+- UNIC: Eliminate compile warnings
+- drm/stm: Avoid use-after-free issues with crtc and plane
+- tipc: guard against string buffer overrun
+- bpf, lsm: Add check for BPF LSM return value
+- bpf, lsm: Add disabled BPF LSM hook list
+- hisilicon/hisi_hbmdev: prevent NULL pointer dereference when corrently
+- !12525  powercap: intel_rapl: Fix off by one in get_rpi()
+- !12818  media: venus: fix use after free bug in venus_remove due to race condition
+- !12825  drm/amd/display: Check null pointers before using them
+- !12798  uprobe: avoid out-of-bounds memory access of fetching args
+- ACPI: sysfs: validate return type of _STR method
+- !12764  thermal: core: Reference count the zone in thermal_zone_get_by_id()
+- !12658  nilfs2: fix potential null-ptr-deref in nilfs_btree_insert()
+- lib/generic-radix-tree.c: Fix rare race in __genradix_ptr_alloc()
+- !12794  platform/x86: ISST: Fix the KASAN report slab-out-of-bounds bug
+- !12754  CVE-2024-50063
+- !12488  gtp: fix a potential NULL pointer dereference
+- !12762  smack: tcp: ipv4, fix incorrect labeling
+- drm/amd/display: Check null pointers before using them
+- f2fs: fix to avoid use-after-free in f2fs_stop_gc_thread()
+- media: venus: fix use after free bug in venus_remove due to race condition
+- serial: protect uart_port_dtr_rts() in uart_shutdown() too
+- !12758  selinux: add the processing of the failure of avc_add_xperms_decision()
+- ext4: fix slab-use-after-free in ext4_split_extent_at()
+- uprobe: avoid out-of-bounds memory access of fetching args
+- platform/x86: ISST: Fix the KASAN report slab-out-of-bounds bug
+- !12770 v2  hisilicon/hisi_hbmcache: Use mutex_trylock to prevent hung task
+- slip: make slhc_remember() more robust against malicious packets
+- uprobes: fix kernel info leak via "[uprobes]" vma
+- riscv: Sync efi page table's kernel mappings before switching
+- hisilicon/hisi_hbmcache: Use mutex_trylock to prevent hung task
+- !12551  cifs: Fix buffer overflow when parsing NFS reparse points
+- !12713  drm: omapdrm: Add missing check for alloc_ordered_workqueue
+- thermal: core: Reference count the zone in thermal_zone_get_by_id()
+- !12723  ppp: fix ppp_async_encode() illegal access
+- smack: tcp: ipv4, fix incorrect labeling
+- !12733  CVE-2024-50059
+- !12373  fix CVE-2024-49954
+- !12705  fix CVE-2024-49924
+- !12517  fix CVE-2024-47742
+- selinux: add the processing of the failure of avc_add_xperms_decision()
+- selftests/bpf: Add test for lsm tail call
+- bpf: Prevent tail call between progs attached to different hooks
+- !12665 v2  CVE-2024-49955
+- !12685  block: fix potential invalid pointer dereference in blk_add_partition
+- net/xen-netback: prevent UAF in xenvif_flush_hash()
+- !12697  mm: memcg: don't periodically flush stats when memcg is disabled
+- !12694  crypto: xor - fix template benchmarking
+- !12701  vhost_vdpa: assign irq bypass producer token correctly
+- r8169: add tally counter fields added with RTL8125
+- ntb: ntb_hw_switchtec: Fix use after free vulnerability in switchtec_ntb_remove due to race condition
+- ppp: fix ppp_async_encode() illegal access
+- !12678  CVE-2024-47673
+- !12676  IB/core: Fix ib_cache_setup_one error flow cleanup
+- drm: omapdrm: Add missing check for alloc_ordered_workqueue
+- fbdev: pxafb: Fix possible use after free in pxafb_task()
+- vhost_vdpa: assign irq bypass producer token correctly
+- !12629  blk-mq: Fix kmemleak in blk_mq_init_allocated_queue
+- !12667  randomize_kstack: Improve entropy diffusion
+- !12668  selinux: fix potential counting error in avc_add_xperms_decision()
+- !12499  nbd: fix race between timeout and normal completion
+- mm: memcg: don't periodically flush stats when memcg is disabled
+- !12610  blk_iocost: fix more out of bound shifts
+- crypto: xor - fix template benchmarking
+- crypto: xor - Fix typo of optimization
+- !12633  ALSA: asihpi: Fix potential OOB array access
+- !12354 Backport important bugfix from the kernel-5.10.y
+- ocfs2: reserve space for inline xattr before attaching reflink tree
+- security/keys: fix slab-out-of-bounds in key_task_permission
+- block: fix potential invalid pointer dereference in blk_add_partition
+- smb: client: fix UAF in async decryption
+- wifi: iwlwifi: mvm: pause TCM when the firmware is stopped
+- iwlwifi: mvm: move iwl_mvm_stop_device() out of line
+- IB/core: Fix ib_cache_setup_one error flow cleanup
+- selinux: fix potential counting error in avc_add_xperms_decision()
+- randomize_kstack: Improve entropy diffusion
+- ACPI: battery: Fix possible crash when unregistering a battery hook
+- ACPI: battery: Simplify battery hook locking
+- nilfs2: fix potential null-ptr-deref in nilfs_btree_insert()
+- scsi: mpt3sas: Avoid IOMMU page faults on REPORT ZONES
+- ALSA: asihpi: Fix potential OOB array access
+- blk-mq: Fix kmemleak in blk_mq_init_allocated_queue
+- blk_iocost: fix more out of bound shifts
+- cifs: Fix buffer overflow when parsing NFS reparse points
+- fs/inode: Prevent dump_mapping() accessing invalid dentry.d_name.name
+- powercap: intel_rapl: Fix off by one in get_rpi()
+- firmware_loader: Block path traversal
+- nbd: fix race between timeout and normal completion
+- gtp: fix a potential NULL pointer dereference
+- scsi: fix kabi broken
+- scsi: core: Avoid leaving shost->last_reset with stale value if EH does not run
+- padata: use integer wrap around to prevent deadlock on seq_nr overflow
+- static_call: Replace pointless WARN_ON() in static_call_module_notify()
+- scsi: mpt3sas: Remove scsi_dma_map() error messages
+
 * Wed Oct 30 2024 Li Nan <linan122@huawei.com> - 5.10.0-234.0.0.133
 - !12672  ocfs2: remove unreasonable unlock in ocfs2_read_blocks
 - !12670  drm/amd/display: Fix index out of bounds in degamma hardware format translation
