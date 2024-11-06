@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2411.1.0
+%global hulkrelease 2411.2.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0301
+Release: %{hulkrelease}.0302
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,106 @@ fi
 %endif
 
 %changelog
+
+* Wed Nov 06 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2411.2.0.0302
+- !13007  CVE-2024-49950
+- !13041  tty: n_gsm: Fix use-after-free in gsm_cleanup_mux
+- !13052  ext4: fix CVE-2024-47701
+- !12959  ext4: update orig_path in ext4_find_extent()
+- ext4: avoid OOB when system.data xattr changes underneath the filesystem
+- ext4: explicitly exit when ext4_find_inline_entry returns an error
+- ext4: return error on ext4_find_inline_entry
+- ext4: ext4_search_dir should return a proper error
+- ext4: fix RENAME_WHITEOUT handling for inline directories
+- !12899  ext4: fix double brelse() the buffer of the extents path
+- !12895  ext4: aovid use-after-free in ext4_ext_insert_extent()
+- !13011  CVE-2024-49878
+- !13001  iommu/vt-d: Fix PCI device refcount leak in dmar_dev_scope_init()
+- !12997  net: fix crash when config small gso_max_size/gso_ipv4_max_size
+- tty: n_gsm: Fix use-after-free in gsm_cleanup_mux
+- resource: fix region_intersects() vs add_memory_driver_managed()
+- mm/resource: Use resource_overlaps() to simplify region_intersects()
+- Bluetooth: L2CAP: Fix uaf in l2cap_connect
+- Bluetooth: Return whether a connection is outbound
+- !12891  ext4: avoid use-after-free in ext4_ext_show_leaf()
+- iommu/vt-d: Fix PCI device refcount leak in dmar_dev_scope_init()
+- net: fix crash when config small gso_max_size/gso_ipv4_max_size
+- !12860  drm/amdkfd: amdkfd_free_gtt_mem clear the correct pointer
+- !12924  CVE-2022-48966
+- !12938  ASoC: soc-pcm: Add NULL check in BE reparenting
+- !12863  CVE-2022-49020
+- !12873  tipc: guard against string buffer overrun
+- ext4: update orig_path in ext4_find_extent()
+- !12919  ocfs2: fix possible null-ptr-deref in ocfs2_set_buffer_uptodate
+- !12925  RDMA/iwcm: Fix WARNING:at_kernel/workqueue.c:#check_flush_dependency
+- !12792  HID: core: fix shift-out-of-bounds in hid_report_raw_event
+- !12743  net/xen-netback: prevent UAF in xenvif_flush_hash()
+- !12846  ACPI: sysfs: validate return type of _STR method
+- ASoC: soc-pcm: Add NULL check in BE reparenting
+- RDMA/iwcm: Fix WARNING:at_kernel/workqueue.c:#check_flush_dependency
+- net: mvneta: Fix an out of bounds check
+- net: mvneta: Prevent out of bounds read in mvneta_config_rss()
+- ocfs2: fix possible null-ptr-deref in ocfs2_set_buffer_uptodate
+- !12804  ext4: fix CVE-2024-49884
+- !12783  mac802154: fix missing INIT_LIST_HEAD in ieee802154_if_add()
+- !12782  net: hisilicon: Fix potential use-after-free in hisi_femac_rx()
+- !12784  net: hisilicon: Fix potential use-after-free in hix5hd2_rx()
+- !12785  slip: make slhc_remember() more robust against malicious packets
+- !12852  iio: health: afe4403: Fix oob read in afe4403_read_raw
+- !12813  serial: protect uart_port_dtr_rts() in uart_shutdown() too
+- ext4: fix double brelse() the buffer of the extents path
+- ext4: aovid use-after-free in ext4_ext_insert_extent()
+- !12842  NFSv4: release seqid when open failed for nfs4.0
+- ext4: avoid use-after-free in ext4_ext_show_leaf()
+- !12887  nfs: fix memory lead and nfs_server uaf
+- !12882  Bluetooth: Fix not cleanup led when bt_init fails
+- !12881  igb: Initialize mailbox message for VF reset
+- nfs: maintain nfs_server in the reclaim process
+- nfs: fix memory leak in error path of nfs4_do_reclaim
+- Bluetooth: Fix not cleanup led when bt_init fails
+- igb: Initialize mailbox message for VF reset
+- tipc: guard against string buffer overrun
+- net/9p: Fix a potential socket leak in p9_socket_open
+- drm/amdkfd: amdkfd_free_gtt_mem clear the correct pointer
+- !12815  media: venus: fix use after free bug in venus_remove due to race condition
+- !12814  iio: health: afe4404: Fix oob read in afe4404_[read|write
+- iio: health: afe4403: Fix oob read in afe4403_read_raw
+- ACPI: sysfs: validate return type of _STR method
+- NFSv4: release seqid when open failed for nfs4.0
+- !12757  drivers: media: dvb-frontends/rtl2830: fix an out-of-bounds write error
+- !12777  selinux: add the processing of the failure of avc_add_xperms_decision()
+- !12750  usb: gadget: uvc: Prevent buffer overflow in setup handler
+- !12760  smack: tcp: ipv4, fix incorrect labeling
+- media: venus: fix use after free bug in venus_remove due to race condition
+- iio: health: afe4404: Fix oob read in afe4404_[read|write]_raw
+- serial: protect uart_port_dtr_rts() in uart_shutdown() too
+- !12732  net: phy: fix null-ptr-deref while probe() failed
+- !12721  ppp: fix ppp_async_encode() illegal access
+- ext4: fix slab-use-after-free in ext4_split_extent_at()
+- ext4: avoid ext4_error()'s caused by ENOMEM in the truncate path
+- HID: core: fix shift-out-of-bounds in hid_report_raw_event
+- slip: make slhc_remember() more robust against malicious packets
+- net: hisilicon: Fix potential use-after-free in hix5hd2_rx()
+- mac802154: fix missing INIT_LIST_HEAD in ieee802154_if_add()
+- net: hisilicon: Fix potential use-after-free in hisi_femac_rx()
+- selinux: add the processing of the failure of avc_add_xperms_decision()
+- smack: tcp: ipv4, fix incorrect labeling
+- drivers: media: dvb-frontends/rtl2830: fix an out-of-bounds write error
+- !12614  writeback: Fix inode->i_io_list not be protected by inode->i_lock error
+- usb: gadget: uvc: Prevent buffer overflow in setup handler
+- !12366  fix CVE-2022-49011
+- !12704  fix CVE-2024-49924
+- !12519  fix CVE-2024-47742
+- net/xen-netback: prevent UAF in xenvif_flush_hash()
+- net: phy: fix null-ptr-deref while probe() failed
+- ppp: fix ppp_async_encode() illegal access
+- !12683  nilfs2: fix state management in error path of log writing function
+- fbdev: pxafb: Fix possible use after free in pxafb_task()
+- nilfs2: fix state management in error path of log writing function
+- init: Initialize noop_backing_dev_info early
+- writeback: Fix inode->i_io_list not be protected by inode->i_lock error
+- firmware_loader: Block path traversal
+- hwmon: (coretemp) fix pci device refcount leak in nv1a_ram_new()
 
 * Tue Oct 29 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2411.1.0.0301
 - !12501  nbd: fix race between timeout and normal completion
