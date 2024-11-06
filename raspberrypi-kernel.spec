@@ -2,13 +2,13 @@
 
 %global KernelVer %{version}-%{release}.raspi.%{_target_cpu}
 
-%global hulkrelease 201.0.0
+%global hulkrelease 235.0.0
 
 %global debug_package %{nil}
 
 Name:	 raspberrypi-kernel
 Version: 5.10.0
-Release: %{hulkrelease}.22
+Release: %{hulkrelease}.23
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -262,6 +262,9 @@ fi
 /usr/src/kernels/%{KernelVer}
 
 %changelog
+* Wed Nov 6  2024 Yafen Fang <yafen@iscas.ac.cn> - 5.10.0-235.0.0.23
+- update kernel version to openEuler 5.10.0-235.0.0
+
 * Thu May 30 2024 Yafen Fang <yafen@iscas.ac.cn> - 5.10.0-201.0.0.22
 - update kernel version to openEuler 5.10.0-201.0.0
 
