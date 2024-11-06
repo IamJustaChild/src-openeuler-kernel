@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .99.0
-%global pkg_release         .180
+%global maintenance_release .100.0
+%global pkg_release         .181
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,202 @@ fi
 %endif
 
 %changelog
+* Tue Nov 05 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.100.0.181
+- !13008  CVE-2024-49950
+- !13050  ext4: fix CVE-2024-47701
+- !13045 [sync] PR-12958:  ext4: update orig_path in ext4_find_extent()
+- !12681  smb: client: fix UAF in async decryption
+- !12990  vhost/scsi: null-ptr-dereference in vhost_scsi_get_req()
+- !12995  drm/amd/display: Check BIOS images before it is used
+- !13020  l2tp: prevent possible tunnel refcount underflow
+- !13021  wifi: mwifiex: Fix memcpy() field-spanning write warning in mwifiex_cmd_802_11_scan_ext()
+- !12985 [sync] PR-12781:  uprobes: fix kernel info leak via "[uprobes
+- !13038  drm/shmem-helper: Remove errant put in error path
+- !13037  Input: raydium_ts_i2c - fix memory leak in raydium_i2c_send()
+- !13036  iio: health: afe4403: Fix oob read in afe4403_read_raw
+- !13035  efistub/tpm: Use ACPI reclaim memory for event log to avoid corruption
+- ext4: avoid OOB when system.data xattr changes underneath the filesystem
+- ext4: explicitly exit when ext4_find_inline_entry returns an error
+- ext4: return error on ext4_find_inline_entry
+- ext4: ext4_search_dir should return a proper error
+- ext4: fix RENAME_WHITEOUT handling for inline directories
+- !12902  ext4: fix double brelse() the buffer of the extents path
+- !12898  ext4: aovid use-after-free in ext4_ext_insert_extent()
+- ext4: update orig_path in ext4_find_extent()
+- drm/shmem-helper: Remove errant put in error path
+- !12989  CVE-2022-48966
+- Input: raydium_ts_i2c - fix memory leak in raydium_i2c_send()
+- iio: health: afe4403: Fix oob read in afe4403_read_raw
+- efistub/tpm: Use ACPI reclaim memory for event log to avoid corruption
+- wifi: mwifiex: Fix memcpy() field-spanning write warning in mwifiex_cmd_802_11_scan_ext()
+- l2tp: prevent possible tunnel refcount underflow
+- !12885  CVE-2024-50016
+- !12836  ASoC: ops: Fix bounds check for _sx controls
+- !12999  f2fs: get rid of online repaire on corrupted directory
+- !12802  ext4: fix slab-use-after-free in ext4_split_extent_at()
+- !12910  fsnotify: fix CVE-2024-47660
+- !12907  io_uring: fix CVE-2024-50060
+- !12880  drm/stm: Avoid use-after-free issues with crtc and plane
+- !12917  tipc: re-fetch skb cb after tipc_msg_validate
+- !12914  CVE-2022-48961
+- !12912  ethernet: aeroflex: fix potential skb leak in greth_init_rings()
+- Bluetooth: L2CAP: Fix uaf in l2cap_connect
+- Bluetooth: Return whether a connection is outbound
+- !12945  fix CVE-2024-47723
+- !12951  drm/amd/display: Add null check for top_pipe_to_program in commit_planes_for_stream
+- !12955  memcg_write_event_control(): fix a user-triggerable oops
+- !12823  f2fs: fix to avoid use-after-free in f2fs_stop_gc_thread()
+- !12549  fs/inode: Prevent dump_mapping() accessing invalid dentry.d_name.name
+- !12872  Fix CVE-2024-47703
+- !12894  ext4: avoid use-after-free in ext4_ext_show_leaf()
+- f2fs: get rid of online repaire on corrupted directory
+- !12936  ASoC: soc-pcm: Add NULL check in BE reparenting
+- !12935  gpiolib: fix memory leak in gpiochip_setup_dev()
+- !12956  wifi: cfg80211: fix buffer overflow in elem comparison
+- drm/amd/display: Check BIOS images before it is used
+- vhost/scsi: null-ptr-dereference in vhost_scsi_get_req()
+- net: mvneta: Fix an out of bounds check
+- net: mvneta: Prevent out of bounds read in mvneta_config_rss()
+- !12864  CVE-2022-49020
+- !12833  lib/generic-radix-tree.c: Fix rare race in __genradix_ptr_alloc()
+- !12876  tipc: guard against string buffer overrun
+- !12839  ocfs2: reserve space for inline xattr before attaching reflink tree
+- !12921  ocfs2: fix possible null-ptr-deref in ocfs2_set_buffer_uptodate
+- !12889  drm/amd/display: Add NULL check for clk_mgr and clk_mgr->funcs in dcn30_init_hw
+- uprobes: fix kernel info leak via "[uprobes]" vma
+- wifi: cfg80211: fix buffer overflow in elem comparison
+- memcg_write_event_control(): fix a user-triggerable oops
+- !12845  ACPI: sysfs: validate return type of _STR method
+- drm/amd/display: Add null check for top_pipe_to_program in commit_planes_for_stream
+- jfs: Fix sanity check in dbMount
+- jfs: fix out-of-bounds in dbNextAG() and diAlloc()
+- !12931  tcp: fix mptcp DSS corruption due to large pmtu xmit
+- !12929  gso: fix udp gso fraglist segmentation after pull from frag_list
+- !12930  RDMA/iwcm: Fix WARNING:at_kernel/workqueue.c:#check_flush_dependency
+- ASoC: soc-pcm: Add NULL check in BE reparenting
+- gpiolib: fix memory leak in gpiochip_setup_dev()
+- tcp: fix mptcp DSS corruption due to large pmtu xmit
+- RDMA/iwcm: Fix WARNING:at_kernel/workqueue.c:#check_flush_dependency
+- gso: fix udp gso fraglist segmentation after pull from frag_list
+- !12788  slip: make slhc_remember() more robust against malicious packets
+- !12789  net: hisilicon: Fix potential use-after-free in hix5hd2_rx()
+- !12787  net: hisilicon: Fix potential use-after-free in hisi_femac_rx()
+- !12786  mac802154: fix missing INIT_LIST_HEAD in ieee802154_if_add()
+- !12740  r8169: add tally counter fields added with RTL8125
+- !12744  net/xen-netback: prevent UAF in xenvif_flush_hash()
+- !12408  padata: use integer wrap around to prevent deadlock on seq_nr overflow
+- !12379  nfsd: return -EINVAL when namelen is 0
+- ocfs2: fix possible null-ptr-deref in ocfs2_set_buffer_uptodate
+- tipc: re-fetch skb cb after tipc_msg_validate
+- net: mdio: fix unbalanced fwnode reference count in mdio_device_release()
+- net: mdio: use device_set_node() to setup both fwnode and of
+- driver core: add a helper to setup both the of_node and fwnode of a device
+- ethernet: aeroflex: fix potential skb leak in greth_init_rings()
+- fsnotify: clear PARENT_WATCHED flags lazily
+- fsnotify: remove unused declaration
+- fsnotify: Fix comment typo
+- io_uring: check if we need to reschedule during overflow flush
+- io_uring: always lock __io_cqring_overflow_flush
+- ext4: fix double brelse() the buffer of the extents path
+- ext4: aovid use-after-free in ext4_ext_insert_extent()
+- ext4: avoid use-after-free in ext4_ext_show_leaf()
+- drm/amd/display: Add NULL check for clk_mgr and clk_mgr->funcs in dcn30_init_hw
+- drm/amd/display: Avoid overflow assignment in link_dp_cts
+- drm/stm: Avoid use-after-free issues with crtc and plane
+- tipc: guard against string buffer overrun
+- bpf, lsm: Add check for BPF LSM return value
+- bpf, lsm: Add disabled BPF LSM hook list
+- net/9p: Fix a potential socket leak in p9_socket_open
+- !12811  serial: protect uart_port_dtr_rts() in uart_shutdown() too
+- !12819  iio: health: afe4404: Fix oob read in afe4404_[read|write
+- !12828  drm/amd/display: Check null pointers before using them
+- !12797  uprobe: avoid out-of-bounds memory access of fetching args
+- ACPI: sysfs: validate return type of _STR method
+- ocfs2: reserve space for inline xattr before attaching reflink tree
+- !12692 [sync] PR-12354: Backport important bugfix from the kernel-5.10.y
+- ASoC: ops: Fix bounds check for _sx controls
+- !12796  platform/x86: ISST: Fix the KASAN report slab-out-of-bounds bug
+- !12765  thermal: core: Reference count the zone in thermal_zone_get_by_id()
+- !12660  nilfs2: fix potential null-ptr-deref in nilfs_btree_insert()
+- lib/generic-radix-tree.c: Fix rare race in __genradix_ptr_alloc()
+- !12763  CVE-2024-50063
+- !12487  gtp: fix a potential NULL pointer dereference
+- !12761  smack: tcp: ipv4, fix incorrect labeling
+- !12779  riscv: Sync efi page table's kernel mappings before switching
+- drm/amd/display: Check null pointers before using them
+- f2fs: fix to avoid use-after-free in f2fs_stop_gc_thread()
+- iio: health: afe4404: Fix oob read in afe4404_[read|write]_raw
+- !12687 [sync] PR-12672:  ocfs2: remove unreasonable unlock in ocfs2_read_blocks
+- serial: protect uart_port_dtr_rts() in uart_shutdown() too
+- ext4: fix slab-use-after-free in ext4_split_extent_at()
+- uprobe: avoid out-of-bounds memory access of fetching args
+- platform/x86: ISST: Fix the KASAN report slab-out-of-bounds bug
+- net: hisilicon: Fix potential use-after-free in hix5hd2_rx()
+- slip: make slhc_remember() more robust against malicious packets
+- net: hisilicon: Fix potential use-after-free in hisi_femac_rx()
+- mac802154: fix missing INIT_LIST_HEAD in ieee802154_if_add()
+- riscv: Sync efi page table's kernel mappings before switching
+- !12552  cifs: Fix buffer overflow when parsing NFS reparse points
+- !12714  drm: omapdrm: Add missing check for alloc_ordered_workqueue
+- !12706  fix CVE-2024-49924
+- thermal: core: Reference count the zone in thermal_zone_get_by_id()
+- !12731  net: phy: fix null-ptr-deref while probe() failed
+- !12722  ppp: fix ppp_async_encode() illegal access
+- !12555  NFSv4: Prevent NULL-pointer dereference in nfs42_complete_copies()
+- selftests/bpf: Add test for lsm tail call
+- bpf: Prevent tail call between progs attached to different hooks
+- smack: tcp: ipv4, fix incorrect labeling
+- !12734  CVE-2024-50059
+- !12404  fix CVE-2024-49954
+- !12367  fix CVE-2022-49011
+- !12518  fix CVE-2024-47742
+- !12664 v2  CVE-2024-49955
+- !12684  block: fix potential invalid pointer dereference in blk_add_partition
+- net/xen-netback: prevent UAF in xenvif_flush_hash()
+- !12696  mm: memcg: don't periodically flush stats when memcg is disabled
+- !12695  crypto: xor - fix template benchmarking
+- r8169: add tally counter fields added with RTL8125
+- !12702  vhost_vdpa: assign irq bypass producer token correctly
+- ntb: ntb_hw_switchtec: Fix use after free vulnerability in switchtec_ntb_remove due to race condition
+- net: phy: fix null-ptr-deref while probe() failed
+- ppp: fix ppp_async_encode() illegal access
+- !12520  ipv6: avoid use-after-free in ip6_fragment()
+- !12677  CVE-2024-47673
+- !12675  IB/core: Fix ib_cache_setup_one error flow cleanup
+- drm: omapdrm: Add missing check for alloc_ordered_workqueue
+- fbdev: pxafb: Fix possible use after free in pxafb_task()
+- vhost_vdpa: assign irq bypass producer token correctly
+- !12643  Bluetooth: Fix crash when replugging CSR fake controllers
+- !12500  nbd: fix race between timeout and normal completion
+- !12609  blk_iocost: fix more out of bound shifts
+- mm: memcg: don't periodically flush stats when memcg is disabled
+- crypto: xor - fix template benchmarking
+- crypto: xor - Fix typo of optimization
+- scsi: mpt3sas: Avoid IOMMU page faults on REPORT ZONES
+- scsi: mpt3sas: Remove scsi_dma_map() error messages
+- ocfs2: remove unreasonable unlock in ocfs2_read_blocks
+- block: fix potential invalid pointer dereference in blk_add_partition
+- smb: client: fix UAF in async decryption
+- wifi: iwlwifi: mvm: pause TCM when the firmware is stopped
+- iwlwifi: mvm: move iwl_mvm_stop_device() out of line
+- IB/core: Fix ib_cache_setup_one error flow cleanup
+- ACPI: battery: Fix possible crash when unregistering a battery hook
+- ACPI: battery: Simplify battery hook locking
+- nilfs2: fix potential null-ptr-deref in nilfs_btree_insert()
+- Bluetooth: Fix crash when replugging CSR fake controllers
+- blk_iocost: fix more out of bound shifts
+- NFSv4: Prevent NULL-pointer dereference in nfs42_complete_copies()
+- cifs: Fix buffer overflow when parsing NFS reparse points
+- fs/inode: Prevent dump_mapping() accessing invalid dentry.d_name.name
+- ipv6: avoid use-after-free in ip6_fragment()
+- firmware_loader: Block path traversal
+- nbd: fix race between timeout and normal completion
+- gtp: fix a potential NULL pointer dereference
+- padata: use integer wrap around to prevent deadlock on seq_nr overflow
+- static_call: Replace pointless WARN_ON() in static_call_module_notify()
+- nfsd: return -EINVAL when namelen is 0
+- hwmon: (coretemp) fix pci device refcount leak in nv1a_ram_new()
+
 * Wed Oct 30 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.99.0.180
 - !12652  mm/gup: fix gup_pud_range() for dax
 - !12671  drm/amd/display: Fix index out of bounds in degamma hardware format translation
