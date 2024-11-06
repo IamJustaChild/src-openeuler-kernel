@@ -41,7 +41,7 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %global upstream_sublevel   0
 %global devel_release       48
 %global maintenance_release .0.0
-%global pkg_release         .55
+%global pkg_release         .56
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1110,6 +1110,8 @@ if !%{with_64kb}
 %endif
 
 %changelog
+* Wed Nov 06 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-48.0.0.56
+
 * Fri Nov 01 2024 zhangpeng <zhangpeng362@huawei.com> - 6.6.0-48.0.0.55
 - Add support for 64kb kernel
 
