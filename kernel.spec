@@ -40,9 +40,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       48
+%global devel_release       50
 %global maintenance_release .0.0
-%global pkg_release         .55
+%global pkg_release         .56
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1085,6 +1085,279 @@ fi
 %endif
 
 %changelog
+* Wed Nov 06 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-50.0.0.56
+- !12979  ext4: fix timer use-after-free on failed mount
+- ext4: fix timer use-after-free on failed mount
+- !12980  ext4: no need to continue when the number of entries is 1
+- ext4: no need to continue when the number of entries is 1
+- !12983  CVE-2024-49968
+- ext4: fix error message when rejecting the default hash
+- ext4: filesystems without casefold feature cannot be mounted with siphash
+- !12981  ext4: drop ppath from ext4_ext_replay_update_ex() to avoid double-free
+- ext4: drop ppath from ext4_ext_replay_update_ex() to avoid double-free
+- !12982  ext4: fix i_data_sem unlock order in ext4_ind_migrate()
+- ext4: fix i_data_sem unlock order in ext4_ind_migrate()
+- !12978  exfat: fix memory leak in exfat_load_bitmap()
+- exfat: fix memory leak in exfat_load_bitmap()
+- !12977  ext4: fix access to uninitialised lock in fc replay path
+- ext4: fix access to uninitialised lock in fc replay path
+- !13018 nebula-matrix: fix ci build warning when use clang
+- Net: nebula_matrix: fix ci build warning
+- !12866  fix CVE-2024-50041
+- i40e: Fix macvlan leak by synchronizing access to mac_filter_hash
+- !12595  scsi: fnic: Move flush_work initialization out of if block
+- scsi: fnic: Move flush_work initialization out of if block
+- !13004  CVE-2024-50064
+- zram: don't free statically defined names
+- zram: free secondary algorithms names
+- !13044  Some patches of RDMA/hns from Linux to OLK-6.6
+- RDMA/hns: Fix cpu stuck caused by printings during reset
+- RDMA/hns: Use dev_* printings in hem code instead of ibdev_*
+- RDMA/hns: Modify debugfs name
+- RDMA/hns: Fix flush cqe error when racing with destroy qp
+- RDMA/hns: Fix an AEQE overflow error caused by untimely update of eq_db_ci
+- Revert "RDMA/hns: Fix flush cqe error when racing with destroy qp"
+- Revert "RDMA/hns: Fix missing spin_lock_init() for qp flush lock"
+- !13049  ext4: some dependencies of CVE-2024-47701
+- ext4: explicitly exit when ext4_find_inline_entry returns an error
+- ext4: ext4_search_dir should return a proper error
+- !12682  smb: client: fix UAF in async decryption
+- smb: client: fix UAF in async decryption
+- !13023  l2tp: prevent possible tunnel refcount underflow
+- l2tp: prevent possible tunnel refcount underflow
+- !13025  wifi: mwifiex: Fix memcpy() field-spanning write warning in mwifiex_cmd_802_11_scan_ext()
+- wifi: mwifiex: Fix memcpy() field-spanning write warning in mwifiex_cmd_802_11_scan_ext()
+- !13024  wifi: cfg80211: Set correct chandef when starting CAC
+- wifi: cfg80211: Set correct chandef when starting CAC
+- !12993  igb: Do not bring the device up after non-fatal error
+- igb: Do not bring the device up after non-fatal error
+- !12988  mm/mremap: fix move_normal_pmd/retract_page_tables race
+- mm/mremap: fix move_normal_pmd/retract_page_tables race
+- !12800  cachefiles: fix dentry leak in cachefiles_open_file()
+- cachefiles: fix dentry leak in cachefiles_open_file()
+- !12900  ext4: fix double brelse() the buffer of the extents path
+- ext4: fix double brelse() the buffer of the extents path
+- !12896  ext4: aovid use-after-free in ext4_ext_insert_extent()
+- ext4: aovid use-after-free in ext4_ext_insert_extent()
+- !12960  ext4: update orig_path in ext4_find_extent()
+- ext4: update orig_path in ext4_find_extent()
+- !13012  drm/amd/display: Revert "drm/amd/display: Fix potential index out of bounds in color transformation function"
+- drm/amd/display: Revert "drm/amd/display: Fix potential index out of bounds in color transformation function"
+- !12909  btrfs: fix uninitialized pointer free on read_alloc_one_name() error
+- btrfs: fix uninitialized pointer free on read_alloc_one_name() error
+- !12906  io_uring: fix CVE-2024-50060
+- io_uring: check if we need to reschedule during overflow flush
+- io_uring: always lock __io_cqring_overflow_flush
+- !12892  ext4: avoid use-after-free in ext4_ext_show_leaf()
+- ext4: avoid use-after-free in ext4_ext_show_leaf()
+- !12957  rseq/mm_cid: change the mm_cid macro default status and keep KABI consistent
+- rseq/mm_cid: change the mm_cid macro default status and keep KABI consistent
+- !12377  ep93xx: clock: Fix off by one in ep93xx_div_recalc_rate()
+- ep93xx: clock: Fix off by one in ep93xx_div_recalc_rate()
+- !12497  drm/stm: Avoid use-after-free issues with crtc and plane
+- drm/stm: Avoid use-after-free issues with crtc and plane
+- !12775  vt: prevent kernel-infoleak in con_font_get()
+- vt: prevent kernel-infoleak in con_font_get()
+- !12883  CVE-2024-50016
+- drm/amd/display: Avoid overflow assignment in link_dp_cts
+- !12774  net: microchip: vcap api: Fix memory leaks in vcap_api_encode_rule_test()
+- net: microchip: vcap api: Fix memory leaks in vcap_api_encode_rule_test()
+- !12776  drm/amd/display: Check stream before comparing them
+- drm/amd/display: Check stream before comparing them
+- !12940 virtCCA feature: GPU supports maximum 1G page table mapping
+- virtcca feature : GPU supports maximum 1G page table mapping.
+- !12952  drm/amd/display: Add null check for top_pipe_to_program in commit_planes_for_stream
+- drm/amd/display: Add null check for top_pipe_to_program in commit_planes_for_stream
+- !12942  fix CVE-2024-47704
+- drm/amd/display: Check link_res->hpo_dp_link_enc before using it
+- drm/amd/display: Check link_res->hpo_dp_link_enc before using it
+- !12953  mm: gup: stop abusing try_grab_folio
+- mm: gup: stop abusing try_grab_folio
+- !9209 [OLK-6.6] perf/x86/zhaoxin/uncore: update KX-7000 support
+- perf/x86/zhaoxin/uncore: update KX-7000 support
+- !9191 [OLK-6.6]  x86/cpu: Remove pointless evaluation of x86_coreid_bits
+- x86/cpu: Remove pointless evaluation of x86_coreid_bits
+- !9156 [OLK-6.6] USB: Fix kernel NULL pointer when unbind UHCI form vfio-pci
+- USB:Fix kernel NULL pointer when unbind UHCI form vfio-pci
+- !7927 [OLK-6.6] fix intel-lkp compilation issues for DMA patch
+- x86/cpu/zhaoxin: kx-40000: Apply the static modifier to some symbols
+- x86/cpu/zhaoxin: Encapsulate access to kh40000_dma_direct_ops within function
+- x86/cpu/zhaoxin: Encapsulate access to global variables within functions
+- x86/cpu/zhaoxin: Adjust the configuration options for zhaoxin-kx40000.c
+- x86/cpu/zhaoxin: kx40000: fix bitwise warning issue
+- !7874 [OLK-6.6] iommu/dma: Move iova_reserve_domain_addr to header dma-iommu.h
+- iommu/dma: Move iova_reserve_domain_addr to header dma-iommu.h
+- !12835 Net: nebula-matrix: fix ci build warning
+- Net: nebula_matrix: fix ci build warning
+- !12550  fs/inode: Prevent dump_mapping() accessing invalid dentry.d_name.name
+- fs/inode: Prevent dump_mapping() accessing invalid dentry.d_name.name
+- !12871  Fix CVE-2024-47703
+- selftests/bpf: Add return value checks for failed tests
+- bpf: Fix kabi breakage in struct bpf_insn_access_aux
+- bpf: Fix kabi breakage in struct bpf_func_state
+- bpf: Fix compare error in function retval_range_within
+- bpf, lsm: Add check for BPF LSM return value
+- bpf, lsm: Add disabled BPF LSM hook list
+- bpf: enforce precise retval range on program exit
+- bpf: enforce exact retval range on subprog/callback exit
+- !12712  drm: omapdrm: Add missing check for alloc_ordered_workqueue
+- drm: omapdrm: Add missing check for alloc_ordered_workqueue
+- !12838  ocfs2: reserve space for inline xattr before attaching reflink tree
+- ocfs2: reserve space for inline xattr before attaching reflink tree
+- !12372  fix CVE-2024-49954
+- static_call: Replace pointless WARN_ON() in static_call_module_notify()
+- !12358  fix CVE-2024-49852
+- scsi: elx: libefc: Fix potential use after free in efc_nport_vport_del()
+- !12822  i3c: master: svc: Fix use after free vulnerability in svc_i3c_master Driver Due to Race Condition
+- i3c: master: svc: Fix use after free vulnerability in svc_i3c_master Driver Due to Race Condition
+- !12918  Input: adp5589-keys - fix NULL pointer dereference
+- Input: adp5589-keys - fix NULL pointer dereference
+- !12874  tipc: guard against string buffer overrun
+- tipc: guard against string buffer overrun
+- !12916  serial: protect uart_port_dtr_rts() in uart_shutdown() too
+- serial: protect uart_port_dtr_rts() in uart_shutdown() too
+- !12843 v4  CVE-2024-50063
+- selftests/bpf: Add test for lsm tail call
+- bpf: Fix kabi breakage in struct bpf_map
+- bpf: Prevent tail call between progs attached to different hooks
+- !12932  gso: fix udp gso fraglist segmentation after pull from frag_list
+- gso: fix udp gso fraglist segmentation after pull from frag_list
+- !12933  tcp: fix mptcp DSS corruption due to large pmtu xmit
+- tcp: fix mptcp DSS corruption due to large pmtu xmit
+- !12922  ocfs2: fix possible null-ptr-deref in ocfs2_set_buffer_uptodate
+- ocfs2: fix possible null-ptr-deref in ocfs2_set_buffer_uptodate
+- !12913  drm/msm/adreno: Assign msm_gpu->pdev earlier to avoid nullptrs
+- drm/msm/adreno: Assign msm_gpu->pdev earlier to avoid nullptrs
+- !12888  drm/amd/display: Add NULL check for clk_mgr and clk_mgr->funcs in dcn30_init_hw
+- drm/amd/display: Add NULL check for clk_mgr and clk_mgr->funcs in dcn30_init_hw
+- !12769  uprobes: fix kernel info leak via "[uprobes
+- uprobes: fix kernel info leak via "[uprobes]" vma
+- !12717  wifi: ath12k: fix array out-of-bound access in SoC stats
+- wifi: ath12k: fix array out-of-bound access in SoC stats
+- !12742  net/xen-netback: prevent UAF in xenvif_flush_hash()
+- net/xen-netback: prevent UAF in xenvif_flush_hash()
+- !12738  r8169: add tally counter fields added with RTL8125
+- r8169: add tally counter fields added with RTL8125
+- !12805  ext4: fix slab-use-after-free in ext4_split_extent_at()
+- ext4: fix slab-use-after-free in ext4_split_extent_at()
+- !12637  kthread: unpark only parked kthread
+- kthread: unpark only parked kthread
+- !12473  scsi: wd33c93: Don't use stale scsi_pointer value
+- scsi: wd33c93: Don't use stale scsi_pointer value
+- !12688  security/keys: fix slab-out-of-bounds in key_task_permission
+- security/keys: fix slab-out-of-bounds in key_task_permission
+- !12791  slip: make slhc_remember() more robust against malicious packets
+- slip: make slhc_remember() more robust against malicious packets
+- !12607 virtcca compile warning clean and coda bugfix
+- virtcca bugfix: compile warning clean
+- virtcca bugfix: clear device msi address
+- virtcca bugfix: compile warning clean
+- !12773 v4  add vdpa support for x86 and enable vdpa migration.
+- vdpa: add support for x86 and open vdpa migration build config
+- virtio_blk: remove the broken zone revalidation support
+- !12759  CVE-2024-50055
+- driver core: bus: Fix double free in driver API bus_register()
+- !12772 MPTCP Upstream part 16
+- selftests: mptcp: diag: avoid extra waiting
+- configs/debug: add NET debug config
+- MAINTAINERS: update Geliang's email address
+- !12771 MPTCP Upstream part 15
+- selftests: mptcp: diag: change timeout_poll to 30
+- selftests: mptcp: join: change capture/checksum as bool
+- selftests: mptcp: simult flows: define missing vars
+- selftests: mptcp: netlink: drop duplicate var ret
+- !12834 [OLK-6.6] drivers: load Yunsilicon ethernet driver when xsc_pci probing
+- drivers: load Yunsilicon ethernet driver when xsc_pci probing
+- !12817  media: venus: fix use after free bug in venus_remove due to race condition
+- media: venus: fix use after free bug in venus_remove due to race condition
+- !12599  iommufd: Require drivers to supply the cache_invalidate_user ops
+- iommufd: Require drivers to supply the cache_invalidate_user ops
+- !12793  uprobe: avoid out-of-bounds memory access of fetching args
+- uprobe: avoid out-of-bounds memory access of fetching args
+- !12821 v4  openeuler_defconfig: Disable CONFIG_DEBUG_INFO_BTF_MODULES
+- openeuler_defconfig: Disable CONFIG_DEBUG_INFO_BTF_MODULES
+- !12829  drm/amd/display: Check null-initialized variables
+- drm/amd/display: Check null-initialized variables
+- !12826  media: i2c: ar0521: Use cansleep version of gpiod_set_value()
+- media: i2c: ar0521: Use cansleep version of gpiod_set_value()
+- !12827  drm/amd/display: Check null pointers before using them
+- drm/amd/display: Check null pointers before using them
+- !12767  x86/bugs: Use code segment selector for VERW operand
+- x86/bugs: Use code segment selector for VERW operand
+- !12506  ocfs2: cancel dqi_sync_work before freeing oinfo
+- ocfs2: cancel dqi_sync_work before freeing oinfo
+- !12482  device-dax: correct pgoff align in dax_set_mapping()
+- device-dax: correct pgoff align in dax_set_mapping()
+- !12795  platform/x86: ISST: Fix the KASAN report slab-out-of-bounds bug
+- platform/x86: ISST: Fix the KASAN report slab-out-of-bounds bug
+- !12816 v2  bpf lts backport
+- Fix kabi breakage in struct bpf_map
+- bpf: Optimize the free of inner map
+- !12747  parport: Proper fix for array out-of-bounds access
+- parport: Proper fix for array out-of-bounds access
+- !12780 drivers: misc: uacce: bugfix for MAX_ORDER
+- drivers: misc: uacce: bugfix for MAX_ORDER
+- !12718  thermal: core: Reference count the zone in thermal_zone_get_by_id()
+- thermal: core: Reference count the zone in thermal_zone_get_by_id()
+- !12707  drm/amd/display: Add NULL check for function pointer in dcn32_set_output_transfer_func
+- drm/amd/display: Add NULL check for function pointer in dcn32_set_output_transfer_func
+- !12768  Bluetooth: hci_conn: Fix UAF in hci_enhanced_setup_sync
+- Bluetooth: hci_conn: Fix UAF in hci_enhanced_setup_sync
+- !12674  net/mlx5e: Fix NULL deref in mlx5e_tir_builder_alloc()
+- net/mlx5e: Fix NULL deref in mlx5e_tir_builder_alloc()
+- !12736  drm/amd/display: Fix system hang while resume with TBT monitor
+- drm/amd/display: Fix system hang while resume with TBT monitor
+- !12604  drm/amd/display: Check null pointer before dereferencing se
+- drm/amd/display: Check null pointer before dereferencing se
+- !12591  cpufreq: amd-pstate: add check for cpufreq_cpu_get's return value
+- cpufreq: amd-pstate: add check for cpufreq_cpu_get's return value
+- !12465  drm/amd/display: Initialize get_bytes_per_element's default to 1
+- drm/amd/display: Initialize get_bytes_per_element's default to 1
+- !12755  pinctrl: stm32: check devm_kasprintf() returned value
+- pinctrl: stm32: check devm_kasprintf() returned value
+- !12715 MPTCP Upstream part 14
+- mptcp: check the protocol in mptcp_sk() with DEBUG_NET
+- mptcp: check the protocol in tcp_sk() with DEBUG_NET
+- mptcp: token kunit: set protocol
+- !12711  btrfs: fix uninitialized pointer free in add_inode_ref()
+- btrfs: fix uninitialized pointer free in add_inode_ref()
+- !12728  Backport "ima: Avoid blocking in RCU read-side critical section"
+- ima: Avoid blocking in RCU read-side critical section
+- Revert "ima: Avoid blocking in RCU read-side critical section"
+- !12516  fix CVE-2024-47742
+- firmware_loader: Block path traversal
+- !12710  fix CVE-2024-49924
+- fbdev: pxafb: Fix possible use after free in pxafb_task()
+- !12729  CVE-2024-50059
+- ntb: ntb_hw_switchtec: Fix use after free vulnerability in switchtec_ntb_remove due to race condition
+- !12720 drivers/crypto/ccp: fix a build error
+- drivers/crypto/ccp: fix a build error
+- !12666  block: fix integer overflow in BLKSECDISCARD
+- block: fix integer overflow in BLKSECDISCARD
+- !12608  blk_iocost: fix more out of bound shifts
+- blk_iocost: fix more out of bound shifts
+- !12656  CVE-2024-49955
+- ACPI: battery: Fix possible crash when unregistering a battery hook
+- ACPI: battery: Simplify battery hook locking
+- !12662  drm/amd/display: fix double free issue during amdgpu module unload
+- drm/amd/display: fix double free issue during amdgpu module unload
+- !12698  mm: memcg: don't periodically flush stats when memcg is disabled
+- mm: writeback: ratelimit stat flush from mem_cgroup_wb_stats
+- mm: memcg: don't periodically flush stats when memcg is disabled
+- !12345 [OLK-6.6] drivers: update Yunsilicon driver to version rel_2406_rc16
+- drivers: update Yunsilicon driver to version 2406_rc16
+- !12617  drm/amd/display: Handle null 'stream_status' in 'planes_changed_for_existing_stream'
+- drm/amd/display: Handle null 'stream_status' in 'planes_changed_for_existing_stream'
+- !12545  Fix TX fifo corruption in patch [3
+- serial: sc16is7xx: fix TX fifo corruption
+- kfifo: add kfifo_out_linear{,_ptr}()
+- serial: sc16is7xx: refactor FIFO access functions to increase commonality
+- !12648  net: do not delay dst_entries_add() in dst_release()
+- net: do not delay dst_entries_add() in dst_release()
+- !12553  Fix CVE-2024-49996
+- cifs: Fix buffer overflow when parsing NFS reparse points
+- smb: client: fix parsing of device numbers
+
 * Wed Oct 30 2024 jchzhou <zhoujiacheng@iscas.ac.cn> - 6.6.0-48.0.0.55
 - create & package symvers-kernelver.gz unconditionally to fix ISO installation
 faliures like in issue #I7MARC
