@@ -42,7 +42,7 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %global upstream_sublevel   0
 %global devel_release       52
 %global maintenance_release .0.0
-%global pkg_release         .57
+%global pkg_release         .58
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1085,6 +1085,8 @@ fi
 %endif
 
 %changelog
+* Fri Nov 08 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-52.0.0.58
+
 * Fri Nov 08 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-52.0.0.57
 - !13117 nebula-matrix: fix ci build err
 - Net: nebula_matrix: fix ci build err
