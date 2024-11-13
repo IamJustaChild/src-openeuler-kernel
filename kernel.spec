@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       235
+%global devel_release       236
 %global maintenance_release .0.0
-%global pkg_release         .134
+%global pkg_release         .135
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -952,6 +952,90 @@ fi
 %endif
 
 %changelog
+* Wed Nov 13 2024 Li Nan <linan122@huawei.com> - 5.10.0-236.0.0.135
+- !13186  virtio_pmem: Check device status before requesting flush
+- !13156  tcp/dccp: Don't use timer_pending() in reqsk_queue_unlink().
+- !13157  xfrm: validate new SA's prefixlen using SA family when sel.family is unset
+- !13154  RDMA/mad: Improve handling of timed out WRs of mad agent
+- !13146  arm64: probes: Remove broken LDR (literal) uprobe support
+- !13167  CVE-2024-50133
+- !13173  sched: smart_grid: Prevent double-free in sched_grid_qos_free
+- !13164  Fix 'cgroup/cpuset: Prevent UAF in proc_cpuset_show()' issue with commmunity patches
+- !13182  arm64: restore pc after fixup iff mcs failed in arm64_do_kernel_sea
+- virtio_pmem: Check device status before requesting flush
+- arm64: restore pc after fixup iff mcs failed in arm64_do_kernel_sea
+- sched: smart_grid: Prevent double-free in sched_grid_qos_free
+- !13095 Update ASPM sysfs on MFD function removal to avoid use-after-free
+- LoongArch: Don't crash in stack_top() for tasks without vDSO
+- cgroup: add cgroup_root_ext to keep kabi
+- cgroup/cpuset: Prevent UAF in proc_cpuset_show()
+- cgroup: Make operations on the cgroup root_list RCU safe
+- Revert "cgroup: fix uaf when proc_cpuset_show"
+- xfrm: validate new SA's prefixlen using SA family when sel.family is unset
+- tcp/dccp: Don't use timer_pending() in reqsk_queue_unlink().
+- RDMA/mad: Improve handling of timed out WRs of mad agent
+- !13124  blk-rq-qos: fix crash on rq_qos_wait vs. rq_qos_wake_function race
+- !13144 v2  tracing: Consider the NULL character when validating the event length
+- arm64: probes: Remove broken LDR (literal) uprobe support
+- tracing: Consider the NULL character when validating the event length
+- !13125 v7  mm: support poison recover for more
+- mm/hugetlb: add missing VM_FAULT_SET_HINDEX in hugetlb_wp
+- arm64: send sig fault for user task when apei_claim_sea fails
+- arm64: mm: Add copy mc support for all migrate_page
+- mm: support poison recovery from do_cow_fault()
+- mm: support poison recovery from copy_present_page()
+- mm: hwpoison: support recovery from HugePage copy-on-write faults
+- make copy_[user]_highpage_mc have return value
+- blk-rq-qos: fix crash on rq_qos_wait vs. rq_qos_wake_function race
+- !12974  ext4: fix timer use-after-free on failed mount
+- !12976  : ext4: no need to continue when the number of entries is 1
+- !12971  ext4: drop ppath from ext4_ext_replay_update_ex() to avoid double-free
+- !12975  ext4: fix i_data_sem unlock order in ext4_ind_migrate()
+- !12970  exfat: fix memory leak in exfat_load_bitmap()
+- !12972  ext4: fix access to uninitialised lock in fc replay path
+- !13094  RDMA/hns: Fix DCA mmap area PUAF
+- !12973  vfs: fix race between evice_inodes() and find_inode()&iput()
+- PCI/ASPM: Update ASPM sysfs on MFD function removal to avoid use-after-free
+- !13089  bpf, net: Fix a potential race in do_sock_getsockopt()
+- !13101  thunderbolt: Mark XDomain as unplugged when router is removed
+- !13099  pinctrl: single: fix potential NULL dereference in pcs_get_function()
+- !13103  CVE-2024-49878
+- resource: fix region_intersects() vs add_memory_driver_managed()
+- thunderbolt: Mark XDomain as unplugged when router is removed
+- pinctrl: single: fix potential NULL dereference in pcs_get_function()
+- RDMA/hns: Fix DCA mmap area PUAF
+- !12587 network_mgmt: Change print_ip_notify_pkt_en sysfs_attr priority
+- !13067  Fix UAF of rpc_task
+- bpf, net: Fix a potential race in do_sock_getsockopt()
+- !13042  tty: n_gsm: Fix use-after-free in gsm_cleanup_mux
+- !12996 【OLK-5.10】Support SMT control on arm64
+- network_mgmt: Change print_ip_notify_pkt_en sysfs_attr priority
+- !13055  net: avoid potential underflow in qdisc_pkt_len_init() with UFO
+- !13054  net: add more sanity checks to qdisc_pkt_len_init()
+- !13048 sdma-dae: add ida validation
+- !12949  drm/amd/display: Check num_valid_sets before accessing reader_wm_sets[
+- nfs: fix rpc_task use-after-free when open and close different files concurrently
+- NFSv4: release seqid when open failed for nfs4.0
+- drivers:misc:sdma-dae: add channel ida validation
+- net: avoid potential underflow in qdisc_pkt_len_init() with UFO
+- net: add more sanity checks to qdisc_pkt_len_init()
+- tty: n_gsm: Fix use-after-free in gsm_cleanup_mux
+- config: enable CONFIG_HOTPLUG_SMT for arm64
+- arm64: Kconfig: Enable HOTPLUG_SMT
+- arm64: topology: Support SMT control on ACPI based system
+- arch_topology: Support SMT control for OF based system
+- arch_topology: Support basic SMT control for the driver
+- cpu/SMT: Store the current/max number of threads
+- cpu/SMT: Move SMT prototypes into cpu_smt.h
+- ext4: no need to continue when the number of entries is 1
+- ext4: fix i_data_sem unlock order in ext4_ind_migrate()
+- ext4: fix timer use-after-free on failed mount
+- vfs: fix race between evice_inodes() and find_inode()&iput()
+- ext4: fix access to uninitialised lock in fc replay path
+- ext4: drop ppath from ext4_ext_replay_update_ex() to avoid double-free
+- exfat: fix memory leak in exfat_load_bitmap()
+- drm/amd/display: Check num_valid_sets before accessing reader_wm_sets[]
+
 * Tue Nov 05 2024 Li Nan <linan122@huawei.com> - 5.10.0-235.0.0.134
 - !13009  CVE-2024-49950
 - !12984 [OLK-5.10] Backport scsi bugfix and cleancode from upstream
