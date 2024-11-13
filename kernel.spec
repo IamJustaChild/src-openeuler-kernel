@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .100.0
-%global pkg_release         .181
+%global maintenance_release .101.0
+%global pkg_release         .182
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,65 @@ fi
 %endif
 
 %changelog
+* Wed Nov 13 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.101.0.182
+- !13152  xfrm: validate new SA's prefixlen using SA family when sel.family is unset
+- !13153  tcp/dccp: Don't use timer_pending() in reqsk_queue_unlink().
+- !13155  RDMA/mad: Improve handling of timed out WRs of mad agent
+- !13166  CVE-2024-50133
+- !13163  Fix 'cgroup/cpuset: Prevent UAF in proc_cpuset_show()' issue with commmunity patches
+- LoongArch: Don't crash in stack_top() for tasks without vDSO
+- cgroup: add cgroup_root_ext to keep kabi
+- cgroup/cpuset: Prevent UAF in proc_cpuset_show()
+- cgroup: Make operations on the cgroup root_list RCU safe
+- Revert "cgroup: fix uaf when proc_cpuset_show"
+- RDMA/mad: Improve handling of timed out WRs of mad agent
+- tcp/dccp: Don't use timer_pending() in reqsk_queue_unlink().
+- xfrm: validate new SA's prefixlen using SA family when sel.family is unset
+- !13123  blk-rq-qos: fix crash on rq_qos_wait vs. rq_qos_wake_function race
+- !13145  tracing: Consider the NULL character when validating the event length
+- tracing: Consider the NULL character when validating the event length
+- blk-rq-qos: fix crash on rq_qos_wait vs. rq_qos_wake_function race
+- !12967  : ext4: no need to continue when the number of entries is 1
+- !12964  ext4: fix timer use-after-free on failed mount
+- !12966  ext4: drop ppath from ext4_ext_replay_update_ex() to avoid double-free
+- !12963  ext4: fix i_data_sem unlock order in ext4_ind_migrate()
+- !12961  exfat: fix memory leak in exfat_load_bitmap()
+- !12962  ext4: fix access to uninitialised lock in fc replay path
+- !12965  vfs: fix race between evice_inodes() and find_inode()&iput()
+- !13090  bpf, net: Fix a potential race in do_sock_getsockopt()
+- !13102  thunderbolt: Mark XDomain as unplugged when router is removed
+- !13100  pinctrl: single: fix potential NULL dereference in pcs_get_function()
+- !13104  CVE-2024-49878
+- resource: fix region_intersects() vs add_memory_driver_managed()
+- thunderbolt: Mark XDomain as unplugged when router is removed
+- pinctrl: single: fix potential NULL dereference in pcs_get_function()
+- !13065 [sync] PR-12984: [OLK-5.10] Backport scsi bugfix and cleancode from upstream
+- bpf, net: Fix a potential race in do_sock_getsockopt()
+- !13070  f2fs: fix to check atomic_file in f2fs ioctl interfaces
+- !13071  static_call: Handle module init failure correctly in static_call_del_module()
+- !13058  net: add more sanity checks to qdisc_pkt_len_init()
+- !13059  net: avoid potential underflow in qdisc_pkt_len_init() with UFO
+- !13057 [sync] PR-13017:  f2fs: fix to wait dio completion
+- !13056 [sync] PR-13015:  drm/amd/display: Check stream before comparing them
+- !12946  drm/amd/display: Check num_valid_sets before accessing reader_wm_sets[
+- static_call: Handle module init failure correctly in static_call_del_module()
+- f2fs: fix to check atomic_file in f2fs ioctl interfaces
+- [Backport]scsi: libsas: Fix disk not being scanned in after being removed
+- [Backport]scsi: libsas: Add a helper sas_get_sas_addr_and_dev_type()
+- [Backport]scsi: libsas: Introduce struct smp_disc_resp
+- net: avoid potential underflow in qdisc_pkt_len_init() with UFO
+- f2fs: fix to wait dio completion
+- drm/amd/display: Check stream before comparing them
+- net: add more sanity checks to qdisc_pkt_len_init()
+- ext4: no need to continue when the number of entries is 1
+- ext4: drop ppath from ext4_ext_replay_update_ex() to avoid double-free
+- vfs: fix race between evice_inodes() and find_inode()&iput()
+- ext4: fix timer use-after-free on failed mount
+- ext4: fix i_data_sem unlock order in ext4_ind_migrate()
+- ext4: fix access to uninitialised lock in fc replay path
+- exfat: fix memory leak in exfat_load_bitmap()
+- drm/amd/display: Check num_valid_sets before accessing reader_wm_sets[]
+
 * Tue Nov 05 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.100.0.181
 - !13008  CVE-2024-49950
 - !13050  ext4: fix CVE-2024-47701
