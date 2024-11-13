@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2411.2.0
+%global hulkrelease 2411.3.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0302
+Release: %{hulkrelease}.0303
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,14 @@ fi
 %endif
 
 %changelog
+
+* Wed Nov 13 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2411.3.0.0303
+- !13165  security/keys: fix slab-out-of-bounds in key_task_permission
+- !13150  net: fix data-races around sk->sk_forward_alloc
+- security/keys: fix slab-out-of-bounds in key_task_permission
+- net: fix data-races around sk->sk_forward_alloc
+- !13068  nfs: fix rpc_task use-after-free when open and close different files concurrently
+- nfs: fix rpc_task use-after-free when open and close different files concurrently
 
 * Wed Nov 06 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2411.2.0.0302
 - !13007  CVE-2024-49950
