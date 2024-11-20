@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .101.0
-%global pkg_release         .182
+%global maintenance_release .102.0
+%global pkg_release         .183
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,70 @@ fi
 %endif
 
 %changelog
+* Wed Nov 20 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.102.0.183
+- !13199  fs/ntfs3: Additional check in ntfs_file_release
+- !13284  wifi: mac80211: do not pass a stopped vif to the driver in .get_txpower
+- !13279  mailbox: bcm2835: Fix timeout during suspend mode
+- !13302  CVE-2024-50195
+- !13229  fs/ntfs3: Fix possible deadlock in mi_read
+- !13228  fs/ntfs3: Check if more than chunk-size bytes are written
+- !13224  fs/ntfs3: Add rough attr alloc_size check
+- !13191  net/ncsi: Disable the ncsi work before freeing the associated structure
+- !13195  fix CVE-2024-50115
+- posix-clock: posix-clock: Fix unbalanced locking in pc_clock_settime()
+- posix-clock: Fix missing timespec64 check in pc_clock_settime()
+- wifi: mac80211: do not pass a stopped vif to the driver in .get_txpower
+- !13272 v2  scsi: libsas: Add smp_ata_check_ready_type()
+- !13175  bpf: Use raw_spinlock_t in ringbuf
+- mailbox: bcm2835: Fix timeout during suspend mode
+- !13262  bpf: Zero former ARG_PTR_TO_{LONG,INT} args in case of error
+- !13208 [sync] PR-13146:  arm64: probes: Remove broken LDR (literal) uprobe support
+- scsi: libsas: Add smp_ata_check_ready_type()
+- bpf: Zero former ARG_PTR_TO_{LONG,INT} args in case of error
+- !13232  Revert "tty: n_gsm: avoid call of sleeping functions from atomic context"
+- !9720  firewire: ohci: mask bus reset interrupts between ISR and bottom half
+- !9095 [sync] PR-8747:  dmaengine: fsl-qdma: Fix a memory leak related to the queue command DMA
+- !13223  e100: Fix possible use after free in e100_xmit_prepare
+- !13222  aoe: fix the potential use-after-free problem in more places
+- !13220  scsi: pm80xx: Set phy->enable_completion only when we wait for it
+- !13238  staging: iio: frequency: ad9834: Validate frequency parameter value
+- !13247  CVE-2022-48878
+- Bluetooth: qca: Fix BT enable failure again for QCA6390 after warm reboot
+- Bluetooth: hci_qca: Fixed issue during suspend
+- Bluetooth: hci_qca: check for SSR triggered flag while suspend
+- Bluetooth: hci_qca: Wait for SSR completion during suspend
+- Bluetooth: hci_qca: Fix driver shutdown on closed serdev
+- Bluetooth: hci_qca: Wait for timeout during suspend
+- Bluetooth: hci_qca: don't call kfree_skb() under spin_lock_irqsave()
+- !12374  wifi: mac80211: fix NULL dereference at band check in starting tx ba session
+- !8793  netfilter: nf_tables: honor table dormant flag from netdev release event path
+- staging: iio: frequency: ad9834: Validate frequency parameter value
+- !13147  CVE-2022-48953
+- Revert "tty: n_gsm: avoid call of sleeping functions from atomic context"
+- !13200  iio: light: veml6030: fix IIO device retrieval from embedded device
+- fs/ntfs3: Fix possible deadlock in mi_read
+- fs/ntfs3: Check if more than chunk-size bytes are written
+- fs/ntfs3: Add rough attr alloc_size check
+- e100: Fix possible use after free in e100_xmit_prepare
+- aoe: fix the potential use-after-free problem in more places
+- scsi: pm80xx: Set phy->enable_completion only when we wait for it
+- !13203 [sync] PR-13186:  virtio_pmem: Check device status before requesting flush
+- !13168  drm/amd/display: Add null check for pipe_ctx->plane_state in dcn20_program_pipe
+- arm64: probes: Remove broken LDR (literal) uprobe support
+- virtio_pmem: Check device status before requesting flush
+- iio: light: veml6030: fix IIO device retrieval from embedded device
+- fs/ntfs3: Additional check in ntfs_file_release
+- KVM: nSVM: Ignore nCR3[4:0] when loading PDPTEs from memory
+- net/ncsi: Disable the ncsi work before freeing the associated structure
+- bpf: Use raw_spinlock_t in ringbuf
+- drm/amd/display: Add null check for pipe_ctx->plane_state in dcn20_program_pipe
+- rtc: cmos: Fix wake alarm breakage
+- rtc: cmos: Fix event handler registration ordering issue
+- wifi: mac80211: fix NULL dereference at band check in starting tx ba session
+- firewire: ohci: mask bus reset interrupts between ISR and bottom half
+- dmaengine: fsl-qdma: Fix a memory leak related to the queue command DMA
+- netfilter: nf_tables: honor table dormant flag from netdev release event path
+
 * Wed Nov 13 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.101.0.182
 - !13152  xfrm: validate new SA's prefixlen using SA family when sel.family is unset
 - !13153  tcp/dccp: Don't use timer_pending() in reqsk_queue_unlink().
