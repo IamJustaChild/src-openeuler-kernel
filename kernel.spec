@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2411.3.0
+%global hulkrelease 2411.4.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0303
+Release: %{hulkrelease}.0304
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,32 @@ fi
 %endif
 
 %changelog
+
+* Wed Nov 20 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2411.4.0.0304
+- !13286  wifi: mac80211: do not pass a stopped vif to the driver in .get_txpower
+- !13305  CVE-2024-50195
+- !13209  fix CVE-2024-50115
+- posix-clock: posix-clock: Fix unbalanced locking in pc_clock_settime()
+- posix-clock: Fix missing timespec64 check in pc_clock_settime()
+- wifi: mac80211: do not pass a stopped vif to the driver in .get_txpower
+- !13274  CVE-2024-50117
+- drm/amdgpu: prevent NULL pointer dereference if ATIF is not supported
+- drm/amd: Guard against bad data for ATIF ACPI method
+- !13254  Revert "sched/dynamic_affinity: fix preffered_cpu offline problem"
+- Revert "sched/dynamic_affinity: fix preffered_cpu offline problem"
+- !13249  sched/dynamic_affinity: fix preffered_cpu offline problem
+- sched/dynamic_affinity: fix preffered_cpu offline problem
+- !13213  CVE-2024-47745
+- mm: split critical region in remap_file_pages() and invoke LSMs in between
+- mm: call the security_mmap_file() LSM hook in remap_file_pages()
+- mm/mmap.c: don't unlock VMAs in remap_file_pages()
+- KVM: nSVM: Ignore nCR3[4:0] when loading PDPTEs from memory
+- !13138  fs: call fsnotify_sb_delete after evict_inodes
+- !13187 v3  sched: smart_grid: Prevent double-free in sched_grid_qos_free
+- !13188  serial: core: Fix atomicity violation in uart_tiocmget
+- serial: core: Fix atomicity violation in uart_tiocmget
+- sched: smart_grid: Prevent double-free in sched_grid_qos_free
+- fs: call fsnotify_sb_delete after evict_inodes
 
 * Wed Nov 13 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2411.3.0.0303
 - !13165  security/keys: fix slab-out-of-bounds in key_task_permission
