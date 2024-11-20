@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       236
+%global devel_release       237
 %global maintenance_release .0.0
-%global pkg_release         .135
+%global pkg_release         .136
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -952,6 +952,93 @@ fi
 %endif
 
 %changelog
+* Wed Nov 20 2024 Li Nan <linan122@huawei.com> - 5.10.0-237.0.0.136
+- !13310  fs/ntfs3: Additional check in ni_clear()
+- !13343 [sync] PR-13339:  smb: client: fix OOBs when building SMB2_IOCTL request
+- !13344  mm,hwpoison: check mm when killing accessing process
+- mm,hwpoison: check mm when killing accessing process
+- smb: client: fix OOBs when building SMB2_IOCTL request
+- !13318 Fix objtool error for AMX instruction decoding
+- !13196  fs/ntfs3: Additional check in ntfs_file_release
+- !13260  scsi: target: core: Fix null-ptr-deref in target_alloc_device()
+- !13013 [OLK-5.10] Intel: Backport KVM Fix for Clearing SGX EDECCSSA to OLK-5.10
+- !13328  bpf: Fix out-of-bounds write in trie_get_next_key()
+- !13285  wifi: mac80211: do not pass a stopped vif to the driver in .get_txpower
+- bpf: Fix out-of-bounds write in trie_get_next_key()
+- !11286 [OLK-5.10] Backport Intel Trace Hub support on GNR and SPR platforms
+- !13280 [OLK-5.10]Intel: Backport to fix In Field Scan(IFS) Scan At Field(SAF)
+- !13276  mailbox: bcm2835: Fix timeout during suspend mode
+- !13294 sdma-dae: change authority of debugfs
+- x86/insn: Add AMX instructions to the x86 instruction decoder
+- !13277  CVE-2023-52920
+- fs/ntfs3: Additional check in ni_clear()
+- !13227  fs/ntfs3: Add rough attr alloc_size check
+- !13225  fs/ntfs3: Check if more than chunk-size bytes are written
+- !13226  fs/ntfs3: Fix possible deadlock in mi_read
+- !13299  bpf, arm64: Fix address emission with tag-based KASAN enabled
+- !13190  net/ncsi: Disable the ncsi work before freeing the associated structure
+- !13194  fix CVE-2024-50115
+- bpf, arm64: Fix address emission with tag-based KASAN enabled
+- driver:misc:sdma:change authority of sdma device
+- wifi: mac80211: do not pass a stopped vif to the driver in .get_txpower
+- !13178  bpf: Use raw_spinlock_t in ringbuf
+- bpf: handle fake register spill to stack with BPF_ST_MEM instruction
+- bpf: support non-r10 register spill/fill to/from stack in precision tracking
+- bpf: mostly decouple jump history management from is_state_visited()
+- bpf: encapsulate precision backtracking bookkeeping
+- bpf: decouple prune and jump points
+- mailbox: bcm2835: Fix timeout during suspend mode
+- !13261  bpf: Zero former ARG_PTR_TO_{LONG,INT} args in case of error
+- bpf: Zero former ARG_PTR_TO_{LONG,INT} args in case of error
+- scsi: target: core: Fix null-ptr-deref in target_alloc_device()
+- platform/x86/intel/ifs: Initialize union ifs_status to zero
+- platform/x86/intel/ifs: release cpus_read_lock()
+- platform/x86/intel/ifs: Annotate work queue on stack so object debug does not complain
+- tools arch x86: Sync the msr-index.h copy with the kernel sources
+- !13221  aoe: fix the potential use-after-free problem in more places
+- !13239  scsi: pm80xx: Set phy->enable_completion only when we wait for it
+- !13237  staging: iio: frequency: ad9834: Validate frequency parameter value
+- !13255  RDMA/hns: Fix the valid QP bank set to improve performance
+- RDMA/hns: Fix the valid QP bank set to improve performance
+- !12858 intel: backport GNR and SRF intel_idle fix for 5.10
+- !12154 v2  netfilter: flowtable: initialise extack before use
+- !12375  wifi: mac80211: fix NULL dereference at band check in starting tx ba session
+- scsi: pm80xx: Set phy->enable_completion only when we wait for it
+- staging: iio: frequency: ad9834: Validate frequency parameter value
+- !13201  iio: light: veml6030: fix IIO device retrieval from embedded device
+- !13212 v7  arm64: support page mapping percpu first chunk allocator
+- fs/ntfs3: Add rough attr alloc_size check
+- fs/ntfs3: Fix possible deadlock in mi_read
+- fs/ntfs3: Check if more than chunk-size bytes are written
+- aoe: fix the potential use-after-free problem in more places
+- !13080  serial: core: Fix atomicity violation in uart_tiocmget
+- !13073  selinux: clarify return code in filename_trans_read_helper_compat()
+- !13128  drm/amd/display: Add null check for pipe_ctx->plane_state in dcn20_program_pipe
+- kasan: arm64: fix pcpu_page_first_chunk crash with KASAN_VMALLOC
+- arm64: support page mapping percpu first chunk allocator
+- vmalloc: choose a better start address in vm_area_register_early()
+- iio: light: veml6030: fix IIO device retrieval from embedded device
+- fs/ntfs3: Additional check in ntfs_file_release
+- KVM: nSVM: Ignore nCR3[4:0] when loading PDPTEs from memory
+- net/ncsi: Disable the ncsi work before freeing the associated structure
+- bpf: Use raw_spinlock_t in ringbuf
+- cpuidle, intel_idle: Fix CPUIDLE_FLAG_IRQ_ENABLE *again*
+- drm/amd/display: Add null check for pipe_ctx->plane_state in dcn20_program_pipe
+- serial: core: Fix atomicity violation in uart_tiocmget
+- selinux: clarify return code in filename_trans_read_helper_compat()
+- KVM: VMX: Also clear SGX EDECCSSA in KVM CPU caps when SGX is disabled
+- intel_idle: fix ACPI _CST matching for newer Xeon platforms
+- intel_idle: add Granite Rapids Xeon support
+- intel_idle: Fix false positive RCU splats due to incorrect hardirqs state
+- intel_idle: Add a new flag to initialize the AMX state
+- x86/fpu: Add a helper to prepare AMX state for low-power CPU idle
+- cpuidle,intel_idle: Fix CPUIDLE_FLAG_IRQ_ENABLE
+- wifi: mac80211: fix NULL dereference at band check in starting tx ba session
+- netfilter: flowtable: initialise extack before use
+- intel_th: pci: Add Sapphire Rapids SOC support
+- intel_th: pci: Add Granite Rapids SOC support
+- intel_th: pci: Add Granite Rapids support
+
 * Wed Nov 13 2024 Li Nan <linan122@huawei.com> - 5.10.0-236.0.0.135
 - !13186  virtio_pmem: Check device status before requesting flush
 - !13156  tcp/dccp: Don't use timer_pending() in reqsk_queue_unlink().
