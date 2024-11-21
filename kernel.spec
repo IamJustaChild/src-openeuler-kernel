@@ -40,9 +40,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       55
+%global devel_release       56
 %global maintenance_release .0.0
-%global pkg_release         .59
+%global pkg_release         .60
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1085,6 +1085,100 @@ fi
 %endif
 
 %changelog
+* Wed Nov 20 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-56.0.0.60
+- !13324 v2  CVE-2023-52920
+- bpf: handle fake register spill to stack with BPF_ST_MEM instruction
+- selftests/bpf: add stack access precision test
+- bpf: Fix kabi breakage in struct bpf_verifier_state and bpf_verifier_env
+- bpf: support non-r10 register spill/fill to/from stack in precision tracking
+- !13321 [openEuler-24.03-LTS][linux-6.6.y sync] Backport 6.6.61-6.6.62 LTS Patches
+- 9p: fix slab cache name creation for real
+- mm: krealloc: Fix MTE false alarm in __do_krealloc
+- bpf: Check validity of link->type in bpf_link_show_fdinfo()
+- net: usb: qmi_wwan: add Fibocom FG132 0x0112 composition
+- ASoC: fsl_micfil: Add sample rate constraint
+- LoongArch: Use "Exception return address" to comment ERA
+- ASoC: rt722-sdca: increase clk_stop_timeout to fix clock stop issue
+- RISCV: KVM: use raw_spinlock for critical section in imsic
+- HID: lenovo: Add support for Thinkpad X1 Tablet Gen 3 keyboard
+- HID: multitouch: Add quirk for Logitech Bolt receiver w/ Casa touchpad
+- fs: Fix uninitialized value issue in from_kuid and from_kgid
+- ASoC: amd: yc: Fix non-functional mic on ASUS E1404FA
+- ASoC: amd: yc: Add quirk for ASUS Vivobook S15 M3502RA
+- bpf: Fix mismatched RCU unlock flavour in bpf_out_neigh_v6
+- bpf: Add sk_is_inet and IS_ICSK check in tls_sw_has_ctx_tx/rx
+- vDPA/ifcvf: Fix pci_read_config_byte() return code handling
+- nvme/host: Fix RCU list traversal to use SRCU primitive
+- smb: client: Fix use-after-free of network namespace.
+- nvme: make keep-alive synchronous operation
+- nvme-loop: flush off pending I/O while shutting down loop controller
+- net: phy: mdio-bcm-unimac: Add BCM6846 support
+- powerpc/powernv: Free name on error in opal_event_init()
+- drm/amdkfd: Accounting pdd vram_usage for svm
+- nvme-multipath: defer partition scanning
+- RDMA/siw: Add sendpage_ok() check to disable MSG_SPLICE_PAGES
+- drm/vmwgfx: Limit display layout ioctl array size to VMWGFX_NUM_DISPLAY_UNITS
+- sound: Make CONFIG_SND depend on INDIRECT_IOMEM instead of UML
+- crypto: marvell/cesa - Disable hash algorithms
+- crypto: api - Fix liveliness check in crypto_alg_tested
+- bpf: use kvzmalloc to allocate BPF verifier environment
+- nvme: disable CC.CRIME (NVME_CC_CRIME)
+- iommu/arm-smmu: Clarify MMU-500 CPRE workaround
+- HID: multitouch: Add quirk for HONOR MagicBook Art 14 touchpad
+- HID: multitouch: Add support for B2402FVA track point
+- block: Fix elevator_get_default() checking for NULL q->tag_set
+- nvme: tcp: avoid race between queue_lock lock and destroy
+- irqchip/ocelot: Fix trigger register address
+- selftests/bpf: Verify that sync_linked_regs preserves subreg_def
+- 9p: Avoid creating multiple slab caches with the same name
+- 9p: v9fs_fid_find: also lookup by inode if not found dentry
+- !13335  net/hinic3: Support New SDK and NIC features
+- net/hinic3: Support New SDK and NIC features
+- !11561 mm: support large folio swap-out and swap-in for shmem
+- mm/pageout: Fix kabi broken in writeback_control
+- mm:shmem: Support large folio adjust reliable shmem usage count
+- mm: shmem: support large folio swap out
+- mm: shmem: split large entry if the swapin folio is not large
+- mm: shmem: drop folio reference count using 'nr_pages' in shmem_delete_from_page_cache()
+- mm: shmem: support large folio allocation for shmem_replace_folio()
+- mm: shmem: use swap_free_nr() to free shmem swap entries
+- mm: filemap: use xa_get_order() to get the swap entry order
+- mm: shmem: return number of pages beeing freed in shmem_free_swap
+- mm: shmem: extend shmem_partial_swap_usage() to support large folio swap
+- mm: swap: extend swap_shmem_alloc() to support batch SWAP_MAP_SHMEM flag setting
+- mm: swap: add nr argument in swapcache_prepare and swapcache_clear to support large folios
+- mm/swapfile:__swap_duplicate: drop redundant WRITE_ONCE on swap_map for err cases
+- mm: extend 'usage' parameter so that cluster_swap_free_nr() can be reused
+- !13251 MPTCP Upstream part 21
+- selftests: userspace pm: avoid relaunching pm events
+- selftests: mptcp: simult flows: fix shellcheck warnings
+- selftests: mptcp: pm netlink: fix shellcheck warnings
+- selftests: mptcp: sockopt: fix shellcheck warnings
+- selftests: mptcp: diag: fix shellcheck warnings
+- selftests: mptcp: add mptcp_lib_events helper
+- selftests: mptcp: more operations in ns_init/exit
+- selftests: mptcp: add mptcp_lib_ns_init/exit helpers
+- selftests: mptcp: add local variables rndh
+- selftests: mptcp: add mptcp_lib_check_tools helper
+- selftests: mptcp: stop forcing iptables-legacy
+- !13313 fix ci compile nbl_ethtool.c warning
+- Net: nebula_matrix: fix ci compile nbl_ethtool.c warning
+- !13129  drm/amd/display: Add null check for pipe_ctx->plane_state in dcn20_program_pipe
+- drm/amd/display: Add null check for pipe_ctx->plane_state in dcn20_program_pipe
+- !13296  sched/numa: Fix the potential null pointer dereference in task_numa_work()
+- sched/numa: Fix the potential null pointer dereference in task_numa_work()
+- !13300  ima: fix a compilation error with ima_bprm_creds_for_exec()
+- ima: fix a compilation error with ima_bprm_creds_for_exec()
+- !13298  bpf, arm64: Fix address emission with tag-based KASAN enabled
+- bpf, arm64: Fix address emission with tag-based KASAN enabled
+- !13275  CVE-2024-46698
+- firmware: sysfb: Fix reference count of sysfb parent device
+- firmware/sysfb: fix an error code in sysfb_init()
+- video/aperture: optionally match the device in sysfb_disable()
+- firmware/sysfb: Create firmware device only for enabled PCI devices
+- firmware/sysfb: Set firmware-framebuffer parent device
+- of/platform: Disable sysfb if a simple-framebuffer node is found
+
 * Tue Nov 19 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-55.0.0.59
 - !13235  nvmet-auth: assign dh_key to NULL after kfree_sensitive
 - nvmet-auth: assign dh_key to NULL after kfree_sensitive
