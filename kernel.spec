@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .102.0
-%global pkg_release         .183
+%global maintenance_release .103.0
+%global pkg_release         .184
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,95 @@ fi
 %endif
 
 %changelog
+* Wed Nov 27 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.103.0.184
+- !13814  nilfs2: fix kernel bug due to missing clearing of checked flag
+- !13457  io_uring: fix CVE-2024-53052
+- !13461  ocfs2: remove entry once instead of null-ptr-dereference in ocfs2_xa_remove()
+- !13385  bpf: Fix out-of-bounds write in trie_get_next_key()
+- !13830  fix CVE-2024-50192
+- !13412  udf: fix uninit-value use in udf_get_fileshortad
+- !13801  media: av7110: fix a spectre vulnerability
+- irqchip/gic-v4: Correctly deal with set_affinity on lazily-mapped VPEs
+- irqchip/gic-v4: Don't allow a VMOVP on a dying VPE
+- !13420  btrfs: reinitialize delayed ref list after deleting it from the list
+- !13422  nfs: Fix KMSAN warning in decode_getfattr_attrs()
+- !13811 [sync] PR-13793:  nilfs2: fix potential deadlock with newly created symlinks
+- !13425  media: s5p-jpeg: prevent buffer overflows
+- nilfs2: fix kernel bug due to missing clearing of checked flag
+- nilfs2: fix potential deadlock with newly created symlinks
+- !13798  drm/amd/display: Initialize denominators' default to 1
+- media: av7110: fix a spectre vulnerability
+- drm/amd/display: Initialize denominators' default to 1
+- !13438  net: seeq: Fix use after free vulnerability in ether3 Driver Due to Race Condition
+- !13437  netfilter: br_netfilter: fix panic with metadata_dst skb
+- !13434  netfilter: nf_tables: prevent nf_skb_duplicated corruption
+- !13432  wifi: iwlwifi: mvm: avoid NULL pointer dereference
+- !13320  unicode: Don't special case ignorable code points
+- !13380  fbdev: sisfb: Fix strbuf array overflow
+- !13455 [sync] PR-13356:  NFSD: Initialize struct nfsd4_copy earlier
+- ocfs2: remove entry once instead of null-ptr-dereference in ocfs2_xa_remove()
+- io_uring/rw: fix missing NOWAIT check for O_DIRECT start write
+- io_uring: use kiocb_{start,end}_write() helpers
+- fs: create kiocb_{start,end}_write() helpers
+- io_uring: rename kiocb_end_write() local helper
+- !13440  RDMA/cxgb4: Added NULL check for lookup_atid
+- !13442  net: netfilter: Fix CVE-2024-50038
+- !13445  RDMA/rtrs-srv: Avoid null pointer deref during path establishment
+- !13431  xen-netfront: Fix NULL sring after live migration
+- !13430  RDMA/hns: Fix spin_unlock_irqrestore() called with IRQs enabled
+- !13429  SUNRPC: Fix UAF in svc_tcp_listen_data_ready()
+- !13428  bonding: Fix CVE-2023-52784
+- !13427  llc: verify mac len before reading mac header
+- NFSD: Initialize struct nfsd4_copy earlier
+- !13390 [sync] PR-12686:  security/keys: fix slab-out-of-bounds in key_task_permission
+- RDMA/rtrs-srv: Avoid null pointer deref during path establishment
+- netfilter: xtables: fix typo causing some targets not to load on IPv6
+- netfilter: xtables: avoid NFPROTO_UNSPEC where needed
+- RDMA/cxgb4: Added NULL check for lookup_atid
+- net: seeq: Fix use after free vulnerability in ether3 Driver Due to Race Condition
+- netfilter: br_netfilter: fix panic with metadata_dst skb
+- netfilter: nf_tables: prevent nf_skb_duplicated corruption
+- wifi: iwlwifi: mvm: avoid NULL pointer dereference
+- xen-netfront: Fix NULL sring after live migration
+- RDMA/hns: Fix spin_unlock_irqrestore() called with IRQs enabled
+- SUNRPC: Fix UAF in svc_tcp_listen_data_ready()
+- bonding: stop the device in bond_setup_by_slave()
+- bonding: reset bond's flags when down link is P2P device
+- llc: verify mac len before reading mac header
+- media: s5p-jpeg: prevent buffer overflows
+- nfs: Fix KMSAN warning in decode_getfattr_attrs()
+- btrfs: reinitialize delayed ref list after deleting it from the list
+- udf: fix uninit-value use in udf_get_fileshortad
+- !13388  usb: musb: sunxi: Fix accessing an released usb phy
+- !13393  CVE-2024-47745
+- !13369  CVE-2024-46713
+- !13342  ntfs3: fix CVE-2024-50248
+- !13348  ceph: remove the incorrect Fw reference check when dirtying pages
+- !13347  nilfs2: propagate directory read errors from nilfs_find_entry()
+- mm: split critical region in remap_file_pages() and invoke LSMs in between
+- mm: call the security_mmap_file() LSM hook in remap_file_pages()
+- remap_file_pages: Use vma_lookup() instead of find_vma()
+- mm/mmap.c: don't unlock VMAs in remap_file_pages()
+- !13330  tty: n_gsm: Fix use-after-free in gsm_cleanup_mux
+- security/keys: fix slab-out-of-bounds in key_task_permission
+- usb: musb: sunxi: Fix accessing an released usb phy
+- bpf: Fix out-of-bounds write in trie_get_next_key()
+- fbdev: sisfb: Fix strbuf array overflow
+- !13304  ALSA: firewire-lib: Avoid division by zero in apply_constraint_to_size()
+- perf: Fix kabi problem by put mutex in front of perf_buffer
+- perf/aux: Fix AUX buffer serialization
+- !13311  fs/ntfs3: Additional check in ni_clear()
+- ceph: remove the incorrect Fw reference check when dirtying pages
+- nilfs2: propagate directory read errors from nilfs_find_entry()
+- !13339  smb: client: fix OOBs when building SMB2_IOCTL request
+- fs/ntfs3: Sequential field availability check in mi_enum_attr()
+- ntfs3: Add bounds checking to mi_enum_attr()
+- smb: client: fix OOBs when building SMB2_IOCTL request
+- tty: n_gsm: Fix use-after-free in gsm_cleanup_mux
+- unicode: Don't special case ignorable code points
+- fs/ntfs3: Additional check in ni_clear()
+- ALSA: firewire-lib: Avoid division by zero in apply_constraint_to_size()
+
 * Wed Nov 20 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.102.0.183
 - !13199  fs/ntfs3: Additional check in ntfs_file_release
 - !13284  wifi: mac80211: do not pass a stopped vif to the driver in .get_txpower
