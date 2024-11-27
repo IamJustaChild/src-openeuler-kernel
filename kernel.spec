@@ -40,9 +40,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       56
+%global devel_release       57
 %global maintenance_release .0.0
-%global pkg_release         .60
+%global pkg_release         .61
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1085,6 +1085,156 @@ fi
 %endif
 
 %changelog
+* Wed Nov 27 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-57.0.0.61
+- !13845 backport some patches from upstream about HCCS low power
+- soc: hisilicon: kunpeng_hccs: Support low power feature for the specified HCCS type
+- soc: hisilicon: kunpeng_hccs: Add used HCCS types sysfs
+- soc: hisilicon: kunpeng_hccs: Fix the 'lane_mode' field name in port info structure to 'max_lane_num'
+- soc: hisilicon: kunpeng_hccs: Add the check for base address and size of shared memory
+- soc: hisilicon: kunpeng_hccs: Return failure on having not die or port information
+- soc: hisilicon: kunpeng_hccs: Fix a PCC typo
+- !13842  ima: fix buffer overrun in ima_eventdigest_init_common
+- ima: fix buffer overrun in ima_eventdigest_init_common
+- !13827  LoongArch: KVM: Mark hrtimer to expire in hard interrupt context
+- LoongArch: KVM: Mark hrtimer to expire in hard interrupt context
+- !11952 migration: fix reference counting exception issue
+- migration: fix reference counting exception issue
+- !13816 [openEuler-24.03-LTS][linux-6.6.y sync] Backport 6.6.49-6.6.50 LTS Conflicts Patches
+- hwmon: (k10temp) Check return value of amd_smn_read()
+- mptcp: pr_debug: add missing 
+- mptcp: avoid duplicated SUB_CLOSED events
+- selftests: mptcp: join: check re-re-adding ID 0 signal
+- selftests: mptcp: join: validate event numbers
+- !11950 arm64/perf: Enable branch stack sampling
+- arm64/perf: Enable branch stack sampling
+- perf: test: Extend branch stack sampling test for Arm64 BRBE
+- perf: test: Remove empty lines from branch filter test output
+- perf: test: Speed up running brstack test on an Arm model
+- KVM: arm64: nvhe: Disable branch generation in nVHE guests
+- drivers: perf: arm_pmuv3: Enable branch stack sampling via FEAT_BRBE
+- arm64/boot: Enable EL2 requirements for BRBE
+- drivers: perf: arm_pmu: Add infrastructure for branch stack sampling
+- KVM: arm64: Explicitly handle BRBE traps as UNDEFINED
+- arm64/sysreg: Add BRBE registers and fields
+- KVM: arm64: Initialize the kvm host data's fpsimd_state pointer in pKVM
+- KVM: arm64: nv: Drop VCPU_HYP_CONTEXT flag
+- KVM: arm64: Exclude FP ownership from kvm_vcpu_arch
+- KVM: arm64: Exclude host_fpsimd_state pointer from kvm_vcpu_arch
+- KVM: arm64: Exclude mdcr_el2_host from kvm_vcpu_arch
+- KVM: arm64: Exclude host_debug_data from vcpu_arch
+- KVM: arm64: Add accessor for per-CPU state
+- KVM: arm64: Fix TRFCR_EL1/PMSCR_EL1 access in hVHE mode
+- arm64: Add missing _EL2 encodings
+- arm64: Add missing _EL12 encodings
+- !13836 virtcca bugfix: correct array copy for hpre_addr
+- virtcca bugfix: correct array copy for hpre_addr
+- !13416  tpm: Lock TPM chip in tpm_pm_suspend() first
+- tpm: Lock TPM chip in tpm_pm_suspend() first
+- !13810 【olk 6.6】 net: hns3: add mac tunnel number query
+- net: hns3: add mac tunnel number query
+- !13831  fix CVE-2024-50192
+- irqchip/gic-v4: Correctly deal with set_affinity on lazily-mapped VPEs
+- irqchip/gic-v4: Don't allow a VMOVP on a dying VPE
+- !13243 virtcca: fix the double map of cvm secure memory
+- virtcca feature : disable swiotlb for passthrough device
+- virtcca feature : force vring alloc use dma api
+- virtcca feature: enable unmap swiotlb buffer to save iotlb cvm memory
+- !12343 net: tcp: add a new congestion control algorithm, CAQM, with endhost-network coordination
+- net: tcp: Modify codes for better compatibility of code format
+- net: tcp: Add CAQM4TCP in the openeuler 6.6 kernel
+- !13818  net/hinic3: Support new NIC feature
+- net/hinic3: Support new RX feature
+- net/hinic3: Support new TX feature
+- !13413  sched/topology: Prevent race condition in sched_domain topology
+- sched/topology: Prevent race condition in sched_domain topology
+- !13808  perf: Add PMCG platform information for HiSilicon HIP09A
+- perf: Add PMCG platform information for HiSilicon HIP09A
+- !13794  drm/amd/display: Add NULL check for clk_mgr in dcn32_init_hw
+- drm/amd/display: Add NULL check for clk_mgr in dcn32_init_hw
+- !13795  drm/amd/display: Initialize denominators' default to 1
+- drm/amd/display: Initialize denominators' default to 1
+- !13408  rseq/mm_cid: change KABI consistency interface
+- rseq/mm_cid: change KABI consistency interface
+- !13799  media: av7110: fix a spectre vulnerability
+- media: av7110: fix a spectre vulnerability
+- !13449  RDMA/hns: Fix bonding failure due to wrong reset_state
+- RDMA/hns: Fix bonding failure due to wrong reset_state
+- !13407  ima: rot: remove misguiding message printing
+- ima: rot: remove misguiding message printing
+- !13306  btrfs: fix use-after-free of block device file in __btrfs_free_extra_devids()
+- btrfs: fix use-after-free of block device file in __btrfs_free_extra_devids()
+- !13308  ext4: don't set SB_RDONLY after filesystem errors
+- ext4: don't set SB_RDONLY after filesystem errors
+- !13355  NFSD: Initialize struct nfsd4_copy earlier
+- NFSD: Initialize struct nfsd4_copy earlier
+- !13301  RDMA/bnxt_re: Avoid CPU lockups due fifo occupancy check loop
+- RDMA/bnxt_re: Avoid CPU lockups due fifo occupancy check loop
+- !13391  mm: split critical region in remap_file_pages() and invoke LSMs in between
+- mm: split critical region in remap_file_pages() and invoke LSMs in between
+- !13394  mm, slub: avoid zeroing kmalloc redzone
+- mm, slub: avoid zeroing kmalloc redzone
+- !13400 IMA: Fix hungtask issue of digestlist importing
+- IMA: Fix hungtask issue of digestlist importing
+- !13370  CVE-2024-46713
+- perf: Fix kabi problem by put mutex in front of perf_buffer
+- perf/aux: Fix AUX buffer serialization
+- !13376  Some patches for RDMA/hns
+- RDMA/hns: Fix RoCEE hang when multiple QP banks use EXT_SGE EXT_SGE
+- RDMA/hns: Use one CQ bank per context
+- RDMA/hns: Fix the modification of max_send_sge
+- RDMA/hns: Fix "Should it be static?" warnings
+- RDMA/hns: Fix dereference of noderef expression
+- RDMA/hns: Fix list_*_careful() not being used in pairs
+- RDMA/hns: Fix a meaningless loop in active_dca_pages_proc()
+- RDMA/hns: Fix possible RAS when DCA is not attached
+- RDMA/hns: Fix integer overflow in calc_loading_percent()
+- RDMA/hns: Fix mixed use of u32 and __le32 in sysfs
+- RDMA/hns: Fix concurrency between sysfs store and FW configuration of scc params
+- RDMA/hns: Fix wrong output of sysfs scc pram when configuration failed
+- RDMA/hns: Fix HW UAF when destroy context timeout
+- !13350 mm: replace xa_get_order with xas_get_order where appropriate
+- mm: replace xa_get_order with xas_get_order where appropriate
+- !12240 [OLK-6.6]Update  Mont-TSSE driver
+- driver: crypto - update support for Mont-TSSE Driver
+- !13345  ocfs2: fix unexpected zeroing of virtual disk
+- ocfs2: fix unexpected zeroing of virtual disk
+- !13377  selftests: udpgro: no need to load xdp for gro
+- selftests: udpgro: no need to load xdp for gro
+- !13374  netdevsim: fix rtnetlink.sh selftest
+- netdevsim: fix rtnetlink.sh selftest
+- !13357  x86/selftests: Skip the tests if prerequisites aren't fulfilled
+- x86/selftests: Skip the tests if prerequisites aren't fulfilled
+- !13248 [OLK-6.6][Backport] selftests/mount_setattr: fix idmap_mount_tree_invalid failed to run
+- selftests/mount_setattr: fix idmap_mount_tree_invalid failed to run
+- !13389 RDMA/hns: Fix different dgids mapping to the same dip_idx
+- RDMA/hns: Fix different dgids mapping to the same dip_idx
+- !13362 [openEuler-24.03-LTS][linux-6.6.y sync] Backport 6.6.47-6.6.48 LTS Conflicts Patches
+- mm/numa: no task_numa_fault() call if PTE is changed
+- mm/numa: no task_numa_fault() call if PMD is changed
+- mm: fix endless reclaim on machines with unaccepted memory
+- !13148 [OLK-6.6] [Backport] mpt3sas_scsih: don't set QUEUE_FLAG_NOMERGES
+- mpt3sas_scsih: don't set QUEUE_FLAG_NOMERGES
+- !13372 [OLK-6.6] Support Intel Sierra Forest CPU MAXPHYSADDR and fix KVM_STATS_TYPE_MAX
+- KVM: selftests: x86: Prioritize getting max_gfn from GuestPhysBits
+- KVM: x86: Advertise max mappable GPA in CPUID.0x80000008.GuestPhysBits
+- kvm: fix KVM_STATS_TYPE_MAX
+- !13331 MPTCP Upstream part 22
+- selftests: mptcp: use KSFT_SKIP/KSFT_PASS/KSFT_FAIL
+- selftests: mptcp: add mptcp_lib_verify_listener_events
+- selftests: mptcp: extract mptcp_lib_check_expected
+- selftests: mptcp: call test_fail without argument
+- selftests: mptcp: print test results with colors
+- selftests: mptcp: print test results with counters
+- selftests: mptcp: add print_title in mptcp_lib
+- selftests: mptcp: export TEST_COUNTER variable
+- selftests: mptcp: sockopt: print every test result
+- selftests: mptcp: connect: fix misaligned output
+- selftests: mptcp: connect: add dedicated port counter
+- selftests: mptcp: print all error messages to stdout
+- mptcp: annotate a data-race around sysctl_tcp_wmem[0]
+- tcp: annotate a data-race around sysctl_tcp_wmem[0]
+
+ at the end
 * Wed Nov 20 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-56.0.0.60
 - !13324 v2  CVE-2023-52920
 - bpf: handle fake register spill to stack with BPF_ST_MEM instruction
