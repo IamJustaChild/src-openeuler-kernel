@@ -40,9 +40,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       55
+%global devel_release       57
 %global maintenance_release .0.0
-%global pkg_release         .58
+%global pkg_release         .59
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1085,6 +1085,248 @@ fi
 %endif
 
 %changelog
+* Wed Nov 27 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-57.0.0.59
+- !13845 backport some patches from upstream about HCCS low power
+- soc: hisilicon: kunpeng_hccs: Support low power feature for the specified HCCS type
+- soc: hisilicon: kunpeng_hccs: Add used HCCS types sysfs
+- soc: hisilicon: kunpeng_hccs: Fix the 'lane_mode' field name in port info structure to 'max_lane_num'
+- soc: hisilicon: kunpeng_hccs: Add the check for base address and size of shared memory
+- soc: hisilicon: kunpeng_hccs: Return failure on having not die or port information
+- soc: hisilicon: kunpeng_hccs: Fix a PCC typo
+- !13842  ima: fix buffer overrun in ima_eventdigest_init_common
+- ima: fix buffer overrun in ima_eventdigest_init_common
+- !13827  LoongArch: KVM: Mark hrtimer to expire in hard interrupt context
+- LoongArch: KVM: Mark hrtimer to expire in hard interrupt context
+- !11952 migration: fix reference counting exception issue
+- migration: fix reference counting exception issue
+- !13816 [openEuler-24.03-LTS][linux-6.6.y sync] Backport 6.6.49-6.6.50 LTS Conflicts Patches
+- hwmon: (k10temp) Check return value of amd_smn_read()
+- mptcp: pr_debug: add missing 
+- mptcp: avoid duplicated SUB_CLOSED events
+- selftests: mptcp: join: check re-re-adding ID 0 signal
+- selftests: mptcp: join: validate event numbers
+- !11950 arm64/perf: Enable branch stack sampling
+- arm64/perf: Enable branch stack sampling
+- perf: test: Extend branch stack sampling test for Arm64 BRBE
+- perf: test: Remove empty lines from branch filter test output
+- perf: test: Speed up running brstack test on an Arm model
+- KVM: arm64: nvhe: Disable branch generation in nVHE guests
+- drivers: perf: arm_pmuv3: Enable branch stack sampling via FEAT_BRBE
+- arm64/boot: Enable EL2 requirements for BRBE
+- drivers: perf: arm_pmu: Add infrastructure for branch stack sampling
+- KVM: arm64: Explicitly handle BRBE traps as UNDEFINED
+- arm64/sysreg: Add BRBE registers and fields
+- KVM: arm64: Initialize the kvm host data's fpsimd_state pointer in pKVM
+- KVM: arm64: nv: Drop VCPU_HYP_CONTEXT flag
+- KVM: arm64: Exclude FP ownership from kvm_vcpu_arch
+- KVM: arm64: Exclude host_fpsimd_state pointer from kvm_vcpu_arch
+- KVM: arm64: Exclude mdcr_el2_host from kvm_vcpu_arch
+- KVM: arm64: Exclude host_debug_data from vcpu_arch
+- KVM: arm64: Add accessor for per-CPU state
+- KVM: arm64: Fix TRFCR_EL1/PMSCR_EL1 access in hVHE mode
+- arm64: Add missing _EL2 encodings
+- arm64: Add missing _EL12 encodings
+- !13836 virtcca bugfix: correct array copy for hpre_addr
+- virtcca bugfix: correct array copy for hpre_addr
+- !13416  tpm: Lock TPM chip in tpm_pm_suspend() first
+- tpm: Lock TPM chip in tpm_pm_suspend() first
+- !13810 【olk 6.6】 net: hns3: add mac tunnel number query
+- net: hns3: add mac tunnel number query
+- !13831  fix CVE-2024-50192
+- irqchip/gic-v4: Correctly deal with set_affinity on lazily-mapped VPEs
+- irqchip/gic-v4: Don't allow a VMOVP on a dying VPE
+- !13243 virtcca: fix the double map of cvm secure memory
+- virtcca feature : disable swiotlb for passthrough device
+- virtcca feature : force vring alloc use dma api
+- virtcca feature: enable unmap swiotlb buffer to save iotlb cvm memory
+- !12343 net: tcp: add a new congestion control algorithm, CAQM, with endhost-network coordination
+- net: tcp: Modify codes for better compatibility of code format
+- net: tcp: Add CAQM4TCP in the openeuler 6.6 kernel
+- !13818  net/hinic3: Support new NIC feature
+- net/hinic3: Support new RX feature
+- net/hinic3: Support new TX feature
+- !13413  sched/topology: Prevent race condition in sched_domain topology
+- sched/topology: Prevent race condition in sched_domain topology
+- !13808  perf: Add PMCG platform information for HiSilicon HIP09A
+- perf: Add PMCG platform information for HiSilicon HIP09A
+- !13794  drm/amd/display: Add NULL check for clk_mgr in dcn32_init_hw
+- drm/amd/display: Add NULL check for clk_mgr in dcn32_init_hw
+- !13795  drm/amd/display: Initialize denominators' default to 1
+- drm/amd/display: Initialize denominators' default to 1
+- !13408  rseq/mm_cid: change KABI consistency interface
+- rseq/mm_cid: change KABI consistency interface
+- !13799  media: av7110: fix a spectre vulnerability
+- media: av7110: fix a spectre vulnerability
+- !13449  RDMA/hns: Fix bonding failure due to wrong reset_state
+- RDMA/hns: Fix bonding failure due to wrong reset_state
+- !13407  ima: rot: remove misguiding message printing
+- ima: rot: remove misguiding message printing
+- !13306  btrfs: fix use-after-free of block device file in __btrfs_free_extra_devids()
+- btrfs: fix use-after-free of block device file in __btrfs_free_extra_devids()
+- !13308  ext4: don't set SB_RDONLY after filesystem errors
+- ext4: don't set SB_RDONLY after filesystem errors
+- !13355  NFSD: Initialize struct nfsd4_copy earlier
+- NFSD: Initialize struct nfsd4_copy earlier
+- !13301  RDMA/bnxt_re: Avoid CPU lockups due fifo occupancy check loop
+- RDMA/bnxt_re: Avoid CPU lockups due fifo occupancy check loop
+- !13391  mm: split critical region in remap_file_pages() and invoke LSMs in between
+- mm: split critical region in remap_file_pages() and invoke LSMs in between
+- !13394  mm, slub: avoid zeroing kmalloc redzone
+- mm, slub: avoid zeroing kmalloc redzone
+- !13400 IMA: Fix hungtask issue of digestlist importing
+- IMA: Fix hungtask issue of digestlist importing
+- !13370  CVE-2024-46713
+- perf: Fix kabi problem by put mutex in front of perf_buffer
+- perf/aux: Fix AUX buffer serialization
+- !13376  Some patches for RDMA/hns
+- RDMA/hns: Fix RoCEE hang when multiple QP banks use EXT_SGE EXT_SGE
+- RDMA/hns: Use one CQ bank per context
+- RDMA/hns: Fix the modification of max_send_sge
+- RDMA/hns: Fix "Should it be static?" warnings
+- RDMA/hns: Fix dereference of noderef expression
+- RDMA/hns: Fix list_*_careful() not being used in pairs
+- RDMA/hns: Fix a meaningless loop in active_dca_pages_proc()
+- RDMA/hns: Fix possible RAS when DCA is not attached
+- RDMA/hns: Fix integer overflow in calc_loading_percent()
+- RDMA/hns: Fix mixed use of u32 and __le32 in sysfs
+- RDMA/hns: Fix concurrency between sysfs store and FW configuration of scc params
+- RDMA/hns: Fix wrong output of sysfs scc pram when configuration failed
+- RDMA/hns: Fix HW UAF when destroy context timeout
+- !13350 mm: replace xa_get_order with xas_get_order where appropriate
+- mm: replace xa_get_order with xas_get_order where appropriate
+- !12240 [OLK-6.6]Update  Mont-TSSE driver
+- driver: crypto - update support for Mont-TSSE Driver
+- !13345  ocfs2: fix unexpected zeroing of virtual disk
+- ocfs2: fix unexpected zeroing of virtual disk
+- !13377  selftests: udpgro: no need to load xdp for gro
+- selftests: udpgro: no need to load xdp for gro
+- !13374  netdevsim: fix rtnetlink.sh selftest
+- netdevsim: fix rtnetlink.sh selftest
+- !13357  x86/selftests: Skip the tests if prerequisites aren't fulfilled
+- x86/selftests: Skip the tests if prerequisites aren't fulfilled
+- !13248 [OLK-6.6][Backport] selftests/mount_setattr: fix idmap_mount_tree_invalid failed to run
+- selftests/mount_setattr: fix idmap_mount_tree_invalid failed to run
+- !13389 RDMA/hns: Fix different dgids mapping to the same dip_idx
+- RDMA/hns: Fix different dgids mapping to the same dip_idx
+- !13362 [openEuler-24.03-LTS][linux-6.6.y sync] Backport 6.6.47-6.6.48 LTS Conflicts Patches
+- mm/numa: no task_numa_fault() call if PTE is changed
+- mm/numa: no task_numa_fault() call if PMD is changed
+- mm: fix endless reclaim on machines with unaccepted memory
+- !13148 [OLK-6.6] [Backport] mpt3sas_scsih: don't set QUEUE_FLAG_NOMERGES
+- mpt3sas_scsih: don't set QUEUE_FLAG_NOMERGES
+- !13372 [OLK-6.6] Support Intel Sierra Forest CPU MAXPHYSADDR and fix KVM_STATS_TYPE_MAX
+- KVM: selftests: x86: Prioritize getting max_gfn from GuestPhysBits
+- KVM: x86: Advertise max mappable GPA in CPUID.0x80000008.GuestPhysBits
+- kvm: fix KVM_STATS_TYPE_MAX
+- !13331 MPTCP Upstream part 22
+- selftests: mptcp: use KSFT_SKIP/KSFT_PASS/KSFT_FAIL
+- selftests: mptcp: add mptcp_lib_verify_listener_events
+- selftests: mptcp: extract mptcp_lib_check_expected
+- selftests: mptcp: call test_fail without argument
+- selftests: mptcp: print test results with colors
+- selftests: mptcp: print test results with counters
+- selftests: mptcp: add print_title in mptcp_lib
+- selftests: mptcp: export TEST_COUNTER variable
+- selftests: mptcp: sockopt: print every test result
+- selftests: mptcp: connect: fix misaligned output
+- selftests: mptcp: connect: add dedicated port counter
+- selftests: mptcp: print all error messages to stdout
+- mptcp: annotate a data-race around sysctl_tcp_wmem[0]
+- tcp: annotate a data-race around sysctl_tcp_wmem[0]
+- !13324 v2  CVE-2023-52920
+- bpf: handle fake register spill to stack with BPF_ST_MEM instruction
+- selftests/bpf: add stack access precision test
+- bpf: Fix kabi breakage in struct bpf_verifier_state and bpf_verifier_env
+- bpf: support non-r10 register spill/fill to/from stack in precision tracking
+- !13321 [openEuler-24.03-LTS][linux-6.6.y sync] Backport 6.6.61-6.6.62 LTS Patches
+- 9p: fix slab cache name creation for real
+- mm: krealloc: Fix MTE false alarm in __do_krealloc
+- bpf: Check validity of link->type in bpf_link_show_fdinfo()
+- net: usb: qmi_wwan: add Fibocom FG132 0x0112 composition
+- ASoC: fsl_micfil: Add sample rate constraint
+- LoongArch: Use "Exception return address" to comment ERA
+- ASoC: rt722-sdca: increase clk_stop_timeout to fix clock stop issue
+- RISCV: KVM: use raw_spinlock for critical section in imsic
+- HID: lenovo: Add support for Thinkpad X1 Tablet Gen 3 keyboard
+- HID: multitouch: Add quirk for Logitech Bolt receiver w/ Casa touchpad
+- fs: Fix uninitialized value issue in from_kuid and from_kgid
+- ASoC: amd: yc: Fix non-functional mic on ASUS E1404FA
+- ASoC: amd: yc: Add quirk for ASUS Vivobook S15 M3502RA
+- bpf: Fix mismatched RCU unlock flavour in bpf_out_neigh_v6
+- bpf: Add sk_is_inet and IS_ICSK check in tls_sw_has_ctx_tx/rx
+- vDPA/ifcvf: Fix pci_read_config_byte() return code handling
+- nvme/host: Fix RCU list traversal to use SRCU primitive
+- smb: client: Fix use-after-free of network namespace.
+- nvme: make keep-alive synchronous operation
+- nvme-loop: flush off pending I/O while shutting down loop controller
+- net: phy: mdio-bcm-unimac: Add BCM6846 support
+- powerpc/powernv: Free name on error in opal_event_init()
+- drm/amdkfd: Accounting pdd vram_usage for svm
+- nvme-multipath: defer partition scanning
+- RDMA/siw: Add sendpage_ok() check to disable MSG_SPLICE_PAGES
+- drm/vmwgfx: Limit display layout ioctl array size to VMWGFX_NUM_DISPLAY_UNITS
+- sound: Make CONFIG_SND depend on INDIRECT_IOMEM instead of UML
+- crypto: marvell/cesa - Disable hash algorithms
+- crypto: api - Fix liveliness check in crypto_alg_tested
+- bpf: use kvzmalloc to allocate BPF verifier environment
+- nvme: disable CC.CRIME (NVME_CC_CRIME)
+- iommu/arm-smmu: Clarify MMU-500 CPRE workaround
+- HID: multitouch: Add quirk for HONOR MagicBook Art 14 touchpad
+- HID: multitouch: Add support for B2402FVA track point
+- block: Fix elevator_get_default() checking for NULL q->tag_set
+- nvme: tcp: avoid race between queue_lock lock and destroy
+- irqchip/ocelot: Fix trigger register address
+- selftests/bpf: Verify that sync_linked_regs preserves subreg_def
+- 9p: Avoid creating multiple slab caches with the same name
+- 9p: v9fs_fid_find: also lookup by inode if not found dentry
+- !13335  net/hinic3: Support New SDK and NIC features
+- net/hinic3: Support New SDK and NIC features
+- !11561 mm: support large folio swap-out and swap-in for shmem
+- mm/pageout: Fix kabi broken in writeback_control
+- mm:shmem: Support large folio adjust reliable shmem usage count
+- mm: shmem: support large folio swap out
+- mm: shmem: split large entry if the swapin folio is not large
+- mm: shmem: drop folio reference count using 'nr_pages' in shmem_delete_from_page_cache()
+- mm: shmem: support large folio allocation for shmem_replace_folio()
+- mm: shmem: use swap_free_nr() to free shmem swap entries
+- mm: filemap: use xa_get_order() to get the swap entry order
+- mm: shmem: return number of pages beeing freed in shmem_free_swap
+- mm: shmem: extend shmem_partial_swap_usage() to support large folio swap
+- mm: swap: extend swap_shmem_alloc() to support batch SWAP_MAP_SHMEM flag setting
+- mm: swap: add nr argument in swapcache_prepare and swapcache_clear to support large folios
+- mm/swapfile:__swap_duplicate: drop redundant WRITE_ONCE on swap_map for err cases
+- mm: extend 'usage' parameter so that cluster_swap_free_nr() can be reused
+- !13251 MPTCP Upstream part 21
+- selftests: userspace pm: avoid relaunching pm events
+- selftests: mptcp: simult flows: fix shellcheck warnings
+- selftests: mptcp: pm netlink: fix shellcheck warnings
+- selftests: mptcp: sockopt: fix shellcheck warnings
+- selftests: mptcp: diag: fix shellcheck warnings
+- selftests: mptcp: add mptcp_lib_events helper
+- selftests: mptcp: more operations in ns_init/exit
+- selftests: mptcp: add mptcp_lib_ns_init/exit helpers
+- selftests: mptcp: add local variables rndh
+- selftests: mptcp: add mptcp_lib_check_tools helper
+- selftests: mptcp: stop forcing iptables-legacy
+- !13313 fix ci compile nbl_ethtool.c warning
+- Net: nebula_matrix: fix ci compile nbl_ethtool.c warning
+- !13129  drm/amd/display: Add null check for pipe_ctx->plane_state in dcn20_program_pipe
+- drm/amd/display: Add null check for pipe_ctx->plane_state in dcn20_program_pipe
+- !13296  sched/numa: Fix the potential null pointer dereference in task_numa_work()
+- sched/numa: Fix the potential null pointer dereference in task_numa_work()
+- !13300  ima: fix a compilation error with ima_bprm_creds_for_exec()
+- ima: fix a compilation error with ima_bprm_creds_for_exec()
+- !13298  bpf, arm64: Fix address emission with tag-based KASAN enabled
+- bpf, arm64: Fix address emission with tag-based KASAN enabled
+- !13275  CVE-2024-46698
+- firmware: sysfb: Fix reference count of sysfb parent device
+- firmware/sysfb: fix an error code in sysfb_init()
+- video/aperture: optionally match the device in sysfb_disable()
+- firmware/sysfb: Create firmware device only for enabled PCI devices
+- firmware/sysfb: Set firmware-framebuffer parent device
+- of/platform: Disable sysfb if a simple-framebuffer node is found
+
+ at the end
 * Tue Nov 19 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-55.0.0.58
 - !13235  nvmet-auth: assign dh_key to NULL after kfree_sensitive
 - nvmet-auth: assign dh_key to NULL after kfree_sensitive
