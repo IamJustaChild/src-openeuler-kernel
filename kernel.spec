@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2411.4.0
+%global hulkrelease 2411.5.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0304
+Release: %{hulkrelease}.0305
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,24 @@ fi
 %endif
 
 %changelog
+
+* Wed Nov 27 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2411.5.0.0305
+- !13821  tcp/dccp: Don't use timer_pending() in reqsk_queue_unlink().
+- !13451 bugfix of nfs
+- !13426  media: s5p-jpeg: prevent buffer overflows
+- tcp/dccp: Don't use timer_pending() in reqsk_queue_unlink().
+- !13424  btrfs: reinitialize delayed ref list after deleting it from the list
+- !13423  nfs: Fix KMSAN warning in decode_getfattr_attrs()
+- NFS: make sure open context mode have FMODE_EXEC when file open for exec
+- media: s5p-jpeg: prevent buffer overflows
+- btrfs: reinitialize delayed ref list after deleting it from the list
+- nfs: Fix KMSAN warning in decode_getfattr_attrs()
+- !13346  nilfs2: propagate directory read errors from nilfs_find_entry()
+- !13349  ceph: remove the incorrect Fw reference check when dirtying pages
+- !13351  lts backport 11
+- irqchip/gic-v3: Force propagation of the active state with a read-back
+- ceph: remove the incorrect Fw reference check when dirtying pages
+- nilfs2: propagate directory read errors from nilfs_find_entry()
 
 * Wed Nov 20 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2411.4.0.0304
 - !13286  wifi: mac80211: do not pass a stopped vif to the driver in .get_txpower
