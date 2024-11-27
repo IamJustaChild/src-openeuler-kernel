@@ -11,7 +11,7 @@
 %global upstream_sublevel   0
 %global devel_release       237
 %global maintenance_release .0.0
-%global pkg_release         .136
+%global pkg_release         .137
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -98,7 +98,7 @@ BuildRequires: python-devel
 %endif
 
 BuildRequires: elfutils-devel zlib-devel binutils-devel newt-devel perl(ExtUtils::Embed) bison
-BuildRequires: audit-libs-devel
+BuildRequires: audit-libs-devel libtraceevent-devel
 BuildRequires: pciutils-devel gettext
 BuildRequires: rpm-build, elfutils
 BuildRequires: numactl-devel python3-devel glibc-static python3-docutils
@@ -680,9 +680,9 @@ popd
 # perf
 # perf tool binary and supporting scripts/binaries
 %if 0%{?with_python2}
-%{perf_make} %{perf_python2} DESTDIR=%{buildroot} lib=%{_lib} install-bin install-traceevent-plugins
+%{perf_make} %{perf_python2} DESTDIR=%{buildroot} lib=%{_lib} install-tools install-tests
 %else
-%{perf_make} %{perf_python3} DESTDIR=%{buildroot} lib=%{_lib} install-bin install-traceevent-plugins
+%{perf_make} %{perf_python3} DESTDIR=%{buildroot} lib=%{_lib} install-tools install-tests
 %endif
 # remove the 'trace' symlink.
 rm -f %{buildroot}%{_bindir}/trace
@@ -863,8 +863,6 @@ fi
 %files -n perf
 %{_bindir}/perf
 %{_libdir}/libperf-jvmti.so
-%dir %{_libdir}/traceevent
-%{_libdir}/traceevent/plugins/
 %{_libexecdir}/perf-core
 %{_datadir}/perf-core/
 %{_mandir}/man[1-8]/perf*
@@ -952,6 +950,9 @@ fi
 %endif
 
 %changelog
+* Wed Nov 27 2024 Li Nan <linan122@huawei.com> - 5.10.0-237.0.0.137
+- libtraceevent is no longer included in perf
+
 * Wed Nov 20 2024 Li Nan <linan122@huawei.com> - 5.10.0-237.0.0.136
 - !13310  fs/ntfs3: Additional check in ni_clear()
 - !13343 [sync] PR-13339:  smb: client: fix OOBs when building SMB2_IOCTL request
