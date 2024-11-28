@@ -40,9 +40,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       57
+%global devel_release       58
 %global maintenance_release .0.0
-%global pkg_release         .61
+%global pkg_release         .62
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1085,6 +1085,50 @@ fi
 %endif
 
 %changelog
+* Thu Nov 28 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-58.0.0.62
+- !13880  Fix problems of mounting nfs
+- nfs: ignore SB_RDONLY when mounting nfs
+- nfs: pass flags to second superblock
+- !13822 v4  arm64: Add xcall/xint support
+- arm64: Add debugfs dir for xint
+- arm64: Introduce Xint software solution
+- arm64: Faster SVC exception handler with xcall
+- arm64: Introduce xcall a faster svc exception handling
+- !13828  crypto: pcrypt - Call crypto layer directly when padata_do_parallel() return -EBUSY
+- crypto: pcrypt - Call crypto layer directly when padata_do_parallel() return -EBUSY
+- !13805  add ebpf sched
+- sched/ebpf: Support task selection programmable
+- sched: Add kfunc to get cpu statistics
+- bpftool: recognize scheduler programs
+- libbpf: add support for scheduler bpf programs
+- !13373 acc some patch rounds
+- crypto: hisilicon/qm - disable same error report before resetting
+- crypto: hisilicon - support querying the capability register
+- crypto: hisilicon/qm - fix the coding specifications issue
+- crypto: hisilicon/hpre - enable all clusters clock gating
+- crypto: hisilicon/sec - Remove trailing space after 
+- crypto: hisilicon/qm - inject error before stopping queue
+- crypto: hisilicon/hpre - mask cluster timeout error
+- crypto: hisilicon/qm - reset device before enabling it
+- crypto: hisilicon/trng - modifying the order of header files
+- crypto: hisilicon - add a lock for the qp send operation
+- crypto: hisilicon - fix missed error branch
+- crypto: hisilicon/zip - Optimize performance by replacing rw_lock with spinlock
+- crypto: hisilicon/zip - optimize the address offset of the reg query function
+- crypto: hisilicon/qm - adjust the internal processing sequence of the vf enable and disable
+- crypto: hisilicon/sec2 - fix for register offset
+- crypto: hisilicon/debugfs - mask the unnecessary info from the dump
+- Revert "crypto: hisilicon/qm - reset device before enabling it"
+- Revert "crypto: hisilicon/qm - inject error before stopping queue"
+- Revert "crypto: hisilicon/qm - modify interrupt processing resource application"
+- Revert "crypto: hisilicon/qm - mask error bit before flr"
+- Revert "crypto: hisilicon/qm - disable same error report before resetting"
+- Revert "crypto: hisilicon/hpre - mask cluster timeout error"
+- Revert "crypto: hisilicon/zip - optimize the address offset of the reg query function"
+- Revert "crypto: hisilicon/qm - adjust the internal processing sequence of the vf enable and disable"
+- Revert "crypto: hisilicon/trng - use %u to print u32 variables"
+
+ newline
 * Wed Nov 27 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-57.0.0.61
 - !13845 backport some patches from upstream about HCCS low power
 - soc: hisilicon: kunpeng_hccs: Support low power feature for the specified HCCS type
