@@ -40,9 +40,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       57
+%global devel_release       59
 %global maintenance_release .0.0
-%global pkg_release         .61
+%global pkg_release         .62
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1085,6 +1085,150 @@ fi
 %endif
 
 %changelog
+* Thu Nov 28 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-59.0.0.62
+- !13894 v2  block: support hierarchy stats
+- blk-io-hierarchy: support hierarchy stats for bio lifetime
+- blk-io-hierarchy: support new rq based stage rq_driver
+- blk-io-hierarchy: support new rq based stage requeue
+- blk-io-hierarchy: support new rq based stage hctx
+- blk-io-hierarchy: support new rq based stage kyber
+- blk-io-hierarchy: support new rq based stage bfq
+- blk-io-hierarchy: support new rq based stage mq-deadline
+- blk-io-hierarchy: support new rq based stage plug
+- blk-io-hierarchy: support new bio based stage gettag
+- blk-io-hierarchy: support new bio based stage iocost
+- blk-io-hierarchy: support new bio based stage wbt
+- block-io-hierarchy: core hierarchy stats and iodump implementation
+- block: support to record when request is completed
+- block: support to recored bio allocation task in request
+- block: support to recored bio allocation time in request
+- block: support to recored bio allocation task
+- block: support to recored bio allocation time
+- block: fix kabi broken after caching ns time in blk_plug
+- block: fix that blk_time_get_ns() doesn't update time after schedule
+- block: limit block time caching to in_task() context
+- block: update cached timestamp post schedule/preemption
+- block: cache current nsec time in struct blk_plug
+- block: add blk_time_get_ns() and blk_time_get() helpers
+- block: move cgroup time handling code into blk.h
+- block: skip QUEUE_FLAG_STATS and rq-qos for passthrough io
+- blk-io-hierarchy: support hierarchy stats for blk-throttle
+- !13851 intel: backport intel_pstate driver update from 6.11
+- cpufreq: intel_pstate: Update Balance performance EPP for Emerald Rapids
+- cpufreq: intel_pstate: Support highest performance change interrupt
+- cpufreq: intel_pstate: Replace boot_cpu_has()
+- x86/cpufeatures: Add HWP highest perf change feature flag
+- cpufreq: intel_pstate: Check turbo_is_disabled() in store_no_turbo()
+- cpufreq: intel_pstate: Fix unchecked HWP MSR access
+- cpufreq: intel_pstate: fix struct cpudata::epp_cached kernel-doc
+- cpufreq: intel_pstate: hide unused intel_pstate_cpu_oob_ids[]
+- cpufreq: intel_pstate: Update the maximum CPU frequency consistently
+- cpufreq: intel_pstate: Replace three global.turbo_disabled checks
+- cpufreq: intel_pstate: Read global.no_turbo under READ_ONCE()
+- cpufreq: intel_pstate: Rearrange show_no_turbo() and store_no_turbo()
+- cpufreq: intel_pstate: Do not update global.turbo_disabled after initialization
+- cpufreq: intel_pstate: Fold intel_pstate_max_within_limits() into caller
+- cpufreq: intel_pstate: Use __ro_after_init for three variables
+- cpufreq: intel_pstate: Get rid of unnecessary READ_ONCE() annotations
+- cpufreq: intel_pstate: Wait for canceled delayed work to complete
+- cpufreq: intel_pstate: Drop redundant locking from intel_pstate_driver_cleanup()
+- cpufreq: intel_pstate: Allow model specific EPPs
+- cpufreq: intel_pstate: remove cpudata::prev_cummulative_iowait
+- cpufreq: intel_pstate: Add Emerald Rapids support in no-HWP mode
+- cpufreq: intel_pstate: Prioritize firmware-provided balance performance EPP
+- !13850 intel: backport TPMI uncore frequency driver update from 6.10
+- platform/x86/intel-uncore-freq: Use generic helpers for current frequency
+- platform/x86/intel-uncore-freq: Rename the sysfs helper macro names
+- platform/x86/intel-uncore-freq: Get rid of uncore_read_freq driver API
+- platform/x86/intel-uncore-freq: Use uncore_index with read_control_freq
+- platform/x86/intel-uncore-freq: Get rid of magic min_max argument
+- platform/x86/intel-uncore-freq: Get rid of magic values
+- platform/x86/intel-uncore-freq: Re-arrange bit masks
+- platform/x86/intel-uncore-freq: Increase minor number support
+- platform/x86/intel-uncore-freq: Process read/write blocked feature status
+- platform/x86/intel-uncore-freq: Ignore minor version change
+- !13849 intel: backport Intel SST TPMI update from 6.10
+- platform/x86: ISST: Simplify isst_misc_reg() and isst_misc_unreg()
+- platform/x86: ISST: Fix return value on last invalid resource
+- platform/x86: ISST: Use only TPMI interface when present
+- platform/x86: ISST: Avoid some SkyLake server models
+- platform/x86: ISST: Add model specific loading for common module
+- platform/x86: ISST: fix use-after-free in tpmi_sst_dev_remove()
+- platform/x86: ISST: Support SST-BF and SST-TF per level
+- platform/x86: ISST: Add missing MODULE_DESCRIPTION
+- platform/x86: ISST: Add dev_fmt
+- platform/x86: ISST: Use in_range() to check package ID validity
+- platform/x86: ISST: Support partitioned systems
+- platform/x86: ISST: Shorten the assignments for power_domain_info
+- platform/x86: ISST: Use local variable for auxdev->dev
+- platform/x86: ISST: Allow reading core-power state on HWP disabled systems
+- platform/x86: ISST: Process read/write blocked feature status
+- platform/x86: ISST: Ignore minor version change
+- platform/x86: intel_speed_select_if: Use devm_ioremap_resource
+- platform/x86: intel_speed_select_if: Remove hardcoded map size
+- platform/x86: ISST: Allow level 0 to be not present
+- platform/x86: ISST: Use fuse enabled mask instead of allowed levels
+- !13847 intel: backport tpmi base driver and pmt update from 6.10 to 6.6
+- platform/x86/intel/pmt: telemetry: Export API to read telemetry
+- platform/x86/intel/pmt: Add header to struct intel_pmt_entry
+- platform/x86/intel/tpmi: Add additional TPMI header fields
+- platform/x86/intel/tpmi: Align comments in kernel-doc
+- platform/x86/intel/tpmi: Check major version change for TPMI Information
+- platform/x86/intel/tpmi: Move TPMI ID definition
+- platform/x86/intel/tpmi: Modify external interface to get read/write state
+- platform/x86/intel/tpmi: Don't create devices for disabled features
+- platform/x86/intel/tpmi: Add debugfs support for read/write blocked
+- platform/x86/intel/vsec: Remove nuisance message
+- platform/x86/intel/vsec: Add base address field
+- platform/x86/intel/vsec: Add intel_vsec_register
+- platform/x86/intel/vsec: Assign auxdev parent by argument
+- platform/x86/intel/vsec: Use cleanup.h
+- platform/x86/intel/vsec: remove platform_info from vsec device structure
+- platform/x86/intel/vsec: Move structures to header
+- platform/x86/intel/vsec: Remove unnecessary return
+- !13880  Fix problems of mounting nfs
+- nfs: ignore SB_RDONLY when mounting nfs
+- nfs: pass flags to second superblock
+- !13822 v4  arm64: Add xcall/xint support
+- arm64: Add debugfs dir for xint
+- arm64: Introduce Xint software solution
+- arm64: Faster SVC exception handler with xcall
+- arm64: Introduce xcall a faster svc exception handling
+- !13828  crypto: pcrypt - Call crypto layer directly when padata_do_parallel() return -EBUSY
+- crypto: pcrypt - Call crypto layer directly when padata_do_parallel() return -EBUSY
+- !13805  add ebpf sched
+- sched/ebpf: Support task selection programmable
+- sched: Add kfunc to get cpu statistics
+- bpftool: recognize scheduler programs
+- libbpf: add support for scheduler bpf programs
+- !13373 acc some patch rounds
+- crypto: hisilicon/qm - disable same error report before resetting
+- crypto: hisilicon - support querying the capability register
+- crypto: hisilicon/qm - fix the coding specifications issue
+- crypto: hisilicon/hpre - enable all clusters clock gating
+- crypto: hisilicon/sec - Remove trailing space after 
+- crypto: hisilicon/qm - inject error before stopping queue
+- crypto: hisilicon/hpre - mask cluster timeout error
+- crypto: hisilicon/qm - reset device before enabling it
+- crypto: hisilicon/trng - modifying the order of header files
+- crypto: hisilicon - add a lock for the qp send operation
+- crypto: hisilicon - fix missed error branch
+- crypto: hisilicon/zip - Optimize performance by replacing rw_lock with spinlock
+- crypto: hisilicon/zip - optimize the address offset of the reg query function
+- crypto: hisilicon/qm - adjust the internal processing sequence of the vf enable and disable
+- crypto: hisilicon/sec2 - fix for register offset
+- crypto: hisilicon/debugfs - mask the unnecessary info from the dump
+- Revert "crypto: hisilicon/qm - reset device before enabling it"
+- Revert "crypto: hisilicon/qm - inject error before stopping queue"
+- Revert "crypto: hisilicon/qm - modify interrupt processing resource application"
+- Revert "crypto: hisilicon/qm - mask error bit before flr"
+- Revert "crypto: hisilicon/qm - disable same error report before resetting"
+- Revert "crypto: hisilicon/hpre - mask cluster timeout error"
+- Revert "crypto: hisilicon/zip - optimize the address offset of the reg query function"
+- Revert "crypto: hisilicon/qm - adjust the internal processing sequence of the vf enable and disable"
+- Revert "crypto: hisilicon/trng - use %u to print u32 variables"
+
+ newline
 * Wed Nov 27 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-57.0.0.61
 - !13845 backport some patches from upstream about HCCS low power
 - soc: hisilicon: kunpeng_hccs: Support low power feature for the specified HCCS type
