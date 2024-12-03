@@ -42,7 +42,7 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %global upstream_sublevel   0
 %global devel_release       59
 %global maintenance_release .0.0
-%global pkg_release         .62
+%global pkg_release         .63
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1085,6 +1085,118 @@ fi
 %endif
 
 %changelog
+* Mon Dec 02 2024 Mingzheng Xing <xingmingzheng@iscas.ac.cn> - 6.6.0-59.0.0.63
+
+- riscv kernel upgrade to 6.6.0-59.0.0
+- Add more th1520 drivers support:
+  npu-ax3386, vdec, venc, aic8800, g2d, efuse, etnaviv, tdm, spdif, aw87519,
+  hwspinlock, perf vendor events, iopmp.
+
+- th1520: Fix Makefile for npu build error
+- th1520: Fix Makefile for vc8000d vc8000e tracepoints
+- config: Disable video_memory module until the bug is resolved
+- config: Update openeuler_defconfig DRM_ETNAVIV and AIC_FW_PATH
+- mmc: sdhci-of-dwcmshc: Prevent stale command interrupt handling
+- riscv: Add ACLINT SSWI support
+- config: Update openeuler_defconfig
+- dts: lpi4a: remove mipi screen
+- drm/verisilicon: add format_mod_supported to plane
+- drm/verisilicon: bias fb address for dual-head offset
+- drm/verisilicon: finally fix the cursor position
+- drm/verisilicon: fix cursor position
+- drm: verisilicon: fix fbcon
+- th1520: drm: Fix panel-jadard-jd9365da panel driver
+- th1520: drm: Fix panel-jadard-jd9365da panel driver problem
+- drm/dc8200: disable gamma lut now
+- th1520: use etnaviv gpu
+- drm/etnaviv: hack: use only pta id 0
+- drm/etnaviv: add GC620
+- drm/etnaviv: add hwdb entry for TH1520 GC620
+- drm/etnaviv: add workaround for GC620 on TH1520 (0x5552)
+- drm/etnaviv: add handle for GPUs with only SECURITY_AHB flag
+- sensor: fix bug of channel 1 and channel 2 of video2 failed to run
+- th1520: Expand cma size from 512MB to 768MB
+- RISC-V: Enable the IPI before workqueue_online_cpu()
+- audio: th1520: solve misalignment dma addr problem when HDMI playback
+- dts: th1520: sd card not try sdio cmds
+- th1520: Fix DSI transfer command failure when hotplug hdmi
+- th1520_defconfig: add configs of media
+- dts: som: add gpio-keys node
+- usb: dwc3: th1520.dtsi: bugfix: fix usb str xhci error
+- config: th1520: to modify MEMBLOCK&LOCALVERSION_AUTO config
+- dts:th1520: add aliases for basic interface
+- move the place of dts "audio-text-memory-region" property
+- driver:i2c:fix rx_over miss re-try
+- drivers: cpufreq: fix cpufreq em model regsiter warn.
+- drivers: pwm: fix pwm enable status check error
+- sdhci:th1520: fixup mmc retune infinitely issue
+- fix: dts: remove duplicate node
+- config: Update openeuler_defconfig
+- dts: audio: update audio pin configuration
+- audio: th1520: workaround to solve noise at the end
+- remove dts "audio_mem" node and add mbox 910r channel
+- dts: gpio: add gpio/0/1/2/3 clk gate
+- dts: th1520: update mmc sdio clocks
+- usb: dwc3-thead: fix usb gadget support
+- dts: th1520-lichee-pi-4a: update usb hub
+- th1520: iopmp: add iopmp driver
+- th1520: regdump: add Kconfig and th1520_defconfig
+- drivers: pct: fix NULL ptr error when pvt resume from ram
+- drivers: pinctrl: add pinctrl driver pm ops
+- dts: th1520: modify kernel memory region, [0x0, 0x20000] is reserved for opensbi
+- dts: add th1520-lpi4a-dsi0.dts and th1520-lpi4a-hx8279.dts
+- riscv: dts: lpi4a 16g support
+- dw-axi-dma : fix the incorrect ttfc configuration in aix-dma
+- drivers: dma: change dw dma runtime pm to sync
+- audio: th1520: fix i2s pause/resume dma fail
+- dma: dw-axi-dmac: fix multi-channel dmatest fail
+- audio: th1520: resolve the dma error problem when ap i2s audio stop play
+- watchdog: dw_wdt: ap watchdog timeout report different strategies
+- drivers: wdt: drop DW wdt restart function for th1520 soc
+- drivers: hwmon: bugfix for mr75203
+- spi: spidev: add spidev speed sysfs for debug
+- dts: th1520: add cpu thermal node and device thermal node
+- riscv: sbi: Introduce system suspend support
+- perf: sync vendor event path with torvalds/linux
+- th1520: system_monitor: to add system_monitor driver
+- driver : rfkill : Delete unnecessary code
+- dts: rfkill: Delete unnecessary nodes
+- th1520: regdump: add regdump support for lpi4a
+- driver:i2c:add i2c mode for tx transfer
+- hwspinlock: th1520: to add th1520 hwspinlock driver
+- dts: th1520: add rambus eip_28 device node
+- perf vendor events riscv: Add PMU event JSON files for TH1520 DDRC PMU
+- dts: rfkill: Resolving Insmod Failure Issues
+- th1520: nvmem: efuse: add th1520 efuse driver
+- dts: th1520: add g2d device node
+- dts: th1520: to add npu device node
+- defconfig:th1520: enable cma config
+- dtb:lipi:enable VI module config
+- riscv: config: add MAX_ORDER config for riscv and th1520
+- dts: th1520: add vdec venc and video mem device node
+- mm: export sysmbol __pte_offset_map_lock for modules outside
+- th1520_defconfig: Enable AIC8800 modules
+- th1520: Add AIC8800 modules driver
+- th1520_defconfig: Add AIC8800's config
+- th1520: aic8800: Fix known issues
+- uart: Fix the UART problem
+- rfkill: add aic8800 rfkill support for gpio control of aic8800 wifi/bt
+- th1520-lichee-pi-4a.dts: change dts for aic8800 wifi Support aic8800 wifi
+- th1520-lichee-pi-4a.dts: change dts for aic8800 bt Support aic8800 bt
+- th1520: audio: add pa aw87519 driver for XuanTie TH1520 SoC
+- th1520: audio: add spdif driver for XuanTie TH1520 SoC
+- th1520: audio: add tdm driver for XuanTie TH1520 SoC
+- riscv: mm: Add support for Svinval extension
+- symbol: gpl: export pud_offset/p4d_offset symbol
+- th1520: npu: fix build error
+- th1520: npu: Enable vha tracepoint
+- th1520_defconfig: Enable video_memory driver
+- th1520: riscv: Add video_memory driver
+- th1520_defconfig: Enable vc8000d and vc8000e driver
+- th1520: riscv: Add vc8000d and vc8000e driver
+- th1520: riscv: Add npu to th1520_defconfig
+- th1520: riscv: add npu-ax3386 driver
+
 * Thu Nov 28 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-59.0.0.62
 - !13894 v2  block: support hierarchy stats
 - blk-io-hierarchy: support hierarchy stats for bio lifetime
