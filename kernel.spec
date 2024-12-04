@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       238
+%global devel_release       239
 %global maintenance_release .0.0
-%global pkg_release         .137
+%global pkg_release         .138
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -952,6 +952,122 @@ fi
 %endif
 
 %changelog
+* Wed Dec 04 2024 Li Nan <linan122@huawei.com> - 5.10.0-239.0.0.138
+- !14040  hwpoison, memory_hotplug: lock page before unmap for hwpoisoned page
+- !10939  filelock: Correct the file lock owner in fcntl_setlk64
+- !11339  Fix xfs fsmap error
+- !11338  xfs: fix log recovery when unknown rocompat bits are set
+- !12547 [OLK-5.10] drivers: update yunsilicon drivers to version rel_2406_rc16.2
+- hwpoison, memory_hotplug: lock page before unmap for hwpoisoned page
+- !13234  xfs: Fix missing interval for missing_owner in xfs fsmap
+- !14036  xfs: Fix data overflow in xfs_mod_fdblocks()
+- !14014  *** CVE-2024-53063 ***
+- !13956  fs: Fix uninitialized value issue in from_kuid and from_kgid
+- !14021 [revert][2024.12.2]bugfix rdma to OLK-5.10
+- xfs: Fix data overflow in xfs_mod_fdblocks()
+- !13337  fix CVE-2024-50135
+- !13982 [OLK-5.10]ipvlan: fix UAF after skb has been consumed by xdp generic
+- Revert "RDMA/hns: Fix an AEQE overflow error caused by untimely update of eq_db_ci"
+- Revert "RDMA/hns: Fix cpu stuck caused by printings during reset"
+- !13937  ipv6: avoid possible NULL deref in rt6_uncached_list_flush_dev()
+- !13936  wifi: rtw88: always wait for both firmware loading attempts
+- !13935  Bluetooth: RFCOMM: FIX possible deadlock in rfcomm_sk_state_change
+- !13934  net/sched: accept TCA_STAB only for root qdisc
+- !13933  net: ethernet: lantiq_etop: fix memory disclosure
+- !13932  net: Fix an unsafe loop on the list
+- !13931  net: stmmac: Fix zero-division error when disabling tc cbs
+- !13930  sctp: set sk_state back to CLOSED if autobind fails in sctp_listen_start
+- !13929  wifi: ath9k_htc: Use __skb_set_length() for resetting urb before resubmit
+- !13928  wifi: ath11k: fix array out-of-bound access in SoC stats
+- ipvlan: fix UAF after skb has been consume by xdp generic
+- media: dvbdev: fix the logic when DVB_DYNAMIC_MINORS is not set
+- media: dvbdev: prevent the risk of out of memory access
+- !13839  afs: Fix lock recursion
+- !13860 [2024.12.2]bugfix rdma to OLK-5.10
+- !13844  crypto: pcrypt - Call crypto layer directly when padata_do_parallel() return -EBUSY
+- !13921  wifi: ath10k: Fix memory leak in management tx
+- !13920  RDMA/bnxt_re: Fix a bug while setting up Level-2 PBL pages
+- !13967  bpf: Check validity of link->type in bpf_link_show_fdinfo()
+- !13966  blk-mq/scsi: tracking device queue depth via sbitmap
+- bpf: Check validity of link->type in bpf_link_show_fdinfo()
+- !13964 v3  arm64: mm: Stop use spinlock during pbha early init
+- scsi: core: Increase max device queue_depth to 4096
+- sbitmap: fix kabi broken in struct scsi_device
+- sbitmap: fix kabi broken in struct blk_mq_ops and struct scsi_cmnd
+- sbitmap: fix kabi broken by adding struct sbitmap_extend
+- scsi: core: Fix scsi_device_max_queue_depth()
+- scsi: blk-mq: Fix build warning when making htmldocs
+- scsi: sbitmap: Silence a debug kernel warning triggered by sbitmap_put()
+- scsi: core: Replace sdev->device_busy with sbitmap
+- scsi: core: Make sure sdev->queue_depth is <= max(shost->can_queue, 1024)
+- scsi: core: Add scsi_device_busy() wrapper
+- scsi: megaraid_sas: Replace sdev_busy with local counter
+- scsi: blk-mq: Return budget token from .get_budget callback
+- scsi: blk-mq: Add callbacks for storing & retrieving budget token
+- scsi: sbitmap: Add sbitmap_calculate_shift() helper
+- scsi: sbitmap: Export sbitmap_weight
+- scsi: sbitmap: Move allocation hint into sbitmap
+- scsi: sbitmap: Add helpers for updating allocation hint
+- scsi: sbitmap: Maintain allocation round_robin in sbitmap
+- sbitmap: optimise sbitmap_deferred_clear()
+- scsi: sbitmap: Remove sbitmap_clear_bit_unlock
+- arm64: mm: Stop use spinlock during pbha early init
+- fs: Fix uninitialized value issue in from_kuid and from_kgid
+- !13802  pinctrl: ocelot: fix system hang on level based interrupts
+- ipv6: avoid possible NULL deref in rt6_uncached_list_flush_dev()
+- wifi: rtw88: always wait for both firmware loading attempts
+- Bluetooth: RFCOMM: FIX possible deadlock in rfcomm_sk_state_change
+- net/sched: accept TCA_STAB only for root qdisc
+- net: ethernet: lantiq_etop: fix memory disclosure
+- net: Fix an unsafe loop on the list
+- net: stmmac: Fix zero-division error when disabling tc cbs
+- sctp: set sk_state back to CLOSED if autobind fails in sctp_listen_start
+- wifi: ath9k_htc: Use __skb_set_length() for resetting urb before resubmit
+- wifi: ath11k: fix array out-of-bound access in SoC stats
+- wifi: ath10k: Fix memory leak in management tx
+- RDMA/bnxt_re: Fix a bug while setting up Level-2 PBL pages
+- !13890  ipmi: Use regspacings passed as a module parameter
+- !13898  drm/amd/display: Check link_index before accessing dc->links[
+- !13905  NFSD: Never decrement pending_async_copies on error
+- NFSD: Never decrement pending_async_copies on error
+- !13887  CVE-2024-49891
+- !13862  net: systemport: fix potential memory leak in bcm_sysport_xmit()
+- !13864  Bluetooth: bnep: fix wild-memory-access in proto_unregister
+- !13867  wifi: iwlegacy: Clear stale interrupts before resuming device
+- !13881  RDMA/bnxt_re: Add a check for memory allocation
+- drm/amd/display: Check link_index before accessing dc->links[]
+- !13878  Fix problems of mounting nfs
+- ipmi: Use regspacings passed as a module parameter
+- scsi: lpfc: Validate hdwq pointers before dereferencing in reset/errata paths
+- !13854  CVE-2024-53059
+- !13853  sctp: properly validate chunk size in sctp_sf_ootb()
+- RDMA/bnxt_re: Add a check for memory allocation
+- nfs: ignore SB_RDONLY when mounting nfs
+- nfs: pass flags to second superblock
+- wifi: iwlegacy: Clear stale interrupts before resuming device
+- Bluetooth: bnep: fix wild-memory-access in proto_unregister
+- net: systemport: fix potential memory leak in bcm_sysport_xmit()
+- RDMA/hns: Fix cpu stuck caused by printings during reset
+- RDMA/hns: Fix an AEQE overflow error caused by untimely update of eq_db_ci
+- mac80211: always have ieee80211_sta_restart()
+- wifi: iwlwifi: mvm: Fix response handling in iwl_mvm_send_recovery_cmd()
+- wifi: iwlwifi: mvm: disconnect station vifs if recovery failed
+- mac80211: Add support to trigger sta disconnect on hardware restart
+- mac80211: do drv_reconfig_complete() before restarting all
+- sctp: properly validate chunk size in sctp_sf_ootb()
+- crypto: pcrypt - Call crypto layer directly when padata_do_parallel() return -EBUSY
+- afs: Fix lock recursion
+- pinctrl: ocelot: fix system hang on level based interrupts
+- nvme-pci: fix race condition between reset and nvme_dev_disable()
+- nvme-pci: refactor the tagset handling in nvme_reset_work
+- nvme-pci: split nvme_dev_add
+- xfs: Fix missing interval for missing_owner in xfs fsmap
+- drivers: update Yunsilicon driver to version 2406_rc16.2
+- xfs: fix an agbno overflow in __xfs_getfsmap_datadev
+- xfs: fix interval filtering in multi-step fsmap queries
+- xfs: fix log recovery when unknown rocompat bits are set
+- filelock: Correct the file lock owner in fcntl_setlk64
+
 * Wed Nov 27 2024 Li Nan <linan122@huawei.com> - 5.10.0-238.0.0.137
 - !13813  nilfs2: fix kernel bug due to missing clearing of checked flag
 - !13458  io_uring: fix CVE-2024-53052
