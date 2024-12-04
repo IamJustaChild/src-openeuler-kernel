@@ -42,7 +42,7 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %global upstream_sublevel   0
 %global devel_release       61
 %global maintenance_release .0.0
-%global pkg_release         .64
+%global pkg_release         .65
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1085,6 +1085,8 @@ fi
 %endif
 
 %changelog
+* Wed Dec 04 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-61.0.0.65
+
 * Wed Dec 04 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-61.0.0.64
 - !13340 cpufreq: Add SEEP governor for hardware-managed P-states
 - ACPI: CPPC: fix bug that causes the value written in cpc register to be wrong.
