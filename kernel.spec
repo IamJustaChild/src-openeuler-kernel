@@ -40,9 +40,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       59
+%global devel_release       61
 %global maintenance_release .0.0
-%global pkg_release         .63
+%global pkg_release         .64
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1085,6 +1085,297 @@ fi
 %endif
 
 %changelog
+* Wed Dec 04 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-61.0.0.64
+- !13340 cpufreq: Add SEEP governor for hardware-managed P-states
+- ACPI: CPPC: fix bug that causes the value written in cpc register to be wrong.
+- cpufreq: Add SEEP governor for hardware-managed P-states
+- cpufreq: CPPC: Support for auto act window and energy perf in cppc_cpufreq
+- ACPI: CPPC: Add New ABIs for reading and writing three new CPPC registers
+- !14004  Support haltpoll feature
+- arm64: add config for cpuidle-haltpoll
+- arm64/delay: remove USECS_TO_CYCLES to avoid conflict
+- cpuidle: edit cpuidle-haltpoll driver module parameter
+- arm64: support WFET in smp_cond_relaxed_timeout()
+- arm64/delay: add some constants to a separate header
+- arm64: support cpuidle-haltpoll
+- arm64: idle: export arch_cpu_idle
+- cpuidle-haltpoll: condition on ARCH_CPUIDLE_HALTPOLL
+- governors/haltpoll: drop kvm_para_available() check
+- cpuidle-haltpoll: define arch_haltpoll_want()
+- ACPI: processor_idle: Support polling state for LPI
+- arm64: add support for polling in idle
+- arm64: define TIF_POLLING_NRFLAG
+- arm64: barrier: add support for smp_cond_relaxed_timeout()
+- Kconfig: move ARCH_HAS_OPTIMIZED_POLL to arch/Kconfig
+- cpuidle: rename ARCH_HAS_CPU_RELAX to ARCH_HAS_OPTIMIZED_POLL
+- cpuidle/poll_state: poll via smp_cond_load_relaxed_timeout()
+- asm-generic: add barrier smp_cond_load_relaxed_timeout()
+- !13402 【OLK-6.6】Support SMMU vSVA feature
+- arm-smmu-v3: remove limitation of S2FWB or CANWBS
+- iommufd: enable SVA when IOPF enabled
+- iommufd: Extend IOMMU_GET_HW_INFO to report PASID capability
+- iommufd: modify iommufd_fault_iopf_enable limitation
+- Enable configs for vSVA tests
+- iommu/arm-smmu-v3: Implement arm_smmu_get_msi_mapping_domain
+- iommu: Fix kabi breakage due to "iommu/dma: Support MSIs through nested domains"
+- iommu/dma: Support MSIs through nested domains
+- iommu/arm-smmu-v3: Support IOMMU_HWPT_INVALIDATE using a VIOMMU object
+- iommu/arm-smmu-v3: Allow ATS for IOMMU_DOMAIN_NESTED
+- iommu/arm-smmu-v3: Use S2FWB for NESTED domains
+- iommu/arm-smmu-v3: Support IOMMU_DOMAIN_NESTED
+- iommu/arm-smmu-v3: Support IOMMU_VIOMMU_ALLOC
+- iommu/arm-smmu-v3: Expose the arm_smmu_attach interface
+- iommu/arm-smmu-v3: Implement IOMMU_HWPT_ALLOC_NEST_PARENT
+- iommu/arm-smmu-v3: Support IOMMU_GET_HW_INFO via struct arm_smmu_hw_info
+- iommu/arm-smmu-v3: Report IOMMU_CAP_ENFORCE_CACHE_COHERENCY for CANWBS
+- ACPI/IORT: Support CANWBS memory access flag
+- ACPICA: IORT: Update for revision E.f
+- iommu: Fix kabi breakage due to "vfio: Remove VFIO_TYPE1_NESTING_IOMMU"
+- vfio: Remove VFIO_TYPE1_NESTING_IOMMU
+- Documentation: userspace-api: iommufd: Update vDEVICE
+- iommufd/selftest: Add vIOMMU coverage for IOMMU_HWPT_INVALIDATE ioctl
+- iommufd/selftest: Add IOMMU_TEST_OP_DEV_CHECK_CACHE test command
+- iommufd/selftest: Add mock_viommu_cache_invalidate
+- iommufd/viommu: Add iommufd_viommu_find_dev helper
+- iommu: Add iommu_copy_struct_from_full_user_array helper
+- iommufd: Allow hwpt_id to carry viommu_id for IOMMU_HWPT_INVALIDATE
+- iommu/viommu: Add cache_invalidate to iommufd_viommu_ops
+- iommufd/selftest: Add IOMMU_VDEVICE_ALLOC test coverage
+- iommufd/viommu: Add IOMMUFD_OBJ_VDEVICE and IOMMU_VDEVICE_ALLOC ioctl
+- Documentation: userspace-api: iommufd: Update vIOMMU
+- iommufd/selftest: Add IOMMU_VIOMMU_ALLOC test coverage
+- iommufd/selftest: Add IOMMU_VIOMMU_TYPE_SELFTEST
+- iommufd/selftest: Add refcount to mock_iommu_device
+- iommufd/selftest: Prepare for mock_viommu_alloc_domain_nested()
+- iommufd/selftest: Add container_of helpers
+- iommufd: Allow pt_id to carry viommu_id for IOMMU_HWPT_ALLOC
+- iommufd: Add alloc_domain_nested op to iommufd_viommu_ops
+- iommufd/viommu: Add IOMMU_VIOMMU_ALLOC ioctl
+- iommufd: Verify object in iommufd_object_finalize/abort()
+- iommu: Fix kabi breakage due to "iommufd: Introduce IOMMUFD_OBJ_VIOMMU and its related struct"
+- iommufd: Introduce IOMMUFD_OBJ_VIOMMU and its related struct
+- iommufd: Move _iommufd_object_alloc helper to a sharable file
+- iommufd: Move struct iommufd_object to public iommufd header
+- Documentation: userspace-api: iommufd: Update HWPT_PAGING and HWPT_NESTED
+- iommu/arm-smmu-v3: add missing MODULE_DESCRIPTION() macro
+- iommu/arm-smmu-v3: Convert comma to semicolon
+- iommu/arm-smmu-v3: Fix last_sid_idx calculation for sid_bits==32
+- iommu: Move IOMMU_DIRTY_NO_CLEAR define
+- iommu/arm-smmu-v3: Fix a NULL vs IS_ERR() check
+- iommu/arm-smmu-v3: Remove the unused empty definition
+- iommu/arm-smmu-v3: Avoid uninitialized asid in case of error
+- iommu: Make iommu_sva_domain_alloc() static
+- iommu: Handle iommu faults for a bad iopf setup
+- iommufd: Put constants for all the uAPI enums
+- iommu/arm-smmu-v3: Use *-y instead of *-objs in Makefile
+- iommu/arm-smmu-v3: Make the kunit into a module
+- iommu/amd: Introduce get_amd_iommu_from_dev()
+- iommufd/device: Enforce reserved IOVA also when attached to hwpt_nested
+- iommufd/device: Fix hwpt at err_unresv in iommufd_device_do_replace()
+- iommufd: Reorder struct forward declarations
+- iommufd: Reorder include files
+- iommu/arm-smmu-v3: Reorganize struct arm_smmu_ctx_desc_cfg
+- iommu/arm-smmu-v3: Add types for each level of the CD table
+- iommu/arm-smmu-v3: Shrink the cdtab l1_desc array
+- iommu/arm-smmu-v3: Do not use devm for the cd table allocations
+- iommu/arm-smmu-v3: Remove strtab_base/cfg
+- iommu/arm-smmu-v3: Reorganize struct arm_smmu_strtab_cfg
+- iommu/arm-smmu-v3: Add types for each level of the 2 level stream table
+- iommu/arm-smmu-v3: Add arm_smmu_strtab_l1/2_idx()
+- iommu/arm-smmu-v3: Use the new rb tree helpers
+- iommu/arm-smmu-v3: Shrink the strtab l1_desc array
+- iommu/arm-smmu-v3: Do not zero the strtab twice
+- iommufd: Fix error pointer checking
+- iommufd: Add check on user response code
+- iommufd: Remove IOMMUFD_PAGE_RESP_FAILURE
+- iommufd/selftest: Add coverage for IOPF test
+- iommufd/selftest: Add IOPF support for mock device
+- iommufd: Associate fault object with iommufd_hw_pgtable
+- iommufd: Fault-capable hwpt attach/detach/replace
+- iommu: Fix kabi breakage due to "iommufd: Add iommufd fault object"
+- iommufd: Add iommufd fault object
+- iommufd: Add fault and response message definitions
+- iommu: Extend domain attach group with handle support
+- iommu: Fix kabi breakage due to "iommu: Add attach handle to struct iopf_group"
+- iommu: Add attach handle to struct iopf_group
+- iommu: Fix kabi breakage due to "iommu: Remove sva handle list"
+- iommu: Remove sva handle list
+- iommu: Introduce domain attachment handle
+- iommu/arm-smmu-v3: Enable HTTU for stage1 with io-pgtable mapping
+- iommu/arm-smmu-v3: Add support for dirty tracking in domain alloc
+- iommu/io-pgtable-arm: Add read_and_clear_dirty() support
+- iommu/arm-smmu-v3: Add feature detection for HTTU
+- iommu/arm-smmu-v3: Add support for domain_alloc_user fn
+- iommu/arm-smmu-v3: Allow setting a S1 domain to a PASID
+- iommu/arm-smmu-v3: Allow a PASID to be set when RID is IDENTITY/BLOCKED
+- iommu/arm-smmu-v3: Test the STE S1DSS functionality
+- iommu/arm-smmu-v3: Allow IDENTITY/BLOCKED to be set while PASID is used
+- iommu/arm-smmu-v3: Put the SVA mmu notifier in the smmu_domain
+- iommu/arm-smmu-v3: Keep track of arm_smmu_master_domain for SVA
+- iommu/arm-smmu-v3: Make SVA allocate a normal arm_smmu_domain
+- iommu/arm-smmu-v3: Thread SSID through the arm_smmu_attach_*() interface
+- iommu/arm-smmu-v3: Do not use master->sva_enable to restrict attaches
+- iommu/arm-smmu-v3: Add ssid to struct arm_smmu_master_domain
+- iommu/arm-smmu-v3: Make changing domains be hitless for ATS
+- iommu/arm-smmu-v3: Make smmu_domain->devices into an allocated list
+- iommu/arm-smmu-v3: Start building a generic PASID layer
+- iommu/arm-smmu-v3: Convert to domain_alloc_sva()
+- iommu/arm-smmu-v3: Add unit tests for arm_smmu_write_entry
+- iommu/arm-smmu-v3: Build the whole CD in arm_smmu_make_s1_cd()
+- iommu/arm-smmu-v3: Move the CD generation for SVA into a function
+- iommu/arm-smmu-v3: Allocate the CD table entry in advance
+- iommu/arm-smmu-v3: Make arm_smmu_alloc_cd_ptr()
+- iommu/arm-smmu-v3: Consolidate clearing a CD table entry
+- iommu/arm-smmu-v3: Move the CD generation for S1 domains into a function
+- iommu/arm-smmu-v3: Make CD programming use arm_smmu_write_entry()
+- iommu/arm-smmu-v3: Add an ops indirection to the STE code
+- iommu: Fix kabi breakage due to "iommu: Add ops->domain_alloc_sva()"
+- iommu: Add ops->domain_alloc_sva()
+- iommu/arm-smmu-v3: Add a type for the CD entry
+- iommu/arm-smmu-v3: Do not ATC invalidate the entire domain
+- iommu/arm-smmu-v3: Do not allow a SVA domain to be set on the wrong PASID
+- iommu/arm-smmu-v3: Retire disable_bypass parameter
+- iommu: Validate the PASID in iommu_attach_device_pasid()
+- iommu/arm-smmu-v3: Add cpu_to_le64() around STRTAB_STE_0_V
+- iommu: Fix kabi breakage due to "iommu: Pass domain to remove_dev_pasid() op"
+- iommu: Pass domain to remove_dev_pasid() op
+- iommu: Undo pasid attachment only for the devices that have succeeded
+- iommu: Introduce iommu_group_mutex_assert()
+- iommu/arm-smmu-v3: Fix access for STE.SHCFG
+- iommu/arm-smmu-v3: Convert to domain_alloc_paging()
+- iommu/arm-smmu-v3: Pass arm_smmu_domain and arm_smmu_device to finalize
+- iommu/arm-smmu-v3: Use the identity/blocked domain during release
+- iommu/arm-smmu-v3: Add a global static BLOCKED domain
+- iommu/arm-smmu-v3: Add a global static IDENTITY domain
+- iommu/arm-smmu-v3: Check that the RID domain is S1 in SVA
+- iommu/arm-smmu-v3: Remove arm_smmu_master->domain
+- iommu/arm-smmu-v3: Pass smmu_domain to arm_enable/disable_ats()
+- iommu/arm-smmu-v3: Put writing the context descriptor in the right order
+- iommu/arm-smmu-v3: Do not change the STE twice during arm_smmu_attach_dev()
+- iommu/arm-smmu-v3: Compute the STE only once for each master
+- iommu/arm-smmu-v3: Hold arm_smmu_asid_lock during all of attach_dev
+- iommu/arm-smmu-v3: Build the whole STE in arm_smmu_make_s2_domain_ste()
+- iommu/arm-smmu-v3: Move the STE generation for S1 and S2 domains into functions
+- iommu/arm-smmu-v3: Consolidate the STE generation for abort/bypass
+- iommu/arm-smmu-v3: Make STE programming independent of the callers
+- !14019  afs: Fix lock recursion
+- afs: Fix lock recursion
+- !13230  xfs: Fix fsmap error
+- xfs: Fix missing interval for missing_owner in xfs fsmap
+- xfs: use XFS_BUF_DADDR_NULL for daddrs in getfsmap code
+- !13977  xfs: split xfs_mod_freecounter
+- xfs: split xfs_mod_freecounter
+- !14005 v2  Optimize functions like get_user and put_user
+- openeuler_defconfig: remove GCC_ASM_GOTO_OUTPUT_WORKAROUND for x86 and arm64
+- arm64: uaccess: correct thinko in __get_mem_asm()
+- init/Kconfig: remove CONFIG_GCC_ASM_GOTO_OUTPUT_WORKAROUND
+- arm64: start using 'asm goto' for put_user()
+- arm64: start using 'asm goto' for get_user() when available
+- !14031  Various memory tiering fixes
+- memory tiering: count PGPROMOTE_SUCCESS when mem tiering is enabled.
+- memory tiering: introduce folio_use_access_time() check
+- memory tiering: read last_cpupid correctly in do_huge_pmd_numa_page()
+- !14025  ext4: show the default enabled prefetch_block_bitmaps option
+- ext4: show the default enabled prefetch_block_bitmaps option
+- !13906 [openEuler-24.03-LTS][linux-6.6.y sync] Backport 6.6.53-6.6.54 LTS Conflicts Patches
+- btrfs: update comment for struct btrfs_inode::lock
+- arm64: errata: Enable the AC03_CPU_38 workaround for ampere1a
+- xen: allow mapping ACPI data using a different physical address
+- sched/fair: Make SCHED_IDLE entity be preempted in strict hierarchy
+- !9158 [OLK-6.6] ata: ahci: Add support for AHCI SGPIO Enclosure Management
+- config: enable Zhaoxin AHCI SGPIO driver
+- ata: ahci: Add support for AHCI SGPIO Enclosure Management
+- !9162 [OLK-6.6] efi: cper: Add Zhaoxin/Centaur ZDI/ZPI error decode
+- efi: cper: Add Zhaoxin/Centaur ZDI/ZPI error decode
+- !14022 [OLK-6.6] perf/x86/zhaoxin/uncore: fix pci_driver conflict issue
+- perf/x86/zhaoxin/uncore: fix pci_driver conflict issue
+- !13965  arm64: entry: Fix some warnings when enable nohz full CPU
+- arm64: entry: Fix some warnings when enable nohz full CPU
+- !13926  genirq/proc: Fix warning of no previous prototype for register_irqchip_proc()
+- genirq/proc: Fix warning of no previous prototype for register_irqchip_proc()
+- !13993  50164
+- bpf: Remove MEM_UNINIT from skb/xdp MTU helpers
+- bpf: Fix kabi breakage in enum bpf_type_flag and bpf_arg_type
+- bpf: Fix overloading of MEM_UNINIT's meaning
+- bpf: Add MEM_WRITE attribute
+- !13951  Fix UAF in __update_blocked_fair
+- Fix UAF in __update_blocked_fair
+- !13950  Fix SCHED_WARN_ON(cfs_rq->throttled_clock) in throttle_cfs_rq
+- Fix SCHED_WARN_ON(cfs_rq->throttled_clock) in throttle_cfs_rq
+- !13949  sched/fair: Fix qos_timer deadlock when cpuhp offline
+- sched/fair: Fix qos_timer deadlock when cpuhp offline
+- !13912  media: dvbdev: fix the logic when DVB_DYNAMIC_MINORS is not set
+- media: dvbdev: fix the logic when DVB_DYNAMIC_MINORS is not set
+- !13961  ext4: avoid remount errors with 'abort' mount option
+- ext4: avoid remount errors with 'abort' mount option
+- !13974  arm64: optimize tlb flush
+- arm64: optimize flush tlb kernel range
+- arm64: tlbflush: add __flush_tlb_range_limit_excess()
+- arm64: tlb: Allow range operation for MAX_TLBI_RANGE_PAGES
+- arm64: tlbflush: Rename MAX_TLBI_OPS
+- !13969  libbpf: Fix output .symtab byte-order during linking
+- libbpf: Fix output .symtab byte-order during linking
+- !13955  drm/amd/display: Add missing NULL pointer check within dpcd_extend_address_range
+- drm/amd/display: Add missing NULL pointer check within dpcd_extend_address_range
+- !13913  fix CVE-2024-49861
+- bpf: Fix kabi breakage in enum bpf_type_flag and bpf_arg_type
+- bpf: Fix helper writes to read-only maps
+- !13317  reset: starfive: jh71x0: Fix accessing the empty member on JH7110 SoC
+- reset: starfive: jh71x0: Fix accessing the empty member on JH7110 SoC
+- !12279 [OLK-6.6]HYGON: CSV3 patch series part 2 (Support launch, run, migrate CSV3 guest)
+- x86/mm: Print CSV3 info into kernel log
+- x86: Add support for changing the memory attribute for CSV3 guest
+- x86: Update memory shared/private attribute in early boot for CSV3 guest
+- x86/kernel: Set bss decrypted memory as shared in CSV3 guest
+- x86/kernel: Add CSV3 early update(enc/dec)/reset memory helpers
+- x86/boot/compressed/64: Add CSV3 update page attr(private/shared)
+- x86/boot/compressed/64: Init CSV3 secure call pages
+- x86/boot/compressed/64: Add CSV3 guest detection
+- KVM: SVM: CSV: Add ioctl API to unpin shared pages of CSV3 guest
+- KVM: SVM: CSV: Add KVM_CSV3_RECEIVE_ENCRYPT_CONTEXT command
+- KVM: SVM: CSV: Add KVM_CSV3_RECEIVE_ENCRYPT_DATA command
+- KVM: SVM: CSV: Add KVM_CSV3_SEND_ENCRYPT_CONTEXT command
+- KVM: SVM: CSV: Add KVM_CSV3_SEND_ENCRYPT_DATA command
+- crypto: ccp: Define CSV3 migration command id
+- KVM: SVM: CSV: Manage CSV3 guest's nested page table
+- KVM: SVM: CSV: Add KVM_CSV3_LAUNCH_ENCRYPT_VMCB command
+- KVM: SVM: CSV: Add KVM_CSV3_LAUNCH_ENCRYPT_DATA command
+- KVM: SVM: CSV: Add KVM_CSV3_INIT command
+- KVM: Define CSV3 key management command id
+- !13843 Add support for FEAT_HAFT
+- openeuler_defconfig: Add configuration to enable FEAT_HAFT
+- arm64: pgtable: Warn unexpected pmdp_test_and_clear_young()
+- arm64: Enable ARCH_HAS_NONLEAF_PMD_YOUNG
+- arm64: Add support for FEAT_HAFT
+- arm64: setup: name 'tcr2' register
+- arm64/sysreg: Update ID_AA64MMFR1_EL1 register
+- !13889  ipmi: Use regspacings passed as a module parameter
+- ipmi: Use regspacings passed as a module parameter
+- !13454 [OLK-6.6][Backport] tracing/selftests: Update kprobe args char/string to match new functions
+- tracing/selftests: Update kprobe args char/string to match new functions
+- !13453 [OLK-6.6][Backport] selftest: net: Fix the problem that run veth.sh failed
+- selftests: net: veth: test the ability to independently manipulate GRO and XDP
+- selftests: net: veth: test syncing GRO and XDP state while device is down
+- !13450 [OLK-6.6][Backport] tools/nolibc: add support for constructors and destructors
+- tools/nolibc: add support for constructors and destructors
+- !13815 [OLK-6.6][Backport] selftests/intel_pstate: fix operand expected error
+- selftests/intel_pstate: fix operand expected error
+- !13417 [OLK-6.6][Backport] selftest: net/af_unix: Fix the problem that run test_unix_oob failed
+- selftest: af_unix: Fix kselftest compilation warnings
+- selftest: af_unix: Add msg_oob.c.
+- selftest: af_unix: Remove test_unix_oob.c.
+- selftest: af_unix: Add Kconfig file.
+- !13806 [OLK-6.6][Backport] selftests/watchdog-test: Fix system accidentally reset after watchdog-test
+- selftests/watchdog-test: Fix system accidentally reset after watchdog-test
+- !13897  drm/amd/display: Check link_index before accessing dc->links[
+- drm/amd/display: Check link_index before accessing dc->links[]
+- !13901  RDMA/hns: Fix accessing invalid dip_ctx during destroying QP
+- RDMA/hns: Fix accessing invalid dip_ctx during destroying QP
+- !13904  NFSD: Never decrement pending_async_copies on error
+- NFSD: Never decrement pending_async_copies on error
+- !13888  CVE-2024-49891
+- scsi: lpfc: Validate hdwq pointers before dereferencing in reset/errata paths
+
 * Mon Dec 02 2024 Mingzheng Xing <xingmingzheng@iscas.ac.cn> - 6.6.0-59.0.0.63
 
 - riscv kernel upgrade to 6.6.0-59.0.0
