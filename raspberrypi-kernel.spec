@@ -2,13 +2,13 @@
 
 %global KernelVer %{version}-%{release}.raspi.%{_target_cpu}
 
-%global hulkrelease 53.0.0
+%global hulkrelease 59.0.0
 
 %global debug_package %{nil}
 
 Name:	 raspberrypi-kernel
 Version: 6.6.0
-Release: %{hulkrelease}.6
+Release: %{hulkrelease}.7
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -281,6 +281,9 @@ fi
 /usr/src/kernels/%{KernelVer}-*
 
 %changelog
+* Tue Dec 3  2024 Yafen Fang <yafen@iscas.ac.cn> - 6.6.0-59.0.0.7
+- update kernel version to openEuler 6.6.0-59.0.0
+
 * Mon Nov 11 2024 Yafen Fang <yafen@iscas.ac.cn> - 6.6.0-53.0.0.6
 - update kernel version to openEuler 6.6.0-53.0.0
 - update Raspberry Pi patch, last commit (ff0fe12ab875d587348b6f2b9e73ae928049ebee): dtoverlay: Add a dtoverlay for pwm-gpio
