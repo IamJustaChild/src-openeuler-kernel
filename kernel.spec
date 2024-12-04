@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .103.0
-%global pkg_release         .184
+%global maintenance_release .104.0
+%global pkg_release         .185
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,71 @@ fi
 %endif
 
 %changelog
+* Wed Dec 04 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.104.0.185
+- !14034  xfs: Fix data overflow in xfs_mod_fdblocks()
+- !14016  *** CVE-2024-53063 ***
+- !13957  fs: Fix uninitialized value issue in from_kuid and from_kgid
+- xfs: Fix data overflow in xfs_mod_fdblocks()
+- !13336  fix CVE-2024-50135
+- !13944  net/sched: accept TCA_STAB only for root qdisc
+- !13939  wifi: ath9k_htc: Use __skb_set_length() for resetting urb before resubmit
+- !13947  ipv6: avoid possible NULL deref in rt6_uncached_list_flush_dev()
+- !13946  wifi: rtw88: always wait for both firmware loading attempts
+- !13945  Bluetooth: RFCOMM: FIX possible deadlock in rfcomm_sk_state_change
+- !13943  net: ethernet: lantiq_etop: fix memory disclosure
+- !13942  net: Fix an unsafe loop on the list
+- !13941  net: stmmac: Fix zero-division error when disabling tc cbs
+- !13940  sctp: set sk_state back to CLOSED if autobind fails in sctp_listen_start
+- !13938  wifi: ath11k: fix array out-of-bound access in SoC stats
+- media: dvbdev: fix the logic when DVB_DYNAMIC_MINORS is not set
+- media: dvbdev: prevent the risk of out of memory access
+- !13840  afs: Fix lock recursion
+- !13907 [sync] PR-13905:  NFSD: Never decrement pending_async_copies on error
+- !13924  wifi: ath10k: Fix memory leak in management tx
+- !13923  RDMA/bnxt_re: Fix a bug while setting up Level-2 PBL pages
+- !13968  bpf: Check validity of link->type in bpf_link_show_fdinfo()
+- bpf: Check validity of link->type in bpf_link_show_fdinfo()
+- fs: Fix uninitialized value issue in from_kuid and from_kgid
+- !13803  pinctrl: ocelot: fix system hang on level based interrupts
+- ipv6: avoid possible NULL deref in rt6_uncached_list_flush_dev()
+- wifi: rtw88: always wait for both firmware loading attempts
+- Bluetooth: RFCOMM: FIX possible deadlock in rfcomm_sk_state_change
+- net/sched: accept TCA_STAB only for root qdisc
+- net: ethernet: lantiq_etop: fix memory disclosure
+- net: Fix an unsafe loop on the list
+- net: stmmac: Fix zero-division error when disabling tc cbs
+- sctp: set sk_state back to CLOSED if autobind fails in sctp_listen_start
+- wifi: ath9k_htc: Use __skb_set_length() for resetting urb before resubmit
+- wifi: ath11k: fix array out-of-bound access in SoC stats
+- wifi: ath10k: Fix memory leak in management tx
+- RDMA/bnxt_re: Fix a bug while setting up Level-2 PBL pages
+- !13899  drm/amd/display: Check link_index before accessing dc->links[
+- NFSD: Never decrement pending_async_copies on error
+- !13886  scsi: lpfc: Validate hdwq pointers before dereferencing in reset/errata paths
+- !13863  net: systemport: fix potential memory leak in bcm_sysport_xmit()
+- !13865  Bluetooth: bnep: fix wild-memory-access in proto_unregister
+- !13868  wifi: iwlegacy: Clear stale interrupts before resuming device
+- !13882  RDMA/bnxt_re: Add a check for memory allocation
+- drm/amd/display: Check link_index before accessing dc->links[]
+- scsi: lpfc: Validate hdwq pointers before dereferencing in reset/errata paths
+- !13856  CVE-2024-53059
+- !13855  sctp: properly validate chunk size in sctp_sf_ootb()
+- RDMA/bnxt_re: Add a check for memory allocation
+- wifi: iwlegacy: Clear stale interrupts before resuming device
+- Bluetooth: bnep: fix wild-memory-access in proto_unregister
+- net: systemport: fix potential memory leak in bcm_sysport_xmit()
+- mac80211: always have ieee80211_sta_restart()
+- wifi: iwlwifi: mvm: Fix response handling in iwl_mvm_send_recovery_cmd()
+- wifi: iwlwifi: mvm: disconnect station vifs if recovery failed
+- mac80211: Add support to trigger sta disconnect on hardware restart
+- mac80211: do drv_reconfig_complete() before restarting all
+- sctp: properly validate chunk size in sctp_sf_ootb()
+- afs: Fix lock recursion
+- pinctrl: ocelot: fix system hang on level based interrupts
+- nvme-pci: fix race condition between reset and nvme_dev_disable()
+- nvme-pci: refactor the tagset handling in nvme_reset_work
+- nvme-pci: split nvme_dev_add
+
 * Wed Nov 27 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.103.0.184
 - !13814  nilfs2: fix kernel bug due to missing clearing of checked flag
 - !13457  io_uring: fix CVE-2024-53052
