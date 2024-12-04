@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2411.5.0
+%global hulkrelease 2412.1.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0305
+Release: %{hulkrelease}.0306
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,32 @@ fi
 %endif
 
 %changelog
+
+* Wed Dec 04 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2412.1.0.0306
+- !13959  fs: Fix uninitialized value issue in from_kuid and from_kgid
+- !13796  vfs: fix race between evice_inodes() and find_inode()&iput()
+- !13925  CVE-2024-50236
+- !13892  crypto: pcrypt - Call crypto layer directly when padata_do_parallel() return -EBUSY
+- fs: Fix uninitialized value issue in from_kuid and from_kgid
+- wifi: ath10k: Fix memory leak in management tx
+- ath10k: Remove msdu from idr when management pkt send fails
+- !13879  Fix problems of mounting nfs
+- !13866  Bluetooth: bnep: fix wild-memory-access in proto_unregister
+- !13459  io_uring/rw: fix missing NOWAIT check for O_DIRECT start write
+- !13460  ocfs2: remove entry once instead of null-ptr-dereference in ocfs2_xa_remove()
+- crypto: pcrypt - Call crypto layer directly when padata_do_parallel() return -EBUSY
+- !13852  sctp: properly validate chunk size in sctp_sf_ootb()
+- !13875  bpf: Fix out-of-bounds write in trie_get_next_key()
+- nfs: ignore SB_RDONLY when mounting nfs
+- nfs: pass flags to second superblock
+- bpf: Fix out-of-bounds write in trie_get_next_key()
+- Bluetooth: bnep: fix wild-memory-access in proto_unregister
+- !13812  nilfs2: fix kernel bug due to missing clearing of checked flag
+- sctp: properly validate chunk size in sctp_sf_ootb()
+- nilfs2: fix kernel bug due to missing clearing of checked flag
+- vfs: fix race between evice_inodes() and find_inode()&iput()
+- ocfs2: remove entry once instead of null-ptr-dereference in ocfs2_xa_remove()
+- io_uring/rw: fix missing NOWAIT check for O_DIRECT start write
 
 * Wed Nov 27 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2411.5.0.0305
 - !13821  tcp/dccp: Don't use timer_pending() in reqsk_queue_unlink().
