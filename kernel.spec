@@ -40,9 +40,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       61
+%global devel_release       62
 %global maintenance_release .0.0
-%global pkg_release         .65
+%global pkg_release         .66
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1085,6 +1085,50 @@ fi
 %endif
 
 %changelog
+* Thu Dec 05 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-62.0.0.66
+- !14091  mm, slab: put should_failslab() back behind CONFIG_SHOULD_FAILSLAB
+- mm, page_alloc: put should_fail_alloc_page() back behing CONFIG_FAIL_PAGE_ALLOC
+- mm, slab: put should_failslab() back behind CONFIG_SHOULD_FAILSLAB
+- !14015 【openEuler 24.03 LTS SP1】SCSI: LeapIO RAID: Support leapioraid RAID controllers
+- SCSI: LEAPIORAID: Supports LEAPIO RAID controller
+- !14072 Revert "Revert "net: libwx: fix alloc msix vectors failed""
+- Revert "Revert "net: libwx: fix alloc msix vectors failed""
+- !14094  block, bfq: fix bfqq uaf in bfq_limit_depth()
+- block, bfq: fix bfqq uaf in bfq_limit_depth()
+- !14065  vp_vdpa: fix id_table array not null terminated error
+- vp_vdpa: fix id_table array not null terminated error
+- !13809 scsi: hisi_sas: Some fixes for hisi_sas
+- scsi: sd: Retry START STOP UNIT commands
+- scsi: core: Allow passthrough to request midlayer retries
+- scsi: hisi_sas: Add latest_dump for the debugfs dump
+- scsi: hisi_sas: Create all dump files during debugfs initialization
+- scsi: hisi_sas: Update v3 hw STP_LINK_TIMER setting
+- scsi: hisi_sas: Add time interval between two H2D FIS following soft reset spec
+- scsi: hisi_sas: Update disk locked timeout to 7 seconds
+- scsi: hisi_sas: Default enable interrupt coalescing
+- scsi: hisi_sas: Add cond_resched() for no forced preemption model
+- scsi: hisi_sas: Reset PHY again if phyup timeout
+- scsi: hisi_sas: Enable all PHYs that are not disabled by user during controller reset
+- scsi: hisi_sas: Add firmware information check
+- scsi: hisi_sas: Create trigger_dump at the end of the debugfs initialization
+- scsi: hisi_sas: Adjust priority of registering and exiting debugfs for security
+- scsi: libsas: Set port when ex_phy is added or deleted
+- scsi: libsas: Move sas_add_parent_port() to sas_expander.c
+- scsi: libsas: Add helper for port add ex_phy
+- !14059  cgroup/bpf: use a dedicated workqueue for cgroup bpf destruction
+- cgroup/bpf: use a dedicated workqueue for cgroup bpf destruction
+- Revert "cgroup: Fix AA deadlock caused by cgroup_bpf_release"
+- !14026  drm/amd/display: Pass non-null to dcn20_validate_apply_pipe_split_flags
+- drm/amd/display: Pass non-null to dcn20_validate_apply_pipe_split_flags
+- !14056 virtcca feature : security rectification
+- virtcca feature : security rectification
+- !14012  drm/amdkfd: amdkfd_free_gtt_mem clear the correct pointer
+- drm/amdkfd: amdkfd_free_gtt_mem clear the correct pointer
+- !14011  drm/amd/display: Check phantom_stream before it is used
+- drm/amd/display: Check phantom_stream before it is used
+- !14013  maple_tree: correct tree corruption on spanning store
+- maple_tree: correct tree corruption on spanning store
+
 * Wed Dec 04 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-61.0.0.65
 
 * Wed Dec 04 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-61.0.0.64
