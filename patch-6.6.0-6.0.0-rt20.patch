@@ -15228,7 +15228,7 @@ index d5ae744de..51cc50a7e 100644
 +	if (need_resched())
  		return;
  
- 	/* Idle tasks are by definition preempted by non-idle tasks. */
+ 	if (!sched_feat(WAKEUP_PREEMPTION))
 @@ -9356,7 +9372,7 @@ static void check_preempt_wakeup(struct rq *rq, struct task_struct *p, int wake_
  	return;
  
