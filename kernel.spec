@@ -1,5 +1,4 @@
 %define with_signmodules  1
-%define with_kabichk 1
 
 # Default without toolchain_clang
 %bcond_with toolchain_clang
@@ -42,7 +41,7 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %global upstream_sublevel   0
 %global devel_release       62
 %global maintenance_release .0.0
-%global pkg_release         .66
+%global pkg_release         .67
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -79,6 +78,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %define with_64kb  %{?_with_64kb: 1} %{?!_with_64kb: 0}
 %if %{with_64kb}
 %global package64kb -64kb
+%define with_kabichk 0
+%else
+%define with_kabichk 1
 %endif
 %else
 %define with_64kb  0
@@ -1085,6 +1087,9 @@ fi
 %endif
 
 %changelog
+* Sat Dec 07 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-62.0.0.67
+- support 64k pagesize: skip kabi check
+
 * Thu Dec 05 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-62.0.0.66
 - !14091  mm, slab: put should_failslab() back behind CONFIG_SHOULD_FAILSLAB
 - mm, page_alloc: put should_fail_alloc_page() back behing CONFIG_FAIL_PAGE_ALLOC
