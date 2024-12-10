@@ -41,7 +41,7 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %global upstream_sublevel   0
 %global devel_release       64
 %global maintenance_release .0.0
-%global pkg_release         .68
+%global pkg_release         .69
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1087,6 +1087,10 @@ fi
 %endif
 
 %changelog
+* Tue Dec 10 2024 Mingzheng Xing <xingmingzheng@iscas.ac.cn> - 6.6.0-64.0.0.69
+- riscv kernel upgrade to 6.6.0-64.0.0
+- Fix some compilation errors reported by clang.
+
 * Tue Dec 10 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-64.0.0.68
 - !14106 uacce: some bugfix and cleanup
 - migration: modify dfx error type without VM driver
