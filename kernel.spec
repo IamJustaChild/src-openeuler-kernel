@@ -39,9 +39,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       62
+%global devel_release       64
 %global maintenance_release .0.0
-%global pkg_release         .67
+%global pkg_release         .68
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1087,6 +1087,166 @@ fi
 %endif
 
 %changelog
+* Tue Dec 10 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-64.0.0.68
+- !14106 uacce: some bugfix and cleanup
+- migration: modify dfx error type without VM driver
+- crypto: hisilicon_qm - fix the uacce_alloc return value check
+- crypto: hisilicon_zip - correct the wrong word in the printed information
+- uacce: add mutex for check qfr
+- uacce: add stop_queue to replace put_queue in ioctl
+- uacce: check the qfr address before releasing the qfr
+- uacce: add error number for the unsupported mremap
+- !14117  mm/page_alloc: Separate THP PCP into movable and non-movable categories
+- mm: fix kabi breakage due to struct per_cpu_pages
+- mm/page_alloc: Separate THP PCP into movable and non-movable categories
+- !14120  bpf: sync_linked_regs() must preserve subreg_def
+- bpf: sync_linked_regs() must preserve subreg_def
+- !14128  sched: Optimize the latency of select_task_rq and pick_next_task.
+- sched: Optimize the latency of select_task_rq and pick_next_task.
+- !13991  virtio-fs: introduce multi-queue support
+- virtio-fs: add multi-queue support
+- virtio-fs: limit number of request queues
+- virtiofs: include a newline in sysfs tag
+- virtiofs: emit uevents on filesystem events
+- virtiofs: export filesystem tags through sysfs
+- !14126 [OLK-6.6]perf:Add PMCG platform information for HiSilicon HIP09A
+- ACPI/IORT: Add PMCG platform information for HiSilicon HIP09A
+- Revert "perf: Add PMCG platform information for HiSilicon HIP09A"
+- !14103  nilfs2: fix null-ptr-deref in block_dirty_buffer tracepoint
+- nilfs2: fix null-ptr-deref in block_dirty_buffer tracepoint
+- !13841 Fix livepatch selftest
+- selftests/livepatch: fix selftest execution error
+- !14069 MPTCP Upstream part 23
+- tcp: socket option to check for MPTCP fallback to TCP
+- mptcp: fix typos in comments
+- !13970  LoongArch: fix AVEC related issue
+- drivers/irqchip: Disable pci_irq_limit when using AVEC interrupt controller
+- irqchip/avec: Support AVEC for 3C6000 multi-node machine
+- !13981  LoongArch: backport ptw&set_pte patches from upstream
+- LoongArch: Set initial pte entry with PAGE_GLOBAL for kernel space
+- LoongArch: Improve hardware page table walker
+- LoongArch: Use accessors to page table entries instead of direct dereference
+- LoongArch: Remove superfluous flush_dcache_page() definition
+- !14107 ata: libata-core: Set ATA_QCFLAG_RTF_FILLED in fill_result_tf()
+- ata: libata-core: Set ATA_QCFLAG_RTF_FILLED in fill_result_tf()
+- !14101 [sync] PR-14087: v2  drivers/perf: hisi: Add support for HiSilicon DDRC v3 PMU driver
+- drivers/perf: hisi: Add support for HiSilicon DDRC v3 PMU driver
+- !14095 ima: Fix violation digests extending issue in virtcca
+- ima: Fix violation digests extending issue in virtcca
+- !14079 v3  irqchip: gic: some bugfix of hip10
+- irqchip/gic-v4.1:Check whether indirect table is supported in allocate_vpe_l1_table
+- KVM: arm64: vgic-v3: Fix a issue of hip10 erratum 162200806
+- irqchip/gic-v3: Exclude GICv4.1 for hip10 erratum 162200803
+- !14085  ocfs2: uncache inode which has failed entering the group
+- ocfs2: uncache inode which has failed entering the group
+- !13837 update patches for sw64 architecture
+- sw64: wrap frequency workaround into standalone functions
+- sw64: remove redudant save_ktp
+- sw64: fix compile warning of smp_callin()
+- sw64: distribute intx interrupts by hose
+- sw64: acpi: remove constraint that cid of boot core must be zero
+- sw64: pci: get register base address from firmware
+- sw64: fix compile warning of do_entUna()
+- sw64: fix save_ktp compatibility for C3
+- sw64: fix PTBR save/restore for hibernation
+- sw64: add syscall pfh_ops
+- sw64: fix broken rdfpcr()
+- sw64: force kernel stack to be 16 bytes aligned
+- sw64: match platform device by acpi method
+- sw64: spi: update spi controller driver
+- sw64: add -fno-sw-unalign-byte to cflags for C4
+- sw64: define cpu_relax() as imb()
+- sw64: fix the .endm in hibernate_asm.S
+- sw64: fix compile error of efi.systab
+- sw64: pci: adjust the maximum number of RC per node
+- sw64: get mclk and external clk from firmware
+- sw64: fix compile error of MMSIZE
+- sw64: acpi: disable ACPI for xuelang
+- sw64: ahci: disable parallel bus scan
+- sw64: redesign run mode setup method
+- sw64: rename static key and related simd libraries
+- sw64: fix secondary cpu bring up bug
+- sw64: irq: fix compile error when PINTC or LPC-INTC is not set
+- sw64: improve the verification logic of DTB
+- sw64: apply new boot params from DTB chosen node
+- sw64: receive new boot params from firmware
+- sw64: setup stackframe at kernel entry point
+- sw64: save and restore CSR_WR_FREGS for SIMD libs
+- sw64: rename copy and set lib functions
+- sw64: rename copy and set lib files
+- sw64: choose lib at compile time
+- sw64: store topology and numa info by each cpu itself
+- sw64: work around suspend for C4
+- sw64: employ trick on regs.pc for specific exception
+- sw64: enable CONFIG_FRAME_POINTER by default for junzhang
+- sw64: fix syscall_fallback() for vdso gettimeofday
+- sw64: dts: add Junzhang
+- sw64: lpc: work around hardware flaws
+- sw64: improve cpu bring up method
+- sw64: introduce new entry framework for C4
+- sw64: irq: update the initial value of nr_irqs
+- sw64: dynamically switch between lib implementation
+- sw64: msi: remove redundant interrupt enables
+- sw64: add unaligned access support for C4 new instructions
+- sw64: acpi: fix missed upper bits of rcid for junzhang
+- sw64: pci: remove duplicate pcie operations
+- sw64: irq: remove unnecessary initialization
+- sw64: acpi: enable generic GSI
+- sw64: irqchip: support ACPI-based interrupt controller initialization
+- sw64: acpi: support MADT entry print for SW PINTC, MSIC and LPC-INTC
+- sw64: acpi: add ACPI-style structures for SW PINTC, MSIC and LPC-INTC
+- sw64: fix compilation warning
+- sw64: fix kconfig selections
+- sw64: use a new wrap_asid hmcall when asid wraps
+- sw64: rewrite fpcr and swcr conversion
+- sw64: enable hardware denorm by default
+- sw64: add four-socket system support
+- sw64: add a new kernel parameter to override mclk
+- sw64: improve sw64_printk()
+- sw64: msi: fix bugs in multi-msi interrupts allocation and release
+- sw64: pci: change pci transaction ordering rule settings
+- sw64: irqchip: fix virtual PINTC not working properly
+- sw64: dts: improve properties for PINTC
+- sw64: dts: improve properties for LPC-INTC
+- sw64: dts: fix interrupt related properties for GPIO
+- sw64: dts: add chosen node
+- sw64: dts: fix properties for spi controller device node
+- sw64: acpi: fix coding style and typos
+- sw64: fix rd_f compatibility issue for C4
+- sw64: refactor device interrupt domain
+- sw64: fix macro definition compilation error
+- USB: xHCI: fix resume issue of some ZHAOXIN hosts
+- USB: Fix ehci infinite suspend-resume loop issue in zhaoxin
+- sw64: pci: fix compile error when CONFIG_ACPI=n
+- sw64: smp: suppress function setup_smp() when ACPI enabled
+- sw64: acpi: parse SW CINTC for SMP initialization
+- sw64: acpi: support MADT entry print for SW CINTC
+- sw64: acpi: add ACPI-style structures for SW CINTC
+- sw64: smp: add new structure to record rcid information
+- sw64: smp: modify function smp_rcb_init() to receive base address
+- sw64: pci: synchronize the OEM table ID of MCFG with BIOS
+- sw64: iommu: fix the bug when vfio_iommu unpin pages
+- sw64: use rvpcr() to setup run mode
+- sw64: kgdb: add single-step debug support
+- sw64: fix lockdep error
+- sw64: perf: do all event checks in sw64_pmu_event_init()
+- sw64: numa: fix compile error when CONFIG_ACPI_NUMA=n
+- sw64: pci: export some pci functions
+- sw64: uapi: fix a compile error for headers_install
+- sw64: perf: hide hardware performance events in guest os
+- sw64: fix hugepage support
+- sw64: extern vdso_start and vdso_end as char[]
+- sw64: remove useless current_policy
+- sw64: add arch-specific SYM_END definition
+- !13151 [OLK-6.6] arm64: errata: Unify and expand speculative SSBS workaround
+- openeuler_defconfig: Enable CONFIG_ARM64_ERRATUM_3194386 by default
+- arm64: Subscribe Microsoft Azure Cobalt 100 to erratum 3194386
+- arm64: errata: Expand speculative SSBS workaround once more
+- arm64: errata: Expand speculative SSBS workaround (again)
+- arm64: errata: Expand speculative SSBS workaround
+- arm64: errata: Unify speculative SSBS errata logic
+- arm64: errata: Add workaround for Arm errata 3194386 and 3312417
+
 * Sat Dec 07 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-62.0.0.67
 - support 64k pagesize: skip kabi check
 
