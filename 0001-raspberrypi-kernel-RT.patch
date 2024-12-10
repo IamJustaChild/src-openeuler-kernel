@@ -7552,12 +7552,13 @@ index 8ff0efac6..398104760 100644
  	}
  	uart_port_deref(port);
  }
-@@ -1108,9 +1108,9 @@ static int uart_tiocmget(struct tty_struct *tty)
+@@ -1107,10 +1107,10 @@ static int uart_tiocmget(struct tty_struct *tty)
+ 		goto out;
  
  	if (!tty_io_error(tty)) {
- 		result = uport->mctrl;
 -		spin_lock_irq(&uport->lock);
 +		uart_port_lock_irq(uport);
+ 		result = uport->mctrl;
  		result |= uport->ops->get_mctrl(uport);
 -		spin_unlock_irq(&uport->lock);
 +		uart_port_unlock_irq(uport);
@@ -15199,7 +15200,7 @@ index d5ae744de..51cc50a7e 100644
 +	if (need_resched())
  		return;
  
- 	/* Idle tasks are by definition preempted by non-idle tasks. */
+ 	if (!sched_feat(WAKEUP_PREEMPTION))
 @@ -9356,7 +9372,7 @@ static void check_preempt_wakeup(struct rq *rq, struct task_struct *p, int wake_
  	return;
  
