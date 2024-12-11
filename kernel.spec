@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2412.1.0
+%global hulkrelease 2412.2.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0306
+Release: %{hulkrelease}.0307
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,22 @@ fi
 %endif
 
 %changelog
+
+* Wed Dec 11 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2412.2.0.0307
+- !14068  media: v4l2-tpg: prevent the risk of a division by zero
+- !14116  media: uvcvideo: Skip parsing frames of type UVC_VS_UNDEFINED in uvc_parse_format
+- media: uvcvideo: Skip parsing frames of type UVC_VS_UNDEFINED in uvc_parse_format
+- !14051  fix CVE-2024-50278
+- !14080  USB: serial: io_edgeport: fix use after free in debug printk
+- !14077  usb: typec: altmode should keep reference to parent
+- !14075  HID: core: zero-initialize the report buffer
+- USB: serial: io_edgeport: fix use after free in debug printk
+- usb: typec: altmode should keep reference to parent
+- HID: core: zero-initialize the report buffer
+- media: v4l2-tpg: prevent the risk of a division by zero
+- dm cache: fix potential out-of-bounds access on the first resume
+- dm cache: optimize dirty bit checking with find_next_bit when resizing
+- dm cache: fix out-of-bounds access to the dirty bitset when resizing
 
 * Wed Dec 04 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2412.1.0.0306
 - !13959  fs: Fix uninitialized value issue in from_kuid and from_kgid
