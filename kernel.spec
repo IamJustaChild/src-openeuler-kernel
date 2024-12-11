@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       239
+%global devel_release       240
 %global maintenance_release .0.0
-%global pkg_release         .141
+%global pkg_release         .142
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -911,6 +911,128 @@ fi
 %endif
 
 %changelog
+* Tue Dec 10 2024 Li Nan <linan122@huawei.com> - 5.10.0-240.0.0.142
+- !14129  bus: integrator-lm: fix OF node leak in probe()
+- !14132 v2  ACPI: APEI: handle synchronous errors in task work
+- !14046  smb: client: Fix use-after-free of network namespace.
+- ACPI: APEI: handle synchronous exceptions in task work
+- mm: memory-failure: move return value documentation to function declaration
+- ACPI: APEI: send SIGBUS to current task if synchronous memory error not recovered
+- ACPI: APEI: set memory failure flags as MF_ACTION_REQUIRED on synchronous events
+- !13903  Script execution control
+- !14119  bpf: sync_linked_regs() must preserve subreg_def
+- bus: integrator-lm: fix OF node leak in probe()
+- !14124  media: cx24116: prevent overflows on SNR calculus
+- !14121 [PATCH OLK-5.10] perf: Add PMCG platform information for HiSilicon HIP09A
+- media: cx24116: prevent overflows on SNR calculus
+- ACPI/IORT: Add PMCG platform information for HiSilicon HIP09A
+- bpf: sync_linked_regs() must preserve subreg_def
+- !13917 intel: backport TPMI base driver and PMT fix and update for 5.10
+- !14104  nilfs2: fix null-ptr-deref in block_dirty_buffer tracepoint
+- !14114  media: uvcvideo: Skip parsing frames of type UVC_VS_UNDEFINED in uvc_parse_format
+- media: uvcvideo: Skip parsing frames of type UVC_VS_UNDEFINED in uvc_parse_format
+- !14086  ocfs2: uncache inode which has failed entering the group
+- nilfs2: fix null-ptr-deref in block_dirty_buffer tracepoint
+- !13401 IMA: Fix hungtask issue of digestlist importing
+- !14033  fix CVE-2024-50278
+- !14087 v2  drivers/perf: hisi: Add support for HiSilicon DDRC v3 PMU driver
+- !14057  ACPI: Fix Generic Initiator Affinity _OSC bit
+- !14092  USB: serial: io_edgeport: fix use after free in debug printk
+- !14064  vp_vdpa: fix id_table array not null terminated error
+- !14073  HID: core: zero-initialize the report buffer
+- !14030  drm/vboxvideo: Replace fake VLA at end of vbva_mouse_pointer_shape with real VLA
+- !14027  drm/amd/display: Pass non-null to dcn20_validate_apply_pipe_split_flags
+- !14024  iommu/vt-d: Fix potential lockup if qi_submit_sync called with 0 count
+- !14062  CVE-2024-53054
+- !14055  wifi: mac80211: use two-phase skb reclamation in ieee80211_do_stop()
+- !14054  net: sched: fix use-after-free in taprio_change()
+- !14006  filemap: Fix bounds checking in filemap_read()
+- !14007  vhost/scsi: null-ptr-dereference in vhost_scsi_get_req()
+- !14008  drm/amdkfd: amdkfd_free_gtt_mem clear the correct pointer
+- !14009  drm/vc4: Stop the active perfmon before being destroyed
+- !14010  nilfs2: fix kernel bug due to missing clearing of buffer delay flag
+- USB: serial: io_edgeport: fix use after free in debug printk
+- drivers/perf: hisi: Add support for HiSilicon DDRC v3 PMU driver
+- ocfs2: uncache inode which has failed entering the group
+- !13871  ASoC: qcom: Fix NULL Dereference in asoc_qcom_lpass_cpu_platform_probe()
+- !14018  ASoC: stm32: spdifrx: fix dma channel release in stm32_spdifrx_remove
+- HID: core: zero-initialize the report buffer
+- vp_vdpa: fix id_table array not null terminated error
+- cgroup/bpf: use a dedicated workqueue for cgroup bpf destruction
+- Revert "cgroup: Fix AA deadlock caused by cgroup_bpf_release"
+- !13327 cpufreq: Add SEEP governor for hardware-managed P-states
+- !13995  drm/radeon: Fix encoder->possible_clones
+- !13948  fix CVE-2024-49906
+- cpufreq: Add SEEP governor for hardware-managed P-states
+- !13988  CVE-2024-49861
+- ACPI: bus: Indicate support for IRQ ResourceSource thru _OSC
+- ACPI: Fix Generic Initiator Affinity _OSC bit
+- !14043 v2  CVE-2024-40927
+- !14041 sdma-dae: bugfix of channel operation
+- wifi: mac80211: use two-phase skb reclamation in ieee80211_do_stop()
+- net: sched: fix use-after-free in taprio_change()
+- smb: client: Fix use-after-free of network namespace.
+- Support for auto_act_window and energy_perf in cppc_cpufreq
+- usb: xhci: Fix TD invalidation under pending Set TR Dequeue
+- xhci: Handle TD clearing for multiple streams case
+- xhci: Fix failure to give back some cached cancelled URBs.
+- xhci: introduce a new move_dequeue_past_td() function to replace old code.
+- xhci: Fix 5.12 regression of missing xHC cache clearing command after a Stall
+- xhci: fix giving back URB with incorrect status regression in 5.12
+- xhci: split handling halted endpoints into two steps
+- xhci: use xhci_td_cleanup() helper when giving back cancelled URBs
+- drivers:misc:sdma-dae: bugfix of channel operation
+- dm cache: fix potential out-of-bounds access on the first resume
+- dm cache: optimize dirty bit checking with find_next_bit when resizing
+- dm cache: fix out-of-bounds access to the dirty bitset when resizing
+- drm/vboxvideo: Replace fake VLA at end of vbva_mouse_pointer_shape with real VLA
+- ACPI: CPPC: Add three register ABIs
+- drm/amd/display: Pass non-null to dcn20_validate_apply_pipe_split_flags
+- iommu/vt-d: Fix potential lockup if qi_submit_sync called with 0 count
+- ASoC: stm32: spdifrx: fix dma channel release in stm32_spdifrx_remove
+- nilfs2: fix kernel bug due to missing clearing of buffer delay flag
+- drm/vc4: Stop the active perfmon before being destroyed
+- drm/amdkfd: amdkfd_free_gtt_mem clear the correct pointer
+- vhost/scsi: null-ptr-dereference in vhost_scsi_get_req()
+- filemap: Fix bounds checking in filemap_read()
+- drm/radeon: Fix encoder->possible_clones
+- bpf: Fix kabi breakage in enum bpf_type_flag
+- selftests/bpf: Rename ARG_PTR_TO_LONG test description
+- selftests/bpf: Fix ARG_PTR_TO_LONG {half-,}uninitialized test
+- bpf: Improve check_raw_mode_ok test for MEM_UNINIT-tagged types
+- bpf: Fix helper writes to read-only maps
+- bpf: Remove truncation test in bpf_strtol and bpf_strtoul helpers
+- bpf: Fix bpf_strtol and bpf_strtoul helpers for 32bit
+- bpf: Allow helpers to accept pointers with a fixed size
+- bpf: Add MEM_UNINIT as a bpf_type_flag
+- drm/amd/display: Check null pointer before try to access it
+- drm/amd/display: Check null pointer before try to access it
+- fix kabi breakage due to exec is_check
+- IMA support script execution check
+- exec: Add a new AT_CHECK flag to execveat(2)
+- uselib: remove use of __FMODE_EXEC
+- exec: Check __FMODE_EXEC instead of in_execve for LSMs
+- execve: open the executable file before doing anything else
+- platform/x86/intel/pmt: telemetry: Export API to read telemetry
+- platform/x86/intel/pmt: Add header to struct intel_pmt_entry
+- platform/x86/intel/tpmi: Add additional TPMI header fields
+- platform/x86/intel/tpmi: Align comments in kernel-doc
+- platform/x86/intel/tpmi: Check major version change for TPMI Information
+- platform/x86/intel/tpmi: Handle error from tpmi_process_info()
+- platform/x86/intel/tpmi: Change vsec offset to u64
+- platform/x86/intel/tpmi: Move TPMI ID definition
+- platform/x86/intel/tpmi: Modify external interface to get read/write state
+- platform/x86/intel/tpmi: Don't create devices for disabled features
+- platform/x86/intel/vsec: Remove nuisance message
+- platform/x86/intel/vsec: Add base address field
+- platform/x86/intel/vsec: Add intel_vsec_register
+- platform/x86/intel/vsec: Assign auxdev parent by argument
+- platform/x86/intel/vsec: remove platform_info from vsec device structure
+- platform/x86/intel/vsec: Move structures to header
+- platform/x86/intel/vsec: Remove unnecessary return
+- ASoC: qcom: Fix NULL Dereference in asoc_qcom_lpass_cpu_platform_probe()
+- IMA: Fix hungtask issue of digestlist importing
+
 * Wed Dec 04 2024 Li Nan <linan122@huawei.com> - 5.10.0-239.0.0.141
 - !14040  hwpoison, memory_hotplug: lock page before unmap for hwpoisoned page
 - !10939  filelock: Correct the file lock owner in fcntl_setlk64
