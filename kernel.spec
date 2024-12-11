@@ -445,7 +445,7 @@ sed -i 's/CONFIG_LTO_NONE=y/# CONFIG_LTO_NONE is not set/' .config
     %{openEuler_check_EBS_perm}
     if [ $openEuler_has_sign_perm -eq 1 ]; then
         cp %{SOURCE15} ./certs/openeuler-cert.pem
-    # close kernel native signature
+        # close kernel native signature
         sed -i 's/CONFIG_MODULE_SIG_KEY=.*$/CONFIG_MODULE_SIG_KEY=""/g' .config
         sed -i 's/CONFIG_SYSTEM_TRUSTED_KEYS=.*$/CONFIG_SYSTEM_TRUSTED_KEYS="certs\/openeuler-cert.pem"/g' .config
         sed -i 's/CONFIG_MODULE_SIG_ALL=y$/CONFIG_MODULE_SIG_ALL=n/g' .config
