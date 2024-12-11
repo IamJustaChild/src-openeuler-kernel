@@ -39,9 +39,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       64
+%global devel_release       66
 %global maintenance_release .0.0
-%global pkg_release         .69
+%global pkg_release         .70
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1087,6 +1087,120 @@ fi
 %endif
 
 %changelog
+* Wed Dec 11 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-66.0.0.70
+- !13846 [OLK-6.6] cpufreq: acpi-cpufreq: Zhaoxin: fix incorrect max-freq issue
+- cpufreq: acpi-cpufreq: Zhaoxin: fix incorrect max-freq issue
+- !9184 [OLK-6.6] i2c: smbus: Add support for Zhaoxin SMBUS controller
+- configs: Add Zhaoxin i2c smbus items in openeuler_config
+- i2c: smbus: Add support for Zhaoxin SMBUS controller
+- !9223 [OLK-6.6] x86/hpet: Read HPET directly if panic in progress
+- x86/hpet: Read HPET directly if panic in progress
+- !14088 ACPI: CPPC: Introduce new EPP capabilities and update auto selection functions
+- ACPI: CPPC: Introduce new EPP capabilities and update auto selection functions
+- !14112  xfs: Fix data overflow
+- xfs: Fix data overflow in xfs_mod_fdblocks()
+- Revert "xfs: split xfs_mod_freecounter"
+- !14099 [6.6] [Feature] : update patches for sw64 architecture
+- sw64: pci: fix compile error when CONFIG_PCI_MSI=n
+- sw64: pci: fix unable to get node ID when numa_off is set
+- sw64: add uapi reg.h
+- sw64: pciehp: remove useless code
+- sw64: dts: support online-capable property for cpu device node
+- sw64: kvm: resolve a compile warning
+- sw64: pciehp: update code
+- sw64: kvm: fix mmio GPA for C4
+- sw64: handle null MSI irq in guest os
+- sw64: fix guest memory and cpu hotplug function
+- sw64: kvm: walk host page tables to find THP mapping size
+- sw64: kvm: convert to the gfn-based MMU notifier callbacks
+- sw64: kvm: rename mmu_notifier_* to mmu_invalidate_*
+- sw64: kvm: fix compiler errors caused by mismatched parameters
+- sw64: kvm: use get_page() instead of kvm_get_pfn()
+- sw64: kvm: fix the handling when the live migration fails
+- sw64: kvm: fix NULL poniter access in kvm_arch_prepare_memory_region
+- sw64: kvm: fix link error with CONFIG_KVM=m
+- sw64: kvm: fix build failure about KVM
+- sw64: add dependency for sunway-ged driver
+- sw64: fix compile error with CONFIG_SUNWAY_GED=m
+- sw64: remove unused sunway_memory_get_meminfo()
+- sw64: Kconfig: activate ARCH_KEEP_MEMBLOCK
+- sw64: add cpu hotplug support for C4 guest
+- sw64: kvm: support up to 256 vCPUs for C4
+- sw64: kvm: fix inconsistent vcpucb of C4
+- sw64: kvm: implement kvm_arch_set_irq_inatomic()
+- sw64: fix guest send ipi target
+- sw64: kvm: add numa support for memory hotplug
+- sw64: kvm: fix bug when vcpu disable irq
+- sw64: kvm: acpi: match sunway_ged by acpi method
+- sw64: kvm: use generic kvm mmu memory caches
+- sw64: kvm: remove some unused codes
+- sw64: kvm: fix pmd_trans_cont
+- sw64: kvm: fix size of struct kvm_regs for C3B
+- sw64: kvm: add the member of the vcpucb structure
+- sw64: kvm: fix the check for THP
+- sw64: kvm: fix page walk error of unmap_apt_range()
+- sw64: redesign struct kvm_regs for C4
+- sw64: kvm: fix live migration bug
+- sw64: kvm: fix APT fault handler
+- sw64: kvm: fix unmap_apt_{ptes, pmds}
+- sw64: kvm: fix clock sync of CORE4 live migration
+- sw64: kvm: delete memory hotplug codes for CORE3B
+- sw64: add missing c4 legacy power management code
+- sw64: kvm: scale up the range of target vcpu parsed by hypervisor
+- sw64: kvm: fix return value of vmem_mmap
+- sw64: kvm: add trace kvm function
+- sw64: fix rc resource setup
+- sw64: 6.6 update: sunway_pciehp_reset_slot()
+- sw64: 6.6 update: arch_remove_memory()
+- sw64: bypass sunway pcie hotplug driver in non-physical scenario
+- sw64: defconfig: update defconfig for kata-containers
+- sw64: add HARDLOCKUP_DETECTOR support
+- sw64: fix bugs in decreasing frequency
+- sw64: add NMI support
+- sw64: add CSR_CAUSE into pt_regs
+- sw64: optimize the code in do_entInt()
+- sw64: seperate IRQ_MSI configs for sub-architectures
+- sw64: handle null MSI irq
+- sw64: fix a compilation warning
+- sw64: fix a base address of msiaddr register
+- sw64: fix some S3 CSRs problems for C4
+- sw64: fix io resource remapping
+- sw64: amdgpu/radeon: correct low-level mmio memset/memcpy direct calls
+- sw64: fix pci resource assignment bug
+- sw64: fix MSI compilation warnings
+- sw64: 6.6 io.h fixup
+- sw64: iommu: support SW64 IOMMU on 6.6 kernel
+- sw64: fix msi interrupt for guest os
+- sw64: msi: update code
+- sw64: gpio: fix compile error of sunway_gpio_add_port
+- sw64: fdt: map physical node ID to logical node ID
+- sw64: fix regs.pc on single-step with ptrace
+- sw64: modify some interrupt target core to logic 0 core
+- sw64: fix sw64_is_fake_mcount() of recordmcount
+- sw64: remove some unused module init/exit/license
+- sw64: numa: support NUMA initialization based on device tree
+- sw64: smp: support SMP initialization based on device tree
+- sw64: dtb: disable built-in DTB for junzhang
+- sw64: ata: add ata_hrst_delay cmdline option
+- sw64: kconfig: add I2C and SPI defconfig for junzhang
+- sw64: kconfig: set default y for GPIO if ACPI enabled
+- sw64: fix a bug in gpio-sunway.c
+- sw64: pci: use readq/writeq to read/write RC and PIU IO registers
+- sw64: gpu: memset_io and memcpy_toio/fromio for iomem on AMD swsmu
+- sw64: pciehp: add pcie hotplug driver support for C4
+- sw64: remove redundant intx code
+- sw64: irq: support interrupt for virtual GPIO
+- sw64: acpi: enable ACPI by default
+- sw64: mm: fix mem=xxx command line invalid in some cases
+- sw64: use generic page_is_ram()
+- sw64: mm: take memory information from firmware
+- sw64: lpc: fix compile error with CONFIG_SUNWAY_SUPERIO_AST2400=y
+- sw64: fix typo in gpio-sunway
+- sw64: fix compile warning of handle_pci_msi_interrupt
+- sw64: fix usage of __add_memory() in sunway-ged driver
+- sw64: change FORCE_MAX_ZONEORDER default value
+- sw64: perf: fix event check order
+
 * Tue Dec 10 2024 Mingzheng Xing <xingmingzheng@iscas.ac.cn> - 6.6.0-64.0.0.69
 - riscv kernel upgrade to 6.6.0-64.0.0
 - Fix some compilation errors reported by clang.
