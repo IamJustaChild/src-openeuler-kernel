@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .104.0
-%global pkg_release         .185
+%global maintenance_release .105.0
+%global pkg_release         .186
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,70 @@ fi
 %endif
 
 %changelog
+* Tue Dec 10 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.105.0.186
+- !14047  smb: client: Fix use-after-free of network namespace.
+- !14118  bpf: sync_linked_regs() must preserve subreg_def
+- !14125  media: cx24116: prevent overflows on SNR calculus
+- !13826 [sync] PR-13403: some bugfix of ksmbd smb2_open()
+- !13825 [sync] PR-13448: bugfix of nfs
+- media: cx24116: prevent overflows on SNR calculus
+- bpf: sync_linked_regs() must preserve subreg_def
+- !14105  nilfs2: fix null-ptr-deref in block_dirty_buffer tracepoint
+- !14115  media: uvcvideo: Skip parsing frames of type UVC_VS_UNDEFINED in uvc_parse_format
+- media: uvcvideo: Skip parsing frames of type UVC_VS_UNDEFINED in uvc_parse_format
+- !14084  ocfs2: uncache inode which has failed entering the group
+- nilfs2: fix null-ptr-deref in block_dirty_buffer tracepoint
+- !14032  fix CVE-2024-50278
+- !14093  USB: serial: io_edgeport: fix use after free in debug printk
+- !14078  vp_vdpa: fix id_table array not null terminated error
+- !14074  HID: core: zero-initialize the report buffer
+- !14029  drm/vboxvideo: Replace fake VLA at end of vbva_mouse_pointer_shape with real VLA
+- !14028  drm/amd/display: Pass non-null to dcn20_validate_apply_pipe_split_flags
+- !14023  iommu/vt-d: Fix potential lockup if qi_submit_sync called with 0 count
+- !14063  CVE-2024-53054
+- !14050  wifi: mac80211: use two-phase skb reclamation in ieee80211_do_stop()
+- !14052  net: sched: fix use-after-free in taprio_change()
+- !14053  can: bcm: Fix UAF in bcm_proc_show()
+- USB: serial: io_edgeport: fix use after free in debug printk
+- !14081 [sync] PR-13871:  ASoC: qcom: Fix NULL Dereference in asoc_qcom_lpass_cpu_platform_probe()
+- ocfs2: uncache inode which has failed entering the group
+- ASoC: qcom: Fix NULL Dereference in asoc_qcom_lpass_cpu_platform_probe()
+- !14020  ASoC: stm32: spdifrx: fix dma channel release in stm32_spdifrx_remove
+- !14061 [sync] PR-13948:  fix CVE-2024-49906
+- vp_vdpa: fix id_table array not null terminated error
+- HID: core: zero-initialize the report buffer
+- cgroup/bpf: use a dedicated workqueue for cgroup bpf destruction
+- Revert "cgroup: Fix AA deadlock caused by cgroup_bpf_release"
+- !13996  drm/radeon: Fix encoder->possible_clones
+- drm/amd/display: Check null pointer before try to access it
+- drm/amd/display: Check null pointer before try to access it
+- !13992  fix CVE-2024-49861
+- can: bcm: Fix UAF in bcm_proc_show()
+- net: sched: fix use-after-free in taprio_change()
+- wifi: mac80211: use two-phase skb reclamation in ieee80211_do_stop()
+- smb: client: Fix use-after-free of network namespace.
+- dm cache: fix potential out-of-bounds access on the first resume
+- dm cache: optimize dirty bit checking with find_next_bit when resizing
+- dm cache: fix out-of-bounds access to the dirty bitset when resizing
+- drm/vboxvideo: Replace fake VLA at end of vbva_mouse_pointer_shape with real VLA
+- drm/amd/display: Pass non-null to dcn20_validate_apply_pipe_split_flags
+- iommu/vt-d: Fix potential lockup if qi_submit_sync called with 0 count
+- ASoC: stm32: spdifrx: fix dma channel release in stm32_spdifrx_remove
+- drm/radeon: Fix encoder->possible_clones
+- bpf: Fix kabi breakage in enum bpf_type_flag
+- selftests/bpf: Rename ARG_PTR_TO_LONG test description
+- selftests/bpf: Fix ARG_PTR_TO_LONG {half-,}uninitialized test
+- bpf: Improve check_raw_mode_ok test for MEM_UNINIT-tagged types
+- bpf: Fix helper writes to read-only maps
+- bpf: Remove truncation test in bpf_strtol and bpf_strtoul helpers
+- bpf: Fix bpf_strtol and bpf_strtoul helpers for 32bit
+- bpf: Allow helpers to accept pointers with a fixed size
+- bpf: Add MEM_UNINIT as a bpf_type_flag
+- ksmbd: fix return value of smb2_open()
+- ksmbd: fix possible refcount leak in smb2_open()
+- NFSv4: check FMODE_EXEC from open context mode in nfs4_opendata_access()
+- NFS: make sure open context mode have FMODE_EXEC when file open for exec
+
 * Wed Dec 04 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.104.0.185
 - !14034  xfs: Fix data overflow in xfs_mod_fdblocks()
 - !14016  *** CVE-2024-53063 ***
