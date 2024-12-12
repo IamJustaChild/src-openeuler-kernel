@@ -40,9 +40,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       50
+%global devel_release       64
 %global maintenance_release .0.0
-%global pkg_release         .56
+%global pkg_release         .57
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1092,6 +1092,8 @@ fi
 %endif
 
 %changelog
+* Thu Dec 12 2024 Liu Zhehui <liuzhh@zgclab.edu.cn> - 6.6.0-64.0.0.57
+- update haoc to 6.6.0-64.0.0
 * Thu Nov 7 2024 Liu Zhehui <liuzhh@zgclab.edu.cn> - 6.6.0-50.0.0.56
 - add some optimization, update haoc to 6.6.0-50.0.0
 * Wed Nov 06 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-50.0.0.55
