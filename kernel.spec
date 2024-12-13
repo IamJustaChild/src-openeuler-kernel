@@ -39,9 +39,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       66
+%global devel_release       67
 %global maintenance_release .0.0
-%global pkg_release         .70
+%global pkg_release         .71
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1087,6 +1087,120 @@ fi
 %endif
 
 %changelog
+* Fri Dec 13 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-67.0.0.71
+- !14144 [6.6] [Feature] : update patches for sw64 architecture
+- sw64: fix compile errors
+- sw64: work around gcc bugs with 'asm goto' with output
+- libbpf: add sw64 support
+- sw64: rename mmap protection_map
+- sw64: ptrace: add NT_SW64_SYSTEM_CALL regset
+- sw64 bpf: Add missing uapi header for BPF_PROG_TYPE_PERF_EVENT programs
+- sw64 bpf: add BPF_NOSPEC jit
+- sw64: rename _PFN_BITS to __PFN_BITS
+- sw64: update defconfig
+- sw64: kvm: declare KVM_CAP_SET_GUEST_DEBUG
+- sw64: implementing VDSO with generic code
+- sw64: irqchip: fix irq_enable/disable callback for MCU controller
+- sw64: kvm: remove unused argument 'addr' of apt_dissolve_pud/pmd()
+- sw64: acpi: support reset and S5
+- sw64: kvm: use vma_lookup() instead of find_vma_intersection()
+- sw64: refactor reset routines with new API
+- sw64: kvm: remove unused kvm_arch_flush_remote_tlbs_memslot()
+- sw64: kvm: optimize the calling and implementation of functions in mmu.c
+- sw64: irqchip: remove fallback after kzalloc_node()
+- sw64: irqchip: improve intx implementation
+- sw64: pci: remove function fix_jm585_reset()
+- sw64: fix mmap protection_map
+- sw64: show CPU feature UNA in /proc/cpuinfo
+- sw64: fix the error of cpufreq update
+- sw64: fix compilation issues on match.c
+- sw64: mm: fix PFN of PMDs for 512M hugepage
+- sw64: kvm: fix an error when unmapping 512M hugepages
+- sw64: modify sys_pfh_ops
+- sw64: fix set_huge_pte_at for C4
+- sw64: add the missed clear_flush()
+- sw64: fix compilation issues
+- sw64: add arch_hugetlb_valid_size for C4
+- sw64: kvm: adjust interrupt priority for guest
+- sw64: compatible with suspend implementation
+- sw64: add junzhang_v1/2/3_key
+- sw64: fix numa setup when acpi is disabled
+- sw64: fix setup_mem_size()
+- sw64: fix the register bug in do_entUna
+- sw64: add unaligned access handling code for SIMD in kernel mode (5.10)
+- sw64: select different MUX to read cpu frequency
+- sw64: lpc: fix ast2400 driver error for C4
+- sw64: improve lib performance for new archs
+- sw64: remove unnecessary parameter passing
+- sw64: add __vdso_getcpu support
+- sw64: kexec: fix kernel crashdump bugs
+- sw64: bpf: fix BPF_CALL address
+- sw64: fix irq work
+- sw64: reset the CSR:PTBR_USR
+- sw64: kvm: add KVM_CAP_READONLY_MEM support
+- sw64: pci: fix incorrect pointer of struct pci_controller
+- sw64: perf: add core4 pmu support
+- sw64: mm: support fdt memory reservation
+- sw64: provide a cleaner raw_smp_processor_id()
+- sw64: remove deprecated annotation in irq.h
+- sw64: introduce a fine-grained intx mask/unmask system
+- sw64: move handle_intx() into pci-intx handle
+- sw64: iommu: fix NULL hose check
+- sw64: fix judgements about legacy pci support
+- sw64: cacheinfo: give preference to cache information from PPTT table
+- sw64: cache: fix shared_cpu_map of cacheinfo
+- sw64: cpu: refactor cpuinfo related code
+- sw64: cache: refactor cacheinfo related code
+- sw64: cpu: move cpu related code to the newly created cpu.c
+- sw64: topology: support initializing topology via DT or ACPI
+- sw64: spi: convert SPI_MASTER_GPIO_SS to SPI_CONTROLLER_GPIO_SS
+- sw64: defconfig: fix SPI related configuration items
+- sw64: irqchip: add version 3 for PINTC
+- sw64: fix null pointer issue when CONFIG_BUILTIN_DTB=y
+- sw64: acpi: suppress log of function acpi_numa_x2apic_affinity_init()
+- sw64: clk: further fix the clock frequency of SPI and I2C
+- sw64: smp: fix function fdt_setup_smp()
+- Revert "sw64: fdt: map physical node ID to logical node ID"
+- sw64: pci: remove legacy io reservation
+- sw64: fix LPC legacy IO space on chip junzhang and junzhang_v2
+- sw64: 6.6 upgrade
+- sw64: mm: remove legacy memory detection for JunZhang platform
+- sw64: iommu: improve iommu initialization
+- sw64: clk: fix the clock frequency of SPI and I2C
+- sw64: fix a bug in huge_pte_offset()
+- sw64: pci: rename some functions
+- sw64: pci: support PCIe controller driver based on device tree
+- sw64: remove sw64_io related functions
+- sw64: platform: add misc platform driver
+- sw64: add basic frequency scaling support for JunZhang
+- sw64: remove redundant link options
+- sw64: kvm: enable ring-based dirty page tracking
+- sw64: kvm: fix invalid memslot flags checking during dirty logging
+- sw64: pciehp: fix compile error when CONFIG_PCIE_DPC=y
+- sw64: kvm: don't retrieve memory slot again in page fault handler
+- sw64: kexec: remove code for compatibility with builtin DTB
+- sw64: smp: allow NR_CPUS less than the number detected by firmware
+- sw64: fix C4 INTx configuration
+- !14166  Align per_cpu osq_node to 64 Byte size cacheline
+- Align per_cpu osq_node to 64 Byte size cacheline
+- !14130 [virtcca] delete unused interfaces: tmi_data_destroy and tmi_ttt_unmap_range
+- virtCCA Feature: remove unused interfaces and add cpumask check
+- !14152  crypto: hisilicon/sec2 - the aead algorithm of sec2 is fixed.
+- crypto: hisilicon/trng - support to obtain random numbers from soft algorithm
+- crypto: hisilicon/sec2 - fix for aead invalid authsize
+- crypto: hisilicon/sec2 - fix for aead icv error
+- crypto: hisilicon/qm - disable error report before flr
+- !13824 mm: some mTHPs improve
+- mm: fix docs for the kernel parameter ``thp_anon=``
+- mm: count the number of anonymous THPs per size
+- mm: tidy up shmem mTHP controls and stats
+- mm: cleanup count_mthp_stat() definition
+- mm: huge_mm: fix undefined reference to `mthp_stats' for CONFIG_SYSFS=n
+- mm: override mTHP "enabled" defaults at kernel cmdline
+- !10305 [OLK-6.6] Backport bugfixes for mm LRU from Linux upstream
+- mm: vmscan.c: fix OOM on swap stress test
+- mm/gup: clear the LRU flag of a page before adding to LRU batch
+
 * Wed Dec 11 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-66.0.0.70
 - !13846 [OLK-6.6] cpufreq: acpi-cpufreq: Zhaoxin: fix incorrect max-freq issue
 - cpufreq: acpi-cpufreq: Zhaoxin: fix incorrect max-freq issue
