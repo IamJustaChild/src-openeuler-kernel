@@ -1,4 +1,5 @@
 %define with_signmodules  1
+%define with_kabichk 1
 
 # Default without toolchain_clang
 %bcond_with toolchain_clang
@@ -79,8 +80,6 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %if %{with_64kb}
 %global package64kb -64kb
 %define with_kabichk 0
-%else
-%define with_kabichk 1
 %endif
 %else
 %define with_64kb  0
