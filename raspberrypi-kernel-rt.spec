@@ -2,13 +2,13 @@
 
 %global KernelVer %{version}-%{release}.raspi.%{_target_cpu}
 
-%global hulkrelease 26.0.0
+%global hulkrelease 64.0.0
 
 %global debug_package %{nil}
 
 Name:	 raspberrypi-kernel-rt
 Version: 6.6.0
-Release: %{hulkrelease}.rt.1
+Release: %{hulkrelease}.rt.2
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -73,95 +73,105 @@ cd linux-%{KernelVer}
 
 perl -p -i -e "s/^EXTRAVERSION.*/EXTRAVERSION = -%{release}.raspi.%{_target_cpu}/" Makefile
 
-make ARCH=%{Arch} %{?_smp_mflags} bcm2711_defconfig
+make ARCH=%{Arch} %{?_smp_mflags} O=output/v8 bcm2711_defconfig
 
-make ARCH=%{Arch} %{?_smp_mflags} KERNELRELEASE=%{KernelVer}
+make ARCH=%{Arch} %{?_smp_mflags} O=output/v8 KERNELRELEASE=%{KernelVer}-v8
+
+make ARCH=%{Arch} %{?_smp_mflags} O=output/2712 bcm2712_defconfig
+
+make ARCH=%{Arch} %{?_smp_mflags} O=output/2712 KERNELRELEASE=%{KernelVer}-2712
 
 %install
 cd linux-%{KernelVer}
 
 ## install linux
-
-make ARCH=%{Arch} INSTALL_MOD_PATH=$RPM_BUILD_ROOT modules_install KERNELRELEASE=%{KernelVer}
-rm -rf $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/source $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build
-
 mkdir -p $RPM_BUILD_ROOT/boot
-TargetImage=$(make -s image_name)
-TargetImage=${TargetImage%.*}
-install -m 755 $TargetImage $RPM_BUILD_ROOT/boot/vmlinuz-%{KernelVer}
-install -m 644 .config $RPM_BUILD_ROOT/boot/config-%{KernelVer}
-install -m 644 System.map $RPM_BUILD_ROOT/boot/System.map-%{KernelVer}
+rpi_version=("v8" "2712")
+for rpi in "${rpi_version[@]}"; do
+    pushd output/$rpi
+    kernel_ver=%{KernelVer}-$rpi
+    TargetImage=$(make -s image_name)
+    make ARCH=%{Arch} INSTALL_MOD_PATH=$RPM_BUILD_ROOT modules_install KERNELRELEASE=$kernel_ver
+    install -m 755 $TargetImage $RPM_BUILD_ROOT/boot/vmlinuz-$kernel_ver
+    install -m 644 .config $RPM_BUILD_ROOT/boot/config-$kernel_ver
+    install -m 644 System.map $RPM_BUILD_ROOT/boot/System.map-$kernel_ver
 
+    rm -rf $RPM_BUILD_ROOT/lib/modules/$kernel_ver/source $RPM_BUILD_ROOT/lib/modules/$kernel_ver/build
+    mkdir -p $RPM_BUILD_ROOT/lib/modules/$kernel_ver/build
+
+    ############ to do collect devel file  #########
+    # 1. Makefile And Kconfig, .config sysmbol
+    # 2. scrpits dir
+    # 3. .h file
+    find -type f \( -name "Makefile*" -o -name "Kconfig*" \) -exec cp --parents {} $RPM_BUILD_ROOT/lib/modules/$kernel_ver/build \;
+    for f in Module.symvers System.map Module.markers .config;do
+        test -f $f || continue
+        cp $f $RPM_BUILD_ROOT/lib/modules/$kernel_ver/build
+    done
+
+    cp -a scripts $RPM_BUILD_ROOT/lib/modules/$kernel_ver/build
+    if [ -d arch/%{Arch}/scripts ]; then
+        cp -a arch/%{Arch}/scripts $RPM_BUILD_ROOT/lib/modules/$kernel_ver/build/arch/%{_arch} || :
+    fi
+    if [ -f arch/%{Arch}/*lds ]; then
+        cp -a arch/%{Arch}/*lds $RPM_BUILD_ROOT/lib/modules/$kernel_ver/build/arch/%{_arch}/ || :
+    fi
+    find $RPM_BUILD_ROOT/lib/modules/$kernel_ver/build/scripts/ -name "*.o" -exec rm -rf {} \;
+
+    if [ -d arch/%{Arch}/include ]; then
+        cp -a --parents arch/%{Arch}/include $RPM_BUILD_ROOT/lib/modules/$kernel_ver/build/
+    fi
+    cp -a include $RPM_BUILD_ROOT/lib/modules/$kernel_ver/build/include
+
+    if [ -f arch/%{Arch}/kernel/module.lds ]; then
+        cp -a --parents arch/%{Arch}/kernel/module.lds $RPM_BUILD_ROOT/lib/modules/$kernel_ver/build/
+    fi
+
+    # module.lds is moved to scripts by commit 596b0474d3d9 in linux 5.10.
+    if [ -f scripts/module.lds ]; then
+        cp -a --parents scripts/module.lds $RPM_BUILD_ROOT/lib/modules/$kernel_ver/build/
+    fi
+
+    # copy objtool for raspberrypi-kernel-devel (needed for building external modules)
+    if grep -q CONFIG_STACK_VALIDATION=y .config; then
+        mkdir -p $RPM_BUILD_ROOT/lib/modules/$kernel_ver/build/tools/objtool
+        cp -a tools/objtool/objtool $RPM_BUILD_ROOT/lib/modules/$kernel_ver/build/tools/objtool
+    fi
+
+    popd
+
+    %ifarch aarch64
+        cp -a --parents arch/arm/include/asm $RPM_BUILD_ROOT/lib/modules/$kernel_ver/build/
+    %endif
+
+    # Make sure the Makefile and version.h have a matching timestamp so that
+    # external modules can be built
+    touch -r $RPM_BUILD_ROOT/lib/modules/$kernel_ver/build/Makefile $RPM_BUILD_ROOT/lib/modules/$kernel_ver/build/include/generated/uapi/linux/version.h
+    touch -r $RPM_BUILD_ROOT/lib/modules/$kernel_ver/build/.config $RPM_BUILD_ROOT/lib/modules/$kernel_ver/build/include/generated/autoconf.h
+    # for make prepare
+    if [ ! -f $RPM_BUILD_ROOT/lib/modules/$kernel_ver/build/include/config/auto.conf ];then
+        cp .config $RPM_BUILD_ROOT/lib/modules/$kernel_ver/build/include/config/auto.conf
+    fi
+
+    mkdir -p %{buildroot}/usr/src/kernels
+    mv $RPM_BUILD_ROOT/lib/modules/$kernel_ver/build $RPM_BUILD_ROOT/usr/src/kernels/$kernel_ver
+
+    find $RPM_BUILD_ROOT/usr/src/kernels/$kernel_ver -name ".*.cmd" -exec rm -f {} \;
+
+    pushd $RPM_BUILD_ROOT/lib/modules/$kernel_ver
+    ln -sf /usr/src/kernels/$kernel_ver build
+    ln -sf build source
+    popd
+done
+
+pushd output/2712
 mkdir -p $RPM_BUILD_ROOT/boot/dtb-%{KernelVer}/overlays
 install -m 644 $(find arch/%{Arch}/boot/dts/broadcom/ -name "*.dtb") $RPM_BUILD_ROOT/boot/dtb-%{KernelVer}/
 install -m 644 $(find arch/%{Arch}/boot/dts/overlays/ -name "*.dtbo") $RPM_BUILD_ROOT/boot/dtb-%{KernelVer}/overlays/
 if ls arch/%{Arch}/boot/dts/overlays/*.dtb > /dev/null 2>&1; then
     install -m 644 $(find arch/%{Arch}/boot/dts/overlays/ -name "*.dtb") $RPM_BUILD_ROOT/boot/dtb-%{KernelVer}/overlays/
 fi
-install -m 644 arch/%{Arch}/boot/dts/overlays/README $RPM_BUILD_ROOT/boot/dtb-%{KernelVer}/overlays/
-
-mkdir -p $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build
-
-############ to do collect devel file  #########
-# 1. Makefile And Kconfig, .config sysmbol
-# 2. scrpits dir
-# 3. .h file
-find -type f \( -name "Makefile*" -o -name "Kconfig*" \) -exec cp --parents {} $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build \;
-for f in Module.symvers System.map Module.markers .config;do
-    test -f $f || continue
-    cp $f $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build
-done
-
-cp -a scripts $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build
-if [ -d arch/%{Arch}/scripts ]; then
-    cp -a arch/%{Arch}/scripts $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build/arch/%{_arch} || :
-fi
-if [ -f arch/%{Arch}/*lds ]; then
-    cp -a arch/%{Arch}/*lds $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build/arch/%{_arch}/ || :
-fi
-find $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build/scripts/ -name "*.o" -exec rm -rf {} \;
-
-if [ -d arch/%{Arch}/include ]; then
-    cp -a --parents arch/%{Arch}/include $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build/
-fi
-cp -a include $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build/include
-
-if [ -f arch/%{Arch}/kernel/module.lds ]; then
-    cp -a --parents arch/%{Arch}/kernel/module.lds $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build/
-fi
-
-# module.lds is moved to scripts by commit 596b0474d3d9 in linux 5.10.
-if [ -f scripts/module.lds ]; then
-    cp -a --parents scripts/module.lds $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build/
-fi
-
-%ifarch aarch64
-    cp -a --parents arch/arm/include/asm $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build/
-%endif
-
-# copy objtool for raspberrypi-kernel-devel (needed for building external modules)
-if grep -q CONFIG_STACK_VALIDATION=y .config; then
-    mkdir -p $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build/tools/objtool
-    cp -a tools/objtool/objtool $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build/tools/objtool
-fi
-
-# Make sure the Makefile and version.h have a matching timestamp so that
-# external modules can be built
-touch -r $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build/Makefile $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build/include/generated/uapi/linux/version.h
-touch -r $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build/.config $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build/include/generated/autoconf.h
-# for make prepare
-if [ ! -f $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build/include/config/auto.conf ];then
-    cp .config $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build/include/config/auto.conf
-fi
-
-mkdir -p %{buildroot}/usr/src/kernels
-mv $RPM_BUILD_ROOT/lib/modules/%{KernelVer}/build $RPM_BUILD_ROOT/usr/src/kernels/%{KernelVer}
-
-find $RPM_BUILD_ROOT/usr/src/kernels/%{KernelVer} -name ".*.cmd" -exec rm -f {} \;
-
-pushd $RPM_BUILD_ROOT/lib/modules/%{KernelVer}
-ln -sf /usr/src/kernels/%{KernelVer} build
-ln -sf build source
+install -m 644 ../../arch/%{Arch}/boot/dts/overlays/README $RPM_BUILD_ROOT/boot/dtb-%{KernelVer}/overlays/
 popd
 
 %postun
@@ -188,14 +198,15 @@ else
     fi
 fi
 if [ "$version_old" != "0" ]; then
-    if [ -f /boot/vmlinuz-$version_old ] && [ -d /boot/dtb-$version_old ] && [ -d /lib/modules/$version_old ]; then
+    if [ -f /boot/vmlinuz-$version_old-v8 ] && [ -d /boot/dtb-$version_old ] && [ -d /lib/modules/$version_old-v8 ] && [ -f /boot/vmlinuz-$version_old-2712 ] && [ -d /lib/modules/$version_old-2712 ]; then
         ls /boot/dtb-$version_old/overlays/*.dtbo > /dev/null 2>&1
         if [ "$?" == "0" ]; then
             ls /boot/dtb-$version_old/*.dtb > /dev/null 2>&1
             if [ "$?" == "0" ]; then
-                rm -rf /boot/*.dtb /boot/overlays /boot/kernel8.img
+                rm -rf /boot/*.dtb /boot/overlays /boot/kernel8.img /boot/kernel_2712.img
                 mkdir /boot/overlays
-                install -m 755 /boot/vmlinuz-$version_old /boot/kernel8.img
+                install -m 755 /boot/vmlinuz-$version_old-v8 /boot/kernel8.img
+                install -m 755 /boot/vmlinuz-$version_old-2712 /boot/kernel_2712.img
                 for file in `ls /boot/dtb-$version_old/*.dtb 2>/dev/null`
                 do
                     if [ -f $file ]; then
@@ -219,9 +230,10 @@ if [ "$version_old" != "0" ]; then
 fi
 
 %posttrans
-rm -rf /boot/*.dtb /boot/overlays /boot/kernel8.img
+rm -rf /boot/*.dtb /boot/overlays /boot/kernel8.img /boot/kernel_2712.img
 mkdir -p /boot/overlays
-install -m 755 /boot/vmlinuz-%{KernelVer} /boot/kernel8.img
+install -m 755 /boot/vmlinuz-%{KernelVer}-v8 /boot/kernel8.img
+install -m 755 /boot/vmlinuz-%{KernelVer}-2712 /boot/kernel_2712.img
 for file in `ls /boot/dtb-%{KernelVer}/*.dtb 2>/dev/null`
 do
     if [ -f $file ]; then
@@ -241,10 +253,16 @@ then
 fi
 if [ "$HARDLINK" != "no" -a -x /usr/sbin/hardlink ]
 then
-    (cd /usr/src/kernels/%{KernelVer} &&
+    (pushd /usr/src/kernels/%{KernelVer}-v8 &&
      /usr/bin/find . -type f | while read f; do
        hardlink -c /usr/src/kernels/*.oe*.*/$f $f
-     done)
+     done &&
+     popd &&
+     pushd /usr/src/kernels/%{KernelVer}-2712 &&
+     /usr/bin/find . -type f | while read f; do
+       hardlink -c /usr/src/kernels/*.oe*.*/$f $f
+     done &&
+     popd)
 fi
 
 %files
@@ -254,17 +272,23 @@ fi
 /boot/System.map-*
 /boot/vmlinuz-*
 /boot/dtb-*
-/lib/modules/%{KernelVer}
+/lib/modules/%{KernelVer}-v8
+/lib/modules/%{KernelVer}-2712
 
 %files devel
 %defattr (-, root, root)
 %doc
-/lib/modules/%{KernelVer}/source
-/lib/modules/%{KernelVer}/build
-/usr/src/kernels/%{KernelVer}
+/lib/modules/%{KernelVer}-v8/source
+/lib/modules/%{KernelVer}-v8/build
+/lib/modules/%{KernelVer}-2712/source
+/lib/modules/%{KernelVer}-2712/build
+/usr/src/kernels/%{KernelVer}-*
 
 
 %changelog
+* Mon Dec  16 2024 zhangyu <zhangyu4@kylinos.cn> - 6.6.0.64.0.1
+- - update Rpi:preempt-RT to openEuler 6.6.0.64.0.1
+
 * Wed May  15 2024 zhangyu <zhangyu4@kylinos.cn> - 6.6.0.25.0.0
 - - update Rpi:preempt-RT to openEuler 6.6.0.25.0.0
 
@@ -2890,3 +2914,4 @@ fi
 
 * Mon Aug 9  2021 Yafen Fang<yafen@iscas.ac.cn> - 5.10.0-5.1.0.1
 - package init based on openEuler 5.10.0-5.1.0
+
