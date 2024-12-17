@@ -1,4 +1,5 @@
 %define with_signmodules  1
+%define with_kabichk 1
 
 # Default without toolchain_clang
 %bcond_with toolchain_clang
@@ -41,7 +42,7 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %global upstream_sublevel   0
 %global devel_release       68
 %global maintenance_release .0.0
-%global pkg_release         .72
+%global pkg_release         .73
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -79,8 +80,6 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %if %{with_64kb}
 %global package64kb -64kb
 %define with_kabichk 0
-%else
-%define with_kabichk 1
 %endif
 %else
 %define with_64kb  0
@@ -109,6 +108,8 @@ Source16: sign-modules-openeuler
 Source18: check-kabi
 Source20: Module.kabi_aarch64
 Source21: Module.kabi_x86_64
+Source22: Module.kabi_ext1_aarch64
+Source23: Module.kabi_ext1_x86_64
 %endif
 
 Source200: mkgrub-menu-aarch64.sh
@@ -463,6 +464,7 @@ TargetImage=$(basename $(make -s image_name))
     chmod 0755 %{SOURCE18}
     if [ -e $RPM_SOURCE_DIR/Module.kabi_%{_target_cpu} ]; then
         %{SOURCE18} -k $RPM_SOURCE_DIR/Module.kabi_%{_target_cpu} -s Module.symvers || exit 1
+        %{SOURCE18} -k $RPM_SOURCE_DIR/Module.kabi_ext1_%{_target_cpu} -s Module.symvers || exit 1
     else
         echo "**** NOTE: Cannot find reference Module.kabi file. ****"
     fi
@@ -1087,6 +1089,11 @@ fi
 %endif
 
 %changelog
+* Tue Dec 17 2024 Xie XiuQi <xiexiuqi@huawei.com> - 6.6.0-68.0.0.73
+- kabi: add kabi_ext1 list for checking
+- check-kabi: fix kabi check failed when no namespace
+- kernel.spec: fix with_kabichk on non-arm64 platform
+
 * Tue Dec 17 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-68.0.0.72
 - !14161  drm/rockchip: vop: Fix a dereferenced before check warning
 - drm/rockchip: vop: Fix a dereferenced before check warning
