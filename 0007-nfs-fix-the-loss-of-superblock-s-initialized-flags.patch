@@ -1,0 +1,40 @@
+From e68e6e3cf90ec8fb7893057c768d55e83855aaa0 Mon Sep 17 00:00:00 2001
+From: Li Lingfeng <lilingfeng3@huawei.com>
+Date: Mon, 16 Dec 2024 20:15:25 +0800
+Subject: [PATCH 03/17] nfs: fix the loss of superblock's initialized flags
+
+hulk inclusion
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/IB42W1
+
+--------------------------------
+
+Commit 573573887e0b ("nfs: pass flags to second superblock") directly
+assigns fc->sb_flags to dentry->d_sb->s_flags, which will cause the loss
+of the initialized flags in dentry->d_sb->s_flags.
+
+Fix it by just passing SB_RDONLY from fc->sb_flags to
+dentry->d_sb->s_flags.
+
+Fixes: 573573887e0b ("nfs: pass flags to second superblock")
+Signed-off-by: Li Lingfeng <lilingfeng3@huawei.com>
+---
+ fs/nfs/nfs4super.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/fs/nfs/nfs4super.c b/fs/nfs/nfs4super.c
+index bb13894ad152..e87f878178f3 100644
+--- a/fs/nfs/nfs4super.c
++++ b/fs/nfs/nfs4super.c
+@@ -209,7 +209,7 @@ static int do_nfs4_mount(struct nfs_server *server,
+ 	if (IS_ERR(dentry))
+ 		return PTR_ERR(dentry);
+ 
+-	dentry->d_sb->s_flags = fc->sb_flags;
++	dentry->d_sb->s_flags |= (fc->sb_flags & SB_RDONLY);
+ 	fc->root = dentry;
+ 	return 0;
+ }
+-- 
+2.25.1
+

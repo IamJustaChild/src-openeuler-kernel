@@ -1,0 +1,45 @@
+From 1cb26ea1471efb775f2aa141863e82efead07d61 Mon Sep 17 00:00:00 2001
+From: Baokun Li <libaokun1@huawei.com>
+Date: Wed, 18 Dec 2024 15:21:56 +0800
+Subject: [PATCH 10/17] seq_file: kabi: KABI reservation for seq_file
+
+hulk inclusion
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/IBC34X
+
+----------------------------------------------------------------------
+
+    structure                size reserves reserved
+    seq_file                 120     1       128
+    seq_operations           32      1       40
+
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+---
+ include/linux/seq_file.h | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/include/linux/seq_file.h b/include/linux/seq_file.h
+index 234bcdb1fba4..cf4a2258df85 100644
+--- a/include/linux/seq_file.h
++++ b/include/linux/seq_file.h
+@@ -27,6 +27,8 @@ struct seq_file {
+ 	int poll_event;
+ 	const struct file *file;
+ 	void *private;
++
++	KABI_RESERVE(1)
+ };
+ 
+ struct seq_operations {
+@@ -34,6 +36,8 @@ struct seq_operations {
+ 	void (*stop) (struct seq_file *m, void *v);
+ 	void * (*next) (struct seq_file *m, void *v, loff_t *pos);
+ 	int (*show) (struct seq_file *m, void *v);
++
++	KABI_RESERVE(1)
+ };
+ 
+ #define SEQ_SKIP 1
+-- 
+2.25.1
+
