@@ -1,0 +1,35 @@
+From f0e6b8ca2a5b0bc1347906ff6b80422c4c9878b2 Mon Sep 17 00:00:00 2001
+From: hanliyang <hanliyang@hygon.cn>
+Date: Mon, 16 Dec 2024 20:52:08 +0800
+Subject: [PATCH 05/17] x86/Kconfig: Select CONFIG_CMA if CONFIG_HYGON_CSV=y
+
+hygon inclusion
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/IBBNJI
+CVE: NA
+
+---------------------------
+
+The Hygon CSV3 use CMA to manage CSV3 guest's private memory. If the
+CONFIG_HYGON_CSV is enabled, then enable CONFIG_CMA automatically.
+
+Signed-off-by: hanliyang <hanliyang@hygon.cn>
+---
+ arch/x86/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index fcd0c3b2065d..a6bbe6029121 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -2075,6 +2075,7 @@ config HYGON_CSV
+ 	bool "Hygon secure virtualization CSV support"
+ 	default y
+ 	depends on CPU_SUP_HYGON && AMD_MEM_ENCRYPT
++	select CONFIG_CMA
+ 	help
+ 	  Hygon CSV integrates secure processor, memory encryption and
+ 	  memory isolation to provide the ability to protect guest's private
+-- 
+2.25.1
+
