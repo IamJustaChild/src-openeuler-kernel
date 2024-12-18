@@ -1,0 +1,60 @@
+From 65658565ac189ac288640a6b809e6cfa31e32dbc Mon Sep 17 00:00:00 2001
+From: Zicheng Qu <quzicheng@huawei.com>
+Date: Fri, 13 Dec 2024 06:13:35 +0000
+Subject: [PATCH 02/17] kabi reserver space for i2c and sched
+
+hulk inclusion
+category: other
+bugzilla: https://gitee.com/openeuler/kernel/issues/IBAZ3A
+
+--------------------------------
+
+Add two KABI_RESERVE macros for each struct, including i2c_adapter,
+sched_domain_shared, sched_domain.
+
+Signed-off-by: Zicheng Qu <quzicheng@huawei.com>
+---
+ include/linux/i2c.h            | 3 +++
+ include/linux/sched/topology.h | 5 +++++
+ 2 files changed, 8 insertions(+)
+
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 32cf5708d5a5..3fd6932bf8cd 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -746,6 +746,9 @@ struct i2c_adapter {
+ 
+ 	struct irq_domain *host_notify_domain;
+ 	struct regulator *bus_regulator;
++
++	KABI_RESERVE(1)
++	KABI_RESERVE(2)
+ };
+ #define to_i2c_adapter(d) container_of(d, struct i2c_adapter, dev)
+ 
+diff --git a/include/linux/sched/topology.h b/include/linux/sched/topology.h
+index 8e4d9bbdaa40..09a2b2625202 100644
+--- a/include/linux/sched/topology.h
++++ b/include/linux/sched/topology.h
+@@ -85,6 +85,8 @@ struct sched_domain_shared {
+ #ifdef CONFIG_SCHED_STEAL
+ 	struct sparsemask *cfs_overload_cpus;
+ #endif
++	KABI_RESERVE(1)
++	KABI_RESERVE(2)
+ };
+ 
+ struct sched_domain {
+@@ -154,6 +156,9 @@ struct sched_domain {
+ 	};
+ 	struct sched_domain_shared *shared;
+ 
++	KABI_RESERVE(1)
++	KABI_RESERVE(2)
++
+ 	unsigned int span_weight;
+ 	/*
+ 	 * Span of all CPUs in this domain.
+-- 
+2.25.1
+
