@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       241
+%global devel_release       242
 %global maintenance_release .0.0
-%global pkg_release         .140
+%global pkg_release         .141
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -952,6 +952,18 @@ fi
 %endif
 
 %changelog
+* Wed Dec 18 2024 Li Nan <linan122@huawei.com> - 5.10.0-242.0.0.141
+- !14216 perf cs-etm: Use evlist__event2evsel() in cs-etm.c
+- !14142  x86/CPU/AMD: Clear virtualized VMLOAD/VMSAVE on Zen4 client
+- perf cs-etm: Use evlist__event2evsel() in cs-etm.c
+- !14109  RDMA/hns: backport some bugfix from maillist linux
+- !14137  ocfs2: pass u64 to ocfs2_truncate_inline maybe overflow
+- x86/CPU/AMD: Clear virtualized VMLOAD/VMSAVE on Zen4 client
+- ocfs2: pass u64 to ocfs2_truncate_inline maybe overflow
+- RDMA/hns: Fix an AEQE overflow error caused by untimely update of eq_db_ci
+- Revert "RDMA/hns: Fix an AEQE overflow error caused by untimely update of eq_db_ci"
+- RDMA/hns: Fix flush cqe error when racing with destroy qp
+
 * Wed Dec 18 2024 Li Nan <linan122@huawei.com> - 5.10.0-241.0.0.140
 - !14146 Intel: backport intel uncore frequency driver update and bugfix from 6.11
 - !14145 Intel: backport ISST driver update and bugfix from 6.11
