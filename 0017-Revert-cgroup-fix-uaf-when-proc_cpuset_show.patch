@@ -1,0 +1,68 @@
+From 8c8766f9500b9ffdb907d23269aa888d0632e68c Mon Sep 17 00:00:00 2001
+From: Chen Ridong <chenridong@huawei.com>
+Date: Wed, 18 Dec 2024 08:10:59 +0000
+Subject: [PATCH 13/17] Revert "cgroup: fix uaf when proc_cpuset_show"
+
+hulk inclusion
+category: bugfix
+bugzilla: https://gitee.com/openeuler/kernel/issues/IA9YQ9
+
+--------------------------------
+
+To keep the same with the mainline and backport the lts patch.
+This reverts commit 24c448de81d48ad08925dda9869bcf535a3258b8.
+
+Fixes: 24c448de81d4 ("cgroup: fix uaf when proc_cpuset_show")
+Signed-off-by: Chen Ridong <chenridong@huawei.com>
+---
+ kernel/cgroup/cpuset.c | 24 ------------------------
+ 1 file changed, 24 deletions(-)
+
+diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
+index 2c9e50f09fc1..140dfb5ad3fc 100644
+--- a/kernel/cgroup/cpuset.c
++++ b/kernel/cgroup/cpuset.c
+@@ -5185,7 +5185,6 @@ int proc_cpuset_show(struct seq_file *m, struct pid_namespace *ns,
+ 	char *buf;
+ 	struct cgroup_subsys_state *css;
+ 	int retval;
+-	struct cgroup *root_cgroup = NULL;
+ 
+ 	retval = -ENOMEM;
+ 	buf = kmalloc(PATH_MAX, GFP_KERNEL);
+@@ -5193,32 +5192,9 @@ int proc_cpuset_show(struct seq_file *m, struct pid_namespace *ns,
+ 		goto out;
+ 
+ 	css = task_get_css(tsk, cpuset_cgrp_id);
+-	rcu_read_lock();
+-	/*
+-	 * When the cpuset subsystem is mounted on the legacy hierarchy,
+-	 * the top_cpuset.css->cgroup does not hold a reference count of
+-	 * cgroup_root.cgroup. This makes accessing css->cgroup very
+-	 * dangerous because when the cpuset subsystem is remounted to the
+-	 * default hierarchy, the cgroup_root.cgroup that css->cgroup points
+-	 * to will be released, leading to a UAF issue. To avoid this problem,
+-	 * get the reference count of top_cpuset.css->cgroup first.
+-	 *
+-	 * This is ugly!!
+-	 */
+-	if (css == &top_cpuset.css) {
+-		root_cgroup = css->cgroup;
+-		if (!css_tryget_online(&root_cgroup->self)) {
+-			rcu_read_unlock();
+-			retval = -EBUSY;
+-			goto out_free;
+-		}
+-	}
+-	rcu_read_unlock();
+ 	retval = cgroup_path_ns(css->cgroup, buf, PATH_MAX,
+ 				current->nsproxy->cgroup_ns);
+ 	css_put(css);
+-	if (root_cgroup)
+-		css_put(&root_cgroup->self);
+ 	if (retval >= PATH_MAX)
+ 		retval = -ENAMETOOLONG;
+ 	if (retval < 0)
+-- 
+2.25.1
+

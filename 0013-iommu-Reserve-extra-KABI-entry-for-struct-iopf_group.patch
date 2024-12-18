@@ -1,0 +1,38 @@
+From bbfb8fd7b1297acf7769a814f3fbf919afd391dc Mon Sep 17 00:00:00 2001
+From: Zhang Zekun <zhangzekun11@huawei.com>
+Date: Wed, 18 Dec 2024 14:43:35 +0800
+Subject: [PATCH 09/17] iommu: Reserve extra KABI entry for struct iopf_group
+
+hulk inclusion
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/IBBRHP
+
+---------------------------------------------------------------
+
+The list_head entry in iopf_group has been moved to iopf_group_extend
+for KABI compatibility and the lack of KABI reserve entry. Reserve extra
+kabi entry for future usage.
+
+Signed-off-by: Zhang Zekun <zhangzekun11@huawei.com>
+---
+ include/linux/iommu.h | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+index bb463cb96a44..83ec4bf9809e 100644
+--- a/include/linux/iommu.h
++++ b/include/linux/iommu.h
+@@ -155,6 +155,10 @@ struct iopf_group {
+ 	KABI_USE(2, u32 cookie)
+ 	KABI_RESERVE(3)
+ 	KABI_RESERVE(4)
++	KABI_RESERVE(5)
++	KABI_RESERVE(6)
++	KABI_RESERVE(7)
++	KABI_RESERVE(8)
+ };
+ 
+ struct iopf_group_extend {
+-- 
+2.25.1
+
