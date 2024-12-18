@@ -12,7 +12,7 @@
 
 %global KernelVer %{version}-%{release}.%{_target_cpu}
 
-%global hulkrelease 2412.2.0
+%global hulkrelease 2412.3.0
 
 %define with_patch 1
 
@@ -32,7 +32,7 @@
 
 Name:	 kernel
 Version: 4.19.90
-Release: %{hulkrelease}.0307
+Release: %{hulkrelease}.0308
 Summary: Linux Kernel
 License: GPLv2
 URL:	 http://www.kernel.org/
@@ -849,6 +849,25 @@ fi
 %endif
 
 %changelog
+
+* Wed Dec 18 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2412.3.0.0308
+- !14186  nilfs2: fix null-ptr-deref in block_touch_buffer tracepoint
+- !14156  Bluetooth: Fix CVE-2024-50125
+- !14157  net/sun3_82586: fix potential memory leak in sun3_82586_send_packet()
+- !14158  be2net: fix potential memory leak in be_xmit()
+- !14160  net/sched: stop qdisc_tree_reduce_backlog on TC_H_ROOT
+- !14159  netfilter: nft_payload: sanitize offset and length before calling skb_checksum()
+- !14192  nfs: fix the loss of superblock's initialized flags
+- nfs: fix the loss of superblock's initialized flags
+- nilfs2: fix null-ptr-deref in block_touch_buffer tracepoint
+- !14147  CVE-2024-53142
+- net/sched: stop qdisc_tree_reduce_backlog on TC_H_ROOT
+- netfilter: nft_payload: sanitize offset and length before calling skb_checksum()
+- be2net: fix potential memory leak in be_xmit()
+- net/sun3_82586: fix potential memory leak in sun3_82586_send_packet()
+- Bluetooth: SCO: Fix UAF on sco_sock_timeout
+- Bluetooth: call sock_hold earlier in sco_conn_del
+- initramfs: avoid filename buffer overrun
 
 * Wed Dec 11 2024 chenyi <chenyi211@huawei.com> - 4.19.90-2412.2.0.0307
 - !14068  media: v4l2-tpg: prevent the risk of a division by zero
