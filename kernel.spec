@@ -6638,7 +6638,7 @@ fi
 - proc: avoid integer type confusion in get_proc_long
 - sched/qos: Don't unthrottle cfs_rq when cfs_rq is throttled by qos
 
-* Sat Dec 18 2022 luhuaxin <luhuaxin1@huawei.com> - 5.10.0-136.4.0.79
+* Sun Dec 18 2022 luhuaxin <luhuaxin1@huawei.com> - 5.10.0-136.4.0.79
 - Process PGP certs before kernel building
 
 * Thu Dec 15 2022 Zheng Zengkai <zhengzengkai@huawei.com> - 5.10.0-136.4.0.78
