@@ -1,0 +1,38 @@
+From ed5b59b6c40d2563994c1f7b5a1321affb490d45 Mon Sep 17 00:00:00 2001
+From: Baokun Li <libaokun1@huawei.com>
+Date: Wed, 18 Dec 2024 15:23:01 +0800
+Subject: [PATCH 11/17] statx: kabi: KABI reservation for kstat
+
+hulk inclusion
+category: feature
+bugzilla: https://gitee.com/openeuler/kernel/issues/IBC24E
+
+----------------------------------------------------------------------
+
+    structure                size reserves reserved  mainline
+    kstat                    160     4       192       184
+
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+---
+ include/linux/stat.h | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/include/linux/stat.h b/include/linux/stat.h
+index 52150570d37a..d342e89b7aaa 100644
+--- a/include/linux/stat.h
++++ b/include/linux/stat.h
+@@ -53,6 +53,11 @@ struct kstat {
+ 	u32		dio_mem_align;
+ 	u32		dio_offset_align;
+ 	u64		change_cookie;
++
++	KABI_RESERVE(1)
++	KABI_RESERVE(2)
++	KABI_RESERVE(3)
++	KABI_RESERVE(4)
+ };
+ 
+ /* These definitions are internal to the kernel for now. Mainly used by nfsd. */
+-- 
+2.25.1
+
