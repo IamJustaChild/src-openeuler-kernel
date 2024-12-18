@@ -16,8 +16,8 @@
 %global upstream_version    5.10
 %global upstream_sublevel   0
 %global devel_release       136
-%global maintenance_release .105.0
-%global pkg_release         .186
+%global maintenance_release .106.0
+%global pkg_release         .187
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -941,6 +941,15 @@ fi
 %endif
 
 %changelog
+* Wed Dec 18 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.106.0.187
+- !14150  CVE-2024-53142
+- !14173  dmaengine: idxd: Let probe fail when workqueue cannot be enabled
+- dmaengine: idxd: Let probe fail when workqueue cannot be enabled
+- !10238 [sync] PR-10179: [22.03-LTS-SP3]net:openvswitch: Before calling ovs_vport_send, check the link status of vport->dev
+- initramfs: avoid filename buffer overrun
+- net: openvswitch: fix race on port output
+- Fix bogus date 'Sat Dec 18 2022' in %changelog
+
 * Tue Dec 10 2024 Li Nan <linan122@huawei.com> - 5.10.0-136.105.0.186
 - !14047  smb: client: Fix use-after-free of network namespace.
 - !14118  bpf: sync_linked_regs() must preserve subreg_def
