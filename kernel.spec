@@ -1,5 +1,5 @@
 %define with_signmodules  1
-%define with_kabichk 1
+%define with_kabichk 0
 
 # Default without toolchain_clang
 %bcond_with toolchain_clang
@@ -42,7 +42,7 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %global upstream_sublevel   0
 %global devel_release       68
 %global maintenance_release .0.0
-%global pkg_release         .73
+%global pkg_release         .74
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -128,6 +128,7 @@ Patch0001: 0001-riscv-kernel.patch
 Patch0002: 0002-cpupower-clang-compile-support.patch
 Patch0003: 0003-x86_energy_perf_policy-clang-compile-support.patch
 Patch0004: 0004-turbostat-clang-compile-support.patch
+Patch0006: 0006-kabi_test.patch
 
 #BuildRequires:
 BuildRequires: module-init-tools, patch >= 2.5.4, bash >= 2.03, tar
@@ -368,6 +369,8 @@ Applypatches series.conf %{_builddir}/kernel-%{version}/linux-%{KernelVer}
 %patch0003 -p1
 %patch0004 -p1
 %endif
+
+%patch0006 -p1
 
 find . \( -name "*.orig" -o -name "*~" \) -exec rm -f {} \; >/dev/null
 find . -name .gitignore -exec rm -f {} \; >/dev/null
@@ -1089,6 +1092,9 @@ fi
 %endif
 
 %changelog
+* Wed Dec 18 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 6.6.0-68.0.0.74
+- performance for kabi
+
 * Tue Dec 17 2024 Xie XiuQi <xiexiuqi@huawei.com> - 6.6.0-68.0.0.73
 - kabi: add kabi_ext1 list for checking
 - check-kabi: fix kabi check failed when no namespace
