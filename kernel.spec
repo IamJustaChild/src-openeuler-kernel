@@ -42,7 +42,7 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %global upstream_sublevel   0
 %global devel_release       68
 %global maintenance_release .0.0
-%global pkg_release         .73
+%global pkg_release         .74
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -110,6 +110,8 @@ Source20: Module.kabi_aarch64
 Source21: Module.kabi_x86_64
 Source22: Module.kabi_ext1_aarch64
 Source23: Module.kabi_ext1_x86_64
+Source24: Module.kabi_ext2_aarch64
+Source25: Module.kabi_ext2_x86_64
 %endif
 
 Source200: mkgrub-menu-aarch64.sh
@@ -465,6 +467,7 @@ TargetImage=$(basename $(make -s image_name))
     if [ -e $RPM_SOURCE_DIR/Module.kabi_%{_target_cpu} ]; then
         %{SOURCE18} -k $RPM_SOURCE_DIR/Module.kabi_%{_target_cpu} -s Module.symvers || exit 1
         %{SOURCE18} -k $RPM_SOURCE_DIR/Module.kabi_ext1_%{_target_cpu} -s Module.symvers || exit 1
+        %{SOURCE18} -k $RPM_SOURCE_DIR/Module.kabi_ext2_%{_target_cpu} -s Module.symvers || exit 1
     else
         echo "**** NOTE: Cannot find reference Module.kabi file. ****"
     fi
@@ -1089,6 +1092,10 @@ fi
 %endif
 
 %changelog
+* Wed Dec 18 2024 Liu Yanze <lyz25354840@gmail.com> - 6.6.0-68.0.0.74
+- kabi: add kabi_ext2 list for checking
+- kernel.spec: fix with_kabichk on non-arm64 platform
+
 * Tue Dec 17 2024 Xie XiuQi <xiexiuqi@huawei.com> - 6.6.0-68.0.0.73
 - kabi: add kabi_ext1 list for checking
 - check-kabi: fix kabi check failed when no namespace
