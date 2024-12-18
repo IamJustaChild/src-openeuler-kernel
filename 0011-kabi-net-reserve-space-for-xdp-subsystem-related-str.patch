@@ -1,0 +1,81 @@
+From fffd208aca0db32681aa9b176ccf831e8cfa0ef0 Mon Sep 17 00:00:00 2001
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
+Date: Wed, 18 Dec 2024 12:33:07 +0800
+Subject: [PATCH 07/17] kabi: net: reserve space for xdp subsystem related
+ structure
+
+hulk inclusion
+category: other
+bugzilla: https://gitee.com/openeuler/kernel/issues/I8OWRC
+
+----------------------------------------------------
+
+Reserve some fields beforehand for xdp framework related structures
+prone to change.
+
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+---
+ include/net/xdp.h | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+
+diff --git a/include/net/xdp.h b/include/net/xdp.h
+index c283668458ca..ebebadc56cd9 100644
+--- a/include/net/xdp.h
++++ b/include/net/xdp.h
+@@ -54,6 +54,9 @@ enum xdp_mem_type {
+ struct xdp_mem_info {
+ 	u32 type; /* enum xdp_mem_type, but known size type */
+ 	u32 id;
++
++	KABI_RESERVE(1);
++	KABI_RESERVE(2);
+ };
+ 
+ struct page_pool;
+@@ -74,6 +77,9 @@ struct xdp_rxq_info {
+ 
+ struct xdp_txq_info {
+ 	struct net_device *dev;
++
++	KABI_RESERVE(1);
++	KABI_RESERVE(2);
+ };
+ 
+ enum xdp_buff_flags {
+@@ -92,6 +98,11 @@ struct xdp_buff {
+ 	struct xdp_txq_info *txq;
+ 	u32 frame_sz; /* frame size to deduce data_hard_end/reserved tailroom*/
+ 	u32 flags; /* supported values defined in xdp_buff_flags */
++
++	KABI_RESERVE(1);
++	KABI_RESERVE(2);
++	KABI_RESERVE(3);
++	KABI_RESERVE(4);
+ };
+ 
+ static __always_inline bool xdp_buff_has_frags(struct xdp_buff *xdp)
+@@ -181,6 +192,11 @@ struct xdp_frame {
+ 	struct net_device *dev_rx; /* used by cpumap */
+ 	u32 frame_sz;
+ 	u32 flags; /* supported values defined in xdp_buff_flags */
++
++	KABI_RESERVE(1);
++	KABI_RESERVE(2);
++	KABI_RESERVE(3);
++	KABI_RESERVE(4);
+ };
+ 
+ static __always_inline bool xdp_frame_has_frags(struct xdp_frame *frame)
+@@ -198,6 +214,9 @@ struct xdp_frame_bulk {
+ 	int count;
+ 	void *xa;
+ 	void *q[XDP_BULK_QUEUE_SIZE];
++
++	KABI_RESERVE(1);
++	KABI_RESERVE(2);
+ };
+ 
+ static __always_inline void xdp_frame_bulk_init(struct xdp_frame_bulk *bq)
+-- 
+2.25.1
+

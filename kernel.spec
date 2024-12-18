@@ -129,6 +129,24 @@ Patch0002: 0002-cpupower-clang-compile-support.patch
 Patch0003: 0003-x86_energy_perf_policy-clang-compile-support.patch
 Patch0004: 0004-turbostat-clang-compile-support.patch
 
+Patch0005: 0005-include-msi-modify-kabi-size-of-msi_desc.patch
+Patch0006: 0006-kabi-reserver-space-for-i2c-and-sched.patch
+Patch0007: 0007-nfs-fix-the-loss-of-superblock-s-initialized-flags.patch
+Patch0008: 0008-x86-config-Enable-CONFIG_CMA-by-default-in-openeuler.patch
+Patch0009: 0009-x86-Kconfig-Select-CONFIG_CMA-if-CONFIG_HYGON_CSV-y.patch
+Patch0010: 0010-tcp-Fix-use-after-free-of-nreq-in-reqsk_timer_handle.patch
+Patch0011: 0011-kabi-net-reserve-space-for-xdp-subsystem-related-str.patch
+Patch0012: 0012-bpf-Add-kabi-reserve-padding-for-uapi-struct-bpf_lin.patch
+Patch0013: 0013-iommu-Reserve-extra-KABI-entry-for-struct-iopf_group.patch
+Patch0014: 0014-seq_file-kabi-KABI-reservation-for-seq_file.patch
+Patch0015: 0015-statx-kabi-KABI-reservation-for-kstat.patch
+Patch0016: 0016-fs-Allow-fine-grained-control-of-folio-sizes.patch
+Patch0017: 0017-Revert-cgroup-fix-uaf-when-proc_cpuset_show.patch
+Patch0018: 0018-cgroup-Make-operations-on-the-cgroup-root_list-RCU-s.patch
+Patch0019: 0019-cgroup-Move-rcu_head-up-near-the-top-of-cgroup_root.patch
+Patch0020: 0020-cgroup-cpuset-Prevent-UAF-in-proc_cpuset_show.patch
+Patch0021: 0021-cgroup-add-more-reserve-kabi.patch
+
 #BuildRequires:
 BuildRequires: module-init-tools, patch >= 2.5.4, bash >= 2.03, tar
 BuildRequires: bzip2, xz, findutils, gzip, m4, perl, make >= 3.78, diffutils, gawk
@@ -386,6 +404,23 @@ cp -a tools/perf tools/python3-perf
 
 %build
 cd linux-%{KernelVer}
+%patch0005 -p1
+%patch0006 -p1
+%patch0007 -p1
+%patch0008 -p1
+%patch0009 -p1
+%patch0010 -p1
+%patch0011 -p1
+%patch0012 -p1
+%patch0013 -p1
+%patch0014 -p1
+%patch0015 -p1
+%patch0016 -p1
+%patch0017 -p1
+%patch0018 -p1
+%patch0019 -p1
+%patch0020 -p1
+%patch0021 -p1
 
 perl -p -i -e "s/^EXTRAVERSION.*/EXTRAVERSION = -%{release}.%{_target_cpu}/" Makefile
 perl -p -i -e "s/^OPENEULER_LTS.*/OPENEULER_LTS = %{openeuler_lts}/" Makefile.oever
