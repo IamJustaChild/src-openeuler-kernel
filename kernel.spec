@@ -9,9 +9,9 @@
 
 %global upstream_version    5.10
 %global upstream_sublevel   0
-%global devel_release       240
+%global devel_release       242
 %global maintenance_release .0.0
-%global pkg_release         .139
+%global pkg_release         .141
 
 %define with_debuginfo 1
 # Do not recompute the build-id of vmlinux in find-debuginfo.sh
@@ -952,6 +952,141 @@ fi
 %endif
 
 %changelog
+* Wed Dec 18 2024 Li Nan <linan122@huawei.com> - 5.10.0-242.0.0.141
+- !14216 perf cs-etm: Use evlist__event2evsel() in cs-etm.c
+- !14142  x86/CPU/AMD: Clear virtualized VMLOAD/VMSAVE on Zen4 client
+- perf cs-etm: Use evlist__event2evsel() in cs-etm.c
+- !14109  RDMA/hns: backport some bugfix from maillist linux
+- !14137  ocfs2: pass u64 to ocfs2_truncate_inline maybe overflow
+- x86/CPU/AMD: Clear virtualized VMLOAD/VMSAVE on Zen4 client
+- ocfs2: pass u64 to ocfs2_truncate_inline maybe overflow
+- RDMA/hns: Fix an AEQE overflow error caused by untimely update of eq_db_ci
+- Revert "RDMA/hns: Fix an AEQE overflow error caused by untimely update of eq_db_ci"
+- RDMA/hns: Fix flush cqe error when racing with destroy qp
+
+* Wed Dec 18 2024 Li Nan <linan122@huawei.com> - 5.10.0-241.0.0.140
+- !14146 Intel: backport intel uncore frequency driver update and bugfix from 6.11
+- !14145 Intel: backport ISST driver update and bugfix from 6.11
+- !14196  watchdog/perf: properly initialize the turbo mode timestamp and rearm counter
+- !13896 RDMA/hns: Fix flush cqe error when racing with destroy qp
+- !14193  nfs: fix the loss of superblock's initialized flags
+- watchdog/perf: properly initialize the turbo mode timestamp and rearm counter
+- nfs: fix the loss of superblock's initialized flags
+- RDMA/hns: Fix flush cqe error when racing with destroy qp
+- !14180  xfs: allow inode inactivation during a ro mount log recovery
+- !14149  CVE-2024-53142
+- xfs: allow inode inactivation during a ro mount log recovery
+- !14123  mm: only enforce minimum stack gap size if it's sensible
+- !14172  dmaengine: idxd: Let probe fail when workqueue cannot be enabled
+- dmaengine: idxd: Let probe fail when workqueue cannot be enabled
+- !12309 [OLK-5.10] AMD Genoa and Turin Crypto and Edac patches backport for OLK-5.10
+- !14148 v2  xfs: revert fix patchs about attr inactive
+- initramfs: avoid filename buffer overrun
+- Revert "xfs: factor out __xfs_da3_node_read()"
+- Revert "xfs: atomic drop extent entries when inactiving attr"
+- platform/x86: ISST: Simplify isst_misc_reg() and isst_misc_unreg()
+- platform/x86: ISST: Fix return value on last invalid resource
+- platform/x86: ISST: Use only TPMI interface when present
+- platform/x86: ISST: Avoid some SkyLake server models
+- platform/x86: ISST: Add model specific loading for common module
+- platform/x86: ISST: fix use-after-free in tpmi_sst_dev_remove()
+- !12266 [OLK-5.10] AMD Genoa and Turin iommu patches backport for OLK-5.10
+- !12311 [OLK-5.10] AMD Genoa and Turin Perf patches backport for OLK-5.10
+- mm: only enforce minimum stack gap size if it's sensible
+- config: enable CONFIG_I2C_DESIGNWARE_AMDPSP by default on x86
+- platform/x86/intel-uncore-freq: Don't present root domain on error
+- platform/x86/intel-uncore-freq: Increase minor number support
+- platform/x86: intel-uncore-freq: Fix types in sysfs callbacks
+- platform/x86/intel-uncore-freq: Process read/write blocked feature status
+- platform/x86: ISST: Add Grand Ridge to HPM CPU list
+- platform/x86: ISST: Add Granite Rapids-D to HPM CPU list
+- platform/x86: ISST: Support SST-BF and SST-TF per level
+- platform/x86: ISST: Add missing MODULE_DESCRIPTION
+- platform/x86: ISST: Add dev_fmt
+- platform/x86: ISST: Support partitioned systems
+- platform/x86: ISST: Shorten the assignments for power_domain_info
+- platform/x86: ISST: Use local variable for auxdev->dev
+- platform/x86: ISST: Allow reading core-power state on HWP disabled systems
+- platform/x86: ISST: Process read/write blocked feature status
+- EDAC/amd64: Add support for AMD family 1Ah models 00h-1Fh and 40h-4Fh
+- hwmon: (k10temp) Add thermal support for AMD Family 1Ah-based models
+- x86/amd_nb: Add PCI IDs for AMD Family 1Ah-based models
+- EDAC/amd64: Rework hw_info_{get,put}
+- EDAC/amd64: Merge struct amd64_family_type into struct amd64_pvt
+- EDAC/amd64: Issue probing messages only on properly detected hardware
+- EDAC/amd64: Drop dbam_to_cs() for Family 17h and later
+- EDAC/amd64: Rename debug_display_dimm_sizes()
+- EDAC/amd64: Remove early_channel_count()
+- EDAC/amd64: Remove PCI Function 0
+- EDAC/amd64: Remove PCI Function 6
+- EDAC/amd64: Remove scrub rate control for Family 17h and later
+- EDAC/amd64: Don't set up EDAC PCI control on Family 17h+
+- x86/amd_nb, EDAC/amd64: Move DF Indirect Read to AMD64 EDAC
+- x86/microcode/AMD: Remove unused PATCH_MAX_SIZE macro
+- x86/microcode/AMD: Rip out static buffers
+- x86/microcode/AMD: Fix mixed steppings support
+- x86/microcode/AMD: Add a @cpu parameter to the reloading functions
+- x86/microcode/AMD: Rename a couple of functions
+- crypto: ccp - Add support for PCI device 0x156E
+- crypto: ccp - Add support for PCI device 0x17E0
+- crypto: ccp - Add support for ringing a platform doorbell
+- crypto: ccp - Enable platform access interface on client PSP parts
+- crypto: ccp - Avoid discarding errors in psp_send_platform_access_msg()
+- crypto: ccp - Add support for an interface for platform features
+- crypto: ccp - Move some PSP mailbox bit definitions into common header
+- crypto: ccp - Add a header for multiple drivers to use `__psp_pa`
+- crypto: ccp - Add support for new CCP/PSP device ID
+- i2c: designware: Fix improper usage of readl
+- i2c: designware: Add AMD PSP I2C bus support
+- genirq/msi: Fix KABI breakage in struct msi_msg and struct apic
+- iommu/amd: Set iommu->int_enabled consistently when interrupts are set up
+- iommu/amd: Remove useless irq affinity notifier
+- x86/msi: Fix msi message data shadow struct
+- perf script: Fix PERF_SAMPLE_WEIGHT_STRUCT support
+- perf/x86/amd/core: Define a proper ref-cycles event for Zen 4 and later
+- perf/x86/amd/core: Update and fix stalled-cycles-* events for Zen 2 and later
+- perf script ibs: Support new IBS bits in raw trace dump
+- perf tool ibs: Sync AMD IBS header file
+- perf report: Add support to print a textual representation of IBS raw sample data
+- perf evlist: Use the right prefix for 'struct evlist' sample id lookup methods
+- perf evlist: Use the right prefix for 'struct evlist' sample parsing methods
+- perf evlist: Use the right prefix for 'struct evlist' raw samples methods
+- perf report: Add tools/arch/x86/include/asm/amd-ibs.h
+- perf header: Record non-CPU PMU capabilities
+- perf inject: Keep some features sections from input file
+- libperf: Add preadn()
+- perf header: Add ability to keep feature sections
+- perf header: Store PMU caps in an array of strings
+- perf header: Pass "cpu" pmu name while printing caps
+- perf header: Support HYBRID_CPU_PMU_CAPS feature
+- perf header: Support HYBRID_TOPOLOGY feature
+- perf pmu: Add hybrid helper functions
+- perf pmu: Save detected hybrid pmus to a global pmu list
+- perf env: Conditionally compile BPF support code on having HAVE_LIBBPF_SUPPORT
+- perf pmu: Parse pmu caps sysfs only once
+- perf record ibs: Warn about sampling period skew
+- perf evsel: Make evsel__env() always return a valid env
+- perf env: Add perf_env__cpuid, perf_env__{nr_}pmu_mappings
+- perf tools: Support PERF_SAMPLE_WEIGHT_STRUCT
+- perf record: Add support for PERF_SAMPLE_CODE_PAGE_SIZE
+- perf evsel: Emit warning about kernel not supporting the data page size sample_type bit
+- perf record: Support new sample type for data page size
+- perf/x86/amd/core: Avoid register reset when CPU is dead
+- perf/x86/amd: Do not WARN() on every IRQ
+- iommu/amd: Fix IOMMU interrupt generation in X2APIC mode
+- iommu/amd: Don't register interrupt remapping irqdomain when IR is disabled
+- iommu/amd: Fix union of bitfields in intcapxt support
+- iommu/amd: Use msi_msg shadow structs
+- iommu/intel: Use msi_msg shadow structs
+- x86/msi: Provide msi message shadow structs
+- genirq/msi: Allow shadow declarations of msi_msg:: $member
+- x86/apic: Always provide irq_compose_msi_msg() method for vector domain
+- x86/apic: Cleanup destination mode
+- x86/apic: Get rid of apic:: Dest_logical
+- x86/apic: Replace pointless apic:: Dest_logical usage
+- x86/apic: Cleanup delivery mode defines
+- x86/msi: Only use high bits of MSI address for DMAR unit
+
 * Tue Dec 10 2024 Li Nan <linan122@huawei.com> - 5.10.0-240.0.0.139
 - !14129  bus: integrator-lm: fix OF node leak in probe()
 - !14132 v2  ACPI: APEI: handle synchronous errors in task work
