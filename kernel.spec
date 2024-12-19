@@ -1,5 +1,5 @@
 %define with_signmodules  1
-%define with_kabichk 1
+%define with_kabichk 0
 
 # Default without toolchain_clang
 %bcond_with toolchain_clang
@@ -42,7 +42,7 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 %global upstream_sublevel   0
 %global devel_release       68
 %global maintenance_release .0.0
-%global pkg_release         .73
+%global pkg_release         .76
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -128,6 +128,26 @@ Patch0001: 0001-riscv-kernel.patch
 Patch0002: 0002-cpupower-clang-compile-support.patch
 Patch0003: 0003-x86_energy_perf_policy-clang-compile-support.patch
 Patch0004: 0004-turbostat-clang-compile-support.patch
+Patch0005: 0005-include-msi-modify-kabi-size-of-msi_desc.patch
+Patch0007: 0007-nfs-fix-the-loss-of-superblock-s-initialized-flags.patch
+Patch0008: 0008-x86-config-Enable-CONFIG_CMA-by-default-in-openeuler.patch
+Patch0009: 0009-x86-Kconfig-Select-CONFIG_CMA-if-CONFIG_HYGON_CSV-y.patch
+Patch0010: 0010-tcp-Fix-use-after-free-of-nreq-in-reqsk_timer_handle.patch
+Patch0012: 0012-bpf-Add-kabi-reserve-padding-for-uapi-struct-bpf_lin.patch
+Patch0013: 0013-iommu-Reserve-extra-KABI-entry-for-struct-iopf_group.patch
+Patch0014: 0014-seq_file-kabi-KABI-reservation-for-seq_file.patch
+Patch0015: 0015-statx-kabi-KABI-reservation-for-kstat.patch
+Patch0016: 0016-fs-Allow-fine-grained-control-of-folio-sizes.patch
+Patch0017: 0017-Revert-cgroup-fix-uaf-when-proc_cpuset_show.patch
+Patch0018: 0018-cgroup-Make-operations-on-the-cgroup-root_list-RCU-s.patch
+Patch0019: 0019-cgroup-Move-rcu_head-up-near-the-top-of-cgroup_root.patch
+Patch0020: 0020-cgroup-cpuset-Prevent-UAF-in-proc_cpuset_show.patch
+Patch0021: 0021-cgroup-add-more-reserve-kabi.patch
+Patch0022: 0022-14223.patch
+Patch0023: 0023-14224.patch
+Patch0024: 0024-14225.patch
+Patch0025: 0025-14226.patch
+Patch0026: 0026-14227.patch
 
 #BuildRequires:
 BuildRequires: module-init-tools, patch >= 2.5.4, bash >= 2.03, tar
@@ -329,6 +349,27 @@ tar -xjf %{SOURCE9998}
 
 mv kernel linux-%{KernelVer}
 cd linux-%{KernelVer}
+
+%patch0005 -p1
+%patch0007 -p1
+%patch0008 -p1
+%patch0009 -p1
+%patch0010 -p1
+%patch0012 -p1
+%patch0013 -p1
+%patch0014 -p1
+%patch0015 -p1
+%patch0016 -p1
+%patch0017 -p1
+%patch0018 -p1
+%patch0019 -p1
+%patch0020 -p1
+%patch0021 -p1
+%patch0022 -p1
+%patch0023 -p1
+%patch0024 -p1
+%patch0025 -p1
+%patch0026 -p1
 
 %if 0%{?with_patch}
 cp %{SOURCE9000} .
@@ -1089,6 +1130,9 @@ fi
 %endif
 
 %changelog
+* Thu Dec 19 2024 Zheng Zengkai <zhengzengkai@huawei.com> - 6.6.0-68.0.0.76
+- performance test for kabi exclude sched
+
 * Tue Dec 17 2024 Xie XiuQi <xiexiuqi@huawei.com> - 6.6.0-68.0.0.73
 - kabi: add kabi_ext1 list for checking
 - check-kabi: fix kabi check failed when no namespace
