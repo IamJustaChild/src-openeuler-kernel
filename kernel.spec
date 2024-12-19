@@ -46,7 +46,7 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global openeuler_lts       1
 %global openeuler_major     2403
-%global openeuler_minor     0
+%global openeuler_minor     1
 
 #
 # Support input parameter to overwrite the preceding version numbers.
