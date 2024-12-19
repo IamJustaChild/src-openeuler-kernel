@@ -40,9 +40,9 @@ rm -f test_openEuler_sign.ko test_openEuler_sign.ko.sig
 
 %global upstream_version    6.6
 %global upstream_sublevel   0
-%global devel_release       68
+%global devel_release       69
 %global maintenance_release .0.0
-%global pkg_release         .74
+%global pkg_release         .75
 
 %global openeuler_lts       1
 %global openeuler_major     2403
@@ -1092,6 +1092,35 @@ fi
 %endif
 
 %changelog
+* Thu Dec 19 2024 ZhangPeng <zhangpeng362@huawei.com> - 6.6.0-69.0.0.75
+- !14221  KABI for cgroup
+- cgroup: add more reserve kabi
+- cgroup/cpuset: Prevent UAF in proc_cpuset_show()
+- cgroup: Move rcu_head up near the top of cgroup_root
+- cgroup: Make operations on the cgroup root_list RCU safe
+- Revert "cgroup: fix uaf when proc_cpuset_show"
+- !14220  fs: Allow fine-grained control of folio sizes
+- fs: Allow fine-grained control of folio sizes
+- !12108  include/msi: modify kabi size of msi_desc
+- include/msi: modify kabi size of msi_desc
+- !14195 [OLK-6.6]Hygon: Enable CONFIG_CMA by default on X86 architecture
+- x86/Kconfig: Select CONFIG_CMA if CONFIG_HYGON_CSV=y
+- x86/config: Enable CONFIG_CMA by default in openeuler_defconfig
+- !14215  iommu: Reserve extra KABI entry for struct iopf_group
+- iommu: Reserve extra KABI entry for struct iopf_group
+- !14223 v2  kabi: net: reserve space for xdp subsystem related structure
+- kabi: net: reserve space for xdp subsystem related structure
+- !14224  net/kabi: Reserve space for net structures
+- net/kabi: Reserve space for net structures
+- !14236 v2  statx: kabi: KABI reservation for kstat
+- statx: kabi: KABI reservation for kstat
+- !14218  seq_file: kabi: KABI reservation for seq_file
+- seq_file: kabi: KABI reservation for seq_file
+- !14203  tcp: Fix use-after-free of nreq in reqsk_timer_handler().
+- tcp: Fix use-after-free of nreq in reqsk_timer_handler().
+- !14191  nfs: fix the loss of superblock's initialized flags
+- nfs: fix the loss of superblock's initialized flags
+
 * Wed Dec 18 2024 Liu Yanze <lyz25354840@gmail.com> - 6.6.0-68.0.0.74
 - kabi: add kabi_ext2 list for checking
 - kernel.spec: fix with_kabichk on non-arm64 platform
